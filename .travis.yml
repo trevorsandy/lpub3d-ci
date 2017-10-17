@@ -61,7 +61,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
       if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-        sudo apt-get install -y fakeroot debhelper qtbase5-dev qt5-qmake libqt5opengl5-dev libpng-dev libjpeg-dev zlib1g-dev
+        sudo apt-get install -y fakeroot debhelper qtbase5-dev qt5-qmake libqt5opengl5-dev libpng-dev libjpeg-dev zlib1g-dev;
       fi;
     else
       brew update;
@@ -94,7 +94,7 @@ install:
 script:
   - qmake -v
   - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then echo "we are here:" `pwd`; source builds/linux/CreateDeb.sh; fi;
+      if [ "$TRAVIS_OS_NAME" = "linux" ]; then source builds/linux/CreateDeb.sh; fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then source builds/macx/CreateDmg.sh; fi;
       env | grep -P 'LP3D*';
       env | grep -P 'TRAVIS*';

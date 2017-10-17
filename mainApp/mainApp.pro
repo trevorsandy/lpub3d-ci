@@ -165,6 +165,17 @@ UI_DIR      = $$DESTDIR/.ui
 # Stage 3rd party executables, documentation and resources (Windows builds Only)
 !contains(CONFIG, stagewindistcontent): CONFIG +=
 
+unix: {
+    # For linux and MacOS builds on Travis-CI - install 3rd party executables, documentation and resources.
+    create_package = $$(LP3D_CREATE_PKG)
+    contains(create_package, true) {
+    message(~~~ CREATE DISTRIBUTION: $$create_package ~~~)
+    CONFIG+=copy3rdexe
+    CONFIG+=copy3rdexeconfig
+    CONFIG+=copy3rdcontent
+    }
+}
+
 # Download 3rd party repository when required
 if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
     unix:!macx:REPO = lpub3d_linux_3rdparty
