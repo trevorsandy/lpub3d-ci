@@ -9,7 +9,7 @@ git:
 
 addons:
   apt:
-    packages:
+   packages:
     - fakeroot
 
 branches:
@@ -35,6 +35,12 @@ before_install:
       | grep -E  '\[(skip travis|travis skip)\]'
       && echo "[skip travis] detected, exiting."
       && exit 0 || true
+  # Create package if commit message contains [create pkg]
+  - >
+      echo "$TRAVIS_COMMIT_MESSAGE"
+      | grep -E  '\[create pkg\]'
+      && echo "[create pkg] detected."
+      && export LP3D_CREATE_PKG=yes || true
   # Add private qt repositories
   - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
   - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
@@ -77,10 +83,13 @@ install:
 
 script:
   - qmake -v
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source /builds/linux/CreateDeb.sh; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then source /builds/macx/CreateDmg.sh; fi
-  # - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod +x builds/linux/CreateDeb.sh && ./builds/linux/CreateDeb.sh; fi
-  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh; fi
+  - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
+      if [ "$TRAVIS_OS_NAME" = "linux" ]; then source /builds/linux/CreateDeb.sh; fi;
+      if [ "$TRAVIS_OS_NAME" = "osx" ]; then source /builds/macx/CreateDmg.sh; fi;
+    else
+     qmake -r;
+     make;
+    fi
 
 deploy:
   provider: releases
@@ -91,6 +100,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+    condition: $LP3D_CREATE_PACKAGE = true
 
 notifications:
   email:
