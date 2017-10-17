@@ -31,8 +31,10 @@ configure-stamp:
 	fi
 override_dh_auto_configure:
 	if [ `uname -m` = "x86_64" ]; then \
+		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb;	\
 	else \
+		/usr/lib/i386-linux-gnu/qt5/bin/qmake -v; \
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \
 	fi
 	# End custom configuration command

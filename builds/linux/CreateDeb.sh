@@ -98,7 +98,6 @@ tar -czf ../${LPUB3D}_${APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/builds/linux/standard" \
         --exclude="${SOURCE_DIR}/builds/macx" \
         --exclude="${SOURCE_DIR}/.travis.yml" \
-        --exclude="${SOURCE_DIR}/.git" \
         --exclude="${SOURCE_DIR}/.gitattributes" \
         --exclude="${SOURCE_DIR}/LPub3D.pro.user" \
         --exclude="${SOURCE_DIR}/README.md" \
