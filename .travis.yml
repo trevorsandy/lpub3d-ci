@@ -7,17 +7,17 @@ cache: ccache
 git:
   depth: 200
 
-addons:
-  apt:
-    packages:
-    - fakeroot
-    - debhelper
-    - qtbase5-dev
-    - qt5-qmake
-    - libqt5opengl5-dev
-    - libpng-dev
-    - libjpeg-dev
-    - zlib1g-dev
+# addons:
+#   apt:
+#     packages:
+#     - fakeroot
+#     - debhelper
+#     - qtbase5-dev
+#     - qt5-qmake
+#     - libqt5opengl5-dev
+#     - libpng-dev
+#     - libjpeg-dev
+#     - zlib1g-dev
 
 branches:
   only:
@@ -57,9 +57,12 @@ before_install:
   - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
   - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
   - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt591-trusty -y; fi
-  # Update repository index
+  # Update repository index and download package dependencies if required
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
+      if [ "$LP3D_CREATE_PKG" = "yes" ]; then
+        sudo apt-get install -y fakeroot debhelper qtbase5-dev qt5-qmake libqt5opengl5-dev libpng-dev libjpeg-dev zlib1g-dev
+      fi;
     else
       brew update;
     fi
