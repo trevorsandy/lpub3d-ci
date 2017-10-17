@@ -94,7 +94,7 @@ echo "SOURCE_DIR........${SOURCE_DIR}"
 mv ${LPUB3D} ${SOURCE_DIR}
 
 echo "4. create cleaned tarball ${LPUB3D}_${APP_VERSION}.orig.tar.gz using ${SOURCE_DIR}/"
-tar -czvf ../${LPUB3D}_${APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
+tar -czf ../${LPUB3D}_${APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/builds/linux/standard" \
         --exclude="${SOURCE_DIR}/builds/macx" \
         --exclude="${SOURCE_DIR}/.travis.yml" \
@@ -156,8 +156,6 @@ if [ "${TRAVIS}" == "true"  ]; then
   export LP3D_Download_Package="../${LPUB3D}_${APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
   export LP3D_Update_Package="../LPub3D-UpdateMaster_${VERSION}_${DEB_ARCH_EXTENSION}"
   echo "../ content:" `ls ../`
-  env | grep -P 'LP3D*'
-  env | grep -P 'TRAVIS*'
 fi
 
 # create deb - end #
