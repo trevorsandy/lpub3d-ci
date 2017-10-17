@@ -2,7 +2,7 @@ Source: lpub3d-ci
 Section: graphics
 Priority: optional
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
-Build-Depends: debhelper (>= 4.1.16), qtbase5-dev (>= 5.3.0), qt5-qmake (>= 5.3.0), libqt5opengl5-dev (>= 5.3.0), libpng-dev, libjpeg-dev, zlib1g-dev
+Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libpng-dev, libjpeg-dev, zlib1g-dev
 Standards-Version: 3.9.7
 Homepage: https://trevorsandy.github.io/lpub3d-ci/
 

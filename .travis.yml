@@ -49,7 +49,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
       if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-        sudo apt-get install -y fakeroot debhelper qtbase5-dev qt5-qmake libqt5opengl5-dev;
+        sudo apt-get install -y fakeroot debhelper=4.1.16 qtbase5-dev=5.9.1+dfsg-12 qt5-qmake=5.9.1+dfsg-12 libqt5opengl5-dev=5.9.1+dfsg-12;
         env | grep -P 'TRAVIS*';
       fi;
     else
