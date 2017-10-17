@@ -84,8 +84,8 @@ install:
 script:
   - qmake -v
   - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then echo "we are here:" `pwd`; source /builds/linux/CreateDeb.sh; fi;
-      if [ "$TRAVIS_OS_NAME" = "osx" ]; then source /builds/macx/CreateDmg.sh; fi;
+      if [ "$TRAVIS_OS_NAME" = "linux" ]; then echo "we are here:" `pwd`; source builds/linux/CreateDeb.sh; fi;
+      if [ "$TRAVIS_OS_NAME" = "osx" ]; then source builds/macx/CreateDmg.sh; fi;
     else
      qmake -r;
      make;
