@@ -49,7 +49,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
       if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-        deb http://us.archive.ubuntu.com/ubuntu xenial main;
+        sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu xenial main";
         sudo apt-get update -qq;
         grep ^ /etc/apt/sources.list /etc/apt/sources.list.d/*;
         sudo apt-get install -y fakeroot debhelper qtbase5-dev qt5-qmake libqt5opengl5-dev;
