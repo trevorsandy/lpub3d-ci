@@ -83,7 +83,7 @@ install:
 script:
   - qmake -v
   - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-      cat /ect/apt/sources.list;
+      cat /etc/apt/sources.list;
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then source builds/linux/CreateDeb.sh; env | grep -P 'LP3D*'; fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then source builds/macx/CreateDmg.sh; fi;
     else
