@@ -8,6 +8,7 @@
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
+CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LPUB3D=lpub3d-ci
 
 echo "Start $ME at $CWD..."
@@ -86,6 +87,7 @@ echo "VERSION...........${VERSION}"
 echo "APP_VERSION.......${APP_VERSION}"
 echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
 echo "BUILD_DATE........${BUILD_DATE}"
+echo "CHANGE_DATE_LONG..${CHANGE_DATE_LONG}"
 
 SOURCE_DIR=${LPUB3D}-${APP_VERSION}
 echo "SOURCE_DIR........${SOURCE_DIR}"

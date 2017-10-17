@@ -1,5 +1,5 @@
-lpub3d (1.0.0.00) trusty; urgency=medium
+lpub3d-ci (2.0.20.280) trusty; urgency=medium
 
-  * LPub3D version 1.0.0.0.00_20171006 for Linux
+  * LPub3D version 2.0.20.116.280_20171017 for Linux
 
- -- Trevor SANDY <trevor.sandy@gmail.com>  Fri, 06 Oct 2017 06:32:46 +0100
+ -- Trevor SANDY <trevor.sandy@gmail.com>  Tue, 17 Oct 2017 02:32:46 +0100
