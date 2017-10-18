@@ -1,7 +1,7 @@
 # install 3rd party executables, documents and resources
 
 copy3rdexe {
-
+    message("~~~ 3RD PARTY EXECUTABLES WILL BE INSTALLED ~~~")
     # renderer executables
     CONFIG(release, debug|release) {
         ldglite_ins.files += $$LDGLITE_INS_EXE
@@ -26,12 +26,12 @@ copy3rdexe {
         }
     }
     CONFIG(debug, debug|release) {
-         message("~~~ DEBUG BUILD - 3RD PARTY EXE'S WILL NOT BE INSTALLED ~~~")
+         message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
     }
 }
 
 copy3rdexeconfig {
-
+    message("~~~ 3RD PARTY EXECUTABLE CONFIG FILES WILL BE INSTALLED ~~~")
     win32 {
         raytracer_ins_resources_config.files += \
             $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini \
@@ -61,6 +61,7 @@ copy3rdexeconfig {
 }
 
 copy3rdcontent {
+    message("~~~ 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE INSTALLED ~~~")
     win32: EXT = .txt
     else: EXT =
 
