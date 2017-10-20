@@ -1,5 +1,5 @@
 #
-# spec file for package lpub3d-ci-ci
+# spec file for package lpub3d-ci
 #
 # Copyright © 2017 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others

@@ -13,7 +13,7 @@ OS=`uname`
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
-OLD_VAR="${OLD_VAR:-lpub3d}"
+OLD_VAR="${OLD_VAR:-lpub3d-ci}"
 
 LP3D_PWD=$1
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
@@ -72,7 +72,7 @@ ${VERSION_INFO} ${DATE_TIME}
 EOF
 fi
 echo
-echo "   VERSION_INFO......${VERSION_INFO//'"'}"
+echo "   VERSION_INFO...........${VERSION_INFO//'"'}"
 #         1 2  3  4   5       6
 # format "2 0 20 17 663 410fdd7"
 read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
@@ -110,6 +110,7 @@ if [ "${OLD_VAR}" = "${FILE}" ];
 then
     echo "   nothing to do, skipping"
 else
+    set -x
     LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
     LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
@@ -138,8 +139,9 @@ else
             sed -i -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
         fi
     done
+    set +x
 fi
-echo "3. update desktop configuration - add version suffix"
+echo "3. update desktop configuration         - add version suffix"
 FILE="$LP3D_PWD/lpub3d.desktop"
 LineToReplace=10
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -150,10 +152,10 @@ then
         sed -i "${LineToReplace}s/.*/Exec=${LPUB3D}${APP_VER_SUFFIX} %f/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    echo "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-echo "4. update man page - add version suffix"
+echo "4. update man page                      - add version suffix"
 FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
 LineToReplace=61
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -164,10 +166,10 @@ then
         sed -i "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    echo "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-echo "5. update PKGBUILD - add app version"
+echo "5. update PKGBUILD                      - add app version"
 FILE="$LP3D_OBS_DIR/PKGBUILD"
 LineToReplace=3
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -178,10 +180,10 @@ then
         sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    echo "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-echo "6. create changelog - add app version and change date"
+echo "6. create changelog                     - add app version and change date"
 FILE="$LP3D_OBS_DIR/debian/changelog"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -195,7 +197,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${CHANGE_DATE_LONG}
 EOF
 
-echo "7. update ${LPUB3D}.dsc - add app version"
+echo "7. update ${LPUB3D}.dsc                 - add app version"
 FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
 LineToReplace=5
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -206,10 +208,10 @@ then
         sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    echo "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-echo "8. update readme.txt - add app version"
+echo "8. update readme.txt                    - add app version"
 FILE="$LP3D_PWD/docs/README.txt"
 LineToReplace=1
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -220,10 +222,10 @@ then
         sed -i "${LineToReplace}s/.*/LPub3D ${BUILDVERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    echo "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-echo "9. update ${LPUB3D}.spec - add app version and change date"
+echo "9. update ${LPUB3D}.spec                - add app version and change date"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
 LineToReplace=256
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -234,10 +236,10 @@ then
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    echo "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-echo "10. create source '${LPUB3D}.spec.git.version'"
+echo "10. create '${LPUB3D}.spec.git.version' - version for OBS builds"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec.git.version"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -259,7 +261,7 @@ then
         $PLIST_COMMAND "\"Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}\"" "${FILE}"
         $PLIST_COMMAND "\"Set :com.trevorsandy.${LPUB3D}.GitSHA ${VER_SHA_HASH}\"" "${FILE}"
     else
-        echo "Error: update failed, ${FILE} not found."
+        echo "   Error: update failed, ${FILE} not found."
     fi
 fi
 echo "Script $ME execution finshed."
