@@ -8,22 +8,22 @@ CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
 DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 BUILD_DATE=`date "+%Y%m%d"`
-WORK_DIR=`pwd`
+CALL_DIR=`pwd`
 OS=`uname`
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 OLD_VAR="${OLD_VAR:-lpub3d}"
 
-PWD=$1
-if [ "$PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
+LP3D_PWD=$1
+if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
     echo "Error: Did not receive required argument _PRO_FILE_PWD_"
     echo "$ME terminated!"
     exit 1
 fi
-LP3D_OBS_DIR=$PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$PWD/../builds/utilities
+LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
+LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 # logging stuff
 LOG="$LP3D_UTIL_DIR/$ME.log"
 if [ -f ${LOG} -a -r ${LOG} ]
@@ -35,16 +35,18 @@ exec 2> >(tee -a ${LOG} >&2)
 
 echo "Start $ME execution..."
 echo "1. capture version info"
+cd "$LP3D_PWD/.."
 lp3d_git_ver_tag_long=`git describe --tags --long`
 lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
 lp3d_git_ver_commit_count=`git rev-list HEAD --count`
 lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
+cd "${CALL_DIR}"
 lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}       # remove prefix ending in "-"
 lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}  # replace . with " "
 lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
 lp3d_revision_=${lp3d_ver_tmp1%-*}
 VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
-if [ "${VERSION_INFO}" = "" ]
+if [ "${lp3d_git_ver_tag_long}" = "" ]
 then
     echo "2. reading file at builds/utilities/version.info"
     FILE="$LP3D_UTIL_DIR/version.info"
@@ -52,7 +54,7 @@ then
     then
     	VERSION_INFO=`cat ${FILE}`
     else
-        echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+        echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
         echo "$ME terminated!"
     	exit 1
     fi
@@ -81,25 +83,28 @@ BUILDVERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${DATE_TIME}")"
 # export LP3D_APP_VERSION=$LP3D_APP_VERSION
 # export LP3D_APP_VERSION_LONG=$LP3D_APP_VERSION_LONG
 
-#echo "   LOG...................${LOG}"
-echo "   LPUB3D_DIR.............${LPUB£D}"
-echo "   WORK_DIR...............${WORK_DIR}"
+echo "   LPUB3D_DIR.............${LPUB3D}"
+echo "   LP3D_PWD...............${LP3D_PWD}"
+echo "   CALL_DIR...............${CALL_DIR}"
 echo "   VER_MAJOR..............${VER_MAJOR}"
 echo "   VER_MINOR..............${VER_MINOR}"
 echo "   VER_PATCH..............${VER_PATCH}"
 echo "   VER_REVISION...........${VER_REVISION}"
 echo "   VER_BUILD..............${VER_BUILD}"
 echo "   VER_SHA_HASH...........${VER_SHA_HASH}"
-echo "   LP3D_VERSION...........${LP3D_VERSION}"
-echo "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
 echo "   APP_VER_SUFFIX.........${APP_VER_SUFFIX}"
-echo "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 echo "   BUILDVERSION...........${BUILDVERSION}"
 echo "   DATE_TIME..............${DATE_TIME}"
 echo "   CHANGE_DATE_LONG.......${CHANGE_DATE_LONG}"
 
+echo "   LP3D_VERSION...........${LP3D_VERSION}"
+echo "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
+echo "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
+
+echo "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
+
 echo "2. set root directory name in config files..."
-if [ "${OLD_VAR}" = "${FILE}"];
+if [ "${OLD_VAR}" = "${FILE}" ];
 then
     echo "   nothing to do, skipping"
 else
@@ -122,7 +127,8 @@ else
         $LP3D_OBS_DIR/debian/${LPUB3D}.dsc \
         $LP3D_OBS_DIR/_service \
         $LP3D_OBS_DIR/${LPUB3D}.spec \
-        $LP3D_OBS_DIR/PKGBUILD
+        $LP3D_OBS_DIR/PKGBUILD \
+        $LP3D_PWD/../builds/linux/Dockerfile-ubuntu_xenial
     do
         if [ "$OS" = Darwin ]; then
             sed -i "" -e "s/${OLD_VAR}/${LPUB3D}/g" "${FILE}"
@@ -132,7 +138,7 @@ else
     done
 fi
 echo "3. update desktop configuration - add version suffix"
-FILE="$PWD/lpub3d.desktop"
+FILE="$LP3D_PWD/lpub3d.desktop"
 LineToReplace=10
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -142,11 +148,11 @@ then
         sed -i "${LineToReplace}s/.*/Exec=${LPUB3D}${APP_VER_SUFFIX} %f/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
 echo "4. update man page - add version suffix"
-FILE="$PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
+FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
 LineToReplace=61
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -156,7 +162,7 @@ then
         sed -i "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
 echo "5. update PKGBUILD - add app version"
@@ -170,7 +176,7 @@ then
         sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
 echo "6. create changelog - add app version and change date"
@@ -198,11 +204,11 @@ then
         sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
 echo "8. update readme.txt - add app version"
-FILE="$PWD/docs/README.txt"
+FILE="$LP3D_PWD/docs/README.txt"
 LineToReplace=1
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -212,7 +218,7 @@ then
         sed -i "${LineToReplace}s/.*/LPub3D ${BUILDVERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
 echo "9. update ${LPUB3D}.spec - add app version and change date"
@@ -226,7 +232,7 @@ then
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
 echo "10. create source '${LPUB3D}.spec.git.version'"
@@ -242,7 +248,7 @@ EOF
 if [ "$OS" = Darwin ];
 then
     echo "11. update the Info.plist with version major, version minor, build and git sha hash"
-    FILE="$PWD/Info.plist"
+    FILE="$LP3D_PWD/Info.plist"
     if [ -f "${FILE}" ];
     then
         PLIST_COMMAND=/usr/libexec/PlistBuddy -c

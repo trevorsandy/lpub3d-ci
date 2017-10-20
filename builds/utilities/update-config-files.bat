@@ -71,6 +71,7 @@ IF "%LPUB3D%" == "%OLD_VAR%" (
       %LP3D_OBS_DIR%\_service
       %LP3D_OBS_DIR%\%LPUB3D%.spec
       %LP3D_OBS_DIR%\PKGBUILD
+      %PWD%\..\builds\linux\Dockerfile-ubuntu_xenial
     ) DO (
      CALL :FIND_REPLACE %OLD_VAR% %LP3D_PWD% %%i
    )
@@ -272,6 +273,7 @@ IF %LP3D_MONTH% == 12 SET LP3D_MONTH_OF_YEAR=Dec
 EXIT /b
 
 :GET_GIT_VERSION
+CD /D "%LP3D_PWD%\.."
 REM Extract Revision Number
 FOR /F "usebackq delims==" %%G IN (`git describe --tags --long`) DO SET lp3d_git_ver_tag_long=%%G
 SET "tag_input=%lp3d_git_ver_tag_long%"
@@ -316,6 +318,7 @@ IF [%LP3D_AVAILABLE_VERSIONS%] == [](
   SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%lp3d_previous_version%,%LP3D_PAST_RELEASES%
 )
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
+CD /D "%LP3D_PWD%"
 EXIT /b
 
 :FIND_REPLACE <findstr> <replstr> <file>

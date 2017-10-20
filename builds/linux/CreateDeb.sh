@@ -7,13 +7,12 @@
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
-# BUILD_DATE=`date "+%Y%m%d"`
-# CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
+
+echo "Start $ME at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
-
-echo "Start $ME at $CWD..."
+echo "   LPUB3D CURRENT DIR.....${LPUB3D}"
 
 # when running locally, use this block...
 if [ "${TRAVIS}" != "true"  ]; then
@@ -62,43 +61,10 @@ else
     cp -rf "../../${LPUB3D}" .
 fi
 
-# echo "3. capture version info..."
-# #         1 2  3  4   5       6    7  8  9       10
-# # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-# FILE="${LPUB3D}/builds/utilities/version.info"
-# if [ -f ${FILE} -a -r ${FILE} ]
-# then
-#     VERSION_INFO=`cat ${FILE}`
-# else
-#     echo "Error: Cannot read ${FILE} from `pwd`"
-#     echo "$ME terminated!"
-#     exit 1
-# fi
-# read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-# LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-# LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
-# LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-# #echo "WORK_DIR..........${WORK_DIR}"
-# echo "   LPUB3D_DIR........${LPUB£D}"
-# echo "   VER_MAJOR.........${VER_MAJOR}"
-# echo "   VER_MINOR.........${VER_MINOR}"
-# echo "   VER_PATCH.........${VER_PATCH}"
-# echo "   VER_REVISION......${VER_REVISION}"
-# echo "   VER_BUILD.........${VER_BUILD}"
-# echo "   VER_SHA_HASH......${VER_SHA_HASH}"
-# echo "   BUILD_DATE........${BUILD_DATE}"
-# echo "   CHANGE_DATE_LONG..${CHANGE_DATE_LONG}"
-
 echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=`pwd`/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh ${_PRO_FILE_PWD_} ${LPUB3D}
-
-echo "   LP3D_VERSION...........${LP3D_VERSION}"
-echo "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
-echo "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
-
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
-echo "   SOURCE_DIR........${SOURCE_DIR}"
 mv ${LPUB3D} ${SOURCE_DIR}
 
 echo "4. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz using ${SOURCE_DIR}/"

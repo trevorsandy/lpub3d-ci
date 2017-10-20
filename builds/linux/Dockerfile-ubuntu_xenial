@@ -1,0 +1,7 @@
+FROM ubuntu:xenial
+LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
+RUN apt-get update ; apt-get install -y git wget lintian build-essential debhelper ccache lsb-release
+RUN apt-get install -y fakeroot debhelper qtbase5-dev qt5-qmake libqt5opengl5-dev libpng-dev libjpeg-dev zlib1g-dev
+RUN wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateDeb.sh
+VOLUME /buildpkg
+CMD chmod +x CreateDeb.sh && ./CreateDeb.sh; if test -d /buildpkg; then cp -f /debbuild/*.deb /buildpkg/; fi
