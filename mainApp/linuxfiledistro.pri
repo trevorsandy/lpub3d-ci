@@ -22,7 +22,7 @@ unix:!macx {
     # These defines point LPub3D to the architecture appropriate content
     # when performing 'check for update' download and installation
     # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
-    # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
+    # the accompanying rules config at builds/linux/obs/rules
     deb: PACKAGE_TYPE = DEB_DISTRO
     rpm: PACKAGE_TYPE = RPM_DISTRO
     pkg: PACKAGE_TYPE = PKG_DISTRO
@@ -35,7 +35,7 @@ unix:!macx {
     isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
     isEmpty(SHARE_DIR):SHARE_DIR = $$INSTALL_PREFIX/share
 
-    isEmpty(BIN_DIR):BIN_DIR               = $$SHARE_DIR/bin
+    isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
     isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/lpub3d
     isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/pixmaps
     isEmpty(MAN_DIR):MAN_DIR               = $$SHARE_DIR/man/man1
@@ -159,15 +159,15 @@ unix:!macx {
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
     # installed data directories - 3rd party components
-    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/bin
-    isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/doc
-    isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/resources
-    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/bin
-    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/resources
-    isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/doc
-    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/bin
-    isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/doc
-    isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/resources
+    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/bin
+    isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/doc
+    isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/resources
+    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/bin
+    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/resources
+    isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/doc
+    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/bin
+    isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/doc
+    isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/resources
 
     # install 3rd party content
     include(install3rdpartycontent.pri)

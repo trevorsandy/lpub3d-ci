@@ -1,5 +1,5 @@
 #
-# spec file for package lpub3d-ci
+# spec file for package lpub3d-ci-ci
 #
 # Copyright © 2017 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
@@ -59,7 +59,7 @@ License: GPLv3+
 %endif
 
 # define git version string from source
-Source10: lpub3d.spec.git.version
+Source10: lpub3d-ci.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
 # set packing platform
@@ -82,17 +82,17 @@ BuildRequires: finger
 %define _iconsdir %{_datadir}/icons
 
 # package attributes
-Name: lpub3d
-Icon: lpub3d.xpm
+Name: lpub3d-ci
+Icon: lpub3d-ci.xpm
 Summary: An LDraw Building Instruction Editor
 Version: %{gitversion}
 Release: %{?dist}
-URL: https://trevorsandy.github.io/lpub3d
+URL: https://trevorsandy.github.io/lpub3d-ci
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
 Requires: unzip
 BuildRequires: freeglut-devel
-Source0: lpub3d-git.tar.gz
+Source0: lpub3d-ci-git.tar.gz
 
 # package requirements
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
@@ -193,18 +193,22 @@ echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 export QT_SELECT=qt5
 
 # get ldraw archive libraries
+{ set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then
 	cp ${LDrawLibOffical} mainApp/extras
+  echo "complete.zip copied"
 else
 	echo "complete.zip not found!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
 	cp ${LDrawLibUnofficial} mainApp/extras
+  echo "lpub3dldrawunf.zip copied"
 else
 	echo "lpub3dldrawunf.zip not found!"
 fi ;
+{ set -x; } 2>/dev/null
 
 # use Qt5
 %if 0%{?fedora}==23
@@ -213,9 +217,9 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
-	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d-ci
 else
-	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d-ci
 fi
 make clean
 make %{?_smp_mflags}
@@ -237,12 +241,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%{_datadir}/lpub3d
+%{_datadir}/lpub3d-ci
 %dir %{_iconsdir}/hicolor/
 %dir %{_iconsdir}/hicolor/scalable/
 %dir %{_iconsdir}/hicolor/scalable/mimetypes/
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%attr(644,-,-) %doc %{_docdir}/lpub3d
+%attr(644,-,-) %doc %{_docdir}/lpub3d-ci
 %attr(644,-,-) %{_mandir}/man1/*
 
 %post -p /sbin/ldconfig

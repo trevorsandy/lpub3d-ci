@@ -49,7 +49,7 @@ copy3rdexeconfig {
         $$LDVIEW_INS_RES/config/LDViewCustomini
     ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR/config
 
-        macx{
+        macx {
             QMAKE_BUNDLE_DATA += \
             raytracer_ins_resources_config \
             ldview_ins_resources_config

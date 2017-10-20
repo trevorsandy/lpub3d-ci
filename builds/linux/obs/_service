@@ -1,22 +1,22 @@
 <services>
   <service name="tar_scm">
-    <param name="url">git://github.com/trevorsandy/lpub3d</param>
-    <param name="scm">git</param>
-    <param name="exclude">lc_lib/tools</param>
-    <param name="exclude">builds/linux/standard</param>
-    <param name="exclude">builds/windows</param>
-    <param name="exclude">builds/macx</param>
-    <param name="exclude">.travis.yml</param>
-    <param name="exclude">.gitignore</param>
-    <param name="exclude">.gitattributes</param>
-    <param name="exclude">.git</param>
-    <param name="exclude">LPub3D.pro.user</param>
-    <param name="exclude">README.md</param>
-    <param name="exclude">_config.yml</param>
-    <param name="exclude">appveyor.yml</param>
-    <param name="version">git-master</param>
-    <param name="versionformat">git</param>
-    <param name="filename">lpub3d</param>
+      <param name="url">git://github.com/trevorsandy/lpub3d-ci</param>
+      <param name="scm">git</param>
+      <param name="exclude">lc_lib/tools</param>
+      <param name="exclude">builds/linux/standard</param>
+      <param name="exclude">builds/windows</param>
+      <param name="exclude">builds/macx</param>
+      <param name="exclude">.travis.yml</param>
+      <param name="exclude">.gitignore</param>
+      <param name="exclude">.gitattributes</param>
+      <param name="exclude">.git</param>
+      <param name="exclude">LPub3D.pro.user</param>
+      <param name="exclude">README.md</param>
+      <param name="exclude">_config.yml</param>
+      <param name="exclude">appveyor.yml</param>
+      <param name="version">git-master</param>
+      <param name="versionformat">git</param>
+      <param name="filename">lpub3d-ci</param>
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
@@ -40,16 +40,21 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/install</param>
+      <param name="outfilename">debian.install</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
       <param name="files">*/builds/linux/obs/debian/rules</param>
       <param name="outfilename">debian.rules</param>
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/lpub3d.dsc
-                          */builds/linux/obs/lpub3d.spec
-                          */builds/linux/obs/lpub3d.spec.git.version
-                          */mainApp/images/lpub3d.xpm
-						  */builds/linux/obs/PKGBUILD
+      <param name="files">*/builds/linux/obs/debian/lpub3d-ci.dsc
+                          */builds/linux/obs/lpub3d-ci.spec
+                          */builds/linux/obs/lpub3d-ci.spec.git.version
+                          */builds/linux/obs/PKGBUILD
+                          */mainApp/images/lpub3d-ci.xpm
       </param>
   </service>
   <service name="recompress">

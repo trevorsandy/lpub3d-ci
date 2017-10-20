@@ -18,17 +18,34 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	# Start custom configuration command
-	if [ -f ../SOURCES/complete.zip ]; then \
-		cp ../SOURCES/complete.zip mainApp/extras; \
-	else \
-		echo "complete.zip not found!"; \
+	# Start custom configuration commands
+	@cat <<EOF >customcommands
+	#!/bin/bash -ex
+	{ set +x; } 2>/dev/null
+	if [ -f ../SOURCES/complete.zip ]; then \\
+	    cp ../SOURCES/complete.zip mainApp/extras; \\
+	    echo "complete.zip copied"; \\
+	else \\
+	    echo "complete.zip not foundat `pwd`!"; \\
 	fi
-	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
-		cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
-	else \
-		echo "lpub3dldrawunf.zip not found!"; \
+	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \\
+	    cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \\
+	    echo "lpub3dldrawunf.zip copied"; \\
+	else \\
+	    echo "lpub3dldrawunf.zip not found at `pwd`!"; \\
 	fi
+	targetarch=`uname -m`
+	for FILE in \\
+	    source/include-binaries \\
+	    install \\
+	do \\
+	    sed -i -e "s/__arch__/\${targetarch}/g" "\${FILE}"; \\
+	    echo updating \${targetarch} in \${FILE}; \\
+	done
+	{ set -x; } 2>/dev/null
+	EOF
+	@chmod +x customcommands && ./customcommands
+
 override_dh_auto_configure:
 	if [ `uname -m` = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
@@ -37,7 +54,7 @@ override_dh_auto_configure:
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -v; \
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \
 	fi
-	# End custom configuration command
+	# End custom configuration commands
 	touch configure-stamp
 
 build: configure-stamp

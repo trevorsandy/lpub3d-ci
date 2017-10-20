@@ -12,9 +12,19 @@ SETLOCAL
 ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
-REM pwd = lpub3d\
+rem Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+SET LPUB3D=lpub3d-ci
+
+FOR %%* IN (.) DO SET CWD=%%~nx*
+IF "%CWD%" NEQ "%LPUB3D%" (
+  ECHO.
+  ECHO You must run %~nx0 from folder %LPUB3D%. The script will exit.
+  GOTO :END
+) ELSE (
+  SET _PRO_FILE_PWD_=%cd%\mainApp
+)
+
 CD /D "builds\windows"
-REM pwd = lpub3d\buidls\windows\
 SET WIN_PKG_DIR=%cd%
 
 SET RUN_NSIS=1
