@@ -19,32 +19,28 @@ configure-stamp:
 	dh_testdir
 
 	# Start custom configuration commands
-	@cat <<EOF >customcommands
-	#!/bin/bash -ex
 	{ set +x; } 2>/dev/null
-	if [ -f ../SOURCES/complete.zip ]; then \\
-	    cp ../SOURCES/complete.zip mainApp/extras; \\
-	    echo "complete.zip copied"; \\
+	if [ -f ../SOURCES/complete.zip ]; then \
+	    cp ../SOURCES/complete.zip mainApp/extras; \
+	    echo "complete.zip copied"; \
 	else \\
-	    echo "complete.zip not foundat `pwd`!"; \\
+	    echo "complete.zip not foundat `pwd`!"; \
 	fi
-	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \\
-	    cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \\
-	    echo "lpub3dldrawunf.zip copied"; \\
-	else \\
-	    echo "lpub3dldrawunf.zip not found at `pwd`!"; \\
+	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
+	    cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
+	    echo "lpub3dldrawunf.zip copied"; \
+	else \
+	    echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
 	targetarch=`uname -m`
-	for FILE in \\
-	    source/include-binaries \\
-	    install \\
-	do \\
-	    sed -i -e "s/__arch__/\${targetarch}/g" "\${FILE}"; \\
-	    echo updating \${targetarch} in \${FILE}; \\
+	for FILE in \
+	    source/include-binaries \
+	    install \
+	do \
+	    sed -i -e "s/__arch__/\${targetarch}/g" "\${FILE}"; \
+	    echo updating \${targetarch} in \${FILE};
 	done
 	{ set -x; } 2>/dev/null
-	EOF
-	@chmod +x customcommands && ./customcommands
 
 override_dh_auto_configure:
 	if [ `uname -m` = "x86_64" ]; then \
