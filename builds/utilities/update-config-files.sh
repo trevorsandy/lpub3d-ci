@@ -110,7 +110,6 @@ if [ "${OLD_VAR}" = "${FILE}" ];
 then
     echo "   nothing to do, skipping"
 else
-    set -x
     LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
     LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
@@ -139,7 +138,6 @@ else
             sed -i -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
         fi
     done
-    set +x
 fi
 echo "3. update desktop configuration         - add version suffix"
 FILE="$LP3D_PWD/lpub3d.desktop"
