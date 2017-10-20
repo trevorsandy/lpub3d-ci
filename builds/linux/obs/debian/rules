@@ -21,24 +21,24 @@ configure-stamp:
 	# Start custom configuration commands
 	{ set +x; } 2>/dev/null
 	if [ -f ../SOURCES/complete.zip ]; then \
-	    cp ../SOURCES/complete.zip mainApp/extras; \
-	    echo "complete.zip copied"; \
-	else \\
-	    echo "complete.zip not foundat `pwd`!"; \
+			cp ../SOURCES/complete.zip mainApp/extras; \
+			echo "complete.zip copied"; \
+	else \
+			echo "complete.zip not found at `pwd`!"; \
 	fi
 	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
-	    cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
-	    echo "lpub3dldrawunf.zip copied"; \
+			cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
+			echo "lpub3dldrawunf.zip copied"; \
 	else \
-	    echo "lpub3dldrawunf.zip not found at `pwd`!"; \
+			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
 	targetarch=`uname -m`
 	for FILE in \
-	    source/include-binaries \
-	    install \
+			source/include-binaries \
+			install \
 	do \
-	    sed -i -e "s/__arch__/\${targetarch}/g" "\${FILE}"; \
-	    echo updating \${targetarch} in \${FILE};
+			sed -i -e "s/__arch__/${targetarch}/g" "${FILE}"; \
+			echo "updating ${targetarch} in ${FILE}";
 	done
 	{ set -x; } 2>/dev/null
 
