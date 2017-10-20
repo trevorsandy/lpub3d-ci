@@ -193,6 +193,14 @@ if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
                            git clone $${GITHUB_URL}/$${REPO}.git \
                            $$escape_expand(\n\t) \
                            echo $$shell_quote$${REPO_DOWNLOADED_MSG}
+        win32 {
+            QMAKE_POST_LINK += $$escape_expand(\n\t) \
+                               echo $$shell_quote$${DIR ..\\..\\ /S} \
+        } else {
+            QMAKE_POST_LINK += $$escape_expand(\n\t) \
+                               echo $$shell_quote$${ls ../../} \
+        }
+
     }
 }
 

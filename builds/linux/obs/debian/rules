@@ -14,6 +14,9 @@ export QT_SELECT=qt5
 # get target arch
 targetarch=`uname -m`
 
+# files with architecture-specific entries - 3rd party library components
+archupdatefiles="source/include-binaries install"
+
 %:
 	dh $@
 
@@ -35,8 +38,7 @@ configure-stamp:
 			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
 	for FILE in \
-			source/include-binaries \
-			install; \
+  		${archupdatefiles}; \
 	do \
 			sed -i -e "s/__arch__/${targetarch}/g" "${FILE}"; \
 			echo "updating `uname -m` in ${FILE}"; \
