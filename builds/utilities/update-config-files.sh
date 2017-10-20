@@ -22,8 +22,10 @@ then
     echo "$ME terminated!"
     exit 1
 fi
+
 LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
 LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
+
 # logging stuff
 LOG="$LP3D_UTIL_DIR/$ME.log"
 if [ -f ${LOG} -a -r ${LOG} ]
@@ -131,9 +133,9 @@ else
         $LP3D_PWD/../builds/linux/Dockerfile-ubuntu_xenial
     do
         if [ "$OS" = Darwin ]; then
-            sed -i "" -e "s/${OLD_VAR}/${LPUB3D}/g" "${FILE}"
+            sed -i "" -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
         else
-            sed -i -e "s/${OLD_VAR}/${LPUB3D}/g" "${FILE}"
+            sed -i -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
         fi
     done
 fi
