@@ -11,9 +11,6 @@ export LP3D_CREATE_PKG=true
 # use Qt5
 export QT_SELECT=qt5
 
-# files with architecture-specific entries - 3rd party library components
-export LP3D_ARCH_UPDATE_FILES="source/include-binaries install"
-
 # get target arch
 LP3D_TARGET_ARCH=`uname -m`
 
@@ -38,12 +35,13 @@ configure-stamp:
 	else \
 			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
-	echo "Current working directory: `pwd`"; \
+	echo "Current working directory: `pwd`"
 	for ARCH_FILE in \
-			${LP3D_ARCH_UPDATE_FILES}; \
+			builds/linux/obs/debian/source/include-binaries \
+			builds/linux/obs/debian/install; \
 	do \
 			sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "${ARCH_FILE}"; \
-			echo "updating ${LP3D_TARGET_ARCH} in ${ARCH_FILE}"; \
+			echo "updated arch ${LP3D_TARGET_ARCH} in ${ARCH_FILE}"; \
 	done
 override_dh_auto_configure:
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \

@@ -35,7 +35,7 @@ SET LP3D_WEEK_DAY=unknown
 SET LP3D_MONTH_OF_YEAR=
 SET LP3D_AVAILABLE_VERSIONS=
 
-IF [%2] == [] (
+IF [%3] == [] (
   ECHO     using git queries...
   CALL :GET_GIT_VERSION
 ) ELSE (

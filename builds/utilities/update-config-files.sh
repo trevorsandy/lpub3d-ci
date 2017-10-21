@@ -50,7 +50,7 @@ lp3d_revision_=${lp3d_ver_tmp1%-*}
 VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 if [ "${lp3d_git_ver_tag_long}" = "" ]
 then
-    echo "2. reading file at builds/utilities/version.info"
+    echo "2. reading version info from builds/utilities/version.info"
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -61,7 +61,7 @@ then
     	exit 1
     fi
 else
-    echo "2. writing file at builds/utilities/version.info"
+    echo "2. writing version info to builds/utilities/version.info"
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
     then

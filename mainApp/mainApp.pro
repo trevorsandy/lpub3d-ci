@@ -203,7 +203,7 @@ if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
                                 && git clone $${GITHUB_URL}/$${REPO}.git \
                                 && pwd \
                                 && ls \
-                                && cd ${REPO} \
+                                && cd $${REPO} \
                                 && pwd \
                                 && ls
         }

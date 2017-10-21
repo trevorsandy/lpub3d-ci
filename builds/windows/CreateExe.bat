@@ -18,10 +18,13 @@ SET LPUB3D=lpub3d-ci
 FOR %%* IN (.) DO SET CWD=%%~nx*
 IF "%CWD%" NEQ "%LPUB3D%" (
   ECHO.
-  ECHO You must run %~nx0 from folder %LPUB3D%. The script will exit.
+  ECHO You must run %~nx0 from folder %LPUB3D%.
+  ECHO Console command: CD %LPUB3D% &%~nx0
+  ECHO The script will exit.
   GOTO :END
 ) ELSE (
   SET _PRO_FILE_PWD_=%cd%\mainApp
+  CALL builds/utilities/update-config-files.sh %_PRO_FILE_PWD_% %LPUB3D%
 )
 
 CD /D "builds\windows"
