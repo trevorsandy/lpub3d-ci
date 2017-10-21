@@ -23,9 +23,6 @@ then
     exit 1
 fi
 
-LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
-
 # logging stuff
 LOG="$LP3D_UTIL_DIR/$ME.log"
 if [ -f ${LOG} -a -r ${LOG} ]
@@ -37,31 +34,47 @@ exec 2> >(tee -a ${LOG} >&2)
 
 echo "Start $ME execution..."
 echo "1. capture version info"
-cd "$LP3D_PWD/.."
-lp3d_git_ver_tag_long=`git describe --tags --long`
-lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
-lp3d_git_ver_commit_count=`git rev-list HEAD --count`
-lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
-cd "${CALL_DIR}"
-lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}       # remove prefix ending in "-"
-lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}  # replace . with " "
-lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
-lp3d_revision_=${lp3d_ver_tmp1%-*}
-VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
-if [ "${lp3d_git_ver_tag_long}" = "" ]
+
+if [ "$3" != "" ]
 then
-    echo "2. reading version info from builds/utilities/version.info"
-    FILE="$LP3D_UTIL_DIR/version.info"
-    if [ -f ${FILE} -a -r ${FILE} ]
-    then
-    	VERSION_INFO=`cat ${FILE}`
-    else
-        echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
-        echo "$ME terminated!"
-    	exit 1
-    fi
+    echo "   using version arguments..."
+    VER_MAJOR=$2
+    VER_MINOR=$3
+    VER_PATCH=$4
+    VER_REVISION=$5
+    VER_BUILD=$6
+    VER_SHA_HASH=$7
+
+    # echo "   reading version info from builds/utilities/version.info"
+    # FILE="$LP3D_UTIL_DIR/version.info"
+    # if [ -f ${FILE} -a -r ${FILE} ]
+    # then
+    # 	VERSION_INFO=`cat ${FILE}`
+    #     #         1 2  3  4   5       6
+    #     # format "2 0 20 17 663 410fdd7"
+    #     read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
+    #     echo
+    #     echo "   VERSION_INFO...........${VERSION_INFO//'"'}"
+    # else
+    #     echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
+    #     echo "$ME terminated!"
+    # 	exit 1
+    # fi
 else
-    echo "2. writing version info to builds/utilities/version.info"
+    echo "   using git queries..."
+    cd "$LP3D_PWD/.."
+    lp3d_git_ver_tag_long=`git describe --tags --long`
+    lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
+    lp3d_git_ver_commit_count=`git rev-list HEAD --count`
+    lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
+    cd "${CALL_DIR}"
+    lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}       # remove prefix ending in "-"
+    lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}  # replace . with " "
+    lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
+    lp3d_revision_=${lp3d_ver_tmp1%-*}
+    VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
+
+    echo "   writing version info to builds/utilities/version.info"
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -71,11 +84,6 @@ else
 ${VERSION_INFO} ${DATE_TIME}
 EOF
 fi
-echo
-echo "   VERSION_INFO...........${VERSION_INFO//'"'}"
-#         1 2  3  4   5       6
-# format "2 0 20 17 663 410fdd7"
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
 APP_VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
 LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
@@ -105,7 +113,9 @@ echo "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 
 echo "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
-echo "2. set root directory name in config files..."
+echo "2. set root directory name for linux config files..."
+LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
+LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 if [ "${OLD_VAR}" = "${FILE}" ];
 then
     echo "   nothing to do, skipping"
