@@ -195,10 +195,18 @@ if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
                            echo $$shell_quote$${REPO_DOWNLOADED_MSG}
         win32 {
            QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                              DIR ..\\..\\ /S
+                              DIR ..\\..\\ /S \
+                              $$escape_expand(\n\t) \
+                              cd $$_PRO_FILE_PWD_/../../ \
+                              $$escape_expand(\n\t) \
+                              DIR /S \
+                              $$escape_expand(\n\t) \
+                              CD
         } else {
            QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                              ls ../../
+                              ls ../../ \
+                              $$escape_expand(\n\t) \
+                              cd $$_PRO_FILE_PWD_/../../ && ls && pwd
         }
     }
 }
