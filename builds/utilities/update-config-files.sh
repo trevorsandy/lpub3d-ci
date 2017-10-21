@@ -35,7 +35,7 @@ exec 2> >(tee -a ${LOG} >&2)
 echo "Start $ME execution..."
 echo "1. capture version info"
 
-if [ "$2" != "" ]
+if [ "$3" != "" ]
 then
     echo "   using version arguments..."
     VER_MAJOR=$2
