@@ -34,7 +34,7 @@ exec 2> >(tee -a ${LOG} >&2)
 
 echo "Start $ME execution..."
 echo "1. capture version info"
-
+echo TEMP DEBUG $0 " - " $1  " - " $2  " - " $3
 if [ "$3" != "" ]
 then
     echo "   using version arguments..."
@@ -75,8 +75,11 @@ else
     lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
     lp3d_revision_=${lp3d_ver_tmp1%-*}
     VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
-
+    #         1 2  3  4   5       6
+    # format "2 0 20 17 663 410fdd7"
+    read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
     echo "   writing version info to builds/utilities/version.info"
+    echo "   VERSION_INFO...........${VERSION_INFO//'"'}"
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
