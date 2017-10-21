@@ -35,7 +35,7 @@ exec 2> >(tee -a ${LOG} >&2)
 echo "Start $ME execution..."
 echo "1. capture version info"
 
-if [ "$3" != "" ]
+if [ "$2" != "" ]
 then
     echo "   using version arguments..."
     VER_MAJOR=$2
@@ -61,7 +61,9 @@ then
     # 	exit 1
     # fi
 else
-    echo "   using git queries..."
+    echo "   sourced to create script, using git queries..."
+    LP3D_PWD=${_PRO_FILE_PWD_}
+
     cd "$LP3D_PWD/.."
     lp3d_git_ver_tag_long=`git describe --tags --long`
     lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
