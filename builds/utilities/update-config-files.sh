@@ -32,19 +32,19 @@ fi
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
+echo "TEMP DEBUG $0  -  $1  -  $2  -  $3"
+
 echo "Start $ME execution..."
 echo "1. capture version info"
-echo TEMP DEBUG $0 " - " $1  " - " $2  " - " $3
 if [ "$3" != "" ]
 then
-    echo "   using version arguments..."
+    echo "   called from gitversion, using input arguments..."
     VER_MAJOR=$2
     VER_MINOR=$3
     VER_PATCH=$4
     VER_REVISION=$5
     VER_BUILD=$6
     VER_SHA_HASH=$7
-
     # echo "   reading version info from builds/utilities/version.info"
     # FILE="$LP3D_UTIL_DIR/version.info"
     # if [ -f ${FILE} -a -r ${FILE} ]
