@@ -186,28 +186,29 @@ if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
         REPO_DOWNLOADED_MSG = GIT REPOSITORY $$REPO downloaded.
         GITHUB_URL = https://github.com/trevorsandy
         QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                           echo $$shell_quote$${REPO_NOT_FOUND_MSG} \
-                           $$escape_expand(\n\t) \
-                           cd $$_PRO_FILE_PWD_/../../ \
-                           $$escape_expand(\n\t) \
-                           git clone $${GITHUB_URL}/$${REPO}.git \
-                           $$escape_expand(\n\t) \
-                           echo $$shell_quote$${REPO_DOWNLOADED_MSG}
+                           echo $$shell_quote$${REPO_NOT_FOUND_MSG}
         win32 {
            QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                              DIR ..\\..\\ /S \
-                              $$escape_expand(\n\t) \
-                              cd $$_PRO_FILE_PWD_/../../ \
-                              $$escape_expand(\n\t) \
-                              DIR /S \
-                              $$escape_expand(\n\t) \
-                              CD
+                                $$escape_expand(\n\t) \
+                                cd $$_PRO_FILE_PWD_/../../ \
+                                $$escape_expand(\n\t) \
+                                git clone $${GITHUB_URL}/$${REPO}.git \
+                                $$escape_expand(\n\t) \
+                                DIR $$_PRO_FILE_PWD_/../../ /S \
+                                $$escape_expand(\n\t) \
+                                CD
         } else {
            QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                              ls ../../ \
-                              $$escape_expand(\n\t) \
-                              cd $$_PRO_FILE_PWD_/../../ && ls && pwd
+                                cd $$_PRO_FILE_PWD_/../../ \
+                                && git clone $${GITHUB_URL}/$${REPO}.git \
+                                && pwd \
+                                && ls \
+                                && cd ${REPO} \
+                                && pwd \
+                                && ls
         }
+        QMAKE_POST_LINK += $$escape_expand(\n\t) \
+                        echo $$shell_quote$${REPO_DOWNLOADED_MSG}
     }
 }
 

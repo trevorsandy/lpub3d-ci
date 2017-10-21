@@ -11,11 +11,12 @@ export LP3D_CREATE_PKG=true
 # use Qt5
 export QT_SELECT=qt5
 
-# get target arch
-targetarch=`uname -m`
-
 # files with architecture-specific entries - 3rd party library components
-archupdatefiles="source/include-binaries install"
+export LP3D_ARCH_UPDATE_FILES="source/include-binaries install"
+
+# get target arch
+LP3D_TARGET_ARCH=`uname -m`
+
 
 %:
 	dh $@
@@ -37,14 +38,15 @@ configure-stamp:
 	else \
 			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
-	for FILE in \
-  		${archupdatefiles}; \
+	echo "Current working directory: `pwd`"; \
+	for ARCH_FILE in \
+			${LP3D_ARCH_UPDATE_FILES}; \
 	do \
-			sed -i -e "s/__arch__/${targetarch}/g" "${FILE}"; \
-			echo "updating `uname -m` in ${FILE}"; \
+			sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "${ARCH_FILE}"; \
+			echo "updating ${LP3D_TARGET_ARCH} in ${ARCH_FILE}"; \
 	done
 override_dh_auto_configure:
-	if [ "${targetarch}" = "x86_64" ]; then \
+	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb;	\
 	else \
