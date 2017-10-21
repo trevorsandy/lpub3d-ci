@@ -32,7 +32,7 @@ fi
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "TEMP DEBUG $0  -  $1  -  $2  -  $3"
+echo "INPUT ARGS DEBUG \$0 [$0]  -  \$1 [$1]  -  \$2 [$2] -  \$3 [$3]"
 
 echo "Start $ME execution..."
 echo "1. capture version info"
