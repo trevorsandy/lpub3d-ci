@@ -45,21 +45,6 @@ then
     VER_REVISION=$5
     VER_BUILD=$6
     VER_SHA_HASH=$7
-    # echo "   reading version info from builds/utilities/version.info"
-    # FILE="$LP3D_UTIL_DIR/version.info"
-    # if [ -f ${FILE} -a -r ${FILE} ]
-    # then
-    # 	VERSION_INFO=`cat ${FILE}`
-    #     #         1 2  3  4   5       6
-    #     # format "2 0 20 17 663 410fdd7"
-    #     read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-    #     echo
-    #     echo "   VERSION_INFO...........${VERSION_INFO//'"'}"
-    # else
-    #     echo "Error: Cannot read ${FILE} from ${CALL_DIR}"
-    #     echo "$ME terminated!"
-    # 	exit 1
-    # fi
 else
     echo "   sourced to create script, using git queries..."
     LP3D_PWD=${_PRO_FILE_PWD_}

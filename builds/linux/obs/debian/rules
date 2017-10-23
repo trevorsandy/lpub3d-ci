@@ -42,6 +42,7 @@ configure-stamp:
 	do \
 			sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$$ARCH_FILE"; \
 			echo "updated arch ${LP3D_TARGET_ARCH} in $$ARCH_FILE"; \
+			cat $$ARCH_FILE; \
 	done
 override_dh_auto_configure:
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
