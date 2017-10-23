@@ -37,7 +37,7 @@ echo "1. capture version info"
 if [ "$3" != "" ]
 then
     echo "Start $ME execution..."
-    echo "   called from gitversion, using input arguments..."
+    echo "   using input arguments..."
     VER_MAJOR=$2
     VER_MINOR=$3
     VER_PATCH=$4
@@ -45,7 +45,7 @@ then
     VER_BUILD=$6
     VER_SHA_HASH=$7
 else
-    echo "   'update-config-files.sh' sourced by CreateDeb.sh, using git queries..."
+    echo "   using git queries..."
     LP3D_PWD=${_PRO_FILE_PWD_}
 
     cd "$LP3D_PWD/.."
@@ -99,13 +99,14 @@ echo "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 
 echo "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
-echo "2. set root directory name for linux config files..."
+echo "2. set top-level build directory name for linux config files..."
 LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
 LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 if [ "${OLD_VAR}" = "${FILE}" ];
 then
-    echo "   nothing to do, skipping"
+    echo "   nothing to do, skipping set top-level build directory name"
 else
+    echo "DEBUG COMPARE \${FILE} ${OLD_VAR} = \${FILE} ${FILE}"
     LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
     LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
@@ -121,12 +122,11 @@ else
         $LP3D_OBS_DIR/debian/changelog \
         $LP3D_OBS_DIR/debian/control \
         $LP3D_OBS_DIR/debian/copyright \
-        $LP3D_OBS_DIR/debian/install \
         $LP3D_OBS_DIR/debian/${LPUB3D}.dsc \
         $LP3D_OBS_DIR/_service \
         $LP3D_OBS_DIR/${LPUB3D}.spec \
         $LP3D_OBS_DIR/PKGBUILD \
-        $LP3D_PWD/../builds/linux/Dockerfile-ubuntu_xenial
+        $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial
     do
         if [ "$OS" = Darwin ]; then
             sed -i "" -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
@@ -261,4 +261,4 @@ fi
 if [ "$3" != "" ]
 then
     echo "Script $ME execution finshed."
-if
+fi
