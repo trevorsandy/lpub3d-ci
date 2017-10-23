@@ -62,7 +62,7 @@ else
     #         1 2  3  4   5       6
     # format "2 0 20 17 663 410fdd7"
     read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-    echo "   writing version info to builds/utilities/version.info"
+    echo "   writing version info to builds/utilities/version.info..."
     echo "   VERSION_INFO...........${VERSION_INFO//'"'}"
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -102,11 +102,11 @@ echo "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 echo "2. set top-level build directory name for linux config files..."
 LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
 LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
-if [ "${OLD_VAR}" = "${FILE}" ];
+if [ "${OLD_VAR}" = "${LPUB3D}" ];
 then
     echo "   nothing to do, skipping set top-level build directory name"
 else
-    echo "DEBUG COMPARE \${FILE} ${OLD_VAR} = \${FILE} ${FILE}"
+    echo "DEBUG COMPARE \${FILE} ${OLD_VAR} = \${FILE} ${LPUB3D}"
     LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
     LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
@@ -135,6 +135,7 @@ else
         fi
     done
 fi
+
 echo "3. update desktop configuration         - add version suffix"
 FILE="$LP3D_PWD/lpub3d.desktop"
 LineToReplace=10

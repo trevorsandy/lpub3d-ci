@@ -36,6 +36,8 @@ configure-stamp:
 			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
 	echo "Current working directory: `pwd`"
+  git clone https://github.com/trevorsandy/lpub3d_linux_3rdparty.git ../lpub3d_linux_3rdparty \
+  && echo "directory list: `ls ..`"
 	for ARCH_FILE in \
 			builds/linux/obs/debian/source/include-binaries; \
 	do \

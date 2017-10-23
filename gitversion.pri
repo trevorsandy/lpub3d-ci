@@ -19,22 +19,22 @@ GIT_DIR = undefined
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
-    message(~~~ GIT_DIR [DEFAULT] $$GIT_DIR)
+    message(~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~)
 }
 # Location of Git directory when building pkg package
 exists($$PWD/../upstream/lpub3d/.git) {
     GIT_DIR = $$PWD/../upstream/lpub3d/.git
-    message(~~~ GIT_DIR [PKG] $$GIT_DIR)
+    message(~~~ GIT_DIR [PKG] $$GIT_DIR ~~~)
 }
 # Location of Git directory when building rpm package
 exists($$PWD/../../SOURCES/lpub3d/.git) {
     GIT_DIR = $$PWD/../../SOURCES/lpub3d/.git
-    message(~~~ GIT_DIR [RPM] $$GIT_DIR)
+    message(~~~ GIT_DIR [RPM] $$GIT_DIR ~~~)
 }
 # Location of Git directory when building deb package
 exists($$PWD/../../upstream/lpub3d/.git) {
     GIT_DIR = $$PWD/../../upstream/lpub3d/.git
-    message(~~~ GIT_DIR [DEB] $$GIT_DIR)
+    message(~~~ GIT_DIR [DEB] $$GIT_DIR ~~~)
 }
 # AppVeyor 64bit build (git.exe/cygwin conflict) or no .git directory found, use version input file
 appveyor_qt_mingw64: GIT_DIR = undefined
@@ -43,10 +43,10 @@ equals(GIT_DIR, undefined) {
       BUILD_TYPE = release
       CONFIG(debug, debug|release): BUILD_TYPE = debug
       GIT_VER_FILE = $$PWD/builds/windows/$$BUILD_TYPE/version.info
-      message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE")
+      message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
     } else {
       GIT_VER_FILE = $$PWD/builds/utilities/version.info
-      message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE")
+      message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
     }
     GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
 
@@ -186,10 +186,10 @@ AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_RELEASES)
 # Update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
 # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
 # lpub3d.spec depending on which build is being performed.
-message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR)
+message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR ~~~)
 
 #-----deprecated---------->
-message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS)
+message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS ~~~)
 #<-----deprecated----------
 
 COMPLETION_COMMAND = LPub3D Build Finished.
