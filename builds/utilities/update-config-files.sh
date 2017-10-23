@@ -32,12 +32,11 @@ fi
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "INPUT ARGS DEBUG \$0 [$0]  -  \$1 [$1]  -  \$2 [$2] -  \$3 [$3]"
-
-echo "Start $ME execution..."
+echo "DEBUG [update-config-files.sh] INPUT ARGS \$0 [$0]  -  \$1 [$1]  -  \$2 [$2] -  \$3 [$3]"
 echo "1. capture version info"
 if [ "$3" != "" ]
 then
+    echo "Start $ME execution..."
     echo "   called from gitversion, using input arguments..."
     VER_MAJOR=$2
     VER_MINOR=$3
@@ -46,7 +45,7 @@ then
     VER_BUILD=$6
     VER_SHA_HASH=$7
 else
-    echo "   sourced to create script, using git queries..."
+    echo "   'update-config-files.sh' sourced by CreateDeb.sh, using git queries..."
     LP3D_PWD=${_PRO_FILE_PWD_}
 
     cd "$LP3D_PWD/.."
@@ -79,9 +78,6 @@ LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
 BUILDVERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${DATE_TIME}")"
-# export LP3D_VERSION=$LP3D_VERSION
-# export LP3D_APP_VERSION=$LP3D_APP_VERSION
-# export LP3D_APP_VERSION_LONG=$LP3D_APP_VERSION_LONG
 
 echo "   LPUB3D_DIR.............${LPUB3D}"
 echo "   LP3D_PWD...............${LP3D_PWD}"
@@ -262,4 +258,7 @@ then
         echo "   Error: update failed, ${FILE} not found."
     fi
 fi
-echo "Script $ME execution finshed."
+if [ "$3" != "" ]
+then
+    echo "Script $ME execution finshed."
+if

@@ -38,7 +38,6 @@ configure-stamp:
 	echo "Current working directory: `pwd`"
 	for ARCH_FILE in \
 			builds/linux/obs/debian/source/include-binaries \
-			builds/linux/obs/debian/install; \
 	do \
 			sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$$ARCH_FILE"; \
 			echo "updated arch ${LP3D_TARGET_ARCH} in $$ARCH_FILE"; \
