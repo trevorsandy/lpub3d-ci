@@ -115,7 +115,7 @@ lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "10. create update and download packages..."
+    echo "10. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_ARCH_EXTENSION <<< ${DISTRO_FILE}
 
     cp -rf ${DISTRO_FILE} "${LPUB3D}_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"

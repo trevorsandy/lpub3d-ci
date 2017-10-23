@@ -32,7 +32,7 @@ fi
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "DEBUG [update-config-files.sh] INPUT ARGS \$0 [$0]  -  \$1 [$1]  -  \$2 [$2] -  \$3 [$3]"
+echo "DEBUG update-config-files.sh INPUT ARGS \$0 [$0]  -  \$1 [$1]  -  \$2 [$2] -  \$3 [$3]"
 echo "1. capture version info"
 if [ "$3" != "" ]
 then
@@ -59,7 +59,7 @@ else
     lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
     lp3d_revision_=${lp3d_ver_tmp1%-*}
     VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
-    #         1 2  3  4   5       6
+    #         1 2 3  4  5   6
     # format "2 0 20 17 663 410fdd7"
     read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
     echo "   writing version info to builds/utilities/version.info..."
