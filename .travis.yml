@@ -75,7 +75,7 @@ install:
       wget http://www.ldraw.org/library/updates/complete.zip -O mainApp/extras/complete.zip;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
     fi
-  # Update docker-engine using Ubuntu 'trusty' apt repo
+  # Update docker-engine and docker-compose
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_CREATE_PKG" = "yes" ]; then
         curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
@@ -95,25 +95,22 @@ install:
 script:
   # Build distributions package or just compile the code
   - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker-compose -f builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml run --rm lpub3d-ci; fi;
-      if [ "$TRAVIS_OS_NAME" = "osx" ]; then chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh; fi;
-    else
-     qmake -v;
-     qmake -r;
-     make;
-    fi
-
-after_script:
-  - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        docker-compose -f builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml run --rm lpub3d-ci;
         export LP3D_Download_DebPackage=`ls builds/linux/docker-compose/LPub3D_*.deb`;
         export LP3D_Update_DebPackage=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        export LP3D_Download_DmgPackage=`ls builds/linux/docker-compose/LPub3D_*.deb`;
-        export LP3D_Update_DmgPackage=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
+        chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
+        export LP3D_Download_DmgPackage=`ls DMGS/LPub3D_*_osx.dmg`;
+        export LP3D_Update_DmgPackage=`ls DMGS/LPub3D-UpdateMaster_*_osx.dmg`;
+        echo " Package files: `ls DMGS/LPub3D*_osx.dmg`"
       fi;
       env | grep -P 'LP3D*';
+    else
+     qmake -v;
+     qmake -r;
+     make;
     fi
 
 deploy:

@@ -198,14 +198,14 @@ echo "- cleanup..."
 rm -f -R DMGSRC
 rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 
-if [ "${TRAVIS}" == "true"  ]; then
-  # export vars used by travis.yml so paths must be relative to project download dir
-  export LP3D_Download_DmgPackage=`ls ../LPub3D_*_osx.dmg`
-  export LP3D_Update_DmgPackage=`ls ../LPub3D-UpdateMaster_*_osx.dmg`
-  echo " Package files: `ls ../LPub3D*_osx.dmg`"
-  env | grep -P 'LP3D*'
-  env | grep -P 'TRAVIS*'
-fi
+# if [ "${TRAVIS}" == "true"  ]; then
+#   # export vars used by travis.yml so paths must be relative to project download dir
+#   export LP3D_Download_DmgPackage=`ls ${DMGDIR}/LPub3D_*_osx.dmg`
+#   export LP3D_Update_DmgPackage=`ls ${DMGDIR}/LPub3D-UpdateMaster_*_osx.dmg`
+#   echo " Package files: `ls ${DMGDIR}/LPub3D*_osx.dmg`"
+#   env | grep -P 'LP3D*'
+#   env | grep -P 'TRAVIS*'
+# fi
 
 # create dmg - end #
 echo "$ME Finished!"
