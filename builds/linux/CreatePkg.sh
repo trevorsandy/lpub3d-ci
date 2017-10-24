@@ -9,6 +9,12 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
 
+echo "Start $ME execution at $CWD..."
+
+# Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+LPUB3D="${LPUB3D:-lpub3d-ci}"
+echo "   LPUB3D CURRENT DIR.....${LPUB3D}"
+
 # logging stuff
 LOG="${CWD}/$ME.log"
 exec > >(tee -a ${LOG} )
@@ -22,39 +28,42 @@ then
     mkdir pkgbuild/upstream
 fi
 cd pkgbuild/upstream
-WORK_DIR=lpub3d-git
+WORK_DIR=${LPUB3D}-git
 
 echo "2. download source"
-git clone https://github.com/trevorsandy/lpub3d.git
-mv lpub3d ${WORK_DIR}
+git clone https://github.com/trevorsandy/${LPUB3D}.git
+mv ${LPUB3D} ${WORK_DIR}
+
+_PRO_FILE_PWD_=`pwd`/${LPUB3D}/mainApp
+source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 echo "3. update version info"
-#         1 2  3  4   5       6    7  8  9       10
-# format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="${WORK_DIR}/builds/utilities/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    VERSION_INFO=`cat ${FILE}`
-else
-    echo "Error: Cannot read ${FILE} from `pwd`"
-    echo "$ME terminated!"
-    exit 1
-fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH <<< ${VERSION_INFO//'"'}
-VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-APP_VERSION=${VERSION}"."${VER_BUILD}
-APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-echo "WORK_DIR..........${WORK_DIR}"
-echo "VER_MAJOR.........${VER_MAJOR}"
-echo "VER_MINOR.........${VER_MINOR}"
-echo "VER_PATCH.........${VER_PATCH}"
-echo "VER_REVISION......${VER_REVISION}"
-echo "VER_BUILD.........${VER_BUILD}"
-echo "VER_SHA_HASH......${VER_SHA_HASH}"
-echo "VERSION...........${VERSION}"
-echo "APP_VERSION.......${APP_VERSION}"
-echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
-echo "BUILD_DATE........${BUILD_DATE}"
+# #         1 2  3  4   5       6    7  8  9       10
+# # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
+# FILE="${WORK_DIR}/builds/utilities/version.info"
+# if [ -f ${FILE} -a -r ${FILE} ]
+# then
+#     VERSION_INFO=`cat ${FILE}`
+# else
+#     echo "Error: Cannot read ${FILE} from `pwd`"
+#     echo "$ME terminated!"
+#     exit 1
+# fi
+# read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH <<< ${VERSION_INFO//'"'}
+# VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
+# APP_VERSION=${VERSION}"."${VER_BUILD}
+# APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
+# echo "WORK_DIR..........${WORK_DIR}"
+# echo "VER_MAJOR.........${VER_MAJOR}"
+# echo "VER_MINOR.........${VER_MINOR}"
+# echo "VER_PATCH.........${VER_PATCH}"
+# echo "VER_REVISION......${VER_REVISION}"
+# echo "VER_BUILD.........${VER_BUILD}"
+# echo "VER_SHA_HASH......${VER_SHA_HASH}"
+# echo "VERSION...........${VERSION}"
+# echo "APP_VERSION.......${APP_VERSION}"
+# echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
+# echo "BUILD_DATE........${BUILD_DATE}"
 
 echo "4. create tarball"
 tar -czvf ../${WORK_DIR}.tar.gz \

@@ -112,9 +112,11 @@ else
 fi
 
 echo "-  configure and build LPub3D source..."
+#qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 echo "-  DEBUG WHERE IS QMAKE: `whereis qmake`"
-echo "-  DEBUG WHERE IS MAKE: `whereis make`"
-qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 && /usr/bin/make qmake_all
+qmake -v
+qmake -r
+/usr/bin/make
 
 # create dmg environment - begin #
 #
