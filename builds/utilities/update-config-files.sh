@@ -11,7 +11,7 @@ BUILD_DATE=`date "+%Y%m%d"`
 CALL_DIR=`pwd`
 OS=`uname`
 
-if [ "$3" = "" ]; then SOURCED="true"; else SOURCED="false"; fi
+if [ "$3" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; fi
 Info () {
     if [ "${SOURCED}" = "true" ]; then
         echo "   update-config: ${*}" >&2
@@ -31,24 +31,25 @@ then
     Info "$ME terminated!"
     exit 1
 fi
-LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 
-# logging stuff
-LOG="$LP3D_UTIL_DIR/$ME.log"
-if [ -f ${LOG} -a -r ${LOG} ]
-then
-        rm ${LOG}
+
+if [ "${SOURCED}" != "true" ]; then
+    # logging stuff
+    LOG="$CALL_DIR/$ME.log"
+    if [ -f ${LOG} -a -r ${LOG} ]
+    then
+            rm ${LOG}
+    fi
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
 fi
-exec > >(tee -a ${LOG} )
-exec 2> >(tee -a ${LOG} >&2)
 
 Info "   DEBUG update-config-files INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
 Info "1. capture version info"
 if [ "${SOURCED}" = "true" ]
 then
     Info "   using git queries..."
-    LP3D_PWD=${_PRO_FILE_PWD_}
+
 
     cd "$LP3D_PWD/.."
     lp3d_git_ver_tag_long=`git describe --tags --long`
@@ -111,6 +112,8 @@ Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
 Info "2. set top-level build directory name for linux config files..."
+LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
+LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 if [ "${OLD_VAR}" = "${LPUB3D}" ];
 then
     Info "   nothing to do, skipping set top-level build directory name"
