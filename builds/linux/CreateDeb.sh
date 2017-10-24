@@ -12,7 +12,7 @@ echo "Start $ME execution at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
-echo "   LPUB3D CURRENT DIR.....${LPUB3D}"
+echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 
 # when running locally, use this block...
 if [ "${TRAVIS}" != "true"  ]; then

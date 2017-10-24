@@ -1,0 +1,7 @@
+# docker-compose -f docker-compose-fedora_25.yml
+version: '3'
+services:
+  lpub3d-ci:
+    image: "trevorsandy/lpub3d-ci:fedora_25"
+    volumes:
+     - .:/buildpkg
