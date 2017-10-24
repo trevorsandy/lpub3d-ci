@@ -2,6 +2,6 @@
 version: '3'
 services:
   lpub3d-ci:
-    image: "lpub3d-ci:xenial"
+    image: "trevorsandy/lpub3d-ci:xenial"
     volumes:
      - .:/buildpkg

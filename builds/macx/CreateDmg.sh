@@ -58,14 +58,15 @@ echo "-  create DMG build working directory..."
 if [ ! -d dmgbuild ]
 then
   mkdir dmgbuild
+  echo "   dmgbuild created."
 fi
 
 if [ ! -d lpub3d_macos_3rdparty ]
 then
-  echo "-  download LPub3D 3rd party renderers..."
+  echo "-  download lpub3d_macos_3rdparty repository..."
   git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
 else
-  echo "-  3rd party renderer folder exist. skipping download..."
+  echo "-  lpub3d_macos_3rdparty repository folder exist. skipping download..."
 fi
 
 cd dmgbuild
@@ -78,7 +79,10 @@ then
 elif [ "$getsource" = "c" ]
 then
   echo "-  copying LPub3D source..."
+  echo "-  DEBUG COPY SOURCE ROOT DIR LIST: `ls ../`"
   cp -rf ../${LPUB3D}/ .
+  echo "-  DEBUG PWD: `pwd`"
+  echo "-  DEBUG COPY DEST DIR LIST: `ls`"
 elif [ ! -d ${LPUB3D} ]
 then
   echo "-  download LPub3D source..."
@@ -138,6 +142,8 @@ else
 fi
 
 echo "-  configure and build LPub3D source..."
+echo "-  DEBUG WHERE IS QMAKE: `whereis qmake`"
+echo "-  DEBUG WHERE IS MAKE: `whereis make`"
 qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 && /usr/bin/make qmake_all
 
 # create dmg environment - begin #
