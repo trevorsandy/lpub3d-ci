@@ -50,7 +50,7 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "3. create tarball ${WORK_DIR}.tar.gz using ${WORK_DIR}"
+echo "3. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
 tar -czvf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \

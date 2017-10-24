@@ -68,7 +68,7 @@ then
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
-        sudo rm ${FILE}
+        rm ${FILE}
     fi
     cat <<EOF >${FILE}
 ${VERSION_INFO} ${DATE_TIME}

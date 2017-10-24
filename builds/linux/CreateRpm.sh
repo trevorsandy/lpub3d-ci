@@ -80,7 +80,7 @@ cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
 echo "6. copy spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
 
-echo "7. create tarball"
+echo "7. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
 tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
