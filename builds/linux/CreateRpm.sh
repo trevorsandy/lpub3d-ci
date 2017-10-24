@@ -64,11 +64,11 @@ mv ${LPUB3D} ${WORK_DIR}
 echo "3. get LDraw archive libraries"
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -N -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+     wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
-     wget -N http://www.ldraw.org/library/updates/complete.zip
+     wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
 
 echo "4. copy ${LPUB3D}.git.version to SOURCES"
