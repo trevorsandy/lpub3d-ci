@@ -79,7 +79,7 @@ then
   echo "-  copying LPub3D source..."
   echo "-  DEBUG COPY SOURCE ROOT DIR LIST: `ls ../`"
   cp -rf ../${LPUB3D}/ ./${LPUB3D}/
-  echo "-  DEBUG PWD: `pwd`"
+  echo "-  DEBUG PWD: $PWD"
   echo "-  DEBUG COPY DEST DIR LIST: `ls`"
 elif [ ! -d ${LPUB3D} ]
 then
@@ -90,7 +90,7 @@ else
 fi
 
 echo "-  source update_config_files.sh..."
-_PRO_FILE_PWD_=`pwd`/${LPUB3D}/mainApp
+_PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 echo "   DEBUG _PRO_FILE_PWD_ = ${_PRO_FILE_PWD_}"
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}

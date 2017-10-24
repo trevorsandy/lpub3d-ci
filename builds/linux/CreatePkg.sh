@@ -37,20 +37,20 @@ exec 2> >(tee -a ${LOG} >&2)
 echo "1. create PKG working directories"
 if [ ! -d pkgbuild ]
 then
-    mkdir pkgbuild
-    mkdir pkgbuild/upstream
+    mkdir -p pkgbuild/upstream
 fi
 cd pkgbuild/upstream
-WORK_DIR=${LPUB3D}-git
 
 echo "2. download source"
 git clone https://github.com/trevorsandy/${LPUB3D}.git
-mv ${LPUB3D} ${WORK_DIR}
 
-_PRO_FILE_PWD_=`pwd`/${LPUB3D}/mainApp
+_PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. create tarball"
+WORK_DIR=${LPUB3D}-git
+mv ${LPUB3D} ${WORK_DIR}
+
+echo "3. create tarball ${WORK_DIR}.tar.gz using ${WORK_DIR}"
 tar -czvf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -64,11 +64,11 @@ tar -czvf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
-echo "5. copy PKGBUILD"
+echo "4. copy PKGBUILD"
 cp -f ${WORK_DIR}/builds/linux/obs/PKGBUILD ../
 cd ../
 
-echo "6. get LDraw archive libraries"
+echo "5. get LDraw archive libraries"
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -N -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -78,13 +78,13 @@ then
      wget -N http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "7. build application package"
+echo "6. build application package"
 makepkg -s
 
 DISTRO_FILE=`ls ${LPUB3D}-${APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "8. create update and download packages"
+    echo "7. create update and download packages"
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "${LPUB3D}-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
     echo "    Download package: ${LPUB3D}-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
@@ -92,8 +92,8 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "8. package ${DISTRO_FILE} not found."
+    echo "7. package ${DISTRO_FILE} not found."
 fi
-echo "12. Package files: `find $PWD`"
+echo "8. Package files: `find $PWD`"
 echo "$ME Finished!"
 # mv $LOG "${CWD}/pkgbuild/$ME.log"
