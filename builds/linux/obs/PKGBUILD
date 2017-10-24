@@ -16,18 +16,27 @@ noextract=("complete.zip" "lpub3dldrawunf.zip")
 md5sums=(SKIP SKIP SKIP)
 
 prepare() {
+	# for 3rd party apps install
+	export LP3D_CREATE_PKG=true
+
 	cd ${pkgname}-git
-	# copy ldraw archive libraries
+
+	# Start custom configuration commands
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras
+		echo "LDraw archive library complete.zip copied"
 	else
 		echo "complete.zip not found here `pwd`"
 	fi
 	if [ -f ../lpub3dldrawunf.zip ] ; then
 		cp ../lpub3dldrawunf.zip mainApp/extras
+		echo "LDraw archive library lpub3dldrawunf.zip copied"
 	else
 		echo "lpub3dldrawunf.zip not found here `pwd`"
 	fi
+
+	echo "Current working directory: `pwd`"
+	git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
 
 	# Qt5 configure
 	export QT_SELECT=qt5
@@ -36,6 +45,7 @@ prepare() {
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
 		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg
 	fi
+	# End custom configuration commands
 }
 
 build() {

@@ -1,0 +1,7 @@
+# docker-compose -f docker-compose-archlinux_2017.10.01.yml
+version: '3'
+services:
+  lpub3d-ci:
+    image: "trevorsandy/lpub3d-ci:2017.10.01"
+    volumes:
+     - .:/buildpkg
