@@ -11,7 +11,11 @@ BUILD_DATE=`date "+%Y%m%d"`
 # we start in ./lpub3d/builds/macx
 LPUB3D=lpub3d-ci
 
-echo "Start $ME at $CWD..."
+echo "Start $ME execution at $CWD..."
+
+# Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+LPUB3D="${LPUB3D:-lpub3d-ci}"
+echo "   LPUB3D CURRENT DIR.....${LPUB3D}"
 
 # when running locally, use this block...
 if [ "${TRAVIS}" != "true"  ]; then
@@ -34,8 +38,7 @@ if [ "${TRAVIS}" != "true"  ]; then
   exec > >(tee -a ${LOG} )
   exec 2> >(tee -a ${LOG} >&2)
 
-  echo "Start $ME..."
-
+  # use this instance of Qt
   export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
 
   echo
@@ -45,8 +48,8 @@ if [ "${TRAVIS}" != "true"  ]; then
 
 # For Travis CI, use this block (script called from [pwd] lpub3d/)
 else
+  # copy downloaded source
   getsource=c
-
   # move outside lpub3d/
   cd ../
 fi
@@ -84,35 +87,40 @@ else
   echo "-  LPub3D source exist. skipping download"
 fi
 
+echo "-  source update_config_files.sh..."
+_PRO_FILE_PWD_=`pwd`/${LPUB3D}/mainApp
+source ${LPUB3D}/builds/utilities/update-config-files.sh
+SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
+
 cd ${LPUB3D}
 
-echo "-  capture version and date info..."
-#         1 2  3  4   5       6    7  8  9       10
-# format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="builds/utilities/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-  VERSION_INFO=`cat ${FILE}`
-else
-  echo "Error: Cannot read ${FILE} from `pwd`"
-  echo "$ME terminated!"
-  exit 1
-fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-APP_VERSION=${VERSION}"."${VER_BUILD}
-APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-#echo "WORK_DIR..........${WORK_DIR}"
-echo "    VER_MAJOR.........${VER_MAJOR}"
-echo "    VER_MINOR.........${VER_MINOR}"
-echo "    VER_PATCH.........${VER_PATCH}"
-echo "    VER_REVISION......${VER_REVISION}"
-echo "    VER_BUILD.........${VER_BUILD}"
-echo "    VER_SHA_HASH......${VER_SHA_HASH}"
-echo "    VERSION...........${VERSION}"
-echo "    APP_VERSION.......${APP_VERSION}"
-echo "    APP_VERSION_LONG..${APP_VERSION_LONG}"
-echo "    BUILD_DATE........${BUILD_DATE}"
+# echo "-  capture version and date info..."
+# #         1 2  3  4   5       6    7  8  9       10
+# # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
+# FILE="builds/utilities/version.info"
+# if [ -f ${FILE} -a -r ${FILE} ]
+# then
+#   VERSION_INFO=`cat ${FILE}`
+# else
+#   echo "Error: Cannot read ${FILE} from `pwd`"
+#   echo "$ME terminated!"
+#   exit 1
+# fi
+# read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
+# VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
+# APP_VERSION=${VERSION}"."${VER_BUILD}
+# APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
+# #echo "WORK_DIR..........${WORK_DIR}"
+# echo "    VER_MAJOR.........${VER_MAJOR}"
+# echo "    VER_MINOR.........${VER_MINOR}"
+# echo "    VER_PATCH.........${VER_PATCH}"
+# echo "    VER_REVISION......${VER_REVISION}"
+# echo "    VER_BUILD.........${VER_BUILD}"
+# echo "    VER_SHA_HASH......${VER_SHA_HASH}"
+# echo "    VERSION...........${VERSION}"
+# echo "    APP_VERSION.......${APP_VERSION}"
+# echo "    APP_VERSION_LONG..${APP_VERSION_LONG}"
+# echo "    BUILD_DATE........${BUILD_DATE}"
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
@@ -216,9 +224,9 @@ rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 
 if [ "${TRAVIS}" == "true"  ]; then
   # export vars used by travis.yml so paths must be relative to project download dir
-  export LP3D_Download_Package="../DMGS/LPub3D_${APP_VERSION_LONG}_osx.dmg"
-  export LP3D_Update_Package="../DMGS/LPub3D-UpdateMaster_${VERSION}_osx.dmg"
-  echo "../ content:" `ls ../`
+  export LP3D_Download_DmgPackage=`ls ../LPub3D_*_osx.dmg`
+  export LP3D_Update_DmgPackage=`ls ../LPub3D-UpdateMaster_*_osx.dmg`
+  echo " Package files: `ls ../LPub3D*_osx.dmg`"
   env | grep -P 'LP3D*'
   env | grep -P 'TRAVIS*'
 fi

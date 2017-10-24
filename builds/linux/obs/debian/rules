@@ -39,8 +39,7 @@ configure-stamp:
 	git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
 	FILE="builds/linux/obs/debian/source/include-binaries" \
 	&& sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$$FILE" \
-	&& echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/$$FILE" \
-	&& cat "$$FILE"
+	&& echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/$$FILE"
 override_dh_auto_configure:
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \

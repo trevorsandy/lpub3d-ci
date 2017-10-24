@@ -118,8 +118,8 @@ then
     echo "10. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_ARCH_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -rf ${DISTRO_FILE} "${LPUB3D}_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
-    echo "    Download package: ${LPUB3D}_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
+    cp -rf ${DISTRO_FILE} "LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
+    echo "    Download package: LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_ARCH_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_ARCH_EXTENSION}"
@@ -129,9 +129,10 @@ fi
 
 if [ "${TRAVIS}" == "true"  ]; then
   # export vars used by travis.yml so paths must be relative to project download dir
-  export LP3D_Download_Package="../${LPUB3D}_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
-  export LP3D_Update_Package="../LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_ARCH_EXTENSION}"
-  echo "11. content at ../" `ls ../`
+  export LP3D_Download_DebPackage=`ls ../LPub3D_*.deb`
+  export LP3D_Update_DebPackage=`ls ../LPub3D-UpdateMaster_*.deb`
+  echo "11. Package files: `ls ../LPub3D*.deb`"
+  env | grep -P 'LP3D*'
 fi
 
 # create deb - end #

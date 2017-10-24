@@ -1,0 +1,7 @@
+# docker-compose -f docker-compose-ubuntu_xenial.yml
+version: '3'
+services:
+  lpub3d-ci:
+    image: "lpub3d-ci:xenial"
+    volumes:
+     - .:/buildpkg

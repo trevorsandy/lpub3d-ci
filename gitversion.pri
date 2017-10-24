@@ -5,7 +5,7 @@ VERSION = 1.0.0
 # Past versions available for automatic install (static list)
 PAST_RELEASES = 1.3.5,1.2.3,1.0.0
 # Previous tags to capture (array)
-_TAGS = $$list(1)
+_TAGS = $$list(1 2)
 #<-----deprecated----------
 
 # Need to discard STDERR so get path to NULL device
