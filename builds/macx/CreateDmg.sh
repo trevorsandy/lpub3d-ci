@@ -8,8 +8,6 @@
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
-# we start in ./lpub3d/builds/macx
-LPUB3D=lpub3d-ci
 
 echo "Start $ME execution at $CWD..."
 
@@ -97,34 +95,6 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
 cd ${LPUB3D}
-
-# echo "-  capture version and date info..."
-# #         1 2  3  4   5       6    7  8  9       10
-# # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-# FILE="builds/utilities/version.info"
-# if [ -f ${FILE} -a -r ${FILE} ]
-# then
-#   VERSION_INFO=`cat ${FILE}`
-# else
-#   echo "Error: Cannot read ${FILE} from `pwd`"
-#   echo "$ME terminated!"
-#   exit 1
-# fi
-# read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-# VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-# APP_VERSION=${VERSION}"."${VER_BUILD}
-# APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-# #echo "WORK_DIR..........${WORK_DIR}"
-# echo "    VER_MAJOR.........${VER_MAJOR}"
-# echo "    VER_MINOR.........${VER_MINOR}"
-# echo "    VER_PATCH.........${VER_PATCH}"
-# echo "    VER_REVISION......${VER_REVISION}"
-# echo "    VER_BUILD.........${VER_BUILD}"
-# echo "    VER_SHA_HASH......${VER_SHA_HASH}"
-# echo "    VERSION...........${VERSION}"
-# echo "    APP_VERSION.......${APP_VERSION}"
-# echo "    APP_VERSION_LONG..${APP_VERSION_LONG}"
-# echo "    BUILD_DATE........${BUILD_DATE}"
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
