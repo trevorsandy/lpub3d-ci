@@ -78,12 +78,15 @@ install:
   # Update docker-engine using Ubuntu 'trusty' apt repo
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_CREATE_PKG" = "yes" ]; then
-        curl -sSL "https://get.docker.com/gpg" | sudo -E apt-key add -;
-        echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | sudo tee -a /etc/apt/sources.list;
+        curl -fsSL "https://get.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
         sudo apt-get update -qq;
-        sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --assume-yes install docker-engine;
+        sudo apt-get -y install docker-ce;
         docker version;
-        sudo pip install docker-compose;
+        export DOCKER_COMPOSE_VERSION=1.17.0-rc1;
+        sudo rm /usr/local/bin/docker-compose;
+        curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose;
+        chmod +x /usr/local/bin/docker-compose;
         docker-compose version;
       fi;
     fi
@@ -104,11 +107,11 @@ after_script:
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         export LP3D_Download_DebPackage=`ls builds/linux/docker-compose/LPub3D_*.deb`;
         export LP3D_Update_DebPackage=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
-      fi
+      fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         export LP3D_Download_DmgPackage=`ls builds/linux/docker-compose/LPub3D_*.deb`;
         export LP3D_Update_DmgPackage=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
-      fi
+      fi;
       env | grep -P 'LP3D*';
     fi
 
