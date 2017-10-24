@@ -31,6 +31,8 @@ then
     Info "$ME terminated!"
     exit 1
 fi
+LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
+LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 
 # logging stuff
 LOG="$LP3D_UTIL_DIR/$ME.log"
@@ -109,8 +111,6 @@ Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
 Info "2. set top-level build directory name for linux config files..."
-LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 if [ "${OLD_VAR}" = "${LPUB3D}" ];
 then
     Info "   nothing to do, skipping set top-level build directory name"
@@ -259,6 +259,7 @@ then
     FILE="$LP3D_PWD/Info.plist"
     if [ -f "${FILE}" ];
     then
+        echo "-  DEBUG WHERE IS PLIST BUDDY: `whereis PlistBuddy`"
         PLIST_COMMAND=/usr/libexec/PlistBuddy -c
         ${PLIST_COMMAND} "\"Set :CFBundleShortVersionString ${LP3D_VERSION}\" ${FILE}"
         ${PLIST_COMMAND} "\"Set :CFBundleVersion ${VER_BUILD}\" ${FILE}"

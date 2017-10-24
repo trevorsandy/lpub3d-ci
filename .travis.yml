@@ -14,10 +14,10 @@ branches:
 matrix:
  fast_finish: true
  include:
-  - os: linux
-    compiler: gcc
-    env:
-     - QT_BASE=59
+  # - os: linux
+  #   compiler: gcc
+  #   env:
+  #    - QT_BASE=59
   - os: osx
     compiler: clang
     env:
@@ -125,7 +125,7 @@ deploy:
   on:
     repo: trevorsandy/lpub3d-ci
     condition: $LP3D_CREATE_PKG = yes
-    tags: false
+    tags: true
 
 notifications:
   email:

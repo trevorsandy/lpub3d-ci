@@ -91,6 +91,7 @@ fi
 
 echo "-  source update_config_files.sh..."
 _PRO_FILE_PWD_=`pwd`/${LPUB3D}/mainApp
+echo "   DEBUG _PRO_FILE_PWD_ = ${_PRO_FILE_PWD_}"
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
