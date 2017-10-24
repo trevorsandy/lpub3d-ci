@@ -80,7 +80,7 @@ elif [ "$getsource" = "c" ]
 then
   echo "-  copying LPub3D source..."
   echo "-  DEBUG COPY SOURCE ROOT DIR LIST: `ls ../`"
-  cp -rf ../${LPUB3D}/ .
+  cp -rf ../${LPUB3D}/ ./${LPUB3D}/
   echo "-  DEBUG PWD: `pwd`"
   echo "-  DEBUG COPY DEST DIR LIST: `ls`"
 elif [ ! -d ${LPUB3D} ]
