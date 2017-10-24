@@ -11,7 +11,9 @@ BUILD_DATE=`date "+%Y%m%d"`
 CALL_DIR=`pwd`
 OS=`uname`
 
-if [ "$3" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; fi
+if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
+LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
+LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 Info () {
     if [ "${SOURCED}" = "true" ]; then
         echo "   update-config: ${*}" >&2
@@ -24,14 +26,12 @@ Info () {
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 OLD_VAR="${OLD_VAR:-lpub3d-ci}"
 
-LP3D_PWD=$1
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
     Info "Error: Did not receive required argument _PRO_FILE_PWD_"
     Info "$ME terminated!"
     exit 1
 fi
-
 
 if [ "${SOURCED}" != "true" ]; then
     # logging stuff
@@ -49,8 +49,6 @@ Info "1. capture version info"
 if [ "${SOURCED}" = "true" ]
 then
     Info "   using git queries..."
-
-
     cd "$LP3D_PWD/.."
     lp3d_git_ver_tag_long=`git describe --tags --long`
     lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
@@ -112,8 +110,6 @@ Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
 Info "2. set top-level build directory name for linux config files..."
-LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 if [ "${OLD_VAR}" = "${LPUB3D}" ];
 then
     Info "   nothing to do, skipping set top-level build directory name"
