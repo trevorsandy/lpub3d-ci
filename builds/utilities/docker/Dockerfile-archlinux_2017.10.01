@@ -1,24 +1,21 @@
-# up-to-date: curl mesa libtiff
+# up-to-date: curl mesa libtiff; Ref: https://wiki.archlinux.org/index.php/Makepkg#Usage
 FROM base/archlinux:2017.10.01
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN pacman -Syy --noconfirm
 RUN pacman -Syu --noconfirm
-RUN pacman -S --noconfirm --needed git wget ccache
+RUN pacman -S --noconfirm --needed git wget ccache base-devel
 RUN pacman -S --noconfirm --needed qt5-base qt5-tools libpng libjpeg-turbo
 RUN pacman -S --noconfirm --needed freeglut boost-libs
-# Create user group and user
 RUN pacman -S --noconfirm --needed sudo \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \
     && chmod 755 /user \
     && echo "user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user \
     && chmod 0440 /etc/sudoers.d/user
-# Set the working directory to user home directory
 WORKDIR /user
-# Specify the user to execute all commands below
 USER user
 VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreatePkg.sh \
     && chmod +x CreatePkg.sh \
     && ./CreatePkg.sh \
-    && if test -d /buildpkg; then cp -f /debbuild/*.deb /buildpkg/; fi
+    && if test -d /buildpkg; then cp -f /user/pkgbuild/*.pkg.tar.xz /buildpkg/; fi
