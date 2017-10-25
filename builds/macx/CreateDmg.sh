@@ -127,7 +127,7 @@ cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
 
 echo "- set scrpt permissions..."
 chmod +x ../utilities/create-dmg
-chmod +x ../utilities/dmg-tuils/dmg-license.py
+chmod +x ../utilities/dmg-utils/dmg-license.py
 
 echo "- install library links..."
 /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
