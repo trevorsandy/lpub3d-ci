@@ -16,7 +16,7 @@ LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
 LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 Info () {
     if [ "${SOURCED}" = "true" ]; then
-        echo "   update-config: ${*}" >&2
+        echo "    update-config: ${*}" >&2
     else
         echo "${*}" >&2
     fi
@@ -266,7 +266,7 @@ then
         Info "   Error: update failed, ${INFO_PLIST_FILE} not found."
     fi
 fi
-if [ "$3" != "" ]
+if [ "${SOURCED}" = "false" ]
 then
     Info "Script $ME execution finshed."
 fi

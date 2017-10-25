@@ -662,7 +662,7 @@ SET genlastVersionInsert_Dmg=%lastVersionInsert_DmgFile% ECHO
 >%genlastVersionInsert_Dmg% "alternate-version-%LAST_VER_DMG%-dmg": {
 >>%genlastVersionInsert_Dmg%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_DMG%/",
 >>%genlastVersionInsert_Dmg%   "latest-version": "%LAST_VER_DMG%",
->>%genlastVersionInsert_Dmg%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_DMG%_osx.dmg",
+>>%genlastVersionInsert_Dmg%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_DMG%_macos.dmg",
 >>%genlastVersionInsert_Dmg%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LAST_VER_DMG%.txt"
 >>%genlastVersionInsert_Dmg% },
 
@@ -675,7 +675,7 @@ SET genlastVersionInsert_Deb=%lastVersionInsert_DebFile% ECHO
 >%genlastVersionInsert_Deb% "alternate-version-%LAST_VER_DEB%-deb": {
 >>%genlastVersionInsert_Deb%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_DEB%/",
 >>%genlastVersionInsert_Deb%   "latest-version": "%LAST_VER_DEB%",
->>%genlastVersionInsert_Deb%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_DEB%_0ubuntu1_amd64.deb",
+>>%genlastVersionInsert_Deb%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_DEB%_amd64.deb",
 >>%genlastVersionInsert_Deb%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LAST_VER_DEB%.txt"
 >>%genlastVersionInsert_Deb% },
 

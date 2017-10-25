@@ -50,6 +50,8 @@ before_install:
       sudo apt-get update -qq;
     else
       brew update;
+      brew install ccache;
+      export PATH="/usr/local/opt/ccache/libexec:$PATH";
     fi
 
 install:
@@ -97,16 +99,16 @@ script:
   - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         docker-compose -f builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml run --rm lpub3d-ci;
-        export LP3D_Download_DebPackage=`ls builds/linux/docker-compose/LPub3D_*.deb`;
-        export LP3D_Update_DebPackage=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
+        export LP3D_Download_Package=`ls builds/linux/docker-compose/LPub3D_*.deb`;
+        export LP3D_Update_Package=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
+        echo " Package files " `ls builds/linux/docker-compose/LPub3D*`;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
-        export LP3D_Download_DmgPackage=`ls DMGS/LPub3D_*_osx.dmg`;
-        export LP3D_Update_DmgPackage=`ls DMGS/LPub3D-UpdateMaster_*_osx.dmg`;
-        echo " Package files `ls DMGS/LPub3D*_osx.dmg`";
+        export LP3D_Download_Package=`ls ../dmgbuild/DMGS/LPub3D_*.macos.dmg`;
+        export LP3D_Update_Package=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster_*.macos.dmg`;
+        echo " Package files " `ls ../dmgbuild/DMGS`;
       fi;
-      env | grep -P 'LP3D*';
     else
      qmake -v;
      qmake -r;
@@ -118,8 +120,8 @@ deploy:
   api_key:
     secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
   file:
-    - $LP3D_Download_DebPackage
-    - $LP3D_Update_DebPackage
+    - $LP3D_Download_Package
+    - $LP3D_Update_Package
   overwrite: true
   skip_cleanup: true
   on:

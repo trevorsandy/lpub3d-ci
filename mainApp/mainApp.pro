@@ -176,41 +176,43 @@ unix: {
     }
 }
 
+#-----deprecated---------->
 # Download 3rd party repository when required
-if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
-    unix:!macx:REPO = lpub3d_linux_3rdparty
-    macx:REPO       = lpub3d_macos_3rdparty
-    win32:REPO      = lpub3d_windows_3rdparty
-    !exists($$_PRO_FILE_PWD_/../../$$REPO/.gitignore) {
-        REPO_NOT_FOUND_MSG = GIT REPOSITORY $$REPO was not found. It will be downloaded.
-        REPO_DOWNLOADED_MSG = GIT REPOSITORY $$REPO downloaded.
-        GITHUB_URL = https://github.com/trevorsandy
-        QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                           echo $$shell_quote$${REPO_NOT_FOUND_MSG}
-        win32 {
-           QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                                $$escape_expand(\n\t) \
-                                cd $$_PRO_FILE_PWD_/../../ \
-                                $$escape_expand(\n\t) \
-                                git clone $${GITHUB_URL}/$${REPO}.git \
-                                $$escape_expand(\n\t) \
-                                DIR $$_PRO_FILE_PWD_/../../ /S \
-                                $$escape_expand(\n\t) \
-                                CD
-        } else {
-           QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                                cd $$_PRO_FILE_PWD_/../../ \
-                                && git clone $${GITHUB_URL}/$${REPO}.git \
-                                && pwd \
-                                && ls \
-                                && cd $${REPO} \
-                                && pwd \
-                                && ls
-        }
-        QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                        echo $$shell_quote$${REPO_DOWNLOADED_MSG}
-    }
-}
+# if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
+#     unix:!macx:REPO = lpub3d_linux_3rdparty
+#     macx:REPO       = lpub3d_macos_3rdparty
+#     win32:REPO      = lpub3d_windows_3rdparty
+#     !exists($$_PRO_FILE_PWD_/../../$$REPO/.gitignore) {
+#         REPO_NOT_FOUND_MSG = GIT REPOSITORY $$REPO was not found. It will be downloaded.
+#         REPO_DOWNLOADED_MSG = GIT REPOSITORY $$REPO downloaded.
+#         GITHUB_URL = https://github.com/trevorsandy
+#         QMAKE_POST_LINK += $$escape_expand(\n\t) \
+#                            echo $$shell_quote$${REPO_NOT_FOUND_MSG}
+#         win32 {
+#            QMAKE_POST_LINK += $$escape_expand(\n\t) \
+#                                 $$escape_expand(\n\t) \
+#                                 cd $$_PRO_FILE_PWD_/../../ \
+#                                 $$escape_expand(\n\t) \
+#                                 git clone $${GITHUB_URL}/$${REPO}.git \
+#                                 $$escape_expand(\n\t) \
+#                                 DIR $$_PRO_FILE_PWD_/../../ /S \
+#                                 $$escape_expand(\n\t) \
+#                                 CD
+#         } else {
+#            QMAKE_POST_LINK += $$escape_expand(\n\t) \
+#                                 cd $$_PRO_FILE_PWD_/../../ \
+#                                 && git clone $${GITHUB_URL}/$${REPO}.git \
+#                                 && pwd \
+#                                 && ls \
+#                                 && cd $${REPO} \
+#                                 && pwd \
+#                                 && ls
+#         }
+#         QMAKE_POST_LINK += $$escape_expand(\n\t) \
+#                         echo $$shell_quote$${REPO_DOWNLOADED_MSG}
+#     }
+# }
+#<-----deprecated----------
 
 VER_LDVIEW      = ldview-4.3
 VER_LDGLITE     = ldglite-1.3
