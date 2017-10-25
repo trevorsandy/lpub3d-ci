@@ -94,6 +94,7 @@ then
 else
     echo "7. package ${DISTRO_FILE} not found."
 fi
-echo "8. Package files: `find $PWD`"
+
+#echo " DEBUG Package files: `find $PWD`"
 echo "$ME Finished!"
 # mv $LOG "${CWD}/pkgbuild/$ME.log"

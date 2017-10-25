@@ -67,7 +67,7 @@ then
 else
   echo "-  lpub3d_macos_3rdparty repository folder exist. moving repository..."
   mv ../lpub3d_macos_3rdparty/ ./lpub3d_macos_3rdparty/
-  echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
+  #echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
 fi
 
 if [ -d ${LPUB3D} ] && [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
@@ -123,7 +123,7 @@ echo "- copy LPub3D bundle components..."
 cp -rf ../../mainApp/release/LPub3D.app .
 cp -f ../utilities/icons/lpub3d.icns .
 cp -f ../utilities/icons/lpub3dbkg.png .
-cp -f ../utilities/COPYING_BRIEF .COPYING
+cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
 
 echo "- install library links..."
 /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
@@ -166,7 +166,7 @@ After installation, remove the mounted LPub3D disk image by dragging it to the T
 
 Cheers,
 EOF
-
+echo "- generate makedmg script..."
 cat <<EOF >makedmg
 #!/bin/bash
 ../utilities/create-dmg \\
@@ -187,26 +187,26 @@ DMGSRC/
 EOF
 
 echo "- create dmg packages..."
+chmod +x ../utilities/create-dmg
 chmod +x makedmg && ./makedmg
 
-cp "${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${VERSION}_osx.dmg"
-echo "      Download package..: LPub3D_${APP_VERSION_LONG}_osx.dmg"
-echo "      Update package....: LPub3D-UpdateMaster_${VERSION}_osx.dmg"
+if [ -f "${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg" ]; then
+  cp "${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${VERSION}_osx.dmg"
+  echo "      Download package..: LPub3D_${APP_VERSION_LONG}_osx.dmg"
+  echo "      Update package....: LPub3D-UpdateMaster_${VERSION}_osx.dmg"
 
-echo "- cleanup..."
-rm -f -R DMGSRC
-rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
+  echo "- cleanup..."
+  rm -f -R DMGSRC
+  rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 
-# if [ "${TRAVIS}" == "true"  ]; then
-#   # export vars used by travis.yml so paths must be relative to project download dir
-#   export LP3D_Download_DmgPackage=`ls ${DMGDIR}/LPub3D_*_osx.dmg`
-#   export LP3D_Update_DmgPackage=`ls ${DMGDIR}/LPub3D-UpdateMaster_*_osx.dmg`
   echo "- Package files: `ls ${DMGDIR}/LPub3D*_osx.dmg`"
-  echo "  DEBUG Package files: `find $PWD`"
-#   env | grep -P 'LP3D*'
-#   env | grep -P 'TRAVIS*'
-# fi
+  #echo "  DEBUG Package files: `find $PWD`"
 
+  echo "$ME Finished!"
+else
+  echo "- ${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg was not found."
+  echo "- $ME failed."
+fi
 # create dmg - end #
-echo "$ME Finished!"
+
 # mv $LOG "${CWD}/dmgbuild/$ME.log"

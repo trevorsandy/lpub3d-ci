@@ -255,15 +255,15 @@ EOF
 if [ "$OS" = Darwin ];
 then
     Info "11. update the Info.plist with version major, version minor, build and git sha hash"
-    FILE="$LP3D_PWD/Info.plist"
-    if [ -f "${FILE}" ];
+    INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
+    if [ -f "${INFO_PLIST_FILE}" ];
     then
-        /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${FILE}"
-        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.${LPUB3D}.GitSHA ${VER_SHA_HASH}" "${FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${VER_SHA_HASH}" "${INFO_PLIST_FILE}"
     else
-        Info "   Error: update failed, ${FILE} not found."
+        Info "   Error: update failed, ${INFO_PLIST_FILE} not found."
     fi
 fi
 if [ "$3" != "" ]

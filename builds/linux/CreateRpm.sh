@@ -61,26 +61,7 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "3. get LDraw archive libraries"
-if [ ! -f lpub3dldrawunf.zip ]
-then
-     wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
-fi
-if [ ! -f complete.zip ]
-then
-     wget -q http://www.ldraw.org/library/updates/complete.zip
-fi
-
-echo "4. copy ${LPUB3D}.git.version to SOURCES"
-cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
-
-echo "5. copy xpm icon to SOURCES/"
-cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
-
-echo "6. copy spec to SPECS/"
-cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
-
-echo "7. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
+echo "4. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
 tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -94,12 +75,31 @@ tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
+echo "5. copy ${LPUB3D}.git.version to SOURCES"
+cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
+
+echo "6. copy xpm icon to SOURCES/"
+cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
+
+echo "7. copy spec to SPECS/"
+cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
+
+echo "8. get LDraw archive libraries"
+if [ ! -f lpub3dldrawunf.zip ]
+then
+     wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+fi
+if [ ! -f complete.zip ]
+then
+     wget -q http://www.ldraw.org/library/updates/complete.zip
+fi
+
 echo "8. build the RPM package (success = 'exit 0')"
 cd ../SPECS
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
 
 cd ../RPMS/${LP3D_TARGET_ARCH}
-DISTRO_FILE=`find -name "${LPUB3D}-${APP_VERSION}*.rpm"`
+DISTRO_FILE=`ls ${LPUB3D}-${APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "9. create update and download packages"
@@ -117,7 +117,6 @@ fi
 echo "10. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/"
 rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
-echo "11. Package files: `find $PWD`"
-
+echo " DEBUG Package files: `find $PWD`"
 echo "$ME Finished!"
 #mv $LOG "${CWD}/rpmbuild/$ME.log"

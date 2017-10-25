@@ -4,7 +4,7 @@
 # Trevor SANDY
 # Last Update 30 August 2017
 
-set -e;
+set -e
 
 function pure_version() {
   echo '1.0.0.3'
