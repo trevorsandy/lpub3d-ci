@@ -3,9 +3,9 @@ VERSION = 1.0.0
 
 #-----deprecated---------->
 # Past versions available for automatic install (static list)
-PAST_RELEASES = 1.3.5,1.2.3,1.0.0
+# PAST_RELEASES = 1.3.5,1.2.3,1.0.0
 # Previous tags to capture (array)
-_TAGS = $$list(1 2)
+# _TAGS = $$list(1 2)
 #<-----deprecated----------
 
 # Need to discard STDERR so get path to NULL device
@@ -65,14 +65,14 @@ equals(GIT_DIR, undefined) {
 
     #-----deprecated---------->
     #  Get previous versions from git tag / revision
-    VER_GIT_TAG = $$section(GIT_VERSION, " ", 0, 2)
+    # VER_GIT_TAG = $$section(GIT_VERSION, " ", 0, 2)
 
-    AVAILABLE_VERSIONS = $$VER_GIT_TAG,
-    AVAILABLE_VERSIONS ~= s/" "/"."
+    # AVAILABLE_VERSIONS = $$VER_GIT_TAG,
+    # AVAILABLE_VERSIONS ~= s/" "/"."
 
-    isEmpty(AVAILABLE_VERSIONS) {
-         AVAILABLE_VERSIONS = $${VERSION},
-    }
+    # isEmpty(AVAILABLE_VERSIONS) {
+    #      AVAILABLE_VERSIONS = $${VERSION},
+    # }
     #message(~~~ DEBUG ~~ AVAILABLE_VERSIONS [FROM FILE RAW]: $$AVAILABLE_VERSIONS)
     #<-----deprecated----------
 
@@ -115,21 +115,21 @@ equals(GIT_DIR, undefined) {
 
     #-----deprecated---------->
     # Get previous versions from git tag / revision
-    VER_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 2> $$NULL_DEVICE)
-    for(_TAG, $$_TAGS) {
-        greaterThan(_TAG, 1) {
-            win32:VER_GIT_TAG_KEY = $$join(VER_GIT_TAG,,,^^)
-            else: VER_GIT_TAG_KEY = $$join(VER_GIT_TAG,,,^)
-        }
-        VER_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 $$VER_GIT_TAG_KEY 2> $$NULL_DEVICE)
-        !isEmpty(VER_GIT_TAG) {
-            AVAILABLE_VERSIONS += $$VER_GIT_TAG,
-            AVAILABLE_VERSIONS ~= s/v/""
-        }
-    }
-    isEmpty(AVAILABLE_VERSIONS) {
-         AVAILABLE_VERSIONS = $${VERSION},
-    }
+    # VER_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 2> $$NULL_DEVICE)
+    # for(_TAG, $$_TAGS) {
+    #     greaterThan(_TAG, 1) {
+    #         win32:VER_GIT_TAG_KEY = $$join(VER_GIT_TAG,,,^^)
+    #         else: VER_GIT_TAG_KEY = $$join(VER_GIT_TAG,,,^)
+    #     }
+    #     VER_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 $$VER_GIT_TAG_KEY 2> $$NULL_DEVICE)
+    #     !isEmpty(VER_GIT_TAG) {
+    #         AVAILABLE_VERSIONS += $$VER_GIT_TAG,
+    #         AVAILABLE_VERSIONS ~= s/v/""
+    #     }
+    # }
+    # isEmpty(AVAILABLE_VERSIONS) {
+    #      AVAILABLE_VERSIONS = $${VERSION},
+    # }
     #message(~~~ DEBUG ~~ AVAILABLE_VERSIONS [FORMATTED]: $$AVAILABLE_VERSIONS)
     #<-----deprecated----------
 }
@@ -177,7 +177,7 @@ VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
 #-----deprecated---------->
 # Append static past versions
-AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_RELEASES)
+# AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_RELEASES)
 #<-----deprecated----------
 
 # Update the version number file for win/unix during build
@@ -189,66 +189,66 @@ AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_RELEASES)
 message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR ~~~)
 
 #-----deprecated---------->
-message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS ~~~)
+# message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS ~~~)
 
 
-COMPLETION_COMMAND = LPub3D Build Finished.
-win32 {
-    # Update config parameters
-    # 1. Present working directory [_PRO_FILE_PWD_]
-    # 2. Major version             [VER_MAJOR]
-    # 3. Minor version             [VER_MINOR]
-    # 4. Patch version             [VER_PATCH]
-    # 5. Revision                  [VER_REVISION_STR]
-    # 6. Build number              [VER_BUILD_STR]
-    # 7. Git sha hash (short)      [VER_SHA_HASH_STR]
-    # 8. Available past versions   [AVAILABLE_VERSIONS]
-    CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat
-    QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                       $$shell_quote$${CONFIG_FILES_COMMAND} \
-                       $$shell_quote$$_PRO_FILE_PWD_ \
-                       $${VER_MAJOR} \
-                       $${VER_MINOR} \
-                       $${VER_PATCH} \
-                       $${VER_REVISION_STR} \
-                       $${VER_BUILD_STR} \
-                       $${VER_SHA_HASH_STR} \
-                       $${AVAILABLE_VERSIONS} \
-                       $$escape_expand(\n\t) \
-                       echo $$shell_quote$${COMPLETION_COMMAND}
+# COMPLETION_COMMAND = LPub3D Build Finished.
+# win32 {
+#     # Update config parameters
+#     # 1. Present working directory [_PRO_FILE_PWD_]
+#     # 2. Major version             [VER_MAJOR]
+#     # 3. Minor version             [VER_MINOR]
+#     # 4. Patch version             [VER_PATCH]
+#     # 5. Revision                  [VER_REVISION_STR]
+#     # 6. Build number              [VER_BUILD_STR]
+#     # 7. Git sha hash (short)      [VER_SHA_HASH_STR]
+#     # 8. Available past versions   [AVAILABLE_VERSIONS]
+#     CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat
+#     QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+#                        $$shell_quote$${CONFIG_FILES_COMMAND} \
+#                        $$shell_quote$$_PRO_FILE_PWD_ \
+#                        $${VER_MAJOR} \
+#                        $${VER_MINOR} \
+#                        $${VER_PATCH} \
+#                        $${VER_REVISION_STR} \
+#                        $${VER_BUILD_STR} \
+#                        $${VER_SHA_HASH_STR} \
+#                        $${AVAILABLE_VERSIONS} \
+#                        $$escape_expand(\n\t) \
+#                        echo $$shell_quote$${COMPLETION_COMMAND}
 
-} else {
-    CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh
-    CONFIG_FILES_COMMAND = $$CONFIG_FILES_TARGET
-    CHMOD_COMMAND = chmod 755 $$CONFIG_FILES_TARGET
-    QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                       $$shell_quote$${CHMOD_COMMAND} \
-                       $$escape_expand(\n\t)  \
-                       $$shell_quote$${CONFIG_FILES_COMMAND} \
-                       $$shell_quote$$_PRO_FILE_PWD_ \
-                       $${VER_MAJOR} \
-                       $${VER_MINOR} \
-                       $${VER_PATCH} \
-                       $${VER_REVISION_STR} \
-                       $${VER_BUILD_STR} \
-                       $${VER_SHA_HASH_STR} \
-                       $$escape_expand(\n\t)  \
-                       echo $$shell_quote$${COMPLETION_COMMAND}
-    #<-----deprecated-------------
-    #
-    #-----keep (for now)---------->
-    # On Mac update the Info.plist with version major, version minor, build and add git hash
-    macx {
-        INFO_PLIST_FILE = $$shell_quote($${PWD}/mainApp/Info.plist)
-        PLIST_COMMAND = /usr/libexec/PlistBuddy -c
-        QMAKE_POST_LINK += $$escape_expand(\n\t)   \
-                           $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
-                           $$escape_expand(\n\t)   \
-                           $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
-                           $$escape_expand(\n\t)   \
-                           $$PLIST_COMMAND \"Set :CFBundleGetInfoString LPub3D $${VERSION} https://github.com/trevorsandy/lpub3d\" $${INFO_PLIST_FILE} \
-                           $$escape_expand(\n\t)   \
-                           $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
-     #<-----keep (for now)----------
-    }
-}
+# } else {
+#     CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh
+#     CONFIG_FILES_COMMAND = $$CONFIG_FILES_TARGET
+#     CHMOD_COMMAND = chmod 755 $$CONFIG_FILES_TARGET
+#     QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+#                        $$shell_quote$${CHMOD_COMMAND} \
+#                        $$escape_expand(\n\t)  \
+#                        $$shell_quote$${CONFIG_FILES_COMMAND} \
+#                        $$shell_quote$$_PRO_FILE_PWD_ \
+#                        $${VER_MAJOR} \
+#                        $${VER_MINOR} \
+#                        $${VER_PATCH} \
+#                        $${VER_REVISION_STR} \
+#                        $${VER_BUILD_STR} \
+#                        $${VER_SHA_HASH_STR} \
+#                        $$escape_expand(\n\t)  \
+#                        echo $$shell_quote$${COMPLETION_COMMAND}
+#     #<-----deprecated-------------
+#     #
+#     #-----keep (for now)---------->
+#     # On Mac update the Info.plist with version major, version minor, build and add git hash
+#     macx {
+#         INFO_PLIST_FILE = $$shell_quote($${PWD}/mainApp/Info.plist)
+#         PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+#         QMAKE_POST_LINK += $$escape_expand(\n\t)   \
+#                            $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
+#                            $$escape_expand(\n\t)   \
+#                            $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
+#                            $$escape_expand(\n\t)   \
+#                            $$PLIST_COMMAND \"Set :CFBundleGetInfoString LPub3D $${VERSION} https://github.com/trevorsandy/lpub3d\" $${INFO_PLIST_FILE} \
+#                            $$escape_expand(\n\t)   \
+#                            $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
+#      #<-----keep (for now)----------
+#     }
+# }
