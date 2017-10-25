@@ -6,18 +6,18 @@ RUN pacman -Syu --noconfirm
 RUN pacman -S --noconfirm --needed git wget ccache
 RUN pacman -S --noconfirm --needed qt5-base qt5-tools libpng libjpeg-turbo
 RUN pacman -S --noconfirm --needed freeglut boost-libs
+# Create user group and user
 RUN pacman -S --noconfirm --needed sudo \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \
     && chmod 755 /user \
     && echo "user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user \
     && chmod 0440 /etc/sudoers.d/user
-RUN su - user -c "touch mine"
-VOLUME /buildpkg
 # Set the working directory to user home directory
 WORKDIR /user
 # Specify the user to execute all commands below
 USER user
+VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreatePkg.sh \
     && chmod +x CreatePkg.sh \
     && ./CreatePkg.sh \
