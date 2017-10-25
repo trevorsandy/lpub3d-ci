@@ -82,14 +82,15 @@ BuildRequires: finger
 %define _iconsdir %{_datadir}/icons
 
 # package attributes
-Name: lpub3d-ci
-Icon: lpub3d-ci.xpm
+Name: lpub3d
+Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
 Version: %{gitversion}
 Release: %{?dist}
-URL: https://trevorsandy.github.io/lpub3d-ci
+URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
+# add runtime libs libtiff libjpeg boost-threads for 3rd party apps here...
 Requires: unzip
 BuildRequires: freeglut-devel
 Source0: lpub3d-ci-git.tar.gz
@@ -208,6 +209,8 @@ if [ -f ${LDrawLibUnofficial} ] ; then
 else
 	echo "lpub3dldrawunf.zip not found!"
 fi ;
+echo "Current working directory: $PWD"
+git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
 { set -x; } 2>/dev/null
 
 # use Qt5
@@ -217,9 +220,9 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
-	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d-ci
+	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 else
-	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d-ci
+	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 fi
 make clean
 make %{?_smp_mflags}
@@ -241,12 +244,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%{_datadir}/lpub3d-ci
+%{_datadir}/lpub3d
 %dir %{_iconsdir}/hicolor/
 %dir %{_iconsdir}/hicolor/scalable/
 %dir %{_iconsdir}/hicolor/scalable/mimetypes/
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%attr(644,-,-) %doc %{_docdir}/lpub3d-ci
+%attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 
 %post -p /sbin/ldconfig
