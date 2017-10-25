@@ -7,4 +7,4 @@ CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/l
     && dnf update -x kernel* -y \
     && chmod +x CreateRpm.sh \
     && ./CreateRpm.sh \
-    && if test -d /buildpkg; then cp -f /rpmbuild/*.deb /buildpkg/; fi
+    && if test -d /buildpkg; then cp -f /rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; fi

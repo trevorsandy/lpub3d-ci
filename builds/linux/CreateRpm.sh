@@ -52,7 +52,7 @@ done
 cd SOURCES
 
 echo "2. download source"
-git clone https://github.com/trevorsandy/lpub3d.git
+git clone https://github.com/trevorsandy/${LPUB3D}.git
 
 echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
