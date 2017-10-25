@@ -62,7 +62,7 @@ WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
 echo "4. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
-tar -czvf ${WORK_DIR}.tar.gz \
+tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
         --exclude="${WORK_DIR}/builds/macx" \
@@ -94,7 +94,7 @@ then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "8. build the RPM package (success = 'exit 0')"
+echo "9. build the RPM package (success = 'exit 0')"
 cd ../SPECS
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
 

@@ -125,6 +125,10 @@ cp -f ../utilities/icons/lpub3d.icns .
 cp -f ../utilities/icons/lpub3dbkg.png .
 cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
 
+echo "- set scrpt permissions..."
+chmod +x ../utilities/create-dmg
+chmod +x ../utilities/dmg-tuils/dmg-license.py
+
 echo "- install library links..."
 /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
 /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
@@ -187,7 +191,6 @@ DMGSRC/
 EOF
 
 echo "- create dmg packages..."
-chmod +x ../utilities/create-dmg
 chmod +x makedmg && ./makedmg
 
 if [ -f "${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg" ]; then
