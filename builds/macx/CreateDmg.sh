@@ -56,18 +56,19 @@ echo "-  create DMG build working directory..."
 if [ ! -d dmgbuild ]
 then
   mkdir dmgbuild
-  echo "   dmgbuild created."
 fi
 
-if [ ! -d lpub3d_macos_3rdparty ]
+cd dmgbuild
+
+if [ ! -d ../lpub3d_macos_3rdparty ]
 then
   echo "-  download lpub3d_macos_3rdparty repository..."
   git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
 else
-  echo "-  lpub3d_macos_3rdparty repository folder exist. skipping download..."
+  echo "-  lpub3d_macos_3rdparty repository folder exist. moving repository..."
+  mv ../lpub3d_macos_3rdparty/ ./lpub3d_macos_3rdparty/
+  echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
 fi
-
-cd dmgbuild
 
 if [ -d ${LPUB3D} ] && [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
@@ -77,10 +78,7 @@ then
 elif [ "$getsource" = "c" ]
 then
   echo "-  copying LPub3D source..."
-  echo "-  DEBUG COPY SOURCE ROOT DIR LIST: `ls ../`"
   cp -rf ../${LPUB3D}/ ./${LPUB3D}/
-  echo "-  DEBUG PWD: $PWD"
-  echo "-  DEBUG COPY DEST DIR LIST: `ls`"
 elif [ ! -d ${LPUB3D} ]
 then
   echo "-  download LPub3D source..."
@@ -91,7 +89,6 @@ fi
 
 echo "-  source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
-echo "   DEBUG _PRO_FILE_PWD_ = ${_PRO_FILE_PWD_}"
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
@@ -114,7 +111,6 @@ fi
 
 echo "-  configure and build LPub3D source..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
-echo "-  DEBUG WHERE IS QMAKE: `whereis qmake`"
 qmake -v
 qmake -r
 /usr/bin/make
@@ -205,7 +201,8 @@ rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 #   # export vars used by travis.yml so paths must be relative to project download dir
 #   export LP3D_Download_DmgPackage=`ls ${DMGDIR}/LPub3D_*_osx.dmg`
 #   export LP3D_Update_DmgPackage=`ls ${DMGDIR}/LPub3D-UpdateMaster_*_osx.dmg`
-#   echo " Package files: `ls ${DMGDIR}/LPub3D*_osx.dmg`"
+  echo "- Package files: `ls ${DMGDIR}/LPub3D*_osx.dmg`"
+  echo "  DEBUG Package files: `find $PWD`"
 #   env | grep -P 'LP3D*'
 #   env | grep -P 'TRAVIS*'
 # fi

@@ -258,11 +258,10 @@ then
     FILE="$LP3D_PWD/Info.plist"
     if [ -f "${FILE}" ];
     then
-        echo "-  DEBUG WHERE IS PLIST BUDDY: `whereis PlistBuddy`"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}\" ${FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}\" ${FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}\" ${FILE}"
-        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.${LPUB3D}.GitSHA ${VER_SHA_HASH}\" ${FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${FILE}"
+        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.${LPUB3D}.GitSHA ${VER_SHA_HASH}" "${FILE}"
     else
         Info "   Error: update failed, ${FILE} not found."
     fi
