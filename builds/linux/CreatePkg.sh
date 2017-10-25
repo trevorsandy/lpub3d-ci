@@ -81,16 +81,16 @@ fi
 echo "6. build application package"
 makepkg -s
 
-DISTRO_FILE=`ls ${LPUB3D}-${APP_VERSION}*.pkg.tar.xz`
+DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "7. create update and download packages"
-    IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
-    cp -f ${DISTRO_FILE} "${LPUB3D}-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
-    echo "    Download package: ${LPUB3D}-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
+    IFS=- read NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
+    cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${BUILD}_${PKG_EXTENSION}"
+    echo "    Download package: ${LPUB3D}-${LP3D_APP_VERSION_LONG}_${BUILD}_${PKG_EXTENSION}"
 
-    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
+    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${PKG_VERSION}_${PKG_EXTENSION}"
+    echo "      Update package: LPub3D-UpdateMaster_${PKG_VERSION}_${PKG_EXTENSION}"
 else
     echo "7. package ${DISTRO_FILE} not found."
 fi

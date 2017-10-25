@@ -87,7 +87,7 @@ APP_VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
 LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-BUILDVERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${DATE_TIME}")"
+LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${DATE_TIME}")"
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   LP3D_PWD...............${LP3D_PWD}"
@@ -99,13 +99,13 @@ Info "   VER_REVISION...........${VER_REVISION}"
 Info "   VER_BUILD..............${VER_BUILD}"
 Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
 Info "   APP_VER_SUFFIX.........${APP_VER_SUFFIX}"
-Info "   BUILDVERSION...........${BUILDVERSION}"
 Info "   DATE_TIME..............${DATE_TIME}"
 Info "   CHANGE_DATE_LONG.......${CHANGE_DATE_LONG}"
 
 Info "   LP3D_VERSION...........${LP3D_VERSION}"
 Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
 Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
+Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 
 Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
@@ -220,9 +220,9 @@ LineToReplace=1
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]; then
-        sed -i "" "${LineToReplace}s/.*/LPub3D ${BUILDVERSION}/" "${FILE}"
+        sed -i "" "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
     else
-        sed -i "${LineToReplace}s/.*/LPub3D ${BUILDVERSION}/" "${FILE}"
+        sed -i "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"

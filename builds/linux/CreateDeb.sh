@@ -117,13 +117,13 @@ lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "10. create LPub3D update and download packages..."
-    IFS=_ read DEB_NAME DEB_VERSION DEB_ARCH_EXTENSION <<< ${DISTRO_FILE}
+    IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -rf ${DISTRO_FILE} "LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
-    echo "    Download package: LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_ARCH_EXTENSION}"
+    cp -rf ${DISTRO_FILE} "LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
+    echo "    Download package: LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
 
-    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_ARCH_EXTENSION}"
-    echo "      Update package: LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_ARCH_EXTENSION}"
+    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${DEB_VERSION}_${DEB_EXTENSION}"
+    echo "      Update package: LPub3D-UpdateMaster_${DEB_VERSION}_${DEB_EXTENSION}"
 else
     echo "10. package ${DISTRO_FILE} not found"
 fi

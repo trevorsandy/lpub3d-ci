@@ -82,7 +82,7 @@ fi
 
 # file copy and downloads above must happen before we make the tarball
 echo "8. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
-tar -czf ${WORK_DIR}.tar.gz \
+tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
         --exclude="${WORK_DIR}/builds/macx" \
@@ -100,17 +100,17 @@ cd ../SPECS
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
 
 cd ../RPMS/${LP3D_TARGET_ARCH}
-DISTRO_FILE=`ls ${LPUB3D}-${APP_VERSION}*.rpm`
+DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "9. create update and download packages"
-    IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
+    IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -f ${DISTRO_FILE} "${LPUB3D}-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
-    echo "    Download package: ${LPUB3D}_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
+    cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
+    echo "    Download package: ${LPUB3D}_${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
 
-    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
+    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
+    echo "      Update package: LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
 else
     echo "9. package ${DISTRO_FILE} not found."
 fi
