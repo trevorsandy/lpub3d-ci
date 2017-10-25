@@ -190,7 +190,7 @@ message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR
 
 #-----deprecated---------->
 message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS ~~~)
-#<-----deprecated----------
+
 
 COMPLETION_COMMAND = LPub3D Build Finished.
 win32 {
@@ -234,8 +234,9 @@ win32 {
                        $${VER_SHA_HASH_STR} \
                        $$escape_expand(\n\t)  \
                        echo $$shell_quote$${COMPLETION_COMMAND}
-
-    #-----deprecated---------->
+    #<-----deprecated-------------
+    #
+    #-----keep (for now)---------->
     # On Mac update the Info.plist with version major, version minor, build and add git hash
     macx {
         INFO_PLIST_FILE = $$shell_quote($${PWD}/mainApp/Info.plist)
@@ -248,6 +249,6 @@ win32 {
                            $$PLIST_COMMAND \"Set :CFBundleGetInfoString LPub3D $${VERSION} https://github.com/trevorsandy/lpub3d\" $${INFO_PLIST_FILE} \
                            $$escape_expand(\n\t)   \
                            $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
-     #<-----deprecated----------
+     #<-----keep (for now)----------
     }
 }
