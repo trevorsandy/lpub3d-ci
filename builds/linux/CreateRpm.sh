@@ -42,6 +42,7 @@ then
     mkdir rpmbuild
 fi
 cd rpmbuild
+RPM_BUILD_DIR=$PWD
 for DIR in {BUILD,RPMS,SRPMS,SOURCES,SPECS}
 do
     if [ ! -d "${DIR}" ]
@@ -62,17 +63,19 @@ echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/"
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "4. copy ${LPUB3D}.git.version to SOURCES/"
+echo "5. copy ${LPUB3D}.git.version to SOURCES/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
+if [ -f "${LPUB3D}.git.version" ]; then echo "   DEBUG ${LPUB3D}.git.version copied"; else echo "   DEBUG ${LPUB3D}.git.version not found!"; fi
 
-echo "5. copy xpm icon to SOURCES/"
+echo "6. copy xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
 if [ -f "lpub3d.xpm" ]; then echo "   DEBUG lpub3d.xpm copied"; else echo "   DEBUG lpub3d.xpm not found!"; fi
 
-echo "6. copy spec to SPECS/"
+echo "7. copy spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
+if [ -f "../SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
 
-echo "7. download LDraw archive libraries to SOURCES/"
+echo "8. download LDraw archive libraries to SOURCES/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -83,8 +86,8 @@ then
 fi
 
 # file copy and downloads above must happen before we make the tarball
-echo "8. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
-tar -czvf ${WORK_DIR}.tar.gz \
+echo "9. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
+tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
         --exclude="${WORK_DIR}/builds/macx" \
@@ -97,14 +100,15 @@ tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
-echo "9. build the RPM package"
+echo "10. build the RPM package"
 cd ../SPECS
 # check the spec
 rpmlint ${LPUB3D}.spec
+
 # this seems to be the build command for OpenSUSE...
 #rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
 # this looks to be the build command for Fedora...
-rpmbuild -vv -ba ${LPUB3D}.spec
+rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -vv -ba ${LPUB3D}.spec
 # check the RPMs
 rpmlint ../RPMS/*/${LPUB3D}*.rpm ../SRPMS/${LPUB3D}*.rpm
 
@@ -112,7 +116,7 @@ cd ../RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "9. create update and download packages"
+    echo "11. create update and download packages"
     IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
@@ -121,10 +125,10 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
 else
-    echo "9. package ${DISTRO_FILE} not found."
+    echo "11. package ${DISTRO_FILE} not found."
 fi
 
-echo "10. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/"
+echo "12. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/"
 rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
 echo " DEBUG Package files:" `ls ../RPMS`

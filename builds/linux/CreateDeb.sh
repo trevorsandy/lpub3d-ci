@@ -69,7 +69,7 @@ echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 mv ${LPUB3D} ${SOURCE_DIR}
 
-echo "4. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${SOURCE_DIR}/"
+echo "5. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${SOURCE_DIR}/"
 tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/builds/linux/standard" \
         --exclude="${SOURCE_DIR}/builds/macx" \
@@ -81,7 +81,7 @@ tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/.gitignore" \
         --exclude="${SOURCE_DIR}/appveyor.yml"
 
-echo "5. download LDraw archive libraries to SOURCES/..."
+echo "6. download LDraw archive libraries to SOURCES/..."
 # we pull in the library archives here because the lpub3d.spec file copies them
 # to the extras location. This config thus supports both Suse OBS and Travis CI build procs.
 if [ ! -f lpub3dldrawunf.zip ]
@@ -93,7 +93,7 @@ then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "6. re-create (untar) soruce directory ${SOURCE_DIR}/..."
+echo "7. re-create (untar) soruce directory ${SOURCE_DIR}/..."
 cd ../
 if [  -d ${LPUB3D}_${LP3D_APP_VERSION} ]
 then
@@ -101,23 +101,23 @@ then
 fi
 tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
-echo "7. copy debian/ configuration directory to ${SOURCE_DIR}/..."
+echo "8. copy debian/ configuration directory to ${SOURCE_DIR}/..."
 cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
 cd ${SOURCE_DIR}/debian
 
-echo "8. build application package from ${SOURCE_DIR}/..."
+echo "9. build application package from ${SOURCE_DIR}/..."
 cd ../
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc
 
-echo "9. run lintian..."
+echo "10. run lintian..."
 cd ../
 DISTRO_FILE=`ls *.deb`
 lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "10. create LPub3D update and download packages..."
+    echo "11. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
 
     cp -rf ${DISTRO_FILE} "LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
@@ -126,14 +126,14 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${DEB_VERSION}_${DEB_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${DEB_VERSION}_${DEB_EXTENSION}"
 else
-    echo "10. package ${DISTRO_FILE} not found"
+    echo "11. package ${DISTRO_FILE} not found"
 fi
 
 if [ "${TRAVIS}" == "true"  ]; then
   # export vars used by travis.yml so paths must be relative to project download dir
   export LP3D_Download_DebPackage=`ls ../LPub3D_*.deb`
   export LP3D_Update_DebPackage=`ls ../LPub3D-UpdateMaster_*.deb`
-  echo "11. Package files: `ls ../LPub3D*.deb`"
+  echo "    DEBUG Package files: `ls ../LPub3D*.deb`"
   env | grep -P 'LP3D*'
 fi
 

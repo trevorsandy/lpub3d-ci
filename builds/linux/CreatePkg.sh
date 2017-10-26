@@ -47,11 +47,11 @@ git clone https://github.com/trevorsandy/${LPUB3D}.git
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in upstream/"
+echo "3. move ${LPUB3D}/ to ${LPUB3D}-git/ in upstream/"
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "3. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
+echo "4. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
 tar -czf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -65,11 +65,11 @@ tar -czf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
-echo "4. copy PKGBUILD"
+echo "5. copy PKGBUILD"
 cp -f ${WORK_DIR}/builds/linux/obs/PKGBUILD ../
 cd ../
 
-echo "5. download LDraw archive libraries to pkgbuild/"
+echo "6. download LDraw archive libraries to pkgbuild/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -79,13 +79,13 @@ then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "6. build application package"
+echo "7. build application package"
 makepkg -s
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "7. create update and download packages"
+    echo "8. create update and download packages"
     IFS=- read NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${BUILD}_${PKG_EXTENSION}"
     echo "    Download package: ${LPUB3D}-${LP3D_APP_VERSION_LONG}_${BUILD}_${PKG_EXTENSION}"
@@ -93,7 +93,7 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${PKG_VERSION}_${PKG_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${PKG_VERSION}_${PKG_EXTENSION}"
 else
-    echo "7. package ${DISTRO_FILE} not found."
+    echo "8. package ${DISTRO_FILE} not found."
 fi
 
 #echo " DEBUG Package files: `find $PWD`"
