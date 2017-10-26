@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.119
+pkgver=2.0.21.120
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
@@ -38,6 +38,7 @@ prepare() {
 	if [ -f ../lpub3d_linux_3rdparty.tar.gz ]; then
 			mkdir ../lpub3d_linux_3rdparty && tar -xzf ../lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1
 			echo "lpub3d_linux_3rdparty tarball extracted to ../lpub3d_linux_3rdparty/"
+			echo "DEBUG 3RD_PARTY" `ls ../lpub3d_linux_3rdparty/*`
 			rm -f ../lpub3d_linux_3rdparty.tar.gz
 			echo "lpub3d_linux_3rdparty tarball deleted"
 	else
