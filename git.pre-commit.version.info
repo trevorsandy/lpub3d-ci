@@ -2,15 +2,15 @@ valid_commit   = yes
 
 lpub3d version   = 20171026
 branch           = master
-sha_hash_short   = 48bb2e5
+sha_hash_short   = 6b504f9
 tag_short        = v2.0.21
-tag_long         = v2.0.21-37-g48bb2e5
+tag_long         = v2.0.21-38-g6b504f9
 date             = 20171026
-date_time        = 26 10 2017 11:52:07
+date_time        = 26 10 2017 11:53:27
 
-old_revision     = 37
-revision         = 37
-old_commit_count = 104
-commit_count     = 104
+old_revision     = 38
+revision         = 38
+old_commit_count = 105
+commit_count     = 105
 
-VERSIONINFO      = 2 0 21 37 104 48bb2e5
+VERSIONINFO      = 2 0 21 38 105 6b504f9
