@@ -36,7 +36,7 @@ LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "1. create RPM build working directories in rpmbuild/"
+echo "1. create RPM build working directories in rpmbuild/..."
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
@@ -52,20 +52,20 @@ do
 done
 cd SOURCES
 
-echo "2. download source to SOURCES/"
+echo "2. download source to SOURCES/..."
 git clone https://github.com/trevorsandy/${LPUB3D}.git
 
 echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/"
+echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/..."
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "5. copy ${LPUB3D}.git.version to SOURCES/"
+echo "5. copy ${LPUB3D}.spec.git.version to SOURCES/..."
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
-if [ -f "${LPUB3D}.git.version" ]; then echo "   DEBUG ${LPUB3D}.git.version copied"; else echo "   DEBUG ${LPUB3D}.git.version not found!"; fi
+if [ -f "${LPUB3D}.spec.git.version" ]; then echo "   DEBUG ${LPUB3D}.spec.git.version copied"; else echo "   DEBUG ${LPUB3D}.spec.git.version not found!"; fi
 
 echo "6. copy xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
@@ -75,7 +75,7 @@ echo "7. copy spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
 if [ -f "../SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
 
-echo "8. download LDraw archive libraries to SOURCES/"
+echo "8. download LDraw archive libraries to SOURCES/..."
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -86,7 +86,7 @@ then
 fi
 
 # file copy and downloads above must happen before we make the tarball
-echo "9. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
+echo "9. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
 tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -100,8 +100,12 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
-echo "10. build the RPM package"
+
 cd ../SPECS
+echo "10. download build dependenvies..."
+dnf builddep -y ${LPUB3D}.spec
+
+echo "10. build the RPM package..."
 # check the spec
 rpmlint ${LPUB3D}.spec
 
@@ -116,7 +120,7 @@ cd ../RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "11. create update and download packages"
+    echo "11. create update and download packages..."
     IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
@@ -128,7 +132,7 @@ else
     echo "11. package ${DISTRO_FILE} not found."
 fi
 
-echo "12. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/"
+echo "12. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
 rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
 echo " DEBUG Package files:" `ls ../RPMS`
