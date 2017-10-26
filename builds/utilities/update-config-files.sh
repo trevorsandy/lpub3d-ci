@@ -46,7 +46,7 @@ then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
-Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
+#Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
 Info "1. capture version info"
 if [ "${SOURCED}" = "true" ]
 then
