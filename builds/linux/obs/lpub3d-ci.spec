@@ -193,7 +193,7 @@ echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 %build
 export QT_SELECT=qt5
 
-# get ldraw archive libraries
+# download ldraw archive libraries
 { set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
