@@ -211,10 +211,10 @@ else
 	echo "lpub3dldrawunf.zip not found at $PWD!"
 fi
 if [ -f ${3rdPartyRepoTarball} ] ; then
-  mkdir ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepo}.tar.gz -C ../${3rdPartyRepo} --strip-components=1
-  echo "${3rdPartyRepo} tarball extracted"
+	mkdir ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepo}.tar.gz -C ../${3rdPartyRepo} --strip-components=1
+	echo "${3rdPartyRepo} tarball extracted"
 else
-  echo "${3rdPartyRepo} tarball not found at $PWD!"
+	echo "${3rdPartyRepo} tarball not found at $PWD!"
 fi
 { set -x; } 2>/dev/null
 
