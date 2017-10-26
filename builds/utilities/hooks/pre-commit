@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# This pre-commit hook updates the LPub3D version information when you go to commit.
+#
+# To use this script copy it to .git/hooks/pre-commit and make it executable.
+#
+## Automatically generate git revision info
+##
+## Example:
+##   [master]v2.0.0-beta-191(a830382)
+##
+## Install:
+##   pre-commit:
+##   cp builds/utilities/git-create-revisioninfo-hook.sh .git/hooks/pre-commit
+##
+##  LPUB3D VERSION: VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH
+exec 1>&2
+tag_long=`git describe --tags --long`
+tag_short=`git describe --tags --abbrev=0`
+commit_count=`git rev-list HEAD --count`
+sha_hash_short=`git rev-parse --short HEAD`
+
+date=`date "+%Y%m%d"`
+date_time=`date +%d\ %m\ %Y\ %H:%M:%S`
+
+valid_commit="yes"
+if test x"`git diff HEAD --name-only`" = x""; then valid_commit="no"; fi
+
+tmp1=${tag_long#*-}       # remove prefix ending in "-"
+tmp2=${tag_short//./" "}  # replace . with " "
+g_version=${tmp2/v/}      # replace v with ""
+revision=${tmp1%-*}
+read major minor patch <<< ${g_version}
+
+old_revision=$revision
+old_commit_count=$commit_count
+if test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
+working_dir=$PWD/mainApp
+
+echo "0. Incrementing Git version info..."
+echo "   Old_revision..........$old_revision"
+echo "   Old_build (count).....$old_commit_count"
+
+chmod +x builds/utilities/update-config-files.sh
+./builds/utilities/update-config-files.sh $working_dir $major $minor $patch $revision $commit_count $sha_hash_short
+
+git add .
+
