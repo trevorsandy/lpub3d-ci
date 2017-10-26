@@ -17,7 +17,7 @@ LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 Info () {
     if [ "${SOURCED}" = "true" ]
     then
-        echo "    update-config: ${*}" >&2
+        echo "   update-config: ${*}" >&2
     else
         echo "${*}" >&2
     fi

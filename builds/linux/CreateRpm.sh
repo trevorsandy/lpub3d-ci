@@ -99,10 +99,17 @@ tar -czvf ${WORK_DIR}.tar.gz \
 
 echo "9. build the RPM package"
 cd ../SPECS
-rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
+# check the spec
+rpmlint ${LPUB3D}.spec
+# this seems to be the build command for OpenSUSE...
+#rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
+# this looks to be the build command for Fedora...
+rpmbuild -vv -ba ${LPUB3D}.spec
+# check the RPMs
+rpmlint ../RPMS/*/${LPUB3D}*.rpm ../SRPMS/${LPUB3D}*.rpm
 
 cd ../RPMS/${LP3D_TARGET_ARCH}
-DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
+DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "9. create update and download packages"
