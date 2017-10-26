@@ -15,7 +15,8 @@ if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED=
 LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
 LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 Info () {
-    if [ "${SOURCED}" = "true" ]; then
+    if [ "${SOURCED}" = "true" ]
+    then
         echo "    update-config: ${*}" >&2
     else
         echo "${*}" >&2
@@ -33,7 +34,8 @@ then
     exit 1
 fi
 
-if [ "${SOURCED}" != "true" ]; then
+if [ "${SOURCED}" != "true" ]
+then
     # logging stuff
     LOG="$CALL_DIR/$ME.log"
     if [ -f ${LOG} -a -r ${LOG} ]
@@ -44,7 +46,7 @@ if [ "${SOURCED}" != "true" ]; then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
-Info "   DEBUG update-config-files INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
+Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
 Info "1. capture version info"
 if [ "${SOURCED}" = "true" ]
 then
@@ -114,7 +116,6 @@ if [ "${OLD_VAR}" = "${LPUB3D}" ];
 then
     Info "   nothing to do, skipping set top-level build directory name"
 else
-    Info "   DEBUG COMPARE \${FILE} ${OLD_VAR} = \${FILE} ${LPUB3D}"
     LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
     LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
@@ -136,7 +137,8 @@ else
         $LP3D_OBS_DIR/PKGBUILD \
         $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial
     do
-        if [ "$OS" = Darwin ]; then
+        if [ "$OS" = Darwin ]
+        then
             sed -i "" -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
         else
             sed -i -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
@@ -149,7 +151,8 @@ FILE="$LP3D_PWD/lpub3d.desktop"
 LineToReplace=10
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]; then
+    if [ "$OS" = Darwin ]
+    then
         sed -i "" "${LineToReplace}s/.*/Exec=${LPUB3D}${APP_VER_SUFFIX} %f/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/Exec=${LPUB3D}${APP_VER_SUFFIX} %f/" "${FILE}"
@@ -163,7 +166,8 @@ FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
 LineToReplace=61
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]; then
+    if [ "$OS" = Darwin ]
+    then
         sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
@@ -177,7 +181,8 @@ FILE="$LP3D_OBS_DIR/PKGBUILD"
 LineToReplace=3
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]; then
+    if [ "$OS" = Darwin ]
+    then
         sed -i "" "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
@@ -205,7 +210,8 @@ FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
 LineToReplace=5
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]; then
+    if [ "$OS" = Darwin ]
+    then
         sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
@@ -219,7 +225,8 @@ FILE="$LP3D_PWD/docs/README.txt"
 LineToReplace=1
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]; then
+    if [ "$OS" = Darwin ]
+    then
         sed -i "" "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
@@ -233,7 +240,8 @@ FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
 LineToReplace=256
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]; then
+    if [ "$OS" = Darwin ]
+    then
         sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
@@ -252,11 +260,11 @@ cat <<EOF >${FILE}
 ${LP3D_APP_VERSION}
 EOF
 
-if [ "$OS" = Darwin ];
+if [ "$OS" = Darwin ]
 then
     Info "11. update the Info.plist with version major, version minor, build and git sha hash"
     INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
-    if [ -f "${INFO_PLIST_FILE}" ];
+    if [ -f "${INFO_PLIST_FILE}" ]
     then
         /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${INFO_PLIST_FILE}"

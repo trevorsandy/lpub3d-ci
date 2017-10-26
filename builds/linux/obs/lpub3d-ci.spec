@@ -81,8 +81,8 @@ BuildRequires: finger
 
 %define _iconsdir %{_datadir}/icons
 
-# package attributes
-Name: lpub3d
+# preamble
+Name: lpub3d-ci
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
 Version: %{gitversion}

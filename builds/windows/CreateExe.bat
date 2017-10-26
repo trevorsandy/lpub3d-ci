@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 15, 2017
+rem  Last Update: October 25, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -17,17 +17,24 @@ SET LPUB3D=lpub3d-ci
 
 FOR %%* IN (.) DO SET CWD=%%~nx*
 IF "%CWD%" NEQ "%LPUB3D%" (
-  ECHO.
-  ECHO You must run %~nx0 from folder %LPUB3D%.
-  ECHO Console command: CD %LPUB3D% &%~nx0
-  ECHO The script will exit.
-  GOTO :END
-) ELSE (
-  SET _PRO_FILE_PWD_=%cd%\mainApp
-  CALL builds/utilities/update-config-files.sh %_PRO_FILE_PWD_% %LPUB3D%
+  IF "%CWD%" NEQ "windows" (
+    ECHO.
+    ECHO You must run %~nx0 from folder %LPUB3D% or %LPUB3D%\builds\windows.
+    ECHO Console command: CD %LPUB3D% &%~nx0
+    ECHO %~nx0 terminated!
+    GOTO :END
+  )
 )
 
+IF "%CWD%" EQU "windows" (
+  CD /D ../../
+)
+
+SET _PRO_FILE_PWD_=%cd%\mainApp
+CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_% %LPUB3D%
+
 CD /D "builds\windows"
+
 SET WIN_PKG_DIR=%cd%
 
 SET RUN_NSIS=1

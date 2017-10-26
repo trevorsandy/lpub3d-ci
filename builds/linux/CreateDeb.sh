@@ -42,7 +42,7 @@ else
     cd ../
 fi
 
-echo "1. create DEB working directories..."
+echo "1. create DEB working directories in debbuild/..."
 if [ ! -d debbuild ]
 then
     mkdir -p debbuild/SOURCES
@@ -54,10 +54,10 @@ fi
 cd debbuild/SOURCES
 
 if [ "${TRAVIS}" != "true"  ]; then
-    echo "2. download source..."
+    echo "2. download source to SOURCES/..."
     git clone https://github.com/trevorsandy/${LPUB3D}.git
 else
-    echo "2. copy source..."
+    echo "2. copy source to SOURCES/..."
     cp -rf "../../${LPUB3D}" .
 fi
 
@@ -65,10 +65,11 @@ echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
+echo "4. move ${LPUB3D}/ to ${SOURCE_DIR}/ in SOURCES/..."
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 mv ${LPUB3D} ${SOURCE_DIR}
 
-echo "4. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz using folder ${SOURCE_DIR}/"
+echo "4. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${SOURCE_DIR}/"
 tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/builds/linux/standard" \
         --exclude="${SOURCE_DIR}/builds/macx" \
@@ -80,7 +81,7 @@ tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/.gitignore" \
         --exclude="${SOURCE_DIR}/appveyor.yml"
 
-echo "5. get LDraw archive libraries..."
+echo "5. download LDraw archive libraries to SOURCES/..."
 # we pull in the library archives here because the lpub3d.spec file copies them
 # to the extras location. This config thus supports both Suse OBS and Travis CI build procs.
 if [ ! -f lpub3dldrawunf.zip ]
@@ -92,7 +93,7 @@ then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "6. re-create soruce directory ${SOURCE_DIR}..."
+echo "6. re-create (untar) soruce directory ${SOURCE_DIR}/..."
 cd ../
 if [  -d ${LPUB3D}_${LP3D_APP_VERSION} ]
 then
@@ -100,11 +101,11 @@ then
 fi
 tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
-echo "7. copy debian configuration directory..."
+echo "7. copy debian/ configuration directory to ${SOURCE_DIR}/..."
 cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
 cd ${SOURCE_DIR}/debian
 
-echo "8. build application package..."
+echo "8. build application package from ${SOURCE_DIR}/..."
 cd ../
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc

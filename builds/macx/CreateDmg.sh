@@ -52,7 +52,7 @@ else
   cd ../
 fi
 
-echo "-  create DMG build working directory..."
+echo "-  create DMG build working directory dmgbuild/..."
 if [ ! -d dmgbuild ]
 then
   mkdir dmgbuild
@@ -62,29 +62,29 @@ cd dmgbuild
 
 if [ ! -d ../lpub3d_macos_3rdparty ]
 then
-  echo "-  download lpub3d_macos_3rdparty repository..."
+  echo "-  download lpub3d_macos_3rdparty/ repository to dmgbuild/..."
   git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
 else
-  echo "-  lpub3d_macos_3rdparty repository folder exist. moving repository..."
+  echo "-  lpub3d_macos_3rdparty/ repository exist. moving to dmgbuild/..."
   mv ../lpub3d_macos_3rdparty/ ./lpub3d_macos_3rdparty/
   #echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
 fi
 
 if [ -d ${LPUB3D} ] && [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
-  echo "-  processing download LPub3D source request..."
+  echo "-  cloning ${LPUB3D}/ to dmgbuild/..."
   rm -rf ${LPUB3D}
   git clone https://github.com/trevorsandy/${LPUB3D}.git
 elif [ "$getsource" = "c" ]
 then
-  echo "-  copying LPub3D source..."
+  echo "-  copying ${LPUB3D}/ to dmgbuild/..."
   cp -rf ../${LPUB3D}/ ./${LPUB3D}/
 elif [ ! -d ${LPUB3D} ]
 then
-  echo "-  download LPub3D source..."
+  echo "-  cloning ${LPUB3D}/ to dmgbuild/..."
   git clone https://github.com/trevorsandy/${LPUB3D}.git
 else
-  echo "-  LPub3D source exist. skipping download"
+  echo "-  ${LPUB3D}/ exist. skipping download"
 fi
 
 echo "-  source update_config_files.sh..."
@@ -96,20 +96,20 @@ cd ${LPUB3D}
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  echo "-  get ldraw official library archive..."
+  echo "-  download ldraw official library archive to ${LPUB3D}/extras/..."
   curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
 else
   echo "-  ldraw official library exist. skipping download"
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
-  echo "-  get ldraw unofficial library archive..."
+  echo "-  download ldraw unofficial library archive to ${LPUB3D}/extras/..."
   curl "http://www.ldraw.org/library/unofficial/ldrawunf.zip" -o "mainApp/extras/lpub3dldrawunf.zip"
 else
   echo "-  ldraw unofficial library exist. skipping download"
 fi
 
-echo "-  configure and build LPub3D source..."
+echo "-  configure and build source from ${LPUB3D}/..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 qmake -v
 qmake -r
@@ -119,7 +119,7 @@ qmake -r
 #
 cd builds/macx
 
-echo "- copy LPub3D bundle components..."
+echo "- copy ${LPUB3D} bundle components to builds/macx/..."
 cp -rf ../../mainApp/release/LPub3D.app .
 cp -f ../utilities/icons/lpub3d.icns .
 cp -f ../utilities/icons/lpub3dbkg.png .
@@ -144,14 +144,16 @@ echo "- change library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
-echo "- setup dmg source dir..."
+echo "- setup dmg source dir DMGSRC/..."
 if [ ! -d DMGSRC ]
 then
   mkdir DMGSRC
 fi
+
+echo "- move LPub3D.app to DMGSRC/..."
 mv -f LPub3D.app DMGSRC/LPub3D.app
 
-echo "- setup dmg output dir..."
+echo "- setup dmg output directory ../../../DMGS/..."
 DMGDIR=../../../DMGS
 if [ -d ${DMGDIR} ]
 then
@@ -190,7 +192,7 @@ cat <<EOF >makedmg
 DMGSRC/
 EOF
 
-echo "- create dmg packages..."
+echo "- create dmg packages in DMGS/..."
 chmod +x makedmg && ./makedmg
 
 if [ -f "${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
@@ -202,7 +204,7 @@ if [ -f "${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 
-  echo "- Package files: " `ls ${DMGDIR}/LPub3D*_macos.dmg`
+  #echo "  DEBUG Package files: " `ls ${DMGDIR}/LPub3D*_macos.dmg`
   #echo "  DEBUG Package files: `find $PWD`"
 
   echo "$ME Finished!"

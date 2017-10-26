@@ -34,23 +34,24 @@ LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "1. create PKG working directories"
+echo "1. create PKG working directories in pkgbuild/"
 if [ ! -d pkgbuild ]
 then
     mkdir -p pkgbuild/upstream
 fi
 cd pkgbuild/upstream
 
-echo "2. download source"
+echo "2. download ${LPUB3D}/ to upstream/"
 git clone https://github.com/trevorsandy/${LPUB3D}.git
 
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
+echo "4. move ${LPUB3D}/ to ${WORK_DIR}/ in upstream/"
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "3. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
+echo "3. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
 tar -czf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -68,7 +69,7 @@ echo "4. copy PKGBUILD"
 cp -f ${WORK_DIR}/builds/linux/obs/PKGBUILD ../
 cd ../
 
-echo "5. get LDraw archive libraries"
+echo "5. download LDraw archive libraries to pkgbuild/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip

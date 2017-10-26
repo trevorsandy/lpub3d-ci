@@ -99,15 +99,15 @@ script:
   - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         docker-compose -f builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml run --rm lpub3d-ci;
-        export LP3D_Download_Package=`ls builds/linux/docker-compose/LPub3D_*.deb`;
-        export LP3D_Update_Package=`ls builds/linux/docker-compose/LPub3D-UpdateMaster_*.deb`;
+        export LP3D_Download_Package=`ls builds/linux/docker-compose/LPub3D*.deb`;
+        export LP3D_Update_Package=`ls builds/linux/docker-compose/LPub3D-UpdateMaster*.deb`;
         echo " Package files " `ls builds/linux/docker-compose/LPub3D*`;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
-        export LP3D_Download_Package=`ls ../dmgbuild/DMGS/LPub3D_*.macos.dmg`;
-        export LP3D_Update_Package=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster_*.macos.dmg`;
-        echo " Package files " `ls ../dmgbuild/DMGS`;
+        export LP3D_Download_Package=`ls ../dmgbuild/DMGS/LPub3D*.macos.dmg`;
+        export LP3D_Update_Package=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster*.macos.dmg`;
+        echo " Package files " `ls ../dmgbuild/DMGS/LPub3D*`;
       fi;
     else
      qmake -v;

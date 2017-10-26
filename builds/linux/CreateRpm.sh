@@ -36,7 +36,7 @@ LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "1. create RPM build working directories"
+echo "1. create RPM build working directories in rpmbuild/"
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
@@ -51,26 +51,28 @@ do
 done
 cd SOURCES
 
-echo "2. download source"
+echo "2. download source to SOURCES/"
 git clone https://github.com/trevorsandy/${LPUB3D}.git
 
 echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
+echo "4. move ${LPUB3D}/ to ${WORK_DIR}/ in SOURCES/"
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "4. copy ${LPUB3D}.git.version to SOURCES"
+echo "4. copy ${LPUB3D}.git.version to SOURCES/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
 
 echo "5. copy xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
+if [ -f "lpub3d.xpm" ]; then echo "   DEBUG lpub3d.xpm copied"; else echo "   DEBUG lpub3d.xpm not found!";
 
 echo "6. copy spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
 
-echo "7. get LDraw archive libraries"
+echo "7. download LDraw archive libraries to SOURCES/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -81,7 +83,7 @@ then
 fi
 
 # file copy and downloads above must happen before we make the tarball
-echo "8. create tarball ${WORK_DIR}.tar.gz using folder ${WORK_DIR}"
+echo "8. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
 tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -118,6 +120,7 @@ fi
 echo "10. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/"
 rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
-echo " DEBUG Package files: `find $PWD`"
+echo " DEBUG Package files:" `ls ../RPMS`
+#echo " DEBUG Package files: `find $PWD`"
 echo "$ME Finished!"
 #mv $LOG "${CWD}/rpmbuild/$ME.log"

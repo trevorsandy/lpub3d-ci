@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 19, 2017
+rem  Last Update: October 25, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 
@@ -28,11 +28,12 @@ SET LP3D_VER_SPEC_INFO_FILE=%LP3D_OBS_DIR%\lpub3d.spec.git.version
 SET LP3D_AV_VER_INFO_DIR=%LP3D_PWD%\..\builds\windows\release
 SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
 
-ECHO  Start %LP3D_ME% execution...
+ECHO  Start %LP3D_ME% execution at %CD%...
 ECHO  1. capture version info
 
-IF [%3] == [] (
+IF [%3] EQU [] (
   ECHO     using git queries...
+  IF  [%2] NEQ [] SET LPUB3D=%2
   CALL :GET_GIT_VERSION
 ) ELSE (
   ECHO     using version arguments...
