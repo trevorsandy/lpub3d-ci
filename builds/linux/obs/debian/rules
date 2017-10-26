@@ -37,8 +37,10 @@ configure-stamp:
 			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
 	if [ -f ../SOURCES/lpub3d_linux_3rdparty.tar.gz ]; then \
-			mkdir ../lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1; \
-			echo "lpub3d_linux_3rdparty tarball extracted"; \
+			mkdir ../lpub3d_linux_3rdparty && tar -xzf ../lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1; \
+			echo "lpub3d_linux_3rdparty tarball extracted to ../lpub3d_linux_3rdparty/"; \
+			rm -f ../lpub3d_linux_3rdparty.tar.gz; \
+			echo "lpub3d_linux_3rdparty.tar.gz tarball deleted"; \
 	else \
 			echo "lpub3d_linux_3rdparty tarball not found at `pwd`!"; \
 	fi

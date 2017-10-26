@@ -211,8 +211,10 @@ else
 	echo "lpub3dldrawunf.zip not found at $PWD!"
 fi
 if [ -f ${3rdPartyRepoTarball} ] ; then
-	mkdir ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepo}.tar.gz -C ../${3rdPartyRepo} --strip-components=1
-	echo "${3rdPartyRepo} tarball extracted"
+	mkdir ../${3rdPartyRepo} && tar -xzf ../${3rdPartyRepo}.tar.gz -C ../${3rdPartyRepo} --strip-components=1
+	echo "${3rdPartyRepo}.tar.gz tarball extracted to ../${3rdPartyRepo}/"
+  rm -f ../${3rdPartyRepo}.tar.gz
+  echo "${3rdPartyRepo} tarball deleted"
 else
 	echo "${3rdPartyRepo} tarball not found at $PWD!"
 fi
@@ -258,7 +260,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_mandir}/man1/*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
-
+* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.118
 %changelog
 * Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.117
 - LPub3D Linux package (rpm) release
