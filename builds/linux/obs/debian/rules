@@ -23,6 +23,7 @@ configure-stamp:
 	dh_testdir
 
 	# Start custom configuration commands
+	echo "Current working directory: `pwd`"
 	if [ -f ../SOURCES/complete.zip ]; then \
 			cp ../SOURCES/complete.zip mainApp/extras; \
 			echo "LDraw archive library complete.zip copied"; \
@@ -35,8 +36,12 @@ configure-stamp:
 	else \
 			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
 	fi
-	echo "Current working directory: `pwd`"
-	git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
+	if [ -f ../SOURCES/lpub3d_linux_3rdparty.tar.gz ]; then \
+			mkdir ../lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1; \
+			echo "lpub3d_linux_3rdparty tarball extracted"; \
+	else \
+			echo "lpub3d_linux_3rdparty tarball not found at `pwd`!"; \
+	fi
 	FILE="builds/linux/obs/debian/source/include-binaries" \
 	&& sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$$FILE" \
 	&& echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/$$FILE"

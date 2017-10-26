@@ -196,20 +196,26 @@ export QT_SELECT=qt5
 { set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
+3rdPartyRepoTarball="../../SOURCES/lpub3d_linux_3rdparty.tar.gz"
+3rdPartyRepo="lpub3d_linux_3rdparty"
 if [ -f ${LDrawLibOffical} ] ; then
 	cp ${LDrawLibOffical} mainApp/extras
 	echo "complete.zip copied"
 else
-	echo "complete.zip not found!"
+	echo "complete.zip not found at $PWD!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
 	cp ${LDrawLibUnofficial} mainApp/extras
 	echo "lpub3dldrawunf.zip copied"
 else
-	echo "lpub3dldrawunf.zip not found!"
-fi ;
-echo "Current working directory: $PWD"
-git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
+	echo "lpub3dldrawunf.zip not found at $PWD!"
+fi
+if [ -f ${3rdPartyRepoTarball} ] ; then
+  mkdir ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepo}.tar.gz -C ../${3rdPartyRepo} --strip-components=1
+  echo "${3rdPartyRepo} tarball extracted"
+else
+  echo "${3rdPartyRepo} tarball not found at $PWD!"
+fi
 { set -x; } 2>/dev/null
 
 # use Qt5

@@ -72,4 +72,10 @@
     <param name="path">/library/unofficial/ldrawunf.zip</param>
     <param name="filename">lpub3dldrawunf.zip</param>
   </service>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz</param>
+    <param name="filename">lpub3d_linux_3rdparty.tar.gz</param>
+  </service>
 </services>

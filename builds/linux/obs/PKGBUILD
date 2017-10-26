@@ -22,21 +22,25 @@ prepare() {
 	cd ${pkgname}-git
 
 	# Start custom configuration commands
+	echo "Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras
 		echo "LDraw archive library complete.zip copied"
 	else
-		echo "complete.zip not found here $PWD"
+		echo "complete.zip not found at $PWD"
 	fi
 	if [ -f ../lpub3dldrawunf.zip ] ; then
 		cp ../lpub3dldrawunf.zip mainApp/extras
 		echo "LDraw archive library lpub3dldrawunf.zip copied"
 	else
-		echo "lpub3dldrawunf.zip not found here $PWD"
+		echo "lpub3dldrawunf.zip not found at $PWD"
 	fi
-
-	echo "Current working directory: $PWD"
-	git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
+	if [ -f ../lpub3d_linux_3rdparty.tar.gz ]; then
+			mkdir ../lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1
+			echo "lpub3d_linux_3rdparty tarball extracted"
+	else
+			echo "lpub3d_linux_3rdparty tarball not found at $PWD!"
+	fi
 
 	# Qt5 configure
 	export QT_SELECT=qt5

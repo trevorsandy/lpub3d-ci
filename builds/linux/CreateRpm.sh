@@ -84,6 +84,11 @@ if [ ! -f complete.zip ]
 then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
+echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
+if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
+then
+     wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
+fi
 
 # file copy and downloads above must happen before we make the tarball
 echo "9. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
