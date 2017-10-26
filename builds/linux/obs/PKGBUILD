@@ -12,7 +12,7 @@ conflicts=()
 replaces=()
 backup=()
 source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty")
-noextract=("complete.zip" "lpub3dldrawunf.zip")
+noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty")
 md5sums=(SKIP SKIP SKIP SKIP)
 
 prepare() {
