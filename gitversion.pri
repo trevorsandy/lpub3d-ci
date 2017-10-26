@@ -172,7 +172,7 @@ DEFINES += VER_BUILD_STR=\\\"$$VER_BUILD_STR\\\"
 DEFINES += VER_SHA_HASH_STR=\\\"$$VER_SHA_HASH_STR\\\"
 DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 
-# Now we are ready to pass parsed version to Qt
+# Now we are ready to pass parsed version to Qt ===
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
 #-----deprecated---------->

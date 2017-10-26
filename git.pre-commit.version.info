@@ -1,12 +1,12 @@
 lpub3d version = 20171026
 branch         = master
-sha_hash_short = 66653d2
+sha_hash_short = 0073fd3
 tag_short      = v2.0.21
-tag_long       = v2.0.21-34-g66653d2
-commit_count   = 101
+tag_long       = v2.0.21-35-g0073fd3
+commit_count   = 102
 date           = 20171026
-date_time      = 26 10 2017 10:17:28
+date_time      = 26 10 2017 11:37:19
+revision       = 35
 
 g_version      = 2 0 21
-g_revision     = 34
-VERSIONINFO    = 2 0 21 34 101 66653d2
+VERSIONINFO    = 2 0 21 35 102 0073fd3
