@@ -23,7 +23,8 @@
 %endif
 
 %if 0%{?mageia}
-%define dist mag
+%define dist .mga%{mgaversion}
+%define distsuffix .mga%{mgaversion}
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -62,14 +63,12 @@ Source10: lpub3d-ci.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
 # set packing platform
-%if "0%{?vendor}"
-%define obsurl obs://build.opensuse.org/home:
-%define obsurlprivate obs://private/home:
 %define serviceprovider %(echo "%{vendor}")
-%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "openSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
-%if "%{packingplatform}" == "openSUSE OBS"
+%if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
 %define OBS 1
-%endif
+%define packingplatform "openSUSE OBS"
+%else
+%define packingplatform %(echo "$HOSTNAME [`uname`]")
 %endif
 
 # set packer
@@ -82,7 +81,7 @@ BuildRequires: finger
 
 %define _iconsdir %{_datadir}/icons
 
-# package attributes
+# preamble
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
@@ -91,7 +90,9 @@ Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
+# add runtime libs libtiff libjpeg boost-threads for 3rd party apps here...
 Requires: unzip
+BuildRequires: freeglut-devel
 Source0: lpub3d-ci-git.tar.gz
 
 # package requirements
@@ -106,15 +107,23 @@ BuildRequires: git
 BuildRequires: gcc-c++, make
 %endif
 
-%if 0%{?mageia}
-BuildRequires: qtbase5-devel
-
-%ifarch x86_64
-BuildRequires: lib64proxy-webkit, lib64sane1
-%else
-BuildRequires: libproxy-webkit, libsane1
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+BuildRequires: mesa-libOSMesa-devel
 %endif
 
+%if 0%{?mageia}
+BuildRequires: qtbase5-devel
+%ifarch x86_64
+BuildRequires: lib64osmesa-devel
+%if 0%{?OBS}
+BuildRequires: lib64sane1, lib64proxy-webkit,
+%endif
+%else
+BuildRequires: libosmesa-devel
+%if 0%{?OBS}
+BuildRequires: libsane1, libproxy-webkit,
+%endif
+%endif
 %endif
 
 %if 0%{?fedora}
@@ -126,8 +135,25 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %endif
 
+%if 0%{?OBS}
+%if 0%{?fedora_version}==25
+BuildRequires: llvm-libs
+%endif
+%endif
+
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires: libXext-devel
+%endif
+
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel, zlib-devel
+%if 0%{?OBS}
+BuildRequires: -post-build-checks
+%endif
+%endif
+
+%if 0%{?suse_version} > 1300
+BuildRequires: Mesa-devel
 %endif
 
 %description
@@ -168,22 +194,26 @@ echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 export QT_SELECT=qt5
 
 # get ldraw archive libraries
+{ set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then
   cp ${LDrawLibOffical} mainApp/extras
+  echo "complete.zip copied"
 else
   echo "complete.zip not found!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
   cp ${LDrawLibUnofficial} mainApp/extras
+  echo "lpub3dldrawunf.zip copied"
 else
   echo "lpub3dldrawunf.zip not found!"
 fi ;
-# use Qt5
+echo "Current working directory: $PWD"
 git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
+{ set -x; } 2>/dev/null
 
-# get lpub3d_linux_3rdparty repository
+# use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
@@ -196,7 +226,6 @@ else
 fi
 make clean
 make %{?_smp_mflags}
-
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -227,5 +256,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Thu Feb 23 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.711
+* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.714
 - LPub3D Linux package (rpm) release

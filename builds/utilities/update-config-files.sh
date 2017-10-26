@@ -246,6 +246,7 @@ then
     else
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
     fi
+    cat "${FILE}"
 else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
@@ -259,6 +260,7 @@ fi
 cat <<EOF >${FILE}
 ${LP3D_APP_VERSION}
 EOF
+cat "${FILE}"
 
 if [ "$OS" = Darwin ]
 then

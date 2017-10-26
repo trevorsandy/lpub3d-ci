@@ -100,7 +100,6 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
-
 cd ../SPECS
 echo "10. download build dependenvies..."
 dnf builddep -y ${LPUB3D}.spec
@@ -115,6 +114,10 @@ rpmlint ${LPUB3D}.spec
 rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -vv -ba ${LPUB3D}.spec
 # check the RPMs
 rpmlint ../RPMS/*/${LPUB3D}*.rpm ../SRPMS/${LPUB3D}*.rpm
+
+# debug
+rpm-temp-logs=`ls ~/rpm/tmp/rpm-tmp.*`
+for FILE in ${rpm-temp-logs}; do echo "*** DEBUG File: $FILE" && cat $FILE; done
 
 cd ../RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
