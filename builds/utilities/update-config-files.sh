@@ -76,7 +76,7 @@ then
 ${VERSION_INFO} ${DATE_TIME}
 EOF
 else
-    Info "Start $ME execution..."
+    Info "   Start $ME execution..."
     Info "   using input arguments..."
     VER_MAJOR=$2
     VER_MINOR=$3
