@@ -237,7 +237,7 @@ fi
 
 Info "9. update ${LPUB3D}.spec                - add app version and change date"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-LineToReplace=259
+LineToReplace=263
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]

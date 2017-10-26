@@ -256,10 +256,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
-* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.115
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %changelog
-* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.714
+* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.117
 - LPub3D Linux package (rpm) release
