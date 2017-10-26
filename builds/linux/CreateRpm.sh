@@ -84,14 +84,14 @@ if [ ! -f complete.zip ]
 then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
-echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
+echo "9. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
 if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
 then
      wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
 fi
 
 # file copy and downloads above must happen before we make the tarball
-echo "9. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
+echo "10. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
 tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -106,10 +106,10 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
 cd ../SPECS
-echo "10. download build dependenvies..."
+echo "11. download build dependenvies..."
 dnf builddep -y ${LPUB3D}.spec
 
-echo "10. build the RPM package..."
+echo "12. build the RPM package..."
 # check the spec
 rpmlint ${LPUB3D}.spec
 
@@ -120,10 +120,10 @@ cd ../RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "11a. check rpm packages..."
+    echo "13. check rpm packages..."
     rpmlint ${DISTRO_FILE} ../../SRPMS/${LPUB3D}*.rpm
 
-    echo "11. create update and download packages..."
+    echo "14. create update and download packages..."
     IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
@@ -132,10 +132,10 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
 else
-    echo "11. package ${DISTRO_FILE} not found."
+    echo "13. package ${DISTRO_FILE} not found."
 fi
 
-echo "12. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
+echo "15. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
 rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
 echo " DEBUG Package files:" `ls ../RPMS`

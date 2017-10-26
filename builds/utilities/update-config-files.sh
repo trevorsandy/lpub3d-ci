@@ -247,7 +247,6 @@ then
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
     fi
     cat "${FILE}"
-    echo
 else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
