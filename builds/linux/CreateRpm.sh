@@ -137,7 +137,6 @@ echo " DEBUG Package files:" `ls ../RPMS`
 
 # debug
 echo "********** RPM-TMP Logs ******************"
-rpm-temp-logs=
 if [ -d "~/rpm/tmp" ]; then
     rpm-temp-logs=`ls ~/rpm/tmp/rpm-tmp*`
 fi

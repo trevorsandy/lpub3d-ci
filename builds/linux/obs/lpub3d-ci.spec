@@ -90,7 +90,6 @@ Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
-# add runtime libs libtiff libjpeg boost-threads for 3rd party apps here...
 Requires: unzip
 BuildRequires: freeglut-devel
 Source0: lpub3d-ci-git.tar.gz
@@ -116,12 +115,12 @@ BuildRequires: qtbase5-devel
 %ifarch x86_64
 BuildRequires: lib64osmesa-devel
 %if 0%{?OBS}
-BuildRequires: lib64sane1, lib64proxy-webkit,
+BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
 BuildRequires: libosmesa-devel
 %if 0%{?OBS}
-BuildRequires: libsane1, libproxy-webkit,
+BuildRequires: libsane1, libproxy-webkit
 %endif
 %endif
 %endif
@@ -198,16 +197,16 @@ export QT_SELECT=qt5
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then
-  cp ${LDrawLibOffical} mainApp/extras
-  echo "complete.zip copied"
+	cp ${LDrawLibOffical} mainApp/extras
+	echo "complete.zip copied"
 else
-  echo "complete.zip not found!"
+	echo "complete.zip not found!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-  cp ${LDrawLibUnofficial} mainApp/extras
-  echo "lpub3dldrawunf.zip copied"
+	cp ${LDrawLibUnofficial} mainApp/extras
+	echo "lpub3dldrawunf.zip copied"
 else
-  echo "lpub3dldrawunf.zip not found!"
+	echo "lpub3dldrawunf.zip not found!"
 fi ;
 echo "Current working directory: $PWD"
 git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
@@ -220,9 +219,9 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
-  qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 else
-  qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 fi
 make clean
 make %{?_smp_mflags}
