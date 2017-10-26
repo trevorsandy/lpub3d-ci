@@ -40,8 +40,8 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/install</param>
-      <param name="outfilename">debian.install</param>
+      <param name="files">*/builds/linux/obs/debian/shlibs.local</param>
+      <param name="outfilename">debian.shlibs.local</param>
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
@@ -54,7 +54,7 @@
                           */builds/linux/obs/lpub3d-ci.spec
                           */builds/linux/obs/lpub3d-ci.spec.git.version
                           */builds/linux/obs/PKGBUILD
-                          */mainApp/images/lpub3d-ci.xpm
+                          */mainApp/images/lpub3d.xpm
       </param>
   </service>
   <service name="recompress">
