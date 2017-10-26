@@ -58,7 +58,7 @@ echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. move ${LPUB3D}/ to ${WORK_DIR}/ in SOURCES/"
+echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/"
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
