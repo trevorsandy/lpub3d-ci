@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.118
+pkgver=2.0.21.119
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
@@ -11,8 +11,8 @@ makedepends=()
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty")
-noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty")
+source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
+noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
 md5sums=(SKIP SKIP SKIP SKIP)
 
 prepare() {
