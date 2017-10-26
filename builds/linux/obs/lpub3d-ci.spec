@@ -198,16 +198,16 @@ export QT_SELECT=qt5
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then
-	cp ${LDrawLibOffical} mainApp/extras
+  cp ${LDrawLibOffical} mainApp/extras
   echo "complete.zip copied"
 else
-	echo "complete.zip not found!"
+  echo "complete.zip not found!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-	cp ${LDrawLibUnofficial} mainApp/extras
+  cp ${LDrawLibUnofficial} mainApp/extras
   echo "lpub3dldrawunf.zip copied"
 else
-	echo "lpub3dldrawunf.zip not found!"
+  echo "lpub3dldrawunf.zip not found!"
 fi ;
 echo "Current working directory: $PWD"
 git clone "https://github.com/trevorsandy/lpub3d_linux_3rdparty.git" "../lpub3d_linux_3rdparty"
@@ -220,9 +220,9 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
-	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 else
-	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 fi
 make clean
 make %{?_smp_mflags}
@@ -256,5 +256,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Wed Mar 01 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.714
+* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.714
 - LPub3D Linux package (rpm) release
