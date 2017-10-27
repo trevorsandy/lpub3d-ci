@@ -34,7 +34,7 @@ Name: lpub3d-ci
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
 %endif
-%if 0%{?mdkversion} || 0%{?rhel_version} 
+%if 0%{?mdkversion} || 0%{?rhel_version}
 Group: Graphics
 %endif
 %if 0%{?fedora} || 0%{?centos_version}
@@ -163,7 +163,7 @@ BuildRequires:	-post-build-checks
 #BuildRequires: gconf2-devel
 #%%if 0%{?suse_version} == 1110
 #%%gconf_schemas_prereq
-#%%else 
+#%%else
 #%%gconf_schemas_requires
 #%%endif
 %endif
@@ -471,7 +471,7 @@ export GCONF_CONFIG_SOURCE="$(gconftool-2 --get-default-source)"
 gconftool-2 --makefile-install-rule /etc/gconf/schemas/ldraw.schemas >/dev/null || true
 %if 0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version}
 NAUTILUS=`pidof nautilus`
-if [ -n "$NAUTILUS" ] ; then kill -HUP $NAUTILUS ; fi 
+if [ -n "$NAUTILUS" ] ; then kill -HUP $NAUTILUS ; fi
 %endif
 
 %postun
@@ -504,7 +504,7 @@ Summary: OSMesa port of lpub3d-ci for servers without X11
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
 %endif
-%if 0%{?mdkversion} || 0%{?rhel_version} 
+%if 0%{?mdkversion} || 0%{?rhel_version}
 Group: Graphics
 %endif
 %if 0%{?fedora} || 0%{?centos_version}
