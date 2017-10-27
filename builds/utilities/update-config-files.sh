@@ -180,15 +180,15 @@ then
     then
         rm -f "${FILE}"
     fi
-    mv "${FILE_TEMPLATE}" "${FILE}"
+    cp "${FILE_TEMPLATE}" "${FILE}"
 fi
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
     then
-        sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
+        sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
     else
-        sed -i "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
+        sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${CALL_DIR}"

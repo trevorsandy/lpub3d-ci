@@ -212,7 +212,7 @@ fi
 # download lpub3d_linux_3rdparty repository as tar.gz archive
 if [ -f ${3rdPartyRepoTarball} ] ; then
 	mkdir -p ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepoTarball} -C ../${3rdPartyRepo} --strip-components=1
-	echo "${3rdPartyRepo}.tar.gz tarball extracted to ../${3rdPartyRepo}/" && `ls ../${3rdPartyRepo}/*`
+	echo "${3rdPartyRepo}.tar.gz tarball extracted to ../${3rdPartyRepo}/" && `ls ../${3rdPartyRepo}/`
   rm -f ../${3rdPartyRepo}.tar.gz && echo "${3rdPartyRepo}.tar.gz tarball deleted"
 else
 	echo "${3rdPartyRepo} tarball not found at $PWD!"
@@ -260,5 +260,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.123
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.124
 - LPub3D Linux package (rpm) release
