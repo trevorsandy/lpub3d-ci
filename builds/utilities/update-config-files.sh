@@ -173,7 +173,7 @@ fi
 Info "4. update man page                      - add version suffix"
 FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
 LineToReplace=${LINE_MANPAGE}
-FILE_TEMPLATE=`ls lpub3d.*`
+FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
 if [ -f ${FILE_TEMPLATE} ];
 then
     if [ -f ${FILE} ];
@@ -191,7 +191,7 @@ then
         sed -i "${LineToReplace}s/.*/     \/usr\/bin\/${LPUB3D}${APP_VER_SUFFIX}/" "${FILE}"
     fi
 else
-    Info "   Error: Cannot read ${FILE} from ${CALL_DIR}; be sure ${FILE_TEMPLATE} exsit"
+    Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${CALL_DIR}"
 fi
 
 Info "5. update PKGBUILD                      - add app version"
@@ -256,6 +256,7 @@ fi
 Info "9. update ${LPUB3D}.spec                - add app version and change date"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
 LineToReplace=${LINE_SPEC}
+LastLine=`wc -l < ${FILE}`
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
@@ -263,6 +264,16 @@ then
         sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
     else
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+    fi
+    if [ "$doDebChange" != "" ];
+    then
+        ((LastLine++))
+        if [ "$OS" = Darwin ]
+        then
+            sed -i "" "${LastLine}s/.*/- /" "${FILE}"
+        else
+            sed -i "${LastLine}s/.*/- /" "${FILE}"
+        fi
     fi
     #cat "${FILE}"
 else
