@@ -191,7 +191,8 @@ echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 
 %build
 export QT_SELECT=qt5
-
+# for 3rd party apps install
+export LP3D_CREATE_PKG=true
 # download ldraw archive libraries
 { set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
@@ -199,28 +200,24 @@ LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 3rdPartyRepoTarball="../../SOURCES/lpub3d_linux_3rdparty.tar.gz"
 3rdPartyRepo="lpub3d_linux_3rdparty"
 if [ -f ${LDrawLibOffical} ] ; then
-	cp ${LDrawLibOffical} mainApp/extras
-	echo "complete.zip copied"
+	cp ${LDrawLibOffical} mainApp/extras &&	echo "complete.zip copied"
 else
 	echo "complete.zip not found at $PWD!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-	cp ${LDrawLibUnofficial} mainApp/extras
-	echo "lpub3dldrawunf.zip copied"
+	cp ${LDrawLibUnofficial} mainApp/extras && echo "lpub3dldrawunf.zip copied"
 else
 	echo "lpub3dldrawunf.zip not found at $PWD!"
 fi
+# download lpub3d_linux_3rdparty repository as tar.gz archive
 if [ -f ${3rdPartyRepoTarball} ] ; then
-	mkdir ../${3rdPartyRepo} && tar -xzf ../../SOURCES/${3rdPartyRepo}.tar.gz -C ../${3rdPartyRepo} --strip-components=1
-	echo "${3rdPartyRepo}.tar.gz tarball extracted to ../${3rdPartyRepo}/"
-  echo "DEBUG 3RD_PARTY" `ls ../${3rdPartyRepo}/*`
-  rm -f ../${3rdPartyRepo}.tar.gz
-  echo "${3rdPartyRepo} tarball deleted"
+	mkdir -p ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepoTarball} -C ../${3rdPartyRepo} --strip-components=1
+	echo "${3rdPartyRepo}.tar.gz tarball extracted to ../${3rdPartyRepo}/" && `ls ../${3rdPartyRepo}/*`
+  rm -f ../${3rdPartyRepo}.tar.gz && echo "${3rdPartyRepo}.tar.gz tarball deleted"
 else
 	echo "${3rdPartyRepo} tarball not found at $PWD!"
 fi
 { set -x; } 2>/dev/null
-
 # use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64
@@ -260,8 +257,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 %post -p /sbin/ldconfig
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.121
-* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.119
+%postun -p /sbin/ldconfig
+
 %changelog
-* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.117
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.122
 - LPub3D Linux package (rpm) release
