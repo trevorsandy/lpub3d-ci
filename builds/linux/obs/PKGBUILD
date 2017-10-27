@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.127
+pkgver=2.0.21.129
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
@@ -16,7 +16,6 @@ noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
 md5sums=(SKIP SKIP SKIP SKIP)
 
 prepare() {
-	export LP3D_CREATE_PKG=true
 	echo "Current working directory: $PWD"
 	if [ -f lpub3d_linux_3rdparty.tar.gz ]; then
 			mkdir -p lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C lpub3d_linux_3rdparty --strip-components=1
@@ -40,6 +39,7 @@ prepare() {
 		echo "lpub3dldrawunf.zip not found at $PWD"
 	fi
 	export QT_SELECT=qt5
+	export LP3D_CREATE_PKG=yes
 	if [ -x /usr/bin/qmake ] ; then
 		qmake -makefile CONFIG+=release CONFIG+=pkg
 	elif [ -x /usr/bin/qmake-qt5 ] ; then

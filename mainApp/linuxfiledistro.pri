@@ -50,7 +50,7 @@ unix:!macx {
     docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
     docs.path = $$DOCS_DIR
 
-    man.files += $$MAN_PAGE
+    man.files += docs/$$MAN_PAGE
     man.path = $$MAN_DIR
 
     #desktop.files += lpub3d.desktop#

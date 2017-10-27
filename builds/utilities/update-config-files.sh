@@ -162,9 +162,9 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
     then
-        sed -i "" "${LineToReplace}s/.*/Exec=${LPUB3D}${APP_VER_SUFFIX} %f/" "${FILE}"
+        sed -i "" "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
     else
-        sed -i "${LineToReplace}s/.*/Exec=${LPUB3D}${APP_VER_SUFFIX} %f/" "${FILE}"
+        sed -i "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"

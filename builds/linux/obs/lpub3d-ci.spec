@@ -192,7 +192,7 @@ echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 %build
 export QT_SELECT=qt5
 # for 3rd party apps install
-export LP3D_CREATE_PKG=true
+export LP3D_CREATE_PKG=yes
 # download ldraw archive libraries
 { set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
@@ -236,6 +236,7 @@ make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
+export NO_BRP_CHECK_RPATH=true
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -259,6 +260,6 @@ rm -rf $RPM_BUILD_ROOT
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%changelog
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.127
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.129
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.128
 - LPub3D Linux package (rpm) release
