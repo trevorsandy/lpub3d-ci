@@ -37,7 +37,7 @@ configure-stamp:
 	fi
 	if [ -f ../SOURCES/lpub3d_linux_3rdparty.tar.gz ]; then \
 			mkdir -p ../lpub3d_linux_3rdparty && tar -xzf ../SOURCES/lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1; \
-			echo "lpub3d_linux_3rdparty tarball extracted to ../lpub3d_linux_3rdparty/" && `ls ../lpub3d_linux_3rdparty/`; \
+			echo "lpub3d_linux_3rdparty tarball extracted to ../lpub3d_linux_3rdparty/"; \
 			rm -f ../SOURCES/lpub3d_linux_3rdparty.tar.gz && echo "lpub3d_linux_3rdparty.tar.gz tarball deleted"; \
 	else \
 			echo "lpub3d_linux_3rdparty tarball not found at `pwd`!"; \

@@ -197,8 +197,8 @@ export LP3D_CREATE_PKG=true
 { set +x; } 2>/dev/null
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
-3rdPartyRepoTarball="../../SOURCES/lpub3d_linux_3rdparty.tar.gz"
-3rdPartyRepo="lpub3d_linux_3rdparty"
+ThirdPartyRepoTarball="../../SOURCES/lpub3d_linux_3rdparty.tar.gz"
+ThirdPartyRepo="lpub3d_linux_3rdparty"
 if [ -f ${LDrawLibOffical} ] ; then
 	cp ${LDrawLibOffical} mainApp/extras &&	echo "complete.zip copied"
 else
@@ -210,12 +210,12 @@ else
 	echo "lpub3dldrawunf.zip not found at $PWD!"
 fi
 # download lpub3d_linux_3rdparty repository as tar.gz archive
-if [ -f ${3rdPartyRepoTarball} ] ; then
-	mkdir -p ../${3rdPartyRepo} && tar -xzf ${3rdPartyRepoTarball} -C ../${3rdPartyRepo} --strip-components=1
-	echo "${3rdPartyRepo}.tar.gz tarball extracted to ../${3rdPartyRepo}/" && `ls ../${3rdPartyRepo}/`
-  rm -f ../${3rdPartyRepo}.tar.gz && echo "${3rdPartyRepo}.tar.gz tarball deleted"
+if [ -f ${ThirdPartyRepoTarball} ] ; then
+	mkdir -p ../${ThirdPartyRepo} && tar -xzf ${ThirdPartyRepoTarball} -C ../${ThirdPartyRepo} --strip-components=1
+	echo "${ThirdPartyRepo}.tar.gz tarball extracted to ../${ThirdPartyRepo}/"
+  rm -f ../${ThirdPartyRepo}.tar.gz && echo "${ThirdPartyRepo}.tar.gz tarball deleted"
 else
-	echo "${3rdPartyRepo} tarball not found at $PWD!"
+	echo "${ThirdPartyRepo} tarball not found at $PWD!"
 fi
 { set -x; } 2>/dev/null
 # use Qt5
@@ -260,5 +260,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.124
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.126
 - LPub3D Linux package (rpm) release
