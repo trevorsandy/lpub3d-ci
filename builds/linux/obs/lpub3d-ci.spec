@@ -9,7 +9,6 @@
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
 #
 
-# define distributions
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
@@ -44,9 +43,11 @@
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
 %endif
+
 %if 0%{?mageia} || 0%{?rhel_version}
 Group: Graphics
 %endif
+
 %if 0%{?suse_version} || 0%{?sles_version}
 License: GPL-3.0+
 BuildRequires: fdupes
@@ -265,6 +266,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_mandir}/man1/*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
-
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.139
 * Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.138
 - LPub3D Linux package (rpm) release
