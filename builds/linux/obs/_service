@@ -1,10 +1,4 @@
 <services>
-  <service name="download_url">
-    <param name="protocol">https</param>
-    <param name="host">github.com</param>
-    <param name="path">/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz</param>
-    <param name="filename">lpub3d_linux_3rdparty.tar.gz</param>
-  </service>
   <service name="tar_scm">
       <param name="url">git://github.com/trevorsandy/lpub3d-ci</param>
       <param name="scm">git</param>
@@ -72,6 +66,12 @@
   <service name="recompress">
     <param name="file">*.tar</param>
     <param name="compression">gz</param>
+  </service>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz</param>
+    <param name="filename">lpub3d_linux_3rdparty.tar.gz</param>
   </service>
   <service name="download_url">
     <param name="protocol">http</param>
