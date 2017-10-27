@@ -52,7 +52,7 @@ do
 done
 cd SOURCES
 
-echo "2. download source to SOURCES/..."
+echo "2. download ${LPUB3D} source to SOURCES/..."
 git clone https://github.com/trevorsandy/${LPUB3D}.git
 
 echo "3. source update_config_files.sh..."
@@ -67,11 +67,11 @@ echo "5. copy ${LPUB3D}.spec.git.version to SOURCES/..."
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
 if [ -f "${LPUB3D}.spec.git.version" ]; then echo "   DEBUG ${LPUB3D}.spec.git.version copied"; else echo "   DEBUG ${LPUB3D}.spec.git.version not found!"; fi
 
-echo "6. copy xpm icon to SOURCES/"
+echo "6. copy lpub3d.xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
 if [ -f "lpub3d.xpm" ]; then echo "   DEBUG lpub3d.xpm copied"; else echo "   DEBUG lpub3d.xpm not found!"; fi
 
-echo "7. copy spec to SPECS/"
+echo "7. copy ${LPUB3D}.spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
 if [ -f "../SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
 
@@ -107,6 +107,7 @@ tar -czf ${WORK_DIR}.tar.gz \
 
 cd ../SPECS
 echo "11. download build dependenvies..."
+if [ -f "${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec exist at $PWD" ; cat ${LPUB3D}.spec; else echo "   DEBUG ${LPUB3D}.spec not found at at $PWD!"; fi
 dnf builddep -y ${LPUB3D}.spec
 
 echo "12. build the RPM package..."
