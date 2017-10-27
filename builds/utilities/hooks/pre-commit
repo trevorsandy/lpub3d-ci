@@ -20,8 +20,8 @@
 ##   This is useful when you change the major version number for example.
 ##
 exec 1>&2
-ignore_increment=$doIncrement
-if test x"$ignore_increment" = x""; then
+#doIncrement=_Blocked                     # routine disabled - comment line to enable
+if test x"$doIncrement" = x""; then
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
   commit_count=`git rev-list HEAD --count`
@@ -32,20 +32,17 @@ if test x"$ignore_increment" = x""; then
 
   tmp1=${tag_long#*-}       # remove prefix ending in "-"
   tmp2=${tag_short//./" "}  # replace . with " "
-  g_version=${tmp2/v/}      # replace v with ""
+  version_=${tmp2/v/}       # replace v with ""
   revision=${tmp1%-*}
-  read major minor patch <<< ${g_version}
-
-  old_revision=$revision
-  old_commit_count=$commit_count
-  if test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
-  working_dir=$PWD/mainApp
+  read major minor patch <<< ${version_}
 
   echo "0. Incrementing Git version info..."
-  echo "   To disable: 'doIncrement=FALSE git commit -m \"Commit Message\"'"
-  echo "   Old_revision..........$old_revision"
-  echo "   Old_build (count).....$old_commit_count"
+  echo "   To disable, use: 'doIncrement=FALSE git commit -m \"Commit Message\"'"
+  echo "   Old_revision..........$revision"
+  echo "   Old_build (count).....$commit_count"
+  if test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
 
+  working_dir=$PWD/mainApp
   chmod +x builds/utilities/update-config-files.sh
   ./builds/utilities/update-config-files.sh $working_dir $major $minor $patch $revision $commit_count $sha_hash_short
 

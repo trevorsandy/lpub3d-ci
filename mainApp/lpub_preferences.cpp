@@ -310,7 +310,7 @@ void Preferences::lpubPreferences()
 #ifdef Q_OS_MAC
 
     qDebug() << qPrintable(QString("OSX Starting Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
-    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D20 (app bundle executable)
+    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D   (app bundle executable)
         cwd.cdUp();                   // Contents/      (app bundle contents)
         cwd.cdUp();                   // LPub3D.app/    (app bundle)
         cwd.cdUp();                   // Applications/  (app bundle installation path root)
@@ -322,11 +322,11 @@ void Preferences::lpubPreferences()
 
 #elif defined Q_OS_LINUX
 
-    #ifdef X11_BINARY_BUILD                                         // Standard User Rights Install
+    #ifdef X11_BINARY_BUILD                                               // Standard User Rights Install
         lpub3dDocsResourcePath   = QString("doc");
-    #else                                                           // Elevated User Rights Install
-        lpub3dDocsResourcePath   = QString("../share/doc/lpub3d");
-        lpub3dExtrasResourcePath = QString("../share/lpub3d");      // Elevated User Rights Install
+    #else                                                                 // Elevated User Rights Install
+        lpub3dDocsResourcePath   = QString("../share/doc/" VER_APPNAME);
+        lpub3dExtrasResourcePath = QString("../share/" VER_APPNAME);      // Elevated User Rights Install
 
         //qDebug() << QString("lpub3dExtrasResourcePath (%1)").arg(lpub3dExtrasResourcePath);
     #endif
@@ -1039,26 +1039,27 @@ void Preferences::renderPreferences()
 #ifdef Q_OS_WIN
     QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("3rdParty");
 
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite.exe"));
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE_STR "/bin/ldglite.exe"));
   #ifdef __i386__
-    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView.exe"));
-    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui32.exe"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW_STR "/bin/LDView.exe"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY_STR "/bin/lpub3d_trace_cui32.exe"));
   #elif defined __x86_64__
-    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView64.exe"));
-    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui64.exe"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW_STR "/bin/LDView64.exe"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY_STR "/bin/lpub3d_trace_cui64.exe"));
   #endif
 #elif defined Q_OS_MAC
     QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("LPub3D.app/Contents/3rdParty");
 
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
-    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView"));
-    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE_STR "/bin/ldglite"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW_STR "/bin/LDView"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY_STR "/bin/lpub3d_trace_cui"));
 #else
-    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("../share/lpub3d/3rdParty");
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("../share/" VER_APPLICATIONNAME_STR "/3rdParty");
+    QString lpub3d3rdPartyRendererExe = QString("%1").arg("/opt/" VER_APPLICATIONNAME_STR "/3rdParty");
 
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
-    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/ldview"));
-    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyRendererExe).arg(VER_LDGLITE_STR "/bin/ldglite"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyRendererExe).arg(VER_LDVIEW_STR "/bin/ldview"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyRendererExe).arg(VER_POVRAY_STR "/bin/lpub3d_trace_cui"));
 #endif
 
     /* 3rd Party application installation status */
@@ -1173,54 +1174,54 @@ void Preferences::renderPreferences()
     // Copy required config and ini resource files to application data directory
     QString lpub3d3rdPartyConfigDir = QString("%1/%2").arg(lpubDataPath).arg("3rdParty");
     QFileInfo resourceFile;
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW "/config" ,VER_LDVIEW_INI_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR "/config" ,VER_LDVIEW_INI_FILE));
     if (!resourceFile.exists()){
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
-        QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW_STR "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
     if (resourceFile.exists())
       ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
     logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
 
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW "/config" ,VER_LDVIEW_POV_INI_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR "/config" ,VER_LDVIEW_POV_INI_FILE));
     if (!resourceFile.exists()) {
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
-        QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW_STR "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
     if (resourceFile.exists())
       ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview pov ini file
     logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
 
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_CONF_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR "/config" ,VER_POVRAY_CONF_FILE));
     if (!resourceFile.exists()) {
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
-        QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY_STR "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
     if (resourceFile.exists())
       povrayConf = resourceFile.absoluteFilePath();     // populate povray conf file
     logInfo() << QString("POVRay conf file   : %1").arg(povrayConf.isEmpty() ? "Not found" : povrayConf);
 
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_INI_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR "/config" ,VER_POVRAY_INI_FILE));
     if (!resourceFile.exists()){
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
-        QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY_STR "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
     if (resourceFile.exists())
       povrayIni = resourceFile.absoluteFilePath();     // populate povray ini file
     logInfo() << QString("POVRay conf file   : %1").arg(povrayIni.isEmpty() ? "Not found" : povrayIni);
 
     // Populate POVRay Library paths
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/ini" ,VER_POVRAY_INI_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY_STR "/resources/ini" ,VER_POVRAY_INI_FILE));
     if (resourceFile.exists())
       povrayIniPath = resourceFile.absolutePath();
     logInfo() << QString("POVRay ini path    : %1").arg(povrayIniPath.isEmpty() ? "Not found" : povrayIniPath);
 
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/include" ,VER_POVRAY_INC_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY_STR "/resources/include" ,VER_POVRAY_INC_FILE));
     if (resourceFile.exists())
       povrayIncPath = resourceFile.absolutePath();
     logInfo() << QString("POVRay include path: %1").arg(povrayIncPath.isEmpty() ? "Not found" : povrayIncPath);
 
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/scenes" ,VER_POVRAY_SCENE_FILE));
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY_STR "/resources/scenes" ,VER_POVRAY_SCENE_FILE));
     if (resourceFile.exists())
       povrayScenePath = resourceFile.absolutePath();
     logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);

@@ -89,6 +89,8 @@ lessThan(QT_MAJOR_VERSION, 5) {
 unix:!macx: TARGET = lpub3d
 else: TARGET = LPub3D
 STG_TARGET   = $$TARGET
+DIST_TARGET  = $$TARGET
+DEFINES     += VER_APPNAME=\\\"$$DIST_TARGET\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
@@ -214,9 +216,12 @@ unix {
 # }
 #<-----deprecated----------
 
-VER_LDVIEW      = ldview-4.3
-VER_LDGLITE     = ldglite-1.3
-VER_POVRAY      = lpub3d_trace_cui-3.8
+VER_LDVIEW   = ldview-4.3
+VER_LDGLITE  = ldglite-1.3
+VER_POVRAY   = lpub3d_trace_cui-3.8
+DEFINES     += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES     += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES     += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
 win32:include(winfiledistro.pri)
 macx:include(macosfiledistro.pri)
@@ -406,6 +411,7 @@ OTHER_FILES += \
     ../builds/linux/obs/debian/control \
     ../builds/linux/obs/debian/copyright \
     ../builds/linux/obs/debian/lpub3d.dsc \
+    ../builds/linux/obs/debian/shlibs.local \
     ../builds/linux/obs/_service \
     ../builds/windows/CreateExe.bat \
     ../builds/utilities/Copyright-Source-Headers.txt \

@@ -260,5 +260,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.126
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.127
 - LPub3D Linux package (rpm) release

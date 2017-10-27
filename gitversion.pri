@@ -21,21 +21,24 @@ exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
     message(~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~)
 }
-# Location of Git directory when building pkg package
-exists($$PWD/../upstream/lpub3d/.git) {
-    GIT_DIR = $$PWD/../upstream/lpub3d/.git
-    message(~~~ GIT_DIR [PKG] $$GIT_DIR ~~~)
-}
-# Location of Git directory when building rpm package
-exists($$PWD/../../SOURCES/lpub3d/.git) {
-    GIT_DIR = $$PWD/../../SOURCES/lpub3d/.git
-    message(~~~ GIT_DIR [RPM] $$GIT_DIR ~~~)
-}
-# Location of Git directory when building deb package
-exists($$PWD/../../upstream/lpub3d/.git) {
-    GIT_DIR = $$PWD/../../upstream/lpub3d/.git
-    message(~~~ GIT_DIR [DEB] $$GIT_DIR ~~~)
-}
+#-----deprecated---------->
+## Location of Git directory when building pkg package
+#exists($$PWD/../upstream/lpub3d/.git) {
+#    GIT_DIR = $$PWD/../upstream/lpub3d/.git
+#    message(~~~ GIT_DIR [PKG] $$GIT_DIR ~~~)
+#}
+## Location of Git directory when building rpm package
+#exists($$PWD/../../SOURCES/lpub3d/.git) {
+#    GIT_DIR = $$PWD/../../SOURCES/lpub3d/.git
+#    message(~~~ GIT_DIR [RPM] $$GIT_DIR ~~~)
+#}
+## Location of Git directory when building deb package
+#exists($$PWD/../../upstream/lpub3d/.git) {
+#    GIT_DIR = $$PWD/../../upstream/lpub3d/.git
+#    message(~~~ GIT_DIR [DEB] $$GIT_DIR ~~~)
+#}
+#<-----deprecated----------
+
 # AppVeyor 64bit build (git.exe/cygwin conflict) or no .git directory found, use version input file
 appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {

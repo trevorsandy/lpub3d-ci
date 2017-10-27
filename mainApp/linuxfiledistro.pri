@@ -1,4 +1,5 @@
 unix:!macx {
+    DIST_TARGET = $$lower($$DIST_TARGET)
 
     # For compiled builds on unix set C++11 standard appropriately
     GCC_VERSION = $$system(g++ -dumpversion)
@@ -28,7 +29,7 @@ unix:!macx {
     pkg: PACKAGE_TYPE = PKG_DISTRO
     !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
 
-    MAN_PAGE = lpub3d$$VER_MAJOR$$VER_MINOR
+    MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR
     MAN_PAGE = $$join(MAN_PAGE,,,.1)
 
     # These settings are used for package distributions that will require elevated rights to install
@@ -36,13 +37,13 @@ unix:!macx {
     isEmpty(SHARE_DIR):SHARE_DIR = $$INSTALL_PREFIX/share
 
     isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
-    isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/lpub3d
+    isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
     isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/pixmaps
     isEmpty(MAN_DIR):MAN_DIR               = $$SHARE_DIR/man/man1
     isEmpty(DESKTOP_DIR):DESKTOP_DIR       = $$SHARE_DIR/applications
     isEmpty(MIME_DIR):MIME_DIR             = $$SHARE_DIR/mime/packages
     isEmpty(MIME_ICON_DIR):MIME_ICON_DIR   = $$SHARE_DIR/icons/hicolor/scalable/mimetypes
-    isEmpty(RESOURCE_DIR):RESOURCE_DIR     = $$SHARE_DIR/lpub3d
+    isEmpty(RESOURCE_DIR):RESOURCE_DIR     = $$SHARE_DIR/$$DIST_TARGET
 
     target.path = $$BIN_DIR
 
@@ -52,13 +53,16 @@ unix:!macx {
     man.files += $$MAN_PAGE
     man.path = $$MAN_DIR
 
-    desktop.files += lpub3d.desktop
+    #desktop.files += lpub3d.desktop#
+    desktop.files += $$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    icon.files += images/lpub3d.png
+    ##icon.files += images/lpub3d.png
+    icon.files += images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
-    mime.files += lpub3d.xml
+    #mime.files += lpub3d.xml
+    mime.files += $$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
 
     mime_ldraw_icon.files += images/x-ldraw.svg
@@ -158,14 +162,16 @@ unix:!macx {
     isEmpty(LDVIEW_INS_RES):LDVIEW_INS_RES     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/resources
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
+    # installed data directories - 3rd party renderer executables
+    isEmpty(THIRD_PARTY_EXE_DIR):THIRD_PARTY_EXE_DIR   = /opt/$$DIST_TARGET
+    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDGLITE/bin
+    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDVIEW/bin
+    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_POVRAY/bin
     # installed data directories - 3rd party components
-    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/bin
     isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/doc
     isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/resources
-    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/bin
-    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/resources
     isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/doc
-    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/bin
+    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/resources
     isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/doc
     isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/resources
 

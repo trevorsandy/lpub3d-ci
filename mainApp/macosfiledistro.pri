@@ -1,6 +1,7 @@
 macx {
 
-    ICON = lpub3d.icns
+    #ICON = lpub3d.icns
+    ICON = $$lower($$join(DIST_TARGET,,,.icns))
     QMAKE_INFO_PLIST = Info.plist
 
     # libraries
