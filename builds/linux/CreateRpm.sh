@@ -75,6 +75,10 @@ echo "7. copy ${LPUB3D}.spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
 if [ -f "../SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
 
+echo "7. copy ${LPUB3D}-rpmlintrc to SPECS/"
+cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ../SPECS
+if [ -f "../SPECS/${LPUB3D}-rpmlintrc" ]; then echo "   DEBUG ${LPUB3D}-rpmlintrc copied"; else echo "   DEBUG ${LPUB3D}-rpmlintrc not found!"; fi
+
 echo "8. download LDraw archive libraries to SOURCES/..."
 if [ ! -f lpub3dldrawunf.zip ]
 then
