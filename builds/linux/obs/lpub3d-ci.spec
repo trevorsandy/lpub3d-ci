@@ -62,6 +62,9 @@ License: GPLv3+
 Source10: lpub3d-ci.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
+# rpmlint exceptions
+Source20: lpub3d-ci-rpmlintrc
+
 # set packing platform
 %define serviceprovider %(echo "%{vendor}")
 %if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
@@ -80,6 +83,7 @@ BuildRequires: finger
 %endif
 
 %define _iconsdir %{_datadir}/icons
+%define _3rdexedir /opt/lpub3d/3rdParty
 
 # preamble
 Name: lpub3d-ci
@@ -182,6 +186,7 @@ echo Release..................%{release}
 echo Distribution packer......%{distpacker}
 echo Source0..................%{SOURCE0}
 echo Source10.................%{SOURCE10}
+echo Source20.................%{SOURCE20}
 echo Service Provider.........%{serviceprovider}
 echo Packing Platform.........%{packingplatform}
 echo OpenBuildService Flag....%{OBS}
@@ -251,6 +256,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
 %{_datadir}/lpub3d
+%{_3rdexedir}/*
 %dir %{_iconsdir}/hicolor/
 %dir %{_iconsdir}/hicolor/scalable/
 %dir %{_iconsdir}/hicolor/scalable/mimetypes/
@@ -260,6 +266,5 @@ rm -rf $RPM_BUILD_ROOT
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.129
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.128
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.130
 - LPub3D Linux package (rpm) release

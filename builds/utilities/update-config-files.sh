@@ -25,12 +25,12 @@ LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
 LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 
 # Change these accordingly when respective config files are modified
-LINE_DESKTOP=10
-LINE_MANPAGE=61
-LINE_PKGBUILD=3
-LINE_DSC=5
-LINE_README=1
-LINE_SPEC=263
+LINE_DESKTOP=10             # Exec=lpub3d20 %f
+LINE_MANPAGE=61             # /usr/bin/lpub3d20
+LINE_PKGBUILD=3             # pkgver=2.0.21.129
+LINE_DSC=5                  # Version: 2.0.21.129
+LINE_README=1               # LPub3D 2.0.21.59.126...
+LINE_SPEC=269               # * Fri Oct 27 2017...
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
