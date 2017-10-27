@@ -44,8 +44,15 @@ if test x"$doIncrement" = x""; then
 
   working_dir=$PWD/mainApp
   chmod +x builds/utilities/update-config-files.sh
-  ./builds/utilities/update-config-files.sh $working_dir $major $minor $patch $revision $commit_count $sha_hash_short
-
+  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short
+  FILE="builds/utilities/version.info"
+  if [ -f ${FILE} -a -r ${FILE} ]
+  then
+    rm ${FILE}
+  fi
+  cat <<EOF >${FILE}
+$major $minor $patch $revision $commit_count $sha_hash_short
+EOF
   git add .
 fi
 

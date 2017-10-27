@@ -112,7 +112,7 @@ fi
 echo "-  configure and build source from ${LPUB3D}/..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 qmake -v
-qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=macos
+qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=dmg
 /usr/bin/make
 
 # create dmg environment - begin #

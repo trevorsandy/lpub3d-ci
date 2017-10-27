@@ -170,7 +170,7 @@ UI_DIR      = $$DESTDIR/.ui
 unix {
     # For linux and MacOS builds on Travis-CI - install 3rd party executables, documentation and resources.
     create_package = $$(LP3D_CREATE_PKG)
-    if(deb|rpm|pkg|macos|contains(create_package, yes)) {
+    if(deb|rpm|pkg|dmg|contains(create_package, yes)) {
         message(~~~ CREATE DISTRIBUTION PACKAGE: $$create_package ~~~)
         CONFIG+=copy3rdexe
         CONFIG+=copy3rdexeconfig

@@ -52,6 +52,7 @@ unix:!macx {
 
     man.files += docs/$$MAN_PAGE
     man.path = $$MAN_DIR
+    message("ZZZZZZZZ man.files $$man.files ~~~")
 
     #desktop.files += lpub3d.desktop#
     desktop.files += $$join(DIST_TARGET,,,.desktop)
