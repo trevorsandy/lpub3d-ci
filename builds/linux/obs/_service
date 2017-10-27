@@ -1,15 +1,26 @@
 <services>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz</param>
+    <param name="filename">lpub3d_linux_3rdparty.tar.gz</param>
+  </service>
   <service name="tar_scm">
       <param name="url">git://github.com/trevorsandy/lpub3d-ci</param>
       <param name="scm">git</param>
       <param name="exclude">lc_lib/tools</param>
+      <param name="exclude">builds/utilities/docker</param>
+      <param name="exclude">builds/utilities/hooks</param>
+      <param name="exclude">builds/utilities/dmg-utils</param>
+      <param name="exclude">builds/utilities/ldrawlibraries</param>
+      <param name="exclude">builds/utilities/nsis-scripts</param>
+      <param name="exclude">builds/linux/docker-compose</param>
       <param name="exclude">builds/linux/standard</param>
       <param name="exclude">builds/windows</param>
       <param name="exclude">builds/macx</param>
       <param name="exclude">.travis.yml</param>
       <param name="exclude">.gitignore</param>
       <param name="exclude">.gitattributes</param>
-      <param name="exclude">.git</param>
       <param name="exclude">LPub3D.pro.user</param>
       <param name="exclude">README.md</param>
       <param name="exclude">_config.yml</param>
@@ -71,11 +82,5 @@
     <param name="host">www.ldraw.org</param>
     <param name="path">/library/unofficial/ldrawunf.zip</param>
     <param name="filename">lpub3dldrawunf.zip</param>
-  </service>
-  <service name="download_url">
-    <param name="protocol">https</param>
-    <param name="host">github.com</param>
-    <param name="path">/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz</param>
-    <param name="filename">lpub3d_linux_3rdparty.tar.gz</param>
   </service>
 </services>

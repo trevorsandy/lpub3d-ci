@@ -12,8 +12,6 @@ CALL_DIR=`pwd`
 OS=`uname`
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
-LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
 Info () {
     if [ "${SOURCED}" = "true" ]
     then
@@ -22,6 +20,15 @@ Info () {
         echo "${*}" >&2
     fi
 }
+
+LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
+LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
+LINE_DESKTOP=10
+LINE_MANPAGE=61
+LINE_PKGBUILD=3
+LINE_DSC=5
+LINE_README=1
+LINE_SPEC=263
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
@@ -148,7 +155,7 @@ fi
 
 Info "3. update desktop configuration         - add version suffix"
 FILE="$LP3D_PWD/lpub3d.desktop"
-LineToReplace=10
+LineToReplace=${LINE_DESKTOP}
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
@@ -163,7 +170,7 @@ fi
 
 Info "4. update man page                      - add version suffix"
 FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
-LineToReplace=61
+LineToReplace=${LINE_MANPAGE}
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
@@ -178,7 +185,7 @@ fi
 
 Info "5. update PKGBUILD                      - add app version"
 FILE="$LP3D_OBS_DIR/PKGBUILD"
-LineToReplace=3
+LineToReplace=${LINE_PKGBUILD}
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
@@ -207,7 +214,7 @@ EOF
 
 Info "7. update ${LPUB3D}.dsc                 - add app version"
 FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
-LineToReplace=5
+LineToReplace=${LINE_DSC}
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
@@ -222,7 +229,7 @@ fi
 
 Info "8. update readme.txt                    - add app version"
 FILE="$LP3D_PWD/docs/README.txt"
-LineToReplace=1
+LineToReplace=${LINE_README}
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]
@@ -237,7 +244,7 @@ fi
 
 Info "9. update ${LPUB3D}.spec                - add app version and change date"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-LineToReplace=263
+LineToReplace=${LINE_SPEC}
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$OS" = Darwin ]

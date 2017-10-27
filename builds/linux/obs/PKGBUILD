@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.120
+pkgver=2.0.21.121
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
@@ -16,12 +16,16 @@ noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
 md5sums=(SKIP SKIP SKIP SKIP)
 
 prepare() {
-	# for 3rd party apps install
 	export LP3D_CREATE_PKG=true
-
+	echo "Current working directory: $PWD"
+	if [ -f lpub3d_linux_3rdparty.tar.gz ]; then
+			mkdir -p lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C lpub3d_linux_3rdparty --strip-components=1
+			echo "lpub3d_linux_3rdparty tarball extracted to lpub3d_linux_3rdparty/" && `ls lpub3d_linux_3rdparty/*`
+			rm -f lpub3d_linux_3rdparty.tar.gz &&  echo "lpub3d_linux_3rdparty tarball deleted"
+	else
+			echo "lpub3d_linux_3rdparty tarball not found at $PWD!"
+	fi
 	cd ${pkgname}-git
-
-	# Start custom configuration commands
 	echo "Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras
@@ -35,24 +39,12 @@ prepare() {
 	else
 		echo "lpub3dldrawunf.zip not found at $PWD"
 	fi
-	if [ -f ../lpub3d_linux_3rdparty.tar.gz ]; then
-			mkdir ../lpub3d_linux_3rdparty && tar -xzf ../lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1
-			echo "lpub3d_linux_3rdparty tarball extracted to ../lpub3d_linux_3rdparty/"
-			echo "DEBUG 3RD_PARTY" `ls ../lpub3d_linux_3rdparty/*`
-			rm -f ../lpub3d_linux_3rdparty.tar.gz
-			echo "lpub3d_linux_3rdparty tarball deleted"
-	else
-			echo "lpub3d_linux_3rdparty tarball not found at $PWD!"
-	fi
-
-	# Qt5 configure
 	export QT_SELECT=qt5
 	if [ -x /usr/bin/qmake ] ; then
 		qmake -makefile CONFIG+=release CONFIG+=pkg
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
 		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg
 	fi
-	# End custom configuration commands
 }
 
 build() {

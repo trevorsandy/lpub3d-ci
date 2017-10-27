@@ -165,7 +165,7 @@ UI_DIR      = $$DESTDIR/.ui
 # Stage 3rd party executables, documentation and resources (Windows builds Only)
 !contains(CONFIG, stagewindistcontent): CONFIG +=
 
-unix: {
+unix {
     # For linux and MacOS builds on Travis-CI - install 3rd party executables, documentation and resources.
     create_package = $$(LP3D_CREATE_PKG)
     contains(create_package, true) {

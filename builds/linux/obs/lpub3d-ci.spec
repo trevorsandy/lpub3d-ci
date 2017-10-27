@@ -260,7 +260,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 %post -p /sbin/ldconfig
-* Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.120
+* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.121
 * Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.119
 %changelog
 * Thu Oct 26 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.117
