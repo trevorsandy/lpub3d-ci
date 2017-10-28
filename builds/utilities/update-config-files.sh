@@ -30,7 +30,7 @@ LINE_MANPAGE=61             # /usr/bin/lpub3d20
 LINE_PKGBUILD=3             # pkgver=2.0.21.129
 LINE_DSC=5                  # Version: 2.0.21.129
 LINE_README=1               # LPub3D 2.0.21.59.126...
-LINE_SPEC=261               # * Fri Oct 27 2017...
+LINE_SPEC=273               # * Fri Oct 27 2017...
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
@@ -280,7 +280,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-Info "10. create '${LPUB3D}.spec.git.version' - version for OBS builds"
+Info "10.create '${LPUB3D}.spec.git.version' - version for OBS builds"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec.git.version"
 if [ -f ${FILE} -a -r ${FILE} ]
 then

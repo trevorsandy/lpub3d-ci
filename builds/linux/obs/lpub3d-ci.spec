@@ -1,3 +1,15 @@
+#
+# spec file for package lpub3d
+#
+# Copyright © 2017 Trevor SANDY
+# Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
+# This file and all modifications and additions to the pristine
+# package are under the same license as the package itself.
+#
+# please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
+#
+
+# define distributions
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
@@ -44,7 +56,7 @@ BuildRequires: fdupes
 %if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version}> || 0%{?scientificlinux_version} || 0%{?mageia}
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?mageia}
 License: GPLv3+
 %endif
 
@@ -258,5 +270,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.145
+* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.146
 - LPub3D Linux package (rpm) release

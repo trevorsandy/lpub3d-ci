@@ -75,11 +75,11 @@ echo "7. copy ${LPUB3D}.spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
 if [ -f "../SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
 
-echo "7. copy ${LPUB3D}-rpmlintrc to SPECS/"
+echo "8. copy ${LPUB3D}-rpmlintrc to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ../SPECS
 if [ -f "../SPECS/${LPUB3D}-rpmlintrc" ]; then echo "   DEBUG ${LPUB3D}-rpmlintrc copied"; else echo "   DEBUG ${LPUB3D}-rpmlintrc not found!"; fi
 
-echo "8. download LDraw archive libraries to SOURCES/..."
+echo "9. download LDraw archive libraries to SOURCES/..."
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -88,14 +88,14 @@ if [ ! -f complete.zip ]
 then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
-echo "9. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
+echo "10. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
 if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
 then
      wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
 fi
 
 # file copy and downloads above must happen before we make the tarball
-echo "10. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
+echo "11. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
 tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
@@ -110,11 +110,11 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
 cd ../SPECS
-echo "11. download build dependenvies..."
+echo "12. download build dependenvies..."
 if [ -f "${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec exist at $PWD" ; cat ${LPUB3D}.spec; else echo "   DEBUG ${LPUB3D}.spec not found at at $PWD!"; fi
 dnf builddep -y ${LPUB3D}.spec
 
-echo "12. build the RPM package..."
+echo "13. build the RPM package..."
 # check the spec
 rpmlint ${LPUB3D}.spec
 
@@ -125,10 +125,10 @@ cd ../RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "13. check rpm packages..."
+    echo "14. check rpm packages..."
     rpmlint ${DISTRO_FILE} ../../SRPMS/${LPUB3D}*.rpm
 
-    echo "14. create update and download packages..."
+    echo "15. create update and download packages..."
     IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
@@ -137,7 +137,7 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
 else
-    echo "13. package ${DISTRO_FILE} not found."
+    echo "14. package ${DISTRO_FILE} not found."
 fi
 
 echo "15. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
