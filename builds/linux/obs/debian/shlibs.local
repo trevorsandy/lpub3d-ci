@@ -1,9 +1,9 @@
-libjpeg-turbo 8 libjpeg-turbo8
-libpng 12-0 libpng12-0
-libboost-system 1.58.0 libboost-system1.58.0
-libboost-thread 1.58.0 libboost-thread1.58.0
-libtiff 5 libtiff5
-libosmesa 6 libosmesa6
-freeglut 3 freeglut3
-libsndio 6.1 libsndio6.1
-libopenexr 22 libopenexr22
+# override these 3rd party dependency libs
+libjpeg 8 libjpeg.so.8
+libpng12 0 libpng12.so.0
+libIlmImf-2_2 22 libIlmImf-2_2.so.22
+libIex-2_2 12 libIex-2_2.so.12
+libHalf 12 libHalf.so.12
+libsndio 6.1 libsndio.so.6.1
+libboost_thread 1.58.0 libboost_thread.so.1.58.0
+libboost_system 1.58.0 libboost_system.so.1.58.0

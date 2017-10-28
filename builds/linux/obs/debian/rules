@@ -14,9 +14,9 @@ export LP3D_CREATE_PKG=yes
 # get target arch
 LP3D_TARGET_ARCH=`uname -m`
 
-# override these 3rd party dependency libs - related packages are defined in control and dsc
-override_dh_shlibdeps:
-	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+# override and shut down shared library dependency checks
+#override_dh_shlibdeps:
+#	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
 
 %:
 	dh $@
