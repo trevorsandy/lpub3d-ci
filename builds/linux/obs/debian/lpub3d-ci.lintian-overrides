@@ -1,0 +1,23 @@
+W: lpub3d-ci: package-name-doesnt-match-sonames libldrawini16 libquazip0
+E: lpub3d-ci: embedded-library opt/lpub3d/3rdParty/ldview-4.3/bin/ldview: gl2ps
+E: lpub3d-ci: embedded-library opt/lpub3d/3rdParty/ldview-4.3/bin/ldview: tinyxml
+E: lpub3d-ci: embedded-library opt/lpub3d/3rdParty/ldview-4.3/bin/ldview: libpng
+W: lpub3d-ci: spelling-error-in-description GNU Public License GNU General Public License
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldglite-1.3/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldglite-1.3/bin/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldglite-1.3/bin/ldglite
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldview-4.3/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldview-4.3/bin/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldview-4.3/bin/ldview
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/lpub3d_trace_cui-3.8/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/lpub3d_trace_cui-3.8/bin/
+E: lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/lpub3d_trace_cui-3.8/bin/lpub3d_trace_cui
+W: lpub3d-ci: extra-license-file usr/share/doc/lpub3d/COPYING.txt.gz
+W: lpub3d-ci: extra-license-file usr/share/lpub3d/3rdParty/ldglite-1.3/doc/LICENCE
+W: lpub3d-ci: extra-license-file usr/share/lpub3d/3rdParty/ldview-4.3/doc/license.txt
+W: lpub3d-ci: extra-license-file usr/share/lpub3d/3rdParty/lpub3d_trace_cui-3.8/doc/LICENSE
+W: lpub3d-ci: script-not-executable usr/share/lpub3d/3rdParty/ldglite-1.3/resources/set-ldrawdir.command
+W: lpub3d-ci: non-dev-pkg-with-shlib-symlink usr/lib/x86_64-linux-gnu/libldrawini.so.16.1.8 usr/lib/x86_64-linux-gnu/libldrawini.so
+W: lpub3d-ci: non-dev-pkg-with-shlib-symlink usr/lib/x86_64-linux-gnu/libquazip.so.0.7.2 usr/lib/x86_64-linux-gnu/libquazip.so

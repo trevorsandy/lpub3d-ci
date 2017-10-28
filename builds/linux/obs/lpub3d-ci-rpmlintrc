@@ -1,5 +1,4 @@
 
-
 addFilter('extra-license-file')
 setBadness('extra-license-file', 0)
 addFilter('embedded-library opt')
