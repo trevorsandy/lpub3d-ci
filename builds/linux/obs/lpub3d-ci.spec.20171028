@@ -63,6 +63,9 @@ License: GPLv3+
 # set packer
 %if 0%{?buildservice}==1
 %define distpacker %(echo openSUSE BuildService [abuild])
+%else
+BuildRequires: finger
+%define distpacker %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 %endif
 
 # set custom dir paths
@@ -161,11 +164,55 @@ BuildRequires: Mesa-devel
  © 2015-2017 Trevor SANDY
 
 %prep
+set +x
+echo "Target...................%{_target}"
+echo "Target Vendor............%{_target_vendor}"
+echo "Target CPU...............%{_target_cpu}"
+echo "Name.....................%{name}"
+echo "Summary..................%{summary}"
+echo "Version..................%{version}"
+echo "Vendor...................%{vendor}"
+echo "Release..................%{release}"
+echo "Distribution packer......%{distpacker}"
+echo "Source0..................%{SOURCE0}"
+echo "Source10.................%{SOURCE10}"
+echo "Source20.................%{SOURCE20}"
+echo "Service Provider.........%{serviceprovider}"
+echo "Packing Platform.........%{packingplatform}"
+echo "OpenBuildService Flag....%{buildservice}"
+echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
+set -x
 %setup -q -n %{name}-git
 
 %build
 export QT_SELECT=qt5
-
+# for 3rd party apps install
+export LP3D_CREATE_PKG=yes
+# download ldraw archive libraries
+set +x
+LDrawLibOffical=../../SOURCES/complete.zip
+LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
+ThirdPartyRepoTarball=../../SOURCES/lpub3d_linux_3rdparty.tar.gz
+ThirdPartyRepo=lpub3d_linux_3rdparty
+if [ -f ${LDrawLibOffical} ] ; then
+	cp ${LDrawLibOffical} mainApp/extras &&	echo "complete.zip copied"
+else
+	echo "complete.zip not found at $PWD!"
+fi
+if [ -f ${LDrawLibUnofficial} ] ; then
+	cp ${LDrawLibUnofficial} mainApp/extras && echo "lpub3dldrawunf.zip copied"
+else
+	echo "lpub3dldrawunf.zip not found at $PWD!"
+fi
+# download lpub3d_linux_3rdparty repository as tar.gz archive
+if [ -f ${ThirdPartyRepoTarball} ] ; then
+	mkdir -p ../${ThirdPartyRepo} && tar -xzf ${ThirdPartyRepoTarball} -C ../${ThirdPartyRepo} --strip-components=1
+	echo "${ThirdPartyRepo}.tar.gz tarball extracted to ../${ThirdPartyRepo}/"
+  rm -f ../${ThirdPartyRepo}.tar.gz && echo "${ThirdPartyRepo}.tar.gz tarball deleted"
+else
+	echo "${ThirdPartyRepo} tarball not found at $PWD!"
+fi
+set -x
 # use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64

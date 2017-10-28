@@ -50,7 +50,7 @@ do
         mkdir "${DIR}"
     fi
 done
-cd SOURCES
+cd ${RPM_BUILD_DIR}/SOURCES
 
 echo "2. download ${LPUB3D} source to SOURCES/..."
 git clone https://github.com/trevorsandy/${LPUB3D}.git
