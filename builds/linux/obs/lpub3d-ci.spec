@@ -86,7 +86,7 @@ BuildRequires: finger
 Name: lpub3d
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
-Version: %{gitversion}
+Version: 1.0.0
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -226,5 +226,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.162
+* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.163
 - LPub3D Linux package (rpm) release
