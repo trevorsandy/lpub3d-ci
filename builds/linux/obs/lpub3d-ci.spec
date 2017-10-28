@@ -1,15 +1,5 @@
-#
-# spec file for package lpub3d
-#
-# Copyright © 2017 Trevor SANDY
-# Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
-# This file and all modifications and additions to the pristine
-# package are under the same license as the package itself.
-#
-# please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
-#
+%define _iconsdir %{_datadir}/icons
 
-# define distributions
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
@@ -23,9 +13,11 @@
 %endif
 
 %if 0%{?mageia}
-%define dist mag
+%define dist .mga%{mgaversion}
+%define distsuffix .mga%{mgaversion}
 %endif
 
+Summary: An LDraw Building Instruction Editor
 %if 0%{?scientificlinux_version}
 %define dist scl
 %endif
@@ -43,9 +35,11 @@
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
 %endif
+
 %if 0%{?mageia} || 0%{?rhel_version}
 Group: Graphics
 %endif
+
 %if 0%{?suse_version} || 0%{?sles_version}
 License: GPL-3.0+
 BuildRequires: fdupes
@@ -53,46 +47,46 @@ BuildRequires: fdupes
 %if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?mageia} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?mageia}
 License: GPLv3+
 %endif
 
-# define git version string from source
-Source10: lpub3d.spec.git.version
-%define gitversion %(tr -d '\n' < %{SOURCE10})
-
 # set packing platform
-%if "0%{?vendor}"
-%define obsurl obs://build.opensuse.org/home:
-%define obsurlprivate obs://private/home:
-%define serviceprovider %(echo "%{vendor}")
-%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "openSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
-%if "%{packingplatform}" == "openSUSE OBS"
-%define OBS 1
-%endif
+%define serviceprovider %(echo %{vendor})
+%if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
+%define buildservice 1
+%define packingplatform %(echo openSUSE BuildService)
+%else
+%define packingplatform %(echo $HOSTNAME [`uname`])
 %endif
 
 # set packer
-%if 0%{?OBS}==1
-%define distpacker "openSUSE OBS [abuild]"
+%if 0%{?buildservice}==1
+%define distpacker %(echo openSUSE BuildService [abuild])
 %else
 BuildRequires: finger
-%define distpacker "%(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)"
+%define distpacker %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 %endif
 
-%define _iconsdir %{_datadir}/icons
+# set custom dir paths
+%define _3rdexedir /opt/lpub3d/3rdParty
 
-# package attributes
-Name: lpub3d
+# define git version string from source
+#Source10: lpub3d-ci.spec.git.version
+#%define gitversion %(tr -d '\n' < %{SOURCE10})
+
+# preamble
+Name: lpub3d-ci
 Icon: lpub3d.xpm
-Summary: An LDraw Building Instruction Editor
 Version: 1.0.0
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
 Requires: unzip
-Source0: lpub3d-git.tar.gz
+BuildRequires: freeglut-devel
+Source0: lpub3d-ci-git.tar.gz
+Source20: lpub3d-ci-rpmlintrc
 
 # package requirements
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
@@ -100,20 +94,27 @@ BuildRequires: qt5-qtbase-devel
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
-%if 0%{?OBS}!=1
+%if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
 BuildRequires: gcc-c++, make
 %endif
 
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+BuildRequires: mesa-libOSMesa-devel
+%endif
+
 %if 0%{?mageia}
 BuildRequires: qtbase5-devel
-%if 0%{?OBS}
-BuildRequires: sane-backends-iscan
 %ifarch x86_64
-BuildRequires: lib64proxy-webkit
+BuildRequires: lib64osmesa-devel
+%if 0%{?buildservice}
+BuildRequires: lib64sane1, lib64proxy-webkit
+%endif
 %else
-BuildRequires: libproxy-webkit
+BuildRequires: libosmesa-devel
+%if 0%{?buildservice}
+BuildRequires: libsane1, libproxy-webkit
 %endif
 %endif
 %endif
@@ -127,8 +128,25 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %endif
 
+%if 0%{?buildservice}
+%if 0%{?fedora_version}==25
+BuildRequires: llvm-libs
+%endif
+%endif
+
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires: libXext-devel
+%endif
+
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel, zlib-devel
+%if 0%{?buildservice}
+BuildRequires: -post-build-checks
+%endif
+%endif
+
+%if 0%{?suse_version} > 1300
+BuildRequires: Mesa-devel
 %endif
 
 %description
@@ -146,42 +164,55 @@ BuildRequires: libqt5-qtbase-devel, zlib-devel
  © 2015-2017 Trevor SANDY
 
 %prep
-{ set +x; } 2>/dev/null
-echo Target...................%{_target}
-echo Target Vendor............%{_target_vendor}
-echo Target CPU...............%{_target_cpu}
-echo Name.....................%{name}
-echo Summary..................%{summary}
-echo Version..................%{version}
-echo Vendor...................%{vendor}
-echo Release..................%{release}
-echo Distribution packer......%{distpacker}
-echo Source0..................%{SOURCE0}
-echo Source10.................%{SOURCE10}
-echo Service Provider.........%{serviceprovider}
-echo Packing Platform.........%{packingplatform}
-echo OpenBuildService Flag....%{OBS}
-echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
-{ set -x; } 2>/dev/null
+set +x
+echo "Target...................%{_target}"
+echo "Target Vendor............%{_target_vendor}"
+echo "Target CPU...............%{_target_cpu}"
+echo "Name.....................%{name}"
+echo "Summary..................%{summary}"
+echo "Version..................%{version}"
+echo "Vendor...................%{vendor}"
+echo "Release..................%{release}"
+echo "Distribution packer......%{distpacker}"
+echo "Source0..................%{SOURCE0}"
+echo "Source10.................%{SOURCE10}"
+echo "Source20.................%{SOURCE20}"
+echo "Service Provider.........%{serviceprovider}"
+echo "Packing Platform.........%{packingplatform}"
+echo "OpenBuildService Flag....%{buildservice}"
+echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
+set -x
 %setup -q -n %{name}-git
 
 %build
 export QT_SELECT=qt5
-
-# get ldraw archive libraries
-LDrawLibOffical="../../SOURCES/complete.zip"
-LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
+# for 3rd party apps install
+export LP3D_CREATE_PKG=yes
+# download ldraw archive libraries
+set +x
+LDrawLibOffical=../../SOURCES/complete.zip
+LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
+ThirdPartyRepoTarball=../../SOURCES/lpub3d_linux_3rdparty.tar.gz
+ThirdPartyRepo=lpub3d_linux_3rdparty
 if [ -f ${LDrawLibOffical} ] ; then
-  cp ${LDrawLibOffical} mainApp/extras
+  cp ${LDrawLibOffical} mainApp/extras && echo "complete.zip copied"
 else
-  echo "complete.zip not found!"
+  echo "complete.zip not found at $PWD!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-  cp ${LDrawLibUnofficial} mainApp/extras
+  cp ${LDrawLibUnofficial} mainApp/extras && echo "lpub3dldrawunf.zip copied"
 else
-  echo "lpub3dldrawunf.zip not found!"
-fi ;
-
+  echo "lpub3dldrawunf.zip not found at $PWD!"
+fi
+# download lpub3d_linux_3rdparty repository as tar.gz archive
+if [ -f ${ThirdPartyRepoTarball} ] ; then
+  mkdir -p ../${ThirdPartyRepo} && tar -xzf ${ThirdPartyRepoTarball} -C ../${ThirdPartyRepo} --strip-components=1
+  echo "${ThirdPartyRepo}.tar.gz tarball extracted to ../${ThirdPartyRepo}/"
+  rm -f ../${ThirdPartyRepo}.tar.gz && echo "${ThirdPartyRepo}.tar.gz tarball deleted"
+else
+  echo "${ThirdPartyRepo} tarball not found at $PWD!"
+fi
+set -x
 # use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64
@@ -201,6 +232,7 @@ make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
+export NO_BRP_CHECK_RPATH=true
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -215,16 +247,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
 %{_datadir}/lpub3d
+%{_3rdexedir}/*
 %dir %{_iconsdir}/hicolor/
 %dir %{_iconsdir}/hicolor/scalable/
 %dir %{_iconsdir}/hicolor/scalable/mimetypes/
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
-
+%attr(755,-,-) %{_3rdexedir}/*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %changelog
-* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.163
+* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.164
 - LPub3D Linux package (rpm) release
