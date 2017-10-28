@@ -82,16 +82,16 @@ if [ -f "../SPECS/${LPUB3D}-rpmlintrc" ]; then echo "   DEBUG ${LPUB3D}-rpmlintr
 echo "9. download LDraw archive libraries to SOURCES/..."
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+     #wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
-     wget -q http://www.ldraw.org/library/updates/complete.zip
+     #wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
 echo "10. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
 if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
 then
-     wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
+     #wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
 fi
 
 # file copy and downloads above must happen before we make the tarball
