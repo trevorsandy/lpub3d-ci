@@ -194,20 +194,6 @@ rm -rf $RPM_BUILD_ROOT
 %if 0%{?sles_version} || 0%{?suse_version}
 %defattr(-,root,root)
 %endif
-%{_bindir}/*
-%{_libdir}/*
-%{_datadir}/pixmaps/*
-%{_datadir}/mime/packages/*
-%{_datadir}/applications/*
-%{_datadir}/lpub3d
-%{_3rdexedir}/*
-%dir %{_iconsdir}/hicolor/
-%dir %{_iconsdir}/hicolor/scalable/
-%dir %{_iconsdir}/hicolor/scalable/mimetypes/
-%attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%attr(644,-,-) %doc %{_docdir}/lpub3d
-%attr(644,-,-) %{_mandir}/man1/*
-%attr(755,-,-) %{_3rdexedir}/*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
