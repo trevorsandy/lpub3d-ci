@@ -184,7 +184,7 @@ echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
 set -x
 %setup -q -n %{name}-git
 
-%build>
+%build
 export QT_SELECT=qt5
 # for 3rd party apps install
 export LP3D_CREATE_PKG=yes

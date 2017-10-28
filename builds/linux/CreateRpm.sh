@@ -109,19 +109,19 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/.gitignore" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
-cd ../SPECS
+cd ${RPM_BUILD_DIR}/SPECS
 echo "12. download build dependenvies..."
 if [ -f "${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec exist at $PWD" ; cat ${LPUB3D}.spec; else echo "   DEBUG ${LPUB3D}.spec not found at at $PWD!"; fi
-dnf builddep -y ${LPUB3D}.spec
+cd ${RPM_BUILD_DIR}/SPECS && dnf builddep -y ${LPUB3D}.spec
 
 echo "13. build the RPM package..."
 # check the spec
-rpmlint ${LPUB3D}.spec
+cd ${RPM_BUILD_DIR}/SPECS && rpmlint ${LPUB3D}.spec
 
 #rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
-rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -vv -ba ${LPUB3D}.spec
+cd ${RPM_BUILD_DIR}/SPECS && rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -vv -ba ${LPUB3D}.spec
 
-cd ../RPMS/${LP3D_TARGET_ARCH}
+cd ${RPM_BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
