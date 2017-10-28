@@ -1,3 +1,5 @@
+%define _iconsdir %{_datadir}/icons
+
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
@@ -15,6 +17,7 @@
 %define distsuffix .mga%{mgaversion}
 %endif
 
+Summary: An LDraw Building Instruction Editor
 %if 0%{?scientificlinux_version}
 %define dist scl
 %endif
@@ -66,7 +69,6 @@ BuildRequires: finger
 %endif
 
 # set custom dir paths
-%define _iconsdir %{_datadir}/icons
 %define _3rdexedir /opt/lpub3d/3rdParty
 
 # define git version string from source
@@ -74,7 +76,6 @@ Source10: lpub3d-ci.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
 # preamble
-Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: %{gitversion}
@@ -183,7 +184,7 @@ echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
 set -x
 %setup -q -n %{name}-git
 
-%build
+%build>
 export QT_SELECT=qt5
 # for 3rd party apps install
 export LP3D_CREATE_PKG=yes
