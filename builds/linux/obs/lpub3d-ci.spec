@@ -1,4 +1,4 @@
-%define _iconsdir %{_datadir}/icons
+%define icons_dir 2
 
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
@@ -183,7 +183,7 @@ make %{?_smp_mflags}
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
-%fdupes %{buildroot}/%{_iconsdir}
+%fdupes %{buildroot}/%{icons_dir}
 %endif
 export NO_BRP_CHECK_RPATH=true
 
