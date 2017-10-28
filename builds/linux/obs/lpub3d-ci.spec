@@ -44,8 +44,13 @@ BuildRequires: fdupes
 %if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?mageia} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{?fedora} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?scientificlinux_version}>=700 || 0%{?suse_version}>=1300 || 0%{?mageia}
 License: GPLv3+
+%define use_cpp11 USE_CPP11=YES
+%define cpp11 1
+%else
+%define use_cpp11 USE_CPP11=NO
+BuildRequires: boost-devel
 %endif
 
 # define git version string from source
