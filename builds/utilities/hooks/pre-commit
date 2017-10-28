@@ -15,13 +15,13 @@
 ##
 ## Ignore Increment:
 ##   In instances where you do NOT want the version info incremented,
-##   add the environment variable doIncrement=FALSE to your git call.
-##   eg doIncrement=FALSE git commit -m "Message - 00 [ci skip].
+##   add the environment variable doIncrement=no to your git call.
+##   eg doIncrement=no git commit -m "Message - 00 [ci skip].
 ##   This is useful when you change the major version number for example.
 ##
 exec 1>&2
-#doIncrement=_Blocked                     # routine disabled - comment line to enable
-if test x"$doIncrement" = x""; then
+increment_version=${doIncrement:-yes}        # to disable or run from command line, set default to 'no'
+if test x"$increment_version" = x"yes"; then
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
   commit_count=`git rev-list HEAD --count`

@@ -44,7 +44,7 @@ BuildRequires: fdupes
 %if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?fedora} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?scientificlinux_version}>=700 || 0%{?mageia}
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version}> || 0%{?scientificlinux_version} || 0%{?mageia}
 License: GPLv3+
 %endif
 
@@ -163,24 +163,24 @@ BuildRequires: Mesa-devel
  © 2015-2017 Trevor SANDY
 
 %prep
-{ set +x; } 2>/dev/null
-echo Target...................%{_target}
-echo Target Vendor............%{_target_vendor}
-echo Target CPU...............%{_target_cpu}
-echo Name.....................%{name}
-echo Summary..................%{summary}
-echo Version..................%{version}
-echo Vendor...................%{vendor}
-echo Release..................%{release}
-echo Distribution packer......%{distpacker}
-echo Source0..................%{SOURCE0}
-echo Source10.................%{SOURCE10}
-echo Source20.................%{SOURCE20}
-echo Service Provider.........%{serviceprovider}
-echo Packing Platform.........%{packingplatform}
-echo OpenBuildService Flag....%{buildservice}
-echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
-{ set -x; } 2>/dev/null
+set +x
+echo "Target...................%{_target}"
+echo "Target Vendor............%{_target_vendor}"
+echo "Target CPU...............%{_target_cpu}"
+echo "Name.....................%{name}"
+echo "Summary..................%{summary}"
+echo "Version..................%{version}"
+echo "Vendor...................%{vendor}"
+echo "Release..................%{release}"
+echo "Distribution packer......%{distpacker}"
+echo "Source0..................%{SOURCE0}"
+echo "Source10.................%{SOURCE10}"
+echo "Source20.................%{SOURCE20}"
+echo "Service Provider.........%{serviceprovider}"
+echo "Packing Platform.........%{packingplatform}"
+echo "OpenBuildService Flag....%{buildservice}"
+echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
+set -x
 %setup -q -n %{name}-git
 
 %build
@@ -188,11 +188,11 @@ export QT_SELECT=qt5
 # for 3rd party apps install
 export LP3D_CREATE_PKG=yes
 # download ldraw archive libraries
-{ set +x; } 2>/dev/null
-LDrawLibOffical="../../SOURCES/complete.zip"
-LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
-ThirdPartyRepoTarball="../../SOURCES/lpub3d_linux_3rdparty.tar.gz"
-ThirdPartyRepo="lpub3d_linux_3rdparty"
+set +x
+LDrawLibOffical=../../SOURCES/complete.zip
+LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
+ThirdPartyRepoTarball=../../SOURCES/lpub3d_linux_3rdparty.tar.gz
+ThirdPartyRepo=lpub3d_linux_3rdparty
 if [ -f ${LDrawLibOffical} ] ; then
 	cp ${LDrawLibOffical} mainApp/extras &&	echo "complete.zip copied"
 else
@@ -211,7 +211,7 @@ if [ -f ${ThirdPartyRepoTarball} ] ; then
 else
 	echo "${ThirdPartyRepo} tarball not found at $PWD!"
 fi
-{ set -x; } 2>/dev/null
+set -x
 # use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64
@@ -225,6 +225,7 @@ else
 fi
 make clean
 make %{?_smp_mflags}
+
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -252,9 +253,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
+%attr(755,-,-) %{_3rdexedir}/*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %changelog
-* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.144
+* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.145
 - LPub3D Linux package (rpm) release

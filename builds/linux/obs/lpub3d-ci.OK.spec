@@ -266,7 +266,7 @@ else
 		ls
 		git clone https://github.com/tcobbs/lpub3d-ci lpub3d-ci
 	fi
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.137
+fi
 set +x
 echo "_bindir:            %{_bindir}"
 echo "_datadir:           %{_datadir}"
