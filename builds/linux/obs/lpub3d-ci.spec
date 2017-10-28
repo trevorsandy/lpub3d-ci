@@ -64,16 +64,13 @@ License: GPLv3+
 %if 0%{?buildservice}==1
 %define distpacker %(echo openSUSE BuildService [abuild])
 %else
-BuildRequires: finger
-%define distpacker %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
+%define distpacker %(echo foo)
 %endif
 
 # set custom dir paths
 %define _3rdexedir /opt/lpub3d/3rdParty
 
 # define git version string from source
-#Source10: lpub3d-ci.spec.git.version
-#%define gitversion %(tr -d '\n' < %{SOURCE10})
 
 # preamble
 Name: lpub3d-ci
