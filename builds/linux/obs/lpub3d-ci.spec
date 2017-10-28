@@ -44,46 +44,39 @@ BuildRequires: fdupes
 %if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?fedora} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?scientificlinux_version}>=700 || 0%{?suse_version}>=1300 || 0%{?mageia}
+%if 0%{?fedora} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?scientificlinux_version}>=700 || 0%{?mageia}
 License: GPLv3+
-%define use_cpp11 USE_CPP11=YES
-%define cpp11 1
-%else
-%define use_cpp11 USE_CPP11=NO
-BuildRequires: boost-devel
 %endif
+
+# set packing platform
+%define serviceprovider %(echo %{vendor})
+%if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
+%define buildservice 1
+%define packingplatform %(echo openSUSE BuildService)
+%else
+%define packingplatform %(echo $HOSTNAME [`uname`])
+%endif
+
+# set packer
+%if 0%{?buildservice}==1
+%define distpacker %(echo openSUSE BuildService [abuild])
+%else
+BuildRequires: finger
+%define distpacker %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
+%endif
+
+# set custom dir paths
+%define _iconsdir %{_datadir}/icons
+%define _3rdexedir /opt/lpub3d/3rdParty
 
 # define git version string from source
 Source10: lpub3d-ci.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
-# rpmlint exceptions
-Source20: lpub3d-ci-rpmlintrc
-
-# set packing platform
-%define serviceprovider %(echo "%{vendor}")
-%if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
-%define OBS 1
-%define packingplatform "openSUSE OBS"
-%else
-%define packingplatform %(echo "$HOSTNAME [`uname`]")
-%endif
-
-# set packer
-%if 0%{?OBS}==1
-%define distpacker "openSUSE OBS [abuild]"
-%else
-BuildRequires: finger
-%define distpacker "%(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)"
-%endif
-
-%define _iconsdir %{_datadir}/icons
-%define _3rdexedir /opt/lpub3d/3rdParty
-
 # preamble
+Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Summary: An LDraw Building Instruction Editor
 Version: %{gitversion}
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
@@ -92,6 +85,7 @@ BuildRoot: %{_builddir}/%{name}
 Requires: unzip
 BuildRequires: freeglut-devel
 Source0: lpub3d-ci-git.tar.gz
+Source20: lpub3d-ci-rpmlintrc
 
 # package requirements
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
@@ -99,7 +93,7 @@ BuildRequires: qt5-qtbase-devel
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
-%if 0%{?OBS}!=1
+%if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
 BuildRequires: gcc-c++, make
@@ -113,12 +107,12 @@ BuildRequires: mesa-libOSMesa-devel
 BuildRequires: qtbase5-devel
 %ifarch x86_64
 BuildRequires: lib64osmesa-devel
-%if 0%{?OBS}
+%if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
 BuildRequires: libosmesa-devel
-%if 0%{?OBS}
+%if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
 %endif
 %endif
@@ -133,7 +127,7 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %endif
 
-%if 0%{?OBS}
+%if 0%{?buildservice}
 %if 0%{?fedora_version}==25
 BuildRequires: llvm-libs
 %endif
@@ -145,7 +139,7 @@ BuildRequires: libXext-devel
 
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel, zlib-devel
-%if 0%{?OBS}
+%if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
 %endif
@@ -184,7 +178,7 @@ echo Source10.................%{SOURCE10}
 echo Source20.................%{SOURCE20}
 echo Service Provider.........%{serviceprovider}
 echo Packing Platform.........%{packingplatform}
-echo OpenBuildService Flag....%{OBS}
+echo OpenBuildService Flag....%{buildservice}
 echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 { set -x; } 2>/dev/null
 %setup -q -n %{name}-git
@@ -260,6 +254,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_mandir}/man1/*
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
-* Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.139
+
 * Fri Oct 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.138
 - LPub3D Linux package (rpm) release

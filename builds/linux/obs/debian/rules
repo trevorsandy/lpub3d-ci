@@ -15,8 +15,8 @@ export LP3D_CREATE_PKG=yes
 LP3D_TARGET_ARCH=`uname -m`
 
 # override these 3rd party dependency libs - related packages are defined in control and dsc
-#override_dh_shlibdeps:
-#	dh_shlibdeps -xlibIlmImf-2_2.so.22 -xlibHalf.so.12 -xlibIex-2_2.so.12 -xlibjpeg.so.8 -xlibboost_thread.so.1.58.0 -xlibboost_system.so.1.58.0 -xlibsndio.so.6.1 -xlibpng12.so.0
+override_dh_shlibdeps:
+	dh_shlibdeps -xlibIlmImf-2_2.so.22 -xlibHalf.so.12 -xlibIex-2_2.so.12 -xlibjpeg.so.8 -xlibboost_thread.so.1.58.0 -xlibboost_system.so.1.58.0 -xlibsndio.so.6.1 -xlibpng12.so.0
 
 %:
 	dh $@
