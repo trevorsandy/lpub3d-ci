@@ -4,7 +4,7 @@
 %define buildservice 1
 %define packingplatform %(echo openSUSE BuildService)
 %else
-%define packingplatform %(echo $HOSTNAME [`uname`])
+%define packingplatform %(source /etc/os-release && if [ "$PRETTY_NAME" != "" ]; then echo $HOSTNAME ["$PRETTY_NAME"]; else echo $HOSTNAME [`uname`]; fi)
 %endif
 
 # set packer
@@ -74,7 +74,7 @@ License: GPLv3+
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.169
+Version: 2.0.21.170
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -253,5 +253,5 @@ rm -rf $RPM_BUILD_ROOT
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.169
+* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.170
 - LPub3D Linux package (rpm) release

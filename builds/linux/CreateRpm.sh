@@ -61,19 +61,16 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/..."
 WORK_DIR=${LPUB3D}-git
-mv ${LPUB3D} ${WORK_DIR}
+mv -f ${LPUB3D} ${WORK_DIR}
 
 echo "6. copy lpub3d.xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
-if [ -f "lpub3d.xpm" ]; then echo "   DEBUG lpub3d.xpm copied"; else echo "   DEBUG lpub3d.xpm not found!"; fi
 
 echo "7. copy ${LPUB3D}.spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ${BUILD_DIR}/SPECS
-if [ -f "${BUILD_DIR}/SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
 
 echo "8. copy ${LPUB3D}-rpmlintrc to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ${BUILD_DIR}/SPECS
-if [ -f "${BUILD_DIR}/SPECS/${LPUB3D}-rpmlintrc" ]; then echo "   DEBUG ${LPUB3D}-rpmlintrc copied"; else echo "   DEBUG ${LPUB3D}-rpmlintrc not found!"; fi
 
 echo "9. download LDraw archive libraries to SOURCES/..."
 if [ ! -f lpub3dldrawunf.zip ]
@@ -82,7 +79,7 @@ then
 fi
 if [ ! -f complete.zip ]
 then
-     wget -q -O complete.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+     wget -q -O complete.zip http://www.ldraw.org/library/updates/complete.zip
 fi
 echo "10. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
 if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
@@ -107,19 +104,17 @@ tar -czf ${WORK_DIR}.tar.gz \
 
 cd ${BUILD_DIR}/SPECS
 echo "12. download build dependenvies..."
-if [ -f "${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec exist at $PWD" ; cat ${LPUB3D}.spec; else echo "   DEBUG ${LPUB3D}.spec not found at at $PWD!"; fi
 source /etc/os-release && if [ "$ID" = "fedora" ]; then sed 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' -i "${BUILD_DIR}/SPECS/${LPUB3D}.spec"; fi
+# check the spec
+rpmlint ${LPUB3D}.spec
+# add lpub3d build dependencies
 dnf builddep -y ${LPUB3D}.spec
 
 echo "13. build the RPM package..."
-# check the spec
-rpmlint ${LPUB3D}.spec
-
-#rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
-rpmbuild --define "_topdir ${BUILD_DIR}" -vv -ba ${LPUB3D}.spec
+rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
-DISTRO_FILE=`ls ${LPUB3D}*.rpm`
+DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "14. check rpm packages..."

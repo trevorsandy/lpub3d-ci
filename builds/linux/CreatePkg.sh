@@ -49,7 +49,7 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 echo "3. move ${LPUB3D}/ to ${LPUB3D}-git/ in upstream/"
 WORK_DIR=${LPUB3D}-git
-mv ${LPUB3D} ${WORK_DIR}
+mv -f ${LPUB3D} ${WORK_DIR}
 
 echo "4. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
 tar -czf ../${WORK_DIR}.tar.gz \

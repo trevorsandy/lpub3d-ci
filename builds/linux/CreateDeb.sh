@@ -67,7 +67,7 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
-mv ${LPUB3D} ${SOURCE_DIR}
+mv -f ${LPUB3D} ${SOURCE_DIR}
 
 echo "5. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${SOURCE_DIR}/"
 tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
