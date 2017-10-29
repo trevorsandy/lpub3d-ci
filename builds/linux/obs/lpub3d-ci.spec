@@ -74,7 +74,7 @@ License: GPLv3+
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.170
+Version: 2.0.21.171
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -253,5 +253,5 @@ rm -rf $RPM_BUILD_ROOT
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.170
+* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.171
 - LPub3D Linux package (rpm) release

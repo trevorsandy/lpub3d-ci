@@ -118,7 +118,7 @@ DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "14. check rpm packages..."
-    rpmlint ${DISTRO_FILE} ${BUILD_DIR}/SRPMS/${LPUB3D}*.rpm
+    rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
     echo "15. create update and download packages..."
     IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
