@@ -1,10 +1,9 @@
 FROM fedora:25
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
-RUN dnf install -y git wget rpmlint ccache dnf-plugins-core rpm-build
-# RUN wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/obs/lpub3d-ci.spec && dnf builddep -y lpub3d-ci.spec
+RUN dnf install -y git wget finger rpmlint ccache dnf-plugins-core rpm-build
+RUN dnf update -x kernel* -y
 VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateRpm.sh \
-    && dnf update -x kernel* -y \
     && chmod +x CreateRpm.sh \
     && ./CreateRpm.sh \
     && if test -d /buildpkg; then cp -f /rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; fi

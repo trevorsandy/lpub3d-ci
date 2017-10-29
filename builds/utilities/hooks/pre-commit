@@ -38,8 +38,8 @@ if test x"$increment_version" = x"yes"; then
 
   echo "0. Incrementing Git version info..."
   echo "   To disable, use: 'doIncrement=FALSE git commit -m \"Commit Message\"'"
-  echo "   Old_revision..........$revision"
-  echo "   Old_build (count).....$commit_count"
+  echo "   Old_revision...........$revision"
+  echo "   Old_build (count)......$commit_count"
   if test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
 
   working_dir=$PWD/mainApp

@@ -30,7 +30,7 @@ LINE_MANPAGE=61             # /usr/bin/lpub3d20
 LINE_PKGBUILD=3             # pkgver=2.0.21.129
 LINE_DSC=5                  # Version: 2.0.21.129
 LINE_README=1               # LPub3D 2.0.21.59.126...
-LINE_SPEC=262               # * Fri Oct 27 2017...
+LINE_SPEC="77 256"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
@@ -255,16 +255,29 @@ fi
 
 Info "9. update ${LPUB3D}.spec                - add app version and change date"
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-LineToReplace=${LINE_SPEC}
+LinesToReplace=${LINE_SPEC}
 LastLine=`wc -l < ${FILE}`
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-    if [ "$OS" = Darwin ]
-    then
-        sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-    else
-        sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-    fi
+    read FirstLine SecondLine <<< ${LinesToReplace}
+    for LineToReplace in ${LinesToReplace}; do
+        case $LineToReplace in
+        $FirstLine)
+            if [ "$OS" = Darwin ]; then
+                sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+            else
+                sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+            fi
+            ;;
+        $SecondLine)
+            if [ "$OS" = Darwin ]; then
+                sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+            else
+                sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+            fi
+            ;;
+        esac
+    done
     if [ "$doDebChange" != "" ];
     then
         ((LastLine++))
@@ -279,16 +292,6 @@ then
 else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
-
-Info "10.create '${LPUB3D}.spec.git.version' - version for OBS builds"
-FILE="$LP3D_OBS_DIR/${LPUB3D}.spec.git.version"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    rm ${FILE}
-fi
-cat <<EOF >${FILE}
-${LP3D_APP_VERSION}
-EOF
 
 if [ "$OS" = Darwin ]
 then

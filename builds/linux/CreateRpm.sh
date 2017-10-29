@@ -63,20 +63,17 @@ echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/..."
 WORK_DIR=${LPUB3D}-git
 mv ${LPUB3D} ${WORK_DIR}
 
-echo "5. copy ${LPUB3D}.spec.git.version to SOURCES/..."
-cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec.git.version .
-if [ -f "${LPUB3D}.spec.git.version" ]; then echo "   DEBUG ${LPUB3D}.spec.git.version copied"; else echo "   DEBUG ${LPUB3D}.spec.git.version not found!"; fi
-
 echo "6. copy lpub3d.xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
 if [ -f "lpub3d.xpm" ]; then echo "   DEBUG lpub3d.xpm copied"; else echo "   DEBUG lpub3d.xpm not found!"; fi
 
 echo "7. copy ${LPUB3D}.spec to SPECS/"
-cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ../SPECS
+cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ${RPM_BUILD_DIR}/SPECS
 if [ -f "../SPECS/${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec copied"; else echo "   DEBUG ${LPUB3D}.spec not found!"; fi
+source /etc/os-release && if [ "$ID" = "fedora" ]; then sed 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' -i ${LPUB3D}.spec; fi
 
 echo "8. copy ${LPUB3D}-rpmlintrc to SPECS/"
-cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ../SPECS
+cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ${RPM_BUILD_DIR}/SPECS
 if [ -f "../SPECS/${LPUB3D}-rpmlintrc" ]; then echo "   DEBUG ${LPUB3D}-rpmlintrc copied"; else echo "   DEBUG ${LPUB3D}-rpmlintrc not found!"; fi
 
 echo "9. download LDraw archive libraries to SOURCES/..."
@@ -112,21 +109,21 @@ tar -czf ${WORK_DIR}.tar.gz \
 cd ${RPM_BUILD_DIR}/SPECS
 echo "12. download build dependenvies..."
 if [ -f "${LPUB3D}.spec" ]; then echo "   DEBUG ${LPUB3D}.spec exist at $PWD" ; cat ${LPUB3D}.spec; else echo "   DEBUG ${LPUB3D}.spec not found at at $PWD!"; fi
-cd ${RPM_BUILD_DIR}/SPECS && dnf builddep -y ${LPUB3D}.spec
+dnf builddep -y ${LPUB3D}.spec
 
 echo "13. build the RPM package..."
 # check the spec
-cd ${RPM_BUILD_DIR}/SPECS && rpmlint ${LPUB3D}.spec
+rpmlint ${LPUB3D}.spec
 
 #rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba ${LPUB3D}.spec
-cd ${RPM_BUILD_DIR}/SPECS && rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -vv -ba ${LPUB3D}.spec
+rpmbuild --define "_topdir ${RPM_BUILD_DIR}" -vv -ba ${LPUB3D}.spec
 
 cd ${RPM_BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "14. check rpm packages..."
-    rpmlint ${DISTRO_FILE} ../../SRPMS/${LPUB3D}*.rpm
+    rpmlint ${DISTRO_FILE} ${RPM_BUILD_DIR}/SRPMS/${LPUB3D}*.rpm
 
     echo "15. create update and download packages..."
     IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
@@ -141,19 +138,9 @@ else
 fi
 
 echo "15. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
-rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
+rm -rf ${RPM_BUILD_DIR}/SOURCES/${WORK_DIR} ${RPM_BUILD_DIR}/BUILD/${WORK_DIR}
 
-echo " DEBUG Package files:" `ls ../RPMS`
-
-# debug
-echo "********** RPM-TMP Logs ******************"
-if [ -d "~/rpm/tmp" ]; then
-    rpm-temp-logs=`ls ~/rpm/tmp/rpm-tmp*`
-fi
-if [ -d "/var/tmp" ]; then
-    rpm-temp-logs=${rpm-temp-logs} `ls /var/tmp/rpm-tmp*`
-fi
-for FILE in ${rpm-temp-logs}; do echo "* rpm-tmp log: $FILE" && cat $FILE; done
+echo " DEBUG Package files:" `ls ${RPM_BUILD_DIR}/RPMS`
 echo
 #echo " DEBUG Package files: `find $PWD`"
 echo "$ME Finished!"
