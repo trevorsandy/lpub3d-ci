@@ -1,3 +1,14 @@
+#
+# spec file for package lpub3d
+#
+# Copyright © 2017 Trevor SANDY
+# Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
+# This file and all modifications and additions to the pristine
+# package are under the same license as the package itself.
+#
+# please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
+#
+
 # set packing platform
 %define serviceprovider %(echo %{vendor})
 %if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
@@ -10,9 +21,13 @@
 # set packer
 %if 0%{?buildservice}==1
 %define distpacker %(echo openSUSE BuildService [abuild])
+%define buildserviceflag %{buildservice}
+%define targetplatform %{_target}
 %else
 BuildRequires: finger
 %define distpacker %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
+%define buildserviceflag 0
+%define targetplatform %{packingplatform}
 %endif
 
 # set target platform
@@ -74,7 +89,7 @@ License: GPLv3+
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.171
+Version: 2.0.21.172
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -250,8 +265,18 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
+%attr(755,-,-) %{_datadir}/lpub3d/3rdParty/ldglite-1.3/resources/set-ldrawdir.command
 %post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%if 0%{?buildservice}
+update-mime-database  /usr/share/mime >/dev/null || true
+update-desktop-database || true
+%endif
 
-* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.171
+%postun -p /sbin/ldconfig
+%if 0%{?buildservice}
+update-mime-database /usr/share/mime >/dev/null || true
+update-desktop-database || true
+%endif
+
+* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.172
 - LPub3D Linux package (rpm) release

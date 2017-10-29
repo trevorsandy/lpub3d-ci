@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 25 2017
+# Last Update October 29 2017
 # To run:
 # $ chmod 755 CreateRpm.sh
 # $ ./CreateRpm.sh
@@ -126,7 +126,7 @@ then
     cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
     echo "    Download package: ${LPUB3D}_${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
 
-    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
 else
     echo "14. package ${DISTRO_FILE} not found."
@@ -135,8 +135,7 @@ fi
 echo "15. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
 rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 
-echo " DEBUG Package files:" `ls ${BUILD_DIR}/RPMS`
-echo
-#echo " DEBUG Package files: `find $PWD`"
+echo " DEBUG Package files:" `ls ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}`
+
 echo "$ME Finished!"
 #mv $LOG "${CWD}/rpmbuild/$ME.log"
