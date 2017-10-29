@@ -24,7 +24,6 @@ SET LP3D_PWD=%LP3D_PWD:"=%
 SET CALL_DIR=%CD%
 SET LP3D_OBS_DIR=%LP3D_PWD%\..\builds\linux\obs
 SET LP3D_VER_INFO_FILE=%LP3D_PWD%\..\builds\utilities\version.info
-SET LP3D_VER_SPEC_INFO_FILE=%LP3D_OBS_DIR%\lpub3d.spec.git.version
 SET LP3D_AV_VER_INFO_DIR=%LP3D_PWD%\..\builds\windows\release
 SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
 
@@ -106,12 +105,20 @@ IF "%LPUB3D%" == "%OLD_VAR%" (
   ECHO     nothing to do, skipping
 ) ELSE (
    SET LP3D_DEB_DSC_FILE=%LP3D_OBS_DIR%\debian\%OLD_VAR%.dsc
+   SET LP3D_DEB_LINT_FILE=%LP3D_OBS_DIR%\debian\%OLD_VAR%.lintian-overrides
    SET LP3D_OBS_SPEC_FILE=%LP3D_OBS_DIR%\%OLD_VAR%.spec
+   SET LP3D_RPM_LINT_FILE=%LP3D_OBS_DIR%\%OLD_VAR%-rpmlintrc
    IF EXIST %LP3D_DEB_DSC_FILE% (
     MOVE /y "%LP3D_DEB_DSC_FILE%" "%LP3D_OBS_DIR%\debian\%LPUB3D%.dsc" | findstr /i /v /r /c:"moved\>"
    )
+   IF EXIST %LP3D_DEB_LINT_FILE% (
+    MOVE /y "%LP3D_DEB_LINT_FILE%" "%LP3D_OBS_DIR%\debian\%LPUB3D%.lintian-overrides" | findstr /i /v /r /c:"moved\>"
+   )
    IF EXIST %LP3D_OBS_SPEC_FILE% (
     MOVE /y "%LP3D_OBS_SPEC_FILE%" "%LP3D_OBS_DIR%\%LPUB3D%.spec" | findstr /i /v /r /c:"moved\>"
+   )
+   IF EXIST %LP3D_RPM_LINT_FILE% (
+    MOVE /y "%LP3D_RPM_LINT_FILE%" "%LP3D_OBS_DIR%\%LPUB3D%-rpmlintrc" | findstr /i /v /r /c:"moved\>"
    )
    FOR %%i IN (
       %LP3D_OBS_DIR%\debian\source\include-binaries
@@ -119,9 +126,16 @@ IF "%LPUB3D%" == "%OLD_VAR%" (
       %LP3D_OBS_DIR%\debian\control
       %LP3D_OBS_DIR%\debian\copyright
       %LP3D_OBS_DIR%\debian\%LPUB3D%.dsc
+      %LP3D_OBS_DIR%\debian\%LPUB3D%.lintian-overrides
       %LP3D_OBS_DIR%\_service
       %LP3D_OBS_DIR%\PKGBUILD
-      %PWD%\..\builds\linux\Dockerfile-ubuntu_xenial
+      %LP3D_OBS_DIR%\%LPUB3D%-rmplint
+      %PWD%\..\builds\linux\docker-compose\docker-compose-archlinux_2017.10.01.yml
+      %PWD%\..\builds\linux\docker-compose\docker-compose-fedora_25.yml
+      %PWD%\..\builds\linux\docker-compose\docker-compose-ubuntu_xenial.yml
+      %PWD%\..\builds\utilities\docker\Dockerfile-archlinux_2017.10.01
+      %PWD%\..\builds\utilities\docker\Dockerfile-fedora_25
+      %PWD%\..\builds\utilities\docker\Dockerfile-ubuntu_xenial
     ) DO (
      CALL :FIND_REPLACE %OLD_VAR% %LP3D_PWD% %%i
    )
@@ -209,8 +223,12 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  9. update lpub3d.spec - add app version and change date
 SET LP3D_FILE="%LP3D_OBS_DIR%\lpub3d.spec"
-SET /a LineToReplace=256
-SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_APP_VERSION%"
+SET /a LinesToReplace=92 281
+FOR /F "tokens=1" %%i IN ("%LinesToReplace%") DO SET "FirstLine=%%i"
+FOR /F "tokens=2" %%i IN ("%LinesToReplace%") DO SET "SecondLine=%%i"
+FOR %%i IN ("%LinesToReplace%") DO (
+IF %%i EQU %FirstLine% SET "Replacement=%LP3D_APP_VERSION%"
+IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_APP_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
@@ -218,14 +236,8 @@ SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_
     ECHO(!Line!
     ENDLOCAL
 ))>"%LP3D_FILE%.new"
+)
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  10. create source 'lpub3d.spec.git.version'
-SET LP3D_FILE="%LP3D_OBS_DIR%\lpub3d.spec.git.version"
-IF EXIST %LP3D_FILE% DEL /Q %LP3D_FILE%
-SET createSpecGitVersion=%LP3D_FILE% ECHO
-:GENERATE create lpub3d.spec.git.version
->%createSpecGitVersion% %LP3D_APP_VERSION%
 
 ENDLOCAL
 GOTO :END
@@ -288,11 +300,11 @@ SET "tag_input=%lp3d_git_ver_tag_long%"
 REM Remove revision prefix ending in "-"
 SET "tag_val_1=%tag_input:*-=%"
 IF "%tag_val_1%"=="%tag_input%" ECHO revision prefix ending in "-" not found
-FOR /f "delims=\" %%a IN ("%tag_val_1%") DO SET "tag_val_1=%%~a"
+FOR /F "delims=\" %%a IN ("%tag_val_1%") DO SET "tag_val_1=%%~a"
 
 REM remove revision suffix starting with "-"
 SET "lp3d_revision_=%tag_val_1%"
-FOR /f "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET VER_REVISION=%%~a
+FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET VER_REVISION=%%~a
 
 REM Extract commit count (build)
 FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count`) DO SET SET VER_BUILD=%%G
@@ -310,19 +322,20 @@ REM Replace version '.' with ' '
 SET "lp3d_version_=%lp3d_version_:.= %"
 
 REM Parse version
-FOR /f "tokens=1" %%i IN (%lp3d_version_%) DO SET VER_MAJOR=%%i
-FOR /f "tokens=2" %%i IN (%lp3d_version_%) DO SET VER_MINOR=%%i
-FOR /f "tokens=3" %%i IN (%lp3d_version_%) DO SET VER_PATCH=%%i
+FOR /F "tokens=1" %%i IN ("%lp3d_version_%") DO SET VER_MAJOR=%%i
+FOR /F "tokens=2" %%i IN ("%lp3d_version_%") DO SET VER_MINOR=%%i
+FOR /F "tokens=3" %%i IN ("%lp3d_version_%") DO SET VER_PATCH=%%i
 EXIT /b
 
 :GET_AVAILABLE_VERSIONS
-FOR /f "tokens=8,*" %%a IN ("%*") DO SET LP3D_AVAILABLE_VERSIONS=%%a
-IF [%LP3D_AVAILABLE_VERSIONS%] == [](
+IF [%8] == [] (
   SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
-  FOR /f "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0 %lp3d_git_ver_tag_short%^^^^`) DO (
+  FOR /F "usebackq delims=." %%G IN (`git describe --tags --abbrev^=0 %lp3d_git_ver_tag_short%^^^^`) DO (
     SET "lp3d_previous_version=%%G"
   )
   SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%lp3d_previous_version%,%LP3D_PAST_RELEASES%
+)  ELSE (
+  FOR /F "tokens=8*" %%a IN ("%*") DO SET LP3D_AVAILABLE_VERSIONS=%%a
 )
 CD /D "%LP3D_PWD%"
 EXIT /b
@@ -330,8 +343,8 @@ EXIT /b
 :FIND_REPLACE <findstr> <replstr> <file>
 SET tmp="%temp%\tmp.txt"
 IF NOT EXIST %temp%\_.vbs CALL :MAKE_REPLACE
-FOR /f "tokens=*" %%a in ('DIR "%3" /s /b /a-d /on') do (
-  FOR /f "usebackq" %%b in (`Findstr /mic:"%~1" "%%a"`) do (
+FOR /F "tokens=*" %%a IN ('DIR "%3" /s /b /a-d /on') do (
+  FOR /F "usebackq" %%b IN (`Findstr /mic:"%~1" "%%a"`) do (
     ECHO(&ECHO Replacing "%~1" with "%~2" in file %%~nxa
     <%%a cscript //nologo %temp%\_.vbs "%~1" "%~2">%tmp%
     IF EXIST %tmp% MOVE /Y %tmp% "%%~dpnxa">nul

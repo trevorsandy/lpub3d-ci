@@ -1,4 +1,7 @@
-
+# for non OBS builds, add this file to /etc/rpmlint
+# Replace "foo" with the name of your package to restrict this override to only your packages.
+# Replace "regex-match-for-rpmlint-warning" with a regular expression to match the message to ignore.
+# addFilter ("^foo-.*regex-match-for-rpmlint-warning")
 addFilter('extra-license-file')
 setBadness('extra-license-file', 0)
 addFilter('embedded-library opt')

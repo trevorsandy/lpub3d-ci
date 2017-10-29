@@ -126,14 +126,24 @@ then
     Info "   nothing to do, skipping set top-level build directory name"
 else
     LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
+    LP3D_DEB_LINT_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.lintian-overrides
     LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
+    LP3D_RPM_LINT_FILE=$LP3D_OBS_DIR/${OLD_VAR}-rpmlintrc
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
     then
         mv -f "${LP3D_DEB_DSC_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
     fi
+    if [ -d "${LP3D_DEB_LINT_FILE}" ]
+    then
+        mv -f "${LP3D_DEB_LINT_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides"
+    fi
     if [ -d "${LP3D_OBS_SPEC_FILE}" ]
     then
         mv -f "${LP3D_OBS_SPEC_FILE}" "$LP3D_OBS_DIR/${LPUB3D}.spec"
+    fi
+    if [ -d "${LP3D_RPM_LINT_FILE}" ]
+    then
+        mv -f "${LP3D_RPM_LINT_FILE}" "$LP3D_OBS_DIR/${LPUB3D}-rpmlintrc"
     fi
     for FILE in \
         $LP3D_OBS_DIR/debian/source/include-binaries \
@@ -141,9 +151,16 @@ else
         $LP3D_OBS_DIR/debian/control \
         $LP3D_OBS_DIR/debian/copyright \
         $LP3D_OBS_DIR/debian/${LPUB3D}.dsc \
+        $LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides \
         $LP3D_OBS_DIR/_service \
         $LP3D_OBS_DIR/${LPUB3D}.spec \
         $LP3D_OBS_DIR/PKGBUILD \
+        $LP3D_OBS_DIR/${LPUB3D}-rmplint \
+        $LP3D_PWD/../builds/linux/docker-compose/docker-compose-archlinux_2017.10.01.yml \
+        $LP3D_PWD/../builds/linux/docker-compose/docker-compose-fedora_25.yml \
+        $LP3D_PWD/../builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml \
+        $LP3D_PWD/../builds/utilities/docker/Dockerfile-archlinux_2017.10.01 \
+        $LP3D_PWD/../builds/utilities/docker/Dockerfile-fedora_25 \
         $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial
     do
         if [ "$OS" = Darwin ]
