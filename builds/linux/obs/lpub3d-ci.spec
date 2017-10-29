@@ -259,7 +259,7 @@ else
     cd lpub3d-ci
     tar zxf ../lpub3d-ci-*.tar.gz --strip=1
   elif [ -d lpub3d-ci ] ; then
-* Sat Oct 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.166
+* Sun Oct 29 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.167
     git pull
     cd ..
   else

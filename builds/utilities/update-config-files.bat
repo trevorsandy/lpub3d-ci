@@ -118,10 +118,8 @@ IF "%LPUB3D%" == "%OLD_VAR%" (
       %LP3D_OBS_DIR%\debian\changelog
       %LP3D_OBS_DIR%\debian\control
       %LP3D_OBS_DIR%\debian\copyright
-      %LP3D_OBS_DIR%\debian\install
       %LP3D_OBS_DIR%\debian\%LPUB3D%.dsc
       %LP3D_OBS_DIR%\_service
-      %LP3D_OBS_DIR%\%LPUB3D%.spec
       %LP3D_OBS_DIR%\PKGBUILD
       %PWD%\..\builds\linux\Dockerfile-ubuntu_xenial
     ) DO (
