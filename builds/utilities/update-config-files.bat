@@ -222,7 +222,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  9. update lpub3d.spec - add app version and change date
 SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
-SET /a LinesToReplace=92 281
+SET LinesToReplace=92 281
 FOR /F "tokens=1" %%i IN ("%LinesToReplace%") DO SET "FirstLine=%%i"
 FOR /F "tokens=2" %%i IN ("%LinesToReplace%") DO SET "SecondLine=%%i"
 FOR %%i IN ("%LinesToReplace%") DO (
