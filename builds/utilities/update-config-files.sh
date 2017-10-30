@@ -34,7 +34,7 @@ LINE_SPEC="92 281"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
-OLD_VAR="${OLD_VAR:-lpub3d-ci}"
+OLD_VAL="${OLD_VAL:-lpub3d-ci}"
 
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
@@ -121,14 +121,14 @@ Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
 
 Info "2. set top-level build directory name for linux config files..."
-if [ "${OLD_VAR}" = "${LPUB3D}" ];
+if [ "${OLD_VAL}" = "${LPUB3D}" ];
 then
     Info "   nothing to do, skipping set top-level build directory name"
 else
-    LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.dsc
-    LP3D_DEB_LINT_FILE=$LP3D_OBS_DIR/debian/${OLD_VAR}.lintian-overrides
-    LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAR}.spec
-    LP3D_RPM_LINT_FILE=$LP3D_OBS_DIR/${OLD_VAR}-rpmlintrc
+    LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAL}.dsc
+    LP3D_DEB_LINT_FILE=$LP3D_OBS_DIR/debian/${OLD_VAL}.lintian-overrides
+    LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAL}.spec
+    LP3D_RPM_LINT_FILE=$LP3D_OBS_DIR/${OLD_VAL}-rpmlintrc
     if [ -d "${LP3D_DEB_DSC_FILE}" ]
     then
         mv -f "${LP3D_DEB_DSC_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
@@ -153,9 +153,8 @@ else
         $LP3D_OBS_DIR/debian/${LPUB3D}.dsc \
         $LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides \
         $LP3D_OBS_DIR/_service \
-        $LP3D_OBS_DIR/${LPUB3D}.spec \
         $LP3D_OBS_DIR/PKGBUILD \
-        $LP3D_OBS_DIR/${LPUB3D}-rmplint \
+        $LP3D_OBS_DIR/${LPUB3D}-rpmlintrc \
         $LP3D_PWD/../builds/linux/docker-compose/docker-compose-archlinux_2017.10.01.yml \
         $LP3D_PWD/../builds/linux/docker-compose/docker-compose-fedora_25.yml \
         $LP3D_PWD/../builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml \
@@ -165,9 +164,9 @@ else
     do
         if [ "$OS" = Darwin ]
         then
-            sed -i "" -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
+            sed -i "" -e "s/\b${OLD_VAL}\b/${LPUB3D}/g" "${FILE}"
         else
-            sed -i -e "s/\b${OLD_VAR}\b/${LPUB3D}/g" "${FILE}"
+            sed -i -e "s/\b${OLD_VAL}\b/${LPUB3D}/g" "${FILE}"
         fi
     done
 fi
