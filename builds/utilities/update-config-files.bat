@@ -234,8 +234,7 @@ IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(!Line!
     ENDLOCAL
-))>"%LP3D_FILE%.new"
-)
+))>"%LP3D_FILE%.new")
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ENDLOCAL

@@ -204,9 +204,6 @@ if [ -f "${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 
-  #echo "  DEBUG Package files: " `ls ${DMGDIR}/LPub3D*_macos.dmg`
-  #echo "  DEBUG Package files: `find $PWD`"
-
   echo "$ME Finished!"
 else
   echo "- ${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg was not found."

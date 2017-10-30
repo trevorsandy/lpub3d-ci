@@ -1,144 +1,16 @@
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=[Desktop Entry]"  
- IF 1 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 [Desktop Entry]
-Exec=lpub3d20 %f
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Encoding=UTF-8"  
- IF 2 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Encoding=UTF-8
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Version=1.0"  
- IF 3 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Version=1.0
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Name=LPub3D"  
- IF 4 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Name=LPub3D
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=GenericName=An LDraw Building Instruction Editor"  
- IF 5 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 GenericName=An LDraw Building Instruction Editor
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Comment=An LDraw Building Instruction Editor"  
- IF 6 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Comment=An LDraw Building Instruction Editor
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Comment[fr]=Un éditeur d'instructions de construction LDraw"  
- IF 7 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Comment[fr]=Un éditeur d'instructions de construction LDraw
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Comment[it]=Un editor di istruzioni LDraw Edilizia"  
- IF 8 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Comment[it]=Un editor di istruzioni LDraw Edilizia
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Comment[es]=Un editor de instrucciones de construcción LDraw"  
- IF 9 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Comment[es]=Un editor de instrucciones de construcción LDraw
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Exec=lpub3d20 %f"  
- IF 10 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Exec=lpub3d20 %f
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Terminal=false"  
- IF 11 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Terminal=false
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Type=Application"  
- IF 12 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Type=Application
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Icon=lpub3d"  
- IF 13 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Icon=lpub3d
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw;"  
- IF 14 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw;
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Categories=Graphics;3DGraphics;Education;Application;Amusement;Publishing;Engineering;"  
- IF 15 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Categories=Graphics;3DGraphics;Education;Application;Amusement;Publishing;Engineering;
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=Keywords=;Instructions;CAD;LEGO;LDraw;Renderer;Editor;"  
- IF 16 EQU 10 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 Keywords=;Instructions;CAD;LEGO;LDraw;Renderer;Editor;

@@ -1,531 +1,59 @@
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-pkgver=2.0.21.175
- IF 1 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=pkgname=lpub3d-ci"  
- IF 2 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 pkgname=lpub3d-ci
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=pkgver=2.0.21.175"  
- IF 3 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
-Exec=lpub3d20 %f
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=pkgrel=1"  
- IF 4 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
+pkgver=2.0.21.176
 pkgrel=1
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=pkgdesc="An LDraw Building Instruction Editor""  
- IF 5 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 pkgdesc="An LDraw Building Instruction Editor"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=url="https://github.com/trevorsandy/lpub3d-ci.git""  
- IF 6 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 url="https://github.com/trevorsandy/lpub3d-ci.git"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=arch=('x86_64' 'i686')"  
- IF 7 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 arch=('x86_64' 'i686')
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=license=('GPL3')"  
- IF 8 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 license=('GPL3')
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=depends=('qt5-base' 'qt5-tools' 'freeglut' 'boost-libs')"  
- IF 9 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 depends=('qt5-base' 'qt5-tools' 'freeglut' 'boost-libs')
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=makedepends=()"  
- IF 10 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 makedepends=()
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=conflicts=()"  
- IF 11 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 conflicts=()
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=replaces=()"  
- IF 12 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 replaces=()
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=backup=()"  
- IF 13 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 backup=()
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")"  
- IF 14 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")"  
- IF 15 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=md5sums=(SKIP SKIP SKIP SKIP)"  
- IF 16 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 md5sums=(SKIP SKIP SKIP SKIP)
 
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line="  
- IF 17 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
-
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=prepare() {"  
- IF 18 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 prepare() {
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	echo "Current working directory: $PWD""  
- IF 19 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	echo "Current working directory: $PWD"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	if [ -f lpub3d_linux_3rdparty.tar.gz ]; then"  
- IF 20 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	if [ -f lpub3d_linux_3rdparty.tar.gz ]; then
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=			mkdir -p lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C lpub3d_linux_3rdparty --strip-components=1"  
- IF 21 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 			mkdir -p lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C lpub3d_linux_3rdparty --strip-components=1
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=			echo "lpub3d_linux_3rdparty tarball extracted to lpub3d_linux_3rdparty/""  
- IF 22 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 			echo "lpub3d_linux_3rdparty tarball extracted to lpub3d_linux_3rdparty/"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=			rm -f lpub3d_linux_3rdparty.tar.gz &&  echo "lpub3d_linux_3rdparty tarball deleted""  
- IF 23 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 			rm -f lpub3d_linux_3rdparty.tar.gz &&  echo "lpub3d_linux_3rdparty tarball deleted"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	else"  
- IF 24 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	else
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=			echo "lpub3d_linux_3rdparty tarball not found at $PWD!""  
- IF 25 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 			echo "lpub3d_linux_3rdparty tarball not found at $PWD!"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	fi"  
- IF 26 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	fi
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	cd ${pkgname}-git"  
- IF 27 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	cd ${pkgname}-git
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	echo "Current working directory: $PWD""  
- IF 28 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	echo "Current working directory: $PWD"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	if [ -f ../complete.zip ] ; then"  
- IF 29 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	if [ -f ../complete.zip ] ; then
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		cp ../complete.zip mainApp/extras"  
- IF 30 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		cp ../complete.zip mainApp/extras
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		echo "LDraw archive library complete.zip copied""  
- IF 31 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		echo "LDraw archive library complete.zip copied"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	else"  
- IF 32 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	else
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		echo "complete.zip not found at $PWD""  
- IF 33 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		echo "complete.zip not found at $PWD"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	fi"  
- IF 34 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	fi
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	if [ -f ../lpub3dldrawunf.zip ] ; then"  
- IF 35 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	if [ -f ../lpub3dldrawunf.zip ] ; then
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		cp ../lpub3dldrawunf.zip mainApp/extras"  
- IF 36 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		cp ../lpub3dldrawunf.zip mainApp/extras
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		echo "LDraw archive library lpub3dldrawunf.zip copied""  
- IF 37 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		echo "LDraw archive library lpub3dldrawunf.zip copied"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	else"  
- IF 38 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	else
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		echo "lpub3dldrawunf.zip not found at $PWD""  
- IF 39 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		echo "lpub3dldrawunf.zip not found at $PWD"
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	fi"  
- IF 40 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	fi
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	export QT_SELECT=qt5"  
- IF 41 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	export QT_SELECT=qt5
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	export LP3D_CREATE_PKG=yes"  
- IF 42 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	export LP3D_CREATE_PKG=yes
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	if [ -x /usr/bin/qmake ] ; then"  
- IF 43 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	if [ -x /usr/bin/qmake ] ; then
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		qmake -makefile CONFIG+=release CONFIG+=pkg"  
- IF 44 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		qmake -makefile CONFIG+=release CONFIG+=pkg
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	elif [ -x /usr/bin/qmake-qt5 ] ; then"  
- IF 45 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg"  
- IF 46 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	fi"  
- IF 47 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	fi
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=}"  
- IF 48 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 }
 
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line="  
- IF 49 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
-
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=build() {"  
- IF 50 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 build() {
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	cd ${pkgname}-git"  
- IF 51 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	cd ${pkgname}-git
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	make clean"  
- IF 52 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	make clean
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	make"  
- IF 53 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	make
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=}"  
- IF 54 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 }
 
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line="  
- IF 55 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
-
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=package() {"  
- IF 56 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 package() {
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	cd ${pkgname}-git"  
- IF 57 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	cd ${pkgname}-git
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=	make INSTALL_ROOT=${pkgdir} install"  
- IF 58 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 	make INSTALL_ROOT=${pkgdir} install
-
-C:\Users\Trevor\Projects\lpub3d-ci\builds>(
-SET "Line=}"  
- IF 59 EQU 3 SET "Line=Exec=lpub3d20 %f"  
- SETLOCAL ENABLEDELAYEDEXPANSION  
- ECHO(!Line!  
- ENDLOCAL
-) 
 }
