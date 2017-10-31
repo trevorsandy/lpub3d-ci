@@ -30,7 +30,7 @@ BuildRequires: finger
 %define targetplatform %{packingplatform}
 %endif
 
-# set target platform
+# set target platform id
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
@@ -89,7 +89,7 @@ License: GPLv3+
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.181
+Version: 2.0.21.182
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -160,6 +160,7 @@ BuildRequires: -post-build-checks
 BuildRequires: Mesa-devel
 %endif
 
+# configuration settings
 %description
  LPub3D is an Open Source WYSIWYG editing application for creating
  LEGO® style digital building instructions. LPub3D is developed and
@@ -196,7 +197,7 @@ set -x
 
 %build
 export QT_SELECT=qt5
-# for 3rd party apps install
+# instruct qmake to copy 3rd-party apps
 export LP3D_CREATE_PKG=yes
 # download ldraw archive libraries
 set +x
@@ -242,6 +243,7 @@ make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
+# skip rpath check on 3rd-party binaries
 export NO_BRP_CHECK_RPATH=true
 
 %clean
@@ -265,18 +267,18 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
-%attr(755,-,-) %{_datadir}/lpub3d/3rdParty/ldglite-1.3/resources/set-ldrawdir.command
+%attr(755,-,-) %{_datadir}/lpub3d/3rdParty/*/resources/set-ldrawdir.command
 %post -p /sbin/ldconfig
-%if 0%{?buildservice}
+%if 0%{?buildservice}!=1
 update-mime-database  /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
 %postun -p /sbin/ldconfig
-%if 0%{?buildservice}
+%if 0%{?buildservice}!=1
 update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
-%endif
+* Tue Oct 31 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.182
 
 * Tue Oct 31 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.181
 - LPub3D Linux package (rpm) release
