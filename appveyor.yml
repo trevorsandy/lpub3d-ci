@@ -96,7 +96,7 @@ init:
         $env:lp3d_qtpath = C:\msys64\MINGW64\bin;C:\msys64\usr\bin
         $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64"+" "+$env:lp3d_makeargs
       }
-      $env:PATH = $env:lp3d_qtpath;+$env:PATH
+      cmd.exe /c SET PATH=%lp3d_qtpath%;%PATH%
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
         write-host "[build pkg] detected."

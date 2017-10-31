@@ -58,7 +58,6 @@
       <param name="files">*/builds/linux/obs/debian/lpub3d-ci.dsc
                           */builds/linux/obs/lpub3d-ci.spec
                           */builds/linux/obs/lpub3d-ci-rpmlintrc
-                          */builds/linux/obs/lpub3d-ci.spec.git.version
                           */builds/linux/obs/PKGBUILD
                           */mainApp/images/lpub3d.xpm
       </param>
