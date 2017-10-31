@@ -14,10 +14,10 @@ branches:
 matrix:
  fast_finish: true
  include:
-  # - os: linux
-  #   compiler: gcc
-  #   env:
-  #    - QT_BASE=59
+  - os: linux
+    compiler: gcc
+    env:
+     - QT_BASE=59
   - os: osx
     compiler: clang
     env:
@@ -30,21 +30,28 @@ before_install:
       | grep -E  '\[(skip travis|travis skip)\]'
       && echo "[skip travis] detected, exiting."
       && exit 0 || true
-  # Create package if commit message contains [create pkg]
+  # Build package if commit message contains [build pkg]
   - >
       echo "$TRAVIS_COMMIT_MESSAGE"
-      | grep -E  '\[create pkg\]'
-      && echo "[create pkg] detected."
-      && export LP3D_CREATE_PKG=yes || true
+      | grep -E  '\[build pkg\]'
+      && echo "[build pkg] detected."
+      && export LP3D_BUILD_PKG=yes || true
+  # Build and deploy package if commit message contains [deploy pkg]
+  - >
+      echo "$TRAVIS_COMMIT_MESSAGE"
+      | grep -E  '\[deploy pkg\]'
+      && echo "[deploy pkg] detected."
+      && export LP3D_BUILD_PKG=yes
+      && export LP3D_DEPLOY_PKG=yes || true
   # Add private qt repositories
-  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
-  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
-  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
-  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
-  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
-  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
-  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo add-apt-repository ppa:beineri/opt-qt592-trusty -y; fi
+  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
+  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
+  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
+  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
+  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
+  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
+  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
+  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt592-trusty -y; fi
   # Update repository index and download package dependencies/docker-engine if required
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
@@ -56,14 +63,14 @@ before_install:
 
 install:
   # Install qt5 on Linux
-  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
-  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
-  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
-  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi
-  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
-  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
-  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && ! "$LP3D_CREATE_PKG" = "yes" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
+  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
+  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
+  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
+  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi
+  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
+  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
+  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
+  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
   # Install qt5 on MacOS, clone lpub3d_macos_3rd party repository and download LDraw library archive files
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       if [ "$QT_BASE" = "55" ]; then
@@ -79,7 +86,7 @@ install:
     fi
   # Update docker-engine and docker-compose
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      if [ "$LP3D_CREATE_PKG" = "yes" ]; then
+      if [ "$LP3D_BUILD_PKG" = "yes" ]; then
         curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
         sudo apt-get update -qq;
@@ -95,19 +102,25 @@ install:
     fi
 
 script:
-  # Build distributions package or just compile the code
-  - if [ "$LP3D_CREATE_PKG" = "yes" ]; then
+  # Build distributions package (using docker-compose for linux builds) or just compile the code
+  - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        docker-compose -f builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml run --rm lpub3d-ci;
-        export LP3D_Download_Package=`ls builds/linux/docker-compose/LPub3D*.deb`;
-        export LP3D_Update_Package=`ls builds/linux/docker-compose/LPub3D-UpdateMaster*.deb`;
-        echo " Package files " `ls builds/linux/docker-compose/LPub3D*`;
+        ComposePath=./builds/linux/docker-compose;
+        ComposeFiles=$ComposePath/docker-compose-*;
+        for ComposeFile in $ComposeFiles; do
+          docker-compose -f $ComposePath/$ComposeFile run --rm lpub3d-ci;
+          if [ -n "${LP3D_APP_VERSION}" ]; then bldver="${LP3D_APP_VERSION}"; else bldver=""; fi;
+          case $ComposeFile in *archlinux*) ext=".pkg.tar.xz";; *fedora*) ext=".rpm";; *ubuntu*) ext=".deb";; esac;
+          export LP3D_Download_Package=`ls $ComposePath/LPub3D-$bldver*$ext`;
+          export LP3D_Update_Package=`ls $ComposePath/LPub3D_UpdateMaster-$bldver*$ext`;
+          echo " Package Files " `ls $ComposePath`;
+        done;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
         export LP3D_Download_Package=`ls ../dmgbuild/DMGS/LPub3D*.macos.dmg`;
         export LP3D_Update_Package=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster*.macos.dmg`;
-        echo " Package files " `ls ../dmgbuild/DMGS/LPub3D*`;
+        echo " Package  Files " `ls ../dmgbuild/DMGS/LPub3D*`;
       fi;
     else
      qmake -v;
@@ -126,8 +139,7 @@ deploy:
   skip_cleanup: true
   on:
     repo: trevorsandy/lpub3d-ci
-    condition: $LP3D_CREATE_PKG = yes
-    tags: true
+    condition: $LP3D_DEPLOY_PKG = yes
 
 notifications:
   email:

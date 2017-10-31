@@ -155,6 +155,20 @@ RCC_DIR     = $$DESTDIR/.qrc
 UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# For linux and MacOS builds on CI environments (Travis-CI/OpenSUSE OBS)
+# install 3rd party executables, documentation and resources.
+unix {
+    create_package = $$(LP3D_CREATE_PKG)
+    if(deb|rpm|pkg|dmg|contains(create_package, yes)) {
+        message(~~~ CREATE DISTRIBUTION PACKAGE: $$create_package ~~~)
+        CONFIG+=copy3rdexe
+        CONFIG+=copy3rdexeconfig
+        CONFIG+=copy3rdcontent
+    }
+}
+
+#-----deprecated---------->
 # Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
 # e.g. $ qmake "CONFIG+=copy3rdexe" "CONFIG+=copy3rdexeconfig" "CONFIG+=copy3rdcontent" "CONFIG+=stagewindistcontent"
 # or you can hard code here:
@@ -167,18 +181,6 @@ UI_DIR      = $$DESTDIR/.ui
 # Stage 3rd party executables, documentation and resources (Windows builds Only)
 !contains(CONFIG, stagewindistcontent): CONFIG +=
 
-unix {
-    # For linux and MacOS builds on Travis-CI - install 3rd party executables, documentation and resources.
-    create_package = $$(LP3D_CREATE_PKG)
-    if(deb|rpm|pkg|dmg|contains(create_package, yes)) {
-        message(~~~ CREATE DISTRIBUTION PACKAGE: $$create_package ~~~)
-        CONFIG+=copy3rdexe
-        CONFIG+=copy3rdexeconfig
-        CONFIG+=copy3rdcontent
-    }
-}
-
-#-----deprecated---------->
 # Download 3rd party repository when required
 # if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
 #     unix:!macx:REPO = lpub3d_linux_3rdparty

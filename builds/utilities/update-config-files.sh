@@ -100,6 +100,8 @@ LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
 LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${DATE_TIME}")"
 
+export LP3D_APP_VERSION=${LP3D_APP_VERSION}
+
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   CALL_DIR...............${CALL_DIR}"
@@ -160,7 +162,9 @@ else
         $LP3D_PWD/../builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml \
         $LP3D_PWD/../builds/utilities/docker/Dockerfile-archlinux_2017.10.01 \
         $LP3D_PWD/../builds/utilities/docker/Dockerfile-fedora_25 \
-        $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial
+        $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial \
+        $LP3D_PWD/../appveyor.yml \
+        $LP3D_PWD/../travis.yml
     do
         if [ "$OS" = Darwin ]
         then
@@ -323,6 +327,7 @@ then
         Info "   Error: update failed, ${INFO_PLIST_FILE} not found."
     fi
 fi
+
 if [ "${SOURCED}" = "false" ]
 then
     Info "Script $ME execution finshed."

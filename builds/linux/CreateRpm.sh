@@ -121,13 +121,13 @@ then
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
     echo "15. create update and download packages..."
-    IFS=- read NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
+    IFS=- read RPM_NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -f ${DISTRO_FILE} "${LPUB3D}-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
-    echo "    Download package: ${LPUB3D}_${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
+    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
 
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
-    echo "      Update package: LPub3D-UpdateMaster_${RPM_VERSION}_${RPM_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${RPM_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${RPM_EXTENSION}"
 else
     echo "14. package ${DISTRO_FILE} not found."
 fi

@@ -50,31 +50,29 @@ matrix:
 environment:
   lp3d_build: appveyor_ci
   lp3d_job2arch: x86_64
-  lp3d_target: builds\windows\$(configuration)
+  lp3d_packagepath: builds\windows\$(configuration)
   lp3d_job1package: LPub3D-Job1-AV-$(APPVEYOR_BUILD_NUMBER).zip
   lp3d_qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
   lp3d_iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
   lp3d_librepo: lpub3d_windows_3rdparty
   lp3d_librepodir: /c/projects/$(lp3d_librepo)
-  lp3d_make_config_common: CONFIG+=$(lp3d_build) CONFIG+=$(configuration) CONFIG+=stagewindistcontent
-  lp3d_clear_cache: no
   matrix:
   - lp3d_target_arch: x86
-    lp3d_make_config: $(lp3d_make_config_common)
-    lp3d_qtpath: C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin
   - lp3d_target_arch: x86_64
-    lp3d_make_config: CONFIG+=appveyor_qt_mingw64 $(lp3d_make_config_common)
-    lp3d_qtpath: C:\msys64\MINGW64\bin;C:\msys64\usr\bin
 
-# The iex PS script genertes remote-desktop credentials useful for debugging
+# generte remote-desktop credentials - useful for debugging
+# clear the cache if specified
+# set the make parameters and qt library path
+# process [build pkg] commit message request
+# process [deploy pkg] commit message request
 init:
- - SET PATH=%lp3d_qtpath%;%PATH%
+ - ps: write-host "Building $env:lp3d_target_arch architecture..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
- #- ps: Get-ChildItem Env:APPVEYOR* | Sort-Object name
- - ps: Get-ChildItem Env:lp3d_* | Sort-Object name
  - ps: |
-      If ($env:lp3d_clear_cache -eq "yes")
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]"))
       {
+        write-host "[clear avcache] detected."
+
         $apiUrl = 'https://ci.appveyor.com/api'
         $token = 'h2o1p08rkt8jgen5f0ke'
         $headers = @{
@@ -91,6 +89,34 @@ init:
 
         Write-Output "Build cache cleared."
       }
+ - ps: |
+      $env:lp3d_qtpath = "C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin"
+      $env:lp3d_makeargs = "CONFIG+=$env:lp3d_build CONFIG+=$env:configuration CONFIG+=stagewindistcontent"
+      If ($env:lp3d_target_arch -eq "x86_64") {
+        $env:lp3d_qtpath = C:\msys64\MINGW64\bin;C:\msys64\usr\bin
+        $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64"+" "+$env:lp3d_makeargs
+      }
+      $env:PATH = $env:lp3d_qtpath;+$env:PATH
+ - ps: |
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
+        write-host "[build pkg] detected."
+        If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {
+          $env:lp3d_archive_job1_artefact = $false
+        } else {
+          $env:lp3d_archive_job1_artefact = $true
+        }
+        $env:lp3d_restore_job1_artefact = -NOT $env:lp3d_archive_job1_artefact
+        $env:lp3d_archive_job2_artefact = -NOT $env:lp3d_archive_job1_artefact
+      }
+ - ps: |
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[deploy pkg]")) {
+        write-host "[deploy pkg] detected."
+        If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {
+          $env:lp3d_deploy_pkg = $true
+        }
+      }
+ #- ps: Get-ChildItem Env:APPVEYOR* | Sort-Object name
+ - ps: Get-ChildItem Env:lp3d_* | Sort-Object name
 
 # This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
 # downloded. After building out the dev env, we proceed to fetch the commit that fired off the AppVeyor build.
@@ -98,22 +124,22 @@ init:
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
 # This includes setting the clone depth, and fetching the last commit and previous tags
 install:
- - git init %APPVEYOR_BUILD_FOLDER%
- - cd %APPVEYOR_BUILD_FOLDER%
- - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
- - git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
- - git checkout -qf %APPVEYOR_REPO_COMMIT%
- - bash -lc "if ! test -d ${lp3d_librepodir}; then git clone https://github.com/trevorsandy/${lp3d_librepo}.git ${lp3d_librepodir} && echo ${lp3d_librepo} cloned; fi"
- - if %lp3d_target_arch%==x86_64 bash -lc "cd ${lp3d_librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${lp3d_qtlibs} ${lp3d_iculibs}"
+ - cmd: git init %APPVEYOR_BUILD_FOLDER%
+ - cmd: cd %APPVEYOR_BUILD_FOLDER%
+ - cmd: git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
+ - cmd: git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
+ - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
+ - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then git clone https://github.com/trevorsandy/${lp3d_librepo}.git ${lp3d_librepodir} && echo ${lp3d_librepo} cloned; fi"
+ - cmd: if %lp3d_target_arch%==x86_64 bash -lc "cd ${lp3d_librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${lp3d_qtlibs} ${lp3d_iculibs}"
 
 # this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
 # the NSIS packaging script against the archive creating a single installer for both architectures.
 # this script is only run on the 2nd of the two jobs (job2).
 before_build:
  - ps: |
-      If ($env:lp3d_target_arch -eq $env:lp3d_job2arch)
+      If ($env:lp3d_restore_job1_artefact -eq $true)
       {
-        Write-Output "Restoring $env:lp3d_target build folder from artifact..."
+        Write-Output "Restoring $env:lp3d_packagepath build folder from artifact..."
 
         $apiUrl = 'https://ci.appveyor.com/api'
         $token = 'h2o1p08rkt8jgen5f0ke'
@@ -161,7 +187,7 @@ before_build:
           if (-not (Test-Path $CheckArtifactDir)) {
             Write-Output "Error expanding $localArtifactArchive, $CheckArtifactDir not found"
           } else {
-            Write-Output "Build folder $env:lp3d_target artifact restored"
+            Write-Output "Build folder $env:lp3d_packagepath artifact restored"
           }
         }
       }
@@ -170,14 +196,14 @@ before_build:
 # generate the install Makefile logic which stages the distro files so
 # this flat and make install must be run to complete the build process
 build_script:
- - qmake -v
- - qmake %lp3d_make_config%
- - mingw32-make
- - mingw32-make install
+ - cmd: qmake -v
+ - cmd: qmake %lp3d_makeargs%
+ - cmd: mingw32-make
+ - cmd: mingw32-make install
 
-# Vars used to construct artifact names and artifact creation.
+# Vars used to construct artifacts
 after_build:
- - IF %lp3d_target_arch%==%lp3d_job2arch% builds\windows\CreateExe.bat
+ - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {cmd.exe /c builds\windows\CreateExe.bat}
  - ps: $env:LP3D_AV_VER_INFO = (Get-Content $env:APPVEYOR_BUILD_FOLDER\builds\windows\release\version.info -TotalCount 1).trim()
  - ps: $env:LP3D_AV_BUILD_DATE = $env:LP3D_AV_VER_INFO.split()[8]+$env:LP3D_AV_VER_INFO.split()[7]+$env:LP3D_AV_VER_INFO.split()[6]
  - ps: $env:LP3D_AV_BUILD_VERSION = For ($i=0; $i -le 4; $i++) {$env:LP3D_AV_VER_INFO.split()[$i]}
@@ -187,16 +213,9 @@ after_build:
  - ps: $env:LP3D_AV_DOWNLOAD_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Download"
  - ps: $env:LP3D_AV_UPDATE_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Update"
  - ps: Get-ChildItem Env:LP3D_AV_* | Sort-Object name
- - ps: $env:lp3d_git_ver_sha_hash = git log --pretty=format:'%h' -n 1
- - ps: $env:lp3d_git_ver_build = git rev-list HEAD --count
- - ps: $env:lp3d_git_ver_tag_short = git describe --tags --abbrev=0
- - ps: $env:lp3d_git_ver_tag_long = git describe --tags --long
- - ps: $env:lp3d_git_ver_tag_anno = git describe --long
- - ps: $env:lp3d_git_ver_date = Get-Date -format yyyyMMdd
- - ps: Get-ChildItem Env:lp3d_git* | Sort-Object name
- - ps: If ($env:lp3d_target_arch -ne $env:lp3d_job2arch) {7z a $env:lp3d_job1package $env:lp3d_target | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_job1package}
- - ps: If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
- - ps: If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
+ - ps: If ($env:lp3d_archive_job1_artefact -eq $true) {7z a $env:lp3d_job1package $env:lp3d_packagepath | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_job1package}
+ - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
+ - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET;   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
 
 # for the moment we only deploy to github. I'll setup a sourceforge deployment scheme
 # at some point going forward
@@ -210,5 +229,4 @@ deploy:
    force_update: true
    on:
     branch: master
-    lp3d_target_arch: '$(lp3d_job2arch)'
-    appveyor_repo_tag: true
+    lp3d_deploy_pkg: true

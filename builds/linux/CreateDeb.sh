@@ -117,7 +117,7 @@ chmod 755 debian/rules
 
 echo "10. run lintian..."
 cd ../
-DISTRO_FILE=`ls *.deb`
+DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.deb`
 lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
@@ -125,19 +125,19 @@ then
     echo "11. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -rf ${DISTRO_FILE} "LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
-    echo "    Download package: LPub3D_${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
+    cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
 
-    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${DEB_VERSION}_${DEB_EXTENSION}"
-    echo "      Update package: LPub3D-UpdateMaster_${DEB_VERSION}_${DEB_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${DEB_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${DEB_EXTENSION}"
 else
     echo "11. package ${DISTRO_FILE} not found"
 fi
 
 if [ "${TRAVIS}" == "true"  ]; then
   # export vars used by travis.yml so paths must be relative to project download dir
-  export LP3D_Download_DebPackage=`ls ../LPub3D_*.deb`
-  export LP3D_Update_DebPackage=`ls ../LPub3D-UpdateMaster_*.deb`
+  export LP3D_Download_Package=`ls ../LPub3D_*.deb`
+  export LP3D_Update_Package=`ls ../LPub3D-UpdateMaster_*.deb`
   echo "    DEBUG Package files: `ls ../LPub3D*.deb`"
   env | grep -P 'LP3D*'
 fi

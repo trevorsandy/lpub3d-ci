@@ -14,19 +14,19 @@ SET OLD_VAL=lpub3d-ci
 
 CALL :FIXUP_PWD %1
 
-IF [%LP3D_PWD%] == [] (
+IF [%LP3D_BUILDS_DIR%] == [] (
   ECHO Error: Did not receive required argument _PRO_FILE_PWD_
   ECHO %LP3D_ME% terminated!
   ECHO.
   EXIT /b 0
 )
 
-REM LP3D_PWD = C:\Users\Trevor\Projects\lpub3d-ci\builds
-SET LP3D_PWD=%LP3D_PWD:"=%
+REM LP3D_BUILDS_DIR = C:\Users\Trevor\Projects\lpub3d-ci\builds
+SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET CALL_DIR=%CD%
-SET LP3D_OBS_DIR=%LP3D_PWD%\linux\obs
-SET LP3D_VER_INFO_FILE=%LP3D_PWD%\utilities\version.info
-SET LP3D_AV_VER_INFO_DIR=%LP3D_PWD%\windows\release
+SET LP3D_OBS_DIR=%LP3D_BUILDS_DIR%\linux\obs
+SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
+SET LP3D_AV_VER_INFO_DIR=%LP3D_BUILDS_DIR%\windows\release
 SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
 
 ECHO  Start %LP3D_ME% execution at %CD%...
@@ -72,7 +72,7 @@ ECHO %LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3
 IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info..............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info..............[Error, file not found])
 
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
-ECHO   LP3D_PWD.......................[%LP3D_PWD%]
+ECHO   LP3D_BUILDS_DIR.......................[%LP3D_BUILDS_DIR%]
 ECHO   CALL_DIR.......................[%CALL_DIR%]
 ECHO   LP3D_VER_MAJOR.................[%LP3D_VER_MAJOR%]
 ECHO   LP3D_VER_MINOR.................[%LP3D_VER_MINOR%]
@@ -107,7 +107,7 @@ SET LP3D_DEB_DSC_FILE=%LP3D_OBS_DIR%\debian\%OLD_VAL%.dsc
 SET LP3D_DEB_LINT_FILE=%LP3D_OBS_DIR%\debian\%OLD_VAL%.lintian-overrides
 SET LP3D_OBS_SPEC_FILE=%LP3D_OBS_DIR%\%OLD_VAL%.spec
 SET LP3D_RPM_LINT_FILE=%LP3D_OBS_DIR%\%OLD_VAL%-rpmlintrc
-IF "%LPUB3D%" NEQ "%OLD_VAL%" (
+IF "%LPUB3D%" EQU "%OLD_VAL%" (
   ECHO     nothing to do, skipping
 ) ELSE (
    IF EXIST %LP3D_DEB_DSC_FILE% (
@@ -132,12 +132,14 @@ IF "%LPUB3D%" NEQ "%OLD_VAL%" (
       %LP3D_OBS_DIR%\_service
       %LP3D_OBS_DIR%\PKGBUILD
       %LP3D_OBS_DIR%\%LPUB3D%-rpmlintrc
-      %LP3D_PWD%\linux\docker-compose\docker-compose-archlinux_2017.10.01.yml
-      %LP3D_PWD%\linux\docker-compose\docker-compose-fedora_25.yml
-      %LP3D_PWD%\linux\docker-compose\docker-compose-ubuntu_xenial.yml
-      %LP3D_PWD%\utilities\docker\Dockerfile-archlinux_2017.10.01
-      %LP3D_PWD%\utilities\docker\Dockerfile-fedora_25
-      %LP3D_PWD%\utilities\docker\Dockerfile-ubuntu_xenial
+      %LP3D_BUILDS_DIR%\linux\docker-compose\docker-compose-archlinux_2017.10.01.yml
+      %LP3D_BUILDS_DIR%\linux\docker-compose\docker-compose-fedora_25.yml
+      %LP3D_BUILDS_DIR%\linux\docker-compose\docker-compose-ubuntu_xenial.yml
+      %LP3D_BUILDS_DIR%\utilities\docker\Dockerfile-archlinux_2017.10.01
+      %LP3D_BUILDS_DIR%\utilities\docker\Dockerfile-fedora_25
+      %LP3D_BUILDS_DIR%\utilities\docker\Dockerfile-ubuntu_xenial
+      %LP3D_BUILDS_DIR%\..\appveyor.yml
+      %LP3D_BUILDS_DIR%\..\travis.yml
     ) DO (
       CALL :FIND_REPLACE %OLD_VAL% %LPUB3D% %%i
   )
@@ -237,7 +239,7 @@ IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy
 ))>"%LP3D_FILE%.new")
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
-ENDLOCAL
+ENDLOCAL & SET LP3D_APP_VERSION=%LP3D_APP_VERSION%
 GOTO :END
 
 :GET_DATE_AND_LP3D_TIME
@@ -290,7 +292,7 @@ IF %LP3D_MONTH% == 12 SET LP3D_MONTH_OF_YEAR=Dec
 EXIT /b
 
 :GET_GIT_VERSION
-CD /D "%LP3D_PWD%\.."
+CD /D "%LP3D_BUILDS_DIR%\.."
 REM Extract Revision Number
 FOR /F "usebackq delims==" %%G IN (`git describe --tags --long`) DO SET lp3d_git_ver_tag_long=%%G
 SET "tag_input=%lp3d_git_ver_tag_long%"
@@ -336,7 +338,15 @@ IF [%8] == [] (
 IF [%lp3d_previous_version%] NEQ [] (
   SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%lp3d_previous_version%,%LP3D_PAST_RELEASES%
 )
-CD /D "%LP3D_PWD%"
+CD /D "%LP3D_BUILDS_DIR%"
+EXIT /b
+
+:FIXUP_PWD
+SET TEMP=%CD%
+IF [%1] NEQ [] CD /D "%1\..\builds"
+SET LP3D_MAIN_APP=%1
+SET LP3D_BUILDS_DIR=%CD%
+CD %TEMP%
 EXIT /b
 
 :FIND_REPLACE <findstr> <replstr> <file>
@@ -357,21 +367,6 @@ EXIT /b
 >>%temp%\_.vbs echo set args=.arguments
 >>%temp%\_.vbs echo .StdOut.Write _
 >>%temp%\_.vbs echo Replace(.StdIn.ReadAll,args(0),args(1),1,-1,1)
->>%temp%\_.vbs echo end with
-EXIT /b
-
-:FIXUP_PWD
-SET TEMP=%CD%
-IF [%1] NEQ [] CD /D "%1\..\builds"
-SET LP3D_MAIN_APP=%1
-SET LP3D_PWD=%CD%
-CD %TEMP%
-EXIT /b
-
-:END
-ECHO  Script %LP3D_ME% execution finished.
-EXIT /b 0
-tdIn.ReadAll,args(0),args(1),1,-1,1)
 >>%temp%\_.vbs echo end with
 EXIT /b
 

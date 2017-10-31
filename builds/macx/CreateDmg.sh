@@ -188,17 +188,17 @@ cat <<EOF >makedmg
 --custom-icon Readme README 512 128 \\
 --app-drop-link 448 344 \\
 --eula .COPYING \\
-"${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" \\
+"${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" \\
 DMGSRC/
 EOF
 
 echo "- create dmg packages in DMGS/..."
 chmod +x makedmg && ./makedmg
 
-if [ -f "${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
-  cp "${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${LP3D_VERSION}_macos.dmg"
-  echo "      Download package..: LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg"
-  echo "      Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}_macos.dmg"
+if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
+  cp -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${LP3D_APP_VERSION}_macos.dmg"
+  echo "      Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg"
+  echo "      Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_macos.dmg"
 
   echo "- cleanup..."
   rm -f -R DMGSRC
@@ -206,7 +206,7 @@ if [ -f "${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
 
   echo "$ME Finished!"
 else
-  echo "- ${DMGDIR}/LPub3D_${LP3D_APP_VERSION_LONG}_macos.dmg was not found."
+  echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg was not found."
   echo "- $ME failed."
 fi
 # create dmg - end #
