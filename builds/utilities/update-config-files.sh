@@ -315,7 +315,7 @@ fi
 
 if [ "$OS" = Darwin ]
 then
-    Info "11. update the Info.plist with version major, version minor, build and git sha hash"
+    Info "10. update the Info.plist with version major, version minor, build and git sha hash"
     INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
     if [ -f "${INFO_PLIST_FILE}" ]
     then
@@ -330,6 +330,6 @@ fi
 
 if [ "${SOURCED}" = "false" ]
 then
-    Info "Script $ME execution finshed."
+    Info "   Script $ME execution finshed."
 fi
 echo

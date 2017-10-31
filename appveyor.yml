@@ -96,10 +96,6 @@ init:
         $env:lp3d_qtpath = C:\msys64\MINGW64\bin;C:\msys64\usr\bin
         $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64 $env:lp3d_makeargs"
       }
-      $property_path = "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment"
-      $current_path = (Get-ItemProperty -Path $property_path -Name PATH).path
-      $new_path = "$env:lp3d_qtpath;$current_path"
-      Set-ItemProperty -Path $property_path -Name PATH -Value $new_path
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
         write-host "[build pkg] detected."
@@ -120,6 +116,8 @@ init:
       }
  #- ps: Get-ChildItem Env:APPVEYOR* | Sort-Object name
  - ps: Get-ChildItem Env:lp3d_* | Sort-Object name
+ - cmd: SET PATH=%lp3d_qtpath%;%PATH% &echo PATH appended with %lp3d_qtpath%
+ - cmd: SET
 
 # This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
 # downloded. After building out the dev env, we proceed to fetch the commit that fired off the AppVeyor build.
