@@ -56,10 +56,9 @@ then
 fi
 
 #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
-Info "1. capture version info                 - get version information"
 if [ "${SOURCED}" = "true" ]
 then
-    Info "   using git queries..."
+    Info "1. capture version info using git queries"
     cd "$LP3D_PWD/.."
     lp3d_git_ver_tag_long=`git describe --tags --long`
     lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
@@ -73,7 +72,7 @@ then
     VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 else
     Info "   Start $ME execution..."
-    Info "   using input arguments..."
+    Info "1. capture version info using input arguments"
     VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
 fi
 #         1 2 3  4  5   6

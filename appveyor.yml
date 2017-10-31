@@ -199,10 +199,10 @@ before_build:
 # generate the install Makefile logic which stages the distro files so
 # this flat and make install must be run to complete the build process
 build_script:
- - cmd: qmake -v
- - cmd: qmake %lp3d_makeargs%
- - cmd: mingw32-make
- - cmd: mingw32-make install
+  qmake -v
+  qmake %lp3d_makeargs%
+  mingw32-make
+  mingw32-make install
 
 # Vars used to construct artifacts
 after_build:
