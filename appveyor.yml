@@ -90,13 +90,15 @@ init:
         Write-Output "Build cache cleared."
       }
  - ps: |
-      $env:lp3d_qtpath = "C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin"
+      $lp3d_qtpath = "C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin"
       $env:lp3d_makeargs = "CONFIG+=$env:lp3d_build CONFIG+=$env:configuration CONFIG+=stagewindistcontent"
       If ($env:lp3d_target_arch -eq "x86_64") {
-        $env:lp3d_qtpath = C:\msys64\MINGW64\bin;C:\msys64\usr\bin
-        $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64"+" "+$env:lp3d_makeargs
+        $lp3d_qtpath = C:\msys64\MINGW64\bin;C:\msys64\usr\bin
+        $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64 $env:lp3d_makeargs"
       }
-      cmd.exe /c SET PATH=%lp3d_qtpath%;%PATH%
+      $current_path = (Get-ItemProperty -Path ‘Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment’ -Name PATH).path
+      $new_path = "$env:lp3d_qtpath;$current_path"
+      Set-ItemProperty -Path ‘Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment’ -Name PATH -Value $new_path
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
         write-host "[build pkg] detected."

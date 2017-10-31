@@ -56,7 +56,7 @@ then
 fi
 
 #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
-Info "1. capture version info"
+Info "1. capture version info                 - get version information"
 if [ "${SOURCED}" = "true" ]
 then
     Info "   using git queries..."
@@ -71,28 +71,27 @@ then
     lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
     lp3d_revision_=${lp3d_ver_tmp1%-*}
     VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
-    #         1 2 3  4  5   6
-    # format "2 0 20 17 663 410fdd7"
-    read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-    Info "   writing version info to builds/utilities/version.info..."
-    Info "   VERSION_INFO...........${VERSION_INFO//'"'}"
-    FILE="$LP3D_UTIL_DIR/version.info"
-    if [ -f ${FILE} -a -r ${FILE} ]
-    then
-        rm ${FILE}
-    fi
-    cat <<EOF >${FILE}
-${VERSION_INFO} ${DATE_TIME}
-EOF
 else
     Info "   Start $ME execution..."
     Info "   using input arguments..."
-    VER_MAJOR=$2
-    VER_MINOR=$3
-    VER_PATCH=$4
-    VER_REVISION=$5
-    VER_BUILD=$6
-    VER_SHA_HASH=$7
+    VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
+fi
+#         1 2 3  4  5   6
+# format "2 0 20 17 663 410fdd7"
+read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
+FILE="$LP3D_UTIL_DIR/version.info"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    rm ${FILE}
+fi
+cat <<EOF >${FILE}
+${VERSION_INFO} ${DATE_TIME}
+EOF
+if [ -f "${FILE}" ];
+then
+    Info "   FILE version.info written to builds/utilities/version.info";
+else
+    Info "   FILE version.info error, file not found";
 fi
 APP_VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
 LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
@@ -106,6 +105,8 @@ Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   CALL_DIR...............${CALL_DIR}"
 Info "   VER_MAJOR..............${VER_MAJOR}"
+
+Info "   VERSION_INFO...........${VERSION_INFO}"
 Info "   VER_MINOR..............${VER_MINOR}"
 Info "   VER_PATCH..............${VER_PATCH}"
 Info "   VER_REVISION...........${VER_REVISION}"
@@ -258,7 +259,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
 fi
 
-Info "8. update readme.txt                    - add app version"
+Info "8. update README.txt                    - add app version"
 FILE="$LP3D_PWD/docs/README.txt"
 LineToReplace=${LINE_README}
 if [ -f ${FILE} -a -r ${FILE} ]
