@@ -117,7 +117,7 @@ chmod 755 debian/rules
 
 echo "10. run lintian..."
 cd ../
-DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.deb`
+DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
 lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]

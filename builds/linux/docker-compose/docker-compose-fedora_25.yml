@@ -2,6 +2,8 @@
 version: '3'
 services:
   lpub3d-ci:
-    image: "trevorsandy/lpub3d-ci:fedora_25"
+    context: ./
+    dockerfile: ./dockerfiles/Dockerfile-fedora_25
+    #image: "trevorsandy/lpub3d-ci:fedora_25"
     volumes:
      - .:/buildpkg
