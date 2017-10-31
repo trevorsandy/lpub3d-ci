@@ -93,7 +93,7 @@ init:
       $env:lp3d_qtpath = "C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin"
       $env:lp3d_makeargs = "CONFIG+=$env:lp3d_build CONFIG+=$env:configuration CONFIG+=stagewindistcontent"
       If ($env:lp3d_target_arch -eq "x86_64") {
-        $env:lp3d_qtpath = C:\msys64\MINGW64\bin;C:\msys64\usr\bin
+        $env:lp3d_qtpath = "C:\msys64\MINGW64\bin;C:\msys64\usr\bin"
         $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64 $env:lp3d_makeargs"
       }
  - ps: |
