@@ -2,8 +2,8 @@
 version: '3'
 services:
   lpub3d-ci:
-    context: ./
-    dockerfile: ./dockerfiles/Dockerfile-ubuntu_xenial
+    context: ./dockerfiles
+    dockerfile: Dockerfile-ubuntu_xenial
     #image: "trevorsandy/lpub3d-ci:ubuntu_xenial"
     volumes:
      - .:/buildpkg
