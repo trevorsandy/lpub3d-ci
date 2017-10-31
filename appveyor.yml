@@ -203,7 +203,7 @@ build_script:
 
 # Vars used to construct artifacts
 after_build:
-  - ps: |
+ - ps: |
       $Sv = git describe --tags --long
       $Sc = git rev-list HEAD --count
       $env:LP3D_AV_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc).replace("v","").replace("-",".")
