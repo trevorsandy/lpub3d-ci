@@ -2,7 +2,7 @@ Source: lpub3d-ci
 Section: graphics
 Priority: optional
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
-Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libpng-dev, libjpeg-dev, zlib1g-dev, libsndio-dev, libboost-system-dev, libboost-thread-dev, libopenexr22, libtiff5, libosmesa6, freeglut3
+Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libpng12-dev, libjpeg-dev, zlib1g-dev, libsndio-dev, libboost-system1.58.0, libboost-thread1.58.0, libopenexr22, libtiff5, libosmesa6, freeglut3
 Standards-Version: 3.9.7
 Homepage: https://trevorsandy.github.io/lpub3d-ci/
 
