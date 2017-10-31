@@ -114,10 +114,9 @@ init:
           $env:lp3d_deploy_pkg = $true
         }
       }
+ - cmd: SET PATH=%lp3d_qtpath%;%PATH% &echo PATH appended with %lp3d_qtpath%
  #- ps: Get-ChildItem Env:APPVEYOR* | Sort-Object name
  - ps: Get-ChildItem Env:lp3d_* | Sort-Object name
- - cmd: SET PATH=%lp3d_qtpath%;%PATH% &echo PATH appended with %lp3d_qtpath%
- - cmd: SET
 
 # This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
 # downloded. After building out the dev env, we proceed to fetch the commit that fired off the AppVeyor build.
@@ -197,24 +196,24 @@ before_build:
 # generate the install Makefile logic which stages the distro files so
 # this flat and make install must be run to complete the build process
 build_script:
- - qmake -v
- - qmake %lp3d_makeargs%
- - mingw32-make
- - mingw32-make install
+ - cmd: qmake -v
+ - cmd: qmake %lp3d_makeargs%
+ - cmd: mingw32-make
+ - cmd: mingw32-make install
 
 # Vars used to construct artifacts
 after_build:
- - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {cmd.exe /c builds\windows\CreateExe.bat}
- - ps: $env:LP3D_AV_VER_INFO = (Get-Content $env:APPVEYOR_BUILD_FOLDER\builds\windows\release\version.info -TotalCount 1).trim()
- - ps: $env:LP3D_AV_BUILD_DATE = $env:LP3D_AV_VER_INFO.split()[8]+$env:LP3D_AV_VER_INFO.split()[7]+$env:LP3D_AV_VER_INFO.split()[6]
- - ps: $env:LP3D_AV_BUILD_VERSION = For ($i=0; $i -le 4; $i++) {$env:LP3D_AV_VER_INFO.split()[$i]}
- - ps: $env:LP3D_AV_VERSION = $env:LP3D_AV_BUILD_VERSION.replace(" ",".")+"_"+$env:LP3D_AV_BUILD_DATE
- - ps: $env:LP3D_AV_PACKAGE = "LPub3D-Any-$env:LP3D_AV_VERSION"
- - ps: $env:LP3D_AV_TARGET = "builds\windows\$env:Configuration\$env:LP3D_AV_PACKAGE"
- - ps: $env:LP3D_AV_DOWNLOAD_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Download"
- - ps: $env:LP3D_AV_UPDATE_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Update"
- - ps: Get-ChildItem Env:LP3D_AV_* | Sort-Object name
+  - ps: |
+      $Sv = git describe --tags --long
+      $Sc = git rev-list HEAD --count
+      $env:LP3D_AV_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc).replace("v","").replace("-",".")
+      $env:LP3D_AV_PACKAGE = "LPub3D-Any-$env:LP3D_AV_VERSION"
+      $env:LP3D_AV_TARGET = "builds\windows\$env:Configuration\$env:LP3D_AV_PACKAGE"
+      $env:LP3D_AV_DOWNLOAD_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Download"
+      $env:LP3D_AV_UPDATE_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Update"
+      Get-ChildItem Env:LP3D_AV_* | Sort-Object name
  - ps: If ($env:lp3d_archive_job1_artefact -eq $true) {7z a $env:lp3d_job1package $env:lp3d_packagepath | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_job1package}
+ - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {cmd.exe /c builds\windows\CreateExe.bat}
  - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
  - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET;   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
 
