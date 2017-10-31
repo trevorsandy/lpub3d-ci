@@ -156,15 +156,20 @@ UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# For linux and MacOS builds on CI environments (Travis-CI/OpenSUSE OBS)
+# For builds on CI environments (Travis-CI/OpenSUSE OBS)
 # install 3rd party executables, documentation and resources.
-unix {
-    create_package = $$(LP3D_CREATE_PKG)
-    if(deb|rpm|pkg|dmg|contains(create_package, yes)) {
-        message(~~~ CREATE DISTRIBUTION PACKAGE: $$create_package ~~~)
+build_package = $$(LP3D_BUILD_PKG)
+if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
+    message(~~~ BUILD DISTRIBUTION PACKAGE: $$build_package ~~~)
+    unix {
         CONFIG+=copy3rdexe
         CONFIG+=copy3rdexeconfig
         CONFIG+=copy3rdcontent
+    }
+    win32 {
+        CONFIG+=stage3rdexe
+        CONFIG+=stage3rdexeconfig
+        CONFIG+=stage3rdcontent
     }
 }
 
@@ -173,13 +178,13 @@ unix {
 # e.g. $ qmake "CONFIG+=copy3rdexe" "CONFIG+=copy3rdexeconfig" "CONFIG+=copy3rdcontent" "CONFIG+=stagewindistcontent"
 # or you can hard code here:
 # Copy 3rd party executables
-!contains(CONFIG, copy3rdexe): CONFIG +=
+#!contains(CONFIG, copy3rdexe): CONFIG +=
 # Copy 3rd party for executable configuration file(s)
-!contains(CONFIG, copy3rdexeconfig): CONFIG +=
+#!contains(CONFIG, copy3rdexeconfig): CONFIG +=
 # Copy 3rd party documents and resources
-!contains(CONFIG, copy3rdcontent): CONFIG +=
+#!contains(CONFIG, copy3rdcontent): CONFIG +=
 # Stage 3rd party executables, documentation and resources (Windows builds Only)
-!contains(CONFIG, stagewindistcontent): CONFIG +=
+#!contains(CONFIG, stagewindistcontent): CONFIG +=
 
 # Download 3rd party repository when required
 # if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {

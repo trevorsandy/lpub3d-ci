@@ -9,7 +9,7 @@ export DH_VERBOSE=1
 export QT_SELECT=qt5
 
 # for 3rd party apps install
-export LP3D_CREATE_PKG=yes
+export LP3D_BUILD_PKG=yes
 
 # get target arch
 LP3D_TARGET_ARCH=`uname -m`

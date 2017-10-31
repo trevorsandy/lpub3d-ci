@@ -99,6 +99,7 @@ init:
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
         write-host "[build pkg] detected."
+        $env:LP3D_BUILD_PKG = "yes"
         If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {
           $env:lp3d_archive_job1_artefact = $false
         } else {
@@ -206,7 +207,8 @@ after_build:
  - ps: |
       $Sv = git describe --tags --long
       $Sc = git rev-list HEAD --count
-      $env:LP3D_AV_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc).replace("v","").replace("-",".")
+      $Sd = Get-Date -format yyyyMMdd
+      $env:LP3D_AV_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
       $env:LP3D_AV_PACKAGE = "LPub3D-Any-$env:LP3D_AV_VERSION"
       $env:LP3D_AV_TARGET = "builds\windows\$env:Configuration\$env:LP3D_AV_PACKAGE"
       $env:LP3D_AV_DOWNLOAD_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Download"

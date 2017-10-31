@@ -103,9 +103,9 @@ export LP3D_APP_VERSION=${LP3D_APP_VERSION}
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   CALL_DIR...............${CALL_DIR}"
-Info "   VER_MAJOR..............${VER_MAJOR}"
 
 Info "   VERSION_INFO...........${VERSION_INFO}"
+Info "   VER_MAJOR..............${VER_MAJOR}"
 Info "   VER_MINOR..............${VER_MINOR}"
 Info "   VER_PATCH..............${VER_PATCH}"
 Info "   VER_REVISION...........${VER_REVISION}"

@@ -89,7 +89,7 @@ License: GPLv3+
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.185
+Version: 2.0.21.186
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -198,7 +198,7 @@ set -x
 %build
 export QT_SELECT=qt5
 # instruct qmake to copy 3rd-party apps
-export LP3D_CREATE_PKG=yes
+export LP3D_BUILD_PKG=yes
 # download ldraw archive libraries
 set +x
 LDrawLibOffical=../../SOURCES/complete.zip
@@ -278,7 +278,7 @@ update-desktop-database || true
 %if 0%{?buildservice}!=1
 update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
-* Tue Oct 31 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.185
+* Tue Oct 31 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.186
 
 * Tue Oct 31 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.181
 - LPub3D Linux package (rpm) release

@@ -1,9 +1,9 @@
 # install 3rd party executables, documents and resources
 
 copy3rdexe {
-    message("~~~ 3RD PARTY EXECUTABLES WILL BE INSTALLED ~~~")
     # renderer executables
     CONFIG(release, debug|release) {
+        message("~~~ RELEASE BUILD - 3RD PARTY EXECUTABLES WILL BE INSTALLED ~~~")
         ldglite_ins.files += $$LDGLITE_INS_EXE
         ldglite_ins.path = $$LDGLITE_INS_DIR
 
@@ -25,9 +25,7 @@ copy3rdexe {
             raytracer_ins
         }
     }
-    CONFIG(debug, debug|release) {
-         message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
-    }
+    debug: message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
 }
 
 copy3rdexeconfig {
