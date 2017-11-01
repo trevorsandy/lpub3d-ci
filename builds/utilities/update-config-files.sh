@@ -90,9 +90,11 @@ if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
     # Stop at the end of this block during Travis-CI builds
     export LP3D_APP_VERSION=${LP3D_APP_VERSION}
+    export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
 
     Info "   VERSION_INFO...........${VERSION_INFO}"
     Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
+    Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 else
     # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
     FILE="$LP3D_UTIL_DIR/version.info"

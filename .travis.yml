@@ -84,7 +84,7 @@ install:
       wget http://www.ldraw.org/library/updates/complete.zip -O mainApp/extras/complete.zip;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
     fi
-  # Update docker-engine and docker-compose
+  # Update docker-engine, docker-compose and get version strings
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_BUILD_PKG" = "yes" ]; then
         curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
@@ -98,6 +98,12 @@ install:
         chmod +x docker-compose;
         sudo mv docker-compose /usr/local/bin;
         docker-compose version;
+        ComposePath=builds/linux/docker-compose;
+        export ComposeFiles=$ComposePath/docker-compose*;
+        sudo mkdir -p $PWD/builds/releases;
+        export ReleasesPath=$PWD/builds/releases;
+        _PRO_FILE_PWD_=$PWD/mainApp;
+        source builds/utilities/update-config-files.sh;
       fi;
     fi
 
@@ -105,24 +111,12 @@ script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        _PRO_FILE_PWD_=$PWD/mainApp;
-        source builds/utilities/update-config-files.sh;
-        if [ -n "${LP3D_APP_VERSION}" ]; then bldver="-${LP3D_APP_VERSION}"; else bldver=""; fi;
-        ComposePath=builds/linux/docker-compose;
-        ComposeFiles=$ComposePath/docker-compose*;
         for ComposeFile in $ComposeFiles; do
-          case $ComposeFile in *archlinux*) ext=".pkg.tar.xz";; *fedora*) ext=".rpm";; *ubuntu*) ext=".deb";; esac;
-          docker-compose -f $ComposeFile run --rm lpub3d-ci;
-          export LP3D_Download_Package=`ls $ComposePath/LPub3D$bldver*$ext`;
-          export LP3D_Update_Package=`ls $ComposePath/LPub3D_UpdateMaster$bldver*$ext`;
-          echo " Package Files " `ls $ComposePath`;
+          docker-compose -f $ComposeFile run --rm lpub3d-ci && echo " Package Files " `ls $ComposePath`;
         done;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
-        export LP3D_Download_Package=`ls ../dmgbuild/DMGS/LPub3D*.dmg`;
-        export LP3D_Update_Package=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster*.dmg`;
-        echo " Package  Files " `ls ../dmgbuild/DMGS/LPub3D*`;
+        chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh && echo " Package  Files " `ls ../dmgbuild/DMGS`;
       fi;
     else
      qmake -v;
@@ -130,13 +124,32 @@ script:
      make;
     fi
 
+# Gather up and move build artefacts to releases directory
+before_deploy:
+  - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
+        Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
+        Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
+        Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
+        Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
+        Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
+        sudo cp -f $Df_Pkg $Uf_Pkg $Df_Rpm $Uf_Rpm $Df_Deb $Uf_Deb $ReleasesPath;
+      fi;
+      if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        Df_Dmg=`ls ../dmgbuild/DMGS/LPub3D*.dmg`;
+        Uf_Dmg=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster*.dmg`;
+        sudo cp -f $Df_Dmg $Uf_dmg $$ReleasesPath/;
+      fi;
+      echo " Release Files " `ls $ReleasesPath`;
+    fi
+
 deploy:
   provider: releases
   api_key:
     secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
-  file:
-    - $LP3D_Download_Package
-    - $LP3D_Update_Package
+  file_glob: true
+  file: $ReleasesPath/*
   overwrite: true
   skip_cleanup: true
   on:

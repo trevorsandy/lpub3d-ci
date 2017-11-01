@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 25, 2017
+rem  Last Update: November 1, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -12,12 +12,13 @@ SETLOCAL
 ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
-rem Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-
 FOR %%* IN (.) DO SET CWD=%%~nx*
+IF "%CWD%" EQU "windows" (
+  CD /D ../../
+)
+FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
 IF "%CWD%" NEQ "%LPUB3D%" (
   IF "%CWD%" NEQ "windows" (
-    SET LPUB3D=lpub3d
     ECHO.
     ECHO You must run %~nx0 from either %LPUB3D% or %LPUB3D%\builds\windows source folder.
     ECHO Example console command: CD %LPUB3D% &%~nx0
@@ -26,14 +27,8 @@ IF "%CWD%" NEQ "%LPUB3D%" (
   )
 )
 
-FOR %%* IN (.) DO SET CWD=%%~nx*
-IF "%CWD%" EQU "windows" (
-  CD /D ../../
-)
-FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
-
 SET _PRO_FILE_PWD_=%CD%\mainApp
-CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_% %LPUB3D%
+CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
 
 CD /D "builds\windows"
 
