@@ -2,15 +2,14 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 25, 2017
+rem  Last Update: November 01, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 
 SET LP3D_ME=%~nx0
 
 rem Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-SET LPUB3D=lpub3d-ci
-SET OLD_VAL=lpub3d-ci
+SET OLD_LPUB3D=lpub3d-ci
 
 CALL :FIXUP_PWD %1
 
@@ -32,7 +31,6 @@ SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
   ECHO  1. capture version info using git queries...
-  IF  [%2] NEQ [] SET LPUB3D=%2
   CALL :GET_GIT_VERSION
 ) ELSE (
   ECHO  1. capture version info using version arguments...
@@ -46,8 +44,8 @@ IF [%3] EQU [] (
 
 SET LP3D_VERSION=unknown
 SET LP3D_WEEK_DAY=unknown
-SET LP3D_MONTH_OF_YEAR=
-SET LP3D_AVAILABLE_VERSIONS=
+SET LP3D_MONTH_OF_YEAR=unknown
+SET LP3D_AVAILABLE_VERSIONS=unknown
 
 CALL :GET_DATE_AND_LP3D_TIME
 
@@ -64,11 +62,20 @@ SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% (%LP3
 
 CALL :GET_AVAILABLE_VERSIONS %*
 
+rem AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
 IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
 REM ECHO "   writing version info to builds/utilities/version.info"
 SET VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH% %LP3D_BUILD_DATE_TIME% %LP3D_AVAILABLE_VERSIONS%
 ECHO %VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info..............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info..............[Error, file not found])
+SET APPVEYOR=True
+IF "%APPVEYOR%" == "True" (
+  ECHO   VERSION_INFO...................[%VERSION_INFO%]
+  ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
+  ECHO   LPUB3D_DIR.....................[%LPUB3D%]
+  ENDLOCAL
+  GOTO :END
+)
 
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
@@ -94,21 +101,13 @@ ECHO   SOURCE_DIR.....................[%LPUB3D%-%LP3D_APP_VERSION%]
 
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
-IF "%APPVEYOR%" == "True" (
-  IF EXIST "%LP3D_AV_VER_INFO_FILE%" DEL /Q "%LP3D_AV_VER_INFO_FILE%"
-  IF NOT EXIST "%LP3D_AV_VER_INFO_DIR%\" MKDIR "%LP3D_AV_VER_INFO_DIR%\"
-  COPY /V /Y "%LP3D_VER_INFO_FILE%" "%LP3D_AV_VER_INFO_FILE%" | findstr /i /v /r /c:"copied\>"
-  IF EXIST "%LP3D_AV_VER_INFO_FILE%" (ECHO   FILE version.info..AppVoyer....[copied to .\builds\windows\release\version.info]) ELSE (ECHO   FILE version.info..AppVoyer....[Error, file not found])
-  GOTO :END
-)
-
 ECHO.
 ECHO 2. set root directory name for linux config files...
-SET LP3D_DEB_DSC_FILE=%LP3D_OBS_DIR%\debian\%OLD_VAL%.dsc
-SET LP3D_DEB_LINT_FILE=%LP3D_OBS_DIR%\debian\%OLD_VAL%.lintian-overrides
-SET LP3D_OBS_SPEC_FILE=%LP3D_OBS_DIR%\%OLD_VAL%.spec
-SET LP3D_RPM_LINT_FILE=%LP3D_OBS_DIR%\%OLD_VAL%-rpmlintrc
-IF "%LPUB3D%" EQU "%OLD_VAL%" (
+SET LP3D_DEB_DSC_FILE=%LP3D_OBS_DIR%\debian\%OLD_LPUB3D%.dsc
+SET LP3D_DEB_LINT_FILE=%LP3D_OBS_DIR%\debian\%OLD_LPUB3D%.lintian-overrides
+SET LP3D_OBS_SPEC_FILE=%LP3D_OBS_DIR%\%OLD_LPUB3D%.spec
+SET LP3D_RPM_LINT_FILE=%LP3D_OBS_DIR%\%OLD_LPUB3D%-rpmlintrc
+IF "%LPUB3D%" EQU "%OLD_LPUB3D%" (
   ECHO     nothing to do, skipping
 ) ELSE (
    IF EXIST %LP3D_DEB_DSC_FILE% (
@@ -142,7 +141,7 @@ IF "%LPUB3D%" EQU "%OLD_VAL%" (
       %LP3D_BUILDS_DIR%\..\appveyor.yml
       %LP3D_BUILDS_DIR%\..\travis.yml
     ) DO (
-      CALL :FIND_REPLACE %OLD_VAL% %LPUB3D% %%i
+      CALL :FIND_REPLACE %OLD_LPUB3D% %LPUB3D% %%i
   )
   ECHO.
 )
@@ -240,7 +239,7 @@ IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy
 ))>"%LP3D_FILE%.new")
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
-ENDLOCAL & SET LP3D_APP_VERSION=%LP3D_APP_VERSION%
+ENDLOCAL
 GOTO :END
 
 :GET_DATE_AND_LP3D_TIME
@@ -331,13 +330,22 @@ EXIT /b
 :GET_AVAILABLE_VERSIONS
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PAST_RELEASES%
+SET LP3D_PREVIOUS_TAG=unknown
 IF [%8] == [] (
-  FOR /F "usebackq delims=." %%G IN (`git describe --tags --abbrev^=0 %lp3d_git_ver_tag_short%^^^^ 2^> nul`) DO SET lp3d_previous_version=%%G
+  FOR /F "usebackq" %%G IN (`git describe --abbrev^=0 %lp3d_git_ver_tag_short%^^^^ 2^> nul`) DO (
+    IF [%%G] NEQ [] SET LP3D_PREVIOUS_TAG=%%G
+  )
 ) ELSE (
-  FOR /F "tokens=8*" %%G IN ("%*") DO SET lp3d_previous_version=%%G
+  FOR /F "tokens=8*" %%G IN ("%*") DO SET LP3D_PREVIOUS_VERSION=%%G
 )
-IF [%lp3d_previous_version%] NEQ [] (
-  SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%lp3d_previous_version%,%LP3D_PAST_RELEASES%
+IF "%LP3D_PREVIOUS_TAG%" NEQ "unknown" (
+  FOR /F "usebackq" %%G IN (`git describe --abbrev^=0 %LP3D_PREVIOUS_TAG%^^^^ 2^> nul`) DO (
+    IF [%%G] NEQ [] SET LP3D_PREVIOUS_VERSIONS=%LP3D_PREVIOUS_TAG%,%%G
+  )
+)
+IF "%LP3D_PREVIOUS_VERSIONS%" NEQ "" (
+  rem ECHO   PREVIOUS VERSIONS   = %LP3D_PREVIOUS_VERSIONS%
+  SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PREVIOUS_VERSIONS:v=%,%LP3D_PAST_RELEASES%
 )
 CD /D "%LP3D_BUILDS_DIR%"
 EXIT /b
@@ -347,6 +355,8 @@ SET TEMP=%CD%
 IF [%1] NEQ [] CD /D "%1\..\builds"
 SET LP3D_MAIN_APP=%1
 SET LP3D_BUILDS_DIR=%CD%
+CD "%1\.."
+FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
 CD %TEMP%
 EXIT /b
 

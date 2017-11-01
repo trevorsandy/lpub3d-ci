@@ -45,7 +45,6 @@ win32 {
     # install paths
     isEmpty(INSTALL_PREFIX):INSTALL_PREFIX   = $$OUT_PWD
     isEmpty(LPUB3D_INS_CONTENT_PATH):LPUB3D_INS_CONTENT_PATH = $$INSTALL_PREFIX/$$DIST/3rdParty
-    message("~~~ 3RD_INSTALL TO $$LPUB3D_INS_CONTENT_PATH ~~~")
 
     # install data directories - 3rd party components
     isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$LPUB3D_INS_CONTENT_PATH/$$VER_LDGLITE/bin

@@ -13,29 +13,31 @@ ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
 rem Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-SET LPUB3D=lpub3d-ci
 
 FOR %%* IN (.) DO SET CWD=%%~nx*
 IF "%CWD%" NEQ "%LPUB3D%" (
   IF "%CWD%" NEQ "windows" (
+    SET LPUB3D=lpub3d
     ECHO.
-    ECHO You must run %~nx0 from folder %LPUB3D% or %LPUB3D%\builds\windows.
-    ECHO Console command: CD %LPUB3D% &%~nx0
-    ECHO %~nx0 terminated!
+    ECHO You must run %~nx0 from either %LPUB3D% or %LPUB3D%\builds\windows source folder.
+    ECHO Example console command: CD %LPUB3D% &%~nx0
+    ECHO %~nx0 will terminate!
     GOTO :END
   )
 )
 
+FOR %%* IN (.) DO SET CWD=%%~nx*
 IF "%CWD%" EQU "windows" (
   CD /D ../../
 )
+FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
 
-SET _PRO_FILE_PWD_=%cd%\mainApp
+SET _PRO_FILE_PWD_=%CD%\mainApp
 CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_% %LPUB3D%
 
 CD /D "builds\windows"
 
-SET WIN_PKG_DIR=%cd%
+SET WIN_PKG_DIR=%CD%
 
 SET RUN_NSIS=1
 SET SIGN_APP=0
@@ -307,7 +309,7 @@ IF NOT EXIST "release\%PRODUCT_DIR%" (
   ECHO.
   ECHO * Did not find product directory. Expected %PRODUCT_DIR% at "%cd%\release\"
   ECHO Build script will terminate.
-  EXIT /b 5
+  GOTO :END
 )
 
 REM pwd = windows/release/PRODUCT_DIR [holds _PKG_DIST_DIR, PKG_UPDATE_DIR, PKG_DOWNLOAD_DIR]
@@ -416,6 +418,8 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
 ) ELSE (
   REM UNIVERSAL BUILD
+  ECHO.
+  ECHO - Executing universal package build...
   FOR %%A IN ( x86_64, x86 ) DO (
     SET LP3D_ARCH=%%A
     SET PKG_DISTRO_DIR=%PRODUCT%_%%A

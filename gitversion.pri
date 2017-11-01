@@ -19,7 +19,7 @@ GIT_DIR = undefined
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
-    message(~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~)
+    message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
 #-----deprecated---------->
 ## Location of Git directory when building pkg package
@@ -39,20 +39,25 @@ exists($$PWD/.git) {
 #}
 #<-----deprecated----------
 
-# AppVeyor 64bit build (git.exe/cygwin conflict) or no .git directory found, use version input file
+# AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so use version.info file
 appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
     appveyor_qt_mingw64 {
-      BUILD_TYPE = release
-      CONFIG(debug, debug|release): BUILD_TYPE = debug
-      GIT_VER_FILE = $$PWD/builds/windows/$$BUILD_TYPE/version.info
-      message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+        BUILD_TYPE = release
+        CONFIG(debug, debug|release): BUILD_TYPE = debug
+        message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+        # Trying to get version from git tag / revision
+        RET = $$system($$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_ $$basename(PARENT_FOLDER))
     } else {
-      GIT_VER_FILE = $$PWD/builds/utilities/version.info
-      message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+        message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
     }
-    GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
-
+    GIT_VER_FILE = $$PWD/builds/utilities/version.info
+    exists($$GIT_VER_FILE) {
+        GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
+    } else {
+        message("~~~ ERROR! GIT_DIR $$GIT_VER_FILE NOT FOUND ~~~")
+        GIT_VERSION = $${VERSION}-00-00000000-000
+    }
     # Token position       0 1 2  3  4   5
     # Version string       2 0 20 17 663 410fdd7
     GIT_VERSION ~= s/\\\"/""
@@ -80,7 +85,6 @@ equals(GIT_DIR, undefined) {
     #<-----deprecated----------
 
 } else {
-
     # Need to call git with manually specified paths to repository
     BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
@@ -92,10 +96,12 @@ equals(GIT_DIR, undefined) {
         # If there is nothing we simply use version defined manually
         isEmpty(GIT_VERSION) {
             GIT_VERSION = $${VERSION}-00-00000000-000
+            message("~~~ ERROR! GIT_VERSION NOT DEFINED, USING $$GIT_VERSION ~~~")
         } else { # otherwise construct proper git describe string
             GIT_COMMIT_COUNT = $$system($$BASE_GIT_COMMAND rev-list HEAD --count 2> $$NULL_DEVICE)
             isEmpty(GIT_COMMIT_COUNT) {
                 GIT_COMMIT_COUNT = 0
+                message("~~~ ERROR! GIT_COMMIT_COUNT NOT DEFINED, USING $$GIT_COMMIT_COUNT ~~~")
             }
             GIT_VERSION = g$$GIT_VERSION-$$GIT_COMMIT_COUNT
         }

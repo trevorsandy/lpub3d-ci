@@ -18,10 +18,10 @@ matrix:
     compiler: gcc
     env:
      - QT_BASE=59
-  - os: osx
-    compiler: clang
-    env:
-     - QT_BASE=59
+  # - os: osx
+    # compiler: clang
+    # env:
+    #  - QT_BASE=59
 
 before_install:
   # Skip build if the commit message contains [skip travis] or [travis skip]
@@ -105,12 +105,14 @@ script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        _PRO_FILE_PWD_=$PWD/mainApp;
+        source builds/utilities/update-config-files.sh;
+        if [ -n "${LP3D_APP_VERSION}" ]; then bldver="-${LP3D_APP_VERSION}"; else bldver=""; fi;
         ComposePath=builds/linux/docker-compose;
         ComposeFiles=$ComposePath/docker-compose*;
         for ComposeFile in $ComposeFiles; do
           case $ComposeFile in *archlinux*) ext=".pkg.tar.xz";; *fedora*) ext=".rpm";; *ubuntu*) ext=".deb";; esac;
           docker-compose -f $ComposeFile run --rm lpub3d-ci;
-          if [ -n "${LP3D_APP_VERSION}" ]; then bldver="-${LP3D_APP_VERSION}"; else bldver=""; fi;
           export LP3D_Download_Package=`ls $ComposePath/LPub3D$bldver*$ext`;
           export LP3D_Update_Package=`ls $ComposePath/LPub3D_UpdateMaster$bldver*$ext`;
           echo " Package Files " `ls $ComposePath`;

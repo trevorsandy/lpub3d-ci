@@ -1,4 +1,7 @@
 # install 3rd party executables, documents and resources
+if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
+    message("~~~ 3RD_INSTALL TO $$LPUB3D_INS_CONTENT_PATH ~~~")
+}
 
 copy3rdexe {
     # renderer executables

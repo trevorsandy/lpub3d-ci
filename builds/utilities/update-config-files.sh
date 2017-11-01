@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 19 October 2017
+# Last Update November 01 2017
 # This script is automatically executed by qmake from mainApp.pro
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -12,6 +12,12 @@ CALL_DIR=`pwd`
 OS=`uname`
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
+cd $LP3D_PWD/.. && basedir=$PWD && cd $CALL_DIR
+
+# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+LPUB3D="$(basename "$(echo "$basedir")")"
+OLD_LPUB3D="${OLD_LPUB3D:-lpub3d-ci}"
+
 Info () {
     if [ "${SOURCED}" = "true" ]
     then
@@ -31,10 +37,6 @@ LINE_PKGBUILD=3             # pkgver=2.0.21.129
 LINE_DSC=5                  # Version: 2.0.21.129
 LINE_README=1               # LPub3D 2.0.21.59.126...
 LINE_SPEC="92 283"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
-
-# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-LPUB3D="${LPUB3D:-lpub3d-ci}"
-OLD_VAL="${OLD_VAL:-lpub3d-ci}"
 
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
@@ -78,164 +80,172 @@ fi
 #         1 2 3  4  5   6
 # format "2 0 20 17 663 410fdd7"
 read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${VERSION_INFO//'"'}
-FILE="$LP3D_UTIL_DIR/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    rm ${FILE}
-fi
-cat <<EOF >${FILE}
-${VERSION_INFO} ${DATE_TIME}
-EOF
-if [ -f "${FILE}" ];
-then
-    Info "   FILE version.info written to builds/utilities/version.info";
-else
-    Info "   FILE version.info error, file not found";
-fi
 APP_VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
 LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
 LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${DATE_TIME}")"
 
-export LP3D_APP_VERSION=${LP3D_APP_VERSION}
-
-Info "   LPUB3D_DIR.............${LPUB3D}"
-Info "   LP3D_PWD...............${LP3D_PWD}"
-Info "   CALL_DIR...............${CALL_DIR}"
-
-Info "   VERSION_INFO...........${VERSION_INFO}"
-Info "   VER_MAJOR..............${VER_MAJOR}"
-Info "   VER_MINOR..............${VER_MINOR}"
-Info "   VER_PATCH..............${VER_PATCH}"
-Info "   VER_REVISION...........${VER_REVISION}"
-Info "   VER_BUILD..............${VER_BUILD}"
-Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
-Info "   APP_VER_SUFFIX.........${APP_VER_SUFFIX}"
-Info "   DATE_TIME..............${DATE_TIME}"
-Info "   CHANGE_DATE_LONG.......${CHANGE_DATE_LONG}"
-
-Info "   LP3D_VERSION...........${LP3D_VERSION}"
-Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
-Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
-Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
-
-Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
-
-Info "2. set top-level build directory name for linux config files..."
-if [ "${OLD_VAL}" = "${LPUB3D}" ];
+if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
-    Info "   nothing to do, skipping set top-level build directory name"
+    # Stop at the end of this block during Travis-CI builds
+    export LP3D_APP_VERSION=${LP3D_APP_VERSION}
+
+    Info "   VERSION_INFO...........${VERSION_INFO}"
+    Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
 else
-    LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_VAL}.dsc
-    LP3D_DEB_LINT_FILE=$LP3D_OBS_DIR/debian/${OLD_VAL}.lintian-overrides
-    LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_VAL}.spec
-    LP3D_RPM_LINT_FILE=$LP3D_OBS_DIR/${OLD_VAL}-rpmlintrc
-    if [ -d "${LP3D_DEB_DSC_FILE}" ]
+    # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
+    FILE="$LP3D_UTIL_DIR/version.info"
+    if [ -f ${FILE} -a -r ${FILE} ]
     then
-        mv -f "${LP3D_DEB_DSC_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
+        rm ${FILE}
     fi
-    if [ -d "${LP3D_DEB_LINT_FILE}" ]
+    cat <<EOF >${FILE}
+${VERSION_INFO} ${DATE_TIME}
+EOF
+    if [ -f "${FILE}" ];
     then
-        mv -f "${LP3D_DEB_LINT_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides"
+        Info "   FILE version.info......written to builds/utilities/version.info";
+    else
+        Info "   FILE version.info......error, file not found";
     fi
-    if [ -d "${LP3D_OBS_SPEC_FILE}" ]
+
+    Info "   LPUB3D_DIR.............${LPUB3D}"
+    Info "   LP3D_PWD...............${LP3D_PWD}"
+    Info "   CALL_DIR...............${CALL_DIR}"
+
+    Info "   VERSION_INFO...........${VERSION_INFO}"
+    Info "   VER_MAJOR..............${VER_MAJOR}"
+    Info "   VER_MINOR..............${VER_MINOR}"
+    Info "   VER_PATCH..............${VER_PATCH}"
+    Info "   VER_REVISION...........${VER_REVISION}"
+    Info "   VER_BUILD..............${VER_BUILD}"
+    Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
+    Info "   APP_VER_SUFFIX.........${APP_VER_SUFFIX}"
+    Info "   DATE_TIME..............${DATE_TIME}"
+    Info "   CHANGE_DATE_LONG.......${CHANGE_DATE_LONG}"
+
+    Info "   LP3D_VERSION...........${LP3D_VERSION}"
+    Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
+    Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
+    Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
+
+    Info "   SOURCE_DIR.............${LPUB3D}-${LP3D_APP_VERSION}"
+
+    Info "2. set top-level build directory name for linux config files..."
+    if [ "${OLD_LPUB3D}" = "${LPUB3D}" ];
     then
-        mv -f "${LP3D_OBS_SPEC_FILE}" "$LP3D_OBS_DIR/${LPUB3D}.spec"
+        Info "   nothing to do, skipping set top-level build directory name"
+    else
+        LP3D_DEB_DSC_FILE=$LP3D_OBS_DIR/debian/${OLD_LPUB3D}.dsc
+        LP3D_DEB_LINT_FILE=$LP3D_OBS_DIR/debian/${OLD_LPUB3D}.lintian-overrides
+        LP3D_OBS_SPEC_FILE=$LP3D_OBS_DIR/${OLD_LPUB3D}.spec
+        LP3D_RPM_LINT_FILE=$LP3D_OBS_DIR/${OLD_LPUB3D}-rpmlintrc
+        if [ -d "${LP3D_DEB_DSC_FILE}" ]
+        then
+            mv -f "${LP3D_DEB_DSC_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
+        fi
+        if [ -d "${LP3D_DEB_LINT_FILE}" ]
+        then
+            mv -f "${LP3D_DEB_LINT_FILE}" "$LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides"
+        fi
+        if [ -d "${LP3D_OBS_SPEC_FILE}" ]
+        then
+            mv -f "${LP3D_OBS_SPEC_FILE}" "$LP3D_OBS_DIR/${LPUB3D}.spec"
+        fi
+        if [ -d "${LP3D_RPM_LINT_FILE}" ]
+        then
+            mv -f "${LP3D_RPM_LINT_FILE}" "$LP3D_OBS_DIR/${LPUB3D}-rpmlintrc"
+        fi
+        for FILE in \
+            $LP3D_OBS_DIR/debian/source/include-binaries \
+            $LP3D_OBS_DIR/debian/changelog \
+            $LP3D_OBS_DIR/debian/control \
+            $LP3D_OBS_DIR/debian/copyright \
+            $LP3D_OBS_DIR/debian/${LPUB3D}.dsc \
+            $LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides \
+            $LP3D_OBS_DIR/_service \
+            $LP3D_OBS_DIR/PKGBUILD \
+            $LP3D_OBS_DIR/${LPUB3D}-rpmlintrc \
+            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-archlinux_2017.10.01.yml \
+            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-fedora_25.yml \
+            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml \
+            $LP3D_PWD/../builds/utilities/docker/Dockerfile-archlinux_2017.10.01 \
+            $LP3D_PWD/../builds/utilities/docker/Dockerfile-fedora_25 \
+            $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial \
+            $LP3D_PWD/../appveyor.yml \
+            $LP3D_PWD/../travis.yml
+        do
+            if [ "$OS" = Darwin ]
+            then
+                sed -i "" -e "s/\b${OLD_LPUB3D}\b/${LPUB3D}/g" "${FILE}"
+            else
+                sed -i -e "s/\b${OLD_LPUB3D}\b/${LPUB3D}/g" "${FILE}"
+            fi
+        done
     fi
-    if [ -d "${LP3D_RPM_LINT_FILE}" ]
+
+    Info "3. update desktop configuration         - add version suffix"
+    FILE="$LP3D_PWD/lpub3d.desktop"
+    LineToReplace=${LINE_DESKTOP}
+    if [ -f ${FILE} -a -r ${FILE} ]
     then
-        mv -f "${LP3D_RPM_LINT_FILE}" "$LP3D_OBS_DIR/${LPUB3D}-rpmlintrc"
-    fi
-    for FILE in \
-        $LP3D_OBS_DIR/debian/source/include-binaries \
-        $LP3D_OBS_DIR/debian/changelog \
-        $LP3D_OBS_DIR/debian/control \
-        $LP3D_OBS_DIR/debian/copyright \
-        $LP3D_OBS_DIR/debian/${LPUB3D}.dsc \
-        $LP3D_OBS_DIR/debian/${LPUB3D}.lintian-overrides \
-        $LP3D_OBS_DIR/_service \
-        $LP3D_OBS_DIR/PKGBUILD \
-        $LP3D_OBS_DIR/${LPUB3D}-rpmlintrc \
-        $LP3D_PWD/../builds/linux/docker-compose/docker-compose-archlinux_2017.10.01.yml \
-        $LP3D_PWD/../builds/linux/docker-compose/docker-compose-fedora_25.yml \
-        $LP3D_PWD/../builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml \
-        $LP3D_PWD/../builds/utilities/docker/Dockerfile-archlinux_2017.10.01 \
-        $LP3D_PWD/../builds/utilities/docker/Dockerfile-fedora_25 \
-        $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial \
-        $LP3D_PWD/../appveyor.yml \
-        $LP3D_PWD/../travis.yml
-    do
         if [ "$OS" = Darwin ]
         then
-            sed -i "" -e "s/\b${OLD_VAL}\b/${LPUB3D}/g" "${FILE}"
+            sed -i "" "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
         else
-            sed -i -e "s/\b${OLD_VAL}\b/${LPUB3D}/g" "${FILE}"
+            sed -i "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
         fi
-    done
-fi
-
-Info "3. update desktop configuration         - add version suffix"
-FILE="$LP3D_PWD/lpub3d.desktop"
-LineToReplace=${LINE_DESKTOP}
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    if [ "$OS" = Darwin ]
-    then
-        sed -i "" "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
     else
-        sed -i "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
+        Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
     fi
-else
-    Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
-fi
 
-Info "4. update man page                      - add version suffix"
-FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
-LineToReplace=${LINE_MANPAGE}
-FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
-if [ -f ${FILE_TEMPLATE} ];
-then
-    if [ -f ${FILE} ];
+    Info "4. update man page                      - add version suffix"
+    FILE="$LP3D_PWD/docs/lpub3d${APP_VER_SUFFIX}.1"
+    LineToReplace=${LINE_MANPAGE}
+    FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
+    if [ -f ${FILE_TEMPLATE} ];
     then
-        rm -f "${FILE}"
+        if [ -f ${FILE} ];
+        then
+            rm -f "${FILE}"
+        fi
+        cp "${FILE_TEMPLATE}" "${FILE}"
     fi
-    cp "${FILE_TEMPLATE}" "${FILE}"
-fi
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    if [ "$OS" = Darwin ]
+    if [ -f ${FILE} -a -r ${FILE} ]
     then
-        sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+        if [ "$OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+        fi
     else
-        sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+        Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${CALL_DIR}"
     fi
-else
-    Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${CALL_DIR}"
-fi
 
-Info "5. update PKGBUILD                      - add app version"
-FILE="$LP3D_OBS_DIR/PKGBUILD"
-LineToReplace=${LINE_PKGBUILD}
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    if [ "$OS" = Darwin ]
+    Info "5. update PKGBUILD                      - add app version"
+    FILE="$LP3D_OBS_DIR/PKGBUILD"
+    LineToReplace=${LINE_PKGBUILD}
+    if [ -f ${FILE} -a -r ${FILE} ]
     then
-        sed -i "" "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        if [ "$OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        fi
     else
-        sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
     fi
-else
-    Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
-fi
 
-Info "6. create changelog                     - add app version and change date"
-FILE="$LP3D_OBS_DIR/debian/changelog"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-	rm ${FILE}
-fi
-cat <<EOF >${FILE}
+    Info "6. create changelog                     - add app version and change date"
+    FILE="$LP3D_OBS_DIR/debian/changelog"
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+    	rm ${FILE}
+    fi
+    cat <<EOF >${FILE}
 ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
 
   * LPub3D version ${LP3D_APP_VERSION_LONG} for Linux
@@ -243,93 +253,94 @@ ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${CHANGE_DATE_LONG}
 EOF
 
-Info "7. update ${LPUB3D}.dsc                 - add app version"
-FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
-LineToReplace=${LINE_DSC}
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    if [ "$OS" = Darwin ]
+    Info "7. update ${LPUB3D}.dsc                 - add app version"
+    FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
+    LineToReplace=${LINE_DSC}
+    if [ -f ${FILE} -a -r ${FILE} ]
     then
-        sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-    else
-        sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-    fi
-else
-    Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
-fi
-
-Info "8. update README.txt                    - add app version"
-FILE="$LP3D_PWD/docs/README.txt"
-LineToReplace=${LINE_README}
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    if [ "$OS" = Darwin ]
-    then
-        sed -i "" "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
-    else
-        sed -i "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
-    fi
-else
-    Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
-fi
-
-Info "9. update ${LPUB3D}.spec                - add app version and change date"
-FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-LinesToReplace=${LINE_SPEC}
-LastLine=`wc -l < ${FILE}`
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    read FirstLine SecondLine <<< ${LinesToReplace}
-    for LineToReplace in ${LinesToReplace}; do
-        case $LineToReplace in
-        $FirstLine)
-            if [ "$OS" = Darwin ]; then
-                sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-            else
-                sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-            fi
-            ;;
-        $SecondLine)
-            if [ "$OS" = Darwin ]; then
-                sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-            else
-                sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-            fi
-            ;;
-        esac
-    done
-    if [ "$doDebChange" != "" ];
-    then
-        ((LastLine++))
         if [ "$OS" = Darwin ]
         then
-            sed -i "" "${LastLine}s/.*/- /" "${FILE}"
+            sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
         else
-            sed -i "${LastLine}s/.*/- /" "${FILE}"
+            sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
+    fi
+
+    Info "8. update README.txt                    - add app version"
+    FILE="$LP3D_PWD/docs/README.txt"
+    LineToReplace=${LINE_README}
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        if [ "$OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
+    fi
+
+    Info "9. update ${LPUB3D}.spec                - add app version and change date"
+    FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
+    LinesToReplace=${LINE_SPEC}
+    LastLine=`wc -l < ${FILE}`
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        read FirstLine SecondLine <<< ${LinesToReplace}
+        for LineToReplace in ${LinesToReplace}; do
+            case $LineToReplace in
+            $FirstLine)
+                if [ "$OS" = Darwin ]; then
+                    sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+                else
+                    sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+                fi
+                ;;
+            $SecondLine)
+                if [ "$OS" = Darwin ]; then
+                    sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+                else
+                    sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+                fi
+                ;;
+            esac
+        done
+        if [ "$doDebChange" != "" ];
+        then
+            ((LastLine++))
+            if [ "$OS" = Darwin ]
+            then
+                sed -i "" "${LastLine}s/.*/- /" "${FILE}"
+            else
+                sed -i "${LastLine}s/.*/- /" "${FILE}"
+            fi
+        fi
+        #cat "${FILE}"
+    else
+        Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
+    fi
+
+    if [ "$OS" = Darwin ]
+    then
+        Info "10. update the Info.plist with version major, version minor, build and git sha hash"
+        INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
+        if [ -f "${INFO_PLIST_FILE}" ]
+        then
+            /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${INFO_PLIST_FILE}"
+            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${INFO_PLIST_FILE}"
+            /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${INFO_PLIST_FILE}"
+            /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${VER_SHA_HASH}" "${INFO_PLIST_FILE}"
+        else
+            Info "   Error: update failed, ${INFO_PLIST_FILE} not found."
         fi
     fi
-    #cat "${FILE}"
-else
-    Info "   Error: Cannot read ${FILE} from ${CALL_DIR}"
-fi
 
-if [ "$OS" = Darwin ]
-then
-    Info "10. update the Info.plist with version major, version minor, build and git sha hash"
-    INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
-    if [ -f "${INFO_PLIST_FILE}" ]
+    if [ "${SOURCED}" = "false" ]
     then
-        /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${VER_SHA_HASH}" "${INFO_PLIST_FILE}"
-    else
-        Info "   Error: update failed, ${INFO_PLIST_FILE} not found."
+        Info "   Script $ME execution finshed."
     fi
+    echo
 fi
-
-if [ "${SOURCED}" = "false" ]
-then
-    Info "   Script $ME execution finshed."
-fi
-echo
