@@ -141,7 +141,7 @@ win32: stagewindistcontent {
             raytracer_stg
 
         }
-        debug: message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE STAGED ~~~")
+        CONFIG(debug, debug|release): message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE STAGED ~~~")
     }
 
     stage3rdexeconfig {

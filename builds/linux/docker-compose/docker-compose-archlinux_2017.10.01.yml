@@ -2,8 +2,9 @@
 version: '3'
 services:
   lpub3d-ci:
-    context: ./dockerfiles
-    dockerfile: Dockerfile-archlinux_2017.10.01
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-archlinux_2017.10.01
     #image: "trevorsandy/lpub3d-ci:archlinux_2017.10.01"
     volumes:
      - .:/buildpkg

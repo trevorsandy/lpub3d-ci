@@ -25,7 +25,7 @@ copy3rdexe {
             raytracer_ins
         }
     }
-    debug: message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
+    CONFIG(debug, debug|release): message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
 }
 
 copy3rdexeconfig {

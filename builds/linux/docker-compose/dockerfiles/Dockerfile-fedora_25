@@ -6,4 +6,7 @@ VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateRpm.sh \
     && chmod +x CreateRpm.sh \
     && ./CreateRpm.sh \
-    && if test -d /buildpkg; then cp -f /rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; fi
+    && if test -d /buildpkg; then \
+      cp -f /rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; \
+      cp -f /*.log /buildpkg/; \
+    fi

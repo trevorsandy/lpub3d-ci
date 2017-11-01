@@ -30,14 +30,12 @@ SET LP3D_AV_VER_INFO_DIR=%LP3D_BUILDS_DIR%\windows\release
 SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
 
 ECHO  Start %LP3D_ME% execution at %CD%...
-ECHO  1. capture version info
-
 IF [%3] EQU [] (
-  ECHO     using git queries
+  ECHO  1. capture version info using git queries...
   IF  [%2] NEQ [] SET LPUB3D=%2
   CALL :GET_GIT_VERSION
 ) ELSE (
-  ECHO     using version arguments
+  ECHO  1. capture version info using version arguments...
   SET LP3D_VER_MAJOR=%2
   SET LP3D_VER_MINOR=%3
   SET LP3D_VER_PATCH=%4
