@@ -106,13 +106,13 @@ script:
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         ComposePath=builds/linux/docker-compose;
-        ComposeFiles=$ComposePath/docker-compose-*;
+        ComposeFiles=$ComposePath/docker-compose*;
         for ComposeFile in $ComposeFiles; do
-          docker-compose -f $ComposeFile run --rm lpub3d-ci;
-          if [ -n "${LP3D_APP_VERSION}" ]; then bldver="${LP3D_APP_VERSION}"; else bldver=""; fi;
           case $ComposeFile in *archlinux*) ext=".pkg.tar.xz";; *fedora*) ext=".rpm";; *ubuntu*) ext=".deb";; esac;
-          export LP3D_Download_Package=`ls $ComposePath/LPub3D-$bldver*$ext`;
-          export LP3D_Update_Package=`ls $ComposePath/LPub3D_UpdateMaster-$bldver*$ext`;
+          docker-compose -f $ComposeFile run --rm lpub3d-ci;
+          if [ -n "${LP3D_APP_VERSION}" ]; then bldver="-${LP3D_APP_VERSION}"; else bldver=""; fi;
+          export LP3D_Download_Package=`ls $ComposePath/LPub3D$bldver*$ext`;
+          export LP3D_Update_Package=`ls $ComposePath/LPub3D_UpdateMaster$bldver*$ext`;
           echo " Package Files " `ls $ComposePath`;
         done;
       fi;
