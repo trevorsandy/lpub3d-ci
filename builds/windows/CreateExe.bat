@@ -886,6 +886,7 @@ SET Lpub3dCONTENT=lpub3dldrawunf.zip
 
 SET OutputPATH=%WIN_PKG_DIR%\release\%PRODUCT_DIR%
 
+REM The 'appveyor' command does not work when script called from PS - but the cscript code works very well.
 REM IF "%APPVEYOR%" EQU "True" GOTO APPVEYORDOWNLOAD
 
 ECHO.

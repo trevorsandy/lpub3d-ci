@@ -68,12 +68,11 @@ REM ECHO "   writing version info to builds/utilities/version.info"
 SET VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH% %LP3D_BUILD_DATE_TIME% %LP3D_AVAILABLE_VERSIONS%
 ECHO %VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info..............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info..............[Error, file not found])
-SET APPVEYOR=True
+
 IF "%APPVEYOR%" == "True" (
   ECHO   VERSION_INFO...................[%VERSION_INFO%]
-  ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
   ECHO   LPUB3D_DIR.....................[%LPUB3D%]
-  ENDLOCAL
+  ECHO   %LP3D_ME% execution finished.
   GOTO :END
 )
 
@@ -239,7 +238,7 @@ IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy
 ))>"%LP3D_FILE%.new")
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
-ENDLOCAL
+%LP3D_ME% execution finished.
 GOTO :END
 
 :GET_DATE_AND_LP3D_TIME
@@ -382,5 +381,5 @@ EXIT /b
 EXIT /b
 
 :END
-ECHO  Script %LP3D_ME% execution finished.
+ENDLOCAL
 EXIT /b 0

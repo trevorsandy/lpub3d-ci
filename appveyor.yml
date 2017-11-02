@@ -4,33 +4,9 @@ clone_folder: c:\projects\lpub3d-ci
 # skip automatic cloning because we want restore cached items in the clone directory first
 clone_script: echo skip
 
-# we're caching 3rd party apps (image renderers), and qt5 for x86_64
-# we also cache previously compiled items to speed up build time when there is
-# minimal change to the source.
+# we're caching 3rd party apps (image renderers), and qt5 for MinGW x86_64
 cache:
  - 'C:\projects\$(lp3d_librepo)'
-  # - 'mainApp\Makefile'
-  # - 'mainApp\Makefile.Release'
-  # - 'mainApp\LPub3D10_resource.rc'
-  # - 'mainApp\object_script.LPub3D10.Release'
-  # - 'mainApp\Makefile.Debug'
-  # - 'mainApp\LPub3Dd10_resource.rc'
-  # - 'mainApp\object_script.LPub3Dd10.Debug'
-  # - 'mainApp\$(configuration)'
-  # - 'ldrawini\Makefile'
-  # - 'ldrawini\Makefile.Release'
-  # - 'ldrawini\LDrawIni161_resource.rc'
-  # - 'ldrawini\Makefile.Debug'
-  # - 'ldrawini\LDrawInid161_resource.rc'
-  # - 'ldrawini\$(configuration)'
-  # - 'quazip\Makefile'
-  # - 'quazip\Makefile.Release'
-  # - 'quazip\QuaZIP07_resource.rc'
-  # - 'quazip\object_script.QuaZIP07.Release'
-  # - 'quazip\Makefile.Debug'
-  # - 'quazip\QuaZIPd07_resource.rc'
-  # - 'quazip\object_script.QuaZIPd07.Debug'
-  # - 'quazip\$(configuration)'
 
 branches:
   only:
