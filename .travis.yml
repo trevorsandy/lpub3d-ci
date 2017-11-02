@@ -84,7 +84,7 @@ install:
       wget http://www.ldraw.org/library/updates/complete.zip -O mainApp/extras/complete.zip;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
     fi
-  # Update docker-engine, docker-compose and get version strings
+  # Update docker-engine, docker-compose and get application version strings
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_BUILD_PKG" = "yes" ]; then
         curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
@@ -110,9 +110,10 @@ script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-          docker-compose -f $ComposePath/docker-compose-linux-distros.yml up lpub3d-ci;
+          docker-compose -f $ComposePath/docker-compose-linux-distros.yml run --rm archlinux_2017.10.01;
+          docker-compose -f $ComposePath/docker-compose-linux-distros.yml run --rm fedora_25;
+          docker-compose -f $ComposePath/docker-compose-linux-distros.yml run --rm ubuntu_xenial;
           echo " Package Files " `ls $ComposePath`;
-          docker-compose down;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh && echo " Package  Files " `ls ../dmgbuild/DMGS`;

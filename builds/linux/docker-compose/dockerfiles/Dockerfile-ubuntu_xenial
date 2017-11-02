@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN apt-get update ; apt-get install -y apt-utils git wget lintian build-essential debhelper fakeroot ccache lsb-release
 RUN apt-get install -y qtbase5-dev qt5-qmake libqt5opengl5-dev libpng-dev libjpeg-dev zlib1g-dev
-RUN apt-get install -y libsndio-dev, libboost-dev, libopenexr-dev, libtiff5, libosmesa6, freeglut3
+RUN apt-get install -y libsndio-dev libboost-dev libopenexr-dev libtiff5 libosmesa6 freeglut3
 VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateDeb.sh \
     && chmod +x CreateDeb.sh \

@@ -1,17 +1,6 @@
 # docker-compose -f docker-compose-archlinux_2017.10.01.yml
 version: '3'
 services:
-  lpub3d-ci:
-    build:
-      context: ./dockerfiles
-      dockerfile: Dockerfile-ubuntu_xenial
-    #image: "trevorsandy/lpub3d-ci:archlinux_2017.10.01"
-    volumes:
-     - .:/buildpkg
-    depends_on:
-     - archlinux_2017.10.01
-     - fedora_25
-
   archlinux_2017.10.01:
     build:
       context: ./dockerfiles
@@ -25,5 +14,13 @@ services:
       context: ./dockerfiles
       dockerfile: Dockerfile-fedora_25
     #image: "trevorsandy/lpub3d-ci:fedora_25"
+    volumes:
+     - .:/buildpkg
+
+  ubuntu_xenial:
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-ubuntu_xenial
+    #image: "trevorsandy/lpub3d-ci:archlinux_2017.10.01"
     volumes:
      - .:/buildpkg
