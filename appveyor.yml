@@ -170,7 +170,7 @@ before_build:
         }
       }
 
-# regular make stuff here. CONFIG+=stagewindistcontent us used by qmake to
+# regular make stuff here. CONFIG+=stagewindistcontent is used by qmake to
 # generate the install Makefile logic which stages the distro files so
 # this flat and make install must be run to complete the build process
 build_script:
@@ -179,7 +179,10 @@ build_script:
  - cmd: mingw32-make
  - cmd: mingw32-make install
 
+# Push job1 output to archive for job2 consumption
+# Build NSIS-based install binaries
 # Vars used to construct artifacts
+# Push job2 artefacts to archive repository and setup for deployment
 after_build:
  - ps: If ($env:lp3d_archive_job1_artefact -eq $true) {7z a $env:lp3d_job1package $env:lp3d_packagepath | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_job1package}
  - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {cmd.exe /c builds\windows\CreateExe.bat}

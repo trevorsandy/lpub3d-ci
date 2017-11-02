@@ -169,9 +169,7 @@ EOF
             $LP3D_OBS_DIR/_service \
             $LP3D_OBS_DIR/PKGBUILD \
             $LP3D_OBS_DIR/${LPUB3D}-rpmlintrc \
-            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-archlinux_2017.10.01.yml \
-            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-fedora_25.yml \
-            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-ubuntu_xenial.yml \
+            $LP3D_PWD/../builds/linux/docker-compose/docker-compose-linux.yml \
             $LP3D_PWD/../builds/utilities/docker/Dockerfile-archlinux_2017.10.01 \
             $LP3D_PWD/../builds/utilities/docker/Dockerfile-fedora_25 \
             $LP3D_PWD/../builds/utilities/docker/Dockerfile-ubuntu_xenial \

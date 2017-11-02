@@ -18,10 +18,10 @@ matrix:
     compiler: gcc
     env:
      - QT_BASE=59
-  # - os: osx
-    # compiler: clang
-    # env:
-    #  - QT_BASE=59
+  - os: osx
+    compiler: clang
+    env:
+     - QT_BASE=59
 
 before_install:
   # Skip build if the commit message contains [skip travis] or [travis skip]
@@ -110,9 +110,9 @@ script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        docker-compose -f $ComposePath/docker-compose-linux-distros.yml run --rm archlinux_2017.10.01;
-        docker-compose -f $ComposePath/docker-compose-linux-distros.yml run --rm fedora_25;
-        docker-compose -f $ComposePath/docker-compose-linux-distros.yml run --rm ubuntu_xenial;
+        docker-compose -f $ComposePath/docker-compose-linux.yml run --rm archlinux_2017.10.01;
+        docker-compose -f $ComposePath/docker-compose-linux.yml run --rm fedora_25;
+        docker-compose -f $ComposePath/docker-compose-linux.yml run --rm ubuntu_xenial;
         echo " Package Files " `ls $ComposePath`;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
