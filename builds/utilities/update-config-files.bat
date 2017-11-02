@@ -236,7 +236,7 @@ IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy
 ))>"%LP3D_FILE%.new")
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
-%LP3D_ME% execution finished.
+ECHO %LP3D_ME% execution finished.
 GOTO :END
 
 :GET_DATE_AND_TIME

@@ -121,7 +121,8 @@ then
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
     echo "15. create update and download packages..."
-    IFS=- read RPM_NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
+    #IFS=- read RPM_NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
+    RPM_EXTENSION="${DISTRO_FILE##*-}"
 
     cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
     echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
