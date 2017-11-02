@@ -73,6 +73,7 @@ IF "%APPVEYOR%" == "True" (
   ECHO   LP3D_VERSION_INFO............[%LP3D_VERSION_INFO%]
   ECHO   LPUB3D_DIR...................[%LPUB3D%]
   ECHO   %LP3D_ME% execution finished.
+  ENDLOCAL
   GOTO :END
 )
 
@@ -237,7 +238,54 @@ IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO %LP3D_ME% execution finished.
+ENDLOCAL
 GOTO :END
+
+:FIXUP_PWD
+SET TEMP=%CD%
+IF [%1] NEQ [] CD /D "%1\..\builds"
+SET LP3D_MAIN_APP=%1
+SET LP3D_BUILDS_DIR=%CD%
+CD "%1\.."
+FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
+CD %TEMP%
+EXIT /b
+
+:GET_GIT_VERSION
+CD /D "%LP3D_BUILDS_DIR%\.."
+REM Extract Revision Number
+FOR /F "usebackq delims==" %%G IN (`git describe --tags --long`) DO SET lp3d_git_ver_tag_long=%%G
+SET "tag_input=%lp3d_git_ver_tag_long%"
+
+REM Remove revision prefix ending in "-"
+SET "tag_val_1=%tag_input:*-=%"
+IF "%tag_val_1%"=="%tag_input%" ECHO revision prefix ending in "-" not found
+FOR /F "delims=\" %%a IN ("%tag_val_1%") DO SET "tag_val_1=%%~a"
+
+REM remove revision suffix starting with "-"
+SET "lp3d_revision_=%tag_val_1%"
+FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET LP3D_VER_REVISION=%%~a
+
+REM Extract commit count (build)
+FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count`) DO SET LP3D_VER_BUILD=%%G
+
+REM Extract short sha hash
+FOR /F "usebackq delims==" %%G IN (`git rev-parse --short HEAD`) DO SET LP3D_VER_SHA_HASH=%%G
+
+REM Extract version
+FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0`) DO SET lp3d_git_ver_tag_short=%%G
+
+REM Remove version prefix 'v'
+SET "lp3d_version_=%lp3d_git_ver_tag_short:v=%"
+
+REM Replace version '.' with ' '
+SET "lp3d_version_=%lp3d_version_:.= %"
+
+REM Parse version
+FOR /F "tokens=1" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_MAJOR=%%i
+FOR /F "tokens=2" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_MINOR=%%i
+FOR /F "tokens=3" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_PATCH=%%i
+EXIT /b
 
 :GET_DATE_AND_TIME
 SET LP3D_DAY=unknown
@@ -288,42 +336,6 @@ IF %LP3D_MONTH% == 11 SET LP3D_MONTH_OF_YEAR=Nov
 IF %LP3D_MONTH% == 12 SET LP3D_MONTH_OF_YEAR=Dec
 EXIT /b
 
-:GET_GIT_VERSION
-CD /D "%LP3D_BUILDS_DIR%\.."
-REM Extract Revision Number
-FOR /F "usebackq delims==" %%G IN (`git describe --tags --long`) DO SET lp3d_git_ver_tag_long=%%G
-SET "tag_input=%lp3d_git_ver_tag_long%"
-
-REM Remove revision prefix ending in "-"
-SET "tag_val_1=%tag_input:*-=%"
-IF "%tag_val_1%"=="%tag_input%" ECHO revision prefix ending in "-" not found
-FOR /F "delims=\" %%a IN ("%tag_val_1%") DO SET "tag_val_1=%%~a"
-
-REM remove revision suffix starting with "-"
-SET "lp3d_revision_=%tag_val_1%"
-FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET LP3D_VER_REVISION=%%~a
-
-REM Extract commit count (build)
-FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count`) DO SET LP3D_VER_BUILD=%%G
-
-REM Extract short sha hash
-FOR /F "usebackq delims==" %%G IN (`git rev-parse --short HEAD`) DO SET LP3D_VER_SHA_HASH=%%G
-
-REM Extract version
-FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0`) DO SET lp3d_git_ver_tag_short=%%G
-
-REM Remove version prefix 'v'
-SET "lp3d_version_=%lp3d_git_ver_tag_short:v=%"
-
-REM Replace version '.' with ' '
-SET "lp3d_version_=%lp3d_version_:.= %"
-
-REM Parse version
-FOR /F "tokens=1" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_MAJOR=%%i
-FOR /F "tokens=2" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_MINOR=%%i
-FOR /F "tokens=3" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_PATCH=%%i
-EXIT /b
-
 :GET_AVAILABLE_VERSIONS
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PAST_RELEASES%
@@ -345,16 +357,6 @@ IF "%LP3D_PREVIOUS_VERSIONS%" NEQ "" (
   SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PREVIOUS_VERSIONS:v=%,%LP3D_PAST_RELEASES%
 )
 CD /D "%LP3D_BUILDS_DIR%"
-EXIT /b
-
-:FIXUP_PWD
-SET TEMP=%CD%
-IF [%1] NEQ [] CD /D "%1\..\builds"
-SET LP3D_MAIN_APP=%1
-SET LP3D_BUILDS_DIR=%CD%
-CD "%1\.."
-FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
-CD %TEMP%
 EXIT /b
 
 :FIND_REPLACE <findstr> <replstr> <file>
@@ -379,5 +381,4 @@ EXIT /b
 EXIT /b
 
 :END
-ENDLOCAL
 EXIT /b 0
