@@ -886,11 +886,7 @@ SET Lpub3dCONTENT=lpub3dldrawunf.zip
 
 SET OutputPATH=%WIN_PKG_DIR%\release\%PRODUCT_DIR%
 
-IF "%APPVEYOR%" EQU "True" (
-  IF %TEST_APPVEYOR% EQU 0 (
-    GOTO APPVEYORDOWNLOAD
-  )
-)
+IF "%APPVEYOR%" EQU "True" GOTO APPVEYORDOWNLOAD
 
 ECHO.
 ECHO - Prepare BATCH to VBS to Web Content Downloader...
@@ -1032,10 +1028,24 @@ REM pwd = windows/release/PRODUCT_DIR
 :APPVEYORDOWNLOAD
 ECHO.
 ECHO - Download LDraw Official archive library %OfficialCONTENT%...
-appveyor Downloadfile "http://www.ldraw.org/library/updates/%OfficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%OfficialCONTENT%"
+IF NOT EXIST "%WIN_PKG_DIR%\%OfficialCONTENT%" (
+  REM appveyor Downloadfile "http://www.ldraw.org/library/updates/%OfficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%OfficialCONTENT%"
+  powershell Start-FileDownload "http://www.ldraw.org/library/updates/%OfficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%OfficialCONTENT%"
+  cmd.exe
+) ELSE (
+  ECHO   %OfficialCONTENT% exists - moving to staging...
+  MOVE /y ".\%OfficialCONTENT%"  "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
+)
 ECHO.
 ECHO - Download LDraw Unifficial archive library %UnofficialCONTENT%...
-appveyor Downloadfile "http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%Lpub3dCONTENT%"
+IF NOT EXIST "%WIN_PKG_DIR%\%Lpub3dCONTENT%" (
+  REM appveyor Downloadfile "http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%Lpub3dCONTENT%"
+  powershell Start-FileDownload "http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%Lpub3dCONTENT%"
+  cmd.exe
+) ELSE (
+  ECHO   %Lpub3dCONTENT% exists - moving to staging...
+  MOVE /y ".\%Lpub3dCONTENT%"  "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
+)
 ECHO.
 ECHO - Copy and move archive files to extras directory...
 IF %UNIVERSAL_BUILD% EQU 1 (
