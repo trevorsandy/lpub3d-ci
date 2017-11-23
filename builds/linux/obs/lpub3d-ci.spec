@@ -48,17 +48,17 @@ BuildRequires: finger
 %define distsuffix .mga%{mgaversion}
 %endif
 
-%if 0%{?scientificlinux_version}
-%define dist scl
+%if 0%{?centos_ver}
+%define centos_version %{centos_ver}00
+%define dist cos
 %endif
 
 %if 0%{?rhel_version}
 %define dist rhel
 %endif
 
-%if 0%{?centos_ver}
-%define centos_version %{centos_ver}00
-%define dist cos
+%if 0%{?scientificlinux_version}
+%define dist scl
 %endif
 
 # distro group settings
@@ -70,15 +70,17 @@ Group: Productivity/Graphics/Viewers
 Group: Graphics
 %endif
 
+%if 0%{?centos_version} || 0%{?fedora}
+Group: Amusements/Graphics
+%endif
+
+%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+License: GPLv3+
+%endif
+
 %if 0%{?suse_version} || 0%{?sles_version}
 License: GPL-3.0+
 BuildRequires: fdupes
-%endif
-%if 0%{?fedora} || 0%{?centos_version}
-Group: Amusements/Graphics
-%endif
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?mageia}
-License: GPLv3+
 %endif
 
 # set custom directory paths
@@ -89,41 +91,53 @@ License: GPLv3+
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.206
+Version: 2.0.21.207
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
 Requires: unzip
-BuildRequires: freeglut-devel
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
-BuildRequires: qt5-qtbase-devel
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?suse_version}
+BuildRequires: freeglut-devel, boost-devel, tinyxml-devel, gl2ps-devel, libtiff-devel
+%endif
+
+%if 0%{?fedora} || 0%{?centos_version}
+BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
+BuildRequires: SDL2-devel, mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
+BuildRequires: gcc-c++, libpng-devel, make
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
 %if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
-BuildRequires: gcc-c++, libpng-devel, make
 %endif
 
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
-BuildRequires: mesa-libOSMesa-devel
+%if 0%{?suse_version}
+BuildRequires: libqt5-qtbase-devel, libqt5-qttools-devel
+BuildRequires: libSDL2-devel, libOSMesa-devel, glu-devel, openexr-devel
+BuildRequires: zlib-devel
+%if 0%{?suse_version} > 1300
+BuildRequires: Mesa-devel
+%endif
+%if 0%{?buildservice}
+BuildRequires: -post-build-checks
+%endif
 %endif
 
 %if 0%{?mageia}
-BuildRequires: qtbase5-devel
+BuildRequires: qtbase5-devel, qttools5-devel
 %ifarch x86_64
-BuildRequires: lib64osmesa-devel
+BuildRequires: libsdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64openexr-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
-BuildRequires: libosmesa-devel
+BuildRequires: lib64sdl2.0-devel, libosmesa-devel, libmesaglu1-devel, libopenexr-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
 %endif
@@ -145,19 +159,8 @@ BuildRequires: llvm-libs
 %endif
 %endif
 
-%if 0%{?rhel_version} || 0%{?centos_version}
+%if 0%{?centos_version}
 BuildRequires: libXext-devel
-%endif
-
-%if 0%{?suse_version}
-BuildRequires: libqt5-qtbase-devel, zlib-devel
-%if 0%{?buildservice}
-BuildRequires: -post-build-checks
-%endif
-%endif
-
-%if 0%{?suse_version} > 1300
-BuildRequires: Mesa-devel
 %endif
 
 # configuration settings
@@ -199,30 +202,32 @@ set -x
 export QT_SELECT=qt5
 # instruct qmake to copy 3rd-party apps
 export LP3D_BUILD_PKG=yes
-# download ldraw archive libraries
 set +x
+echo "Current working directory: $PWD"
+# download ldraw archive libraries
 LDrawLibOffical=../../SOURCES/complete.zip
 LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
-ThirdPartyRepoTarball=../../SOURCES/lpub3d_linux_3rdparty.tar.gz
-ThirdPartyRepo=lpub3d_linux_3rdparty
 if [ -f ${LDrawLibOffical} ] ; then
   cp ${LDrawLibOffical} mainApp/extras && echo "complete.zip copied"
 else
-  echo "complete.zip not found at $PWD!"
+  echo "complete.zip not found at $(readlink -e ../SOURCES)!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
   cp ${LDrawLibUnofficial} mainApp/extras && echo "lpub3dldrawunf.zip copied"
 else
-  echo "lpub3dldrawunf.zip not found at $PWD!"
+  echo "lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
 fi
-# download lpub3d_linux_3rdparty repository as tar.gz archive
-if [ -f ${ThirdPartyRepoTarball} ] ; then
-  mkdir -p ../${ThirdPartyRepo} && tar -xzf ${ThirdPartyRepoTarball} -C ../${ThirdPartyRepo} --strip-components=1
-  echo "${ThirdPartyRepo}.tar.gz tarball extracted to ../${ThirdPartyRepo}/"
-  rm -f ../${ThirdPartyRepo}.tar.gz && echo "${ThirdPartyRepo}.tar.gz tarball deleted"
-else
-  echo "${ThirdPartyRepo} tarball not found at $PWD!"
-fi
+# Copy 3rd party renderer source archives and build renderers
+for ArchiveSourceFile in \
+  ../../SOURCES/ldglite.tar.gz \
+  ../../SOURCES/ldview.tar.gz \
+  ../../SOURCES/povray.tar.gz; do
+  mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) copied to $(readlink -e ../)"
+  if [ -f "$${ArchiveSourceFile}" ]; then
+    mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $$(readlink -e ../)"
+  fi
+done
+chmod +x builds/utilities/CreateRenderers.sh && env WD=$(readlink -e $PWD/../) ./builds/utilities/CreateRenderers.sh
 set -x
 # use Qt5
 %if 0%{?fedora}==23
@@ -280,5 +285,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Nov 02 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.206
+* Thu Nov 23 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.207
 - LPub3D Linux package (rpm) release

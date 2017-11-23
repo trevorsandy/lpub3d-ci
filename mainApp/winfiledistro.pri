@@ -71,7 +71,7 @@ win32 {
         isEmpty(LPUB3D_STAGE):LPUB3D_STAGE              = $$_PRO_FILE_PWD_/../builds/windows
         isEmpty(LPUB3D_STG_EXTRAS):LPUB3D_STG_EXTRAS    = $$_PRO_FILE_PWD_/extras
         isEmpty(LPUB3D_STG_DOCS):LPUB3D_STG_DOCS        = $$_PRO_FILE_PWD_/docs
-        isEmpty(LPUB3D_STG_LIBS):LPUB3D_STG_LIBS        = $$_PRO_FILE_PWD_/../
+        isEmpty(LPUB3D_STG_LIBS):LPUB3D_STG_LIBS        = $$_PRO_FILE_PWD_/..
 
         # stage directories
         isEmpty(LPUB3D_STG_PATH):LPUB3D_STG_PATH        = $$LPUB3D_STAGE/$$DIST/$$LPUB3D_STG_DIRNAME/$$LPUB3D_STG_PRODUCT"_"$$STG_ARCH

@@ -2,9 +2,10 @@ FROM base/archlinux:2017.10.01
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN pacman -Syy --noconfirm
 RUN pacman -Syu --noconfirm
-RUN pacman -S --noconfirm --needed git wget ccache base-devel
+RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel
 RUN pacman -S --noconfirm --needed qt5-base qt5-tools libpng libjpeg-turbo
-RUN pacman -S --noconfirm --needed freeglut boost-libs
+RUN pacman -S --noconfirm --needed freeglut boost-libs glu openexr sdl2 tinyxml gl2ps libtiff
+RUN pacman -S --noconfirm --needed xorg-util-macros
 RUN pacman -S --noconfirm --needed sudo \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \

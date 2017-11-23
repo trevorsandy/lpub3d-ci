@@ -1309,8 +1309,8 @@ Gui::Gui()
 {
     emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
-    Preferences::renderPreferences();
     Preferences::lgeoPreferences();
+    Preferences::renderPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 

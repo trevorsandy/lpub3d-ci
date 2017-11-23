@@ -7,11 +7,11 @@ macx {
     # libraries
     CONFIG(release, debug|release) {
         libquazip.files += \
-            $$DESTDIR/../../quazip/release/libQuaZIP.0.dylib
+            $$DESTDIR/../../quazip/$$join(ARCH,,,bit_release)/libQuaZIP.0.dylib
         libquazip.path = Contents/Libs
 
         libldrawini.files += \
-            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.dylib
+            $$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release)/libLDrawIni.16.dylib
         libldrawini.path = Contents/Libs
 
         QMAKE_BUNDLE_DATA += \

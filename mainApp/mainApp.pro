@@ -93,13 +93,27 @@ DIST_TARGET  = $$TARGET
 DEFINES     += VER_APPNAME=\\\"$$DIST_TARGET\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+static {                                     # everything below takes effect with CONFIG ''= static
+    CONFIG+= static
+    LIBS += -static
+    BUILD = Static
+    DEFINES += STATIC
+    DEFINES += QUAZIP_STATIC                 # this is so the compiler can detect quazip static
+    macx: TARGET = $$join(TARGET,,,_static)  # this adds an _static in the end, so you can seperate static build from non static build
+    win32: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
+} else {
+    BUILD = Shared
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
 # If quazip is already installed, set CONFIG+=quazipnobuld to use installed library
 
 CONFIG(debug, debug|release) {
-    message("~~~ MAIN_APP DEBUG build ~~~")
     DEFINES += QT_DEBUG_MODE
-    DESTDIR = debug
+    DESTDIR = $$join(ARCH,,,bit_debug)
+    BUILD += Debug
     macx {
         LDRAWINI_LIB = LDrawIni_debug
         QUAZIP_LIB = QuaZIP_debug
@@ -113,46 +127,36 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazipd
     }
     # library target name
-    LIBS += -L$$DESTDIR/../../ldrawini/debug -l$$LDRAWINI_LIB
-    !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/debug -l$$QUAZIP_LIB
+    LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_debug) -l$$LDRAWINI_LIB
+    !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_debug) -l$$QUAZIP_LIB
     # executable target name
     win32: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
-    message("~~~ MAIN_APP RELEASE build ~~~")
-    DESTDIR = release
+    DESTDIR = $$join(ARCH,,,bit_release)
+    BUILD += Release
     unix:!macx {
-        LIBS += -L$$DESTDIR/../../ldrawini/release -lldrawini
-        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lquazip
+        LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release) -lldrawini
+        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_release) -lquazip
     } else {
         win32 {
-            LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
-            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07
+            LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release) -lLDrawIni161
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_release) -lQuaZIP07
         } else {
-            LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni
-            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP
+            LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release) -lLDrawIni
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_release) -lQuaZIP
         }
     }
     !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
+message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} ~~~")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static {                                     # everything below takes effect with CONFIG ''= static
-    message("~~~ MAIN_APP STATIC build ~~~") # this is for information, that the static build is done
-    CONFIG+= static
-    LIBS += -static
-    DEFINES += STATIC
-    DEFINES += QUAZIP_STATIC                 # this is so the compiler can detect quazip static
-    macx: TARGET = $$join(TARGET,,,_static)  # this adds an _static in the end, so you can seperate static build from non static build
-    win32: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-OBJECTS_DIR = $$DESTDIR/.obj
-MOC_DIR     = $$DESTDIR/.moc
-RCC_DIR     = $$DESTDIR/.qrc
-UI_DIR      = $$DESTDIR/.ui
+PRECOMPILED_DIR = $$DESTDIR/.pch
+OBJECTS_DIR     = $$DESTDIR/.obj
+MOC_DIR         = $$DESTDIR/.moc
+RCC_DIR         = $$DESTDIR/.qrc
+UI_DIR          = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -172,56 +176,6 @@ if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
         CONFIG+=stage3rdcontent
     }
 }
-
-#-----deprecated---------->
-# Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
-# e.g. $ qmake "CONFIG+=copy3rdexe" "CONFIG+=copy3rdexeconfig" "CONFIG+=copy3rdcontent" "CONFIG+=stagewindistcontent"
-# or you can hard code here:
-# Copy 3rd party executables
-#!contains(CONFIG, copy3rdexe): CONFIG +=
-# Copy 3rd party for executable configuration file(s)
-#!contains(CONFIG, copy3rdexeconfig): CONFIG +=
-# Copy 3rd party documents and resources
-#!contains(CONFIG, copy3rdcontent): CONFIG +=
-# Stage 3rd party executables, documentation and resources (Windows builds Only)
-#!contains(CONFIG, stagewindistcontent): CONFIG +=
-
-# Download 3rd party repository when required
-# if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
-#     unix:!macx:REPO = lpub3d_linux_3rdparty
-#     macx:REPO       = lpub3d_macos_3rdparty
-#     win32:REPO      = lpub3d_windows_3rdparty
-#     !exists($$_PRO_FILE_PWD_/../../$$REPO/.gitignore) {
-#         REPO_NOT_FOUND_MSG = GIT REPOSITORY $$REPO was not found. It will be downloaded.
-#         REPO_DOWNLOADED_MSG = GIT REPOSITORY $$REPO downloaded.
-#         GITHUB_URL = https://github.com/trevorsandy
-#         QMAKE_POST_LINK += $$escape_expand(\n\t) \
-#                            echo $$shell_quote$${REPO_NOT_FOUND_MSG}
-#         win32 {
-#            QMAKE_POST_LINK += $$escape_expand(\n\t) \
-#                                 $$escape_expand(\n\t) \
-#                                 cd $$_PRO_FILE_PWD_/../../ \
-#                                 $$escape_expand(\n\t) \
-#                                 git clone $${GITHUB_URL}/$${REPO}.git \
-#                                 $$escape_expand(\n\t) \
-#                                 DIR $$_PRO_FILE_PWD_/../../ /S \
-#                                 $$escape_expand(\n\t) \
-#                                 CD
-#         } else {
-#            QMAKE_POST_LINK += $$escape_expand(\n\t) \
-#                                 cd $$_PRO_FILE_PWD_/../../ \
-#                                 && git clone $${GITHUB_URL}/$${REPO}.git \
-#                                 && pwd \
-#                                 && ls \
-#                                 && cd $${REPO} \
-#                                 && pwd \
-#                                 && ls
-#         }
-#         QMAKE_POST_LINK += $$escape_expand(\n\t) \
-#                         echo $$shell_quote$${REPO_DOWNLOADED_MSG}
-#     }
-# }
-#<-----deprecated----------
 
 VER_LDVIEW   = ldview-4.3
 VER_LDGLITE  = ldglite-1.3

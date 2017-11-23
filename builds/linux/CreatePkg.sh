@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 25 2017
+# Last Update November 02 2017
 # To run:
 # $ chmod 755 CreatePkg.sh
 # $ ./CreatePkg.sh
@@ -78,11 +78,13 @@ if [ ! -f complete.zip ]
 then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
-echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to pkgbuild/..."
-if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
-then
-     wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
-fi
+# echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to pkgbuild/..."
+# if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
+# then
+#      wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
+# fi
+echo "8. source CreateRenderers from pkgbuild/..."
+env OBS=false source ${WORK_DIR}/builds/utilities/CreateRenderers.sh
 
 echo "7. build application package"
 makepkg -s
@@ -102,6 +104,7 @@ else
     echo "8. package ${DISTRO_FILE} not found."
 fi
 
-#echo " DEBUG Package files: `find $PWD`"
+#echo " DEBUG Package files: `ls $PWD`"
+
 echo "$ME Finished!"
 # mv $LOG "${CWD}/pkgbuild/$ME.log"

@@ -7,10 +7,10 @@ win32: stagewindistcontent {
     target.path = $$LPUB3D_STG_PATH
 
     lpub3d_libs.files += \
-        $$LPUB3D_STG_LIBS/ldrawini/$$DIST/LDrawIni161.dll
+        $$LPUB3D_STG_LIBS/ldrawini/$$join(ARCH,,,bit_$$DIST)/LDrawIni161.dll
     !quazipnobuild {
         lpub3d_libs.files += \
-            $$LPUB3D_STG_LIBS/quazip/$$DIST/QuaZIP07.dll
+            $$LPUB3D_STG_LIBS/quazip/$$join(ARCH,,,bit_$$DIST)/QuaZIP07.dll
     }
     lpub3d_libs.path = $$LPUB3D_STG_PATH
 

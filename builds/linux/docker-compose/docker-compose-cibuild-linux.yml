@@ -1,12 +1,10 @@
-# $ docker-compose -f docker-compose-linux.yml run --rm [archlinux_2017.10.01|fedora_25|ubuntu_xenial]
-# $ docker-compose -f docker-compose-linux.yml build --no-cache [archlinux_2017.10.01|fedora_25|ubuntu_xenial]
 version: '3'
 services:
   archlinux_2017.10.01:
     image: "trevorsandy/lpub3d-ci:archlinux_2017.10.01"
     build:
       context: ./dockerfiles
-      dockerfile: Dockerfile-archlinux_2017.10.01
+      dockerfile: Dockerfile-cibuild-archlinux_2017.10.01
     volumes:
      - .:/buildpkg
 
@@ -14,7 +12,7 @@ services:
     image: "trevorsandy/lpub3d-ci:fedora_25"
     build:
       context: ./dockerfiles
-      dockerfile: Dockerfile-fedora_25
+      dockerfile: Dockerfile-cibuild-fedora_25
     volumes:
      - .:/buildpkg
 
@@ -22,6 +20,6 @@ services:
     image: "trevorsandy/lpub3d-ci:ubuntu_xenial"
     build:
       context: ./dockerfiles
-      dockerfile: Dockerfile-ubuntu_xenial
+      dockerfile: Dockerfile-cibuild-ubuntu_xenial
     volumes:
      - .:/buildpkg

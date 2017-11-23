@@ -25,7 +25,7 @@ contains(QT_ARCH, x86_64) {
     ARCH = 64
     STG_ARCH = x86_64
 } else {
-    !rpm: ARCH = 32
+    ARCH = 32
     STG_ARCH = x86
 }
 
@@ -33,7 +33,6 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
-    CONFIG += debug_and_release
     greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
 
     QMAKE_TARGET_COMPANY = "Sergey A. Tachenov"
@@ -49,32 +48,33 @@ CONFIG += skip_target_version_ext
 unix:!macx: TARGET = quazip
 else: TARGET = QuaZIP
 
-CONFIG(debug, debug|release) {
-    message("~~~ QUAZIP DEBUG build ~~~")
-    DESTDIR = debug
-    macx: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,,d07)
-    unix:!macx: TARGET = $$join(TARGET,,,d)
-} else {
-    message("~~~ QUAZIP RELEASE build ~~~")
-    DESTDIR = release
-    win32: TARGET = $$join(TARGET,,,07)
-}
-
-OBJECTS_DIR = $$DESTDIR/.obj
-MOC_DIR = $$DESTDIR/.moc
-
 # You'll need to define this one manually if using a build system other
 # than qmake or using QuaZIP sources directly in your project.
 # Be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
 CONFIG(staticlib): DEFINES += QUAZIP_STATIC
 staticlib {
-    message("~~~ QUAZIP STATIC build ~~~")
+    BUILD = Static
 } else {
     # This one handles dllimport/dllexport directives.
-    message("~~~ QUAZIP SHARED build ~~~")
+    BUILD = Shared
     DEFINES += QUAZIP_BUILD
 }
+
+CONFIG(debug, debug|release) {
+    DESTDIR = $$join(ARCH,,,bit_debug)
+    BUILD += Debug Build
+    macx: TARGET = $$join(TARGET,,,_debug)
+    win32: TARGET = $$join(TARGET,,,d07)
+    unix:!macx: TARGET = $$join(TARGET,,,d)
+} else {
+    DESTDIR = $$join(ARCH,,,bit_release)
+    BUILD += Release Build
+    win32: TARGET = $$join(TARGET,,,07)
+}
+message("~~~ QUAZIP $$join(ARCH,,,bit) $${BUILD} ~~~")
+
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
 
 # Input
 include(quazip.pri)
@@ -89,10 +89,11 @@ unix:!symbian {
         message("~~~ QUAZIP DEB $$join(ARCH,,,bit) LIB ~~~")
     }
     rpm {
-        target.path=$$PREFIX/lib$$ARCH
         equals (ARCH, 64) {
+            target.path=$$PREFIX/lib$$ARCH
             message("~~~ QUAZIP RPM $$join(ARCH,,,bit) LIB ~~~")
         } else {
+            target.path=$$PREFIX/lib
             message("~~~ QUAZIP RPM 32bit LIB ~~~")
         }
     }

@@ -27,21 +27,23 @@ configure-stamp:
 			cp ../SOURCES/complete.zip mainApp/extras; \
 			echo "LDraw archive library complete.zip copied"; \
 	else \
-			echo "complete.zip not found at `pwd`!"; \
+			echo "complete.zip not found at $(readlink -e ../SOURCES)!"; \
 	fi
 	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
 			cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
 			echo "LDraw archive library lpub3dldrawunf.zip copied"; \
 	else \
-			echo "lpub3dldrawunf.zip not found at `pwd`!"; \
+			echo "lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"; \
 	fi
-	if [ -f ../SOURCES/lpub3d_linux_3rdparty.tar.gz ]; then \
-			mkdir -p ../lpub3d_linux_3rdparty && tar -xzf ../SOURCES/lpub3d_linux_3rdparty.tar.gz -C ../lpub3d_linux_3rdparty --strip-components=1; \
-			echo "lpub3d_linux_3rdparty tarball extracted to ../lpub3d_linux_3rdparty/"; \
-			rm -f ../SOURCES/lpub3d_linux_3rdparty.tar.gz && echo "lpub3d_linux_3rdparty.tar.gz tarball deleted"; \
-	else \
-			echo "lpub3d_linux_3rdparty tarball not found at `pwd`!"; \
-	fi
+	for ArchiveSourceFile in \
+	  ../SOURCES/ldglite.tar.gz \
+	  ../SOURCES/ldview.tar.gz \
+	  ../SOURCES/povray.tar.gz; do \
+	  if [ -f "$${ArchiveSourceFile}" ]; then \
+	  	mv -f $${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) copied to $(readlink -e ../)"; \
+	  fi; \
+	done
+	chmod +x builds/utilities/CreateRenderers.sh && env WD=$(readlink -e ../) ./builds/utilities/CreateRenderers.sh
 	FILE="builds/linux/obs/debian/source/include-binaries" \
 	&& sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$$FILE" \
 	&& echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/$$FILE"

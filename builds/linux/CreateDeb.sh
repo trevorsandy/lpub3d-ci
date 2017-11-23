@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 19 2017
+# Last Update November 02 2017
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ ./CreateDeb.sh
@@ -92,11 +92,13 @@ if [ ! -f complete.zip ]
 then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
-echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
-if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
-then
-     wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
-fi
+# echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
+# if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
+# then
+#      wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
+# fi
+echo "8. source CreateRenderers from  SOURCES/..."
+env OBS=false source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
 
 echo "7. re-create (untar) soruce directory ${SOURCE_DIR}/..."
 cd ../
@@ -130,18 +132,12 @@ then
 
     mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${DEB_EXTENSION}"
     echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${DEB_EXTENSION}"
+
 else
     echo "11. package ${DISTRO_FILE} not found"
 fi
 
-if [ "${TRAVIS}" == "true"  ]; then
-  # export vars used by travis.yml so paths must be relative to project download dir
-  export LP3D_Download_Package=`ls ../LPub3D_*.deb`
-  export LP3D_Update_Package=`ls ../LPub3D-UpdateMaster_*.deb`
-  echo "    DEBUG Package files: `ls ../LPub3D*.deb`"
-  env | grep -P 'LP3D*'
-fi
+#echo "    DEBUG Package files: `ls $PWD`"
 
-# create deb - end #
 echo "$ME Finished!"
 # mv $LOG "${CWD}/debbuild/$ME.log"

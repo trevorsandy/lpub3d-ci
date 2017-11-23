@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 29 2017
+# Last Update November 02 2017
 # To run:
 # $ chmod 755 CreateRpm.sh
 # $ ./CreateRpm.sh
@@ -81,11 +81,13 @@ if [ ! -f complete.zip ]
 then
      wget -q -O complete.zip http://www.ldraw.org/library/updates/complete.zip
 fi
-echo "10. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
-if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
-then
-     wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
-fi
+# echo "10. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
+# if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
+# then
+#      wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
+# fi
+echo "10. source CreateRenderers from  SOURCES/..."
+env OBS=false source ${WORK_DIR}/builds/utilities/CreateRenderers.sh
 
 # file copy and downloads above must happen before we make the tarball
 echo "11. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
@@ -136,7 +138,7 @@ fi
 echo "15. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
 rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 
-echo " DEBUG Package files:" `ls ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}`
+#echo " DEBUG Package files:" `ls ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}`
 
 echo "$ME Finished!"
 #mv $LOG "${CWD}/rpmbuild/$ME.log"

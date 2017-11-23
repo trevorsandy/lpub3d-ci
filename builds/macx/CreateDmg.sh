@@ -36,19 +36,23 @@ if [ "${TRAVIS}" != "true"  ]; then
   exec > >(tee -a ${LOG} )
   exec 2> >(tee -a ${LOG} >&2)
 
-  # use this instance of Qt
-  export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
+  # use this instance of Qt if exist - my local machine :-)
+  if [ -d ~/Qt/IDE/5.7/clang_64 ]; then
+    export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
+  else
+    echo "PATH not udpated, could not find ${HOME}/Qt/IDE/5.7/clang_64"
+  fi
 
   echo
   echo "Enter d to download LPub3D source or any key to"
   echo "skip download and use existing source if available."
   read -n 1 -p "Do you want to continue with this option? : " getsource
 
-# For Travis CI, use this block (script called from [pwd] lpub3d/)
 else
-  # copy downloaded source
+  # For Travis CI, use this block (script called from clone directory - lpub3d)
+  # getsource = downloaded source variable; 'c' = copy flag, 'd' = download flag
   getsource=c
-  # move outside lpub3d/
+  # move outside clone directory (lpub3d)/
   cd ../
 fi
 
@@ -60,25 +64,31 @@ fi
 
 cd dmgbuild
 
-if [ ! -d ../lpub3d_macos_3rdparty ]
-then
-  echo "-  download lpub3d_macos_3rdparty/ repository to dmgbuild/..."
-  git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
-else
-  echo "-  lpub3d_macos_3rdparty/ repository exist. moving to dmgbuild/..."
-  mv ../lpub3d_macos_3rdparty/ ./lpub3d_macos_3rdparty/
-  #echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
-fi
+# if [ ! -d ../lpub3d_macos_3rdparty ]
+# then
+#   echo "-  download lpub3d_macos_3rdparty/ repository to dmgbuild/..."
+#   git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
+# else
+#   echo "-  lpub3d_macos_3rdparty/ repository exist. moving to dmgbuild/..."
+#   mv ../lpub3d_macos_3rdparty/ ./lpub3d_macos_3rdparty/
+#   #echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
+# fi
 
-if [ -d ${LPUB3D} ] && [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
+if [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
   echo "-  cloning ${LPUB3D}/ to dmgbuild/..."
-  rm -rf ${LPUB3D}
+  if [ -d ${LPUB3D} ]; then
+    rm -rf ${LPUB3D}
+  fi
   git clone https://github.com/trevorsandy/${LPUB3D}.git
-elif [ "$getsource" = "c" ]
+elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ]
 then
   echo "-  copying ${LPUB3D}/ to dmgbuild/..."
-  cp -rf ../${LPUB3D}/ ./${LPUB3D}/
+  if [ ! -d ../${LPUB3D} ]; then
+    echo "-  ERROR - Could not find folder $(readlink -e ../)/${LPUB3D}"
+  else
+    cp -rf ../${LPUB3D}/ ./${LPUB3D}/
+  fi
 elif [ ! -d ${LPUB3D} ]
 then
   echo "-  cloning ${LPUB3D}/ to dmgbuild/..."
@@ -92,18 +102,21 @@ _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
+echo "-  source CreateRenderers in dmgbuild/..."
+env OBS=false source ${LPUB3D}/builds/utilities/CreateRenderers.sh
+
 cd ${LPUB3D}
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  echo "-  download ldraw official library archive to ${LPUB3D}/extras/..."
+  echo "-  download ldraw official library archive to extras/..."
   curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
 else
   echo "-  ldraw official library exist. skipping download"
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
-  echo "-  download ldraw unofficial library archive to ${LPUB3D}/extras/..."
+  echo "-  download ldraw unofficial library archive to extras/..."
   curl "http://www.ldraw.org/library/unofficial/ldrawunf.zip" -o "mainApp/extras/lpub3dldrawunf.zip"
 else
   echo "-  ldraw unofficial library exist. skipping download"

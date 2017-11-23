@@ -1,52 +1,56 @@
-version: 'LPub3D-AV-{build}'
+# Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW platform
+version: 'LPub3D-AV-2.1.0.{build}'
 
 clone_folder: c:\projects\lpub3d-ci
-# skip automatic cloning because we want restore cached items in the clone directory first
+
+# skip automatic cloning because we want to restore cached items in the clone directory first
 clone_script: echo skip
 
-# we're caching 3rd party apps (image renderers), and qt5 for MinGW x86_64
+# we're caching qt5 for MinGW x86_64 and 3rd party libraries
 cache:
- - 'C:\projects\$(lp3d_librepo)'
+ - '$(APPVEYOR_BUILD_FOLDER)\${lp3d_librepo}'
+ - '$(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)'
+
+shallow_clone: true
 
 branches:
   only:
    - master
-
-platform: x64
 
 configuration: release
 
 matrix:
   fast_finish: true
 
-# we're building both x86 and x86_64 target architectures
-# we must also setup the x86_64 Qt5 build environment for MinGW
-# the matrix block below must always play the x86_64 build last
-# in order to preserve the artifact pakcaging logic described later
 environment:
-  lp3d_build: appveyor_ci
-  lp3d_job2arch: x86_64
-  lp3d_packagepath: builds\windows\$(configuration)
-  lp3d_job1package: LPub3D-Job1-AV-$(APPVEYOR_BUILD_NUMBER).zip
+  LP3D_PACKAGE: LPub3D
+  LP3D_DIST_DIR: lpub3d_windows_3rdparty
+  LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
+  LP3D_QT32_BASE: C:\Qt\5.9.2\mingw53_32\bin
+  LP3D_QT32_UTILS: C:\Qt\Tools\mingw530_32\bin
+  LP3D_QT64_MSYS2: C:\msys64\MINGW64\bin
+  LP3D_PACKAGE_PATH: builds\windows\$(configuration)
   lp3d_qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
   lp3d_iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
-  lp3d_librepo: lpub3d_windows_3rdparty
+  lp3d_librepo: lpub3d_mingw-x86_64_libs
   lp3d_librepodir: /c/projects/$(lp3d_librepo)
-  matrix:
-  - lp3d_target_arch: x86
-  - lp3d_target_arch: x86_64
 
-# generte remote-desktop credentials - useful for debugging
-# clear the cache if specified
-# set the make parameters and qt library path
-# process [build pkg] commit message request
-# process [deploy pkg] commit message request
 init:
- - ps: write-host "Building $env:lp3d_target_arch architecture..."
+ - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]"))
-      {
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
+        write-host "[build pkg] detected."
+        $env:LP3D_BUILD_PKG = "yes"
+      }
+ - ps: |
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[deploy pkg]")) {
+        write-host "[deploy pkg] detected."
+        $env:LP3D_BUILD_PKG = "yes"
+        $env:LP3D_DEPLOY_PKG = $true
+      }
+ - ps: |
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]")) {
         write-host "[clear avcache] detected."
 
         $apiUrl = 'https://ci.appveyor.com/api'
@@ -61,154 +65,66 @@ init:
 
         $env:APPVEYOR_CACHE_SKIP_RESTORE  = "true"
         Invoke-RestMethod -Uri "$apiUrl/projects/$accountName/$projectSlug/buildcache" -Headers $headers -Method DELETE
-        $env:APPVEYOR_CACHE_SKIP_SAVE = "true"
 
         Write-Output "Build cache cleared."
       }
- - ps: |
-      $env:lp3d_qtpath = "C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin"
-      $env:lp3d_makeargs = "CONFIG+=$env:lp3d_build CONFIG+=$env:configuration CONFIG+=stagewindistcontent"
-      If ($env:lp3d_target_arch -eq "x86_64") {
-        $env:lp3d_qtpath = "C:\msys64\MINGW64\bin;C:\msys64\usr\bin"
-        $env:lp3d_makeargs = "CONFIG+=appveyor_qt_mingw64 $env:lp3d_makeargs"
-      }
- - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[build pkg]")) {
-        write-host "[build pkg] detected."
-        $env:LP3D_BUILD_PKG = "yes"
-        If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {
-          $env:lp3d_restore_job1_artefact = $true
-          $env:lp3d_archive_job2_artefact = $true
-        } else {
-          $env:lp3d_archive_job1_artefact = $true
-        }
-      }
- - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[deploy pkg]")) {
-        write-host "[deploy pkg] detected."
-        If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {
-          $env:lp3d_deploy_pkg = $true
-        }
-      }
- - cmd: SET PATH=%lp3d_qtpath%;%PATH% &echo PATH appended with %lp3d_qtpath%
- #- ps: Get-ChildItem Env:APPVEYOR* | Sort-Object name
- - ps: Get-ChildItem Env:lp3d_* | Sort-Object name
+ - ps: Get-ChildItem Env:LP3D_* | Sort-Object name
 
 # This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
-# downloded. After building out the dev env, we proceed to fetch the commit that fired off the AppVeyor build.
+# downloded. After setting up these items, we proceed to fetch the commit that triggered the AppVeyor build.
 # We don't use git clone because the 'clone_directory' is not empty (restored cached components were added in previous steps) - so the
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
 # This includes setting the clone depth, and fetching the last commit and previous tags
-# - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then git clone https://github.com/trevorsandy/${lp3d_librepo}.git ${lp3d_librepodir} && echo ${lp3d_librepo} cloned; fi"
 install:
  - cmd: git init %APPVEYOR_BUILD_FOLDER%
  - cmd: cd %APPVEYOR_BUILD_FOLDER%
  - cmd: git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
  - cmd: git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
  - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
- - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then wget -q -O ${lp3d_librepo}.tar.gz https://github.com/trevorsandy/${lp3d_librepo}/archive/master.tar.gz && echo ${lp3d_librepo}.tar.gz downloaded; fi"
- - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then mkdir -p ${lp3d_librepodir} && tar -xzf ${lp3d_librepo}.tar.gz -C ${lp3d_librepodir} --strip-components=1 && echo ${lp3d_librepo} tarball extracted; fi"
- - cmd: if %lp3d_target_arch%==x86_64 bash -lc "cd ${lp3d_librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${lp3d_qtlibs} ${lp3d_iculibs}"
+ - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then curl -sL -o ${lp3d_librepo}.tar.gz https://github.com/trevorsandy/${lp3d_librepo}/archive/master.tar.gz; fi"
+ - cmd: bash -lc "if ! test -d ${lp3d_librepodir} && test -f ${lp3d_librepo}.tar.gz; then mkdir -p ${lp3d_librepodir} && tar -xzf ${lp3d_librepo}.tar.gz -C ${lp3d_librepodir} --strip-components=1; fi"
+ - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then echo repository ${lp3d_librepodir} not found; else echo library repository available at ${lp3d_librepodir}; fi"
+ - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${lp3d_qtlibs} ${lp3d_iculibs}"
 
-# this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
-# the NSIS packaging script against the archive creating a single installer for both architectures.
-# this script is only run on the 2nd of the two jobs (job2).
-before_build:
+build_script:
  - ps: |
-      If ($env:lp3d_restore_job1_artefact -eq $true)
-      {
-        Write-Output "Restoring $env:lp3d_packagepath build folder from artifact..."
-
-        $apiUrl = 'https://ci.appveyor.com/api'
-        $token = 'h2o1p08rkt8jgen5f0ke'
-        $headers = @{
-          "Authorization" = "Bearer $token"
-          "Content-type" = "application/json"
-        }
-
-        $accountName = $env:APPVEYOR_ACCOUNT_NAME
-        $projectSlug = $env:APPVEYOR_PROJECT_SLUG
-
-        # using clone folder
-        $downloadLocation = $env:APPVEYOR_BUILD_FOLDER
-        Write-Output "Var downloadLocation     = $downloadLocation"
-
-        # get project with last build details
-        $project = Invoke-RestMethod -Method Get -Uri "$apiUrl/projects/$accountName/$projectSlug" -Headers $headers
-
-        # get this job id
-        $jobId = $project.build.jobs[0].jobId
-
-        # get job artifacts
-        $artifacts = Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts" -Headers $headers
-
-        # $artifactFileName = 'MyWebApp.zip'
-        $artifactFileName = $artifacts[0].fileName
-        Write-Output "Var artifactFileName     = $artifactFileName"
-
-        # artifact will be downloaded as
-        $localArtifactArchive = "$downloadLocation\$artifactFileName"
-        Write-Output "Var localArtifactArchive = $localArtifactArchive"
-
-        # download artifact
-        Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts/$artifactFileName" `
-        -OutFile $localArtifactArchive -Headers @{ "Authorization" = "Bearer $token" }
-
-        # extract artifact
-        if (-not (Test-Path $localArtifactArchive)) {
-          Write-Output "Error artifact $localArtifactArchive not found"
-        } else {
-          Write-Output "Extracting artifact $localArtifactArchive ..."
-          & 7z.exe x $localArtifactArchive "-o$downloadLocation" | Select-String -Pattern '(^Extracting)|(^Everything)' -CaseSensitive
-          $CheckArtifactDir = $downloadLocation+"\builds\windows\"+$env:Configuration
-          & Write-Output "Var CheckArtifactDir     = $CheckArtifactDir"
-          if (-not (Test-Path $CheckArtifactDir)) {
-            Write-Output "Error expanding $localArtifactArchive, $CheckArtifactDir not found"
-          } else {
-            Write-Output "Build folder $env:lp3d_packagepath artifact restored"
-          }
-        }
+      write-host "  Distribution directory..[${env:LP3D_PACKAGE}_PATH]"
+      write-host "  Working Directory.......[$PWD]"
+      If ($env:LP3D_BUILD_PKG -eq "yes") {
+        cmd.exe /c builds\windows\AutoBuild.cmd -all -ins -chk 2`>`&1
+        $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path ${env:LP3D_PACKAGE}_PATH -Recurse).count
+        write-host "`n  Artifact count....[$env:LP3D_ARTEFACT_ITEM_COUNT]"
+      } Else {
+        cmd.exe /c builds\windows\AutoBuild.cmd -all -chk 2`>`&1
       }
 
-# regular make stuff here. CONFIG+=stagewindistcontent is used by qmake to
-# generate the install Makefile logic which stages the distro files so
-# this flat and make install must be run to complete the build process
-build_script:
- - cmd: qmake -v
- - cmd: qmake %lp3d_makeargs%
- - cmd: mingw32-make
- - cmd: mingw32-make install
+test: off
 
-# Push job1 output to archive for job2 consumption
-# Build NSIS-based install binaries
-# Vars used to construct artifacts
-# Push job2 artefacts to archive repository and setup for deployment
 after_build:
- - ps: If ($env:lp3d_archive_job1_artefact -eq $true) {7z a $env:lp3d_job1package $env:lp3d_packagepath | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_job1package}
- - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {cmd.exe /c builds\windows\CreateExe.bat}
  - ps: |
-      If ($env:lp3d_archive_job2_artefact -eq $true) {
+      If (($env:LP3D_BUILD_PKG -eq "yes") -and ([int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 5)) {
+        cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
         $Sv = git describe --tags --long
         $Sc = git rev-list HEAD --count
         $Sd = Get-Date -format yyyyMMdd
-        $env:LP3D_AV_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
-        $env:LP3D_AV_PACKAGE = "LPub3D-Any-$env:LP3D_AV_VERSION"
-        $env:LP3D_AV_TARGET = "builds\windows\$env:Configuration\$env:LP3D_AV_PACKAGE"
-        $env:LP3D_AV_DOWNLOAD_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Download"
-        $env:LP3D_AV_UPDATE_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Update"
-        Get-ChildItem Env:LP3D_AV_* | Sort-Object name
+        $env:LP3D_BLD_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
+        $env:LP3D_BLD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_BLD_VERSION}"
+        $env:LP3D_BLD_TARGET = "builds\windows\${env:Configuration}\{$env:LP3D_BLD_PACKAGE}"
+        $env:LP3D_BLD_DOWNLOAD_TARGET = "{$env:LP3D_BLD_TARGET}\${env:LP3D_PACKAGE}_Download"
+        $env:LP3D_BLD_UPDATE_TARGET = "${env:LP3D_BLD_TARGET}\${env:LP3D_PACKAGE}_Update"
+        Get-ChildItem Env:LP3D_BLD_* | Sort-Object name
+        $root = Resolve-Path .\${env:LP3D_BLD_DOWNLOAD_TARGET}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
+        $root = Resolve-Path .\${env:LP3D_BLD_UPDATE_TARGET};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
       }
- - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
- - ps: If ($env:lp3d_archive_job2_artefact -eq $true) {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET;   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
 
-# for the moment we only deploy to github. I'll setup a sourceforge deployment scheme
-# at some point going forward
 deploy:
  - provider: GitHub
-   description: ''
+   repository: trevorsandy/lpub3d-ci
+   description: '$(LP3D_PACKAGE) - An LDraw™ editor for LEGO® style digital building instructions.'
    auth_token:
      secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
-   artifact: LPub3D-download-package
+   release: $(LP3D_BLD_PACKAGE)
+   artifact: $(LP3D_PACKAGE)-download-package
    prerelease: true
    force_update: true
    on:

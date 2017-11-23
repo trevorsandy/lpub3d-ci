@@ -2,9 +2,13 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 01, 2017
+rem  Last Update: November 02, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
+rem --
+rem This script is distributed in the hope that it will be useful,
+rem but WITHOUT ANY WARRANTY; without even the implied warranty of
+rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 SET LP3D_ME=%~nx0
 
@@ -17,7 +21,7 @@ IF [%LP3D_BUILDS_DIR%] == [] (
   ECHO Error: Did not receive required argument _PRO_FILE_PWD_
   ECHO %LP3D_ME% terminated!
   ECHO.
-  EXIT /b 0
+  GOTO :END
 )
 
 REM LP3D_BUILDS_DIR = C:\Users\Trevor\Projects\lpub3d-ci\builds
@@ -102,7 +106,7 @@ ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
 ECHO.
-ECHO 2. set root directory name for linux config files...
+ECHO  2. set root directory name for linux config files...
 SET LP3D_DEB_DSC_FILE=%LP3D_OBS_DIR%\debian\%OLD_LPUB3D%.dsc
 SET LP3D_DEB_LINT_FILE=%LP3D_OBS_DIR%\debian\%OLD_LPUB3D%.lintian-overrides
 SET LP3D_OBS_SPEC_FILE=%LP3D_OBS_DIR%\%OLD_LPUB3D%.spec
@@ -220,24 +224,33 @@ SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
 ))>"%LP3D_FILE%.new"
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
-ECHO  9. update lpub3d.spec - add app version and change date
+ECHO  9. update %LPUB3D%.spec - add app version
 SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
-SET LinesToReplace=92 281
-FOR /F "tokens=1" %%i IN ("%LinesToReplace%") DO SET "FirstLine=%%i"
-FOR /F "tokens=2" %%i IN ("%LinesToReplace%") DO SET "SecondLine=%%i"
-FOR %%i IN ("%LinesToReplace%") DO (
-IF %%i EQU %FirstLine% SET "Replacement=%LP3D_APP_VERSION%"
-IF %%i EQU %SecondLine% SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_APP_VERSION%"
+SET /a LineToReplace=94
+SET "Replacement=Version: %LP3D_APP_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(!Line!
     ENDLOCAL
-))>"%LP3D_FILE%.new")
+))>"%LP3D_FILE%.new"
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
-ECHO %LP3D_ME% execution finished.
+ECHO  10. update %LPUB3D%.spec - add change date
+SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
+SET /a LineToReplace=288
+SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_APP_VERSION%"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
+
+ECHO  %LP3D_ME% execution finished.
 ENDLOCAL
 GOTO :END
 

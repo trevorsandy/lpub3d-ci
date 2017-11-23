@@ -1,29 +1,24 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.206
+pkgver=2.0.21.207
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
-depends=('qt5-base' 'qt5-tools' 'freeglut' 'boost-libs')
+depends=('unzip' 'qt5-base' 'qt5-tools' 'libpng' 'libjpeg-turbo' 'freeglut' 'boost-libs' 'glu' 'openexr' 'sdl2' 'tinyxml' 'gl2ps' 'libtiff' 'xorg-util-macros')
 makedepends=()
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
-noextract=("complete.zip" "lpub3dldrawunf.zip" "lpub3d_linux_3rdparty.tar.gz")
-md5sums=(SKIP SKIP SKIP SKIP)
+source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
+noextract=("complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
 	echo "Current working directory: $PWD"
-	if [ -f lpub3d_linux_3rdparty.tar.gz ]; then
-			mkdir -p lpub3d_linux_3rdparty && tar -xzf lpub3d_linux_3rdparty.tar.gz -C lpub3d_linux_3rdparty --strip-components=1
-			echo "lpub3d_linux_3rdparty tarball extracted to lpub3d_linux_3rdparty/"
-			rm -f lpub3d_linux_3rdparty.tar.gz &&  echo "lpub3d_linux_3rdparty tarball deleted"
-	else
-			echo "lpub3d_linux_3rdparty tarball not found at $PWD!"
-	fi
+  chmod +x ${pkgname}-git/builds/utilities/CreateRenderers.sh && \
+  env WD=$PWD .${pkgname}-git/builds/utilities/CreateRenderers.sh
 	cd ${pkgname}-git
 	echo "Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then

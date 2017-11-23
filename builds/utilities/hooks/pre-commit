@@ -9,9 +9,13 @@
 ## Example:
 ##   [master]v2.0.0-beta-191(a830382)
 ##
-## Install:
-##   pre-commit:
-##   cp builds/utilities/git-create-revisioninfo-hook.sh .git/hooks/pre-commit
+## Setup:
+## $ cd to your git repository and type:
+## $ cat << pbEOF >.git/hooks/pre-commit
+## > #!/bin/sh
+## > ./builds/utilities/hooks/pre-commit       # location of pre-commit script in your source repository
+## > pbEOF
+## $
 ##
 ## Ignore Increment:
 ##   In instances where you do NOT want the version info incremented,

@@ -11,7 +11,7 @@ contains(QT_ARCH, x86_64) {
     ARCH = 64
     STG_ARCH = x86_64
 } else {
-    !rpm: ARCH = 32
+    ARCH = 32
     STG_ARCH = x86
 }
 
@@ -19,7 +19,6 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
-    CONFIG += debug_and_release
 
     QMAKE_TARGET_COMPANY = "Lars C. Hassing"
     QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
@@ -36,29 +35,27 @@ CONFIG += skip_target_version_ext
 unix:!macx: TARGET = ldrawini
 else: TARGET = LDrawIni
 
+# Indicate build type,
+# be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
+staticlib: BUILD = Static
+else:      BUILD = Shared
+
 CONFIG(debug, debug|release) {
-    message("~~~ LDRAWINI DEBUG build ~~~")
-    DESTDIR = debug
+    DESTDIR = $$join(ARCH,,,bit_debug)
+    BUILD += Debug Build
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d161)
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
-    message("~~~ LDRAWINI RELEASE build ~~~")
-    DESTDIR = release
+    DESTDIR = $$join(ARCH,,,bit_release)
+    BUILD += Release Build
     win32: TARGET = $$join(TARGET,,,161)
 }
+message("~~~ LDRAWINI $$join(ARCH,,,bit) $${BUILD} ~~~")
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
 QMAKE_EXT_CPP = .c
-
-# Indicate build type,
-# be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
-staticlib {
-    message("~~~ LDRAWINI STATIC build ~~~")
-} else {
-    message("~~~ LDRAWINI SHARED build ~~~")
-}
 
 # Input
 include(ldrawini.pri)
@@ -73,10 +70,11 @@ unix {
         message("~~~ LDRAWINI DEB $$join(ARCH,,,bit) LIB ~~~")
     }
     rpm {
-        target.path=$$PREFIX/lib$$ARCH
         equals (ARCH, 64) {
+            target.path=$$PREFIX/lib$$ARCH
             message("~~~ LDRAWINI RPM $$join(ARCH,,,bit) LIB ~~~")
         } else {
+            target.path=$$PREFIX/lib
             message("~~~ LDRAWINI RPM 32bit LIB ~~~")
         }
     }
