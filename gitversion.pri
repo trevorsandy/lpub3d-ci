@@ -104,7 +104,7 @@ win32 {
 #message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
 
 # Separate the date into day month, year.
-appveyor_ci {
+equals($$(APPVEYOR),True) {
     # AppVeyor CI uses date format 'Day MM/DD/YY'
     BUILD_DATE ~= s/[\sA-Za-z\s]/""
     DATE_MM = $$section(BUILD_DATE, /, 0, 0)

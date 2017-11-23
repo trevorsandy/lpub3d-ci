@@ -32,6 +32,15 @@ SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
 SET LP3D_AV_VER_INFO_DIR=%LP3D_BUILDS_DIR%\windows\release
 SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
 
+REM Change these accordingly when respective config files are modified
+SET desktop_line=10
+SET manpage_line=61
+SET pkgbuild_line=3
+SET debdsc_line=5
+SET readme_line=1
+SET rpmspec1_line=94
+SET rpmspec2_line=288
+
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
   ECHO  1. capture version info using git queries...
@@ -150,7 +159,7 @@ IF "%LPUB3D%" EQU "%OLD_LPUB3D%" (
 
 ECHO  3. update desktop configuration - add version suffix
 SET LP3D_FILE="%LP3D_MAIN_APP%\lpub3d.desktop"
-SET /a LineToReplace=10
+SET /a LineToReplace=%desktop_line%
 SET "Replacement=Exec=lpub3d%LP3D_APP_VER_SUFFIX% %%f"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -163,7 +172,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  4. update man page - add version suffix
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\lpub3d%LP3D_APP_VER_SUFFIX%.1"
-SET /a LineToReplace=61
+SET /a LineToReplace=%manpage_line%
 SET "Replacement=     /usr/bin/lpub3d%LP3D_APP_VER_SUFFIX%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -176,7 +185,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  5. update PKGBUILD - add app version
 SET LP3D_FILE="%LP3D_OBS_DIR%\PKGBUILD"
-SET /a LineToReplace=3
+SET /a LineToReplace=%pkgbuild_line%
 SET "Replacement=Exec=lpub3d%LP3D_APP_VER_SUFFIX% %%f"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -200,7 +209,7 @@ SET createChangeLog=%LP3D_FILE% ECHO
 
 ECHO  7. update lpub3d.dsc - add app version
 SET LP3D_FILE="%LP3D_OBS_DIR%\debian\%LPUB3D%.dsc"
-SET /a LineToReplace=5
+SET /a LineToReplace=%debdsc_line%
 SET "Replacement=Version: %LP3D_APP_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -213,7 +222,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  8. update README.txt - add build version
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
-SET /a LineToReplace=1
+SET /a LineToReplace=%readme_line%
 SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -226,7 +235,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  9. update %LPUB3D%.spec - add app version
 SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
-SET /a LineToReplace=94
+SET /a LineToReplace=%rpmspec1_line%
 SET "Replacement=Version: %LP3D_APP_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -239,7 +248,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
 
 ECHO  10. update %LPUB3D%.spec - add change date
 SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
-SET /a LineToReplace=288
+SET /a LineToReplace=%rpmspec2_line%
 SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_APP_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"

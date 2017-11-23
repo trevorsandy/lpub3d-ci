@@ -40,8 +40,9 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT32_BASE=C:\Qt\IDE\5.9.1\mingw53_32\bin
   SET LP3D_QT32_UTILS=C:\Qt\IDE\Tools\mingw530_32\bin
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
-  SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
+SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
+SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
 SET zipWin64=C:\program files\7-zip
 SET OfficialCONTENT=complete.zip
@@ -137,6 +138,10 @@ IF /I "%2"=="-3rd" (
 )
 
 :BUILD
+IF NOT EXIST "%LP3D_WIN_GIT%" (
+  SET LP3D_WIN_GIT=
+  SET LP3D_WIN_GIT_MSG=Not Found
+)
 rem Display build settings
 ECHO.
 IF "%APPVEYOR%" EQU "True" (
@@ -150,6 +155,7 @@ IF "%APPVEYOR%" EQU "True" (
   ECHO   LP3D_QT32_BASE.........[%LP3D_QT32_BASE%]
   ECHO   LP3D_QT32_UTILS........[%LP3D_QT32_UTILS%]
   ECHO   LP3D_QT64_MSYS2........[%LP3D_QT64_MSYS2%]
+  ECHO   LP3D_WIN_GIT_DIR.......[%LP3D_WIN_GIT_MSG%]
 )
 ECHO   PACKAGE................[%PACKAGE%]
 ECHO   VERSION................[%VERSION%]
@@ -222,8 +228,10 @@ GOTO :END
 
 :CONFIGURE_BUILD_ENV
 CD /D %ABS_WD%
-ECHO. 
+ECHO.
 ECHO -Cleanup previous LPub3D qmake config files...
+ECHO.
+ECHO -Configure LPub3D build environment...
 FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
@@ -483,7 +491,7 @@ GOTO :END
 :USAGE
 ECHO ----------------------------------------------------------------
 ECHO.
-ECHO LDView Windows auto build script.
+ECHO %PACKAGE% Windows auto build script.
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
