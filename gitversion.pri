@@ -14,8 +14,10 @@ exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
     message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
-appveyor_qt_mingw64: exists($$(LP3D_WIN_GIT)) {
-    WIN_GIT = $$(LP3D_WIN_GIT)\\git
+appveyor_qt_mingw64 {
+    _PROGRAM_FILES = $$(PROGRAMFILES)
+    exists($${_PROGRAM_FILES}/Git/cmd)
+    WIN_GIT = $${_PROGRAM_FILES}/Git/cmd/git
     message("~~~ LP3D_WIN_GIT PATH $$WIN_GIT IS VALID ~~~")
 } else {
 	WIN_GIT = git
@@ -104,10 +106,9 @@ win32 {
 #message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
 
 # Separate the date into day month, year
-_APPVEYOR = $$(APPVEYOR)
-contains(_APPVEYOR),True) {
+appveyor_ci {
     # AppVeyor CI uses date format 'Day MM/DD/YY'
-    message("~~~ USING APPVEYOR WINDOWS DATE FORMAT")
+    message("~~~ USING APPVEYOR WINDOWS DATE FORMAT ~~~")
     BUILD_DATE ~= s/[\sA-Za-z\s]/""
     DATE_MM = $$section(BUILD_DATE, /, 0, 0)
     DATE_DD = $$section(BUILD_DATE, /, 1, 1)
