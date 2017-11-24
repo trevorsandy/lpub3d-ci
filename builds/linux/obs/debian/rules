@@ -30,23 +30,23 @@ configure-stamp:
 			cp ../SOURCES/complete.zip mainApp/extras; \
 			echo "LDraw archive library complete.zip copied"; \
 	else \
-			echo "complete.zip not found at $(readlink -e ../SOURCES)!"; \
+			echo "complete.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
 	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
 			cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
 			echo "LDraw archive library lpub3dldrawunf.zip copied"; \
 	else \
-			echo "lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"; \
+			echo "lpub3dldrawunf.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
 	for ArchiveSourceFile in \
 	  ../SOURCES/ldglite.tar.gz \
 	  ../SOURCES/ldview.tar.gz \
 	  ../SOURCES/povray.tar.gz; do \
 	  if [ -f "$${ArchiveSourceFile}" ]; then \
-	  	mv -f $${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) copied to $(readlink -e ../)"; \
+	  	mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $$(readlink -e ../)"; \
 	  fi; \
 	done
-	export WD=$(readlink -e ../); \
+	export WD=$$(readlink -e ../); \
 	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "${BINARY_FILE_LIST}"; \
 	echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/${BINARY_FILE_LIST}"; \
