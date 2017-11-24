@@ -14,6 +14,7 @@ WORKDIR /user
 USER user
 VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateRpm.sh \
+    && export DOCKER=true \
     && chmod +x CreateRpm.sh \
     && ./CreateRpm.sh \
     && if test -d /buildpkg; then \

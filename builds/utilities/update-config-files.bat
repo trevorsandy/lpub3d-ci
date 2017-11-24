@@ -39,7 +39,7 @@ SET pkgbuild_line=3
 SET debdsc_line=5
 SET readme_line=1
 SET rpmspec1_line=94
-SET rpmspec2_line=288
+SET rpmspec2_line=289
 
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (

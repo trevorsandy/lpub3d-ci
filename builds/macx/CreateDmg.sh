@@ -103,7 +103,8 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
 echo "-  source CreateRenderers in dmgbuild/..."
-env OBS=false source ${LPUB3D}/builds/utilities/CreateRenderers.sh
+export OBS=false; export WD=$PWD
+source ${LPUB3D}/builds/utilities/CreateRenderers.sh
 
 cd ${LPUB3D}
 

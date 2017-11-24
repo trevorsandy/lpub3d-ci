@@ -14,17 +14,18 @@ exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
     message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
-appveyor_qt_mingw64 {
-    _PROGRAM_FILES = $$(PROGRAMFILES)
-    exists($${_PROGRAM_FILES}/Git/cmd)
-    WIN_GIT = $${_PROGRAM_FILES}/Git/cmd/git
-    message("~~~ LP3D_WIN_GIT PATH $$WIN_GIT IS VALID ~~~")
-} else {
-	WIN_GIT = git
-}
+# Trying to get git to work here when MSYS2/Mingw64 enabled - not successful
+# appveyor_qt_mingw64 {
+#     _PROGRAM_FILES = $$(PROGRAMFILES)
+#     exists($${_PROGRAM_FILES}/Git/cmd)
+#     WIN_GIT = $${_PROGRAM_FILES}/Git/cmd/git
+#     message("~~~ LP3D_WIN_GIT PATH $$WIN_GIT IS VALID ~~~")
+# } else {
+# 	WIN_GIT = git
+# }
 
 # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so use version.info file
-# appveyor_qt_mingw64: GIT_DIR = undefined
+appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
     appveyor_qt_mingw64 {
         BUILD_TYPE = release
@@ -57,7 +58,8 @@ equals(GIT_DIR, undefined) {
 
 } else {
     # Need to call git with manually specified paths to repository
-	BASE_GIT_COMMAND = $${WIN_GIT} --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
+	# BASE_GIT_COMMAND = $${WIN_GIT} --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
+    BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
     # Trying to get version from git tag / revision
     GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
@@ -136,10 +138,5 @@ DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 # Now we are ready to pass parsed version to Qt ===
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
-# Update the version number file for win/unix during build
-# Generate git version data to the input files indicated. Input files are consumed during the
-# build process to set the version informatio for LPub3D executable, its libraries (ldrawini and quazip)
-# Update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
-# This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
-# lpub3d.spec depending on which build is being performed.
+# Echo the complete version string
 message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR ~~~)

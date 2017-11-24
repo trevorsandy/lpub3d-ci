@@ -92,13 +92,10 @@ if [ ! -f complete.zip ]
 then
      wget -q http://www.ldraw.org/library/updates/complete.zip
 fi
-# echo "8. download lpub3d_linux_3rdparty repository as tar.gz archive to SOURCES/..."
-# if [ ! -f lpub3d_linux_3rdparty.tar.gz ]
-# then
-#      wget -q -O lpub3d_linux_3rdparty.tar.gz https://github.com/trevorsandy/lpub3d_linux_3rdparty/archive/master.tar.gz
-# fi
-echo "8. source CreateRenderers from  SOURCES/..."
-env OBS=false source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
+
+# echo "8. source CreateRenderers from  SOURCES/..."
+# export OBS=false; export WD=$PWD
+# source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
 
 echo "7. re-create (untar) soruce directory ${SOURCE_DIR}/..."
 cd ../

@@ -22,7 +22,6 @@ win32 {
     #
     # source path
     isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC        = $$_PRO_FILE_PWD_/../../lpub3d_windows_3rdparty
-    message("~~~ INSTALL FROM REPO $$THIRD_PARTY_SRC ~~~")
 
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE        = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite.exe
@@ -61,6 +60,7 @@ win32 {
     include(install3rdpartycontent.pri)
 
     stagewindistcontent {
+
         # stage directory path components
         isEmpty(LPUB3D_STG_PRODUCT):LPUB3D_STG_PRODUCT = $$STG_TARGET
         isEmpty(LPUB3D_STG_VERSION):LPUB3D_STG_VERSION = $$VERSION

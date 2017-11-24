@@ -15,6 +15,7 @@ WORKDIR /user
 USER user
 VOLUME /buildpkg
 CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateDeb.sh \
+    && export DOCKER=true \
     && chmod +x CreateDeb.sh \
     && ./CreateDeb.sh \
     && if test -d /buildpkg; then \

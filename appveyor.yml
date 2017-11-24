@@ -33,7 +33,7 @@ environment:
   lp3d_qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
   lp3d_iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
   lp3d_librepo: lpub3d_mingw-x86_64_libs
-  lp3d_librepodir: /c/projects/$(lp3d_librepo)
+  lp3d_librepodir: /c/projects/$(APPVEYOR_PROJECT_NAME)/$(lp3d_librepo)
 
 init:
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
@@ -91,11 +91,11 @@ build_script:
       write-host "  Distribution directory..[${env:LP3D_PACKAGE}_PATH]"
       write-host "  Working Directory.......[$PWD]"
       If ($env:LP3D_BUILD_PKG -eq "yes") {
-        cmd.exe /c builds\windows\AutoBuild.cmd -all -ins -chk 2`>`&1
+        cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -ins -chk 2`>`&1
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path ${env:LP3D_PACKAGE}_PATH -Recurse).count
         write-host "`n  Artifact count....[$env:LP3D_ARTEFACT_ITEM_COUNT]"
       } Else {
-        cmd.exe /c builds\windows\AutoBuild.cmd -all -chk 2`>`&1
+        cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
       }
 
 test: off

@@ -91,7 +91,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.211
+Version: 2.0.21.212
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -224,10 +224,11 @@ for ArchiveSourceFile in \
   ../../SOURCES/povray.tar.gz; do
   mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) copied to $(readlink -e ../)"
   if [ -f "$${ArchiveSourceFile}" ]; then
-    mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $$(readlink -e ../)"
+    mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $(readlink -e ../)"
   fi
 done
-chmod +x builds/utilities/CreateRenderers.sh && env WD=$(readlink -e $PWD/../) ./builds/utilities/CreateRenderers.sh
+export WD=$(readlink -e ../); \
+chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 set -x
 # use Qt5
 %if 0%{?fedora}==23
@@ -285,5 +286,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Nov 24 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.211
+* Fri Nov 24 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.212
 - LPub3D Linux package (rpm) release

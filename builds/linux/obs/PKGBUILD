@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.211
+pkgver=2.0.21.212
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
@@ -16,10 +16,11 @@ noextract=("complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "
 md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
-	echo "Current working directory: $PWD"
-  chmod +x ${pkgname}-git/builds/utilities/CreateRenderers.sh && \
-  env WD=$PWD .${pkgname}-git/builds/utilities/CreateRenderers.sh
+  echo "Current working directory: $PWD"
+	export WD=$PWD
 	cd ${pkgname}-git
+	chmod +x builds/utilities/CreateRenderers.sh && \
+	./builds/utilities/CreateRenderers.sh
 	echo "Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras

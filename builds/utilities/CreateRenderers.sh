@@ -7,9 +7,9 @@
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
-# sample commands [call from <path>]:
-# -chmod +x builds/utilities/CreateRenderers.sh && env DOCKER=true OBS=false WD=$PWD ./builds/utilities/CreateRenderers.sh
-# -env OBS=false source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
+# sample commands [call from root build directory - e.g. lpub3d]:
+# -export WD=$PWD; export DOCKER=true; chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+# -export OBS=false; source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
 
 # IMPORTANT: OBS flag is 'ON' by default, be sure to set this flag in your calling command accordingly
 
@@ -22,14 +22,8 @@ SECONDS=0
 # Set sourced flag
 if [ "${ME}" = "CreateRenderers.sh" ]; then
   SOURCED="false"
-  WD=$PWD
 else
   SOURCED="true"
-fi
-
-# Initialize OBS if not in command line input
-if [ "${OBS}" = "" ]; then
-  OBS=true
 fi
 
 Info () {
@@ -43,7 +37,7 @@ Info () {
 
 # Functions
 ExtractArchive() {
-	# args: $1 = <folder>, $2 = <valid subfolder>    
+	# args: $1 = <folder>, $2 = <valid subfolder>
 	Info "Extracting $1.tar.gz..."
 	mkdir -p $1 && chown user:user $1
 	tar -mxzf $1.tar.gz -C $1 --strip-components=1
@@ -106,9 +100,23 @@ Info "Building............[LPub3D 3rd Party Renderers]"
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
+  parent_dir=${PWD##*/}
+  if  [ "$parent_dir" = "utilities" ]; then
+    chkdir="$(readlink - ../../../)"
+    if [ -d "$chkdir" ];then
+      WD=$chkdir
+    fi
+  else
+    WD=$PWD
+  fi
   echo
-  Info "Requird Working Directory 'WD' environment varialbe not specified - the script will exit."
-  exit 1
+  Info "WARNING - 'WD' environment varialbe not specified. Using $WD"
+fi
+
+# Initialize OBS if not in command line input
+if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
+  OBS=true
+  Info "WARNING - OBS environment variable was not specified. Setting to true."
 fi
 
 # Platform ID
@@ -120,9 +128,9 @@ else
 fi
 if [ "${DOCKER}" = "true" ]; then
 	Info "Platform............[Docker - ${platform}]"
-elif [ "$TRAVIS" = "true" ]; then
+elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform............[Travis CI - ${platform}]"
-elif [ "$OBS" = "true" ]; then
+elif [ "${OBS}" = "true" ]; then
   Info "Platform............[Open Build System - ${platform}]"
 else
 	Info "Platform............[${platform}]"
@@ -212,9 +220,7 @@ for buildDir in ldglite ldview povray; do
     if [ -f ${buildDir}.tar.gz ]; then
       ExtractArchive ${buildDir} ${validSubDir}
     else
-      Info "`echo ${buildDir} | awk '{print toupper($0)}'` \
-	  tarball ${buildDir}.tar.gz does not exist. Downloading..."
-	  
+      Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
       curl -sL -o ${buildDir}.tar.gz ${curlCommand}
       ExtractArchive ${buildDir} ${validSubDir}
     fi

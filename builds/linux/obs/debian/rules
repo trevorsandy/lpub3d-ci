@@ -11,6 +11,9 @@ export QT_SELECT=qt5
 # for 3rd party apps install
 export LP3D_BUILD_PKG=yes
 
+# list of additional binaries (3rd party renderers) to process
+export BINARY_FILE_LIST="builds/linux/obs/debian/source/include-binaries"; \
+
 # get target arch
 LP3D_TARGET_ARCH=`uname -m`
 
@@ -43,10 +46,11 @@ configure-stamp:
 	  	mv -f $${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) copied to $(readlink -e ../)"; \
 	  fi; \
 	done
-	chmod +x builds/utilities/CreateRenderers.sh && env WD=$(readlink -e ../) ./builds/utilities/CreateRenderers.sh
-	FILE="builds/linux/obs/debian/source/include-binaries" \
-	&& sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$$FILE" \
-	&& echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/$$FILE"
+	export WD=$(readlink -e ../); \
+	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+	sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "${BINARY_FILE_LIST}"; \
+	echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/${BINARY_FILE_LIST}"; \
+	cat "${BINARY_FILE_LIST}"
 override_dh_auto_configure:
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \

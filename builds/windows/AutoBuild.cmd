@@ -15,6 +15,8 @@ rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+SET start=%time%
+
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "windows" (
   CALL :WD_REL_TO_ABS ../../
@@ -230,8 +232,6 @@ GOTO :END
 CD /D %ABS_WD%
 ECHO.
 ECHO -Cleanup previous LPub3D qmake config files...
-ECHO.
-ECHO -Configure LPub3D build environment...
 FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
@@ -242,32 +242,34 @@ FOR /R %%I IN (
   "mainApp\object_script.*"
 ) DO DEL /S /Q "%%~I" >nul 2>&1
 ECHO.
+ECHO -Configure LPub3D build environment...
+ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..[%PLATFORM%]
 SET PATH=%LP3D_QT32_BASE%;%LP3D_QT32_UTILS%;%SYS_DIR%;%LP3D_WIN_GIT%
-SET LPUB3D_CONFIG_ARGS=CONFIG+=stagewindistcontent CONFIG+=%CONFIGURATION%
+SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION%
 IF "%APPVEYOR%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
+) ELSE (
+  IF %THIRD_INSTALL%==1 SET LP3D_BUILD_PKG=yes
 )
-SET LPUB3D_MAKE_ARGS=-f Makefile
+IF "%LP3D_BUILD_PKG%" EQU "yes" (
+  IF %THIRD_INSTALL%==1 (
+    ECHO   INSTALL_3RDPARTY_ITEMS.[YES]
+    SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=stagewindistcontent
+  )
+)
 IF %PLATFORM% EQU x86_64 (
   SET PATH=%LP3D_QT64_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
   IF "%APPVEYOR%" EQU "True" (
     SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_qt_mingw64
   )
 )
+SET LPUB3D_MAKE_ARGS=-f Makefile
 SET PATH_PREPENDED=True
 ECHO   LPUB3D_CONFIG_ARGS.....[%LPUB3D_CONFIG_ARGS%]
 SETLOCAL ENABLEDELAYEDEXPANSION
 ECHO(  PATH_PREPEND...........[!PATH!]
   ENDLOCAL
-)
-IF "%APPVEYOR%" NEQ "True" (
-  IF %THIRD_INSTALL%==1 SET LP3D_BUILD_PKG=yes
-)
-IF "%LP3D_BUILD_PKG%" EQU "yes" (
-  IF %THIRD_INSTALL%==1 (
-	  ECHO   INSTALL_3RDPARTY_ITEMS.[YES]
-  )
 )
 EXIT /b
 
@@ -547,5 +549,20 @@ EXIT /b
 :END
 ECHO.
 ECHO -%~nx0 finished.
+SET end=%time%
+SET options="tokens=1-4 delims=:.,"
+FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
+FOR /f %options% %%a IN ("%end%") DO SET end_h=%%a&SET /a end_m=100%%b %% 100&SET /a end_s=100%%c %% 100&SET /a end_ms=100%%d %% 100
+
+SET /a hours=%end_h%-%start_h%
+SET /a mins=%end_m%-%start_m%
+SET /a secs=%end_s%-%start_s%
+SET /a ms=%end_ms%-%start_ms%
+IF %ms% lss 0 SET /a secs = %secs% - 1 & SET /a ms = 100%ms%
+IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
+IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
+IF %hours% lss 0 SET /a hours = 24%hours%
+IF 1%ms% lss 100 SET ms=0%ms%
+ECHO -Elapsed build time %hours%:%mins%:%secs%.%ms%
 ENDLOCAL
 EXIT /b
