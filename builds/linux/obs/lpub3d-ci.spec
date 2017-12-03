@@ -74,7 +74,7 @@ Group: Graphics
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia}
 License: GPLv3+
 %endif
 
@@ -91,7 +91,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.213
+Version: 2.0.21.215
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -101,14 +101,9 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?suse_version}
-BuildRequires: freeglut-devel, boost-devel, tinyxml-devel, gl2ps-devel, libtiff-devel
-%endif
-
 %if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
-BuildRequires: SDL2-devel, mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
-BuildRequires: gcc-c++, libpng-devel, make
+BuildRequires: gcc-c++, make
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
@@ -119,7 +114,6 @@ BuildRequires: git
 
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel, libqt5-qttools-devel
-BuildRequires: libSDL2-devel, libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: zlib-devel
 %if 0%{?suse_version} > 1300
 BuildRequires: Mesa-devel
@@ -132,12 +126,10 @@ BuildRequires: -post-build-checks
 %if 0%{?mageia}
 BuildRequires: qtbase5-devel, qttools5-devel
 %ifarch x86_64
-BuildRequires: libsdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64openexr-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
-BuildRequires: lib64sdl2.0-devel, libosmesa-devel, libmesaglu1-devel, libopenexr-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
 %endif
@@ -151,16 +143,6 @@ BuildRequires: qca
 %if 0%{?fedora_version}==23
 BuildRequires: qca, gnu-free-sans-fonts
 %endif
-%endif
-
-%if 0%{?buildservice}
-%if 0%{?fedora_version}==25
-BuildRequires: llvm-libs
-%endif
-%endif
-
-%if 0%{?centos_version}
-BuildRequires: libXext-devel
 %endif
 
 # configuration settings
@@ -193,15 +175,20 @@ echo "Source0..................%{SOURCE0}"
 echo "Source20.................%{SOURCE10}"
 echo "Service Provider.........%{serviceprovider}"
 echo "Packing Platform.........%{packingplatform}"
-echo "OpenBuildService Flag....%{buildservice}"
+echo "OpenBuildService Flag....%{buildserviceflag}"
 echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
 set -x
 %setup -q -n %{name}-git
 
 %build
 export QT_SELECT=qt5
-# instruct qmake to copy 3rd-party apps
+# instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
+%if 0%{?buildservice}==1
+export OBS=true
+%else
+export OBS=false
+%endif
 set +x
 echo "Current working directory: $PWD"
 # download ldraw archive libraries
@@ -222,14 +209,14 @@ for ArchiveSourceFile in \
   ../../SOURCES/ldglite.tar.gz \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz; do
-  mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) copied to $(readlink -e ../)"
   if [ -f "$${ArchiveSourceFile}" ]; then
     mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $(readlink -e ../)"
   fi
 done
+set -x
+# build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-set -x
 # use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64
@@ -273,7 +260,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
-%attr(755,-,-) %{_datadir}/lpub3d/3rdParty/*/resources/set-ldrawdir.command
 %post -p /sbin/ldconfig
 %if 0%{?buildservice}!=1
 update-mime-database  /usr/share/mime >/dev/null || true
@@ -285,6 +271,6 @@ update-desktop-database || true
 update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
-
+* Sun Dec 03 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.215
 * Fri Nov 24 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.213
 - LPub3D Linux package (rpm) release

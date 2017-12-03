@@ -3,10 +3,6 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 23 2017
-rem  Copyright (c) 2015 - 2017 by Trevor Sandy
-rem --
-rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: November 23, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
@@ -18,19 +14,25 @@ SET start=%time%
 
 rem get the parent folder
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-rem get abs path to build 3rd party packages outside the LPub3D root dir
-IF "%SCRIPT_DIR%" EQU "utilities" (
-  CALL :WD_REL_TO_ABS ../../../
-) ELSE (
-  CALL :WD_REL_TO_ABS ../
-)
 rem Variables - change these as required by your build environments
 IF "%APPVEYOR%" EQU "True" (
+  rem get abs path to build 3rd party packages inside the LPub3D root dir
+  IF "%SCRIPT_DIR%" EQU "utilities" (
+    CALL :WD_REL_TO_ABS ../../
+  ) ELSE (
+    CALL :WD_REL_TO_ABS .
+  )
   SET BUILD_OUTPUT_PATH=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 ) ELSE (
+  rem Variables - change these as required by your build environments
+  IF "%SCRIPT_DIR%" EQU "utilities" (
+    CALL :WD_REL_TO_ABS ../../../
+  ) ELSE (
+    CALL :WD_REL_TO_ABS ../
+  )
   SET BUILD_OUTPUT_PATH=%ABS_WD%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET DIST_DIR=../lpub3d_windows_3rdparty
@@ -208,7 +210,9 @@ EXIT /b
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
 SET BUILD_OUTPUT_PATH_SAVE=%BUILD_OUTPUT_PATH%
-SET BUILD_OUTPUT_PATH=%USERPROFILE%
+IF "%APPVEYOR%" EQU "True" (
+  SET BUILD_OUTPUT_PATH=%USERPROFILE%
+)
 SET ARCHIVE_FILE_DIR=%LDRAW_DIR%
 SET ARCHIVE_FILE=complete.zip
 SET VALID_SDIR=parts
@@ -221,9 +225,9 @@ IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
 
     CALL :DOWNLOAD_ARCHIVE
   )
-  
+
   CALL :EXTRACT_ARCHIVE
-  
+
   IF EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
     ECHO.
     ECHO -LDraw directory %LDRAW_DIR% successfully extracted.
@@ -260,7 +264,7 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%" (
     ECHO.
     ECHO -[ERROR] Could not find %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%.
     GOTO :END
-  ) 
+  )
 )
 EXIT /b
 

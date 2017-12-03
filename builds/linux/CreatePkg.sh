@@ -1,13 +1,22 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 02 2017
+# Trevor SANDY
+# Last Update December 03 2017
 # To run:
-# $ chmod 755 CreatePkg.sh
-# $ ./CreatePkg.sh
+# $ chmod 755 CreateDeb.sh
+# $ [options] && ./builds/linux/CreatePkg.sh
+# [options]:
+#  - export DOCKER=true if using Docker image
+# [note]: elevated access required for apt-get install, execute with sudo
+# or enable user with no password sudo if running noninteractive - see
+# docker-compose/dockerfiles for script exampo of sudo, no password user.
+
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
-BUILD_DATE=`date "+%Y%m%d"`
+export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by PKGBUILD
 
 echo "Start $ME execution at $CWD..."
 
@@ -15,8 +24,10 @@ echo "Start $ME execution at $CWD..."
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 
-# logging stuff
-# increment log file name
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
+# logging stuff - increment log file name
 f="${CWD}/$ME"
 ext=".log"
 if [[ -e "$f$ext" ]] ; then
@@ -37,7 +48,10 @@ exec 2> >(tee -a ${LOG} >&2)
 echo "1. create PKG working directories in pkgbuild/"
 if [ ! -d pkgbuild ]
 then
-    mkdir -p pkgbuild/upstream
+  mkdir -p pkgbuild/upstream
+else
+  rm -rf pkgbuild
+  mkdir -p pkgbuild/upstream
 fi
 cd pkgbuild/upstream
 
@@ -72,24 +86,41 @@ cd ../
 echo "6. download LDraw archive libraries to pkgbuild/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
-     wget -q http://www.ldraw.org/library/updates/complete.zip
+    curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
 fi
 
-# echo "8. source CreateRenderers from pkgbuild/..."
-# export OBS=false; export WD=$PWD
-# source ${WORK_DIR}/builds/utilities/CreateRenderers.sh
+# download 3rd party packages defined as source in PKGBUILD
+echo "7. copy 3rd party source to pkgbuild/"
+for buildDir in ldglite ldview povray; do
+  TESTING=======================================================>
+  case ${buildDir} in
+  ldglite)
+    curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
+    ;;
+  ldview)
+    curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
+    ;;
+  povray)
+    curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
+    ;;
+  esac
+  if [ ! -f ${buildDir}.tar.gz ]; then
+    Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
+    curl $curlopts -o ${buildDir}.tar.gz ${curlCommand}
+  fi
+done
 
-echo "7. build application package"
-makepkg -s
+echo "8. build application package"
+makepkg --syncdeps
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "8. create update and download packages"
+    echo "9. create update and download packages"
     IFS=- read PKG_NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${PKG_EXTENSION}"
@@ -98,10 +129,11 @@ then
     mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${PKG_EXTENSION}"
     echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${PKG_EXTENSION}"
 else
-    echo "8. package ${DISTRO_FILE} not found."
+    echo "9. package ${DISTRO_FILE} not found."
 fi
 
-#echo " DEBUG Package files: `ls $PWD`"
-
+# Elapsed execution time
+ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo ""
 echo "$ME Finished!"
-# mv $LOG "${CWD}/pkgbuild/$ME.log"
+echo "$ELAPSED"

@@ -1,19 +1,24 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 25 2017
+# Last Update December 03, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
 
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
+
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
-BUILD_DATE=`date "+%Y%m%d"`
 
 echo "Start $ME execution at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
+
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
 
 # when running locally, use this block...
 if [ "${TRAVIS}" != "true"  ]; then
@@ -36,11 +41,11 @@ if [ "${TRAVIS}" != "true"  ]; then
   exec > >(tee -a ${LOG} )
   exec 2> >(tee -a ${LOG} >&2)
 
-  # use this instance of Qt if exist - my local machine :-)
-  if [ -d ~/Qt/IDE/5.7/clang_64 ]; then
-    export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
+  # use this instance of Qt if exist - this entry is local machine, change accordingly
+  if [ -d ~/Qt/IDE/5.9/clang_64 ]; then
+    export PATH=~/Qt/IDE/5.9/clang_64:~/Qt/IDE/5.9/clang_64/bin:$PATH
   else
-    echo "PATH not udpated, could not find ${HOME}/Qt/IDE/5.7/clang_64"
+    echo "PATH not udpated, could not find ${HOME}/Qt/IDE/5.9/clang_64"
   fi
 
   echo
@@ -63,16 +68,6 @@ then
 fi
 
 cd dmgbuild
-
-# if [ ! -d ../lpub3d_macos_3rdparty ]
-# then
-#   echo "-  download lpub3d_macos_3rdparty/ repository to dmgbuild/..."
-#   git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
-# else
-#   echo "-  lpub3d_macos_3rdparty/ repository exist. moving to dmgbuild/..."
-#   mv ../lpub3d_macos_3rdparty/ ./lpub3d_macos_3rdparty/
-#   #echo "   DEBUG lpub3d_macos_3rdparty dir: `find $PWD`"
-# fi
 
 if [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
@@ -102,23 +97,28 @@ _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
-echo "-  source CreateRenderers in dmgbuild/..."
+echo "-  execute CreateRenderers from ${LPUB3D}/..."
 export OBS=false; export WD=$PWD
-source ${LPUB3D}/builds/utilities/CreateRenderers.sh
-
 cd ${LPUB3D}
+./builds/utilities/CreateRenderers.sh
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  echo "-  download ldraw official library archive to extras/..."
-  curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
+  if [ ! -f "${HOME}/Library/complete.zip" ]
+  then
+    echo "-  copy ldraw official library archive from ${HOME}/Library/ to extras/..."
+    cp -f "${HOME}/Library/complete.zip" "mainApp/extras/complete.zip"
+  else
+    echo "-  download ldraw official library archive to extras/..."
+    curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
+  fi
 else
   echo "-  ldraw official library exist. skipping download"
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
   echo "-  download ldraw unofficial library archive to extras/..."
-  curl "http://www.ldraw.org/library/unofficial/ldrawunf.zip" -o "mainApp/extras/lpub3dldrawunf.zip"
+  curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
 else
   echo "-  ldraw unofficial library exist. skipping download"
 fi
@@ -223,6 +223,9 @@ else
   echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg was not found."
   echo "- $ME failed."
 fi
-# create dmg - end #
 
-# mv $LOG "${CWD}/dmgbuild/$ME.log"
+# Elapsed execution time
+ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo ""
+echo "$ME Finished!"
+echo "$ELAPSED"

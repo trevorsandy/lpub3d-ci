@@ -1,12 +1,21 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 02 2017
+# Last Update December 03 2017
 # To run:
 # $ chmod 755 CreateDeb.sh
-# $ ./CreateDeb.sh
+# $ [options] && ./builds/linux/CreateDeb.sh
+# [options]:
+#  - export DOCKER=true if using Docker image
+# [note]: elevated access required for apt-get install, execute with sudo
+# or enable user with no password sudo if running noninteractive - see
+# docker-compose/dockerfiles for script exampo of sudo, no password user.
+
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
+export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by debian/rules
 
 echo "Start $ME execution at $CWD..."
 
@@ -14,12 +23,14 @@ echo "Start $ME execution at $CWD..."
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
 # when running locally, use this block...
 if [ "${TRAVIS}" != "true"  ]; then
     # Travis starting point: /home/travis/build/trevorsandy/lpub3d-ci
     #
-    # logging stuff
-    # increment log file name
+    # logging stuff - increment log file name
     f="${CWD}/$ME"
     ext=".log"
     if [[ -e "$f$ext" ]] ; then
@@ -36,7 +47,6 @@ if [ "${TRAVIS}" != "true"  ]; then
     LOG="$f"
     exec > >(tee -a ${LOG} )
     exec 2> >(tee -a ${LOG} >&2)
-# For Travis CI, use this block (script called from [pwd] lpub3d/)
 else
     # Travis starts in the clone directory (lpub3d/), so move outside
     cd ../
@@ -86,16 +96,12 @@ echo "6. download LDraw archive libraries to SOURCES/..."
 # to the extras location. This config thus supports both Suse OBS and Travis CI build procs.
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -q http://www.ldraw.org/library/unofficial/ldrawunf.zip -O lpub3dldrawunf.zip
+    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
-     wget -q http://www.ldraw.org/library/updates/complete.zip
+    curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
 fi
-
-# echo "8. source CreateRenderers from  SOURCES/..."
-# export OBS=false; export WD=$PWD
-# source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
 
 echo "7. re-create (untar) soruce directory ${SOURCE_DIR}/..."
 cd ../
@@ -107,21 +113,22 @@ tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
 echo "8. copy debian/ configuration directory to ${SOURCE_DIR}/..."
 cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
-cd ${SOURCE_DIR}/debian
 
-echo "9. build application package from ${SOURCE_DIR}/..."
-cd ../
+echo "9. enter debbuild/${SOURCE_DIR}..."
+cd "${SOURCE_DIR}"
+
+echo "10. build application package from ${SOURCE_DIR}/..."
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc
 
-echo "10. run lintian..."
+echo "11. run lintian..."
 cd ../
 DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
 lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "11. create LPub3D update and download packages..."
+    echo "12. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
 
     cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
@@ -131,10 +138,11 @@ then
     echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${DEB_EXTENSION}"
 
 else
-    echo "11. package ${DISTRO_FILE} not found"
+    echo "12. package ${DISTRO_FILE} not found"
 fi
 
-#echo "    DEBUG Package files: `ls $PWD`"
-
+# Elapsed execution time
+ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo ""
 echo "$ME Finished!"
-# mv $LOG "${CWD}/debbuild/$ME.log"
+echo "$ELAPSED"

@@ -1,10 +1,10 @@
 FROM fedora:25
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
-RUN dnf install -y git wget unzip finger which rpmlint ccache dnf-plugins-core rpm-build
-RUN dnf install -y qt5-qtbase-devel qt5-qttools-devel
-RUN dnf install -y OpenEXR-devel boost-devel SDL2-devel mesa-libOSMesa-devel mesa-libGLU-devel freeglut-devel tinyxml-devel gl2ps-devel libtiff-devel
-RUN dnf update -x kernel* -y
+RUN dnf install -y git wget unzip finger which rpmlint ccache dnf-plugins-core rpm-build > ImageSetup.log 2>&1
+RUN dnf install -y qt5-qtbase-devel qt5-qttools-devel >> ImageSetup.log 2>&1
+RUN dnf update -x kernel* -y >> ImageSetup.log 2>&1
 RUN dnf install -y sudo \
+    && sed 's/= -isystem/= -I/' -i /usr/lib64/qt5/mkspecs/common/gcc-base.conf
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \
     && chmod 755 /user \
@@ -19,5 +19,6 @@ CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/l
     && ./CreateRpm.sh \
     && if test -d /buildpkg; then \
       sudo cp -f /user/rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; \
+      sudo cp -f /user/rpmbuild/BUILD/*.log /buildpkg/; \
       sudo cp -f /user/*.log /buildpkg/; \
     fi

@@ -127,23 +127,23 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazipd
     }
     # library target name
-    LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_debug) -l$$LDRAWINI_LIB
-    !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_debug) -l$$QUAZIP_LIB
+    LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+    !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -l$$QUAZIP_LIB
     # executable target name
     win32: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
     DESTDIR = $$join(ARCH,,,bit_release)
     BUILD += Release
     unix:!macx {
-        LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release) -lldrawini
-        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_release) -lquazip
+        LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lldrawini
+        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lquazip
     } else {
         win32 {
-            LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release) -lLDrawIni161
-            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_release) -lQuaZIP07
+            LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lLDrawIni161
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP07
         } else {
-            LIBS += -L$$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release) -lLDrawIni
-            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$join(ARCH,,,bit_release) -lQuaZIP
+            LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lLDrawIni
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP
         }
     }
     !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)

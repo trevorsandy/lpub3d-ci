@@ -1,15 +1,22 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 02 2017
+# Last Update December 01 2017
 # To run:
-# $ chmod 755 CreateRpm.sh
-# $ ./CreateRpm.sh
+# $ chmod 755 CreateDeb.sh
+# $ [options] && ./builds/linux/CreateRpm.sh
+# [options]:
+#  - export DOCKER=true if using Docker image
+# [note]: elevated access required for apt-get install, execute with sudo
+# or enable user with no password sudo if running noninteractive - see
+# docker-compose/dockerfiles for script exampo of sudo, no password user.
+
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
-BUILD_DATE=`date "+%Y%m%d"`
-CHANGE_DATE=`date "+%a %b %d %Y"`
 LP3D_TARGET_ARCH=`uname -m`
+export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by lpub3d.spec
 
 echo "Start $ME execution at $CWD..."
 
@@ -17,8 +24,10 @@ echo "Start $ME execution at $CWD..."
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 
-# logging stuff
-# increment log file name
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
+# logging stuff - increment log file name
 f="${CWD}/$ME"
 ext=".log"
 if [[ -e "$f$ext" ]] ; then
@@ -40,6 +49,9 @@ echo "1. create RPM build working directories in rpmbuild/..."
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
+else
+    rm -rf rpmbuild
+    mkdir -p rpmbuild
 fi
 cd rpmbuild
 BUILD_DIR=$PWD
@@ -75,16 +87,12 @@ cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ${BUILD_DIR}/SPECS
 echo "9. download LDraw archive libraries to SOURCES/..."
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -q -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
-     wget -q -O complete.zip http://www.ldraw.org/library/updates/complete.zip
+    curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
 fi
-
-# echo "10. source CreateRenderers from  SOURCES/..."
-# export OBS=false; export WD=$PWD
-# source ${WORK_DIR}/builds/utilities/CreateRenderers.sh
 
 # file copy and downloads above must happen before we make the tarball
 echo "11. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
@@ -102,25 +110,24 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
 cd ${BUILD_DIR}/SPECS
-echo "12. download build dependenvies..."
+echo "12. Check ${LPUB3D}.spec..."
 source /etc/os-release && if [ "$ID" = "fedora" ]; then sed 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' -i "${BUILD_DIR}/SPECS/${LPUB3D}.spec"; fi
-# check the spec
 rpmlint ${LPUB3D}.spec
-# add lpub3d build dependencies
-dnf builddep -y ${LPUB3D}.spec
 
-echo "13. build the RPM package..."
-rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec
+echo "13. add ${LPUB3D} build dependencies [requires elevated access - sudo]..."
+sudo dnf builddep -y ${LPUB3D}.spec
+
+echo "14. build the RPM package..."
+rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec 2>&1
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "14. check rpm packages..."
+    echo "15-1. check rpm packages..."
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
-    echo "15. create update and download packages..."
-    #IFS=- read RPM_NAME RPM_VERSION RPM_EXTENSION <<< ${DISTRO_FILE}
+    echo "15-2. create update and download packages..."
     RPM_EXTENSION="${DISTRO_FILE##*-}"
 
     cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
@@ -129,13 +136,14 @@ then
     mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${RPM_EXTENSION}"
     echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${RPM_EXTENSION}"
 else
-    echo "14. package ${DISTRO_FILE} not found."
+    echo "15. package ${DISTRO_FILE} not found."
 fi
 
-echo "15. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
+echo "16. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
 rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 
-#echo " DEBUG Package files:" `ls ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}`
-
+# Elapsed execution time
+ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo ""
 echo "$ME Finished!"
-#mv $LOG "${CWD}/rpmbuild/$ME.log"
+echo "$ELAPSED"

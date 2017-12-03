@@ -78,21 +78,33 @@
     <param name="path">/trevorsandy/ldglite/archive/master.tar.gz</param>
     <param name="filename">ldglite.tar.gz</param>
   </service>
- <service name="download_url">
-   <param name="protocol">https</param>
-   <param name="host">github.com</param>
-   <param name="path">/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz</param>
-   <param name="filename">povray.tar.gz</param>
- </service>
   <service name="download_url">
-    <param name="protocol">http</param>
-    <param name="host">www.ldraw.org</param>
-    <param name="path">/library/updates/complete.zip</param>
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz</param>
+    <param name="filename">povray.tar.gz</param>
   </service>
   <service name="download_url">
-    <param name="protocol">http</param>
-    <param name="host">www.ldraw.org</param>
-    <param name="path">/library/unofficial/ldrawunf.zip</param>
-    <param name="filename">lpub3dldrawunf.zip</param>
+   <param name="protocol">http</param>
+   <param name="host">www.ldraw.org</param>
+   <param name="path">/library/unofficial/ldrawunf.zip</param>
+   <param name="filename">lpub3dldrawunf.zip</param>
   </service>
+  <service name="download_url">
+   <param name="protocol">fpt</param>
+   <param name="host">www.ldraw.org</param>
+   <param name="path">/library/updates/complete.zip</param>
+  </service>   
+  <service name="download_url">
+   <param name="protocol">ftp</param>
+   <param name="host">ftp.freedesktop.org</param>
+   <param name="path">/pub/mesa/mesa-17.2.6.tar.gz</param>
+   <param name="filename">mesa-17.2.6.tar.gz</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">ftp</param>
+   <param name="host">ftp.freedesktop.org</param>
+   <param name="path">/pub/mesa/glu/glu-9.0.0.tar.bz2</param>
+   <param name="filename">glu-9.0.0.tar.bz2</param>
+  </service>  
 </services>

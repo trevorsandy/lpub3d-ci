@@ -11,9 +11,6 @@ export QT_SELECT=qt5
 # for 3rd party apps install
 export LP3D_BUILD_PKG=yes
 
-# list of additional binaries (3rd party renderers) to process
-export BINARY_FILE_LIST="builds/linux/obs/debian/source/include-binaries"; \
-
 # get target arch
 LP3D_TARGET_ARCH=`uname -m`
 
@@ -27,34 +24,37 @@ configure-stamp:
 	# Start custom configuration commands
 	echo "Current working directory: `pwd`"
 	if [ -f ../SOURCES/complete.zip ]; then \
-			cp ../SOURCES/complete.zip mainApp/extras; \
-			echo "LDraw archive library complete.zip copied"; \
+		cp ../SOURCES/complete.zip mainApp/extras; \
+		echo "LDraw archive library complete.zip copied"; \
 	else \
-			echo "complete.zip not found at $$(readlink -e ../SOURCES)!"; \
+		echo "complete.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
 	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
-			cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
-			echo "LDraw archive library lpub3dldrawunf.zip copied"; \
+		cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras; \
+		echo "LDraw archive library lpub3dldrawunf.zip copied"; \
 	else \
-			echo "lpub3dldrawunf.zip not found at $$(readlink -e ../SOURCES)!"; \
+		echo "lpub3dldrawunf.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
 	for ArchiveSourceFile in \
-	  ../SOURCES/ldglite.tar.gz \
-	  ../SOURCES/ldview.tar.gz \
-	  ../SOURCES/povray.tar.gz; do \
-	  if [ -f "$${ArchiveSourceFile}" ]; then \
-	  	mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $$(readlink -e ../)"; \
-	  fi; \
+		../SOURCES/ldglite.tar.gz \
+		../SOURCES/ldview.tar.gz \
+		../SOURCES/povray.tar.gz; do \
+		if [ -f "$${ArchiveSourceFile}" ]; then \
+			mv -f $${ArchiveSourceFile} ../ && echo "$$(basename $${ArchiveSourceFile}) copied to $$(readlink -e ../)"; \
+		fi; \
 	done
+	BINARY_FILE_PATH=$$(readlink -e ../)
+	BINARY_FILE_LIST=builds/linux/obs/debian/source/include-binaries; \
+	sed -i -e "s/__path__/$${BINARY_FILE_PATH}/g" "$${BINARY_FILE_LIST}" \
+		   -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$${BINARY_FILE_LIST}"; \
+	echo "Updated `pwd`/$${BINARY_FILE_LIST}:\n`cat $${BINARY_FILE_LIST}`"
+	# build 3rd-party renderers
 	export WD=$$(readlink -e ../); \
 	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-	sed -i -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "${BINARY_FILE_LIST}"; \
-	echo "updated arch ${LP3D_TARGET_ARCH} in `pwd`/${BINARY_FILE_LIST}"; \
-	cat "${BINARY_FILE_LIST}"
 override_dh_auto_configure:
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
-		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb;	\
+		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \
 	else \
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -v; \
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \
