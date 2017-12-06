@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 03, 2017
+# Last Update December 04, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -41,11 +41,13 @@ if [ "${TRAVIS}" != "true"  ]; then
   exec > >(tee -a ${LOG} )
   exec 2> >(tee -a ${LOG} >&2)
 
-  # use this instance of Qt if exist - this entry is local machine, change accordingly
-  if [ -d ~/Qt/IDE/5.9/clang_64 ]; then
-    export PATH=~/Qt/IDE/5.9/clang_64:~/Qt/IDE/5.9/clang_64/bin:$PATH
-  else
-    echo "PATH not udpated, could not find ${HOME}/Qt/IDE/5.9/clang_64"
+  # use this instance of Qt if exist - this entry is my dev machine, change accordingly
+  if [ "${TRAVIS}" != "true" ]; then
+    if [ -d ~/Qt/IDE/5.9/clang_64 ]; then
+      export PATH=~/Qt/IDE/5.9/clang_64:~/Qt/IDE/5.9/clang_64/bin:$PATH
+    else
+      echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
+    fi
   fi
 
   echo
@@ -104,7 +106,7 @@ cd ${LPUB3D}
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  if [ ! -f "${HOME}/Library/complete.zip" ]
+  if [ -f "${HOME}/Library/complete.zip" ]
   then
     echo "-  copy ldraw official library archive from ${HOME}/Library/ to extras/..."
     cp -f "${HOME}/Library/complete.zip" "mainApp/extras/complete.zip"
@@ -217,15 +219,14 @@ if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
   echo "- cleanup..."
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
-
-  echo "$ME Finished!"
 else
   echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg was not found."
-  echo "- $ME failed."
+  echo "- $ME Failed."
 fi
 
 # Elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo ""
+echo "----------------------------------------------------"
 echo "$ME Finished!"
 echo "$ELAPSED"
+echo "----------------------------------------------------"

@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 03, 2017
+#  Last Update: December 05, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -59,16 +59,60 @@ ExtractArchive() {
 	if [ -d $1/$2 ]; then
 	  Info "Archive $1.tar.gz successfully extracted."
 	  rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz."
-	  cd $1 && Info ""
+	  cd $1
 	else
 	  Info "ERROR - $1.tar.gz did not extract properly."
 	fi
 }
 
-# args $1 = <build folder>
+UpdatePermissions() {
+  Info "Updating $1 permissions..."
+  find ./$1 -exec chown $(whoami):$(id -gn $(whoami)) {} \+
+}
+
+# args: $1 = <log file>, $2 = <position>
+DisplayLogTail() {
+  if [[ -f "$1" && -s "$1" ]]; then
+    logFile="$1"
+    if [ "$2" = "" ]; then
+      # default to 5 lines from the bottom of the file if not specified
+      startPosition=-5
+    elif [[ "${2:0:1}" != "-" || "${2:0:1}" != "+" ]]; then
+      # default to the bottom of the file if not specified
+      startPosition=-$2
+    else
+      startPosition=$2
+    fi
+    Info "$1 last $2 lines..."
+    tail $startPositin $logFile
+  else
+    Info "ERROR (log tail) - $1 not found or not valid!"
+  fi
+}
+
+# args: $1 = <log file>, $2 = <search String>, $3 = <lines Before>, $4 = <lines After>
+DisplayCheckStatus() {
+  declare -i i; i=0
+  for arg in "$@"; do
+    i=i+1
+    if test $i -eq 1; then s_buildLog="$arg"; fi
+    if test $i -eq 2; then s_checkString="$arg"; fi
+    if test $i -eq 3; then s_linesBefore="$arg"; fi
+    if test $i -eq 4; then s_linesAfter="$arg"; fi
+  done
+  if [[ -f "$s_buildLog" && -s "$s_buildLog" ]]; then
+    if test -z "$s_checkString"; then Info "ERROR - check string not specified."; return 1; fi
+    if test -z "$s_linesBefore"; then s_linesBefore=2; Info "INFO - display 2 lines before"; fi
+    if test -z "$s_linesAfter"; then s_linesAfter=10; Info "INFO - display 10 lines after"; fi
+    nawk 'c-->0;$0~s{if(b)for(c=b+1;c>1;c--)print r[(NR-c+1)%b];print;c=a}b{r[NR%b]=$0}' \
+          b=$s_linesBefore a=$s_linesAfter s="${s_checkString}" $s_buildLog
+  else
+    Info "ERROR - Check display [$s_buildLog] not found or is not valid!"
+  fi
+}
+
 InstallDependencies() {
-  Info "Installing library dependencies for $1..."
-  platform_=$(. /etc/os-release && echo $ID)
+  Info &&  Info "Install $1 build dependencies..."
   # if [ "$OBS" = "true" ]; then
   #   useSudo=""
   #   Info "Using sudo..........[No]"
@@ -77,46 +121,81 @@ InstallDependencies() {
   Info "Using sudo..........[Yes]"
   # fi
   if [ "$OS_NAME" = "Linux" ]; then
+    platform_=$(. /etc/os-release && echo $ID)
+    case ${platform_} in
+    fedora|redhat|suse|mageia|arch|ubuntu|debian)
+      true
+      ;;
+    *)
+      if [ "$OBS" = "true" ]; then
+        if [ "$TARGET_VENDOR" != "" ]; then
+          platform_=$TARGET_VENDOR
+        else
+          Info "ERROR - Open Build Service did not provide a target platform."
+        fi
+      else
+        Info "ERROR - Unable to process this target platform: [$platform_]."
+      fi
+      ;;
+    esac
+    depsLog=${WD}/${ME}_deps_${1}.log
     Info "Platform............[${platform_}]"
     case ${platform_} in
-    *fedora*)
+    fedora|redhat|suse|mageia)
       # Initialize install mesa
-      updateMesa=0
-      mesaUpdated=0
       case $1 in
       ldglite)
         specFile="$PWD/obs/ldglite.spec"
-        updateMesa=1
+        buildOSMesa=1
         ;;
       ldview)
-        cp -f QT/LDView.spec QT/ldview-qt5.spec
-        sed 's/define qt5 0/define qt5 1/' -i QT/ldview-qt5.spec
-        specFile="$PWD/QT/ldview-qt5.spec"
-        updateMesa=1
+        cp -f QT/LDView.spec QT/ldview-lp3d-qt5.spec
+        sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i QT/ldview-lp3d-qt5.spec
+        specFile="$PWD/QT/ldview-lp3d-qt5.spec"
+        buildOSMesa=1
         ;;
       povray)
         specFile="$PWD/unix/obs/povray.spec"
        ;;
-     esac;
+      esac;
+      debbuildDeps="TBD"
       Info "Spec File...........[${specFile}]"
-      if [[ ${updateMesa} = 1 && ! ${mesaUpdated} = 1 ]]; then
+      Info "Dependencies List...[${debbuildDeps}]"
+      if [[ ${buildOSMesa} = 1 && ! ${OSMesaBuilt} = 1 ]]; then
+        mesaSpecDir="$CallDir/builds/utilities/mesa"
+        mesaBuildDeps="TBD"
+        mesaBuildLog=${WD}/${ME}_mesabuild_${1}.log
         Info "Update OSMesa.......[Yes]"
-        Info ""
-        $useSudo dnf builddep -y mesa
-        $useSudo dnf builddep -y "$CallDir/builds/utilities/mesa/glu.spec"
-        "$CallDir/builds/utilities/mesa/buildosmesa.sh"
-        mesaUpdated=1
+        Info "OSMesa Dependencies.[${mesaBuildDeps}]"
+        Info
+        $useSudo dnf builddep -y mesa > $mesaBuildLog 2>&1
+        Info "${1} Mesa dependencies installed." && DisplayLogTail $mesaBuildLog 10
+        $useSudo dnf builddep -y "${mesaSpecDir}/glu.spec" >> $mesaBuildLog 2>&1
+        Info "${1} GLU dependencies installed." && DisplayLogTail $mesaBuildLog 5
+
+        Info && Info "Build OSMesa and GLU static libraries..."
+        if [ "${OBS}" = "true" ]; then
+          "${mesaSpecDir}/buildosmesa.sh"
+        else
+          "${mesaSpecDir}/buildosmesa.sh" >> $mesaBuildLog 2>&1
+        fi
+        Info &&  Info "OSMesa and GLU build check..."
+        DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
+        Info &&  Info "${1} library OSMesa build finished."
+        OSMesaBuilt=1
       fi
-      Info ""
-      $useSudo dnf builddep -y $specFile
+      Info
+      $useSudo dnf builddep -y $specFile > $depsLog 2>&1
+      Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
       ;;
-    *arch*)
+    arch)
       case $1 in
       ldglite)
         pkgbuildFile="$PWD/obs/PKGBUILD"
         ;;
       ldview)
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
+        $useSudo mkdir /usr/share/mime
         ;;
       povray)
         pkgbuildFile="$PWD/unix/obs/PKGBUILD"
@@ -124,63 +203,83 @@ InstallDependencies() {
       esac;
       pkgbuildDeps="$(echo `grep -wr 'depends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'` \
                            `grep -wr 'makedepends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'`)"
+      pkgbuildDeps="$(echo "$pkgbuildDeps" | sed 's/kdelibs//g')"
       Info "PKGBUILD File.......[${pkgbuildFile}]"
       Info "Dependencies List...[${pkgbuildDeps}]"
-      Info ""
-      $useSudo pacman -Syy --noconfirm
-      $useSudo pacman -Syu --noconfirm
-      $useSudo pacman -S --noconfirm --needed $pkgbuildDeps
+      Info
+      $useSudo pacman -Syy --noconfirm --needed > $depsLog 2>&1
+      $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
+      $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
+      Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
       ;;
-    *ubuntu*)
+    ubuntu|debian)
       case $1 in
       ldglite)
         controlFile="$PWD/obs/debian/control"
-        extraFiles=""
         ;;
       ldview)
+        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' \
+            -e 's/kdelibs5-dev//g' -e '/^Build-Depends:/ s/$/ libtinyxml-dev libgl2ps-dev/' -i QT/debian/control
         controlFile="$PWD/QT/debian/control"
-        extraFiles="libtinyxml-dev libgl2ps-dev"
         ;;
       povray)
         controlFile="$PWD/unix/obs/debian/control"
-        extraFiles=""
         ;;
       esac;
       controlDeps=`grep Build-Depends $controlFile | cut -d: -f2| sed 's/(.*)//g' | tr -d ,`
       Info "Control File........[${controlFile}]"
-      Info "Dependencies List...[${controlDeps} $extraFiles]"
-      Info ""
-      $useSudo apt-get install -y $controlDeps $extraFiles
+      Info "Dependencies List...[${controlDeps} ${extraFiles}]"
+      Info
+      $useSudo apt-get update -qq > $depsLog 2>&1
+      $useSudo apt-get install -y $controlDeps >> $depsLog 2>&1
+      Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
+      ;;
+      *)
+      Info "ERROR - Unknown platform [$platform_]"
       ;;
     esac;
   elif [ "$OS_NAME" = "Darwin" ]; then
     # brew bottles here...
-    Info "brew bottles..."
-    brew install qt5 openexr sdl2 tinyxml gl2ps libjpeg minizip
-    brew link --force qt5
+    if [ "${TRAVIS}" != "true" ]; then
+      depsLog=${WD}/${ME}_deps_$OS_NAME.log
+      Info "install brew bottles..."
+      brew update > $depsLog 2>&1
+      brew install openexr sdl2 tinyxml gl2ps libjpeg minizip >> $depsLog 2>&1
+      Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
+    fi
+  else
+    Info "ERROR - Platform is undefined or invalid [$OS_NAME] - Cannot continue."
   fi
 }
 
 buildLdglite() {
+  BUILD_CONFIG="CONFIG+=BUILD_CHECK"
   if [ "$1" = "debug" ]; then
-    BUILD_CONFIG="CONFIG+=debug"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
-    BUILD_CONFIG="CONFIG+=release"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG} CONFIG+=BUILD_CHECK
+  if [ ${buildOSMesa} = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
+  fi
+  ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   make
-  make install > /dev/tty
+  make install
 }
 
 buildLdview() {
+  BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK"
   if [ "$1" = "debug" ]; then
-    BUILD_CONFIG="CONFIG+=debug"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
-    BUILD_CONFIG="CONFIG+=release"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG} CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK
+  if [ ${buildOSMesa} = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
+  fi
+  ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   make
-  make install > /dev/tty
+  make install
 }
 
 buildPovray() {
@@ -193,11 +292,11 @@ buildPovray() {
   cd ../
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." --prefix="${DIST_PKG_DIR}" LPUB3D_3RD_PARTY="yes" --with-libsdl2 --enable-watch-cursor ${BUILD_CONFIG}
   make check
-  make install > /dev/tty
+  make install
 }
 
 # Logging
-Info ""
+Info
 if [ "${SOURCED}" = "true" ]; then
   Info "Start CreateRenderers execution at $PWD..."
 else
@@ -223,8 +322,7 @@ else
   fi
 fi
 
-Info ""
-Info "Building............[LPub3D 3rd Party Renderers]"
+Info && Info "Building............[LPub3D 3rd Party Renderers]"
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
@@ -243,7 +341,6 @@ fi
 # Initialize OBS if not in command line input
 if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
   OBS=true
-  Info "WARNING - OBS environment variable was not specified. Setting to true."
 fi
 
 # Platform ID
@@ -252,6 +349,9 @@ if [ "${DOCKER}" = "true" ]; then
 elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform............[Travis CI - ${platform}]"
 elif [ "${OBS}" = "true" ]; then
+  if [ "$platform" = "" ]; then
+    platform=$(echo `uname`)
+  fi
   Info "Platform............[Open Build System - ${platform}]"
 else
 	Info "Platform............[${platform}]"
@@ -268,7 +368,7 @@ fi
 # Change to Working directory
 cd ${WD}
 
-# LDRaw Library - for testing LDView and LDGLite
+# LDraw Library - for testing LDView and LDGLite
 export LDRAWDIR=${HOME}/ldraw
 if [ ! -d ${LDRAWDIR}/parts ]; then
   if [ "$OS_NAME" = "Darwin" ]; then
@@ -276,15 +376,15 @@ if [ ! -d ${LDRAWDIR}/parts ]; then
   else
 	  LDRAWDIR_ROOT=${HOME}
   fi
-  Info "LDraw library not found at ${LDRAWDIR}. Checking for library archive..."
+  Info && Info "LDraw library not found at ${LDRAWDIR}. Checking for complete.zip archive..."
   if [ ! -f complete.zip ]; then
-	  Info "LDraw library archive complete.zip not found. Downloading library..."
-	  curl $curlopts -O http://www.ldraw.org/library/updates/complete.zip
+	  Info "Library archive complete.zip not found at $PWD. Downloading archive..."
+	  curl -s -O http://www.ldraw.org/library/updates/complete.zip;
   fi
   Info "Extracting LDraw library into ${LDRAWDIR}..."
   unzip -d ${LDRAWDIR_ROOT} -q complete.zip;
   if [ -d ${LDRAWDIR} ]; then
-	  Info "LDraw library extracted. LDRAWDIR defined." && if [ ! "$OS_NAME" = "Darwin" ]; then Info ""; fi
+	  Info "LDraw library extracted. LDRAWDIR defined."
   fi
 fi
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -292,7 +392,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
   chmod +x builds/utilities/set-ldrawdir.command && ./builds/utilities/set-ldrawdir.command
   grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
   Info "LDRAWDIR......${LDRAWDIR}"
-  Info "set LDRAWDIR Completed." && Info ""
+  Info "set LDRAWDIR Completed."
 fi
 
 # Qt setup
@@ -302,41 +402,50 @@ if [ -x /usr/bin/qmake ] ; then
 elif [ -x /usr/bin/qmake-qt5 ] ; then
   QMAKE_EXE=qmake-qt5
 fi
-Info ""
-${QMAKE_EXE} -v
+Info && ${QMAKE_EXE} -v
 QMAKE_EXE="${QMAKE_EXE} -makefile"
 
 # Main loop
+buildOSMesa=0
+OSMesaBuilt=0
 for buildDir in ldglite ldview povray; do
+  buildLog=${WD}/${ME}_build_${buildDir}.log
+  linesBefore=1
   case ${buildDir} in
   ldglite)
-  	curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
-  	buildCommand="buildLdglite"
-  	validSubDir="mui"
+    curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
+    checkString="LDGLite Output"
+    linesAfter="2"
+    buildCommand="buildLdglite"
+    validSubDir="mui"
     buildConfig="release"
-	  ;;
+    ;;
   ldview)
-  	curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
-  	buildCommand="buildLdview"
-  	validSubDir="OSMesa"
+    curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
+    checkString="LDView Image Output"
+    linesAfter="9"
+    buildCommand="buildLdview"
+    validSubDir="OSMesa"
     buildConfig="release"
-	  ;;
+    ;;
   povray)
-  	curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
-  	buildCommand="buildPovray"
-  	validSubDir="unix"
+    curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
+    checkString="Render Statistics"
+    linesAfter="42"
+    buildCommand="buildPovray"
+    validSubDir="unix"
     buildConfig="release"
-	  ;;
+    ;;
   esac
   if [ "$OBS" = "true" ]; then
     if [ -f ${buildDir}.tar.gz ]; then
       ExtractArchive ${buildDir} ${validSubDir}
+      UpdatePermissions ${buildDir}
     else
-      Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
+      Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
   elif [ ! -d ${buildDir}/${validSubDir} ]; then
-    Info ""
-    Info "`echo ${buildDir} | awk '{print toupper($0)}'` folder does not exist. Checking for tarball archive..."
+    Info && Info "`echo ${buildDir} | awk '{print toupper($0)}'` build folder does not exist. Checking for tarball archive..."
     if [ ! -f ${buildDir}.tar.gz ]; then
       Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
       curl $curlopts ${buildDir}.tar.gz -o ${curlCommand}
@@ -345,18 +454,25 @@ for buildDir in ldglite ldview povray; do
   else
     cd ${buildDir}
   fi
-  Info "Install ${buildDir} build dependencies..."
-  InstallDependencies ${buildDir} >> ${WD}/${ME}_${buildDir}.log 2>&1
-  Info "${buildDir} dependencies installed - see ${WD}/${ME}_${buildDir}.log for details"
-  Info "" && Info "----------------------------------------------------"
-  Info "Build ${buildDir}..."
-  ${buildCommand} ${buildConfig} >> ${WD}/${ME}_${buildDir}.log 2>&1
-  Info "${buildDir} build completed - see ${WD}/${ME}_${buildDir}.log for details"
+  InstallDependencies ${buildDir}
+  sleep .5
+  Info &&  Info "Build ${buildDir}..."
+  Info "----------------------------------------------------"
+  if [ "${OBS}" = "true" ]; then
+    ${buildCommand} ${buildConfig}
+  else
+    ${buildCommand} ${buildConfig} > ${buildLog} 2>&1
+    Info &&  Info "Build check - ${buildDir}..."
+    DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+  fi
+  Info &&  Info "Build ${buildDir} finished."
+  DisplayLogTail ${buildLog} 10
   cd ${WD}
 done
 
 # Elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-Info ""
+Info && Info "----------------------------------------------------"
 Info "$ME Finished!"
 Info "$ELAPSED"
+Info "----------------------------------------------------" && Info

@@ -3,12 +3,38 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: November 30, 2017
+#  Last Update: December 05, 2017
 #  Copyright (c) 2017 by Trevor SANDY
+#
+# Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
+# Note: If WD is not defined,
 #
 
 # capture elapsed time - reset BASH time counter
 SECONDS=0
+
+# configuration options:
+# specify the osmesa verion to build
+mesaversion="${OSMESA_VERSION:-17.2.6}"
+# specify llvm-config path if different from system default
+llvm_config="${LLVM_CONFIG:-/usr/bin/llvm-config}"
+# specify the libglu version
+gluversion="${GLU_VERSION:-9.0.0}"
+# specify the number of job processes
+mkjobs="${MKJOBS:-4}"
+# tell turl to follow links and continue after abnormal end if supported
+curlopts="-L -C -"
+# specify the build output path
+osmesaprefix="${OSMESA_PREFIX:-$WD/lpub3d_linux_3rdparty/mesa}"
+# specify if to remove existing build and build new
+cleanbuild="${CLEAN:-0}"
+# specify if to overwrite the existing osmesa-config - this file is copied during the build process
+config_copy="${COPY_CONFIG:-0}"
+# compiler flags
+CC="gcc"
+CXX="g++"
+CFLAGS="-O2"
+CXXFLAGS="-O2 -std=c++11"
 
 # grab te script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -16,9 +42,17 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 # get the script location
 ScriptDir=$(dirname "$0")
 
+# Get platform
+OS_NAME=`uname`
+if [ "$OS_NAME" = "Darwin" ]; then
+  PLATFORM=$(echo `sw_vers -productName`_`sw_vers -productVersion`)
+else
+  PLATFORM=$(. /etc/os-release && if test "${NAME}" != "" && test "${VERSION_ID}" != ""; then echo "${NAME}_${VERSION_ID}"; else echo `uname`; fi)
+fi
+
 # logging stuff
 # increment log file name
-f="$PWD/$ME"
+f="$PWD/${ME}_${PLATFORM}"
 ext=".log"
 if [[ -e "$f$ext" ]] ; then
   i=1
@@ -35,66 +69,58 @@ LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
+# Functions
+Info () {
+  echo "-osmesa- ${*}" >&2
+}
+
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
 	WD="$(cd ../ && pwd)"
-  echo "WARNING - 'WD' environment varialbe not specified. Using $WD"
+  Info "WARNING - 'WD' environment varialbe not specified. Using $WD"
 fi
 
-# static configuration options
-mesaversion="${OSMESA_VERSION:-17.2.6}"
-gluversion="${GLU_VERSION:-9.0.0}"
-mkjobs="${MKJOBS:-4}"
-curlopts="-L -C -"
-CC="gcc"
-CXX="g++"
-CFLAGS="-O2"
-CXXFLAGS="-O2 -std=c++11"
-osmesaprefix="${OSMESA_PREFIX:-$WD/lpub3d_linux_3rdparty/mesa}"
-cleanbuild="${CLEAN:-0}"
-
-echo
-echo "Working Directory....[${WD}]"
-#echo "Script Directory.....[${ScriptDir}]"
-echo "Install Prefix.......[${osmesaprefix}]"
-echo "OSMesa version.......[${mesaversion}]"
-echo "GLU version..........[${gluversion}]"
+Info
+Info "Working Directory....[${WD}]"
+Info "Script Directory.....[${ScriptDir}]"
+Info "LLVM-Config Path.....[${llvm_config}]"
+Info "Install Prefix.......[${osmesaprefix}]"
+Info "OSMesa Version.......[${mesaversion}]"
+Info "GLU Version..........[${gluversion}]"
 
 # build OSMesa
-echo && echo "building OSMesa..."
+Info && Info "building OSMesa..."
 
 cd $WD
 if [[ -d "mesa-${mesaversion}" && ${cleanbuild} = 1 ]]; then
-	echo "cleanup old mesa-$mesaversion..."
+	Info "cleanup old mesa-$mesaversion..."
 	rm -rf "mesa-$mesaversion"
 	if [ -d "${osmesaprefix}" ]; then
 		rm -rf "${osmesaprefix}"
 	fi
 fi
 
+#check for llvm-config
+if [ ! -f "${llvm_config}" ]; then
+	Info "llmv-config not found, (re)installing Mesa build dependencies..."
+	sudo dnf builddep -y mesa
+fi
+
 # sourcepath="${SOURCE_PATH:-projects/Working/Docker-output}"
 if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
-    #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && echo "mesa-${mesaversion}.tar.gz copied to ~/"
-	echo "downloading Mesa ${mesaversion}..."
+  #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && Info "mesa-${mesaversion}.tar.gz copied to ~/"
+	Info "downloading Mesa ${mesaversion}..."
 	curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz" || curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/${mesaversion}/mesa-${mesaversion}.tar.gz"
 fi
 
 if [ ! -d "mesa-${mesaversion}" ]; then
-	echo "extracting Mesa..."
+	Info "extracting Mesa..."
 	tar zxf mesa-${mesaversion}.tar.gz
 fi
 
 if [ ! -d "${osmesaprefix}" ]; then
-	echo "create install prefix..."
+	Info "create install prefix..."
     mkdir -p "${osmesaprefix}"
-fi
-
-# copy config file to
-cp -f "$ScriptDir/osmesa-config" "${osmesaprefix}"
-if  [ -f "${osmesaprefix}/osmesa-config" ]; then
-	echo "osmesa-config copied to ${osmesaprefix}"
-else
-	echo "Error - osmesa-config was not copied to ${osmesaprefix}"
 fi
 
 cd mesa-${mesaversion}
@@ -136,21 +162,35 @@ if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
 	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
 	# build command
-	echo && make -j${mkjobs}
+	Info && make -j${mkjobs}
 
 	# install command [sudo is not needed with user install prefix]
-	echo "installing OSMesa..."
+	Info "installing OSMesa..."
 	make install
 else
-	echo "library OSMesa32 exist - build skipped."
+	Info "library OSMesa32 exist - build skipped."
+fi
+
+# copy config file
+if [[ $config_copy -eq 1 || ! -f "${osmesaprefix}/osmesa-config" ]]; then
+	echo "DEBUG - WE ARE HERE: $PWD"
+	echo "DEBUG - KO COPY PATH: ${ScriptDir}/osmesa-config"
+	cp -f "${ScriptDir}/osmesa-config" "${osmesaprefix}"
+	if [ -f "${osmesaprefix}/osmesa-config" ]; then
+		Info "osmesa-config copied to ${osmesaprefix}"
+	else
+		Info "ERROR - osmesa-config was not copied to ${osmesaprefix}"
+  fi
+elif  [ -f "${osmesaprefix}/osmesa-config" ]; then
+	Info "osmesa-config exist - copy skipped."
 fi
 
 # build GLU
-echo && echo "building GLU..."
+Info && Info "building GLU..."
 
 cd $WD
 if [[ -d glu-$gluversion && ${cleanbuild} = 1 ]]; then
-	echo "cleanup old glu-$gluversion..."
+	Info "cleanup old glu-$gluversion..."
 	rm -rf "glu-$gluversion"
 	if [ -d "${osmesaprefix}" ]; then
 		rm -rf "${osmesaprefix}"
@@ -158,17 +198,17 @@ if [[ -d glu-$gluversion && ${cleanbuild} = 1 ]]; then
 fi
 
 if [ ! -f glu-${gluversion}.tar.bz2 ]; then
-	echo "* downloading GLU ${gluversion}..."
+	Info "* downloading GLU ${gluversion}..."
 	curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${gluversion}.tar.bz2"
 fi
 
 if [ ! -d glu-${gluversion} ]; then
-	echo "extracting GLU..."
+	Info "extracting GLU..."
 	tar jxf glu-${gluversion}.tar.bz2
 fi
 
 if [ ! -d "${osmesaprefix}" ]; then
-	echo "create install prefix..."
+	Info "create install prefix..."
     mkdir -p "${osmesaprefix}"
 fi
 
@@ -188,18 +228,18 @@ if [ ! -f "$osmesaprefix/lib/libGLU.a" ]; then
 	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
 	# build command
-	echo && make -j${mkjobs}
+	Info && make -j${mkjobs}
 
 	# install command [sudo is not needed with user install prefix]
-	echo "installing GLU..."
+	Info "installing GLU..."
 	make install
 else
-	echo "library GLU exist - build skipped."
+	Info "library GLU exist - build skipped."
 fi
 cd $WD
 
 # elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo
-echo "$ME Finsihed!"
-echo "$ELAPSED"
+Info
+Info "$ME Finsihed!"
+Info "$ELAPSED"

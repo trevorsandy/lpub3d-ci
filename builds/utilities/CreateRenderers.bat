@@ -27,7 +27,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 ) ELSE (
-  rem Variables - change these as required by your build environments
+  rem get abs path to build 3rd party packages outside the LPub3D root dir
   IF "%SCRIPT_DIR%" EQU "utilities" (
     CALL :WD_REL_TO_ABS ../../../
   ) ELSE (

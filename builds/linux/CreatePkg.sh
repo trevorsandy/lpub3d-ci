@@ -1,7 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Trevor SANDY
-# Last Update December 03 2017
+# Last Update December 04 2017
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreatePkg.sh
@@ -96,7 +95,6 @@ fi
 # download 3rd party packages defined as source in PKGBUILD
 echo "7. copy 3rd party source to pkgbuild/"
 for buildDir in ldglite ldview povray; do
-  TESTING=======================================================>
   case ${buildDir} in
   ldglite)
     curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
@@ -115,7 +113,7 @@ for buildDir in ldglite ldview povray; do
 done
 
 echo "8. build application package"
-makepkg --syncdeps
+makepkg --syncdeps --noconfirm --needed
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
@@ -134,6 +132,7 @@ fi
 
 # Elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo ""
+echo "----------------------------------------------------"
 echo "$ME Finished!"
 echo "$ELAPSED"
+echo "----------------------------------------------------"

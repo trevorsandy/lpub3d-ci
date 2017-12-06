@@ -6,8 +6,8 @@ pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
-depends=('qt5-base' 'qt5-tools' 'libpng')
-makedepends=()
+depends=('qt5-base' 'libpng')
+makedepends=('unzip' 'qt5-tools' 'nawk')
 conflicts=()
 replaces=()
 backup=()
@@ -16,19 +16,13 @@ noextract=("complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "
 md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
-  echo "  -> Current working directory: $PWD"
-  export WD=$PWD
-  for ArchiveSourceFile in \
-    ../ldglite.tar.gz \
-    ../ldview.tar.gz \
-    ../povray.tar.gz; do
-    if [ -f ../"${ArchiveSourceFile}" ]; then
-    	mv -f ../"${ArchiveSourceFile}" . && echo "$(basename ${ArchiveSourceFile}) copied to $PWD"
-    fi
-  done
+	# loc = ../src
+	echo "  -> Current working directory: $PWD"
+	export WD=$PWD
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh
+	# loc = ../src/${pkgname}-git
 	echo "  -> Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras

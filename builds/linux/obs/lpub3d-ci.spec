@@ -10,23 +10,22 @@
 #
 
 # set packing platform
-%define serviceprovider %(echo %{vendor})
 %if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
 %define buildservice 1
-%define packingplatform %(echo openSUSE BuildService)
+%define usingbuildservice true
+%define packingplatform %(echo openSUSE Build Service)
 %else
+%define usingbuildservice false
 %define packingplatform %(source /etc/os-release && if [ "$PRETTY_NAME" != "" ]; then echo $HOSTNAME ["$PRETTY_NAME"]; else echo $HOSTNAME [`uname`]; fi)
 %endif
 
 # set packer
+%define serviceprovider %(echo Trevor SANDY trevor.sandy@gmail.com)
 %if 0%{?buildservice}==1
-%define distpacker %(echo openSUSE BuildService [abuild])
-%define buildserviceflag %{buildservice}
+%define distpacker %(echo openSUSE Build Service [`whoami`])
 %define targetplatform %{_target}
 %else
-BuildRequires: finger
-%define distpacker %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
-%define buildserviceflag 0
+%define distpacker %(echo `whoami`)
 %define targetplatform %{packingplatform}
 %endif
 
@@ -79,7 +78,7 @@ License: GPLv3+
 %endif
 
 %if 0%{?suse_version} || 0%{?sles_version}
-License: GPL-3.0+
+License: GPL-2.0+
 BuildRequires: fdupes
 %endif
 
@@ -96,7 +95,7 @@ Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
-Requires: unzip
+BuildRequires: unzip, nawk
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
@@ -113,7 +112,7 @@ BuildRequires: git
 %endif
 
 %if 0%{?suse_version}
-BuildRequires: libqt5-qtbase-devel, libqt5-qttools-devel
+BuildRequires: libqt5-qtbase-devel
 BuildRequires: zlib-devel
 %if 0%{?suse_version} > 1300
 BuildRequires: Mesa-devel
@@ -124,7 +123,7 @@ BuildRequires: -post-build-checks
 %endif
 
 %if 0%{?mageia}
-BuildRequires: qtbase5-devel, qttools5-devel
+BuildRequires: qtbase5-devel, qttools5
 %ifarch x86_64
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
@@ -137,9 +136,6 @@ BuildRequires: libsane1, libproxy-webkit
 %endif
 
 %if 0%{?fedora}
-%if 0%{?fedora_version}==22
-BuildRequires: qca
-%endif
 %if 0%{?fedora_version}==23
 BuildRequires: qca, gnu-free-sans-fonts
 %endif
@@ -162,58 +158,80 @@ BuildRequires: qca, gnu-free-sans-fonts
 
 %prep
 set +x
-echo "Target...................%{_target}"
-echo "Target Vendor............%{_target_vendor}"
-echo "Target CPU...............%{_target_cpu}"
-echo "Name.....................%{name}"
-echo "Summary..................%{summary}"
-echo "Version..................%{version}"
-echo "Vendor...................%{vendor}"
-echo "Release..................%{release}"
-echo "Distribution packer......%{distpacker}"
-echo "Source0..................%{SOURCE0}"
-echo "Source20.................%{SOURCE10}"
-echo "Service Provider.........%{serviceprovider}"
-echo "Packing Platform.........%{packingplatform}"
-echo "OpenBuildService Flag....%{buildserviceflag}"
-echo "Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm"
+%if 0%{?suse_version}
+echo "OpenSUSE.......................%{suse_version}"
+%endif
+%if 0%{?sles_version}
+echo "SUSE Linux Enterprise Server...%{sles_version}"
+%endif
+%if 0%{?centos_ver}
+echo "CentOS.........................%{centos_ver}"
+%endif
+%if 0%{?fedora}
+echo "Fedora.........................%{fedora}"
+%endif
+%if 0%{?rhel_version}
+echo "RedHat Enterprise Linux........%{rhel_version}"
+%endif
+%if 0%{?scientificlinux_version}
+echo "Scientific Linux...............%{scientificlinux_version}"
+%endif
+%if 0%{?mageia}
+echo "Mageia.........................%{mageia}"
+%endif
+echo "Using OpenBuildService.........%{usingbuildservice}"
+%if 0%{?buildservice}==1
+echo "OpenBuildService Target........%{_target_vendor}"
+%endif
+echo "Target.........................%{_target}"
+echo "Target Vendor..................%{_target_vendor}"
+echo "Target CPU.....................%{_target_cpu}"
+echo "Name...........................%{name}"
+echo "Summary........................%{summary}"
+echo "Version........................%{version}"
+echo "Vendor.........................%{vendor}"
+echo "Release........................%{release}"
+echo "Distribution packer............%{distpacker}"
+echo "Source0........................%{SOURCE0}"
+echo "Source20.......................%{SOURCE10}"
+echo "Service Provider...............%{serviceprovider}"
+echo "Packing Platform...............%{packingplatform}"
+echo "Build Package..................%{name}-%{version}-%{release}-%{_arch}.rpm"
 set -x
 %setup -q -n %{name}-git
 
 %build
+export OBS=%{usingbuildservice}
+export TARGET_VENDOR=%{_target_vendor}
 export QT_SELECT=qt5
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
-%if 0%{?buildservice}==1
-export OBS=true
-%else
-export OBS=false
-%endif
-set +x
+#set +x
 echo "Current working directory: $PWD"
 # download ldraw archive libraries
 LDrawLibOffical=../../SOURCES/complete.zip
 LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
 if [ -f ${LDrawLibOffical} ] ; then
-  cp ${LDrawLibOffical} mainApp/extras && echo "complete.zip copied"
+  cp ${LDrawLibOffical} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
+  cp ${LDrawLibOffical} ../ && echo "LDraw archive library complete.zip copied to $(readlink -e ../)"
 else
-  echo "complete.zip not found at $(readlink -e ../SOURCES)!"
+  echo "LDraw archive library complete.zip not found at $(readlink -e ../SOURCES)!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-  cp ${LDrawLibUnofficial} mainApp/extras && echo "lpub3dldrawunf.zip copied"
+  cp ${LDrawLibUnofficial} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
 else
-  echo "lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
+  echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
 fi
 # Copy 3rd party renderer source archives and build renderers
 for ArchiveSourceFile in \
   ../../SOURCES/ldglite.tar.gz \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz; do
-  if [ -f "$${ArchiveSourceFile}" ]; then
-    mv -f $${ArchiveSourceFile} ../ && echo "$(basename $${ArchiveSourceFile}) copied to $(readlink -e ../)"
+  if [ -f "${ArchiveSourceFile}" ]; then
+    mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
 done
-set -x
+#set -x
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
@@ -271,6 +289,6 @@ update-desktop-database || true
 update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
-* Sun Dec 03 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.215
-* Fri Nov 24 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.213
+
+* Wed Dec 06 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.215
 - LPub3D Linux package (rpm) release

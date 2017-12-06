@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 01 2017
+# Last Update December 05 2017
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateRpm.sh
@@ -118,7 +118,7 @@ echo "13. add ${LPUB3D} build dependencies [requires elevated access - sudo]..."
 sudo dnf builddep -y ${LPUB3D}.spec
 
 echo "14. build the RPM package..."
-rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec 2>&1
+rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
@@ -144,6 +144,7 @@ rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 
 # Elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo ""
+echo "----------------------------------------------------"
 echo "$ME Finished!"
 echo "$ELAPSED"
+echo "----------------------------------------------------"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 03 2017
+# Last Update December 04 2017
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateDeb.sh
@@ -103,7 +103,7 @@ then
     curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "7. re-create (untar) soruce directory ${SOURCE_DIR}/..."
+echo "7. extract ${SOURCE_DIR}/ to debbuild/..."
 cd ../
 if [  -d ${LPUB3D}_${LP3D_APP_VERSION} ]
 then
@@ -114,8 +114,11 @@ tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 echo "8. copy debian/ configuration directory to ${SOURCE_DIR}/..."
 cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
 
-echo "9. enter debbuild/${SOURCE_DIR}..."
+echo "9. install ${LPUB3D} build dependencies [requires elevated access - sudo]..."
 cd "${SOURCE_DIR}"
+controlDeps=`grep Build-Depends debian/control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,`
+sudo apt-get update -qq
+sudo apt-get install -y $controlDeps
 
 echo "10. build application package from ${SOURCE_DIR}/..."
 chmod 755 debian/rules
@@ -143,6 +146,7 @@ fi
 
 # Elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo ""
+echo "----------------------------------------------------"
 echo "$ME Finished!"
 echo "$ELAPSED"
+echo "----------------------------------------------------"
