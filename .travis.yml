@@ -87,9 +87,9 @@ install:
         brew install qt5;
         brew link --force qt5;
       fi;
-      wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f mainApp/extras/complete.zip;
+      wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-      chmod +x builds/utilities/CreateRenderers.sh && env OBS=false WD=$PWD ./builds/utilities/CreateRenderers.sh;
+      chmod +x builds/utilities/CreateRenderers.sh && env OBS=false WD=$PWD/.. ./builds/utilities/CreateRenderers.sh;
     fi
   # Update docker-engine, docker-compose and get application version strings
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then

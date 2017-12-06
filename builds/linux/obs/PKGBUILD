@@ -1,13 +1,13 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.215
+pkgver=2.0.21.216
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
 depends=('qt5-base' 'libpng')
-makedepends=('unzip' 'qt5-tools' 'nawk')
+makedepends=('unzip' 'qt5-tools')
 conflicts=()
 replaces=()
 backup=()

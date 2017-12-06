@@ -104,8 +104,7 @@ DisplayCheckStatus() {
     if test -z "$s_checkString"; then Info "ERROR - check string not specified."; return 1; fi
     if test -z "$s_linesBefore"; then s_linesBefore=2; Info "INFO - display 2 lines before"; fi
     if test -z "$s_linesAfter"; then s_linesAfter=10; Info "INFO - display 10 lines after"; fi
-    nawk 'c-->0;$0~s{if(b)for(c=b+1;c>1;c--)print r[(NR-c+1)%b];print;c=a}b{r[NR%b]=$0}' \
-          b=$s_linesBefore a=$s_linesAfter s="${s_checkString}" $s_buildLog
+    grep -B${s_linesBefore} -A${s_linesAfter} "${s_checkString}" $s_buildLog
   else
     Info "ERROR - Check display [$s_buildLog] not found or is not valid!"
   fi
@@ -369,23 +368,25 @@ fi
 cd ${WD}
 
 # LDraw Library - for testing LDView and LDGLite
-export LDRAWDIR=${HOME}/ldraw
+if [ "$OS_NAME" = "Darwin" ]; then
+  LDRAWDIR_ROOT=${HOME}/Library
+else
+  LDRAWDIR_ROOT=${HOME}
+fi
+export LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
 if [ ! -d ${LDRAWDIR}/parts ]; then
-  if [ "$OS_NAME" = "Darwin" ]; then
-	  LDRAWDIR_ROOT=${HOME}/Library
-  else
-	  LDRAWDIR_ROOT=${HOME}
-  fi
   Info && Info "LDraw library not found at ${LDRAWDIR}. Checking for complete.zip archive..."
   if [ ! -f complete.zip ]; then
 	  Info "Library archive complete.zip not found at $PWD. Downloading archive..."
 	  curl -s -O http://www.ldraw.org/library/updates/complete.zip;
   fi
   Info "Extracting LDraw library into ${LDRAWDIR}..."
-  unzip -d ${LDRAWDIR_ROOT} -q complete.zip;
+  unzip -of -d ${LDRAWDIR_ROOT} -q complete.zip;
   if [ -d ${LDRAWDIR} ]; then
 	  Info "LDraw library extracted. LDRAWDIR defined."
   fi
+else
+  Info "LDraw library folder detected at ${LDRAWDIR}."
 fi
 if [ "$OS_NAME" = "Darwin" ]; then
   Info "set LDRAWDIR in environment.plist..."

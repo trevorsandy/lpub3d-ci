@@ -190,7 +190,7 @@ ECHO   DOWNLOAD_PATH.(WebCONTENT).....[%WebCONTENT%]
 IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
-    ECHO -Directory %BUILD_DIR% does not exist - Downloading...
+    ECHO -Directory %BUILD_DIR% does not exist - Downloading %BUILD_DIR% source archive...
 
     CALL :DOWNLOAD_ARCHIVE
   )
@@ -210,7 +210,7 @@ EXIT /b
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
 SET BUILD_OUTPUT_PATH_SAVE=%BUILD_OUTPUT_PATH%
-IF "%APPVEYOR%" EQU "True" (
+IF "%APPVEYOR%" NEQ "True" (
   SET BUILD_OUTPUT_PATH=%USERPROFILE%
 )
 SET ARCHIVE_FILE_DIR=%LDRAW_DIR%
@@ -221,7 +221,7 @@ SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
 IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
-    ECHO -LDraw directory %LDRAW_DIR% does not exist - Downloading...
+    ECHO -LDraw directory %LDRAW_DIR% does not exist - Downloading LDraw source archive...
 
     CALL :DOWNLOAD_ARCHIVE
   )
@@ -240,7 +240,8 @@ IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
   ) ELSE (
       ECHO.
       ECHO -[ERROR] LDraw library folder %LDRAW_DIR% is not valid.
-      GOTO :END
+      SET BUILD_OUTPUT_PATH=%BUILD_OUTPUT_PATH_SAVE%
+      EXIT /b
   )
 ) ELSE (
   ECHO.

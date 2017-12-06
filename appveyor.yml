@@ -13,6 +13,8 @@ cache:
 
 shallow_clone: true
 
+image: Visual Studio 2017
+
 branches:
   only:
    - master
