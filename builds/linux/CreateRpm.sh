@@ -12,6 +12,14 @@
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
+FinishElapsedTime() {
+  # Elapsed execution time
+  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  echo "----------------------------------------------------"
+  echo "$ME Finished!"
+  echo "$ELAPSED"
+  echo "----------------------------------------------------"
+}
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
@@ -143,8 +151,4 @@ echo "16. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
 rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 
 # Elapsed execution time
-ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo "----------------------------------------------------"
-echo "$ME Finished!"
-echo "$ELAPSED"
-echo "----------------------------------------------------"
+FinishElapsedTime

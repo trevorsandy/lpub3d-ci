@@ -34,7 +34,7 @@ environment:
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
   lp3d_qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
   lp3d_iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
-  lp3d_librepo: lpub3d_mingw-x86_64_libs
+  lp3d_librepo: lpub3d_mingw-Qt5_libs
   lp3d_librepodir: /c/projects/$(APPVEYOR_PROJECT_NAME)/$(lp3d_librepo)
 
 init:

@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 05, 2017
+#  Last Update: December 07, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -52,22 +52,16 @@ Info () {
 }
 
 ExtractArchive() {
-	# args: $1 = <build folder>, $2 = <valid subfolder>
-	Info "Extracting $1.tar.gz..."
-	mkdir -p $1 && chown user:user $1
-	tar -mxzf $1.tar.gz -C $1 --strip-components=1
-	if [ -d $1/$2 ]; then
-	  Info "Archive $1.tar.gz successfully extracted."
-	  rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz."
-	  cd $1
-	else
-	  Info "ERROR - $1.tar.gz did not extract properly."
-	fi
-}
-
-UpdatePermissions() {
-  Info "Updating $1 permissions..."
-  find ./$1 -exec chown $(whoami):$(id -gn $(whoami)) {} \+
+  # args: $1 = <build folder>, $2 = <valid subfolder>
+  Info "Extracting $1.tar.gz..."
+  mkdir -p $1 && tar -mxzf $1.tar.gz -C $1 --strip-components=1
+  if [ -d $1/$2 ]; then
+    Info "Archive $1.tar.gz successfully extracted."
+    rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz."
+    cd $1
+  else
+    Info "ERROR - $1.tar.gz did not extract properly."
+  fi
 }
 
 # args: $1 = <log file>, $2 = <position>
@@ -111,16 +105,11 @@ DisplayCheckStatus() {
 }
 
 InstallDependencies() {
-  Info &&  Info "Install $1 build dependencies..."
-  # if [ "$OBS" = "true" ]; then
-  #   useSudo=""
-  #   Info "Using sudo..........[No]"
-  # else
-  useSudo="sudo"
-  Info "Using sudo..........[Yes]"
-  # fi
   if [ "$OS_NAME" = "Linux" ]; then
+    Info &&  Info "Install $1 build dependencies..."
     platform_=$(. /etc/os-release && echo $ID)
+    useSudo="sudo"
+    Info "Using sudo..........[Yes]"
     case ${platform_} in
     fedora|redhat|suse|mageia|arch|ubuntu|debian)
       true
@@ -227,7 +216,7 @@ InstallDependencies() {
       esac;
       controlDeps=`grep Build-Depends $controlFile | cut -d: -f2| sed 's/(.*)//g' | tr -d ,`
       Info "Control File........[${controlFile}]"
-      Info "Dependencies List...[${controlDeps} ${extraFiles}]"
+      Info "Dependencies List...[${controlDeps}]"
       Info
       $useSudo apt-get update -qq > $depsLog 2>&1
       $useSudo apt-get install -y $controlDeps >> $depsLog 2>&1
@@ -237,15 +226,6 @@ InstallDependencies() {
       Info "ERROR - Unknown platform [$platform_]"
       ;;
     esac;
-  elif [ "$OS_NAME" = "Darwin" ]; then
-    # brew bottles here...
-    if [ "${TRAVIS}" != "true" ]; then
-      depsLog=${WD}/${ME}_deps_$OS_NAME.log
-      Info "install brew bottles..."
-      brew update > $depsLog 2>&1
-      brew install openexr sdl2 tinyxml gl2ps libjpeg minizip >> $depsLog 2>&1
-      Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
-    fi
   else
     Info "ERROR - Platform is undefined or invalid [$OS_NAME] - Cannot continue."
   fi
@@ -344,7 +324,7 @@ fi
 
 # Platform ID
 if [ "${DOCKER}" = "true" ]; then
-	Info "Platform............[Docker - ${platform}]"
+  Info "Platform............[Docker - ${platform}]"
 elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform............[Travis CI - ${platform}]"
 elif [ "${OBS}" = "true" ]; then
@@ -353,7 +333,7 @@ elif [ "${OBS}" = "true" ]; then
   fi
   Info "Platform............[Open Build System - ${platform}]"
 else
-	Info "Platform............[${platform}]"
+  Info "Platform............[${platform}]"
 fi
 Info "Working directory...[$WD]"
 
@@ -367,7 +347,7 @@ fi
 # Change to Working directory
 cd ${WD}
 
-# LDraw Library - for testing LDView and LDGLite
+# Setup LDraw Library - for testing LDView and LDGLite
 if [ "$OS_NAME" = "Darwin" ]; then
   LDRAWDIR_ROOT=${HOME}/Library
 else
@@ -377,38 +357,55 @@ export LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
 if [ ! -d ${LDRAWDIR}/parts ]; then
   Info && Info "LDraw library not found at ${LDRAWDIR}. Checking for complete.zip archive..."
   if [ ! -f complete.zip ]; then
-	  Info "Library archive complete.zip not found at $PWD. Downloading archive..."
-	  curl -s -O http://www.ldraw.org/library/updates/complete.zip;
+    Info "Library archive complete.zip not found at $PWD. Downloading archive..."
+    curl -s -O http://www.ldraw.org/library/updates/complete.zip;
   fi
   Info "Extracting LDraw library into ${LDRAWDIR}..."
   unzip -of -d ${LDRAWDIR_ROOT} -q complete.zip;
   if [ -d ${LDRAWDIR} ]; then
-	  Info "LDraw library extracted. LDRAWDIR defined."
+    Info "LDraw library extracted. LDRAWDIR defined."
   fi
-else
-  Info "LDraw library folder detected at ${LDRAWDIR}."
-fi
-if [ "$OS_NAME" = "Darwin" ]; then
-  Info "set LDRAWDIR in environment.plist..."
-  chmod +x builds/utilities/set-ldrawdir.command && ./builds/utilities/set-ldrawdir.command
-  grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
-  Info "LDRAWDIR......${LDRAWDIR}"
-  Info "set LDRAWDIR Completed."
+elif [ ! "$OS_NAME" = "Darwin" ]; then
+  Info "LDraw library.......[${LDRAWDIR}]"
 fi
 
-# Qt setup
-export QT_SELECT=qt5
-if [ -x /usr/bin/qmake ] ; then
+if [ "$OS_NAME" = "Darwin" ]; then
+  Info "LDraw library.......[${LDRAWDIR}]"
+  Info && Info "set LDRAWDIR in environment.plist..."
+  chmod +x ${LPUB3D}/builds/utilities/set-ldrawdir.command && ./${LPUB3D}/builds/utilities/set-ldrawdir.command
+  grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
+  Info "set LDRAWDIR Completed."
+
   QMAKE_EXE=qmake
-elif [ -x /usr/bin/qmake-qt5 ] ; then
-  QMAKE_EXE=qmake-qt5
+else
+  # Qt setup
+  export QT_SELECT=qt5
+  if [ -x /usr/bin/qmake ] ; then
+    QMAKE_EXE=qmake
+  elif [ -x /usr/bin/qmake-qt5 ] ; then
+    QMAKE_EXE=qmake-qt5
+  fi
 fi
+
 Info && ${QMAKE_EXE} -v
 QMAKE_EXE="${QMAKE_EXE} -makefile"
 
 # Main loop
 buildOSMesa=0
 OSMesaBuilt=0
+if [ "$OS_NAME" = "Darwin" ]; then
+  Info &&  Info "Install $OS_NAME build dependencies..."
+  brewDeps="openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip"
+  Info "Platform............[macos]"
+  Info "Using sudo..........[No]"
+  Info "Dependencies List...[${brewDeps}]"
+  if [ "${TRAVIS}" != "true" ]; then
+    depsLog=${WD}/${ME}_deps_$OS_NAME.log
+    brew update > $depsLog 2>&1
+    brew install $brewDeps >> $depsLog 2>&1
+    Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
+  fi
+fi
 for buildDir in ldglite ldview povray; do
   buildLog=${WD}/${ME}_build_${buildDir}.log
   linesBefore=1
@@ -441,7 +438,6 @@ for buildDir in ldglite ldview povray; do
   if [ "$OBS" = "true" ]; then
     if [ -f ${buildDir}.tar.gz ]; then
       ExtractArchive ${buildDir} ${validSubDir}
-      UpdatePermissions ${buildDir}
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
@@ -449,24 +445,26 @@ for buildDir in ldglite ldview povray; do
     Info && Info "`echo ${buildDir} | awk '{print toupper($0)}'` build folder does not exist. Checking for tarball archive..."
     if [ ! -f ${buildDir}.tar.gz ]; then
       Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
-      curl $curlopts ${buildDir}.tar.gz -o ${curlCommand}
+      curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
     fi
     ExtractArchive ${buildDir} ${validSubDir}
   else
     cd ${buildDir}
   fi
-  InstallDependencies ${buildDir}
+  if [ ! "$OS_NAME" = "Darwin" ]; then
+    InstallDependencies ${buildDir}
+  fi
   sleep .5
-  Info &&  Info "Build ${buildDir}..."
+  Info && Info "Build ${buildDir}..."
   Info "----------------------------------------------------"
   if [ "${OBS}" = "true" ]; then
     ${buildCommand} ${buildConfig}
   else
     ${buildCommand} ${buildConfig} > ${buildLog} 2>&1
-    Info &&  Info "Build check - ${buildDir}..."
+    Info && Info "Build check - ${buildDir}..."
     DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
   fi
-  Info &&  Info "Build ${buildDir} finished."
+  Info && Info "Build ${buildDir} finished."
   DisplayLogTail ${buildLog} 10
   cd ${WD}
 done
