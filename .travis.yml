@@ -117,7 +117,7 @@ script:
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
-        travis_wait 35 docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
+        docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
         docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
         echo " Package Files " `ls $ComposePath`;
       fi;
@@ -128,6 +128,11 @@ script:
       fi;
     else
       qmake -v;
+      if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
+        chmod +x builds/utilities/CreateRenderers.sh;
+        travis_wait 25 ./builds/utilities/CreateRenderers.sh;
+      fi;
       qmake -r;
       make;
     fi

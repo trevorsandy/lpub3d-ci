@@ -1,7 +1,8 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 01 2017
+# Last Update December 8, 2017
 # This script is automatically executed by qmake from mainApp.pro
+# It is also called by other config scripts accordingly
 
 LP3D_ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
@@ -86,32 +87,6 @@ LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${LP3D_BUILD_DATE}
 LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${LP3D_DATE_TIME}")"
 
-if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
-then
-    # Stop at the end of this block during Travis-CI builds
-    export LP3D_APP_VERSION=${LP3D_APP_VERSION}
-    export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
-
-    Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
-    Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
-    Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
-else
-    # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
-    FILE="$LP3D_UTIL_DIR/version.info"
-    if [ -f ${FILE} -a -r ${FILE} ]
-    then
-        rm ${FILE}
-    fi
-    cat <<EOF >${FILE}
-${LP3D_VERSION_INFO} ${LP3D_DATE_TIME}
-EOF
-    if [ -f "${FILE}" ];
-    then
-        Info "   FILE version.info......written to builds/utilities/version.info";
-    else
-        Info "   FILE version.info......error, file not found";
-    fi
-
     Info "   LPUB3D_DIR.............${LPUB3D}"
     Info "   LP3D_PWD...............${LP3D_PWD}"
     Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
@@ -133,6 +108,44 @@ EOF
     Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 
     Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
+
+if [ "$LP3D_OS" = Darwin ]
+    then
+        Info "-- update the Info.plist with version major, version minor, build and git sha hash"
+        LP3D_INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
+        if [ -f "${LP3D_INFO_PLIST_FILE}" ]
+        then
+            /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${LP3D_INFO_PLIST_FILE}"
+            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${LP3D_INFO_PLIST_FILE}"
+            /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${LP3D_INFO_PLIST_FILE}"
+            /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
+        else
+            Info "   Error: update failed, ${LP3D_INFO_PLIST_FILE} not found."
+        fi
+    fi
+
+if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
+then
+    # Stop at the end of this block during Travis-CI builds
+    export LP3D_APP_VERSION=${LP3D_APP_VERSION}
+    export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
+    echo
+else
+    # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
+    FILE="$LP3D_UTIL_DIR/version.info"
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        rm ${FILE}
+    fi
+    cat <<EOF >${FILE}
+${LP3D_VERSION_INFO} ${LP3D_DATE_TIME}
+EOF
+    if [ -f "${FILE}" ];
+    then
+        Info "   FILE version.info......written to builds/utilities/version.info";
+    else
+        Info "   FILE version.info......error, file not found";
+    fi
 
     Info "2. set top-level build directory name for linux config files..."
     if [ "${OLD_LPUB3D}" = "${LPUB3D}" ];
@@ -321,21 +334,6 @@ EOF
         #cat "${FILE}"
     else
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-    fi
-
-    if [ "$LP3D_OS" = Darwin ]
-    then
-        Info "10. update the Info.plist with version major, version minor, build and git sha hash"
-        LP3D_INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
-        if [ -f "${LP3D_INFO_PLIST_FILE}" ]
-        then
-            /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${LP3D_INFO_PLIST_FILE}"
-            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${LP3D_INFO_PLIST_FILE}"
-            /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${LP3D_INFO_PLIST_FILE}"
-            /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
-        else
-            Info "   Error: update failed, ${LP3D_INFO_PLIST_FILE} not found."
-        fi
     fi
 
     if [ "${SOURCED}" = "false" ]

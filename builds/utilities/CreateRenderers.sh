@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 07, 2017
+#  Last Update: December 08, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -16,6 +16,14 @@
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
+FinishElapsedTime() {
+  # Elapsed execution time
+  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  echo "----------------------------------------------------"
+  echo "$ME Finished!"
+  echo "$ELAPSED"
+  echo "----------------------------------------------------"
+}
 
 # Grab te script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -262,14 +270,13 @@ buildLdview() {
 }
 
 buildPovray() {
+  BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --with-libsdl2 --enable-watch-cursor"
   if [ "$1" = "debug" ]; then
-    BUILD_CONFIG="--enable-debug"
-  else
-    BUILD_CONFIG=""
+    BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
-  cd unix && chmod +x prebuild3rdparty.sh && ./prebuild3rdparty.sh
-  cd ../
-  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." --prefix="${DIST_PKG_DIR}" LPUB3D_3RD_PARTY="yes" --with-libsdl2 --enable-watch-cursor ${BUILD_CONFIG}
+  export POV_IGNORE_SYSCONF_MSG="yes"
+  cd unix && chmod +x prebuild3rdparty.sh && ./prebuild3rdparty.sh && cd ../
+  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   make check
   make install
 }
@@ -307,7 +314,11 @@ Info && Info "Building............[LPub3D 3rd Party Renderers]"
 if [ "${WD}" = "" ]; then
   parent_dir=${PWD##*/}
   if  [ "$parent_dir" = "utilities" ]; then
-    chkdir="$(readlink - ../../../)"
+    if [ "$OS_NAME" = "Darwin" ]; then
+      chkdir="$(realpath ../../../)"
+    else
+      chkdir="$(readlink - ../../../)"
+    fi
     if [ -d "$chkdir" ]; then
       WD=$chkdir
     fi
@@ -338,7 +349,11 @@ fi
 Info "Working directory...[$WD]"
 
 # Distribution directory
-DIST_DIR=lpub3d_linux_3rdparty
+if [ "$OS_NAME" = "Darwin" ]; then
+  DIST_DIR=lpub3d_macos_3rdparty
+else
+  DIST_DIR=lpub3d_linux_3rdparty
+fi
 DIST_PKG_DIR=${WD}/${DIST_DIR}
 if [ ! -d ${DIST_PKG_DIR} ]; then
   mkdir -p ${DIST_PKG_DIR} && Info "Dist Directory......[${DIST_PKG_DIR}]"
@@ -468,8 +483,4 @@ for buildDir in ldglite ldview povray; do
 done
 
 # Elapsed execution time
-ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-Info && Info "----------------------------------------------------"
-Info "$ME Finished!"
-Info "$ELAPSED"
-Info "----------------------------------------------------" && Info
+FinishElapsedTime

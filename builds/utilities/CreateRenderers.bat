@@ -181,7 +181,7 @@ EXIT /b
 :POVRAY_BUILD
 ECHO.
 IF NOT EXIST "%LP3D_POVRAY%" (
-  ECHO -Build LPub3D-Trace (POV-Ray)...
+  ECHO -Build LPub3D-Trace ^(POV-Ray^)...
   SET BUILD_DIR=povray
   SET VALID_SDIR=windows
   SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui

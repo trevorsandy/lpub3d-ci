@@ -1,11 +1,11 @@
 FROM base/archlinux:2017.10.01
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
-RUN pacman -Syy --noconfirm > ImageSetup.log 2>&1
-RUN pacman -Syu --noconfirm >> ImageSetup.log 2>&1
-RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel >> ImageSetup.log 2>&1
-RUN pacman -S --noconfirm --needed qt5-base qt5-tools >> ImageSetup.log 2>&1
+RUN pacman -Syy --noconfirm > CreateDockerImage_archlinux.log 2>&1
+RUN pacman -Syu --noconfirm >> CreateDockerImage_archlinux.log 2>&1
+RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel >> CreateDockerImage_archlinux.log 2>&1
+RUN pacman -S --noconfirm --needed qt5-base qt5-tools >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed sudo \
-    && sed 's/= -isystem/= -I/' -i /usr/lib64/qt/mkspecs/common/gcc-base.conf
+    && sed 's/= -isystem/= -I/' -i /usr/lib64/qt/mkspecs/common/gcc-base.conf; echo “Applied stdlib patch” \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \
     && chmod 755 /user \
