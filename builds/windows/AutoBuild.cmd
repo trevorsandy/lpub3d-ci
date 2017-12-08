@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 24, 2017
+rem  Last Update: December 07, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -245,11 +245,12 @@ ECHO.
 ECHO -Configure LPub3D build environment...
 ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..[%PLATFORM%]
-SET PATH=%LP3D_QT32_BASE%;%LP3D_QT32_UTILS%;%SYS_DIR%;%LP3D_WIN_GIT%
 SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION%
 IF "%APPVEYOR%" EQU "True" (
+  SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
 ) ELSE (
+  SET PATH=%LP3D_QT32_BASE%;%LP3D_QT32_UTILS%;%SYS_DIR%;%LP3D_WIN_GIT%
   IF %THIRD_INSTALL%==1 SET LP3D_BUILD_PKG=yes
 )
 IF "%LP3D_BUILD_PKG%" EQU "yes" (

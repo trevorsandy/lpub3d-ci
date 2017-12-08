@@ -41,6 +41,9 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT32_UTILS=C:\Qt\IDE\Tools\mingw530_32\bin
   SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
+SET VER_LDGLITE=ldglite-1.3
+SET VER_LDVIEW=ldview-4.3
+SET VER_POVRAY=lpub3d_trace_cui-3.8
 SET SYS_DIR=%SystemRoot%cls\System32\System32
 SET ZIP_DIR_64=C:\program files\7-zip
 SET VALID_ZIP=0
@@ -98,6 +101,9 @@ EXIT /b
 
 :BUILD
 IF %BUILD_ARCH% EQU x86 (
+  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\ldglite.exe
+  SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView64.exe
+  SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui64.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 32bit
     SET PATH=%LP3D_QT32_BASE%;%LP3D_QT32_UTILS%;%SYS_DIR%;%LP3D_WIN_GIT%
@@ -113,6 +119,9 @@ IF %BUILD_ARCH% EQU x86 (
   CALL :SET_BUILD_ARGS
   FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO CALL :%%I_BUILD
 ) ELSE (
+  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin%BUILD_ARCH%\ldglite.exe
+  SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe
+  SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 64bit
     SET PATH=%LP3D_QT64_BASE%;%SYS_DIR%;%LP3D_WIN_GIT%
@@ -142,36 +151,48 @@ EXIT /b
 
 :LDGLITE_BUILD
 ECHO.
-ECHO -Build LDGLite...
-SET BUILD_DIR=ldglite
-SET VALID_SDIR=mui
-SET ARCHIVE_FILE_DIR=ldglite-master
-SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
-CALL :CONFIGURE_BUILD_ENV
-CALL build.cmd %LDGLITE_BUILD_ARGS%
+IF NOT EXIST "%LP3D_LDGLITE%" (
+  ECHO -Build LDGLite...
+  SET BUILD_DIR=ldglite
+  SET VALID_SDIR=mui
+  SET ARCHIVE_FILE_DIR=ldglite-master
+  SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
+  CALL :CONFIGURE_BUILD_ENV
+  CALL build.cmd %LDGLITE_BUILD_ARGS%
+) ELSE (
+  ECHO - Renderer %VER_LDGLITE% exist - build skipped.
+)
 EXIT /b
 
 :LDVIEW_BUILD
 ECHO.
-ECHO -Build LDView...
-SET BUILD_DIR=ldview
-SET VALID_SDIR=OSMesa
-SET ARCHIVE_FILE_DIR=ldview-qmake-build
-SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
-CALL :CONFIGURE_BUILD_ENV
-CALL build.cmd %LDVIEW_BUILD_ARGS%
+IF NOT EXIST "%LP3D_LDVIEW%" (
+  ECHO -Build LDView...
+  SET BUILD_DIR=ldview
+  SET VALID_SDIR=OSMesa
+  SET ARCHIVE_FILE_DIR=ldview-qmake-build
+  SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
+  CALL :CONFIGURE_BUILD_ENV
+  CALL build.cmd %LDVIEW_BUILD_ARGS%
+) ELSE (
+  ECHO - Renderer %VER_LDVIEW% exist - build skipped.
+)
 EXIT /b
 
 :POVRAY_BUILD
 ECHO.
-ECHO -Build LPub3D-Trace (POV-Ray)...
-SET BUILD_DIR=povray
-SET VALID_SDIR=windows
-SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
-SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.zip
-CALL :CONFIGURE_BUILD_ENV
-CD /D %VALID_SDIR%\vs2015
-CALL autobuild.cmd %POVRAY_BUILD_ARGS%
+IF NOT EXIST "%LP3D_POVRAY%" (
+  ECHO -Build LPub3D-Trace (POV-Ray)...
+  SET BUILD_DIR=povray
+  SET VALID_SDIR=windows
+  SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
+  SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.zip
+  CALL :CONFIGURE_BUILD_ENV
+  CD /D %VALID_SDIR%\vs2015
+  CALL autobuild.cmd %POVRAY_BUILD_ARGS%
+) ELSE (
+  ECHO - Renderer %VER_POVRAY% exist - build skipped.
+)
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
