@@ -91,7 +91,7 @@ install:
  - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then echo repository ${lp3d_librepodir} not found; else echo library repository available at ${lp3d_librepodir}; fi"
  - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.2-2-release; pacman -U --needed --noconfirm ${lp3d_qt32libs} ${lp3d_qt64libs}"
 
-build_script
+build_script:
  - ps: |
       write-host "  Distribution directory..[$env:LP3D_PACKAGE_PATH]"
       write-host "  Working Directory.......[$PWD]"
