@@ -399,12 +399,10 @@ if [ "$OS_NAME" = "Darwin" ]; then
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
   Info "Dependencies List...[${brewDeps}]"
-  if [ "${TRAVIS}" != "true" ]; then
-    depsLog=${WD}/${ME}_deps_$OS_NAME.log
-    brew update > $depsLog 2>&1
-    brew install $brewDeps >> $depsLog 2>&1
-    Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
-  fi
+  depsLog=${WD}/${ME}_deps_$OS_NAME.log
+  brew update > $depsLog 2>&1
+  brew install $brewDeps >> $depsLog 2>&1
+  Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
 fi
 for buildDir in ldglite ldview povray; do
   buildLog=${WD}/${ME}_build_${buildDir}.log

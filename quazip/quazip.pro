@@ -73,8 +73,11 @@ CONFIG(debug, debug|release) {
 }
 message("~~~ QUAZIP $$join(ARCH,,,bit) $${BUILD} ~~~")
 
-OBJECTS_DIR = $$DESTDIR/.obj
-MOC_DIR = $$DESTDIR/.moc
+PRECOMPILED_DIR = $$DESTDIR/.pch
+OBJECTS_DIR     = $$DESTDIR/.obj
+MOC_DIR         = $$DESTDIR/.moc
+RCC_DIR         = $$DESTDIR/.qrc
+UI_DIR          = $$DESTDIR/.ui
 
 # Input
 include(quazip.pri)

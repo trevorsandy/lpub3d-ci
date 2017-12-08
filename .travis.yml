@@ -62,10 +62,10 @@ before_install:
       sudo apt-get update -qq;
     else
       brew update;
-      brew install ccache openexr sdl2 tinyxml gl2ps libjpeg minizip;
+      brew install ccache openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
       export LP3D_DIST_DIR=lpub3d_macos_3rdparty && mkdir -p ../${LP3D_DIST_DIR};
-      export LP3D_DIST_DIR_PATH=$(readlink -e ../${LP3D_DIST_DIR});
+      export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});
     fi
 
 install:
@@ -89,7 +89,8 @@ install:
       fi;
       wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-      chmod +x builds/utilities/CreateRenderers.sh && env OBS=false WD=$PWD/.. ./builds/utilities/CreateRenderers.sh;
+      export LPUB3D=${PWD##*/}; export OBS=false export WD=$(dirname "$PWD");
+      chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
     fi
   # Update docker-engine, docker-compose and get application version strings
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then

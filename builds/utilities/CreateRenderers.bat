@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 23, 2017
+rem  Last Update: December 08, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -36,9 +36,8 @@ IF "%APPVEYOR%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%ABS_WD%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET DIST_DIR=../lpub3d_windows_3rdparty
-  SET LP3D_QT32_BASE=C:\Qt\IDE\5.9.1\mingw53_32\bin
-  SET LP3D_QT64_BASE=C:\Msys2\Msys64\mingw64\bin
-  SET LP3D_QT32_UTILS=C:\Qt\IDE\Tools\mingw530_32\bin
+  SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
+  SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
   SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
 SET VER_LDGLITE=ldglite-1.3
@@ -106,15 +105,15 @@ IF %BUILD_ARCH% EQU x86 (
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui64.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 32bit
-    SET PATH=%LP3D_QT32_BASE%;%LP3D_QT32_UTILS%;%SYS_DIR%;%LP3D_WIN_GIT%
-	SET PATH_PREPENDED=True
+    SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
+	  SET PATH_PREPENDED=True
     ECHO.
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(   PATH_PREPEND............[!PATH!]
       ENDLOCAL
     )
   ) ELSE (
-    ECHO   PATH_PREPEND............[%PATH%]
+    ECHO    PATH_ALREADY_PREPENDED..[%PATH%]
   )
   CALL :SET_BUILD_ARGS
   FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO CALL :%%I_BUILD
@@ -124,8 +123,8 @@ IF %BUILD_ARCH% EQU x86 (
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 64bit
-    SET PATH=%LP3D_QT64_BASE%;%SYS_DIR%;%LP3D_WIN_GIT%
-	SET PATH_PREPENDED=True
+    SET PATH=%LP3D_QT64_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
+	  SET PATH_PREPENDED=True
     ECHO.
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(  PATH_PREPEND............[!PATH!]
