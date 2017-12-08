@@ -89,8 +89,6 @@ install:
       fi;
       wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-      export LPUB3D=${PWD##*/}; export OBS=false export WD=$(dirname "$PWD");
-      chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
     fi
   # Update docker-engine, docker-compose and get application version strings
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
@@ -119,12 +117,13 @@ script:
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
-        docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
+        travis_wait 35 docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
         docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
         echo " Package Files " `ls $ComposePath`;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
+        chmod +x builds/macx/CreateDmg.sh;
+        travis_wait 35 ./builds/macx/CreateDmg.sh;
         echo " Package  Files " `ls ../dmgbuild/DMGS`;
       fi;
     else
