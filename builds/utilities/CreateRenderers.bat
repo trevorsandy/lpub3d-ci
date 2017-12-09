@@ -40,6 +40,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
   SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
+SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=ldglite-1.3
 SET VER_LDVIEW=ldview-4.3
 SET VER_POVRAY=lpub3d_trace_cui-3.8
@@ -106,7 +107,7 @@ IF %BUILD_ARCH% EQU x86 (
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 32bit
     SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
-	  SET PATH_PREPENDED=True
+    SET PATH_PREPENDED=True
     ECHO.
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(   PATH_PREPEND............[!PATH!]
@@ -124,7 +125,7 @@ IF %BUILD_ARCH% EQU x86 (
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 64bit
     SET PATH=%LP3D_QT64_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
-	  SET PATH_PREPENDED=True
+    SET PATH_PREPENDED=True
     ECHO.
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(  PATH_PREPEND............[!PATH!]
@@ -316,6 +317,7 @@ IF NOT EXIST "%TEMP%\$" (
   MD "%TEMP%\$"
 )
 
+SET retries=0
 SET vbs=WebContentDownload.vbs
 SET t=%TEMP%\$\%vbs% ECHO
 
@@ -371,10 +373,12 @@ IF EXIST %TEMP%\$\%vbs% (
 
 ECHO.
 ECHO - VBS file "%vbs%" is done compiling
+
+:DO_DOWNLOAD
 ECHO.
 ECHO - File download path: %BUILD_OUTPUT_PATH%
 ECHO.
-ECHO - Download file: %WebCONTENT%...
+ECHO - [%date% %time%] Download file: %WebCONTENT%...
 
 IF EXIST %WebCONTENT% (
  DEL %WebCONTENT%
@@ -383,10 +387,29 @@ IF EXIST %WebCONTENT% (
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
+IF ERRORLEVEL 1 GOTO :RETRY_DOWNLOAD
+
+SET retries=0
+
 IF EXIST %ARCHIVE_FILE% (
   ECHO.
   ECHO - Archive %ARCHIVE_FILE% downloaded
 )
+EXIT /b
+
+:RETRY_DOWNLOAD
+SET /a retries=%retries%+1
+IF %retries% LSS %MAX_DOWNLOAD_ATTEMPTS% (
+  ECHO.
+  ECHO - Download %ARCHIVE_FILE% failed. Retrying...
+  ECHO - Retry number %retries%.
+  GOTO :DO_DOWNLOAD
+)
+IF %retries% EQU %MAX_DOWNLOAD_ATTEMPTS% (GOTO :DOWNLOAD_ERROR)
+
+:DOWNLOAD_ERROR
+ECHO.
+ECHO ECHO - [%date% %time%] - ERROR - Download failed after %retries% retries.
 EXIT /b
 
 :WD_REL_TO_ABS
