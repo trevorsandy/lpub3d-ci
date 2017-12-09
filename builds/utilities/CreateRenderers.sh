@@ -34,10 +34,12 @@ CallDir=$PWD
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-# Set sourced flag
+# Start message and set sourced flag
 if [ "${ME}" = "CreateRenderers.sh" ]; then
+  Info "Start $ME execution at $PWD..."
   SOURCED="false"
 else
+  Info "Start CreateRenderers execution at $PWD..."
   SOURCED="true"
 fi
 
@@ -112,6 +114,34 @@ DisplayCheckStatus() {
   fi
 }
 
+# args: 1 = <pid>, 2 = <message interval>, [3 = <pretty label>]
+TreatLongProcess() {
+  declare -i i; i=0
+  for arg in "$@"; do
+    i=i+1
+    if test $i -eq 1; then s_pid="$arg"; fi    # pid
+    if test $i -eq 2; then s_msgint="$arg"; fi # message interval
+    if test $i -eq 3; then s_plabel="$arg"; fi # pretty label
+  done
+  # Validate the optional pretty label
+  if test -z "$s_plabel"; then s_plabel="Create renderer"; fi
+  
+  # Spawn a process that coninually reports the command is running
+  while Info "$(date): $s_plabel process $s_pid is running..."; do sleep $s_msgint; done &
+  messenger=$!
+
+  # Set a trap to kill the messenger when the process finishes
+  trap 'kill $messenger' 0
+
+  # Wait for the process to finish
+  if wait $s_pid; then
+    Info "$s_plabel finished (returned $?)"
+  else
+    Info "$s_plabel FAILED! (returned $?)"
+  fi
+}
+
+# args: 1 = <build folder>
 InstallDependencies() {
   if [ "$OS_NAME" = "Linux" ]; then
     Info &&  Info "Install $1 build dependencies..."
@@ -162,6 +192,7 @@ InstallDependencies() {
         mesaBuildDeps="TBD"
         mesaDepsLog=${LOG_PATH}/${ME}_mesadeps_${1}.log
         mesaBuildLog=${LOG_PATH}/${ME}_mesabuild_${1}.log
+        
         Info "Update OSMesa.......[Yes]"
         Info "OSMesa Dependencies.[${mesaBuildDeps}]"
         Info
@@ -173,23 +204,25 @@ InstallDependencies() {
         Info && Info "Build OSMesa and GLU static libraries..."
         chmod +x "${mesaSpecDir}/buildosmesa.sh"
         if [ "${OBS}" = "true" ]; then
-          "${mesaSpecDir}/buildosmesa.sh"
+          "${mesaSpecDir}/buildosmesa.sh" &
         else
-          "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1
+          "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1 &
         fi
+        TreatLongProcess $! 60 "OSMesa and GLU build"
+        
         if [[ -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" && \
               -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
           Info &&  Info "OSMesa and GLU build check..."
           DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
           OSMesaBuilt=1
         else
-            if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
-              Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built"
-            fi
-            if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
-             Info && Info "ERROR - libGLU not found. Binary was not successfully built"
-            fi
-            DisplayLogTail $mesaBuildLog 10
+          if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
+            Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built"
+          fi
+          if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
+            Info && Info "ERROR - libGLU not found. Binary was not successfully built"
+          fi
+          DisplayLogTail $mesaBuildLog 10
         fi
         Info && Info "${1} library OSMesa build finished."
       fi
@@ -252,7 +285,8 @@ InstallDependencies() {
   fi
 }
 
-buildLdglite() {
+# args: 1 = <build type (release|debug)>, 2 = <build log>
+BuildLDGLite() {
   BUILD_CONFIG="CONFIG+=BUILD_CHECK"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
@@ -263,11 +297,17 @@ buildLdglite() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
-  make
-  make install
+  if [ "${OBS}" = "true" ]; then
+    make
+    make install
+  else
+    make > $2 2>&1
+    make install >> $2 2>&1
+  fi
 }
 
-buildLdview() {
+# args: 1 = <build type (release|debug)>, 2 = <build log>
+BuildLDView() {
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
@@ -278,11 +318,18 @@ buildLdview() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
-  make
-  make install
+  if [ "${OBS}" = "true" ]; then
+    make
+    make install
+  else
+    make > $2 2>&1 &
+    TreatLongProcess "$!" "60" "LDView make"
+    make install >> $2 2>&1
+  fi
 }
 
-buildPovray() {
+# args: 1 = <build type (release|debug)>, 2 = <build log>
+BuildPOVRay() {
   BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --with-libsdl2 --enable-watch-cursor"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
@@ -290,36 +337,16 @@ buildPovray() {
   export POV_IGNORE_SYSCONF_MSG="yes"
   cd unix && chmod +x prebuild3rdparty.sh && ./prebuild3rdparty.sh && cd ../
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
-  make check
-  make install
-}
-
-# Logging
-Info
-if [ "${SOURCED}" = "true" ]; then
-  Info "Start CreateRenderers execution at $PWD..."
-else
-  Info "Start $ME execution at $PWD..."
-  if [ ! "$OBS" = "true" ]; then
-    # logging stuff - increment log file name
-    f="$PWD/$ME"
-    ext=".log"
-    if [[ -e "$f$ext" ]] ; then
-      i=1
-      f="${f%.*}";
-      while [[ -e "${f}_${i}${ext}" ]]; do
-        let i++
-      done
-      f="${f}_${i}${ext}"
-    else
-      f="${f}${ext}"
-    fi
-    # output log file
-    LOG="$f"
-    # exec > >(tee -a ${LOG} )
-    # exec 2> >(tee -a ${LOG} >&2)
+  if [ "${OBS}" = "true" ]; then
+    make
+    make install
+  else
+    make > $2 2>&1 &
+    TreatLongProcess "$!" "60" "POV-Ray make" 
+    make check >> $2 2>&1
+    make install >> $2 2>&1
   fi
-fi
+}
 
 Info && Info "Building............[LPub3D 3rd Party Renderers]"
 
@@ -396,17 +423,18 @@ if [ ! -d ${LDRAWDIR}/parts ]; then
 elif [ ! "$OS_NAME" = "Darwin" ]; then
   Info "LDraw library.......[${LDRAWDIR}]"
 fi
-
+#additional LDraw configuration for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
   Info "LDraw library.......[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."
   chmod +x ${LPUB3D}/builds/utilities/set-ldrawdir.command && ./${LPUB3D}/builds/utilities/set-ldrawdir.command
   grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
   Info "set LDRAWDIR Completed."
-
+  
+  # Qt setup - MacOS
   QMAKE_EXE=qmake
 else
-  # Qt setup
+  # Qt setup - Linux
   export QT_SELECT=qt5
   if [ -x /usr/bin/qmake ] ; then
     QMAKE_EXE=qmake
@@ -415,15 +443,25 @@ else
   fi
 fi
 
+# get Qt version
 Info && ${QMAKE_EXE} -v
 QMAKE_EXE="${QMAKE_EXE} -makefile"
 
 # set log output path
-${LOG_PATH}=${WD}
+LOG_PATH=${WD}
 
-# Main loop
+# initialize mesa build flag
 buildOSMesa=0
 OSMesaBuilt=0
+
+# define build architecture
+if [ $(uname -m) = x86_64 ]; then 
+  buildArch="64bit_release"; 
+else 
+  buildArch="32bit_release"; 
+fi
+
+# install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
   Info &&  Info "Install $OS_NAME build dependencies..."
   brewDeps="openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip"
@@ -435,7 +473,8 @@ if [ "$OS_NAME" = "Darwin" ]; then
   brew install $brewDeps >> $depsLog 2>&1
   Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
 fi
-if test $(uname -m) = x86_64; then buildArch="64bit_release"; else release="32bit_release"; fi
+
+# Main loop
 for buildDir in ldglite ldview povray; do
   buildLog=${LOG_PATH}/${ME}_build_${buildDir}.log
   linesBefore=1
@@ -444,28 +483,28 @@ for buildDir in ldglite ldview povray; do
     curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
     checkString="LDGLite Output"
     linesAfter="2"
-    buildCommand="buildLdglite"
+    buildCommand="BuildLDGLite"
     validSubDir="app"
     validExe="${validSubDir}/${buildArch}/ldglite"
-    buildConfig="release"
+    buildType="release"
     ;;
   ldview)
     curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
     checkString="LDView Image Output"
     linesAfter="9"
-    buildCommand="buildLdview"
+    buildCommand="BuildLDView"
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
-    buildConfig="release"
+    buildType="release"
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
     checkString="Render Statistics"
     linesAfter="42"
-    buildCommand="buildPovray"
+    buildCommand="BuildPOVRay"
     validSubDir="unix"
     validExe="${validSubDir}/lpub3d_trace_cui"
-    buildConfig="release"
+    buildType="release"
     ;;
   esac
   if [ "$OBS" = "true" ]; then
@@ -490,25 +529,15 @@ for buildDir in ldglite ldview povray; do
   sleep .5
   Info && Info "Build ${buildDir}..."
   Info "----------------------------------------------------"
-  if [ "${OBS}" = "true" ]; then
-    ${buildCommand} ${buildConfig}
+  ${buildCommand} ${buildType} ${buildLog}
+  if [ -f "${validExe}" ]; then
+    Info && Info "Build check - ${buildDir}..."
+    DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
   else
-    # TODO - If pavray, do not redirect - figure out a scheme to 'ping' the console until return code detected
-    if [[ "${buildDir}" = "povray" && "${TRAVIS}" = "true" ]] then
-      # This is a temporary block to keep Travis from timing out
-      ${buildCommand} ${buildConfig}
-    else
-      ${buildCommand} ${buildConfig} > ${buildLog} 2>&1
-    fi
-    if [ -f "${validExe}" ]; then
-      Info && Info "Build check - ${buildDir}..."
-      DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
-    else
-      Info && Info "ERROR - ${buildDir} not found. Binary was not successfully built"
-    fi
+    Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
   fi
-  Info && Info "Build ${buildDir} finished."
   DisplayLogTail ${buildLog} 10
+  Info && Info "Build ${buildDir} finished."
   cd ${WD}
 done
 

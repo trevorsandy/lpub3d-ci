@@ -123,7 +123,7 @@ script:
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh;
-        travis_wait 35 ./builds/macx/CreateDmg.sh;
+        ./builds/macx/CreateDmg.sh;
         echo " Package  Files " `ls ../dmgbuild/DMGS`;
       fi;
     else
@@ -131,7 +131,7 @@ script:
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
         chmod +x builds/utilities/CreateRenderers.sh;
-        travis_wait 25 ./builds/utilities/CreateRenderers.sh;
+        ./builds/utilities/CreateRenderers.sh;
       fi;
       qmake -r;
       make;
