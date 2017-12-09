@@ -134,7 +134,7 @@ InstallDependencies() {
       fi
       ;;
     esac
-    depsLog=${WD}/${ME}_deps_${1}.log
+    depsLog=${LOG_PATH}/${ME}_deps_${1}.log
     Info "Platform............[${platform_}]"
     case ${platform_} in
     fedora|redhat|suse|mageia)
@@ -160,25 +160,38 @@ InstallDependencies() {
       if [[ ${buildOSMesa} = 1 && ! ${OSMesaBuilt} = 1 ]]; then
         mesaSpecDir="$CallDir/builds/utilities/mesa"
         mesaBuildDeps="TBD"
-        mesaBuildLog=${WD}/${ME}_mesabuild_${1}.log
+        mesaDepsLog=${LOG_PATH}/${ME}_mesadeps_${1}.log
+        mesaBuildLog=${LOG_PATH}/${ME}_mesabuild_${1}.log
         Info "Update OSMesa.......[Yes]"
         Info "OSMesa Dependencies.[${mesaBuildDeps}]"
         Info
-        $useSudo dnf builddep -y mesa > $mesaBuildLog 2>&1
-        Info "${1} Mesa dependencies installed." && DisplayLogTail $mesaBuildLog 10
-        $useSudo dnf builddep -y "${mesaSpecDir}/glu.spec" >> $mesaBuildLog 2>&1
-        Info "${1} GLU dependencies installed." && DisplayLogTail $mesaBuildLog 5
+        $useSudo dnf builddep -y mesa > $mesaDepsLog 2>&1
+        Info "${1} Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
+        $useSudo dnf builddep -y "${mesaSpecDir}/glu.spec" >> $mesaDepsLog 2>&1
+        Info "${1} GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
 
         Info && Info "Build OSMesa and GLU static libraries..."
+        chmod +x "${mesaSpecDir}/buildosmesa.sh"
         if [ "${OBS}" = "true" ]; then
           "${mesaSpecDir}/buildosmesa.sh"
         else
-          "${mesaSpecDir}/buildosmesa.sh" >> $mesaBuildLog 2>&1
+          "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1
         fi
-        Info &&  Info "OSMesa and GLU build check..."
-        DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
-        Info &&  Info "${1} library OSMesa build finished."
-        OSMesaBuilt=1
+        if [[ -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" && \
+              -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
+          Info &&  Info "OSMesa and GLU build check..."
+          DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
+          OSMesaBuilt=1
+        else
+            if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
+              Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built"
+            fi
+            if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
+             Info && Info "ERROR - libGLU not found. Binary was not successfully built"
+            fi
+            DisplayLogTail $mesaBuildLog 10
+        fi
+        Info && Info "${1} library OSMesa build finished."
       fi
       Info
       $useSudo dnf builddep -y $specFile > $depsLog 2>&1
@@ -405,6 +418,9 @@ fi
 Info && ${QMAKE_EXE} -v
 QMAKE_EXE="${QMAKE_EXE} -makefile"
 
+# set log output path
+${LOG_PATH}=${WD}
+
 # Main loop
 buildOSMesa=0
 OSMesaBuilt=0
@@ -414,13 +430,14 @@ if [ "$OS_NAME" = "Darwin" ]; then
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
   Info "Dependencies List...[${brewDeps}]"
-  depsLog=${WD}/${ME}_deps_$OS_NAME.log
+  depsLog=${LOG_PATH}/${ME}_deps_$OS_NAME.log
   brew update > $depsLog 2>&1
   brew install $brewDeps >> $depsLog 2>&1
   Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
 fi
+if test $(uname -m) = x86_64; then buildArch="64bit_release"; else release="32bit_release"; fi
 for buildDir in ldglite ldview povray; do
-  buildLog=${WD}/${ME}_build_${buildDir}.log
+  buildLog=${LOG_PATH}/${ME}_build_${buildDir}.log
   linesBefore=1
   case ${buildDir} in
   ldglite)
@@ -428,7 +445,8 @@ for buildDir in ldglite ldview povray; do
     checkString="LDGLite Output"
     linesAfter="2"
     buildCommand="buildLdglite"
-    validSubDir="mui"
+    validSubDir="app"
+    validExe="${validSubDir}/${buildArch}/ldglite"
     buildConfig="release"
     ;;
   ldview)
@@ -437,6 +455,7 @@ for buildDir in ldglite ldview povray; do
     linesAfter="9"
     buildCommand="buildLdview"
     validSubDir="OSMesa"
+    validExe="${validSubDir}/${buildArch}/ldview"
     buildConfig="release"
     ;;
   povray)
@@ -445,6 +464,7 @@ for buildDir in ldglite ldview povray; do
     linesAfter="42"
     buildCommand="buildPovray"
     validSubDir="unix"
+    validExe="${validSubDir}/lpub3d_trace_cui"
     buildConfig="release"
     ;;
   esac
@@ -473,9 +493,19 @@ for buildDir in ldglite ldview povray; do
   if [ "${OBS}" = "true" ]; then
     ${buildCommand} ${buildConfig}
   else
-    ${buildCommand} ${buildConfig} > ${buildLog} 2>&1
-    Info && Info "Build check - ${buildDir}..."
-    DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+    # TODO - If pavray, do not redirect - figure out a scheme to 'ping' the console until return code detected
+    if [[ "${buildDir}" = "povray" && "${TRAVIS}" = "true" ]] then
+      # This is a temporary block to keep Travis from timing out
+      ${buildCommand} ${buildConfig}
+    else
+      ${buildCommand} ${buildConfig} > ${buildLog} 2>&1
+    fi
+    if [ -f "${validExe}" ]; then
+      Info && Info "Build check - ${buildDir}..."
+      DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+    else
+      Info && Info "ERROR - ${buildDir} not found. Binary was not successfully built"
+    fi
   fi
   Info && Info "Build ${buildDir} finished."
   DisplayLogTail ${buildLog} 10

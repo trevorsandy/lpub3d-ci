@@ -21,4 +21,5 @@ CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/l
       sudo cp -f /user/rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; \
       sudo cp -f /user/rpmbuild/BUILD/*.log /buildpkg/; \
       sudo cp -f /user/*.log /buildpkg/; \
+      sudo cp -f /*.log /buildpkg/; \
     fi
