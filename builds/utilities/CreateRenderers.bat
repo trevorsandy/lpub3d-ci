@@ -104,11 +104,11 @@ IF %BUILD_ARCH% EQU x86 (
   SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\ldglite.exe
   SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView64.exe
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui64.exe
+  ECHO.
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 32bit
     SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
     SET PATH_PREPENDED=True
-    ECHO.
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(   PATH_PREPEND............[!PATH!]
       ENDLOCAL
@@ -122,11 +122,11 @@ IF %BUILD_ARCH% EQU x86 (
   SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin%BUILD_ARCH%\ldglite.exe
   SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
+  ECHO.
   IF "%PATH_PREPENDED%" NEQ "True" (
     rem Qt MinGW 64bit
     SET PATH=%LP3D_QT64_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
     SET PATH_PREPENDED=True
-    ECHO.
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(  PATH_PREPEND............[!PATH!]
       ENDLOCAL
@@ -151,50 +151,48 @@ EXIT /b
 
 :LDGLITE_BUILD
 ECHO.
-IF NOT EXIST "%LP3D_LDGLITE%" (
-  ECHO -Build LDGLite...
-  SET BUILD_DIR=ldglite
-  SET VALID_SDIR=mui
-  SET ARCHIVE_FILE_DIR=ldglite-master
-  SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
-  CALL :CONFIGURE_BUILD_ENV
-  CALL build.cmd %LDGLITE_BUILD_ARGS%
-) ELSE (
+ECHO -Build LDGLite...
+IF EXIST "%LP3D_LDGLITE%" (
   ECHO - Renderer %VER_LDGLITE% exist - build skipped.
+  EXIT /b
 )
+SET BUILD_DIR=ldglite
+SET VALID_SDIR=mui
+SET ARCHIVE_FILE_DIR=ldglite-master
+SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
+CALL :CONFIGURE_BUILD_ENV
+CALL build.cmd %LDGLITE_BUILD_ARGS%
 EXIT /b
 
 :LDVIEW_BUILD
 ECHO.
-IF NOT EXIST "%LP3D_LDVIEW%" (
-  ECHO -Build LDView...
-  SET BUILD_DIR=ldview
-  SET VALID_SDIR=OSMesa
-  SET ARCHIVE_FILE_DIR=ldview-qmake-build
-  SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
-  CALL :CONFIGURE_BUILD_ENV
-  CALL build.cmd %LDVIEW_BUILD_ARGS%
-) ELSE (
+ECHO -Build LDView...
+IF EXIST "%LP3D_LDVIEW%" (
   ECHO - Renderer %VER_LDVIEW% exist - build skipped.
+  EXIT /b
 )
+SET BUILD_DIR=ldview
+SET VALID_SDIR=OSMesa
+SET ARCHIVE_FILE_DIR=ldview-qmake-build
+SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
+CALL :CONFIGURE_BUILD_ENV
+CALL build.cmd %LDVIEW_BUILD_ARGS%
 EXIT /b
 
 :POVRAY_BUILD
 ECHO.
-IF NOT EXIST "%LP3D_POVRAY%" (
-  ECHO -Build LPub3D-Trace ^(POV-Ray^)...
-  SET BUILD_DIR=povray
-  SET VALID_SDIR=windows
-  SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
-  SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.zip
-  CALL :CONFIGURE_BUILD_ENV
-  SETLOCAL ENABLEDELAYEDEXPANSION
-  CD /D !VALID_SDIR!\vs2015
-  CALL autobuild.cmd %POVRAY_BUILD_ARGS%
-  ENDLOCAL
-) ELSE (
+ECHO -Build LPub3D-Trace ^(POV-Ray^)...
+IF EXIST "%LP3D_POVRAY%" (
   ECHO - Renderer %VER_POVRAY% exist - build skipped.
+  EXIT /b
 )
+SET BUILD_DIR=povray
+SET VALID_SDIR=windows
+SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
+SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.zip
+CALL :CONFIGURE_BUILD_ENV
+CD /D %VALID_SDIR%\vs2015
+CALL autobuild.cmd %POVRAY_BUILD_ARGS%
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
@@ -390,28 +388,23 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
 IF ERRORLEVEL 1 GOTO :RETRY_DOWNLOAD
-
+IF NOT EXIST %ARCHIVE_FILE% GOTO :RETRY_DOWNLOAD
 SET retries=0
-
-IF EXIST %ARCHIVE_FILE% (
-  ECHO.
-  ECHO - Archive %ARCHIVE_FILE% available
-)
 EXIT /b
 
 :RETRY_DOWNLOAD
 SET /a retries=%retries%+1
+IF %retries% EQU %MAX_DOWNLOAD_ATTEMPTS% (GOTO :DOWNLOAD_ERROR)
 IF %retries% LSS %MAX_DOWNLOAD_ATTEMPTS% (
   ECHO.
-  ECHO - Download %ARCHIVE_FILE% failed. Retrying...
-  ECHO - Retry number %retries%.
+  ECHO - Download %ARCHIVE_FILE% failed.
+  ECHO - Attempting %retries% of 3 retries.
   GOTO :DO_DOWNLOAD
 )
-IF %retries% EQU %MAX_DOWNLOAD_ATTEMPTS% (GOTO :DOWNLOAD_ERROR)
 
 :DOWNLOAD_ERROR
 ECHO.
-ECHO ECHO - [%date% %time%] - ERROR - Download failed after %retries% retries.
+ECHO - [%date% %time%] - ERROR - Download failed after %retries% retries.
 EXIT /b
 
 :WD_REL_TO_ABS
