@@ -455,7 +455,7 @@ cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
 IF EXIST %OfficialCONTENT% (
   ECHO.
-  ECHO - LDraw archive library %OfficialCONTENT% downloaded
+  ECHO - LDraw archive library %OfficialCONTENT% availble
 )
 EXIT /b
 

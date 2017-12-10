@@ -188,8 +188,10 @@ IF NOT EXIST "%LP3D_POVRAY%" (
   SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
   SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.zip
   CALL :CONFIGURE_BUILD_ENV
-  CD /D %VALID_SDIR%\vs2015
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  CD /D !VALID_SDIR!\vs2015
   CALL autobuild.cmd %POVRAY_BUILD_ARGS%
+  ENDLOCAL
 ) ELSE (
   ECHO - Renderer %VER_POVRAY% exist - build skipped.
 )
@@ -393,7 +395,7 @@ SET retries=0
 
 IF EXIST %ARCHIVE_FILE% (
   ECHO.
-  ECHO - Archive %ARCHIVE_FILE% downloaded
+  ECHO - Archive %ARCHIVE_FILE% available
 )
 EXIT /b
 
