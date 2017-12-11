@@ -1,7 +1,7 @@
 language: cpp
 sudo: required
 dist: trusty
-cache: ccache
+
 
 git:
   depth: 200
@@ -11,15 +11,32 @@ branches:
   - master
 
 cache:
+  ccache: true
   directories:
   - ${HOME}/ldraw
   - ${HOME}/Library/ldraw
   - ${LP3D_DIST_DIR_PATH}
 
-matrix:
+jobs:
  fast_finish: true
  include:
-  - os: linux
+  - if: env(LP3D_BUILD_PKG) = yes
+    os: linux
+    compiler: gcc
+    env:
+      - BUILD_ARCH170101=true
+  - if: env(LP3D_BUILD_PKG) = yes
+    os: linux
+    compiler: gcc
+    env:
+      - BUILD_FEDORA25=true
+  - if: env(LP3D_BUILD_PKG) = yes
+    os: linux
+    compiler: gcc
+    env:
+      - BUILD_XENIAL=true
+  - if: env(LP3D_BUILD_PKG) IS blank
+    os: linux
     compiler: gcc
     env:
      - QT_BASE=59
@@ -98,14 +115,14 @@ install:
         sudo apt-get update -qq;
         sudo apt-get -y install docker-ce;
         docker version;
-        export DOCKER_COMPOSE_VERSION=1.17.0-rc1;
+        export DOCKER_COMPOSE_VERSION=1.18.0-rc2;
         sudo rm /usr/local/bin/docker-compose;
         curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose;
         chmod +x docker-compose;
         sudo mv docker-compose /usr/local/bin;
         docker-compose version;
         ComposePath=builds/linux/docker-compose;
-        sudo mkdir -p $PWD/builds/releases;
+        mkdir -p builds/releases;
         export ReleasesPath=$PWD/builds/releases;
         _PRO_FILE_PWD_=$PWD/mainApp;
         source builds/utilities/update-config-files.sh;
@@ -116,23 +133,28 @@ script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
-        docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
-        docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
-        echo " Package Files " `ls $ComposePath`;
+        if [ "$BUILD_ARCH170101" = "true" ]; then
+          docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
+        fi;
+        if [ "$BUILD_FEDORA25" = "true" ]; then
+          docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
+        fi;
+        if [ "$BUILD_XENIAL" = "true" ]; then
+          docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
+        fi;
+        echo " Package Files " && find $ComposePath`;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh;
         ./builds/macx/CreateDmg.sh;
-        echo " Package  Files " `ls ../dmgbuild/DMGS`;
+        echo " Package  Files:" && find ../dmgbuild/DMGS;
       fi;
     else
+      export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
+      chmod +x builds/utilities/CreateRenderers.sh;
+      ./builds/utilities/CreateRenderers.sh;
+      echo " Renderer Files:" && find ${LP3D_DIST_DIR_PATH};
       qmake -v;
-      if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
-        chmod +x builds/utilities/CreateRenderers.sh;
-        ./builds/utilities/CreateRenderers.sh;
-      fi;
       qmake -r;
       make;
     fi
@@ -141,18 +163,27 @@ script:
 before_deploy:
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
-        Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
-        Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
-        Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
-        Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
-        Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
-        sudo cp -f $Df_Pkg $Uf_Pkg $Df_Rpm $Uf_Rpm $Df_Deb $Uf_Deb $ReleasesPath;
+        if [ "$BUILD_ARCH170101" = "true" ]; then
+          Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
+          Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
+          sudo cp -f $Df_Pkg $Uf_Pkg *.log $ReleasesPath;
+        fi;
+        if [ "$BUILD_FEDORA25" = "true" ]; then
+          Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
+          Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
+          sudo cp -f $Df_Rpm $Uf_Rpm *.log $ReleasesPath;
+        fi;
+        if [ "$BUILD_XENIAL" = "true" ]; then
+          Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
+          Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
+          sudo cp -f $Df_Deb $Uf_Deb *.log $ReleasesPath;
+        fi;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         Df_Dmg=`ls ../dmgbuild/DMGS/LPub3D*.dmg`;
         Uf_Dmg=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster*.dmg`;
-        sudo cp -f $Df_Dmg $Uf_dmg $$ReleasesPath/;
+        Logs_Dmg=$(find ../dmgbuild -name *.log)
+        sudo cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $ReleasesPath;
       fi;
       echo " Release Files " `ls $ReleasesPath`;
     fi

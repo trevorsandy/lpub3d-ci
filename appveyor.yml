@@ -12,7 +12,7 @@ clone_script: echo skip
 # Built renderers
 cache:
  - '$(APPVEYOR_BUILD_FOLDER)\LDraw'
- - '$(APPVEYOR_BUILD_FOLDER)\${lp3d_librepodir}'
+ - '$(APPVEYOR_BUILD_FOLDER)\${lp3d_librepo}'
  - '$(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)'
 
 shallow_clone: true
@@ -75,8 +75,10 @@ init:
       }
  - ps: Get-ChildItem Env:LP3D_* | Sort-Object name
 
-# This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
-# downloded. After setting up these items, we proceed to fetch the commit that triggered the AppVeyor build.
+# This is where we install MinGW Qt5 for x86 and x86_64 builds. The Qt builds are necessarey because we are using VS image which
+# does not have Qt x86 but it does have Msys2/Mingw. As there is no x86_64 MinGW Qt, we build both the x86 and x86_64 architectures.
+# The source for these items are cached but if not then they are downloded - I have prepared a special archive with only release binaries
+# that are about 33MB for each archive. After setting up these items, we proceed to fetch the commit that triggered the AppVeyor build.
 # We don't use git clone because the 'clone_directory' is not empty (restored cached components were added in previous steps) - so the
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
 # This includes setting the clone depth, and fetching the last commit and previous tags
@@ -93,12 +95,13 @@ install:
 
 build_script:
  - ps: |
-      write-host "  Distribution directory..[$env:LP3D_PACKAGE_PATH]"
-      write-host "  Working Directory.......[$PWD]"
+      write-host "  Distribution Directory.....[$env:LP3D_PACKAGE_PATH]"
+      write-host "  Working Directory..........[$PWD]"
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -ins -chk 2`>`&1
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
-        write-host "`n  Artifact count....[$env:LP3D_ARTEFACT_ITEM_COUNT]"
+        write-host "`n  Build Archive Item Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
+        (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse | Select-Object -ExpandProperty FullName | ft -hidetableheaders)
       } Else {
         cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
       }
@@ -107,19 +110,19 @@ test: off
 
 after_build:
  - ps: |
-      If (($env:LP3D_BUILD_PKG -eq "yes") -and ([int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 5)) {
+      If (($env:LP3D_BUILD_PKG -eq "yes") -and ([int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 77)) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
         $Sv = git describe --tags --long
         $Sc = git rev-list HEAD --count
         $Sd = Get-Date -format yyyyMMdd
-        $env:LP3D_BLD_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
-        $env:LP3D_BLD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_BLD_VERSION}"
-        $env:LP3D_BLD_TARGET = "builds\windows\${env:Configuration}\{$env:LP3D_BLD_PACKAGE}"
-        $env:LP3D_BLD_DOWNLOAD_TARGET = "{$env:LP3D_BLD_TARGET}\${env:LP3D_PACKAGE}_Download"
-        $env:LP3D_BLD_UPDATE_TARGET = "${env:LP3D_BLD_TARGET}\${env:LP3D_PACKAGE}_Update"
-        Get-ChildItem Env:LP3D_BLD_* | Sort-Object name
-        $root = Resolve-Path .\${env:LP3D_BLD_DOWNLOAD_TARGET}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
-        $root = Resolve-Path .\${env:LP3D_BLD_UPDATE_TARGET};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
+        $env:LP3D_BUILD_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
+        $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_BUILD_VERSION}"
+        $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\{$env:LP3D_BUILD_PACKAGE}"
+        $env:LP3D_BUILD_DOWNLOAD_TARGET = "{$env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
+        $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
+        Get-ChildItem Env:LP3D_BUILD_* | Sort-Object name
+        $root = Resolve-Path .\${env:LP3D_BUILD_DOWNLOAD_TARGET}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
+        $root = Resolve-Path .\${env:LP3D_BUILD_UPDATE_TARGET};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
       }
 
 deploy:
@@ -128,7 +131,7 @@ deploy:
    description: '$(LP3D_PACKAGE) - An LDraw™ editor for LEGO® style digital building instructions.'
    auth_token:
      secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
-   release: $(LP3D_BLD_PACKAGE)
+   release: $(LP3D_BUILD_PACKAGE)
    artifact: $(LP3D_PACKAGE)-download-package
    prerelease: true
    force_update: true

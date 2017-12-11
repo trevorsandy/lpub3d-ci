@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 04, 2017
+# Last Update December 10, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -21,7 +21,7 @@ CWD=`pwd`
 
 echo "Start $ME execution at $CWD..."
 
-# Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
 if [ "$BUILD_OPT" = "compile" ]; then
@@ -114,9 +114,10 @@ _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 
-echo "-  execute CreateRenderers from $(realpath ${LPUB3D})..."
+# set pwd before entering lpub3d root directory
 export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
 
+echo "-  execute CreateRenderers from $(realpath ${LPUB3D})..."
 cd ${LPUB3D}
 
 chmod +x builds/utilities/CreateRenderers.sh

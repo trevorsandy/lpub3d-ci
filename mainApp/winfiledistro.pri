@@ -24,7 +24,7 @@ win32 {
     isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC        = $$_PRO_FILE_PWD_/../../lpub3d_windows_3rdparty
 
     # source executables - 3rd party components
-    isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE        = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite.exe
+    isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE        = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/LDGLite.exe
     isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE      = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     equals (ARCH, 64) {
         isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE      = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/LDView$$join(ARCH,,,.exe)

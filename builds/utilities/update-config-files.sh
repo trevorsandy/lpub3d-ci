@@ -4,6 +4,8 @@
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 
+echo "   Start update-config-files.sh execution..."
+
 LP3D_ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
@@ -52,7 +54,7 @@ then
     LOG="$LP3D_CALL_DIR/$LP3D_ME.log"
     if [ -f ${LOG} -a -r ${LOG} ]
     then
-            rm ${LOG}
+        rm ${LOG}
     fi
     exec > >(tee -a ${LOG} )
     exec 2> >(tee -a ${LOG} >&2)
@@ -74,7 +76,6 @@ then
     lp3d_revision_=${lp3d_ver_tmp1%-*}
     LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 else
-    Info "   Start $LP3D_ME execution..."
     Info "1. capture version info using input arguments"
     LP3D_VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
 fi
@@ -87,27 +88,27 @@ LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${LP3D_BUILD_DATE}
 LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${LP3D_DATE_TIME}")"
 
-    Info "   LPUB3D_DIR.............${LPUB3D}"
-    Info "   LP3D_PWD...............${LP3D_PWD}"
-    Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
+Info "   LPUB3D_DIR.............${LPUB3D}"
+Info "   LP3D_PWD...............${LP3D_PWD}"
+Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
 
-    Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
-    Info "   VER_MAJOR..............${VER_MAJOR}"
-    Info "   VER_MINOR..............${VER_MINOR}"
-    Info "   VER_PATCH..............${VER_PATCH}"
-    Info "   VER_REVISION...........${VER_REVISION}"
-    Info "   VER_BUILD..............${VER_BUILD}"
-    Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
-    Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
-    Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
-    Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
+Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
+Info "   VER_MAJOR..............${VER_MAJOR}"
+Info "   VER_MINOR..............${VER_MINOR}"
+Info "   VER_PATCH..............${VER_PATCH}"
+Info "   VER_REVISION...........${VER_REVISION}"
+Info "   VER_BUILD..............${VER_BUILD}"
+Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
+Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
+Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
+Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
 
-    Info "   LP3D_VERSION...........${LP3D_VERSION}"
-    Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
-    Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
-    Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
+Info "   LP3D_VERSION...........${LP3D_VERSION}"
+Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
+Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
+Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 
-    Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
+Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
 
 if [ "$LP3D_OS" = Darwin ]
     then
@@ -131,7 +132,7 @@ then
     export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
     echo
 else
-    # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
+    # generate version.info file
     FILE="$LP3D_UTIL_DIR/version.info"
     if [ -f ${FILE} -a -r ${FILE} ]
     then

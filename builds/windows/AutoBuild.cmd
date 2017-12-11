@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 08, 2017
+rem  Last Update: December 10, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -23,6 +23,7 @@ IF "%SCRIPT_DIR%" EQU "windows" (
 ) ELSE (
   SET ABS_WD=%CD%
 )
+
 rem Variables - change these as required by your build environments
 IF "%APPVEYOR%" EQU "True" (
   IF [%LP3D_DIST_DIR_PATH%] == [] (
@@ -39,8 +40,6 @@ IF "%APPVEYOR%" EQU "True" (
   SET DIST_DIR=..\lpub3d_windows_3rdparty
   SET LDRAW_DOWNLOAD_DIR=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  rem SET LP3D_QT32_BASE=C:\Qt\IDE\5.9.1\mingw53_32\bin
-  rem SET LP3D_QT32_UTILS=C:\Qt\IDE\Tools\mingw530_32\bin
   SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
 )
@@ -148,22 +147,22 @@ IF NOT EXIST "%LP3D_WIN_GIT%" (
 rem Display build settings
 ECHO.
 IF "%APPVEYOR%" EQU "True" (
-  ECHO   BUILD_HOST.............[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
-  ECHO   BUILD_ID...............[%APPVEYOR_BUILD_ID%]
-  ECHO   BUILD_BRANCH...........[%APPVEYOR_REPO_BRANCH%]
-  ECHO   PROJECT_NAME...........[%APPVEYOR_PROJECT_NAME%]
-  ECHO   REPOSITORY_NAME........[%APPVEYOR_REPO_NAME%]
-  ECHO   REPO_PROVIDER..........[%APPVEYOR_REPO_PROVIDER%]
-  ECHO   LP3D_WIN_GIT_DIR.......[%LP3D_WIN_GIT_MSG%]
+  ECHO   BUILD_HOST.................[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
+  ECHO   BUILD_ID...................[%APPVEYOR_BUILD_ID%]
+  ECHO   BUILD_BRANCH...............[%APPVEYOR_REPO_BRANCH%]
+  ECHO   PROJECT_NAME...............[%APPVEYOR_PROJECT_NAME%]
+  ECHO   REPOSITORY_NAME............[%APPVEYOR_REPO_NAME%]
+  ECHO   REPO_PROVIDER..............[%APPVEYOR_REPO_PROVIDER%]
+  ECHO   LP3D_WIN_GIT_DIR...........[%LP3D_WIN_GIT_MSG%]
 )
-ECHO   PACKAGE................[%PACKAGE%]
-ECHO   VERSION................[%VERSION%]
-ECHO   LP3D_QT32_MSYS2........[%LP3D_QT32_MSYS2%]
-ECHO   LP3D_QT64_MSYS2........[%LP3D_QT64_MSYS2%]
-ECHO   WORKING_DIRECTORY......[%ABS_WD%]
-ECHO   DIST_DIRECTORY.........[%DIST_DIR:/=\%]
-ECHO   LDRAW_DIRECTORY........[%LDRAW_DIR%]
-ECHO.  LDRAW_DOWNLOAD_DIR.....[%LDRAW_DOWNLOAD_DIR%]
+ECHO   PACKAGE....................[%PACKAGE%]
+ECHO   VERSION....................[%VERSION%]
+ECHO   LP3D_QT32_MSYS2............[%LP3D_QT32_MSYS2%]
+ECHO   LP3D_QT64_MSYS2............[%LP3D_QT64_MSYS2%]
+ECHO   WORKING_DIRECTORY_LPUB3D...[%ABS_WD%]
+ECHO   DIST_DIRECTORY.............[%DIST_DIR:/=\%]
+ECHO   LDRAW_DIRECTORY............[%LDRAW_DIR%]
+ECHO.  LDRAW_DOWNLOAD_DIR.........[%LDRAW_DOWNLOAD_DIR%]
 
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
@@ -177,6 +176,11 @@ IF /I "%4"=="-chk" (
   SET BUILD_THIRD=1
 )
 
+rem Create distribution folder
+IF NOT EXIST "%DIST_DIR%\" (
+  MKDIR "%DIST_DIR%\"
+)
+
 rem Check if build all platforms
 IF /I "%PLATFORM%"=="-all" (
   GOTO :BUILD_ALL
@@ -187,6 +191,8 @@ CALL :CONFIGURE_BUILD_ENV
 
 ECHO.
 ECHO -Building %PLATFORM% platform, %CONFIGURATION% configuration...
+rem Build 3rd party build from source
+IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %PLATFORM%
 rem Display QMake version
 ECHO.
 qmake -v & ECHO.
@@ -196,8 +202,6 @@ rem perform build
 mingw32-make
 rem Perform build check if specified
 IF %CHECK%==1 CALL :CHECK_BUILD %PLATFORM%
-rem Perform 3rd party build from source
-IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %PLATFORM%
 rem Package 3rd party install content
 IF %THIRD_INSTALL%==1 CALL :3RD_PARTY_INSTALL
 GOTO :END
@@ -210,6 +214,9 @@ FOR %%P IN ( x86, x86_64 ) DO (
   SET PLATFORM=%%P
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
+  rem Build 3rd party build from source
+  IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
+  IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %%P
   ECHO.
   ECHO -Building %%P platform, %CONFIGURATION% configuration...
   ECHO.
@@ -221,8 +228,6 @@ FOR %%P IN ( x86, x86_64 ) DO (
   ENDLOCAL
   rem Perform build check if specified
   IF %CHECK%==1 CALL :CHECK_BUILD %%P
-  rem Perform 3rd party build from source
-  IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %%P
   rem Package 3rd party install content
   IF %THIRD_INSTALL%==1 CALL :3RD_PARTY_INSTALL
 )
@@ -230,6 +235,8 @@ GOTO :END
 
 :CONFIGURE_BUILD_ENV
 CD /D %ABS_WD%
+ECHO.
+ECHO -Configure LPub3D %PLATFORM% build environment...
 ECHO.
 ECHO -Cleanup previous LPub3D qmake config files...
 FOR /R %%I IN (
@@ -242,23 +249,20 @@ FOR /R %%I IN (
   "mainApp\object_script.*"
 ) DO DEL /S /Q "%%~I" >nul 2>&1
 ECHO.
-ECHO -Configure LPub3D build environment...
-ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..[%PLATFORM%]
 SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION%
-SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
 IF "%APPVEYOR%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
 ) ELSE (
-  IF %THIRD_INSTALL%==1 SET LP3D_BUILD_PKG=yes
+  SET LP3D_BUILD_PKG=yes
 )
 IF "%LP3D_BUILD_PKG%" EQU "yes" (
-  IF %THIRD_INSTALL%==1 (
-    ECHO   INSTALL_3RDPARTY_ITEMS.[YES]
-    SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=stagewindistcontent
-  )
+  ECHO   LP3D_BUILD_PKG.........[%LP3D_BUILD_PKG%]
+  SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=stagewindistcontent
 )
-IF %PLATFORM% EQU x86_64 (
+IF %PLATFORM% EQU x86 (
+  SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
+) ELSE (
   SET PATH=%LP3D_QT64_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
   IF "%APPVEYOR%" EQU "True" (
     SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_qt_mingw64
@@ -267,10 +271,7 @@ IF %PLATFORM% EQU x86_64 (
 SET LPUB3D_MAKE_ARGS=-f Makefile
 SET PATH_PREPENDED=True
 ECHO   LPUB3D_CONFIG_ARGS.....[%LPUB3D_CONFIG_ARGS%]
-SETLOCAL ENABLEDELAYEDEXPANSION
-ECHO(  PATH_PREPEND...........[!PATH!]
-  ENDLOCAL
-)
+ECHO   PATH_PREPEND...........[%PATH%]
 EXIT /b
 
 :CHECK_BUILD
@@ -316,10 +317,10 @@ EXIT /b
 
 :3RD_PARTY_INSTALL
 ECHO.
-ECHO -Staging 3rd party distribution files...
+ECHO -Staging distribution files...
 ECHO.
 rem Configure makefiles and perform build
-qmake %LPUB3D_CONFIG_ARGS% & mingw32-make %LPUB3D_MAKE_ARGS% install
+mingw32-make %LPUB3D_MAKE_ARGS% install
 EXIT /b
 
 :CHECK_LDRAW_DIR
@@ -548,7 +549,7 @@ EXIT /b
 
 :END
 ECHO.
-ECHO -%~nx0 finished.
+ECHO -%PACKAGE% v%VERSION% %~nx0 finished.
 SET end=%time%
 SET options="tokens=1-4 delims=:.,"
 FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100

@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 08, 2017
+rem  Last Update: December 11, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -12,37 +12,48 @@ rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 SET start=%time%
 
+ECHO.
+ECHO -Start %~nx0 with commandline args: [%*].
+
 rem get the parent folder
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-rem Variables - change these as required by your build environments
-IF "%APPVEYOR%" EQU "True" (
+IF "%SCRIPT_DIR%" EQU "utilities" (
   rem get abs path to build 3rd party packages inside the LPub3D root dir
-  IF "%SCRIPT_DIR%" EQU "utilities" (
+  IF "%APPVEYOR%" EQU "True" (
     CALL :WD_REL_TO_ABS ../../
   ) ELSE (
-    CALL :WD_REL_TO_ABS .
+    CALL :WD_REL_TO_ABS ../../../
   )
+) ELSE (
+  rem get abs path to build 3rd party packages outside the LPub3D root dir
+  IF "%APPVEYOR%" EQU "True" (
+  SET ABS_WD=%CD%
+  ) ELSE (
+    CALL :WD_REL_TO_ABS ../
+  )
+)
+
+rem Variables - change these as required by your build environments
+IF "%APPVEYOR%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 ) ELSE (
-  rem get abs path to build 3rd party packages outside the LPub3D root dir
-  IF "%SCRIPT_DIR%" EQU "utilities" (
-    CALL :WD_REL_TO_ABS ../../../
-  ) ELSE (
-    CALL :WD_REL_TO_ABS ../
+  IF [%DIST_DIR%] == [] (
+    SET DIST_DIR=../lpub3d_windows_3rdparty
+    ECHO.
+    ECHO  -WARNING: Distribution directory not specified. Using [%DIST_DIR%].
   )
   SET BUILD_OUTPUT_PATH=%ABS_WD%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET DIST_DIR=../lpub3d_windows_3rdparty
   SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
   SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
-SET VER_LDGLITE=ldglite-1.3
-SET VER_LDVIEW=ldview-4.3
+SET VER_LDGLITE=LDGLite-1.3
+SET VER_LDVIEW=LDView-4.3
 SET VER_POVRAY=lpub3d_trace_cui-3.8
 SET SYS_DIR=%SystemRoot%cls\System32\System32
 SET ZIP_DIR_64=C:\program files\7-zip
@@ -60,9 +71,12 @@ IF NOT [%1]==[] (
 )
 
 ECHO.
-ECHO   BUILD LPUB3D RENDERERS...
+ECHO ======================================================
+ECHO   BUILD LPUB3D RENDERERS FOR %1 ARCHITECTURE...
+ECHO ======================================================
 ECHO.
-ECHO   WORKING DIRECTORY..............[%ABS_WD%]
+ECHO   WORKING_DIRECTORY_RENDERERS....[%ABS_WD%]
+ECHO   BUILD_OUTPUT_PATH..............[%BUILD_OUTPUT_PATH%]
 ECHO   DISTRIBUTION DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW LIBRARY FOLDER...........[%LDRAW_DIR%]
 
@@ -74,90 +88,86 @@ IF EXIST "%ZIP_DIR_64%" (
   GOTO :END
 )
 
+IF NOT EXIST "%DIST_DIR%\" (
+  MKDIR "%DIST_DIR%\"
+)
+
 CALL :CHECK_LDRAW_LIB
 
 IF [%1]==[] (
-  CALL :BUILD_ALL
+  GOTO :BUILD_ALL
 )
 IF /I "%1"=="-all" (
-  CALL :BUILD_ALL
+  GOTO :BUILD_ALL
 )
 IF /I "%1"=="x86" (
   SET BUILD_ARCH=%1
-  CALL :BUILD
+  GOTO :BUILD
 )
 IF /I "%1"=="x86_64" (
   SET BUILD_ARCH=%1
-  CALL :BUILD
+  GOTO :BUILD
 )
-GOTO :END
+IF /I "%1"=="-help" (
+  GOTO :USAGE
+)
+rem If we get here display invalid command message.
+GOTO :COMMAND_ERROR
 
 :BUILD_ALL
 FOR %%A IN ( x86, x86_64 ) DO (
   SET BUILD_ARCH=%%A
   CALL :BUILD
 )
-EXIT /b
+GOTO :END
 
 :BUILD
 IF %BUILD_ARCH% EQU x86 (
-  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\ldglite.exe
-  SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView64.exe
-  SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui64.exe
-  ECHO.
+  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe
+  SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe
+  SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
-    rem Qt MinGW 32bit
     SET PATH=%LP3D_QT32_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
-    SET PATH_PREPENDED=True
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(   PATH_PREPEND............[!PATH!]
-      ENDLOCAL
-    )
-  ) ELSE (
-    ECHO    PATH_ALREADY_PREPENDED..[%PATH%]
   )
-  CALL :SET_BUILD_ARGS
-  FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO CALL :%%I_BUILD
 ) ELSE (
-  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin%BUILD_ARCH%\ldglite.exe
+  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe
   SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
-  ECHO.
   IF "%PATH_PREPENDED%" NEQ "True" (
-    rem Qt MinGW 64bit
     SET PATH=%LP3D_QT64_MSYS2%;%SYS_DIR%;%LP3D_WIN_GIT%
-    SET PATH_PREPENDED=True
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(  PATH_PREPEND............[!PATH!]
-      ENDLOCAL
-    )
-  ) ELSE (
-    ECHO   PATH_ALREADY_PREPENDED..[%PATH%]
   )
-  CALL :SET_BUILD_ARGS
-  FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO CALL :%%I_BUILD
 )
-EXIT /b
+ECHO.
+IF "%PATH_PREPENDED%" EQU "True" (
+  ECHO   PATH_ALREADY_PREPENDED..[%PATH%]
+) ELSE (
+  ECHO   PATH_PREPEND............[%PATH%]
+  SET PATH_PREPENDED=True
+)
+CALL :SET_BUILD_ARGS
+FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO CALL :%%I_BUILD
+GOTO :END
 
 :SET_BUILD_ARGS
+IF %BUILD_ARCH% EQU x86 (
+  SET POVRAY_INSTALL_ARG=-allins
+) ELSE (
+  SET POVRAY_INSTALL_ARG=-ins
+)
 SET LDGLITE_BUILD_ARGS=%BUILD_ARCH% -ins -chk
 SET LDVIEW_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
-IF %BUILD_ARCH% EQU x86_64 (
-  SET POVRAY_BUILD_ARGS=%BUILD_ARCH% -allins -chk -minlog
-) ELSE (
-  SET POVRAY_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
-)
+SET POVRAY_BUILD_ARGS=%BUILD_ARCH% %POVRAY_INSTALL_ARG% -chk -minlog
 EXIT /b
 
 :LDGLITE_BUILD
 ECHO.
-ECHO -Build LDGLite...
+ECHO -Build %VER_LDGLITE%...
 IF EXIST "%LP3D_LDGLITE%" (
   ECHO - Renderer %VER_LDGLITE% exist - build skipped.
   EXIT /b
 )
 SET BUILD_DIR=ldglite
-SET VALID_SDIR=mui
+SET VALID_SDIR=app
 SET ARCHIVE_FILE_DIR=ldglite-master
 SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
 CALL :CONFIGURE_BUILD_ENV
@@ -166,7 +176,7 @@ EXIT /b
 
 :LDVIEW_BUILD
 ECHO.
-ECHO -Build LDView...
+ECHO -Build %VER_LDVIEW%...
 IF EXIST "%LP3D_LDVIEW%" (
   ECHO - Renderer %VER_LDVIEW% exist - build skipped.
   EXIT /b
@@ -181,7 +191,7 @@ EXIT /b
 
 :POVRAY_BUILD
 ECHO.
-ECHO -Build LPub3D-Trace ^(POV-Ray^)...
+ECHO -Build LPub3D-Trace-3.8 ^(POV-Ray^)...
 IF EXIST "%LP3D_POVRAY%" (
   ECHO - Renderer %VER_POVRAY% exist - build skipped.
   EXIT /b
@@ -223,7 +233,6 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
   ECHO.
   ECHO -Directory exist at [%CD%\%BUILD_DIR%] - Start build...
 )
-ECHO.
 CD /D %BUILD_OUTPUT_PATH%\%BUILD_DIR%
 EXIT /b
 
@@ -266,7 +275,7 @@ IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
   )
 ) ELSE (
   ECHO.
-  ECHO -LDraw directory exist at [%CD%\%LDRAW_DIR%].
+  ECHO -LDraw directory exist at [%LDRAW_DIR%].
   ECHO.
   ECHO -Set LDRAWDIR to %LDRAW_DIR%.
   SET LDRAWDIR=%LDRAW_DIR%
@@ -317,7 +326,8 @@ IF NOT EXIST "%TEMP%\$" (
   MD "%TEMP%\$"
 )
 
-SET retries=0
+SET RETRIES=0
+SET /a MAX_RETRIES=%MAX_DOWNLOAD_ATTEMPTS%-1
 SET vbs=WebContentDownload.vbs
 SET t=%TEMP%\$\%vbs% ECHO
 
@@ -389,22 +399,21 @@ cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
 IF ERRORLEVEL 1 GOTO :RETRY_DOWNLOAD
 IF NOT EXIST %ARCHIVE_FILE% GOTO :RETRY_DOWNLOAD
-SET retries=0
+SET RETRIES=0
 EXIT /b
 
 :RETRY_DOWNLOAD
-SET /a retries=%retries%+1
-IF %retries% EQU %MAX_DOWNLOAD_ATTEMPTS% (GOTO :DOWNLOAD_ERROR)
-IF %retries% LSS %MAX_DOWNLOAD_ATTEMPTS% (
+SET /a RETRIES=%RETRIES%+1
+IF %RETRIES% EQU %MAX_RETRIES% (GOTO :DOWNLOAD_ERROR)
+IF %RETRIES% LSS %MAX_RETRIES% (
   ECHO.
-  ECHO - Download %ARCHIVE_FILE% failed.
-  ECHO - Attempting %retries% of 3 retries.
+  ECHO - WARNING - Download %ARCHIVE_FILE% failed. Attempting %RETRIES% of %MAX_RETRIES% retries...
   GOTO :DO_DOWNLOAD
 )
 
 :DOWNLOAD_ERROR
 ECHO.
-ECHO - [%date% %time%] - ERROR - Download failed after %retries% retries.
+ECHO - [%date% %time%] - ERROR - Download %ARCHIVE_FILE% failed after %MAX_DOWNLOAD_ATTEMPTS% attempts.
 EXIT /b
 
 :WD_REL_TO_ABS
