@@ -105,7 +105,7 @@ TreatLongProcess() {
   messenger=$!
 
   # Set a trap to kill the messenger when the process finishes
-  trap 'kill $messenger' 0
+  trap "kill $messenger" 0 2
 
   # Wait for the process to finish
   if wait $s_pid; then
@@ -357,7 +357,7 @@ if [ "${WD}" = "" ]; then
     if [ "$OS_NAME" = "Darwin" ]; then
       chkdir="$(realpath ../../../)"
     else
-      chkdir="$(readlink - ../../../)"
+      chkdir="$(readlink -e ../../../)"
     fi
     if [ -d "$chkdir" ]; then
       WD=$chkdir
@@ -398,7 +398,6 @@ DIST_PKG_DIR=${WD}/${DIST_DIR}
 if [ ! -d ${DIST_PKG_DIR} ]; then
   mkdir -p ${DIST_PKG_DIR} && Info "Dist Directory......[${DIST_PKG_DIR}]"
 fi
-export $DIST_PKG_DIR
 
 # Change to Working directory
 cd ${WD}
@@ -537,6 +536,7 @@ for buildDir in ldglite ldview povray; do
     DisplayLogTail ${buildLog} 10
   else
     Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
+    Info "------------------Build Log-------------------------"
     cat ${buildLog}
   fi
   Info && Info "Build ${buildDir} finished."

@@ -77,8 +77,7 @@ before_install:
       brew update;
       brew install ccache openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      export LP3D_DIST_DIR=lpub3d_macos_3rdparty && mkdir -p ../${LP3D_DIST_DIR};
-      export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});
+      export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
     fi
 
 install:
@@ -139,11 +138,19 @@ script:
         echo " Package Files " && find $ComposePath;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        mkdir -p ../dmgbuild/${LP3D_DIST_DIR};
+        export LP3D_DIST_DIR_PATH=$(realpath ../dmgbuild/${LP3D_DIST_DIR});
         chmod +x builds/macx/CreateDmg.sh;
         ./builds/macx/CreateDmg.sh;
         echo " Package  Files:" && find ../dmgbuild/DMGS;
       fi;
     else
+      mkdir -p ../${LP3D_DIST_DIR};
+      if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});
+      else
+        export LP3D_DIST_DIR_PATH=$(readlink -e ../${LP3D_DIST_DIR});
+      fi;
       export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
       chmod +x builds/utilities/CreateRenderers.sh;
       ./builds/utilities/CreateRenderers.sh;

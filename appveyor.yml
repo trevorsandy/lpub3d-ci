@@ -117,8 +117,8 @@ after_build:
         $Sd = Get-Date -format yyyyMMdd
         $env:LP3D_BUILD_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
         $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_BUILD_VERSION}"
-        $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\{$env:LP3D_BUILD_PACKAGE}"
-        $env:LP3D_BUILD_DOWNLOAD_TARGET = "{$env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
+        $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
+        $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
         $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
         Get-ChildItem Env:LP3D_BUILD_* | Sort-Object name
         $root = Resolve-Path .\${env:LP3D_BUILD_DOWNLOAD_TARGET}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }

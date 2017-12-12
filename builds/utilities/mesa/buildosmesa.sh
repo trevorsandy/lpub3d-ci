@@ -173,14 +173,14 @@ fi
 
 # copy config file
 if [[ $config_copy -eq 1 || ! -f "${osmesaprefix}/osmesa-config" ]]; then
-	echo "DEBUG - WE ARE HERE: $PWD"
-	echo "DEBUG - KO COPY PATH: ${ScriptDir}/osmesa-config"
 	cp -f "${ScriptDir}/osmesa-config" "${osmesaprefix}"
 	if [ -f "${osmesaprefix}/osmesa-config" ]; then
 		Info "osmesa-config copied to ${osmesaprefix}"
+		Info "setting permissions..."
+		chmod +x "${osmesaprefix}/osmesa-config"
 	else
 		Info "ERROR - osmesa-config was not copied to ${osmesaprefix}"
-  fi
+   fi
 elif  [ -f "${osmesaprefix}/osmesa-config" ]; then
 	Info "osmesa-config exist - copy skipped."
 fi
