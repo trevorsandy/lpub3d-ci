@@ -130,6 +130,7 @@ then
     # Stop at the end of this block during Travis-CI builds
     export LP3D_APP_VERSION=${LP3D_APP_VERSION}
     export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
+    Info "   update-config-files.sh execution finished."
     echo
 else
     # generate version.info file

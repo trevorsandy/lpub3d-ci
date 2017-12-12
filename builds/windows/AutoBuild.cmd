@@ -112,7 +112,7 @@ IF NOT [%3]==[] (
   )
 )
 
-rem Verify 3rd input flag options
+rem Verify 4th input flag options
 IF NOT [%4]==[] (
   IF NOT "%4"=="-chk" GOTO :CONFIGURATION_ERROR
 )
@@ -138,6 +138,8 @@ IF /I "%2"=="-3rd" (
   SET BUILD_THIRD=1
   GOTO :BUILD
 )
+rem If we get here display invalid command message.
+GOTO :COMMAND_ERROR
 
 :BUILD
 IF NOT EXIST "%LP3D_WIN_GIT%" (
@@ -173,7 +175,7 @@ IF /I "%3"=="-chk" (
   SET CHECK=1
 )
 IF /I "%4"=="-chk" (
-  SET BUILD_THIRD=1
+  SET CHECK=1
 )
 
 rem Create distribution folder
@@ -273,48 +275,15 @@ IF %PLATFORM% EQU x86 (
 SET LPUB3D_MAKE_ARGS=-f Makefile
 SET PATH_PREPENDED=True
 ECHO   LPUB3D_CONFIG_ARGS.....[%LPUB3D_CONFIG_ARGS%]
-ECHO   PATH_PREPEND...........[%PATH%]
+SETLOCAL ENABLEDELAYEDEXPANSION
+ECHO(  PATH_PREPEND............[!PATH!]
+  ENDLOCAL
+)
 EXIT /b
 
 :CHECK_BUILD
 ECHO.
-ECHO -Check not yet defined.
-EXIT /b
-rem TODO: define some sort of Build Check.
-REM ECHO -Perform build check...
-CALL :CHECK_LDRAW_DIR
-IF %1==x86 SET PL=32
-IF %1==x86_64 SET PL=64
-SET "LPUB3D_DATA=%LOCALAPPDATA%\LPub3D Software\LPub3D"
-SET "LDRAW_UNOFFICIAL=%LDRAW_DIR%\Unofficial"
-REM SET "LDSEARCHDIRS=%LPUB3D_DATA%\fade^|%LDRAW_UNOFFICIAL%\customParts^|%LDRAW_UNOFFICIAL%\fade^|%LDRAW_UNOFFICIAL%\testParts"
-SET ARGS=
-SET LDCONFIG_FILE=
-SET IN_FILE=
-SET OUT_FILE=
-SET PACKAGE_PATH=
-SET COMMAND_LINE_ARGS=%ARGS% %LDCONFIG_FILE% %OUT_FILE% %IN_FILE%
-SET COMMAND=%PACKAGE_PATH% %COMMAND_LINE_ARGS%
-IF %CHECK%==1 (
-  ECHO.
-  ECHO   PACKAGE................[%PACKAGE%]
-  ECHO   PACKAGE_PATH...........[%PACKAGE_PATH%]
-  ECHO   ARGUMENTS..............[%ARGS%]
-  ECHO   LDCONFIG_FILE..........[%LDCONFIG_FILE%]
-  ECHO   OUT_FILE...............[%OUT_FILE%]
-  ECHO   IN_FILE................[%IN_FILE%]
-  ECHO   LDRAWDIR.^(ENV VAR^)...[%LDRAWDIR%]
-  ECHO   LDRAW_DIRECTORY........[%LDRAW_DIR%]
-  REM ECHO   LDRAW_SEARCH_DIRS......[%LDSEARCHDIRS%]
-  ECHO   COMMAND................[%COMMAND%]
-  %COMMAND% > Check.out 2>&1
-  IF EXIST "Check.out" (
-    FOR %%R IN (Check.out) DO IF NOT %%~zR LSS 1 ECHO. & TYPE "Check.out"
-    DEL /Q "Check.out"
-  )
-) ELSE (
-  ECHO -Check is not possible
-)
+ECHO -%PACKAGE% Check not yet defined.
 EXIT /b
 
 :3RD_PARTY_INSTALL

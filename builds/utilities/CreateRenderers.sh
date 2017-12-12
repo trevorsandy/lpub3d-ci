@@ -25,32 +25,6 @@ FinishElapsedTime() {
   echo "----------------------------------------------------"
 }
 
-# Grab te script name
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
-
-# Grab the calling dir
-CallDir=$PWD
-
-# tell curl to be silent, continue downloads and follow redirects
-curlopts="-sL -C -"
-
-# Start message and set sourced flag
-if [ "${ME}" = "CreateRenderers.sh" ]; then
-  Info "Start $ME execution at $PWD..."
-  SOURCED="false"
-else
-  Info "Start CreateRenderers execution at $PWD..."
-  SOURCED="true"
-fi
-
-# Get platform
-OS_NAME=`uname`
-if [ "$OS_NAME" = "Darwin" ]; then
-  platform=$(echo `sw_vers -productName` `sw_vers -productVersion`)
-else
-  platform=$(. /etc/os-release && if test "$PRETTY_NAME" != ""; then echo "$PRETTY_NAME"; else echo `uname`; fi)
-fi
-
 # Functions
 Info () {
     if [ "${SOURCED}" = "true" ]
@@ -348,6 +322,32 @@ BuildPOVRay() {
   fi
 }
 
+# Grab te script name
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+
+# Start message and set sourced flag
+if [ "${ME}" = "CreateRenderers.sh" ]; then
+  SOURCED="false"
+  Info "Start $ME execution at $PWD..."
+else
+  SOURCED="true"
+  Info "Start CreateRenderers execution at $PWD..."
+fi
+
+# Grab the calling dir
+CallDir=$PWD
+
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
+# Get platform
+OS_NAME=`uname`
+if [ "$OS_NAME" = "Darwin" ]; then
+  platform=$(echo `sw_vers -productName` `sw_vers -productVersion`)
+else
+  platform=$(. /etc/os-release && if test "$PRETTY_NAME" != ""; then echo "$PRETTY_NAME"; else echo `uname`; fi)
+fi
+
 Info && Info "Building............[LPub3D 3rd Party Renderers]"
 
 # Check for required 'WD' variable
@@ -534,10 +534,11 @@ for buildDir in ldglite ldview povray; do
   if [ -f "${validExe}" ]; then
     Info && Info "Build check - ${buildDir}..."
     DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+    DisplayLogTail ${buildLog} 10
   else
     Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
+    cat ${buildLog}
   fi
-  DisplayLogTail ${buildLog} 10
   Info && Info "Build ${buildDir} finished."
   cd ${WD}
 done

@@ -474,7 +474,7 @@ EXIT /b
 
 :END
 ECHO.
-ECHO -%~nx0 finished.
+ECHO -%~nx0 [platform %*] finished.
 SET end=%time%
 SET options="tokens=1-4 delims=:.,"
 FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
