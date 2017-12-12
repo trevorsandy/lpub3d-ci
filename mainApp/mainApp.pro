@@ -17,7 +17,7 @@ include(../gitversion.pri)
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini ../ldglite
+INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini
 
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments

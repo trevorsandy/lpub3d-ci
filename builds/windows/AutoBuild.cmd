@@ -215,6 +215,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
   rem Build 3rd party build from source
+  IF %BUILD_THIRD%==1 ECHO.
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
   IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %%P
   ECHO.
@@ -224,7 +225,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   qmake -v & ECHO.
   rem Configure makefiles and launch make
   SETLOCAL ENABLEDELAYEDEXPANSION
-  qmake !LPUB3D_CONFIG_ARGS! &  mingw32-make !LPUB3D_MAKE_ARGS!
+  qmake !LPUB3D_CONFIG_ARGS! & mingw32-make !LPUB3D_MAKE_ARGS!
   ENDLOCAL
   rem Perform build check if specified
   IF %CHECK%==1 CALL :CHECK_BUILD %%P
@@ -238,7 +239,7 @@ CD /D %ABS_WD%
 ECHO.
 ECHO -Configure LPub3D %PLATFORM% build environment...
 ECHO.
-ECHO -Cleanup previous LPub3D qmake config files - if any...
+ECHO -Cleanup any previous LPub3D qmake config files...
 FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"

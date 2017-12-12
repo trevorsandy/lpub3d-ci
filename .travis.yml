@@ -17,26 +17,22 @@ cache:
   - ${HOME}/Library/ldraw
   - ${LP3D_DIST_DIR_PATH}
 
-jobs:
+matrix:
  fast_finish: true
  include:
-  - if: env(LP3D_BUILD_PKG) = yes
-    os: linux
+  - os: linux
     compiler: gcc
     env:
       - BUILD_ARCH170101=true
-  - if: env(LP3D_BUILD_PKG) = yes
-    os: linux
+  - os: linux
     compiler: gcc
     env:
       - BUILD_FEDORA25=true
-  - if: env(LP3D_BUILD_PKG) = yes
-    os: linux
+  - os: linux
     compiler: gcc
     env:
       - BUILD_XENIAL=true
-  - if: env(LP3D_BUILD_PKG) IS blank
-    os: linux
+  - os: linux
     compiler: gcc
     env:
      - QT_BASE=59
@@ -124,8 +120,6 @@ install:
         ComposePath=builds/linux/docker-compose;
         mkdir -p builds/releases;
         export ReleasesPath=$PWD/builds/releases;
-        _PRO_FILE_PWD_=$PWD/mainApp;
-        source builds/utilities/update-config-files.sh;
       fi;
     fi
 
