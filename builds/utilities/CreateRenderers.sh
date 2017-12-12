@@ -61,7 +61,8 @@ DisplayLogTail() {
     else
       startPosition=$2
     fi
-    Info "$1 last $2 lines..."
+    Info "Log file tail..."
+    Info "$1 last $2 lines:"
     tail $startPositin $logFile
   else
     Info "ERROR (log tail) - $1 not found or not valid!"
@@ -82,6 +83,7 @@ DisplayCheckStatus() {
     if test -z "$s_checkString"; then Info "ERROR - check string not specified."; return 1; fi
     if test -z "$s_linesBefore"; then s_linesBefore=2; Info "INFO - display 2 lines before"; fi
     if test -z "$s_linesAfter"; then s_linesAfter=10; Info "INFO - display 10 lines after"; fi
+    Info "Checking for ${s_checkString} in ${s_buildLog}..."
     grep -B${s_linesBefore} -A${s_linesAfter} "${s_checkString}" $s_buildLog
   else
     Info "ERROR - Check display [$s_buildLog] not found or is not valid!"
@@ -105,13 +107,13 @@ TreatLongProcess() {
   messenger=$!
 
   # Set a trap to kill the messenger when the process finishes
-  trap "kill $messenger" 0 2
+  trap 'kill $messenger && echo "messenger $messenger for $s_plabel process $s_pid killed."' $?
 
   # Wait for the process to finish
   if wait $s_pid; then
-    Info "$s_plabel finished (returned $?)"
+    Info "$s_plabel process finished (returned $?)"
   else
-    Info "$s_plabel FAILED! (returned $?)"
+    Info "$s_plabel process FAILED! (returned $?)"
   fi
 }
 
@@ -188,6 +190,7 @@ InstallDependencies() {
               -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
           Info &&  Info "OSMesa and GLU build check..."
           DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
+          DisplayLogTail ${buildLog} 10
           OSMesaBuilt=1
         else
           if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
@@ -196,7 +199,9 @@ InstallDependencies() {
           if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
             Info && Info "ERROR - libGLU not found. Binary was not successfully built"
           fi
-          DisplayLogTail $mesaBuildLog 10
+          #DisplayLogTail $mesaBuildLog 10
+          Info "------------------Build Log-------------------------"
+          cat $mesaBuildLog
         fi
         Info && Info "${1} library OSMesa build finished."
       fi

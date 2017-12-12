@@ -166,6 +166,10 @@ ECHO   DISTRIBUTION_DIRECTORY.....[%DIST_DIR:/=\%]
 ECHO   LDRAW_DIRECTORY............[%LDRAW_DIR%]
 ECHO.  LDRAW_DOWNLOAD_DIR.........[%LDRAW_DOWNLOAD_DIR%]
 
+rem set application version variables
+SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
+CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
+
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
  SET THIRD_INSTALL=1
