@@ -107,7 +107,7 @@ TreatLongProcess() {
   messenger=$!
 
   # Set a trap to kill the messenger when the process finishes
-  trap 'kill $messenger && echo "messenger $messenger for $s_plabel process $s_pid killed."' $?
+  trap 'kill $messenger && echo "messenger $messenger for $s_plabel process $s_pid killed."' RETURN
 
   # Wait for the process to finish
   if wait $s_pid; then
@@ -190,7 +190,7 @@ InstallDependencies() {
               -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
           Info &&  Info "OSMesa and GLU build check..."
           DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
-          DisplayLogTail ${buildLog} 10
+          DisplayLogTail $mesaBuildLog 10
           OSMesaBuilt=1
         else
           if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
@@ -236,11 +236,12 @@ InstallDependencies() {
     ubuntu|debian)
       case $1 in
       ldglite)
+        sed '/^Build-Depends:/ s/$/ libosmesa6-dev/' -i obs/debian/control
         controlFile="$PWD/obs/debian/control"
         ;;
-      ldview)
+      ldview)      
         sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' \
-            -e 's/kdelibs5-dev//g' -e '/^Build-Depends:/ s/$/ libtinyxml-dev libgl2ps-dev/' -i QT/debian/control
+            -e 's/kdelibs5-dev//g' -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i QT/debian/control
         controlFile="$PWD/QT/debian/control"
         ;;
       povray)

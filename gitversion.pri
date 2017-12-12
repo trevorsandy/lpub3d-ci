@@ -19,21 +19,21 @@ exists($$PWD/.git) {
 #     _PROGRAM_FILES = $$(PROGRAMFILES)
 #     exists($${_PROGRAM_FILES}/Git/cmd) {
 #         WIN_GIT = $${_PROGRAM_FILES}/Git/cmd/git
-win32 {
-    LP3D_WIN_GIT_PATH = $$(LP3D_WIN_GIT)
-    exists($${LP3D_WIN_GIT_PATH}\\git.exe) {
-        BASE_GIT = $${LP3D_WIN_GIT_PATH}\\git.exe
-        message("~~~ LP3D_WIN_GIT_EXE $$BASE_GIT IS VALID ~~~")
-    } else {
-        BASE_GIT = git
-        message("~~~ LP3D_WIN_GIT_EXE $${LP3D_WIN_GIT_PATH}\\git.exe IS NOT VALID - USING $$BASE_GIT ~~~")    
-    }
-} else {
-    BASE_GIT = git
-}
+# win32 {
+    # LP3D_WIN_GIT_PATH = $$(LP3D_WIN_GIT)
+    # exists($${LP3D_WIN_GIT_PATH}\\git.exe) {
+        # BASE_GIT = $${LP3D_WIN_GIT_PATH}\\git.exe
+        # message("~~~ LP3D_WIN_GIT_EXE $$BASE_GIT IS VALID ~~~")
+    # } else {
+        # BASE_GIT = git
+        # message("~~~ LP3D_WIN_GIT_EXE $${LP3D_WIN_GIT_PATH}\\git.exe IS NOT VALID - USING $$BASE_GIT ~~~")    
+    # }
+# } else {
+    # BASE_GIT = git
+# }
 
 # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so use version.info file
-# appveyor_qt_mingw64: GIT_DIR = undefined
+appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
     appveyor_qt_mingw64 {
         BUILD_TYPE = release
@@ -66,8 +66,8 @@ equals(GIT_DIR, undefined) {
 
 } else {
     # Need to call git with manually specified paths to repository
-	BASE_GIT_COMMAND = $${BASE_GIT} --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
-    # BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
+	# BASE_GIT_COMMAND = $${BASE_GIT} --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
+    BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
     # Trying to get version from git tag / revision
     GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
