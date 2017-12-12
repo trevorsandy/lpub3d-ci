@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d-ci
-pkgver=2.0.21.228
+pkgver=2.0.21.229
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
@@ -39,10 +39,11 @@ prepare() {
 	export QT_SELECT=qt5
 	export LP3D_BUILD_PKG=yes
 	if [ -x /usr/bin/qmake ] ; then
-		qmake -makefile CONFIG+=release CONFIG+=pkg
+		QMAKE_EXEC=qmake
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
-		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg
+		QMAKE_EXEC=qmake-qt5
 	fi
+	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG-=debug_and_release CONFIG+=pkg
 }
 
 build() {

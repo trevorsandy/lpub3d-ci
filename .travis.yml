@@ -142,7 +142,7 @@ script:
         if [ "$BUILD_XENIAL" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
         fi;
-        echo " Package Files " && find $ComposePath`;
+        echo " Package Files " && find $ComposePath;
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         chmod +x builds/macx/CreateDmg.sh;

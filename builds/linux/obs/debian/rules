@@ -53,10 +53,10 @@ configure-stamp:
 override_dh_auto_configure:
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
-		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \
+		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=deb; \
 	else \
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -v; \
-		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \
+		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=deb; \
 	fi
 	# End custom configuration commands
 	touch configure-stamp

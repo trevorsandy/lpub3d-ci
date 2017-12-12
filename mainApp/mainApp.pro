@@ -164,7 +164,17 @@ UI_DIR          = $$DESTDIR/.ui
 # install 3rd party executables, documentation and resources.
 build_package = $$(LP3D_BUILD_PKG)
 if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
-    message(~~~ BUILD DISTRIBUTION PACKAGE: $$build_package ~~~)
+    message("~~~ BUILD DISTRIBUTION PACKAGE: $$build_package ~~~")
+
+    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        unix:!macx: DIST_DIR=lpub3d_linux_3rdparty
+        macx: DIST_DIR=lpub3d_macos_3rdparty
+        win32: DIST_DIR=lpub3d_windows_3rdparty
+        THIRD_PARTY_DIST_DIR_PATH = $$_PRO_FILE_PWD_/../../$$DIST_DIR
+    }
+    message("~~~ INSTALL 3RD PARTY APPS FROM REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+
     unix {
         CONFIG+=copy3rdexe
         CONFIG+=copy3rdexeconfig

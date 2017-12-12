@@ -160,7 +160,7 @@ ECHO   VERSION....................[%VERSION%]
 ECHO   LP3D_QT32_MSYS2............[%LP3D_QT32_MSYS2%]
 ECHO   LP3D_QT64_MSYS2............[%LP3D_QT64_MSYS2%]
 ECHO   WORKING_DIRECTORY_LPUB3D...[%ABS_WD%]
-ECHO   DIST_DIRECTORY.............[%DIST_DIR:/=\%]
+ECHO   DISTRIBUTION_DIRECTORY.....[%DIST_DIR:/=\%]
 ECHO   LDRAW_DIRECTORY............[%LDRAW_DIR%]
 ECHO.  LDRAW_DOWNLOAD_DIR.........[%LDRAW_DOWNLOAD_DIR%]
 
@@ -238,7 +238,7 @@ CD /D %ABS_WD%
 ECHO.
 ECHO -Configure LPub3D %PLATFORM% build environment...
 ECHO.
-ECHO -Cleanup previous LPub3D qmake config files...
+ECHO -Cleanup previous LPub3D qmake config files - if any...
 FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
@@ -250,11 +250,12 @@ FOR /R %%I IN (
 ) DO DEL /S /Q "%%~I" >nul 2>&1
 ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..[%PLATFORM%]
-SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION%
+SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release
 IF "%APPVEYOR%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
 ) ELSE (
   SET LP3D_BUILD_PKG=yes
+  SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 IF "%LP3D_BUILD_PKG%" EQU "yes" (
   ECHO   LP3D_BUILD_PKG.........[%LP3D_BUILD_PKG%]

@@ -145,8 +145,7 @@ unix:!macx {
     # Additionally, when using QtCreator be sure 'Shadow Build' is enabled.
     #
     # source path
-    isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_linux_3rdparty
-    message("~~~ INSTALL FROM REPO $$THIRD_PARTY_SRC ~~~")
+    isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$THIRD_PARTY_DIST_DIR_PATH
 
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite

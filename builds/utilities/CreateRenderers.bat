@@ -41,7 +41,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 ) ELSE (
   IF [%DIST_DIR%] == [] (
-    SET DIST_DIR=../lpub3d_windows_3rdparty
+    SET DIST_DIR=..\lpub3d_windows_3rdparty
     ECHO.
     ECHO  -WARNING: Distribution directory not specified. Using [%DIST_DIR%].
   )
@@ -210,7 +210,6 @@ CD /D %BUILD_OUTPUT_PATH%
 SET ARCHIVE_FILE=%ARCHIVE_FILE_DIR%.zip
 SET WebCONTENT="%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
 ECHO  ----------------------------------------------------
-ECHO.
 ECHO   BUILD_ARCH.....................[%BUILD_ARCH%]
 ECHO   BUILD_DIRECTORY................[%BUILD_DIR%]
 ECHO   VALID_SUB_DIRECTORY............[%VALID_SDIR%]

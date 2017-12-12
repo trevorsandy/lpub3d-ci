@@ -125,7 +125,7 @@ TreatLongProcess() {
   done
   # Validate the optional pretty label
   if test -z "$s_plabel"; then s_plabel="Create renderer"; fi
-  
+
   # Spawn a process that coninually reports the command is running
   while Info "$(date): $s_plabel process $s_pid is running..."; do sleep $s_msgint; done &
   messenger=$!
@@ -192,7 +192,7 @@ InstallDependencies() {
         mesaBuildDeps="TBD"
         mesaDepsLog=${LOG_PATH}/${ME}_mesadeps_${1}.log
         mesaBuildLog=${LOG_PATH}/${ME}_mesabuild_${1}.log
-        
+
         Info "Update OSMesa.......[Yes]"
         Info "OSMesa Dependencies.[${mesaBuildDeps}]"
         Info
@@ -209,7 +209,7 @@ InstallDependencies() {
           "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1 &
         fi
         TreatLongProcess $! 60 "OSMesa and GLU build"
-        
+
         if [[ -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" && \
               -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
           Info &&  Info "OSMesa and GLU build check..."
@@ -287,7 +287,7 @@ InstallDependencies() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDGLite() {
-  BUILD_CONFIG="CONFIG+=BUILD_CHECK"
+  BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
@@ -296,7 +296,7 @@ BuildLDGLite() {
   if [ ${buildOSMesa} = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
-  ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
+  ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
     make install
@@ -308,7 +308,7 @@ BuildLDGLite() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDView() {
-  BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK"
+  BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
@@ -317,7 +317,7 @@ BuildLDView() {
   if [ ${buildOSMesa} = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
-  ${QMAKE_EXE} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
+  ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
     make install
@@ -342,7 +342,7 @@ BuildPOVRay() {
     make install
   else
     make > $2 2>&1 &
-    TreatLongProcess "$!" "60" "POV-Ray make" 
+    TreatLongProcess "$!" "60" "POV-Ray make"
     make check >> $2 2>&1
     make install >> $2 2>&1
   fi
@@ -398,6 +398,7 @@ DIST_PKG_DIR=${WD}/${DIST_DIR}
 if [ ! -d ${DIST_PKG_DIR} ]; then
   mkdir -p ${DIST_PKG_DIR} && Info "Dist Directory......[${DIST_PKG_DIR}]"
 fi
+export $DIST_PKG_DIR
 
 # Change to Working directory
 cd ${WD}
@@ -430,22 +431,22 @@ if [ "$OS_NAME" = "Darwin" ]; then
   chmod +x ${LPUB3D}/builds/utilities/set-ldrawdir.command && ./${LPUB3D}/builds/utilities/set-ldrawdir.command
   grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
   Info "set LDRAWDIR Completed."
-  
+
   # Qt setup - MacOS
-  QMAKE_EXE=qmake
+  QMAKE_EXEC=qmake
 else
   # Qt setup - Linux
   export QT_SELECT=qt5
   if [ -x /usr/bin/qmake ] ; then
-    QMAKE_EXE=qmake
+    QMAKE_EXEC=qmake
   elif [ -x /usr/bin/qmake-qt5 ] ; then
-    QMAKE_EXE=qmake-qt5
+    QMAKE_EXEC=qmake-qt5
   fi
 fi
 
 # get Qt version
-Info && ${QMAKE_EXE} -v
-QMAKE_EXE="${QMAKE_EXE} -makefile"
+Info && ${QMAKE_EXEC} -v
+QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 
 # set log output path
 LOG_PATH=${WD}
@@ -455,10 +456,10 @@ buildOSMesa=0
 OSMesaBuilt=0
 
 # define build architecture
-if [ $(uname -m) = x86_64 ]; then 
-  buildArch="64bit_release"; 
-else 
-  buildArch="32bit_release"; 
+if [ $(uname -m) = x86_64 ]; then
+  buildArch="64bit_release";
+else
+  buildArch="32bit_release";
 fi
 
 # install build dependencies for MacOS

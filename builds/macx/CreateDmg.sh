@@ -147,7 +147,7 @@ fi
 echo && echo "-  configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 qmake -v
-qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=dmg
+qmake CONFIG+=x86_64 CONFIG+=release CONFIG-=debug_and_release CONFIG+=dmg
 /usr/bin/make
 
 # Stop here if we are only compiling
