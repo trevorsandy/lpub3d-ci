@@ -2,12 +2,7 @@
 #
 # This pre-commit hook updates the LPub3D version information when you go to commit.
 #
-# To use this script copy it to .git/hooks/pre-commit and make it executable.
-#
 ## Automatically generate git revision info
-##
-## Example:
-##   [master]v2.0.0-beta-191(a830382)
 ##
 ## Setup:
 ## $ cd to your git repository and type:
@@ -49,7 +44,13 @@ if test x"$increment_version" = x"yes"; then
   working_dir=$PWD/mainApp
   chmod +x builds/utilities/update-config-files.sh
   ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short
-
-  git add .
+  git add builds/utilities/version.info
+  git add builds/linux/obs/PKGBUILD
+  git add builds/linux/obs/debian/changelog
+  git add builds/linux/obs/debian/lpub3d-ci.dsc
+  git add builds/linux/obs/lpub3d-ci.spec
+  git add mainApp/docs/lpub3d${major}${minor}.1
+  git add mainApp/docs/README.txt
+  git add mainApp/lpub3d.desktop
 fi
 
