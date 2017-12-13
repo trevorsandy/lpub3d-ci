@@ -156,7 +156,7 @@ script:
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         export LP3D_DIST_DIR_PATH="$PWD/../${LP3D_DIST_DIR}";
       else
-        export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});;
+        export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});
       fi;
       export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
       chmod +x builds/utilities/CreateRenderers.sh;
@@ -167,7 +167,7 @@ script:
       make;
     fi
 
-# Gather up and move build artefacts to releases directory
+# Gather up and move build artefacts and logs to releases directory
 before_deploy:
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
