@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 08, 2017
+#  Last Update: December 12, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -104,16 +104,16 @@ TreatLongProcess() {
 
   # Spawn a process that coninually reports the command is running
   while Info "$(date): $s_plabel process $s_pid is running..."; do sleep $s_msgint; done &
-  messenger=$!
+  s_nark=$!
 
   # Set a trap to kill the messenger when the process finishes
-  trap 'kill $messenger && echo "messenger $messenger for $s_plabel process $s_pid killed."' RETURN
+  trap 'kill $s_nark && wait $s_nark 2>/dev/null' RETURN
 
   # Wait for the process to finish
   if wait $s_pid; then
-    Info "$s_plabel process finished (returned $?)"
+    Info "$(date): $s_plabel process finished (returned $?)"
   else
-    Info "$s_plabel process FAILED! (returned $?)"
+    Info "$(date): $s_plabel process FAILED! (returned $?)"
   fi
 }
 
@@ -239,7 +239,7 @@ InstallDependencies() {
         sed '/^Build-Depends:/ s/$/ libosmesa6-dev/' -i obs/debian/control
         controlFile="$PWD/obs/debian/control"
         ;;
-      ldview)      
+      ldview)
         sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' \
             -e 's/kdelibs5-dev//g' -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i QT/debian/control
         controlFile="$PWD/QT/debian/control"
@@ -361,9 +361,9 @@ if [ "${WD}" = "" ]; then
   parent_dir=${PWD##*/}
   if  [ "$parent_dir" = "utilities" ]; then
     if [ "$OS_NAME" = "Darwin" ]; then
-      chkdir="$(realpath ../../../)"
+      chkdir="$PWD/../../../"
     else
-      chkdir="$(readlink -e ../../../)"
+      chkdir="$(realpath ../../../)"
     fi
     if [ -d "$chkdir" ]; then
       WD=$chkdir
@@ -470,10 +470,25 @@ fi
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
   Info &&  Info "Install $OS_NAME build dependencies..."
-  brewDeps="openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip"
+  brewDeps="openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip boost autoconf automake pkg-config"
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
-  Info "Dependencies List...[${brewDeps}]"
+  Info "Dependencies List...[X11 ${brewDeps}]"
+  Info "Checking for X11 (xquartz) at /usr/X11..."
+  if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
+    Info "Good to go - X11 found."
+  else
+    Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
+    if [ "${TRAVIS}" != "true" ]; then
+      Info "  You can install xquartz using homebrew:"
+      Info "  \$ brew cask list"
+      Info "  \$ brew cask install xquartz"
+      Info "  Note: elevated access password will be required."
+    fi
+    # Elapsed execution time
+    FinishElapsedTime
+    exit 1
+  fi
   depsLog=${LOG_PATH}/${ME}_deps_$OS_NAME.log
   brew update > $depsLog 2>&1
   brew install $brewDeps >> $depsLog 2>&1

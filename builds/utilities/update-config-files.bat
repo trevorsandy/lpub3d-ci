@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 02, 2017
+rem  Last Update: December 12, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 rem --
@@ -80,12 +80,13 @@ IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
 REM ECHO "   writing version info to builds/utilities/version.info"
 SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH% %LP3D_BUILD_DATE_TIME% %LP3D_AVAILABLE_VERSIONS%
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
-IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info..............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info..............[Error, file not found])
+IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info............[Error, file not found])
 
 IF "%APPVEYOR%" == "True" (
-  ECHO   LP3D_VERSION_INFO............[%LP3D_VERSION_INFO%]
+  SET TEMP_VAR=%LP3D_VERSION_INFO:~0,14%
+  ECHO   LP3D_VERSION_INFO............[%TEMP_VAR%]
   ECHO   LPUB3D_DIR...................[%LPUB3D%]
-  ECHO   %LP3D_ME% execution finished.
+  ECHO  %LP3D_ME% execution finished.
   ENDLOCAL
   GOTO :END
 )

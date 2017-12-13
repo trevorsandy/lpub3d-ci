@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 10, 2017
+# Last Update December 12, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -20,6 +20,20 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 
 echo "Start $ME execution at $CWD..."
+
+# Fake realpath
+realpath() {
+  OURPWD=$PWD
+  cd "$(dirname "$1")"
+  LINK=$(readlink "$(basename "$1")")
+  while [ "$LINK" ]; do
+    cd "$(dirname "$LINK")"
+    LINK=$(readlink "$(basename "$1")")
+  done
+  REALPATH_="$PWD/$(basename "$1")"
+  cd "$OURPWD"
+  echo "$REALPATH_"
+}
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d-ci}"
@@ -56,8 +70,8 @@ if [ "${TRAVIS}" != "true"  ]; then
 
   # use this instance of Qt if exist - this entry is my dev machine, change accordingly
   if [ "${TRAVIS}" != "true" ]; then
-    if [ -d ~/Qt/IDE/5.9.3/clang_64 ]; then
-      export PATH=~/Qt/IDE/5.9.3/clang_64:~/Qt/IDE/5.9.3/clang_64/bin:$PATH
+    if [ -d ~/Qt/IDE/5.10.0/clang_64 ]; then
+      export PATH=~/Qt/IDE/5.10.0/clang_64:~/Qt/IDE/5.10.0/clang_64/bin:$PATH
     else
       echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
     fi

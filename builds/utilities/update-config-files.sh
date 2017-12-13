@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 8, 2017
+# Last Update December 12, 2017
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 
@@ -130,7 +130,7 @@ then
     # Stop at the end of this block during Travis-CI builds
     export LP3D_APP_VERSION=${LP3D_APP_VERSION}
     export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
-    Info "   update-config-files.sh execution finished."
+    Info " update-config-files.sh execution finished."
     echo
 else
     # generate version.info file

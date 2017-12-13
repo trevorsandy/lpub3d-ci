@@ -17,6 +17,9 @@ cache:
   - ${HOME}/Library/ldraw
   - ${LP3D_DIST_DIR_PATH}
 
+env:
+  - QT_BASE=59
+
 matrix:
  fast_finish: true
  include:
@@ -32,14 +35,18 @@ matrix:
     compiler: gcc
     env:
       - BUILD_XENIAL=true
-  - os: linux
-    compiler: gcc
-    env:
-     - QT_BASE=59
   - os: osx
     compiler: clang
     env:
-     - QT_BASE=59
+     - BUILD_MACOS=true
+  - os: linux
+    compiler: gcc
+    env:
+     - COMPILE_SOURCE=true
+  - os: osx
+    compiler: clang
+    env:
+     - COMPILE_SOURCE=true
 
 before_install:
   # Skip build if the commit message contains [skip travis] or [travis skip]
@@ -135,11 +142,11 @@ script:
         if [ "$BUILD_XENIAL" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
         fi;
-        echo " Package Files " && find $ComposePath;
+        echo " Package Files " && find $ComposePath -type f -not -name "*ocker*";
       fi;
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         mkdir -p ../dmgbuild/${LP3D_DIST_DIR};
-        export LP3D_DIST_DIR_PATH=$(realpath ../dmgbuild/${LP3D_DIST_DIR});
+        export LP3D_DIST_DIR_PATH="$PWD/../dmgbuild/${LP3D_DIST_DIR}";
         chmod +x builds/macx/CreateDmg.sh;
         ./builds/macx/CreateDmg.sh;
         echo " Package  Files:" && find ../dmgbuild/DMGS;
@@ -147,9 +154,9 @@ script:
     else
       mkdir -p ../${LP3D_DIST_DIR};
       if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});
+        export LP3D_DIST_DIR_PATH="$PWD/../${LP3D_DIST_DIR}";
       else
-        export LP3D_DIST_DIR_PATH=$(readlink -e ../${LP3D_DIST_DIR});
+        export LP3D_DIST_DIR_PATH=$(realpath ../${LP3D_DIST_DIR});;
       fi;
       export LPUB3D="${PWD##*/}"; export WD="$(dirname "$PWD")";
       chmod +x builds/utilities/CreateRenderers.sh;
