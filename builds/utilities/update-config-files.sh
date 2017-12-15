@@ -29,6 +29,20 @@ Info () {
     fi
 }
 
+# Fake realpath
+realpath() {
+  OURPWD=$PWD
+  cd "$(dirname "$1")"
+  LINK=$(readlink "$(basename "$1")")
+  while [ "$LINK" ]; do
+    cd "$(dirname "$LINK")"
+    LINK=$(readlink "$(basename "$1")")
+  done
+  REALPATH_="$PWD/$(basename "$1")"
+  cd "$OURPWD"
+  echo "$REALPATH_"
+}
+
 # Change these accordingly when respective config files are modified
 LINE_DESKTOP=10                 # Exec=lpub3d20 %f
 LINE_MANPAGE=61                 # /usr/bin/lpub3d20
@@ -38,16 +52,16 @@ if [ "$OBS" = true ]; then
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
     LINE_SPEC="93 293"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
-    LP3D_OBS_DIR_=$LP3D_PWD/../builds/linux/obs/alldeps
+    LP3D_OBS_DIR_=$(realpath $LP3D_PWD/../builds/linux/obs/alldeps)
 else
     USING_OBS=No
     LINE_PKGBUILD=3
     LINE_DSC=5
     LINE_SPEC="93 293"
-    LP3D_OBS_DIR_=$LP3D_PWD/../builds/linux/obs
+    LP3D_OBS_DIR_=$(realpath $LP3D_PWD/../builds/linux/obs)
 fi
-LP3D_OBS_DIR=$LP3D_PWD/../builds/linux/obs
-LP3D_UTIL_DIR=$LP3D_PWD/../builds/utilities
+LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs)
+LP3D_UTIL_DIR=$(realpath $LP3D_PWD/../builds/utilities)
 
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
@@ -153,13 +167,13 @@ ${LP3D_VERSION_INFO} ${LP3D_DATE_TIME}
 EOF
     if [ -f "${FILE}" ];
     then
-        Info "   FILE version.info written to..............................[$FILE]";
+        Info "   FILE version.info written to...................[$FILE]";
     else
-        Info "   FILE version.info...................error, file not found";
+        Info "   FILE version.info error, file not found";
     fi
 
-    Info "2. update desktop config  - add version suffix               [$FILE]"
     FILE="$LP3D_PWD/lpub3d.desktop"
+    Info "2. update desktop config  - add version suffix    [$FILE]"
     LineToReplace=${LINE_DESKTOP}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -173,7 +187,7 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "3. update man page        - add version suffix               [$FILE]"
+    Info "3. update man page        - add version suffix    [$FILE]"
     FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
     LineToReplace=${LINE_MANPAGE}
     FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
@@ -197,7 +211,7 @@ EOF
         Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
     fi
 
-    Info "4. update README.txt      - add app version                  [$FILE]"
+    Info "4. update README.txt      - add version           [$FILE]"
     FILE="$LP3D_PWD/docs/README.txt"
     LineToReplace=${LINE_README}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -212,7 +226,7 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "5. create changelog       - add app version and change date  [$FILE]"
+    Info "5. create changelog       - add version and date  [$FILE]"
     FILE="$LP3D_OBS_DIR/debian/changelog"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -226,7 +240,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-    Info "6. update PKGBUILD        - add app version                  [$FILE]"
+    Info "6. update PKGBUILD        - add version           [$FILE]"
     FILE="$LP3D_OBS_DIR_/PKGBUILD"
     LineToReplace=${LINE_PKGBUILD}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -242,7 +256,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR_/debian/${LPUB3D}.dsc"
-    Info "7. update ${LPUB3D}.dsc   - add app version                  [$FILE]"
+    Info "7. update ${LPUB3D}.dsc   - add app version       [$FILE]"
     LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -257,7 +271,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR_/${LPUB3D}.spec"
-    Info "8. update ${LPUB3D}.spec  - add app version and change date  [$FILE]"
+    Info "8. update ${LPUB3D}.spec  - add app version and date  [$FILE]"
     LinesToReplace=${LINE_SPEC}
     LastLine=`wc -l < ${FILE}`
     if [ -f ${FILE} -a -r ${FILE} ]
