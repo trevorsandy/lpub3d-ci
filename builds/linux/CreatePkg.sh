@@ -53,7 +53,7 @@ exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
 echo "1. create PKG working directories in pkgbuild/"
-if [ ! -d pkgbuild ]
+if [ ! -d pkgbuild/upstream ]
 then
   mkdir -p pkgbuild/upstream
 fi

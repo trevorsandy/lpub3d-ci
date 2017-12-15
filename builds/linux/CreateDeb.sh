@@ -61,7 +61,7 @@ else
 fi
 
 echo "1. create DEB working directories in debbuild/..."
-if [ ! -d debbuild ]
+if [ ! -d debbuild/SOURCES ]
 then
     mkdir -p debbuild/SOURCES
 fi
