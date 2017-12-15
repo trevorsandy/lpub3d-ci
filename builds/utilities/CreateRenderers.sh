@@ -595,6 +595,7 @@ for buildDir in ldglite ldview povray; do
   if [ -f "${validExe}" ]; then
     Info && Info "Build check - ${buildDir}..."
     DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+    Info
     DisplayLogTail ${buildLog} 10
   else
     Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"

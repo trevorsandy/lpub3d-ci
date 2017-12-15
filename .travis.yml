@@ -14,7 +14,7 @@ cache:
   directories:
   - ${HOME}/ldraw
   - ${HOME}/Library/ldraw
-  - ${LP3D_DIST_DIR_PATH}
+  - ${HOME}/build/${TRAVIS_REPO_SLUG}/../${LP3D_DIST_DIR}
 
 env:
   - QT_BASE=59
@@ -87,8 +87,7 @@ before_install:
   # to build only one of the items in which case the settings would
   # be ...1 0 0 to only build LDGlite.
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-      LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | \
-      sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/]//g');
+      LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/]//g');
       export LP3D_BUILD_LDGLITE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 1);
       export LP3D_BUILD_LDVIEW=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 2);
       export LP3D_BUILD_TRACE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);

@@ -114,9 +114,9 @@ install:
  - cmd: bash -lc "if ! test -d ${lp3d_librepodir} && test -f ${lp3d_librepo}.tar.gz; then mkdir -p ${lp3d_librepodir} && tar -xzf ${lp3d_librepo}.tar.gz -C ${lp3d_librepodir} --strip-components=1; fi"
  - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then echo repository ${lp3d_librepodir} not found; else echo library repository available at ${lp3d_librepodir}; fi"
  - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.2-2-release; pacman -U --needed --noconfirm ${LP3D_QT32_LIBS} ${LP3D_QT64_LIBS} > CreateQtBuildEnv.log 2>&1"
- - cmd: bash -lc "if test "$LP3D_BUILD_LDGLITE" = "1" && test -d $LP3D_LDGLITE; then rm -rf $LP3D_LDGLITE && echo "cached $LP3D_LDGLITE deleted"; fi"
- - cmd: bash -lc "if test "$LP3D_BUILD_LDVIEW" = "1" && test -d $LP3D_LDVIEW; then rm -rf $LP3D_LDVIEW && echo "cached $LP3D_LDVIEW deleted"; fi"
- - cmd: bash -lc "if test "$LP3D_BUILD_TRACE" = "1" && test -d $LP3D_LPUB3D_TRACE; then rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted"; fi"
+ - cmd: bash -lc "if test $LP3D_BUILD_LDGLITE = 1 && test -d $LP3D_LDGLITE; then rm -rf $LP3D_LDGLITE && echo cached $LP3D_LDGLITE deleted; fi"
+ - cmd: bash -lc "if test $LP3D_BUILD_LDVIEW = 1 && test -d $LP3D_LDVIEW; then rm -rf $LP3D_LDVIEW && echo cached $LP3D_LDVIEW deleted; fi"
+ - cmd: bash -lc "if test $LP3D_BUILD_TRACE = 1 && test -d $LP3D_LPUB3D_TRACE; then rm -rf $LP3D_LPUB3D_TRACE && echo cached $LP3D_LPUB3D_TRACE deleted; fi"
 
 build_script:
  - ps: |

@@ -164,8 +164,14 @@ qmake -v
 qmake CONFIG+=x86_64 CONFIG+=release CONFIG-=debug_and_release CONFIG+=dmg
 /usr/bin/make
 
+# Check if build is OK or stop and return error.
+if test $(uname -m) = x86_64; then release="64bit_release"; else release="32bit_release"; fi
+if [ ! -d "mainApp/$release/LPub3D.app" ]; then
+  echo "ERROR - build output at $(realpath mainApp/$release/LPub3D.app) not found."
+  ElapsedTime
+  exit 1
 # Stop here if we are only compiling
-if [ "$BUILD_OPT" = "compile" ]; then
+elif [ "$BUILD_OPT" = "compile" ]; then
   ElapsedTime
   exit 0
 fi
@@ -175,7 +181,6 @@ fi
 cd builds/macx
 
 echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
-if test $(uname -m) = x86_64; then release="64bit_release"; else release="32bit_release"; fi
 cp -rf ../../mainApp/$release/LPub3D.app .
 cp -f ../utilities/icons/lpub3d.icns .
 cp -f ../utilities/icons/setup.png .

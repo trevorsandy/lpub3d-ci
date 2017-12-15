@@ -135,7 +135,7 @@ Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
 
 if [ "$LP3D_OS" = Darwin ]
     then
-        Info "-- update the Info.plist with version major, version minor, build and git sha hash"
+        Info "2. update the Info.plist with version major, version minor, build and git sha hash"
         LP3D_INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
         if [ -f "${LP3D_INFO_PLIST_FILE}" ]
         then

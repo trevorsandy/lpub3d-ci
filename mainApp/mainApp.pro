@@ -172,7 +172,7 @@ if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
         macx: DIST_DIR=lpub3d_macos_3rdparty
         win32: DIST_DIR=lpub3d_windows_3rdparty
         THIRD_PARTY_DIST_DIR_PATH = $$_PRO_FILE_PWD_/../../$$DIST_DIR
-        message("~~~ WARNING - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+        message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
     }
     message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
