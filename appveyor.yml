@@ -40,6 +40,16 @@ environment:
   lp3d_librepo: lpub3d_mingw-Qt5_libs
   lp3d_librepodir: /c/projects/$(APPVEYOR_PROJECT_NAME)/$(lp3d_librepo)
 
+# Build package if commit message contains [build pkg]
+# Parse the commit message for 3rd party build override
+# As 3rd party items are not expected to change often
+# We cache them to speed up the build. If/when it is necessary
+# to build one of the items, we signa with 1 in the commit message
+# The format is [build pkg 1 1 1] to build all 3rd party itmes.
+# The first position is LDGlite, the second is LDView and the
+# third is LPub3D_Trace (POV-Ray). Alternatively you may choose
+# to build only one of the items in which case the settings would
+# be ...1 0 0 to only build the LDGlite.
 init:
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -53,6 +63,17 @@ init:
         write-host "[deploy pkg] detected."
         $env:LP3D_BUILD_PKG = "yes"
         $env:LP3D_DEPLOY_PKG = $true
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_PKG -eq "yes") {
+        If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -match '([^(build|deploy) pkg]\s?\d?\s?\d?)]$') {
+          $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
+          $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
+          $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
+          $env:LP3D_LDGLITE = ${env:LP3D_DIST_DIR_PATH}/ldglite-1.3;
+          $env:LP3D_LDVIEW = ${env:LP3D_DIST_DIR_PATH}/ldview-4.3;
+          $env:LP3D_LPUB3D_TRACE = ${env:LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8;
+        }
       }
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]")) {
@@ -81,7 +102,8 @@ init:
 # that are about 33MB for each archive. After setting up these items, we proceed to fetch the commit that triggered the AppVeyor build.
 # We don't use git clone because the 'clone_directory' is not empty (restored cached components were added in previous steps) - so the
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
-# This includes setting the clone depth, and fetching the last commit and previous tags
+# This includes setting the clone depth, and fetching the last commit and previous tags. Lastly, we manage 3rd party items cache -
+# deleting a component will trigger a new build.
 install:
  - cmd: git init %APPVEYOR_BUILD_FOLDER%
  - cmd: cd %APPVEYOR_BUILD_FOLDER%
@@ -92,6 +114,9 @@ install:
  - cmd: bash -lc "if ! test -d ${lp3d_librepodir} && test -f ${lp3d_librepo}.tar.gz; then mkdir -p ${lp3d_librepodir} && tar -xzf ${lp3d_librepo}.tar.gz -C ${lp3d_librepodir} --strip-components=1; fi"
  - cmd: bash -lc "if ! test -d ${lp3d_librepodir}; then echo repository ${lp3d_librepodir} not found; else echo library repository available at ${lp3d_librepodir}; fi"
  - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.2-2-release; pacman -U --needed --noconfirm ${LP3D_QT32_LIBS} ${LP3D_QT64_LIBS} > CreateQtBuildEnv.log 2>&1"
+ - cmd: bash -lc "if test "$LP3D_BUILD_LDGLITE" = "1" && test -d $LP3D_LDGLITE; then rm -rf $LP3D_LDGLITE && echo "cached $LP3D_LDGLITE deleted"; fi"
+ - cmd: bash -lc "if test "$LP3D_BUILD_LDVIEW" = "1" && test -d $LP3D_LDVIEW; then rm -rf $LP3D_LDVIEW && echo "cached $LP3D_LDVIEW deleted"; fi"
+ - cmd: bash -lc "if test "$LP3D_BUILD_TRACE" = "1" && test -d $LP3D_LPUB3D_TRACE; then rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted"; fi"
 
 build_script:
  - ps: |
@@ -110,7 +135,7 @@ test: off
 
 after_build:
  - ps: |
-      If (($env:LP3D_BUILD_PKG -eq "yes") -and ([int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 77)) {
+      If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 77) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
         $Sv = git describe --tags --long
         $Sc = git rev-list HEAD --count

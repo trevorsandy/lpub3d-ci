@@ -1,15 +1,17 @@
 #!/bin/bash
 #
-# This pre-commit hook updates the LPub3D version information when you go to commit.
+# This commit-msg hook updates the LPub3D version information when
+# [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 ## Automatically generate git revision info
 ##
 ## Setup
 ## > denotes a new line
 ## cd to your git repository and type:
-## $ cat << pbEOF >.git/hooks/pre-commit
+## $ cat << pbEOF >.git/hooks/commit-msg
 ## > #!/bin/sh
-## > ./builds/utilities/hooks/pre-commit       # location of pre-commit script in your source repository
+## > echo "$1" | grep -E '\[(build|deploy) pkg.*\]' &&   # trigger if [build pkg*] or [deploy pkg*] exist in commit message
+## > ./builds/utilities/hooks/commit-msg || true         # location of commit-msg script
 ## > pbEOF
 ## $
 ##
@@ -42,7 +44,7 @@ if test x"$increment_version" = x"yes"; then
   echo "   Old_build (count)......$commit_count"
   if test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
 
-  working_dir=$PWD/mainApp
+  working_dir=$PWD/mainApp; OBS=true
   chmod +x builds/utilities/update-config-files.sh
   ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short
   git add builds/utilities/version.info
