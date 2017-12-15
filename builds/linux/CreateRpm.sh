@@ -57,9 +57,6 @@ echo "1. create RPM build working directories in rpmbuild/..."
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
-else
-    rm -rf rpmbuild
-    mkdir -p rpmbuild
 fi
 cd rpmbuild
 BUILD_DIR=$PWD
