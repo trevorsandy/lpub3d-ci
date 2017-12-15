@@ -16,7 +16,7 @@ VOLUME ["/buildpkg", "/user/rpmbuild/BUILD/lpub3d_linux_3rdparty"]
 CMD sudo chown -R user:user /user/rpmbuild/.* \
     && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateRpm.sh \
     && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/obs/lpub3d-ci-rpmlintrc \
-    && sudo cp -f lpub3d-ci-rpmlintrc /etc/rpmlint \
+    && cp -f lpub3d-ci-rpmlintrc /etc/rpmlint \
     && export DOCKER=true \
     && chmod +x CreateRpm.sh \
     && ./CreateRpm.sh \

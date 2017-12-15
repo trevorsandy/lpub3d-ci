@@ -70,9 +70,9 @@ init:
           $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
           $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
           $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
-          $env:LP3D_LDGLITE = ${env:LP3D_DIST_DIR_PATH}/ldglite-1.3;
-          $env:LP3D_LDVIEW = ${env:LP3D_DIST_DIR_PATH}/ldview-4.3;
-          $env:LP3D_LPUB3D_TRACE = ${env:LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8;
+          $env:LP3D_LDGLITE = ${env:LP3D_DIST_DIR_PATH}\ldglite-1.3;
+          $env:LP3D_LDVIEW = ${env:LP3D_DIST_DIR_PATH}\ldview-4.3;
+          $env:LP3D_LPUB3D_TRACE = ${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8;
         }
       }
  - ps: |

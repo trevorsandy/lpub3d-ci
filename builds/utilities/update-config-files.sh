@@ -34,11 +34,13 @@ LINE_DESKTOP=10                 # Exec=lpub3d20 %f
 LINE_MANPAGE=61                 # /usr/bin/lpub3d20
 LINE_README=1                   # LPub3D 2.0.21.59.126...
 if [ "$OBS" = true ]; then
+    USING_OBS=Yes
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
     LINE_SPEC="93 293"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
     LP3D_OBS_DIR_=$LP3D_PWD/../builds/linux/obs/alldeps
 else
+    USING_OBS=No
     LINE_PKGBUILD=3
     LINE_DSC=5
     LINE_SPEC="93 293"
@@ -97,6 +99,7 @@ LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${LP3D_DA
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
+Info "   USING_OBS..............${USING_OBS}"
 
 Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
 Info "   VER_MAJOR..............${VER_MAJOR}"
@@ -150,12 +153,12 @@ ${LP3D_VERSION_INFO} ${LP3D_DATE_TIME}
 EOF
     if [ -f "${FILE}" ];
     then
-        Info "   FILE version.info......written to builds/utilities/version.info";
+        Info "   FILE version.info..........................written to [$FILE]";
     else
-        Info "   FILE version.info......error, file not found";
+        Info "   FILE version.info...............error, file not found";
     fi
 
-    Info "2. update desktop configuration         - add version suffix"
+    Info "2. update desktop config  - add version suffix               [$FILE]"
     FILE="$LP3D_PWD/lpub3d.desktop"
     LineToReplace=${LINE_DESKTOP}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -170,7 +173,7 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "3. update man page                      - add version suffix"
+    Info "3. update man page        - add version suffix               [$FILE]"
     FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
     LineToReplace=${LINE_MANPAGE}
     FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
@@ -194,7 +197,7 @@ EOF
         Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
     fi
 
-    Info "4. update README.txt                    - add app version"
+    Info "4. update README.txt      - add app version                  [$FILE]"
     FILE="$LP3D_PWD/docs/README.txt"
     LineToReplace=${LINE_README}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -209,7 +212,7 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "5. create changelog                     - add app version and change date"
+    Info "5. create changelog       - add app version and change date  [$FILE]"
     FILE="$LP3D_OBS_DIR/debian/changelog"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -223,7 +226,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-    Info "6. update PKGBUILD                      - add app version"
+    Info "6. update PKGBUILD        - add app version                  [$FILE]"
     FILE="$LP3D_OBS_DIR_/PKGBUILD"
     LineToReplace=${LINE_PKGBUILD}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -238,8 +241,8 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "7. update ${LPUB3D}.dsc                 - add app version"
     FILE="$LP3D_OBS_DIR_/debian/${LPUB3D}.dsc"
+    Info "7. update ${LPUB3D}.dsc   - add app version                  [$FILE]"
     LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -253,8 +256,8 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "8. update ${LPUB3D}.spec                - add app version and change date"
     FILE="$LP3D_OBS_DIR_/${LPUB3D}.spec"
+    Info "8. update ${LPUB3D}.spec  - add app version and change date  [$FILE]"
     LinesToReplace=${LINE_SPEC}
     LastLine=`wc -l < ${FILE}`
     if [ -f ${FILE} -a -r ${FILE} ]
