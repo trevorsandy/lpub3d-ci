@@ -187,8 +187,8 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "3. update man page        - add version suffix    [$FILE]"
     FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
+    Info "3. update man page        - add version suffix    [$FILE]"
     LineToReplace=${LINE_MANPAGE}
     FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
     if [ -f ${FILE_TEMPLATE} ];
@@ -211,8 +211,8 @@ EOF
         Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
     fi
 
-    Info "4. update README.txt      - add version           [$FILE]"
     FILE="$LP3D_PWD/docs/README.txt"
+    Info "4. update README.txt      - add version           [$FILE]"
     LineToReplace=${LINE_README}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -226,8 +226,8 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    Info "5. create changelog       - add version and date  [$FILE]"
     FILE="$LP3D_OBS_DIR/debian/changelog"
+    Info "5. create changelog       - add version and date  [$FILE]"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
     	rm ${FILE}
@@ -240,8 +240,8 @@ ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-    Info "6. update PKGBUILD        - add version           [$FILE]"
     FILE="$LP3D_OBS_DIR_/PKGBUILD"
+    Info "6. update PKGBUILD        - add version           [$FILE]"
     LineToReplace=${LINE_PKGBUILD}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -256,7 +256,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR_/debian/${LPUB3D}.dsc"
-    Info "7. update ${LPUB3D}.dsc   - add app version       [$FILE]"
+    Info "7. update ${LPUB3D}.dsc   - add version           [$FILE]"
     LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -271,7 +271,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR_/${LPUB3D}.spec"
-    Info "8. update ${LPUB3D}.spec  - add app version and date  [$FILE]"
+    Info "8. update ${LPUB3D}.spec  - add version and date  [$FILE]"
     LinesToReplace=${LINE_SPEC}
     LastLine=`wc -l < ${FILE}`
     if [ -f ${FILE} -a -r ${FILE} ]
