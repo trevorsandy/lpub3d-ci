@@ -56,10 +56,8 @@ echo "1. create PKG working directories in pkgbuild/"
 if [ ! -d pkgbuild ]
 then
   mkdir -p pkgbuild/upstream
-else
-  rm -rf pkgbuild
-  mkdir -p pkgbuild/upstream
 fi
+
 cd pkgbuild/upstream
 
 echo "2. download ${LPUB3D}/ to upstream/"

@@ -64,9 +64,6 @@ echo "1. create DEB working directories in debbuild/..."
 if [ ! -d debbuild ]
 then
     mkdir -p debbuild/SOURCES
-else
-    rm -rf debbuild
-    mkdir -p debbuild/SOURCES
 fi
 
 cd debbuild/SOURCES

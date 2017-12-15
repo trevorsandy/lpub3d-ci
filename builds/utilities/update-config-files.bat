@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 12, 2017
+rem  Last Update: December 15, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 rem --
@@ -77,7 +77,6 @@ CALL :GET_AVAILABLE_VERSIONS %*
 
 rem AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
 IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
-REM ECHO "   writing version info to builds/utilities/version.info"
 SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH% %LP3D_BUILD_DATE_TIME% %LP3D_AVAILABLE_VERSIONS%
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info............[Error, file not found])
@@ -115,153 +114,6 @@ ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
-ECHO.
-ECHO  2. set root directory name for linux config files...
-SET LP3D_DEB_DSC_FILE=%LP3D_OBS_DIR%\debian\%OLD_LPUB3D%.dsc
-SET LP3D_DEB_LINT_FILE=%LP3D_OBS_DIR%\debian\%OLD_LPUB3D%.lintian-overrides
-SET LP3D_OBS_SPEC_FILE=%LP3D_OBS_DIR%\%OLD_LPUB3D%.spec
-SET LP3D_RPM_LINT_FILE=%LP3D_OBS_DIR%\%OLD_LPUB3D%-rpmlintrc
-IF "%LPUB3D%" EQU "%OLD_LPUB3D%" (
-  ECHO     nothing to do, skipping
-) ELSE (
-   IF EXIST %LP3D_DEB_DSC_FILE% (
-    MOVE /y "%LP3D_DEB_DSC_FILE%" "%LP3D_OBS_DIR%\debian\%LPUB3D%.dsc" | findstr /i /v /r /c:"moved\>"
-   )
-   IF EXIST %LP3D_DEB_LINT_FILE% (
-    MOVE /y "%LP3D_DEB_LINT_FILE%" "%LP3D_OBS_DIR%\debian\%LPUB3D%.lintian-overrides" | findstr /i /v /r /c:"moved\>"
-   )
-   IF EXIST %LP3D_OBS_SPEC_FILE% (
-    MOVE /y "%LP3D_OBS_SPEC_FILE%" "%LP3D_OBS_DIR%\%LPUB3D%.spec" | findstr /i /v /r /c:"moved\>"
-   )
-   IF EXIST %LP3D_RPM_LINT_FILE% (
-    MOVE /y "%LP3D_RPM_LINT_FILE%" "%LP3D_OBS_DIR%\%LPUB3D%-rpmlintrc" | findstr /i /v /r /c:"moved\>"
-   )
-   FOR %%i IN (
-      %LP3D_OBS_DIR%\debian\source\include-binaries
-      %LP3D_OBS_DIR%\debian\changelog
-      %LP3D_OBS_DIR%\debian\control
-      %LP3D_OBS_DIR%\debian\copyright
-      %LP3D_OBS_DIR%\debian\%LPUB3D%.dsc
-      %LP3D_OBS_DIR%\debian\%LPUB3D%.lintian-overrides
-      %LP3D_OBS_DIR%\_service
-      %LP3D_OBS_DIR%\PKGBUILD
-      %LP3D_OBS_DIR%\%LPUB3D%-rpmlintrc
-      %LP3D_BUILDS_DIR%\linux\docker-compose\docker-compose-linux.yml
-      %LP3D_BUILDS_DIR%\utilities\docker\Dockerfile-archlinux_2017.10.01
-      %LP3D_BUILDS_DIR%\utilities\docker\Dockerfile-fedora_25
-      %LP3D_BUILDS_DIR%\utilities\docker\Dockerfile-ubuntu_xenial
-      %LP3D_BUILDS_DIR%\..\appveyor.yml
-      %LP3D_BUILDS_DIR%\..\travis.yml
-    ) DO (
-      CALL :FIND_REPLACE %OLD_LPUB3D% %LPUB3D% %%i
-  )
-  ECHO.
-)
-
-ECHO  3. update desktop configuration - add version suffix
-SET LP3D_FILE="%LP3D_MAIN_APP%\lpub3d.desktop"
-SET /a LineToReplace=%desktop_line%
-SET "Replacement=Exec=lpub3d%LP3D_APP_VER_SUFFIX% %%f"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  4. update man page - add version suffix
-SET LP3D_FILE="%LP3D_MAIN_APP%\docs\lpub3d%LP3D_APP_VER_SUFFIX%.1"
-SET /a LineToReplace=%manpage_line%
-SET "Replacement=     /usr/bin/lpub3d%LP3D_APP_VER_SUFFIX%"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  5. update PKGBUILD - add app version
-SET LP3D_FILE="%LP3D_OBS_DIR%\PKGBUILD"
-SET /a LineToReplace=%pkgbuild_line%
-SET "Replacement=Exec=lpub3d%LP3D_APP_VER_SUFFIX% %%f"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  6. create changelog - add app version and change date
-SET LP3D_FILE="%LP3D_OBS_DIR%\debian\changelog"
-IF EXIST %LP3D_FILE% DEL /Q %LP3D_FILE%
-SET createChangeLog=%LP3D_FILE% ECHO
-:GENERATE debian change log
->%createChangeLog% lpub3d ^(%LP3D_APP_VERSION%^) xenial; urgency=medium
->>%createChangeLog%.
->>%createChangeLog%   * LPub3D version %LP3D_APP_VERSION_LONG% for Linux
->>%createChangeLog%.
->>%createChangeLog%  -- Trevor SANDY ^<trevor.sandy@gmail.com^>  %LP3D_CHANGE_DATE_LONG%
-
-ECHO  7. update lpub3d.dsc - add app version
-SET LP3D_FILE="%LP3D_OBS_DIR%\debian\%LPUB3D%.dsc"
-SET /a LineToReplace=%debdsc_line%
-SET "Replacement=Version: %LP3D_APP_VERSION%"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  8. update README.txt - add build version
-SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
-SET /a LineToReplace=%readme_line%
-SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  9. update %LPUB3D%.spec - add app version
-SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
-SET /a LineToReplace=%rpmspec1_line%
-SET "Replacement=Version: %LP3D_APP_VERSION%"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  10. update %LPUB3D%.spec - add change date
-SET LP3D_FILE="%LP3D_OBS_DIR%\%LPUB3D%.spec"
-SET /a LineToReplace=%rpmspec2_line%
-SET "Replacement=* %LP3D_CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %LP3D_APP_VERSION%"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE%
-
-ECHO  %LP3D_ME% execution finished.
-ENDLOCAL
 GOTO :END
 
 :FIXUP_PWD
@@ -404,4 +256,6 @@ EXIT /b
 EXIT /b
 
 :END
+ECHO  %LP3D_ME% execution finished.
+ENDLOCAL
 EXIT /b 0

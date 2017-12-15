@@ -58,7 +58,9 @@ if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
 fi
+
 cd rpmbuild
+
 BUILD_DIR=$PWD
 for DIR in {BUILD,RPMS,SRPMS,SOURCES,SPECS}
 do

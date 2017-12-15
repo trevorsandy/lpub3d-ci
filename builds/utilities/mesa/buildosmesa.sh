@@ -30,6 +30,8 @@ osmesaprefix="${OSMESA_PREFIX:-$WD/lpub3d_linux_3rdparty/mesa}"
 cleanbuild="${CLEAN:-0}"
 # specify if to overwrite the existing osmesa-config - this file is copied during the build process
 config_copy="${COPY_CONFIG:-0}"
+# building on Open Build Service
+#using_obs="${OBS:-false}"
 # compiler flags
 CC="gcc"
 CXX="g++"
@@ -50,24 +52,26 @@ else
   PLATFORM=$(. /etc/os-release && if test "${NAME}" != "" && test "${VERSION_ID}" != ""; then echo "${NAME}_${VERSION_ID}"; else echo `uname`; fi)
 fi
 
-# logging stuff
-# increment log file name
-f="$PWD/${ME}_${PLATFORM}"
-ext=".log"
-if [[ -e "$f$ext" ]] ; then
-  i=1
-  f="${f%.*}";
-  while [[ -e "${f}_${i}${ext}" ]]; do
-	let i++
-  done
-  f="${f}_${i}${ext}"
-else
-  f="${f}${ext}"
+if [ ! "$OBS" = "true" ]; then
+  # logging stuff
+  # increment log file name
+  f="$PWD/${ME}_${PLATFORM}"
+  ext=".log"
+  if [[ -e "$f$ext" ]] ; then
+    i=1
+    f="${f%.*}";
+    while [[ -e "${f}_${i}${ext}" ]]; do
+  	let i++
+    done
+    f="${f}_${i}${ext}"
+  else
+    f="${f}${ext}"
+  fi
+  # output log file
+  LOG="$f"
+  exec > >(tee -a ${LOG} )
+  exec 2> >(tee -a ${LOG} >&2)
 fi
-# output log file
-LOG="$f"
-exec > >(tee -a ${LOG} )
-exec 2> >(tee -a ${LOG} >&2)
 
 # Functions
 Info () {
@@ -92,7 +96,7 @@ Info "GLU Version..........[${gluversion}]"
 Info && Info "building OSMesa..."
 
 cd $WD
-if [[ -d "mesa-${mesaversion}" && ${cleanbuild} = 1 ]]; then
+if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
 	Info "cleanup old mesa-$mesaversion..."
 	rm -rf "mesa-$mesaversion"
 	if [ -d "${osmesaprefix}" ]; then
@@ -102,15 +106,27 @@ fi
 
 #check for llvm-config
 if [ ! -f "${llvm_config}" ]; then
-	Info "llmv-config not found, (re)installing Mesa build dependencies..."
-	sudo dnf builddep -y mesa
+  if [ "$OBS" = "true" ]; then
+    Info "ERROR - llmv-config not found. $ME will terminate"
+    exit 1
+  else
+    Info "llmv-config not found, (re)installing Mesa build dependencies..."
+	  sudo dnf builddep -y mesa
+  fi
+else
+  Info "Found llvm_config."
 fi
 
 # sourcepath="${SOURCE_PATH:-projects/Working/Docker-output}"
 if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
-  #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && Info "mesa-${mesaversion}.tar.gz copied to ~/"
-	Info "downloading Mesa ${mesaversion}..."
-	curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz" || curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/${mesaversion}/mesa-${mesaversion}.tar.gz"
+  if [ ! "$OBS" = "true" ]; then
+    #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && Info "mesa-${mesaversion}.tar.gz copied to ~/"
+	  Info "downloading Mesa ${mesaversion}..."
+	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz" || curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/${mesaversion}/mesa-${mesaversion}.tar.gz"
+  else
+    Info "ERROR - archive file mesa-${mesaversion}.tar.gz was not found. $ME will terminate."
+    exit 1
+  fi
 fi
 
 if [ ! -d "mesa-${mesaversion}" ]; then
@@ -189,7 +205,7 @@ fi
 Info && Info "building GLU..."
 
 cd $WD
-if [[ -d glu-$gluversion && ${cleanbuild} = 1 ]]; then
+if [[ -d "glu-$gluversion" && ${cleanbuild} = 1 ]]; then
 	Info "cleanup old glu-$gluversion..."
 	rm -rf "glu-$gluversion"
 	if [ -d "${osmesaprefix}" ]; then
@@ -197,12 +213,16 @@ if [[ -d glu-$gluversion && ${cleanbuild} = 1 ]]; then
 	fi
 fi
 
-if [ ! -f glu-${gluversion}.tar.bz2 ]; then
-	Info "* downloading GLU ${gluversion}..."
-	curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${gluversion}.tar.bz2"
+if [ ! -f "glu-${gluversion}.tar.bz2" ]; then
+  if [ ! "$OBS" = "true" ]; then
+	  Info "* downloading GLU ${gluversion}..."
+	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${gluversion}.tar.bz2"
+  else
+    Info "ERROR - archive file glu-${gluversion}.tar.bz2 was not found."
+  fi
 fi
 
-if [ ! -d glu-${gluversion} ]; then
+if [ ! -d "glu-${gluversion}" ]; then
 	Info "extracting GLU..."
 	tar jxf glu-${gluversion}.tar.bz2
 fi

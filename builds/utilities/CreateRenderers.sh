@@ -48,6 +48,61 @@ ExtractArchive() {
   fi
 }
 
+BuildMesaLibs() {
+  mesaSpecDir="$CallDir/builds/utilities/mesa"
+  mesaBuildDeps="TBD"
+  if [ ! "${OBS}" = "true" ]; then
+    mesaDepsLog=${LOG_PATH}/${ME}_mesadeps_${1}.log
+    mesaBuildLog=${LOG_PATH}/${ME}_mesabuild_${1}.log
+  fi
+  if [ -z "$2" ]; then
+    useSudo=
+  else
+    useSudo=$2
+  fi
+
+  Info "Update OSMesa.......[Yes]"
+  if [ ! "${OBS}" = "true" ]; then
+    Info "OSMesa Dependencies.[${mesaBuildDeps}]"
+    Info
+    $useSudo dnf builddep -y mesa > $mesaDepsLog 2>&1
+    Info "${1} Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
+    $useSudo dnf builddep -y "${mesaSpecDir}/glu.spec" >> $mesaDepsLog 2>&1
+    Info "${1} GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
+  fi
+  Info && Info "Build OSMesa and GLU static libraries..."
+  chmod +x "${mesaSpecDir}/buildosmesa.sh"
+  if [ "${OBS}" = "true" ]; then
+    Info "Using sudo..........[No]"
+    "${mesaSpecDir}/buildosmesa.sh" &
+  else
+    "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1 &
+  fi
+  TreatLongProcess $! 60 "OSMesa and GLU build"
+
+  if [[ -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" && \
+        -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
+    if [ ! "${OBS}" = "true" ]; then
+      Info &&  Info "OSMesa and GLU build check..."
+      DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
+      DisplayLogTail $mesaBuildLog 10
+    fi
+    OSMesaBuilt=1
+  else
+    if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
+      Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built"
+    fi
+    if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
+      Info && Info "ERROR - libGLU not found. Binary was not successfully built"
+    fi
+    if [ ! "${OBS}" = "true" ]; then
+      Info "------------------Build Log-------------------------"
+      cat $mesaBuildLog
+    fi
+  fi
+  Info && Info "${1} library OSMesa build finished."
+}
+
 # args: $1 = <log file>, $2 = <position>
 DisplayLogTail() {
   if [[ -f "$1" && -s "$1" ]]; then
@@ -90,6 +145,21 @@ DisplayCheckStatus() {
   fi
 }
 
+# args: 1 = <start> (seconds mark)
+ElapsedTime() {
+  if test -z "$1"; then return 0; fi
+  TIME_ELAPSED="$(((SECONDS - $1) % 60))sec"
+  TIME_MINUTES=$((((SECONDS - $1) / 60) % 60))
+  TIME_HOURS=$(((SECONDS - $1) / 3600))
+  if [ "$TIME_MINUTES" -gt 0 ]; then
+    TIME_ELAPSED="${TIME_MINUTES}mins $TIME_ELAPSED"
+  fi
+  if [ "$TIME_HOURS" -gt 0 ]; then
+    TIME_ELAPSED="${TIME_HOURS}hrs $TIME_ELAPSED"
+  fi
+  echo "$TIME_ELAPSED"
+}
+
 # args: 1 = <pid>, 2 = <message interval>, [3 = <pretty label>]
 TreatLongProcess() {
   declare -i i; i=0
@@ -99,17 +169,22 @@ TreatLongProcess() {
     if test $i -eq 2; then s_msgint="$arg"; fi # message interval
     if test $i -eq 3; then s_plabel="$arg"; fi # pretty label
   done
+
+  # initialize the duration counter
+  s_start=$SECONDS
+
   # Validate the optional pretty label
   if test -z "$s_plabel"; then s_plabel="Create renderer"; fi
 
   # Spawn a process that coninually reports the command is running
-  while Info "$(date): $s_plabel process $s_pid is running..."; do sleep $s_msgint; done &
+  while Info "$(date): $s_plabel process $s_pid is running `ElapsedTime $s_start`..."; \
+  do sleep $s_msgint; done &
   s_nark=$!
 
   # Set a trap to kill the messenger when the process finishes
-  trap 'kill $s_nark && wait $s_nark 2>/dev/null' RETURN
+  trap 'kill $s_nark 2>/dev/null && wait $s_nark 2>/dev/null' RETURN
 
-  # Wait for the process to finish
+  # Wait for the process to finish and display exit code
   if wait $s_pid; then
     Info "$(date): $s_plabel process finished (returned $?)"
   else
@@ -129,15 +204,7 @@ InstallDependencies() {
       true
       ;;
     *)
-      if [ "$OBS" = "true" ]; then
-        if [ "$TARGET_VENDOR" != "" ]; then
-          platform_=$TARGET_VENDOR
-        else
-          Info "ERROR - Open Build Service did not provide a target platform."
-        fi
-      else
-        Info "ERROR - Unable to process this target platform: [$platform_]."
-      fi
+      Info "ERROR - Unable to process this target platform: [$platform_]."
       ;;
     esac
     depsLog=${LOG_PATH}/${ME}_deps_${1}.log
@@ -152,8 +219,8 @@ InstallDependencies() {
         ;;
       ldview)
         cp -f QT/LDView.spec QT/ldview-lp3d-qt5.spec
-        sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i QT/ldview-lp3d-qt5.spec
         specFile="$PWD/QT/ldview-lp3d-qt5.spec"
+        sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
         buildOSMesa=1
         ;;
       povray)
@@ -163,47 +230,8 @@ InstallDependencies() {
       debbuildDeps="TBD"
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${debbuildDeps}]"
-      if [[ ${buildOSMesa} = 1 && ! ${OSMesaBuilt} = 1 ]]; then
-        mesaSpecDir="$CallDir/builds/utilities/mesa"
-        mesaBuildDeps="TBD"
-        mesaDepsLog=${LOG_PATH}/${ME}_mesadeps_${1}.log
-        mesaBuildLog=${LOG_PATH}/${ME}_mesabuild_${1}.log
-
-        Info "Update OSMesa.......[Yes]"
-        Info "OSMesa Dependencies.[${mesaBuildDeps}]"
-        Info
-        $useSudo dnf builddep -y mesa > $mesaDepsLog 2>&1
-        Info "${1} Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
-        $useSudo dnf builddep -y "${mesaSpecDir}/glu.spec" >> $mesaDepsLog 2>&1
-        Info "${1} GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
-
-        Info && Info "Build OSMesa and GLU static libraries..."
-        chmod +x "${mesaSpecDir}/buildosmesa.sh"
-        if [ "${OBS}" = "true" ]; then
-          "${mesaSpecDir}/buildosmesa.sh" &
-        else
-          "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1 &
-        fi
-        TreatLongProcess $! 60 "OSMesa and GLU build"
-
-        if [[ -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" && \
-              -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
-          Info &&  Info "OSMesa and GLU build check..."
-          DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
-          DisplayLogTail $mesaBuildLog 10
-          OSMesaBuilt=1
-        else
-          if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
-            Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built"
-          fi
-          if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
-            Info && Info "ERROR - libGLU not found. Binary was not successfully built"
-          fi
-          #DisplayLogTail $mesaBuildLog 10
-          Info "------------------Build Log-------------------------"
-          cat $mesaBuildLog
-        fi
-        Info && Info "${1} library OSMesa build finished."
+      if [[ "${buildOSMesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+        BuildMesaLibs $1 $useSudo
       fi
       Info
       $useSudo dnf builddep -y $specFile > $depsLog 2>&1
@@ -216,7 +244,10 @@ InstallDependencies() {
         ;;
       ldview)
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
-        $useSudo mkdir /usr/share/mime
+        sed "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -i $pkgbuildFile
+        if [ ! -d /usr/share/mime ]; then
+          $useSudo mkdir /usr/share/mime
+        fi
         ;;
       povray)
         pkgbuildFile="$PWD/unix/obs/PKGBUILD"
@@ -224,7 +255,6 @@ InstallDependencies() {
       esac;
       pkgbuildDeps="$(echo `grep -wr 'depends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'` \
                            `grep -wr 'makedepends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'`)"
-      pkgbuildDeps="$(echo "$pkgbuildDeps" | sed 's/kdelibs//g')"
       Info "PKGBUILD File.......[${pkgbuildFile}]"
       Info "Dependencies List...[${pkgbuildDeps}]"
       Info
@@ -236,13 +266,13 @@ InstallDependencies() {
     ubuntu|debian)
       case $1 in
       ldglite)
-        sed '/^Build-Depends:/ s/$/ libosmesa6-dev/' -i obs/debian/control
         controlFile="$PWD/obs/debian/control"
+        sed '/^Build-Depends:/ s/$/ libosmesa6-dev/' -i $controlFile
         ;;
       ldview)
-        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' \
-            -e 's/kdelibs5-dev//g' -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i QT/debian/control
         controlFile="$PWD/QT/debian/control"
+        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' -e 's/kdelibs5-dev//g' \
+            -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i $controlFile
         ;;
       povray)
         controlFile="$PWD/unix/obs/debian/control"
@@ -273,7 +303,7 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [ ${buildOSMesa} = 1 ]; then
+  if [ "${buildOSMesa}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -401,9 +431,10 @@ else
   DIST_DIR=lpub3d_linux_3rdparty
 fi
 DIST_PKG_DIR=${WD}/${DIST_DIR}
-if [ ! -d ${DIST_PKG_DIR} ]; then
-  mkdir -p ${DIST_PKG_DIR} && Info "Dist Directory......[${DIST_PKG_DIR}]"
+if [ ! -d "${DIST_PKG_DIR}" ]; then
+  mkdir -p ${DIST_PKG_DIR}
 fi
+Info "Dist Directory......[${DIST_PKG_DIR}]"
 
 # Change to Working directory
 cd ${WD}
@@ -415,15 +446,15 @@ else
   LDRAWDIR_ROOT=${HOME}
 fi
 export LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
-if [ ! -d ${LDRAWDIR}/parts ]; then
+if [ ! -d "${LDRAWDIR}/parts" ]; then
   Info && Info "LDraw library not found at ${LDRAWDIR}. Checking for complete.zip archive..."
   if [ ! -f complete.zip ]; then
     Info "Library archive complete.zip not found at $PWD. Downloading archive..."
     curl -s -O http://www.ldraw.org/library/updates/complete.zip;
   fi
   Info "Extracting LDraw library into ${LDRAWDIR}..."
-  unzip -of -d ${LDRAWDIR_ROOT} -q complete.zip;
-  if [ -d ${LDRAWDIR} ]; then
+  unzip -od ${LDRAWDIR_ROOT} -q complete.zip;
+  if [ -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined."
   fi
 elif [ ! "$OS_NAME" = "Darwin" ]; then
@@ -529,12 +560,22 @@ for buildDir in ldglite ldview povray; do
     ;;
   esac
   if [ "$OBS" = "true" ]; then
-    if [ -f ${buildDir}.tar.gz ]; then
+    if [ -f "${buildDir}.tar.gz" ]; then
       ExtractArchive ${buildDir} ${validSubDir}
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-  elif [ ! -d ${buildDir}/${validSubDir} ]; then
+    if [ "$TARGET_VENDOR" != "" ]; then
+      platform_=$TARGET_VENDOR
+      case ${platform_} in
+      fedora)
+        BuildMesaLibs
+        ;;
+      esac
+    else
+      Info "ERROR - Open Build Service did not provide a target platform."
+    fi
+  elif [ ! -d "${buildDir}/${validSubDir}" ]; then
     Info && Info "`echo ${buildDir} | awk '{print toupper($0)}'` build folder does not exist. Checking for tarball archive..."
     if [ ! -f ${buildDir}.tar.gz ]; then
       Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
@@ -544,7 +585,7 @@ for buildDir in ldglite ldview povray; do
   else
     cd ${buildDir}
   fi
-  if [ ! "$OS_NAME" = "Darwin" ]; then
+  if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
     InstallDependencies ${buildDir}
   fi
   sleep .5
