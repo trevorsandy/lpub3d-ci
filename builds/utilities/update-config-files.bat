@@ -82,7 +82,7 @@ SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_V
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info............[Error, file not found])
 
-SET TRUNCATED_VERSION_INFO=%LP3D_VERSION_INFO:~0,14%
+SET TRUNCATED_VERSION_INFO=%LP3D_VERSION_INFO:~0,22%
 IF "%APPVEYOR%" == "True" (
   ECHO   LP3D_VERSION_INFO............[%TRUNCATED_VERSION_INFO%]
   ECHO   LPUB3D_DIR...................[%LPUB3D%]
