@@ -85,7 +85,7 @@ before_install:
   # The first position is LDGlite, the second is LDView and the
   # third is LPub3D_Trace (POV-Ray). Alternatively you may choose
   # to build only one of the items in which case the settings would
-  # be ...1 0 0 to only build the LDGlite.
+  # be ...1 0 0 to only build LDGlite.
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | \
       sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/]//g');
@@ -94,7 +94,7 @@ before_install:
       export LP3D_BUILD_TRACE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);
       export LP3D_BUILD_3RD=$LP3D_BUILD_3RD;
     fi
-  # Update repository index and download package dependencies/docker-engine if required
+  # Update repository index and download package build dependencies if required
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
       export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
@@ -115,7 +115,14 @@ install:
   - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
   - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
   - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
-  # Install qt5 on MacOS, clone lpub3d_macos_3rd party repository and download LDraw library archive files
+  # Setup 3rd party distribution directory
+  - export LP3D_DIST_DIR_PATH=$(cd ../ && echo "$PWD/${LP3D_DIST_DIR}");
+    if [ ! -d "$LP3D_DIST_DIR_PATH" ]; then
+      mkdir -p $LP3D_DIST_DIR_PATH;
+    else
+      echo "Using cached 3rd Party repository $LP3D_DIST_DIR_PATH";
+    fi
+  # Install qt5 on MacOS, download LDraw library archive files, and define lpub3d_macos_3rd party repository
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       if [ "$QT_BASE" = "55" ]; then
         brew install qt55;
@@ -126,8 +133,12 @@ install:
       fi;
       wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
+      if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+        mkdir -p ../dmgbuild;
+        export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
+      fi;
     fi
-  # Update docker-engine, docker-compose and get application version strings
+  # Update docker-engine, docker-compose and define lpub3d_linux_3rd party repository
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_BUILD_PKG" = "yes" ]; then
         curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
@@ -146,14 +157,7 @@ install:
         export ReleasesPath=$PWD/builds/releases;
       fi;
     fi
-  # Setup 3rd party distribution directory
-  - export LP3D_DIST_DIR_PATH=$(cd ../ && echo "$PWD/${LP3D_DIST_DIR}");
-    if [ ! -d "$LP3D_DIST_DIR_PATH" ]; then
-      mkdir -p $LP3D_DIST_DIR_PATH;
-    else
-      echo "Using cached 3rd Party repository $LP3D_DIST_DIR_PATH";
-    fi
-  # Manage 3rd party items cache - deleting a component will trigger a new build.
+  # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
   - if [ -n "$LP3D_BUILD_3RD" ]; then
       LP3D_LDGLITE=$LP3D_DIST_DIR_PATH/ldglite-1.3;
       LP3D_LDVIEW=$LP3D_DIST_DIR_PATH/ldview-4.3;
@@ -173,7 +177,8 @@ script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "$ComposePath/$LP3D_DIST_DIR";
+        ln -sf "$LP3D_DIST_DIR_PATH" "$ComposePath/$LP3D_DIST_DIR" && 
+        if test -d "$ComposePath/$LP3D_DIST_DIR"; then echo "$LP3D_DIST_DIR_PATH linked to $ComposePath/$LP3D_DIST_DIR"; fi; 
         if [ "$BUILD_ARCH170101" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
         fi;
@@ -186,9 +191,10 @@ script:
         echo " Package Files " && find $ComposePath -type f -not -name "*ocker*";
       fi;
       if [ "$BUILD_MACOS" = "true" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "$(cd ../ && echo "$PWD/dmgbuild/${LP3D_DIST_DIR}")";
+        ln -sf "$LP3D_DIST_DIR_PATH" "$DmgBuildPath/$LP3D_DIST_DIR" && 
+        if test -d "$DmgBuildPath/$LP3D_DIST_DIR"; then echo "$LP3D_DIST_DIR_PATH linked to $DmgBuildPath/$LP3D_DIST_DIR"; fi; 
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
-        echo " Package  Files:" && find ../dmgbuild/DMGS -type f;
+        echo " Package Files:" && find $DmgBuildPath -type f;
       fi;
     else
       export LPUB3D="${PWD##*/}"; export WD="$(cd ../ && echo "$PWD")";
@@ -220,8 +226,8 @@ before_deploy:
         fi;
       fi;
       if [ "$BUILD_MACOS" = "true" ]; then
-        Df_Dmg=`ls ../dmgbuild/DMGS/LPub3D*.dmg`;
-        Uf_Dmg=`ls ../dmgbuild/DMGS/LPub3D-UpdateMaster*.dmg`;
+        Df_Dmg=`ls $DmgBuildPath/DMGS/LPub3D*.dmg`;
+        Uf_Dmg=`ls $DmgBuildPath/DMGS/LPub3D-UpdateMaster*.dmg`;
         Logs_Dmg=$(find ../dmgbuild -name *.log)
         cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $ReleasesPath;
       fi;
