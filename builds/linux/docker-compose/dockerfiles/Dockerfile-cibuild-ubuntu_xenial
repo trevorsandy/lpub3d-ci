@@ -11,8 +11,9 @@ RUN apt-get install -y sudo \
     && chmod 0440 /etc/sudoers.d/user
 WORKDIR /user
 USER user
-VOLUME /buildpkg
-CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateDeb.sh \
+VOLUME ["/buildpkg", "/user/debbuild/lpub3d_linux_3rdparty"]
+CMD sudo chown -R user:user /user/debbuild/.* \
+    && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateDeb.sh \
     && export DOCKER=true \
     && chmod +x CreateDeb.sh \
     && ./CreateDeb.sh \

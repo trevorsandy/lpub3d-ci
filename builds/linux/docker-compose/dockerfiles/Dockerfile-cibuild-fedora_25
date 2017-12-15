@@ -12,8 +12,11 @@ RUN dnf install -y sudo \
     && chmod 0440 /etc/sudoers.d/user
 WORKDIR /user
 USER user
-VOLUME /buildpkg
-CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateRpm.sh \
+VOLUME ["/buildpkg", "/user/rpmbuild/BUILD/lpub3d_linux_3rdparty"]
+CMD sudo chown -R user:user /user/rpmbuild/.* \
+    && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateRpm.sh \
+    && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/obs/lpub3d-ci-rpmlintrc \
+    && sudo cp -f lpub3d-ci-rpmlintrc /etc/rpmlint \
     && export DOCKER=true \
     && chmod +x CreateRpm.sh \
     && ./CreateRpm.sh \

@@ -1,7 +1,6 @@
 FROM base/archlinux:2017.10.01
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN pacman -Syy --noconfirm > CreateDockerImage_archlinux.log 2>&1
-# RUN pacman -Syu --noconfirm >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed qt5-base qt5-tools >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed sudo \
@@ -13,8 +12,9 @@ RUN pacman -S --noconfirm --needed sudo \
     && chmod 0440 /etc/sudoers.d/user
 WORKDIR /user
 USER user
-VOLUME /buildpkg
-CMD wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreatePkg.sh \
+VOLUME ["/buildpkg", "/user/pkgbuild/src/lpub3d_linux_3rdparty"]
+CMD sudo chown -R user:user /user/pkgbuild/.* \
+    && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreatePkg.sh \
     && export DOCKER=true \
     && chmod +x CreatePkg.sh \
     && ./CreatePkg.sh \
