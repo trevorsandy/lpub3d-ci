@@ -54,19 +54,19 @@ init:
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Like("[build pkg*]")) {
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like '[build pkg*]') {
         write-host "[build pkg] detected."
         $env:LP3D_BUILD_PKG = "yes"
       }
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Like("[deploy pkg*]")) {
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like '[deploy pkg*]') {
         write-host "[deploy pkg] detected."
         $env:LP3D_BUILD_PKG = "yes"
         $env:LP3D_DEPLOY_PKG = $true
       }
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
-        If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -match '([^(build|deploy) pkg]\s?\d?\s?\d?)]$') {
+        If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '([^(build|deploy) pkg]\s?\d?\s?\d?)]$') {
           $env:LP3D_BUILD_LDGLITE = "$matches[1].substring(0,1)"
           $env:LP3D_BUILD_LDVIEW = "$matches[1].substring(2,1)"
           $env:LP3D_BUILD_TRACE = "$matches[1].substring(4,1)"
