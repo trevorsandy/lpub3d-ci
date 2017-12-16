@@ -12,9 +12,6 @@ rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 SET LP3D_ME=%~nx0
 
-rem Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-SET OLD_LPUB3D=lpub3d-ci
-
 CALL :FIXUP_PWD %1
 
 IF [%LP3D_BUILDS_DIR%] == [] (
@@ -24,22 +21,10 @@ IF [%LP3D_BUILDS_DIR%] == [] (
   GOTO :END
 )
 
-REM LP3D_BUILDS_DIR = C:\Users\Trevor\Projects\lpub3d-ci\builds
+SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET LP3D_CALL_DIR=%CD%
-SET LP3D_OBS_DIR=%LP3D_BUILDS_DIR%\linux\obs
 SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
-SET LP3D_AV_VER_INFO_DIR=%LP3D_BUILDS_DIR%\windows\release
-SET LP3D_AV_VER_INFO_FILE=%LP3D_AV_VER_INFO_DIR%\version.info
-
-REM Change these accordingly when respective config files are modified
-SET desktop_line=10
-SET manpage_line=61
-SET pkgbuild_line=3
-SET debdsc_line=5
-SET readme_line=1
-SET rpmspec1_line=93
-SET rpmspec2_line=293
 
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
@@ -79,17 +64,12 @@ rem AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git 
 IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
 SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH% %LP3D_BUILD_DATE_TIME% %LP3D_AVAILABLE_VERSIONS%
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
-IF EXIST "%LP3D_VER_INFO_FILE%" (ECHO   FILE version.info............[written to .\builds\utilities\version.info]) ELSE (ECHO   FILE version.info............[Error, file not found])
-
-SET TRUNCATED_VERSION_INFO=%LP3D_VERSION_INFO:~0,22%
-IF "%APPVEYOR%" == "True" (
-  ECHO   LP3D_VERSION_INFO............[%TRUNCATED_VERSION_INFO%]
-  ECHO   LPUB3D_DIR...................[%LPUB3D%]
-  ECHO  %LP3D_ME% execution finished.
-  ENDLOCAL
-  GOTO :END
+IF EXIST "%LP3D_VER_INFO_FILE%" (
+ECHO   FILE version.info..............[written to .\builds\utilities\version.info]
+) ELSE (
+ECHO   FILE version.info..............[ERROR - file not found]
 )
-
+ECHO.
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
@@ -212,7 +192,6 @@ IF %LP3D_MONTH% == 12 SET LP3D_MONTH_OF_YEAR=Dec
 EXIT /b
 
 :GET_AVAILABLE_VERSIONS
-SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PAST_RELEASES%
 SET LP3D_PREVIOUS_TAG=unknown
 IF [%8] == [] (

@@ -100,7 +100,7 @@ before_install:
       fi;
       export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
     else
-      if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+      if [ "$COMPILE_SOURCE" = "" ]; then
         brew update;
         brew install openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
       fi;
