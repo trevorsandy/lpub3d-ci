@@ -54,12 +54,12 @@ init:
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like '[build pkg*') {
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like "*build pkg*") {
         write-host "[build pkg] detected."
         $env:LP3D_BUILD_PKG = "yes"
       }
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like '[deploy pkg*') {
+      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like "*deploy pkg*") {
         write-host "[deploy pkg] detected."
         $env:LP3D_BUILD_PKG = "yes"
         $env:LP3D_DEPLOY_PKG = $true
