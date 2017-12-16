@@ -12,12 +12,17 @@ branches:
 cache:
   ccache: true
   directories:
-  - ${HOME}/ldraw
-  - ${HOME}/Library/ldraw
-  - ${HOME}/build/${TRAVIS_REPO_SLUG}/../${LP3D_DIST_DIR}
+  - ${LP3D_LDRAW_LINUX}
+  - ${LP3D_LDRAW_MACOS}
+  - ${HOME}/build/${TRAVIS_REPO_SLUG}/../${LP3D_DIST_DIR_LINUX}
+  - ${HOME}/build/${TRAVIS_REPO_SLUG}/../${LP3D_DIST_DIR_MACOS}
 
 env:
-  - QT_BASE=59
+  - LP3D_QT_BASE=59
+  - LP3D_LDRAW_LINUX=${HOME}/ldraw
+  - LP3D_LDRAW_MACOS=${HOME}/Library/ldraw
+  - LP3D_DIST_DIR_LINUX=lpub3d_linux_3rdparty
+  - LP3D_DIST_DIR_MACOS=lpub3d_macos_3rdparty
 
 matrix:
  fast_finish: true
@@ -25,27 +30,27 @@ matrix:
   - os: linux
     compiler: gcc
     env:
-     - BUILD_ARCH170101=true
+     - LP3D_BUILD_ARCH170101=true
   - os: linux
     compiler: gcc
     env:
-     - BUILD_FEDORA25=true
+     - LP3D_BUILD_FEDORA25=true
   - os: linux
     compiler: gcc
     env:
-     - BUILD_XENIAL=true
+     - LP3D_BUILD_XENIAL=true
   - os: osx
     compiler: clang
     env:
-     - BUILD_MACOS=true
+     - LP3D_BUILD_MACOS=true
   - os: linux
     compiler: gcc
     env:
-     - COMPILE_SOURCE=true
+     - LP3D_COMPILE_SOURCE=true
   - os: osx
     compiler: clang
     env:
-     - COMPILE_SOURCE=true
+     - LP3D_COMPILE_SOURCE=true
 
 before_install:
   # Skip build if the commit message contains [skip travis] or [travis skip]
@@ -69,14 +74,14 @@ before_install:
       && export LP3D_DEPLOY_PKG=yes || true
 
   # Add private qt repositories
-  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
-  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
-  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
-  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
-  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
-  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
-  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt592-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
+  - if [[ "$LP3D_QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
+  - if [[ "$LP3D_QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt592-trusty -y; fi
   # Parse the commit message for 3rd party build override
   # As 3rd party items are not expected to change often
   # We cache them to speed up the build. If/when it is necessary
@@ -95,30 +100,30 @@ before_install:
     fi
   # Update repository index and download package build dependencies if required
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      if [ "$COMPILE_SOURCE" = "true" ]; then
+      if [ "$LP3D_COMPILE_SOURCE" = "true" ]; then
         sudo apt-get update -qq;
       fi;
-      export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
+      export LP3D_DIST_DIR=$LP3D_DIST_DIR_LINUX;
     else
-      if [ "$COMPILE_SOURCE" = "" ]; then
+      if [ "$LP3D_COMPILE_SOURCE" = "" ]; then
         brew update;
         brew install openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
       fi;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
+      export LP3D_DIST_DIR=$LP3D_DIST_DIR_MACOS;
     fi
 
 install:
   # Install qt5 on Linux
-  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
-  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
-  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
-  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi
-  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
-  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
-  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
+  - if [[ "$LP3D_QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
   # Setup 3rd party distribution directory
   - export LP3D_DIST_DIR_PATH=$(cd ../ && echo "$PWD/${LP3D_DIST_DIR}");
     if [ ! -d "$LP3D_DIST_DIR_PATH" ]; then
@@ -128,7 +133,7 @@ install:
     fi
   # Install qt5 on MacOS, download LDraw library archive files, and define lpub3d_macos_3rd party repository
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      if [ "$QT_BASE" = "55" ]; then
+      if [ "$LP3D_QT_BASE" = "55" ]; then
         brew install qt55;
         brew link --force qt55;
       else
@@ -176,6 +181,8 @@ install:
         rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted";
       fi;
     fi
+  # List global and local 'LP3D_*' environment variables   
+  - compgen -A variable | grep LP3D_
 
 script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
@@ -183,18 +190,18 @@ script:
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         ln -sf "$LP3D_DIST_DIR_PATH" "$ComposePath/$LP3D_DIST_DIR" && 
         if test -d "$ComposePath/$LP3D_DIST_DIR"; then echo "$LP3D_DIST_DIR_PATH linked to $ComposePath/$LP3D_DIST_DIR"; fi; 
-        if [ "$BUILD_ARCH170101" = "true" ]; then
+        if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
         fi;
-        if [ "$BUILD_FEDORA25" = "true" ]; then
+        if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
         fi;
-        if [ "$BUILD_XENIAL" = "true" ]; then
+        if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
         fi;
         echo " Package Files " && find $ComposePath -type f -not -name "*ocker*";
       fi;
-      if [ "$BUILD_MACOS" = "true" ]; then
+      if [ "$LP3D_BUILD_MACOS" = "true" ]; then
         ln -sf "$LP3D_DIST_DIR_PATH" "$DmgBuildPath/$LP3D_DIST_DIR" && 
         if test -d "$DmgBuildPath/$LP3D_DIST_DIR"; then echo "$LP3D_DIST_DIR_PATH linked to $DmgBuildPath/$LP3D_DIST_DIR"; fi; 
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
@@ -213,23 +220,23 @@ script:
 before_deploy:
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        if [ "$BUILD_ARCH170101" = "true" ]; then
+        if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
           Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
           Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
           cp -f $Df_Pkg $Uf_Pkg *.log $ReleasesPath;
         fi;
-        if [ "$BUILD_FEDORA25" = "true" ]; then
+        if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
           Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
           Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
           cp -f $Df_Rpm $Uf_Rpm *.log $ReleasesPath;
         fi;
-        if [ "$BUILD_XENIAL" = "true" ]; then
+        if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
           Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
           Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
           cp -f $Df_Deb $Uf_Deb *.log $ReleasesPath;
         fi;
       fi;
-      if [ "$BUILD_MACOS" = "true" ]; then
+      if [ "$LP3D_BUILD_MACOS" = "true" ]; then
         Df_Dmg=`ls $DmgBuildPath/DMGS/LPub3D*.dmg`;
         Uf_Dmg=`ls $DmgBuildPath/DMGS/LPub3D-UpdateMaster*.dmg`;
         Logs_Dmg=$(find ../dmgbuild -name *.log)
