@@ -95,11 +95,16 @@ before_install:
     fi
   # Update repository index and download package build dependencies if required
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo apt-get update -qq;
+      if [ "$COMPILE_SOURCE" = "true" ]; then
+        sudo apt-get update -qq;
+      fi;
       export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
     else
-      brew update;
-      brew install ccache openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
+      if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+        brew update;
+        brew install openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
+      fi;
+      brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
       export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
     fi
