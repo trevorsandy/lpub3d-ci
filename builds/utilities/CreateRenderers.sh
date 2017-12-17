@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 12, 2017
+#  Last Update: December 17, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -460,7 +460,7 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
 elif [ ! "$OS_NAME" = "Darwin" ]; then
   Info "LDraw library.......[${LDRAWDIR}]"
 fi
-#additional LDraw configuration for MacOS
+# Additional LDraw configuration for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
   Info "LDraw library.......[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."

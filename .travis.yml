@@ -12,17 +12,17 @@ branches:
 cache:
   ccache: true
   directories:
-  - ${LP3D_LDRAW_LINUX}
-  - ${LP3D_LDRAW_MACOS}
-  - ${HOME}/build/${TRAVIS_REPO_SLUG}/../${LP3D_DIST_DIR_LINUX}
-  - ${HOME}/build/${TRAVIS_REPO_SLUG}/../${LP3D_DIST_DIR_MACOS}
+  - ${LP3D_LDRAW_DIR}
+  - ${LP3D_DIST_DIR_BASE}
+  - ${LP3D_RELEASE_DIR}
 
 env:
-  - LP3D_QT_BASE=59
-  - LP3D_LDRAW_LINUX=${HOME}/ldraw
-  - LP3D_LDRAW_MACOS=${HOME}/Library/ldraw
-  - LP3D_DIST_DIR_LINUX=lpub3d_linux_3rdparty
-  - LP3D_DIST_DIR_MACOS=lpub3d_macos_3rdparty
+  global:
+    - LP3D_QT_BASE=59
+    - LP3D_LDRAW_DIR=${HOME}/ldraw
+    - LP3D_BUILD_FOLDER=${HOME}/build/${TRAVIS_REPO_SLUG}/..
+    - LP3D_DIST_DIR_BASE=${LP3D_BUILD_FOLDER}/lpub3d_3rdparty_base
+    - LP3D_RELEASE_DIR=${HOME}/build/${TRAVIS_REPO_SLUG}/builds/releases
 
 matrix:
  fast_finish: true
@@ -82,28 +82,26 @@ before_install:
   - if [[ "$LP3D_QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
   - if [[ "$LP3D_QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
   - if [[ "$LP3D_QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo add-apt-repository ppa:beineri/opt-qt592-trusty -y; fi
-  # Parse the commit message for 3rd party build override
-  # As 3rd party items are not expected to change often
-  # We cache them to speed up the build. If/when it is necessary
-  # to build one of the items, we signa with 1 in the commit message
-  # The format is [build pkg 1 1 1] to build all 3rd party itmes.
-  # The first position is LDGlite, the second is LDView and the
-  # third is LPub3D_Trace (POV-Ray). Alternatively you may choose
-  # to build only one of the items in which case the settings would
-  # be ...1 0 0 to only build LDGlite.
+  # Parse the commit message for 3rd party build override. As 3rd party items are not expected to change often
+  # we cache them to speed up the build. If/when it is necessary to build one of the items, we signa with 1 in the commit message.
+  # The format is [build pkg 1 1 1] to build all 3rd party itmes. The first position is LDGlite, the second is LDView and the
+  # third is LPub3D_Trace (POV-Ray). Alternatively you may choose to build only one of the items in which case the settings would
+  # be ...1 0 0 to only build LDGlite. It is also possible to override the cache when just compiling the source by entering
+  # 'build 3rdpkg 1 1 1' in the commit message.
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/]//g');
-      export LP3D_BUILD_LDGLITE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 1);
-      export LP3D_BUILD_LDVIEW=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 2);
-      export LP3D_BUILD_TRACE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);
-      export LP3D_BUILD_3RD=$LP3D_BUILD_3RD;
-    fi
+    elif [ "$LP3D_COMPILE_SOURCE" = "true" ]; then
+      LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build 3rdpkg //p');
+    fi;
+    export LP3D_BUILD_LDGLITE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 1);
+    export LP3D_BUILD_LDVIEW=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 2);
+    export LP3D_BUILD_TRACE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);
   # Update repository index and download package build dependencies if required
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_COMPILE_SOURCE" = "true" ]; then
         sudo apt-get update -qq;
       fi;
-      export LP3D_DIST_DIR=$LP3D_DIST_DIR_LINUX;
+      export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
     else
       if [ "$LP3D_COMPILE_SOURCE" = "" ]; then
         brew update;
@@ -111,7 +109,7 @@ before_install:
       fi;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      export LP3D_DIST_DIR=$LP3D_DIST_DIR_MACOS;
+      export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
     fi
 
 install:
@@ -124,14 +122,21 @@ install:
   - if [[ "$LP3D_QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
   - if [[ "$LP3D_QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
   - if [[ "$LP3D_QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
-  # Setup 3rd party distribution directory
-  - export LP3D_DIST_DIR_PATH=$(cd ../ && echo "$PWD/${LP3D_DIST_DIR}");
-    if [ ! -d "$LP3D_DIST_DIR_PATH" ]; then
-      mkdir -p $LP3D_DIST_DIR_PATH;
+  # Setup 3rd party base distribution directory
+  - if [ ! -d "$LP3D_BASE_DIST_DIR" ]; then
+      mkdir -p "$LP3D_BASE_DIST_DIR";
+      if test -d "$LP3D_BASE_DIST_DIR"; then echo "Created 3rd party base dir $LP3D_BASE_DIST_DIR; fi;
     else
-      echo "Using cached 3rd Party repository $LP3D_DIST_DIR_PATH";
+      echo "Using cached 3rd party base dir $LP3D_BASE_DIST_DIR";
     fi
-  # Install qt5 on MacOS, download LDraw library archive files, and define lpub3d_macos_3rd party repository
+  # Setup ldraw parts library directory
+  - if [ ! -d "$LP3D_LDRAW_DIR" ]; then
+      mkdir -p "$LP3D_LDRAW_DIR";
+      if test -d "$LP3D_LDRAW_DIR"; then echo "Created LDraw library $LP3D_LDRAW_DIR; fi;
+    else
+      echo "Using cached LDraw library $LP3D_LDRAW_DIR";
+    fi
+  # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       if [ "$LP3D_QT_BASE" = "55" ]; then
         brew install qt55;
@@ -142,12 +147,16 @@ install:
       fi;
       wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
+      if [ ! -d ${HOME}/Library/ldraw ]; then
+        ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
+        if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
+      fi
       if [ "$LP3D_BUILD_PKG" = "yes" ]; then
         mkdir -p ../dmgbuild;
         export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
       fi;
     fi
-  # Update docker-engine, docker-compose and define lpub3d_linux_3rd party repository
+  # Update docker-engine, docker-compose and define release folder path
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_BUILD_PKG" = "yes" ]; then
         curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
@@ -162,9 +171,29 @@ install:
         sudo mv docker-compose /usr/local/bin;
         docker-compose version;
         ComposePath=builds/linux/docker-compose;
-        mkdir -p builds/releases;
-        export ReleasesPath=$PWD/builds/releases;
+        if [ ! -d "LP3D_RELEASE_DIR" ]; then
+          mkdir -p "$LP3D_RELEASE_DIR";
+          if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR; fi;
+        else
+          echo "Using cached release directory $LP3D_RELEASE_DIR";
+        fi;
       fi;
+    fi
+  # setup linux platform-specific 3rd party distribution directory
+  - if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
+      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/arch;
+    elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/fedora;
+    elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/debian;
+    elif [ "$LP3D_BUILD_MACOS" = "true" ]; then
+      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/macos;
+    fi;
+    if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
+      mkdir -p "${LP3D_DIST_DIR_PATH}";
+      if test -d "$LP3D_DIST_DIR_PATH"; then echo "Created 3rd party platform-specific dir $LP3D_DIST_DIR_PATH; fi;
+    else
+      echo "Using cached 3rd party platform-specific dir $LP3D_DIST_DIR_PATH";
     fi
   # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
   - if [ -n "$LP3D_BUILD_3RD" ]; then
@@ -181,15 +210,19 @@ install:
         rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted";
       fi;
     fi
-  # List global and local 'LP3D_*' environment variables   
-  - compgen -A variable | grep LP3D_
+  # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
+  - compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
 
 script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "$ComposePath/$LP3D_DIST_DIR" && 
-        if test -d "$ComposePath/$LP3D_DIST_DIR"; then echo "$LP3D_DIST_DIR_PATH linked to $ComposePath/$LP3D_DIST_DIR"; fi; 
+        if [ ! -d "${ComposePath}/${LP3D_DIST_DIR}" ]; then
+          ln -sf "$LP3D_DIST_DIR_PATH" "${ComposePath}/${LP3D_DIST_DIR}" &&
+          if test -d "${ComposePath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${ComposePath}/${LP3D_DIST_DIR}"; fi;
+        else
+          echo "Using cached 3rd Party repository ${ComposePath}/${LP3D_DIST_DIR}";
+        fi;
         if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
           docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
         fi;
@@ -202,47 +235,57 @@ script:
         echo " Package Files " && find $ComposePath -type f -not -name "*ocker*";
       fi;
       if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "$DmgBuildPath/$LP3D_DIST_DIR" && 
-        if test -d "$DmgBuildPath/$LP3D_DIST_DIR"; then echo "$LP3D_DIST_DIR_PATH linked to $DmgBuildPath/$LP3D_DIST_DIR"; fi; 
+        if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
+          ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" &&
+          if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
+        else
+          echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
+        fi;
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
         echo " Package Files:" && find $DmgBuildPath -type f;
       fi;
     else
       export LPUB3D="${PWD##*/}"; export WD="$(cd ../ && echo "$PWD")";
+      if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
+        ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" &&
+        if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
+      else
+        echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR};
+      fi;
       chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
-      echo " Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f;
+      echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f;
       qmake -v;
       qmake -r;
       make;
     fi
 
-# Gather up and move build artefacts and logs to releases directory
 before_deploy:
+  # Gather up and move build artefacts and logs to releases directory
   - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
       if [ "$TRAVIS_OS_NAME" = "linux" ]; then
         if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
           Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
           Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
-          cp -f $Df_Pkg $Uf_Pkg *.log $ReleasesPath;
+          cp -f $Df_Pkg $Uf_Pkg *.log $LP3D_RELEASE_DIR;
         fi;
         if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
           Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
           Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
-          cp -f $Df_Rpm $Uf_Rpm *.log $ReleasesPath;
+          cp -f $Df_Rpm $Uf_Rpm *.log $LP3D_RELEASE_DIR;
         fi;
         if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
           Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
           Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
-          cp -f $Df_Deb $Uf_Deb *.log $ReleasesPath;
+          cp -f $Df_Deb $Uf_Deb *.log $LP3D_RELEASE_DIR;
         fi;
       fi;
       if [ "$LP3D_BUILD_MACOS" = "true" ]; then
         Df_Dmg=`ls $DmgBuildPath/DMGS/LPub3D*.dmg`;
         Uf_Dmg=`ls $DmgBuildPath/DMGS/LPub3D-UpdateMaster*.dmg`;
         Logs_Dmg=$(find ../dmgbuild -name *.log)
-        cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $ReleasesPath;
+        cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $LP3D_RELEASE_DIR;
       fi;
-      echo " Release Files:" && find $ReleasesPath -type f;
+      echo " Release Files:" && find $LP3D_RELEASE_DIR -type f;
     fi
 
 deploy:
@@ -250,7 +293,7 @@ deploy:
   api_key:
     secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
   file_glob: true
-  file: $ReleasesPath/*
+  file: $LP3D_RELEASE_DIR/*
   overwrite: true
   skip_cleanup: true
   on:

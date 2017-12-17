@@ -22,6 +22,18 @@ image: Visual Studio 2017
 branches:
   only:
    - master
+skip_commits:
+  files:
+   - mainApp/linuxfiledistro.pri
+   - mainApp/macosfiledistro.pri
+   - builds/linux/
+   - builds/macx/
+   - builds/utilities/mesa/
+   - builds/utilities/dmg-utils/
+   - builds/utilities/crete-dmg
+   - builds/utilities/CreateRenderers.sh
+   - builds/utilities/update-config-files.sh
+   - .travis.yml
 
 configuration: release
 
@@ -67,7 +79,6 @@ init:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '([^(build|deploy) pkg]\s?\d?\s?\d?\s?\d?)].*$') {
-          $env:LP3D_BUILD_3RD_ARGS = $matches[1]
           $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
           $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
           $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
