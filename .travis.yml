@@ -201,13 +201,13 @@ install:
       LP3D_LDVIEW=$LP3D_DIST_DIR_PATH/ldview-4.3;
       LP3D_LPUB3D_TRACE=$LP3D_DIST_DIR_PATH/lpub3d_trace_cui-3.8;
       if [[ "$LP3D_BUILD_LDGLITE" = "1" && -d $LP3D_LDGLITE ]]; then
-        rm -rf $LP3D_LDGLITE && echo "cached $LP3D_LDGLITE deleted";
+        sudo rm -rf $LP3D_LDGLITE && echo "cached $LP3D_LDGLITE deleted";
       fi;
       if [[ "$LP3D_BUILD_LDVIEW" = "1" && -d $LP3D_LDVIEW ]]; then
-        rm -rf $LP3D_LDVIEW && echo "cached $LP3D_LDVIEW deleted";
+        sudo rm -rf $LP3D_LDVIEW && echo "cached $LP3D_LDVIEW deleted";
       fi;
       if [[ "$LP3D_BUILD_TRACE" = "1" && -d $LP3D_LPUB3D_TRACE ]]; then
-        rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted";
+        sudo rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted";
       fi;
     fi
   # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
