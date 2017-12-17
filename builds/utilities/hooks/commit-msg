@@ -58,6 +58,6 @@ if test x"$increment_version" = x"yes"; then
   git add builds/linux/obs/alldeps/lpub3d-ci.spec
   git add builds/linux/obs/alldeps/debian/lpub3d-ci.dsc
 
-  git commit --amend --no-edit
+  #git commit --amend --no-edit
 fi
 
