@@ -123,11 +123,11 @@ install:
   - if [[ "$LP3D_QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
   - if [[ "$LP3D_QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
   # Setup 3rd party base distribution directory
-  - if [ ! -d "$LP3D_BASE_DIST_DIR" ]; then
-      mkdir -p "$LP3D_BASE_DIST_DIR";
-      if test -d "$LP3D_BASE_DIST_DIR"; then echo "Created 3rd party base dir $LP3D_BASE_DIST_DIR"; fi;
+  - if [ ! -d "$LP3D_DIST_DIR_BASE" ]; then
+      mkdir -p "$LP3D_DIST_DIR_BASE";
+      if test -d "$LP3D_DIST_DIR_BASE"; then echo "Created 3rd party base dir $LP3D_DIST_DIR_BASE"; fi;
     else
-      echo "Using cached 3rd party base dir $LP3D_BASE_DIST_DIR";
+      echo "Using cached 3rd party base dir $LP3D_DIST_DIR_BASE";
     fi
   # Setup ldraw parts library directory
   - if [ ! -d "$LP3D_LDRAW_DIR" ]; then
@@ -181,13 +181,13 @@ install:
     fi
   # setup linux platform-specific 3rd party distribution directory
   - if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
-      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/arch;
+      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
     elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
-      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/fedora;
+      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
     elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
-      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/debian;
+      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
     elif [ "$LP3D_BUILD_MACOS" = "true" ]; then
-      LP3D_DIST_DIR_PATH=${LP3D_BASE_DIST_DIR}/macos;
+      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
     fi;
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
       mkdir -p "${LP3D_DIST_DIR_PATH}";
