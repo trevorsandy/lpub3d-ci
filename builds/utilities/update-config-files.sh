@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 15, 2017
+# Last Update December 17, 2017
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 
@@ -188,124 +188,52 @@ EOF
     fi
 
     # -----
-    if [ "$OS_NAME" = "Linux" ]; then
-        platform_=$(. /etc/os-release && echo $ID)
-        case ${platform_} in
-        fedora|redhat|suse|mageia|arch|ubuntu|debian)
-            FILE="$LP3D_PWD/lpub3d.desktop"
-            Info "3. update desktop config  - add version suffix    [$FILE]"
-            LineToReplace=${LINE_DESKTOP}
-            if [ -f ${FILE} -a -r ${FILE} ]
-            then
-                if [ "$LP3D_OS" = Darwin ]
-                then
-                    sed -i "" "${LineToReplace}s/.*/Exec=lpub3d${LP3D_APP_VER_SUFFIX} %f/" "${FILE}"
-                else
-                    sed -i "${LineToReplace}s/.*/Exec=lpub3d${LP3D_APP_VER_SUFFIX} %f/" "${FILE}"
-                fi
-            else
-                Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-            fi
+    FILE="$LP3D_PWD/lpub3d.desktop"
+    Info "3. update desktop config  - add version suffix    [$FILE]"
+    LineToReplace=${LINE_DESKTOP}
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/Exec=lpub3d${LP3D_APP_VER_SUFFIX} %f/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/Exec=lpub3d${LP3D_APP_VER_SUFFIX} %f/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+    fi
 
-            FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
-            Info "4. update man page        - add version suffix    [$FILE]"
-            LineToReplace=${LINE_MANPAGE}
-            FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
-            if [ -f ${FILE_TEMPLATE} ];
-            then
-                if [ -f ${FILE} ];
-                then
-                    rm -f "${FILE}"
-                fi
-                cp "${FILE_TEMPLATE}" "${FILE}"
-            fi
-            if [ -f ${FILE} -a -r ${FILE} ]
-            then
-                if [ "$LP3D_OS" = Darwin ]
-                then
-                    sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
-                else
-                    sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
-                fi
-            else
-                Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
-            fi
-          ;;
-        *)
-          Info "ERROR - Unable to process this target platform: [$platform_]."
-          ;;
-        esac
-        case ${platform_} in
-        fedora|redhat|suse|mageia)
-            FILE="$LP3D_OBS_DIR_/${LPUB3D}.spec"
-            Info "8. update ${LPUB3D}.spec  - add version and date  [$FILE]"
-            LinesToReplace=${LINE_SPEC}
-            LastLine=`wc -l < ${FILE}`
-            if [ -f ${FILE} -a -r ${FILE} ]
-            then
-                read FirstLine SecondLine <<< ${LinesToReplace}
-                for LineToReplace in ${LinesToReplace}; do
-                    case $LineToReplace in
-                    $FirstLine)
-                        if [ "$LP3D_OS" = Darwin ]; then
-                            sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-                        else
-                            sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-                        fi
-                        ;;
-                    $SecondLine)
-                        if [ "$LP3D_OS" = Darwin ]; then
-                            sed -i "" "${LineToReplace}s/.*/* ${LP3D_CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-                        else
-                            sed -i "${LineToReplace}s/.*/* ${LP3D_CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-                        fi
-                        ;;
-                    esac
-                done
-                if [ "$doDebChange" != "" ];
-                then
-                    ((LastLine++))
-                    if [ "$LP3D_OS" = Darwin ]
-                    then
-                        sed -i "" "${LastLine}s/.*/- /" "${FILE}"
-                    else
-                        sed -i "${LastLine}s/.*/- /" "${FILE}"
-                    fi
-                fi
-                #cat "${FILE}"
-            else
-                Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-            fi
+    FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
+    Info "4. update man page        - add version suffix    [$FILE]"
+    LineToReplace=${LINE_MANPAGE}
+    FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
+    if [ -f ${FILE_TEMPLATE} ];
+    then
+        if [ -f ${FILE} ];
+        then
+            rm -f "${FILE}"
+        fi
+        cp "${FILE_TEMPLATE}" "${FILE}"
+    fi
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
+    fi
 
-            if [ "${SOURCED}" = "false" ]
-            then
-                Info "   Script $LP3D_ME execution finshed."
-            fi
-          ;;
-        arch)
-            FILE="$LP3D_OBS_DIR_/PKGBUILD"
-            Info "7. update PKGBUILD        - add version           [$FILE]"
-            LineToReplace=${LINE_PKGBUILD}
-            if [ -f ${FILE} -a -r ${FILE} ]
-            then
-                if [ "$LP3D_OS" = Darwin ]
-                then
-                    sed -i "" "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
-                else
-                    sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
-                fi
-            else
-                Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-            fi
-          ;;
-        ubuntu|debian)
-            FILE="$LP3D_OBS_DIR/debian/changelog"
-            Info "5. create changelog       - add version and date  [$FILE]"
-            if [ -f ${FILE} -a -r ${FILE} ]
-            then
-                rm ${FILE}
-            fi
-            cat <<EOF >${FILE}
+    FILE="$LP3D_OBS_DIR/debian/changelog"
+    Info "5. create changelog       - add version and date  [$FILE]"
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        rm ${FILE}
+    fi
+    cat <<EOF >${FILE}
 ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
 
   * LPub3D version ${LP3D_APP_VERSION_LONG} for Linux
@@ -313,28 +241,77 @@ ${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-            FILE="$LP3D_OBS_DIR_/debian/${LPUB3D}.dsc"
-            Info "6. update ${LPUB3D}.dsc   - add version           [$FILE]"
-            LineToReplace=${LINE_DSC}
-            if [ -f ${FILE} -a -r ${FILE} ]
-            then
-                if [ "$LP3D_OS" = Darwin ]
-                then
+    FILE="$LP3D_OBS_DIR_/debian/${LPUB3D}.dsc"
+    Info "6. update ${LPUB3D}.dsc   - add version           [$FILE]"
+    LineToReplace=${LINE_DSC}
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+    fi
+
+    FILE="$LP3D_OBS_DIR_/PKGBUILD"
+    Info "7. update PKGBUILD        - add version           [$FILE]"
+    LineToReplace=${LINE_PKGBUILD}
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        else
+            sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+    fi
+
+    FILE="$LP3D_OBS_DIR_/${LPUB3D}.spec"
+    Info "8. update ${LPUB3D}.spec  - add version and date  [$FILE]"
+    LinesToReplace=${LINE_SPEC}
+    LastLine=`wc -l < ${FILE}`
+    if [ -f ${FILE} -a -r ${FILE} ]
+    then
+        read FirstLine SecondLine <<< ${LinesToReplace}
+        for LineToReplace in ${LinesToReplace}; do
+            case $LineToReplace in
+            $FirstLine)
+                if [ "$LP3D_OS" = Darwin ]; then
                     sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
                 else
                     sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
                 fi
+                ;;
+            $SecondLine)
+                if [ "$LP3D_OS" = Darwin ]; then
+                    sed -i "" "${LineToReplace}s/.*/* ${LP3D_CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+                else
+                    sed -i "${LineToReplace}s/.*/* ${LP3D_CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
+                fi
+                ;;
+            esac
+        done
+        if [ "$doDebChange" != "" ];
+        then
+            ((LastLine++))
+            if [ "$LP3D_OS" = Darwin ]
+            then
+                sed -i "" "${LastLine}s/.*/- /" "${FILE}"
             else
-                Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+                sed -i "${LastLine}s/.*/- /" "${FILE}"
             fi
-          ;;
-          *)
-          Info "ERROR - Unknown platform [$platform_]"
-          ;;
-        esac;
+        fi
+        #cat "${FILE}"
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
-    # -----
 
+    # -----
     if [ "${SOURCED}" = "false" ]
     then
         Info "   Script $LP3D_ME execution finshed."
