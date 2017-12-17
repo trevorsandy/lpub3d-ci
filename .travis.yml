@@ -211,94 +211,98 @@ install:
       fi;
     fi
   # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
-  - compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
+  - compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
 
-script:
-  # Build distributions package (using docker-compose for linux builds) or just compile the code
-  - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        if [ ! -d "${ComposePath}/${LP3D_DIST_DIR}" ]; then
-          ln -sf "$LP3D_DIST_DIR_PATH" "${ComposePath}/${LP3D_DIST_DIR}" &&
-          if test -d "${ComposePath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${ComposePath}/${LP3D_DIST_DIR}"; fi;
-        else
-          echo "Using cached 3rd Party repository ${ComposePath}/${LP3D_DIST_DIR}";
-        fi;
-        if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
-          docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
-        fi;
-        if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
-          docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
-        fi;
-        if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
-          docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
-        fi;
-        echo "Package Files " && find $ComposePath -type f -not -name "*ocker*";
-      fi;
-      if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-        if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
-          ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" &&
-          if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
-        else
-          echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
-        fi;
-        chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
-        echo "Package Files:" && find $DmgBuildPath -type f;
-      fi;
-    else
-      export LPUB3D="${PWD##*/}"; export WD="$(cd ../ && echo "$PWD")";
-      if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" &&
-        if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
-      else
-        echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
-      fi;
-      chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
-      echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f;
-      qmake -v;
-      qmake -r;
-      make;
-    fi
-
-before_deploy:
-  # Gather up and move build artefacts and logs to releases directory
-  - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
-          Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
-          Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
-          cp -f $Df_Pkg $Uf_Pkg *.log $LP3D_RELEASE_DIR;
-        fi;
-        if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
-          Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
-          Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
-          cp -f $Df_Rpm $Uf_Rpm *.log $LP3D_RELEASE_DIR;
-        fi;
-        if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
-          Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
-          Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
-          cp -f $Df_Deb $Uf_Deb *.log $LP3D_RELEASE_DIR;
-        fi;
-      fi;
-      if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-        Df_Dmg=`ls $DmgBuildPath/DMGS/LPub3D*.dmg`;
-        Uf_Dmg=`ls $DmgBuildPath/DMGS/LPub3D-UpdateMaster*.dmg`;
-        Logs_Dmg=$(find ../dmgbuild -name *.log)
-        cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $LP3D_RELEASE_DIR;
-      fi;
-      echo " Release Files:" && find $LP3D_RELEASE_DIR -type f;
-    fi
-
-deploy:
-  provider: releases
-  api_key:
-    secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
-  file_glob: true
-  file: $LP3D_RELEASE_DIR/*
-  overwrite: true
-  skip_cleanup: true
-  on:
-    repo: trevorsandy/lpub3d-ci
-    condition: $LP3D_DEPLOY_PKG = yes
+jobs:
+  - include:
+      # Build distributions package (using docker-compose for linux builds) or just compile the code
+      - script: echo "Compiling and building LPub3D packages..."
+        script:
+          - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+              if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+                if [ ! -d "${ComposePath}/${LP3D_DIST_DIR}" ]; then
+                  ln -sf "$LP3D_DIST_DIR_PATH" "${ComposePath}/${LP3D_DIST_DIR}" &&
+                  if test -d "${ComposePath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${ComposePath}/${LP3D_DIST_DIR}"; fi;
+                else
+                  echo "Using cached 3rd Party repository ${ComposePath}/${LP3D_DIST_DIR}";
+                fi;
+                if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
+                  docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm archlinux_2017.10.01;
+                fi;
+                if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+                  docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm fedora_25;
+                fi;
+                if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+                  docker-compose -f $ComposePath/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
+                fi;
+                echo " Package Files " && find $ComposePath -type f -not -name "*ocker*";
+              fi;
+              if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+                if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
+                  ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" &&
+                  if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
+                else
+                  echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
+                fi;
+                chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
+                echo " Package Files:" && find $DmgBuildPath/DMGS -type f;
+              fi;
+            else
+              export LPUB3D="${PWD##*/}"; export WD="$(cd ../ && echo "$PWD")";
+              if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
+                ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" &&
+                if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
+              else
+                echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
+              fi;
+              chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
+              echo " Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f;
+              qmake -v;
+              qmake -r;
+              make;
+            fi
+        script:
+          # Gather up and move build artefacts and logs to releases directory
+          - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+              if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+                if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
+                  Df_Pkg=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz`;
+                  Uf_Pkg=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz`;
+                  cp -f $Df_Pkg $Uf_Pkg *.log $LP3D_RELEASE_DIR;
+                fi;
+                if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+                  Df_Rpm=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm`;
+                  Uf_Rpm=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm`;
+                  cp -f $Df_Rpm $Uf_Rpm *.log $LP3D_RELEASE_DIR;
+                fi;
+                if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+                  Df_Deb=`ls $ComposePath/LPub3D-${LP3D_APP_VERSION_LONG}*.deb`;
+                  Uf_Deb=`ls $ComposePath/LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb`;
+                  cp -f $Df_Deb $Uf_Deb *.log $LP3D_RELEASE_DIR;
+                fi;
+              fi;
+              if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+                Df_Dmg=`ls $DmgBuildPath/DMGS/LPub3D*.dmg`;
+                Uf_Dmg=`ls $DmgBuildPath/DMGS/LPub3D-UpdateMaster*.dmg`;
+                Logs_Dmg=$(find ../dmgbuild -name *.log)
+                cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $LP3D_RELEASE_DIR;
+              fi;
+              echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
+            fi
+      - stage: GitHub Release
+        script: echo "Deploying to GitHub releases ..."
+        script: echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
+        deploy:
+          provider: releases
+          api_key:
+            secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
+          file_glob: true
+          file: $LP3D_RELEASE_DIR/*
+          overwrite: true
+          skip_cleanup: true
+          on:
+            repo: trevorsandy/lpub3d-ci
+            condition: $LP3D_DEPLOY_PKG = yes
 
 notifications:
   email:
