@@ -125,14 +125,14 @@ install:
   # Setup 3rd party base distribution directory
   - if [ ! -d "$LP3D_BASE_DIST_DIR" ]; then
       mkdir -p "$LP3D_BASE_DIST_DIR";
-      if test -d "$LP3D_BASE_DIST_DIR"; then echo "Created 3rd party base dir $LP3D_BASE_DIST_DIR; fi;
+      if test -d "$LP3D_BASE_DIST_DIR"; then echo "Created 3rd party base dir $LP3D_BASE_DIST_DIR"; fi;
     else
       echo "Using cached 3rd party base dir $LP3D_BASE_DIST_DIR";
     fi
   # Setup ldraw parts library directory
   - if [ ! -d "$LP3D_LDRAW_DIR" ]; then
       mkdir -p "$LP3D_LDRAW_DIR";
-      if test -d "$LP3D_LDRAW_DIR"; then echo "Created LDraw library $LP3D_LDRAW_DIR; fi;
+      if test -d "$LP3D_LDRAW_DIR"; then echo "Created LDraw library $LP3D_LDRAW_DIR"; fi;
     else
       echo "Using cached LDraw library $LP3D_LDRAW_DIR";
     fi
@@ -173,7 +173,7 @@ install:
         ComposePath=builds/linux/docker-compose;
         if [ ! -d "LP3D_RELEASE_DIR" ]; then
           mkdir -p "$LP3D_RELEASE_DIR";
-          if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR; fi;
+          if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR"; fi;
         else
           echo "Using cached release directory $LP3D_RELEASE_DIR";
         fi;
@@ -191,7 +191,7 @@ install:
     fi;
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
       mkdir -p "${LP3D_DIST_DIR_PATH}";
-      if test -d "$LP3D_DIST_DIR_PATH"; then echo "Created 3rd party platform-specific dir $LP3D_DIST_DIR_PATH; fi;
+      if test -d "$LP3D_DIST_DIR_PATH"; then echo "Created 3rd party platform-specific dir $LP3D_DIST_DIR_PATH"; fi;
     else
       echo "Using cached 3rd party platform-specific dir $LP3D_DIST_DIR_PATH";
     fi
@@ -211,7 +211,7 @@ install:
       fi;
     fi
   # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
-  - compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
+  - compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
 
 script:
   # Build distributions package (using docker-compose for linux builds) or just compile the code
