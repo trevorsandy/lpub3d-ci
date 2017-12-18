@@ -103,12 +103,11 @@ before_install:
       fi;
       export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
     else
-      if [ "$LP3D_COMPILE_SOURCE" = "" ]; then
-        brew update;
-        brew install openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
-      fi;
       brew install ccache;
       export PATH="/usr/local/opt/ccache/libexec:$PATH";
+      if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+        brew install openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
+      fi;
       export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
     fi
 
@@ -186,8 +185,12 @@ install:
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
     elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
-    elif [ "$LP3D_BUILD_MACOS" = "true" ]; then
+    elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
+    elif [[ "$LP3D_COMPILE_SOURCE" = "true" && $TRAVIS_OS_NAME" = "linux" ]]
+      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/trusty;
+    else
+      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/default;
     fi;
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
       mkdir -p "${LP3D_DIST_DIR_PATH}";
@@ -290,12 +293,7 @@ before_deploy:
 
 jobs:
   - include:
-      # List the files in hte releases directory
-      - script: echo "Packaging LPub3D distribution artefact..."
-        script:
-          - if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-              echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
-            fi
+      # List files in the Releases directory
       - stage: GitHub Release
         script: echo "Deploying to GitHub releases ..."
         script: echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
