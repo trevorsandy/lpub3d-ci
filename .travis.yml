@@ -185,12 +185,12 @@ install:
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
     elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
-    elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    fi;
+    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
-    elif [[ "$LP3D_COMPILE_SOURCE" = "true" && $TRAVIS_OS_NAME" = "linux" ]]; then
+    fi;
+    if [[ $TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" ]]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/trusty;
-    else
-      LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/default;
     fi;
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
       mkdir -p "${LP3D_DIST_DIR_PATH}";
