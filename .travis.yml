@@ -194,9 +194,8 @@ install:
     fi;
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
       mkdir -p "${LP3D_DIST_DIR_PATH}";
-      if test -d "$LP3D_DIST_DIR_PATH"; then echo "Created third party platform-specific dir $LP3D_DIST_DIR_PATH"; fi;
     else
-      echo "Using cached third party platform-specific dir $LP3D_DIST_DIR_PATH";
+      echo "Using cached 3rd party platform-specific dir $LP3D_DIST_DIR_PATH";
     fi
   # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
   - if [ -n "$LP3D_BUILD_3RD" ]; then
