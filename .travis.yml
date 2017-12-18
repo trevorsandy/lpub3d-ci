@@ -187,7 +187,7 @@ install:
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
     elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
-    elif [[ "$LP3D_COMPILE_SOURCE" = "true" && $TRAVIS_OS_NAME" = "linux" ]]
+    elif [[ "$LP3D_COMPILE_SOURCE" = "true" && $TRAVIS_OS_NAME" = "linux" ]]; then
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/trusty;
     else
       LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/default;
