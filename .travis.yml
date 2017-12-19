@@ -25,8 +25,23 @@ env:
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
     - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
 
+before_install:
+  - chmod +x \
+    builds/utilities/ci/travis/before_install \
+    builds/utilities/ci/travis/install \
+    builds/utilities/ci/travis/script \
+    builds/utilities/ci/travis/before_deploy \
+    builds/utilities/ci/travis/releases
+  - ./builds/utilities/ci/travis/before_install
+
 install:
   - ./builds/utilities/ci/travis/install
+
+script:
+  - ./builds/utilities/ci/travis/script
+
+before_deploy:
+  - ./builds/utilities/ci/travis/before_deploy
 
 stages:
   - Compile and Build
@@ -36,48 +51,31 @@ jobs:
  fast_finish: true
  include:
   - stage: Compile and Build
-    os: linux
-    compiler: gcc
     env: LP3D_BUILD_ARCH170101=true
-    before_install: ./builds/utilities/ci/travis/before_install
-    script: ./builds/utilities/ci/travis/script
-    before_deploy: ./builds/utilities/ci/travis/before_deploy
-  - stage: Compile and Build
     os: linux
     compiler: gcc
+  - stage: Compile and Build
     env: LP3D_BUILD_FEDORA25=true
-    before_install: ./builds/utilities/ci/travis/before_install
-    script: ./builds/utilities/ci/travis/script
-    before_deploy: ./builds/utilities/ci/travis/before_deploy
-  - stage: Compile and Build
     os: linux
     compiler: gcc
+  - stage: Compile and Build
     env: LP3D_BUILD_XENIAL=true
-    before_install: ./builds/utilities/ci/travis/before_install
-    script: ./builds/utilities/ci/travis/script
-    before_deploy: ./builds/utilities/ci/travis/before_deploy
-  - stage: Compile and Build
-    os: osx
-    compiler: clang
-    env: LP3D_BUILD_MACOS=true
-    before_install: ./builds/utilities/ci/travis/before_install
-    script: ./builds/utilities/ci/travis/script
-    before_deploy: ./builds/utilities/ci/travis/before_deploy
-  - stage: Compile and Build
     os: linux
     compiler: gcc
-    env: LP3D_COMPILE_SOURCE=true
-    before_install: ./builds/utilities/ci/travis/before_install
-    script: ./builds/utilities/ci/travis/script
-    before_deploy: ./builds/utilities/ci/travis/before_deploy
   - stage: Compile and Build
+    env: LP3D_BUILD_MACOS=true
     os: osx
     compiler: clang
+  - stage: Compile and Build
     env: LP3D_COMPILE_SOURCE=true
-    before_install: ./builds/utilities/ci/travis/before_install
-    script: ./builds/utilities/ci/travis/script
-    before_deploy: ./builds/utilities/ci/travis/before_deploy
+    os: linux
+    compiler: gcc
+  - stage: Compile and Build
+    env: LP3D_COMPILE_SOURCE=true
+    os: osx
+    compiler: clang
   - stage: GitHub Release
+    env: LP3D_DEPLOY_PACKAGE=true
     script: ./builds/utilities/ci/travis/releases
     deploy:
       provider: releases
