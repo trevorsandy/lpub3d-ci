@@ -33,16 +33,16 @@ before_install:
   - chmod +x ${LP3D_CI_DIR}/script
   - chmod +x ${LP3D_CI_DIR}/before_deploy
   - chmod +x ${LP3D_CI_DIR}/releases
-  - ./${LP3D_CI_DIR}/before_install
+  - source ${LP3D_CI_DIR}/before_install
 
 install:
-  - ./${LP3D_CI_DIR}/install
+  - source ${LP3D_CI_DIR}/install
 
 script:
-  - ./${LP3D_CI_DIR}/script
+  - source ${LP3D_CI_DIR}/script
 
 before_deploy:
-  - ./${LP3D_CI_DIR}/before_deploy
+  - source ${LP3D_CI_DIR}/before_deploy
 
 stages:
   - Compile and Build
@@ -77,7 +77,7 @@ jobs:
     compiler: clang
   - stage: GitHub Release
     env: LP3D_DEPLOY_PACKAGE=true
-    script: ./${LP3D_CI_DIR}/releases
+    script: source ${LP3D_CI_DIR}/releases
     deploy:
       provider: releases
       api_key:
