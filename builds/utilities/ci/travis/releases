@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Travis build [release] procedures
+#
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: December 19, 2017
+#  Copyright (c) 2017 by Trevor SANDY
+#
+cd $LP3D_BUILD_FOLDER
+
+# List files in the Releases directory
+echo "Deploying to GitHub releases ..."
+echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
