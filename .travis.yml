@@ -24,26 +24,25 @@ env:
     - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
     - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
-    - LP3D_CI_DIR=${LP3D_BUILD_FOLDER}/builds/utilities/ci/travis
+    - LP3D_CI_DIR=builds/utilities/ci/travis
 
 before_install:
   - echo "We are here $PWD" && find ${LP3D_CI_DIR} -type f
-  - chmod +x \
-    ${LP3D_CI_DIR}/before_install \
-    ${LP3D_CI_DIR}/install \
-    ${LP3D_CI_DIR}/script \
-    ${LP3D_CI_DIR}/before_deploy \
-    ${LP3D_CI_DIR}/releases
-  - ${LP3D_CI_DIR}/before_install
+  - chmod +x ${LP3D_CI_DIR}/before_install
+  - chmod +x ${LP3D_CI_DIR}/install
+  - chmod +x ${LP3D_CI_DIR}/script
+  - chmod +x ${LP3D_CI_DIR}/before_deploy
+  - chmod +x ${LP3D_CI_DIR}/releases
+  - ./${LP3D_CI_DIR}/before_install
 
 install:
-  - ${LP3D_CI_DIR}/install
+  - ./${LP3D_CI_DIR}/install
 
 script:
-  - ${LP3D_CI_DIR}/script
+  - ./${LP3D_CI_DIR}/script
 
 before_deploy:
-  - ${LP3D_CI_DIR}/before_deploy
+  - ./${LP3D_CI_DIR}/before_deploy
 
 stages:
   - Compile and Build
@@ -78,7 +77,7 @@ jobs:
     compiler: clang
   - stage: GitHub Release
     env: LP3D_DEPLOY_PACKAGE=true
-    script: ${LP3D_CI_DIR}/releases
+    script: ./${LP3D_CI_DIR}/releases
     deploy:
       provider: releases
       api_key:
