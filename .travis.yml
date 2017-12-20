@@ -23,7 +23,7 @@ env:
     - LP3D_BUILD_FOLDER=${HOME}/build/${TRAVIS_REPO_SLUG}
     - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
-    - LP3D_RELEASE_NAME=LPub3D \(Linux/macOS\) $(date +'%d.%m.%Y %R')
+    - LP3D_RELEASE_NAME=LPub3D\ \(Linux/macOS\)\ $(date +'%d.%m.%Y %R')
     - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
     - LP3D_COMPOSE_DIR=builds/linux/docker-compose
     - LP3D_CI_DIR=builds/utilities/ci/travis
@@ -41,38 +41,38 @@ before_deploy:
   - source ${LP3D_CI_DIR}/before_deploy
 
 stages:
-  - Compile and Build
+  - Build and Package
   - GitHub Release
 
 jobs:
  fast_finish: true
  include:
-  - stage: Compile and Build
+  - stage: Build and Package
     env: LP3D_BUILD_ARCH2017=true
     os: linux
     compiler: gcc
-  - stage: Compile and Build
+  - stage: Build and Package
     env: LP3D_BUILD_FEDORA25=true
     os: linux
     compiler: gcc
-  - stage: Compile and Build
+  - stage: Build and Package
     env: LP3D_BUILD_XENIAL=true
     os: linux
     compiler: gcc
-  - stage: Compile and Build
+  - stage: Build and Package
     env: LP3D_BUILD_MACOS=true
     os: osx
     compiler: clang
-  - stage: Compile and Build
+  - stage: Build and Package
     env: LP3D_COMPILE_SOURCE=true
     os: linux
     compiler: gcc
-  - stage: Compile and Build
+  - stage: Build and Package
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     compiler: clang
   - stage: GitHub Release
-    env: LP3D_DEPLOY_STAGE=true
+    env: LP3D_DEPLOY_PACKAGES=true
     script: source ${LP3D_CI_DIR}/releases
     deploy:
       provider: releases
