@@ -95,14 +95,15 @@ Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
-BuildRequires: unzip, sudo
+BuildRequires: unzip
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
 %if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
-BuildRequires: gcc-c++, make
+BuildRequires: SDL2-devel, mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
+BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
@@ -111,9 +112,45 @@ BuildRequires: git
 %endif
 %endif
 
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?suse_version}
+BuildRequires: freeglut-devel, boost-devel, tinyxml-devel, gl2ps-devel, libtiff-devel
+%endif
+
+%if (0%{?rhel_version}>=700 && 0%{?centos_version}>=700 && 0%{?fedora}>=26)
+BuildRequires: libjpeg-turbo-devel
+%endif
+
+%if 0%{?fedora}
+%define build_osmesa_from_source 1
+%if 0%{?buildservice}
+BuildRequires: samba4-libs
+%if 0%{?fedora_version}==23
+BuildRequires: qca, gnu-free-sans-fonts
+%endif
+%if 0%{?fedora_version}==25
+BuildRequires: llvm-libs
+%endif
+%if 0%{?fedora_version}==26
+BuildRequires: openssl-devel, storaged
+%endif
+%endif
+%endif
+
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel
+BuildRequires: libSDL2-devel, libOSMesa-devel, glu-devel, openexr-devel
+BuildRequires: cmake, update-desktop-files
 BuildRequires: zlib-devel
+%if 0%{?suse_version}!=1315
+BuildRequires: libpng16-compat-devel, libjpeg8-devel, libqt5-linguist
+%endif
+Requires(pre): gconf2
+%if (0%{?suse_version} > 1210 && 0%{?suse_version}!=1315)
+BuildRequires: gl2ps-devel
+%endif
+%if 0%{?suse_version} > 1220
+BuildRequires: glu-devel
+%endif
 %if 0%{?suse_version} > 1300
 BuildRequires: Mesa-devel
 %endif
@@ -123,24 +160,133 @@ BuildRequires: -post-build-checks
 %endif
 
 %if 0%{?mageia}
-BuildRequires: qtbase5-devel, qttools5
+BuildRequires: qttools5
 %ifarch x86_64
+BuildRequires: lib64qt5base5-devel, libsdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64openexr-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
+BuildRequires: libqt5base5-devel, lib64sdl2.0-devel, libosmesa-devel, libmesaglu1-devel, libopenexr-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
 %endif
 %endif
 %endif
 
-%if 0%{?fedora}
-%if 0%{?fedora_version}==23
-BuildRequires: qca, gnu-free-sans-fonts
+%if 0%{?build_osmesa_from_source}
+%define buildosmesa yes
+# libGLU build-from-source dependencies
+BuildRequires:  gcc-c++
+BuildRequires:  libtool
+BuildRequires:  pkgconfig
+BuildRequires:  pkgconfig(gl)
+
+# libMesa build-from-source dependencies
+%define libglvnd 0
+%if 0%{?suse_version} >= 1330
+%define libglvnd 1
 %endif
+%define glamor 1
+%define _name_archive mesa
+%define _version 17.2.6
+%define with_opencl 0
+%define with_vulkan 0
+%ifarch %ix86 x86_64
+%define gallium_loader 1
+%else
+%define gallium_loader 0
+%endif
+%ifarch %ix86 x86_64
+%define xvmc_support 1
+%define vdpau_nouveau 1
+%define vdpau_radeon 1
+%else
+%define xvmc_support 0
+%define vdpau_nouveau 0
+%define vdpau_radeon 0
+%endif
+%ifarch %ix86 x86_64
+%define with_nine 1
+%endif
+%if 0%{gallium_loader} && 0%{?suse_version} >= 1330
+%ifarch %ix86 x86_64
+%define with_vulkan 1
+%endif
+%endif
+BuildRequires:  autoconf >= 2.60
+BuildRequires:  automake
+BuildRequires:  bison
+BuildRequires:  fdupes
+BuildRequires:  flex
+BuildRequires:  gcc-c++
+BuildRequires:  imake
+BuildRequires:  libtool
+BuildRequires:  pkgconfig
+BuildRequires:  python-base
+BuildRequires:  python-mako
+BuildRequires:  python-xml
+BuildRequires:  pkgconfig(dri2proto)
+BuildRequires:  pkgconfig(dri3proto)
+BuildRequires:  pkgconfig(expat)
+BuildRequires:  pkgconfig(glproto)
+BuildRequires:  pkgconfig(libdrm) >= 2.4.75
+BuildRequires:  pkgconfig(libdrm_amdgpu) >= 2.4.79
+BuildRequires:  pkgconfig(libdrm_nouveau) >= 2.4.66
+BuildRequires:  pkgconfig(libdrm_radeon) >= 2.4.71
+%if 0%{?libglvnd}
+BuildRequires:  pkgconfig(libglvnd) >= 0.1.0
+%endif
+BuildRequires:  pkgconfig(libkms) >= 1.0.0
+BuildRequires:  pkgconfig(libudev) > 151
+BuildRequires:  pkgconfig(libva)
+BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(presentproto)
+BuildRequires:  pkgconfig(vdpau) >= 1.1
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(x11-xcb)
+BuildRequires:  pkgconfig(xcb-dri2)
+BuildRequires:  pkgconfig(xcb-dri3)
+BuildRequires:  pkgconfig(xcb-glx)
+BuildRequires:  pkgconfig(xcb-present)
+BuildRequires:  pkgconfig(xdamage)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(xshmfence)
+BuildRequires:  pkgconfig(xvmc)
+BuildRequires:  pkgconfig(xxf86vm)
+BuildRequires:  pkgconfig(zlib)
+%ifarch x86_64 %ix86
+BuildRequires:  libelf-devel
+BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
+%else
+%if 0%{with_opencl}
+BuildRequires:  libelf-devel
+%endif
+%endif
+%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse})
+BuildRequires:  pkgconfig(wayland-client) >= 1.11
+BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
+BuildRequires:  pkgconfig(wayland-server) >= 1.11
+%endif
+%ifarch %ix86 x86_64
+BuildRequires:  llvm-devel
+BuildRequires:  ncurses-devel
 %endif
 
+%if 0%{with_opencl}
+BuildRequires:  clang-devel
+BuildRequires:  clang-devel-static
+BuildRequires:  libclc
+%endif
+
+%if 0%{?libglvnd}
+Requires:       Mesa-libEGL1  = %{version}
+Requires:       Mesa-libGL1  = %{version}
+Requires:       libglvnd >= 0.1.0
+%endif
+# end libMesa dependencies
+%endif
 # configuration settings
 %description
  LPub3D is an Open Source WYSIWYG editing application for creating
@@ -180,8 +326,11 @@ echo "Scientific Linux...............%{scientificlinux_version}"
 echo "Mageia.........................%{mageia}"
 %endif
 echo "Using OpenBuildService.........%{usingbuildservice}"
-%if 0%{?buildservice}==1
+%if 0%{?buildservice}
 echo "OpenBuildService Target........%{_target_vendor}"
+%endif
+%if 0%{?build_osmesa_from_source}
+echo "Build OSMesa from source.......%{buildosmesa}"
 %endif
 echo "Target.........................%{_target}"
 echo "Target Vendor..................%{_target_vendor}"
@@ -290,7 +439,6 @@ update-desktop-database || true
 %if 0%{?buildservice}!=1
 update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
-* Wed Dec 20 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.282
 
-* Wed Dec 13 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.237
+* Fri Dec 15 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.245
 - LPub3D Linux package (rpm) release
