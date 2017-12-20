@@ -33,27 +33,29 @@ else
 fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-  if [ "$LP3D_QT_BASE" = "55" ]; then
-    brew install qt55;
-    brew link --force qt55;
-  else
-    brew install qt5;
-    brew link --force qt5;
-  fi;
-  wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
-  wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-  if [ ! -d ${HOME}/Library/ldraw ]; then
-    ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
-    if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
-  fi;
-  if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-    mkdir -p ../dmgbuild;
-    export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
+  if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" || "$LP3D_BUILD_MACOS" = "true" ]]; then
+    if [ "$LP3D_QT_BASE" = "55" ]; then
+      brew install qt55;
+      brew link --force qt55;
+    else
+      brew install qt5;
+      brew link --force qt5;
+    fi;
+    wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
+    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
+    if [ ! -d ${HOME}/Library/ldraw ]; then
+      ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
+      if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
+    fi;
+    if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+      mkdir -p ../dmgbuild;
+      export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
+    fi;
   fi;
 fi
 # Update docker-engine, docker-compose and define release folder path
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_DEPLOY_STAGE" = "" ]]; then
     curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
     sudo apt-get update -qq;
@@ -65,7 +67,6 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     chmod +x docker-compose;
     sudo mv docker-compose /usr/local/bin;
     docker-compose version;
-    ComposePath=builds/linux/docker-compose;
     if [ ! -d "LP3D_RELEASE_DIR" ]; then
       mkdir -p "$LP3D_RELEASE_DIR";
       if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR"; fi;
@@ -75,7 +76,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   fi;
 fi
 # setup linux platform-specific 3rd party distribution directory
-if [ "$LP3D_BUILD_ARCH170101" = "true" ]; then
+if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
   LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
 elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
   LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;

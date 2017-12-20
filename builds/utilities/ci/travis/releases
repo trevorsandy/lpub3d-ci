@@ -9,5 +9,11 @@
 cd $LP3D_BUILD_FOLDER
 
 # List files in the Releases directory
-echo "Deploying to GitHub releases ..."
-echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
+echo "Deploying to GitHub releases ...";
+if [ -z "$(ls -A $LP3D_RELEASE_DIR)" ]; then
+  echo "$LP3D_RELEASE_DIR is empty. GitHub release aborted.";
+  export LP3D_DEPLOY_PKG=no;
+else
+  echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
+fi
+

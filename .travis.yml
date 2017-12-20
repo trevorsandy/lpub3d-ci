@@ -23,16 +23,12 @@ env:
     - LP3D_BUILD_FOLDER=${HOME}/build/${TRAVIS_REPO_SLUG}
     - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
+    - LP3D_RELEASE_NAME=LPub3D \(Linux/macOS\) $(date +'%d.%m.%Y %R')
     - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
+    - LP3D_COMPOSE_DIR=builds/linux/docker-compose
     - LP3D_CI_DIR=builds/utilities/ci/travis
 
 before_install:
-  - echo "We are here $PWD" && find ${LP3D_CI_DIR} -type f
-  - chmod +x ${LP3D_CI_DIR}/before_install
-  - chmod +x ${LP3D_CI_DIR}/install
-  - chmod +x ${LP3D_CI_DIR}/script
-  - chmod +x ${LP3D_CI_DIR}/before_deploy
-  - chmod +x ${LP3D_CI_DIR}/releases
   - source ${LP3D_CI_DIR}/before_install
 
 install:
@@ -52,7 +48,7 @@ jobs:
  fast_finish: true
  include:
   - stage: Compile and Build
-    env: LP3D_BUILD_ARCH170101=true
+    env: LP3D_BUILD_ARCH2017=true
     os: linux
     compiler: gcc
   - stage: Compile and Build
@@ -76,10 +72,11 @@ jobs:
     os: osx
     compiler: clang
   - stage: GitHub Release
-    env: LP3D_DEPLOY_PACKAGE=true
+    env: LP3D_DEPLOY_STAGE=true
     script: source ${LP3D_CI_DIR}/releases
     deploy:
       provider: releases
+      name: $LP3D_RELEASE_NAME
       api_key:
         secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
       file_glob: true

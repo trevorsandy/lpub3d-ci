@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 17, 2017
+#  Last Update: December 20, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -177,7 +177,7 @@ TreatLongProcess() {
   if test -z "$s_plabel"; then s_plabel="Create renderer"; fi
 
   # Spawn a process that coninually reports the command is running
-  while Info "$(date): $s_plabel process $s_pid is running `ElapsedTime $s_start`..."; \
+  while Info "$(date): $s_plabel process $s_pid is running since `ElapsedTime $s_start`..."; \
   do sleep $s_msgint; done &
   s_nark=$!
 
