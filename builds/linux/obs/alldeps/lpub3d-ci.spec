@@ -36,7 +36,7 @@
 
 %if 0%{?sles_version}
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
-%define build_sdl2 = 1
+%define build_sdl2 1
 %endif
 
 %if 0%{?fedora}
@@ -51,7 +51,7 @@
 %if 0%{?centos_ver}
 %define centos_version %{centos_ver}00
 %define dist cos
-%define build_sdl2 = 1
+%define build_sdl2 1
 %endif
 
 %if 0%{?rhel_version}
@@ -92,7 +92,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.289
+Version: 2.0.21.290
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -169,7 +169,7 @@ BuildRequires: libSDL2-devel
 BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
-%if 0%{?mgaversion}>5
+%if 0%{?mgaversion} > 5
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
@@ -177,7 +177,7 @@ BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
-%if 0%{?mgaversion}>5
+%if 0%{?mgaversion} > 5
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
@@ -527,5 +527,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Dec 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.289
+* Thu Dec 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.290
 - LPub3D Linux package (rpm) release

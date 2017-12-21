@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# Travis build [after_script] procedures
+#
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: December 21, 2017
+#  Copyright (c) 2017 by Trevor SANDY
+#
+cd $LP3D_BUILD_FOLDER
+
+# Gather up and move build artefacts and logs to releases directory
+if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" ]]; then
+  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+    if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+      Df_Pkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
+      Uf_Pkg=$(find $LP3D_COMPOSE_DIR -name LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz -type f);
+      Lg_Pkg=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
+      cp -f $Df_Pkg $Uf_Pkg $Lg_Pkg $LP3D_RELEASE_DIR;
+    fi;
+    if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+      Df_Rpm=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.rpm -type f);
+      Uf_Rpm=$(find $LP3D_COMPOSE_DIR -name LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm -type f);
+      Lg_Rpm=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
+      cp -f $Df_Rpm $Uf_Rpm $Lg_Rpm $LP3D_RELEASE_DIR;
+    fi;
+    if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+      Df_Deb=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.deb -type f);
+      Uf_Deb=$(find $LP3D_COMPOSE_DIR -name LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb -type f);
+      Lg_Deb=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
+      cp -f $Df_Deb $Uf_Deb $Lg_Deb $LP3D_RELEASE_DIR;
+    fi;
+  fi;
+  if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+    Df_Dmg=$(find $DmgBuildPath/DMGS -name LPub3D*.dmg -type f);
+    Uf_Dmg=$(find $DmgBuildPath/DMGS -name LPub3D-UpdateMaster*.dmg -type f);
+    Lg_Dmg=$(find $DmgBuildPath -name *.log -type f);
+    cp -f $Df_Dmg $Uf_Dmg $Lg_Dmg $LP3D_RELEASE_DIR;
+  fi;
+  echo " Release Files:" && find $LP3D_RELEASE_DIR -type f;
+  [ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ] && ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh upload $LP3D_RELEASE_DIR/ $LP3D_RELEASE_DIR/
+fi

@@ -3,11 +3,14 @@
 # Travis build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 19, 2017
+#  Last Update: December 21, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
+# source update_config_files.sh"
+_PRO_FILE_PWD_=$PWD/mainApp;
+source builds/utilities/update-config-files.sh
 # Install qt5 on Linux
 if [[ "$LP3D_QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
 if [[ "$LP3D_QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi

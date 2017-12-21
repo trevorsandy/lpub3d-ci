@@ -450,12 +450,18 @@ fi
 Info "Dist Directory......[${DIST_PKG_DIR}]"
 
 # get host name
-if [ ! "$OS_NAME" = "Darwin" ]; then
-  platform_=$(. /etc/os-release && echo $ID)
-  if [ -n "$platform_" ]; then
-    host=$platform_
+if [ "${OBS}" = "true" ]; then
+  host=obs
+else
+  if [ ! "$OS_NAME" = "Darwin" ]; then
+    platform_=$(. /etc/os-release && echo $ID)
+    if [ -n "$platform_" ]; then
+      host=$platform_
+    else
+      host=undefined
+    fi
   else
-    host=undefined
+    host=macos
   fi
 fi
 
