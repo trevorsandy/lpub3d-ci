@@ -36,6 +36,7 @@
 
 %if 0%{?sles_version}
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
+%define build_sdl2 = 1
 %endif
 
 %if 0%{?fedora}
@@ -50,6 +51,7 @@
 %if 0%{?centos_ver}
 %define centos_version %{centos_ver}00
 %define dist cos
+%define build_sdl2 = 1
 %endif
 
 %if 0%{?rhel_version}
@@ -90,7 +92,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.286
+Version: 2.0.21.287
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -102,10 +104,10 @@ Source10: lpub3d-ci-rpmlintrc
 # package requirements
 %if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
-BuildRequires: SDL2-devel, mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
+BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
 BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?fedora}
-BuildRequires: qt5-linguist
+BuildRequires: qt5-linguist, SDL2-devel
 %endif
 %if 0%{?buildservice}!=1
 BuildRequires: git
@@ -113,7 +115,7 @@ BuildRequires: git
 %endif
 
 %if 0%{?fedora} || 0%{?centos_version} || 0%{?suse_version}
-BuildRequires: freeglut-devel, boost-devel, tinyxml-devel, gl2ps-devel, libtiff-devel
+BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 %endif
 
 %if (0%{?rhel_version}>=700 && 0%{?centos_version}>=700 && 0%{?fedora}>=26)
@@ -121,7 +123,8 @@ BuildRequires: libjpeg-turbo-devel
 %endif
 
 %if 0%{?fedora}
-%define build_osmesa_from_source 1
+%define build_osmesa 1
+BuildRequires: tinyxml-devel, gl2ps-devel
 %if 0%{?buildservice}
 BuildRequires: samba4-libs
 %if 0%{?fedora_version}==23
@@ -138,7 +141,7 @@ BuildRequires: openssl-devel, storaged
 
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel
-BuildRequires: libSDL2-devel, libOSMesa-devel, glu-devel, openexr-devel
+BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: cmake, update-desktop-files
 BuildRequires: zlib-devel
 %if 0%{?suse_version}!=1315
@@ -149,6 +152,7 @@ Requires(pre): gconf2
 BuildRequires: gl2ps-devel
 %endif
 %if 0%{?suse_version} > 1220
+BuildRequires: libSDL2-devel
 BuildRequires: glu-devel
 %endif
 %if 0%{?suse_version} > 1300
@@ -162,26 +166,32 @@ BuildRequires: -post-build-checks
 %if 0%{?mageia}
 BuildRequires: qttools5
 %ifarch x86_64
-BuildRequires: lib64qt5base5-devel, libsdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64openexr-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
+BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
+%if 0%{?mgaversion}>5
+BuildRequires: lib64openexr-devel
+%endif
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
-BuildRequires: libqt5base5-devel, lib64sdl2.0-devel, libosmesa-devel, libmesaglu1-devel, libopenexr-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
+BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
+%if 0%{?mgaversion}>5
+BuildRequires: libopenexr-devel
+%endif
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
 %endif
 %endif
 %endif
 
-%if 0%{?build_osmesa_from_source}
+# build OSMesa and libGLU from source
+%if 0%{?build_osmesa}
 %define buildosmesa yes
 # libGLU build-from-source dependencies
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(gl)
-
 # libMesa build-from-source dependencies
 %define libglvnd 0
 %if 0%{?suse_version} >= 1330
@@ -223,17 +233,25 @@ BuildRequires:  gcc-c++
 BuildRequires:  imake
 BuildRequires:  libtool
 BuildRequires:  pkgconfig
-BuildRequires:  python-base
-BuildRequires:  python-mako
+%if 0%{?fedora}
+BuildRequires:  python
+BuildRequires:  python-libs
+BuildRequires:  libdrm-devel
+BuildRequires:  elfutils
+BuildRequires:  elfutils-libelf-devel
+%else
 BuildRequires:  python-xml
-BuildRequires:  pkgconfig(dri2proto)
-BuildRequires:  pkgconfig(dri3proto)
-BuildRequires:  pkgconfig(expat)
-BuildRequires:  pkgconfig(glproto)
+BuildRequires:  python-base
 BuildRequires:  pkgconfig(libdrm) >= 2.4.75
 BuildRequires:  pkgconfig(libdrm_amdgpu) >= 2.4.79
 BuildRequires:  pkgconfig(libdrm_nouveau) >= 2.4.66
 BuildRequires:  pkgconfig(libdrm_radeon) >= 2.4.71
+%endif
+BuildRequires:  python-mako
+BuildRequires:  pkgconfig(dri2proto)
+BuildRequires:  pkgconfig(dri3proto)
+BuildRequires:  pkgconfig(expat)
+BuildRequires:  pkgconfig(glproto)
 %if 0%{?libglvnd}
 BuildRequires:  pkgconfig(libglvnd) >= 0.1.0
 %endif
@@ -273,20 +291,59 @@ BuildRequires:  pkgconfig(wayland-server) >= 1.11
 BuildRequires:  llvm-devel
 BuildRequires:  ncurses-devel
 %endif
-
 %if 0%{with_opencl}
 BuildRequires:  clang-devel
 BuildRequires:  clang-devel-static
 BuildRequires:  libclc
 %endif
-
 %if 0%{?libglvnd}
 Requires:       Mesa-libEGL1  = %{version}
 Requires:       Mesa-libGL1  = %{version}
 Requires:       libglvnd >= 0.1.0
 %endif
-# end libMesa dependencies
 %endif
+
+# build SDL2 from source
+%if0%{?build_sdl2}
+%define builsdl2 yes
+BuildRequires:  cmake
+BuildRequires:  dos2unix
+BuildRequires:  gcc-c++
+BuildRequires:  nasm
+BuildRequires:  pkg-config
+BuildRequires:  pkgconfig(alsa) >= 0.9.0
+BuildRequires:  pkgconfig(dbus-1)
+%if !0%{?sle_version}
+BuildRequires:  pkgconfig(fcitx)
+%endif
+BuildRequires:  pkgconfig(egl)
+BuildRequires:  pkgconfig(gl)
+BuildRequires:  pkgconfig(glesv1_cm)
+BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(glib-2.0)
+BuildRequires:  pkgconfig(glu)
+BuildRequires:  pkgconfig(ibus-1.0)
+BuildRequires:  pkgconfig(ice)
+# KMS/DRM driver needs libdrm and libgbm
+BuildRequires:  pkgconfig(gbm) >= 9.0.0
+BuildRequires:  pkgconfig(libdrm) >= 2.4.46
+%if 0%{?suse_version} > 1220
+BuildRequires:  pkgconfig(tslib)
+%endif
+BuildRequires:  pkgconfig(libpulse-simple) >= 0.9
+BuildRequires:  pkgconfig(libudev)
+BuildRequires:  pkgconfig(udev)
+BuildRequires:  pkgconfig(wayland-server)
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xcursor)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xi)
+BuildRequires:  pkgconfig(xinerama)
+BuildRequires:  pkgconfig(xrandr)
+BuildRequires:  pkgconfig(xscrnsaver)
+BuildRequires:  pkgconfig(xxf86vm)
+%endif
+
 # configuration settings
 %description
  LPub3D is an Open Source WYSIWYG editing application for creating
@@ -329,8 +386,11 @@ echo "Using OpenBuildService.........%{usingbuildservice}"
 %if 0%{?buildservice}
 echo "OpenBuildService Target........%{_target_vendor}"
 %endif
-%if 0%{?build_osmesa_from_source}
+%if 0%{?build_osmesa}
 echo "Build OSMesa from source.......%{buildosmesa}"
+%endif
+%if 0%{?build_sdl2}
+echo "Build SDL2 from source.........%{builsdl2}"
 %endif
 echo "Target.........................%{_target}"
 echo "Target Vendor..................%{_target_vendor}"
@@ -383,6 +443,27 @@ for ArchiveSourceFile in \
   fi
 done
 #set -x
+# 3rd-party renderers build-from-source requirements
+%if 0%{?centos_version}
+export build_sdl2=1
+export build_tinyxml=1
+export build_gl2ps=1
+%endif
+%if 0%{?suse_version}
+export build_tinyxml=1
+%endif
+%if (0%{?suse_version} < 1210 || 0%{?suse_version}==1315)
+export build_gl2ps=1
+%endif
+%if 0%{?sles_version}
+%define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
+%if "%{osmesa_found}" != "1"
+%define build_osmesa 1
+export build_osmesa=%{?build_osmesa}
+%endif
+export build_sdl2=1
+export build_tinyxml=1
+%endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
@@ -439,6 +520,7 @@ update-desktop-database || true
 %if 0%{?buildservice}!=1
 update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
+%endif
 
-* Wed Dec 20 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.286
+* Thu Dec 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.287
 - LPub3D Linux package (rpm) release

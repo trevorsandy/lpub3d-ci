@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 20, 2017
+#  Last Update: December 21, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -52,8 +52,8 @@ BuildMesaLibs() {
   mesaSpecDir="$CallDir/builds/utilities/mesa"
   mesaBuildDeps="TBD"
   if [ ! "${OBS}" = "true" ]; then
-    mesaDepsLog=${LOG_PATH}/${ME}_mesadeps_${1}.log
-    mesaBuildLog=${LOG_PATH}/${ME}_mesabuild_${1}.log
+    mesaDepsLog=${LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
+    mesaBuildLog=${LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
   fi
   if [ -z "$2" ]; then
     useSudo=
@@ -71,12 +71,12 @@ BuildMesaLibs() {
     Info "${1} GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
   fi
   Info && Info "Build OSMesa and GLU static libraries..."
-  chmod +x "${mesaSpecDir}/buildosmesa.sh"
+  chmod +x "${mesaSpecDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
-    "${mesaSpecDir}/buildosmesa.sh" &
+    "${mesaSpecDir}/build_osmesa.sh" &
   else
-    "${mesaSpecDir}/buildosmesa.sh" > $mesaBuildLog 2>&1 &
+    "${mesaSpecDir}/build_osmesa.sh" > $mesaBuildLog 2>&1 &
   fi
   TreatLongProcess $! 60 "OSMesa and GLU build"
 
@@ -207,7 +207,7 @@ InstallDependencies() {
       Info "ERROR - Unable to process this target platform: [$platform_]."
       ;;
     esac
-    depsLog=${LOG_PATH}/${ME}_deps_${1}.log
+    depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
     Info "Platform............[${platform_}]"
     case ${platform_} in
     fedora|redhat|suse|mageia)
@@ -215,22 +215,22 @@ InstallDependencies() {
       case $1 in
       ldglite)
         specFile="$PWD/obs/ldglite.spec"
-        buildOSMesa=1
+        build_osmesa=1
         ;;
       ldview)
         cp -f QT/LDView.spec QT/ldview-lp3d-qt5.spec
         specFile="$PWD/QT/ldview-lp3d-qt5.spec"
         sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
-        buildOSMesa=1
+        build_osmesa=1
         ;;
       povray)
         specFile="$PWD/unix/obs/povray.spec"
        ;;
       esac;
-      debbuildDeps="TBD"
+      rpmbuildDeps="TBD"
       Info "Spec File...........[${specFile}]"
-      Info "Dependencies List...[${debbuildDeps}]"
-      if [[ "${buildOSMesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+      Info "Dependencies List...[${rpmbuildDeps}]"
+      if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info
@@ -303,7 +303,7 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [ "${buildOSMesa}" = 1 ]; then
+  if [ ${build_osmesa} = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -324,8 +324,14 @@ BuildLDView() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [ ${buildOSMesa} = 1 ]; then
+  if [ "$build_osmesa" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
+  fi
+  if [ "$build_tinyxml" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OBS_TINYXML"
+  fi
+  if [ "$build_gl2ps" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OBS_GL2PS"
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
@@ -340,7 +346,13 @@ BuildLDView() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildPOVRay() {
-  BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --with-libsdl2 --enable-watch-cursor"
+  BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --enable-watch-cursor"
+  build_sdl2
+  if [ "$build_sdl2" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2=from-src"
+  else
+    BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
+  fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
@@ -350,6 +362,7 @@ BuildPOVRay() {
   if [ "${OBS}" = "true" ]; then
     make
     make install
+    make check
   else
     make > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
@@ -436,6 +449,16 @@ if [ ! -d "${DIST_PKG_DIR}" ]; then
 fi
 Info "Dist Directory......[${DIST_PKG_DIR}]"
 
+# get host name
+if [ ! "$OS_NAME" = "Darwin" ]; then
+  platform_=$(. /etc/os-release && echo $ID)
+  if [ -n "$platform_" ]; then
+    host=$platform_
+  else
+    host=undefined
+  fi
+fi
+
 # Change to Working directory
 cd ${WD}
 
@@ -488,7 +511,6 @@ QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 LOG_PATH=${WD}
 
 # initialize mesa build flag
-buildOSMesa=0
 OSMesaBuilt=0
 
 # define build architecture
@@ -520,7 +542,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
     FinishElapsedTime
     exit 1
   fi
-  depsLog=${LOG_PATH}/${ME}_deps_$OS_NAME.log
+  depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   brew update > $depsLog 2>&1
   brew install $brewDeps >> $depsLog 2>&1
   Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
@@ -528,7 +550,7 @@ fi
 
 # Main loop
 for buildDir in ldglite ldview povray; do
-  buildLog=${LOG_PATH}/${ME}_build_${buildDir}.log
+  buildLog=${LOG_PATH}/${ME}_${host}_build_${buildDir}.log
   linesBefore=1
   case ${buildDir} in
   ldglite)
@@ -565,16 +587,27 @@ for buildDir in ldglite ldview povray; do
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-    if [ "$TARGET_VENDOR" != "" ]; then
-      platform_=$TARGET_VENDOR
-      case ${platform_} in
-      fedora)
+    platform_=$(. /etc/os-release && echo $ID)
+    case ${platform_} in
+    arch|ubuntu|debian)
+      Info "Processing OBS platform_ ${platform_}..."
+      true
+      ;;
+    *)
+      if [ "$TARGET_VENDOR" != "" ]; then
+        platform_=$TARGET_VENDOR
+      else
+        if [ -z "$platform_" ]; then
+          platform_=undefined
+        fi
+        Info "WARNING - Open Build Service did not provide a target platform."
+      fi
+      if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+        Info "Processing OBS platform_ ${platform_}..."
         BuildMesaLibs
-        ;;
-      esac
-    else
-      Info "ERROR - Open Build Service did not provide a target platform."
-    fi
+      fi
+      ;;
+    esac
   elif [ ! -d "${buildDir}/${validSubDir}" ]; then
     Info && Info "`echo ${buildDir} | awk '{print toupper($0)}'` build folder does not exist. Checking for tarball archive..."
     if [ ! -f ${buildDir}.tar.gz ]; then
@@ -592,15 +625,17 @@ for buildDir in ldglite ldview povray; do
   Info && Info "Build ${buildDir}..."
   Info "----------------------------------------------------"
   ${buildCommand} ${buildType} ${buildLog}
-  if [ -f "${validExe}" ]; then
-    Info && Info "Build check - ${buildDir}..."
-    DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
-    Info
-    DisplayLogTail ${buildLog} 10
-  else
-    Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
-    Info "------------------Build Log-------------------------"
-    cat ${buildLog}
+  if [ ! "${OBS}" = "true" ]; then
+    if [ -f "${validExe}" ]; then
+      Info && Info "Build check - ${buildDir}..."
+      DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+      Info
+      DisplayLogTail ${buildLog} 10
+    else
+      Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
+      Info "------------------Build Log-------------------------"
+      cat ${buildLog}
+    fi
   fi
   Info && Info "Build ${buildDir} finished."
   cd ${WD}

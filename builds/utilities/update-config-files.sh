@@ -51,7 +51,7 @@ if [ "$OBS" = true ]; then
     USING_OBS=Yes
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
-    LINE_SPEC="93 443"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
+    LINE_SPEC="95 525"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
     LP3D_OBS_DIR_=$(realpath $LP3D_PWD/../builds/linux/obs/alldeps)
 else
     USING_OBS=No

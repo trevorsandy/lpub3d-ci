@@ -86,7 +86,7 @@
    <param name="filename">lpub3dldrawunf.zip</param>
   </service>
   <service name="download_url">
-   <param name="protocol">fpt</param>
+   <param name="protocol">http</param>
    <param name="host">www.ldraw.org</param>
    <param name="path">/library/updates/complete.zip</param>
   </service>

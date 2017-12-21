@@ -3,7 +3,7 @@
 # Travis build [before_deploy] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 19, 2017
+#  Last Update: December 21, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -34,4 +34,5 @@ if [ "$LP3D_BUILD_PKG" = "yes" ]; then
     cp -f $Df_Dmg $Uf_dmg $Logs_Dmg $LP3D_RELEASE_DIR;
   fi;
   echo " Release Files:" && find $LP3D_RELEASE_DIR -type f;
+  [ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ] && './${LP3D_CI_DIR}/dropbox_uploader upload $LP3D_RELEASE_DIR/ $LP3D_RELEASE_DIR/'
 fi
