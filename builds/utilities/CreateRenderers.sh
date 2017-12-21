@@ -591,6 +591,9 @@ for buildDir in ldglite ldview povray; do
     case ${platform_} in
     arch|ubuntu|debian)
       Info "Processing OBS platform_ ${platform_}..."
+      if [ "$platform_" = "arch" ]; then
+        build_tinyxml=1
+      fi
       true
       ;;
     *)

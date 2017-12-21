@@ -25,7 +25,8 @@ env:
     - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
     - LP3D_COMPOSE_DIR=builds/linux/docker-compose
     - LP3D_CI_DIR=builds/utilities/ci/travis
-    - LP3D_UPLOADER_DIR=${LP3D_BUILD_FOLDER}/${LP3D_CI_DIR}
+    - LP3D_UPLOADER_DIR=builds/utilities/ci/dropbox
+    - LP3D_UPLOADER_PATH=${LP3D_BUILD_FOLDER}/builds/utilities/ci/dropbox
     - LP3D_RELEASE_NAME="LPub3D (Linux/macOS) $(date +'%d.%m.%Y %R')"
 
 before_install:
@@ -37,7 +38,7 @@ install:
 script:
   - source ${LP3D_CI_DIR}/script
 
-before_deploy:
+after_script:
   - source ${LP3D_CI_DIR}/before_deploy
 
 stages:

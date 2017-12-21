@@ -92,7 +92,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.21.288
+Version: 2.0.21.289
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -152,7 +152,6 @@ Requires(pre): gconf2
 BuildRequires: gl2ps-devel
 %endif
 %if 0%{?suse_version} > 1220
-BuildRequires: libSDL2-devel
 BuildRequires: glu-devel
 %endif
 %if 0%{?suse_version} > 1300
@@ -161,6 +160,9 @@ BuildRequires: Mesa-devel
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
+%endif
+%if (0%{?suse_version} && !0%{?sles_version})
+BuildRequires: libSDL2-devel
 %endif
 
 %if 0%{?mageia}
@@ -236,9 +238,6 @@ BuildRequires:  pkgconfig
 %if 0%{?fedora}
 BuildRequires:  python
 BuildRequires:  python-libs
-BuildRequires:  libdrm-devel
-BuildRequires:  elfutils
-BuildRequires:  elfutils-libelf-devel
 %else
 BuildRequires:  python-xml
 BuildRequires:  python-base
@@ -275,8 +274,14 @@ BuildRequires:  pkgconfig(xvmc)
 BuildRequires:  pkgconfig(xxf86vm)
 BuildRequires:  pkgconfig(zlib)
 %ifarch x86_64 %ix86
+%if 0%{?fedora}
+BuildRequires:  elfutils
+BuildRequires:  elfutils-libelf-devel
+BuildRequires:  libdrm-devel
+%else
 BuildRequires:  libelf-devel
 BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
+%endif
 %else
 %if 0%{with_opencl}
 BuildRequires:  libelf-devel
@@ -304,7 +309,7 @@ Requires:       libglvnd >= 0.1.0
 %endif
 
 # build SDL2 from source
-%if0%{?build_sdl2}
+%if 0%{?build_sdl2}
 %define builsdl2 yes
 BuildRequires:  cmake
 BuildRequires:  dos2unix
@@ -522,5 +527,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Dec 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.288
+* Thu Dec 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.21.289
 - LPub3D Linux package (rpm) release
