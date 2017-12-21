@@ -9,7 +9,7 @@
 cd $LP3D_BUILD_FOLDER
 
 # Download release files from temperary store
-[ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ] && './${LP3D_CI_DIR}/dropbox_uploader download $LP3D_RELEASE_DIR/ $LP3D_RELEASE_DIR/'
+[ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ] && ./${LP3D_CI_DIR}/dropbox_uploader download $LP3D_RELEASE_DIR/ $LP3D_RELEASE_DIR/
 
 # List files in the Releases directory
 echo "Deploying to GitHub releases ...";

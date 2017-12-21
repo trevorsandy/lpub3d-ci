@@ -68,4 +68,4 @@ else
 fi
 # Initialize data storage uploader - using dropbox
 chmod +x ${LP3D_CI_DIR}/dropbox_uploader;
-[ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || 'openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_UPLOADER_DIR}/.dropbox_uploader.enc -out ${LP3D_UPLOADER_DIR}/.dropbox_uploader -d'
+[ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_UPLOADER_DIR}/.dropbox_uploader.enc -out ${LP3D_UPLOADER_DIR}/.dropbox_uploader -d
