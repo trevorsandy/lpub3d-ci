@@ -347,7 +347,6 @@ BuildLDView() {
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildPOVRay() {
   BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --enable-watch-cursor"
-  build_sdl2
   if [ "$build_sdl2" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2=from-src"
   else
@@ -536,9 +535,9 @@ else
   LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/i386/lpub3d_trace_cui
 fi
 
-echo && echo "================================================"
-echo "DEBUG - DISTRIBUTION FILES:" && find $DIST_PKG_DIR -type f;
-echo "================================================" && echo
+#echo && echo "================================================"
+#echo "DEBUG - DISTRIBUTION FILES:" && find $DIST_PKG_DIR -type f;
+#echo "================================================" && echo
 
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -571,6 +570,8 @@ fi
 # Main loop
 for buildDir in ldglite ldview povray; do
   buildDirUpper="$(echo ${buildDir} | awk '{print toupper($0)}')"
+  artefactVer="VER_${buildDirUpper}"
+  artefactPath="LP3D_${buildDirUpper}"
   buildLog=${LOG_PATH}/${ME}_${host}_build_${buildDir}.log
   linesBefore=1
   case ${buildDir} in
@@ -582,8 +583,6 @@ for buildDir in ldglite ldview povray; do
     validSubDir="app"
     validExe="${validSubDir}/${buildArch}/ldglite"
     buildType="release"
-    artefactVer="\$VER_${buildDirUpper}"
-    artefactPath="\$LP3D_${buildDirUpper}"
     ;;
   ldview)
     curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
@@ -593,8 +592,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
-    artefactVer="\$VER_${buildDirUpper}"
-    artefactPath="\$LP3D_${buildDirUpper}"
+
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
@@ -604,8 +602,6 @@ for buildDir in ldglite ldview povray; do
     validSubDir="unix"
     validExe="${validSubDir}/lpub3d_trace_cui"
     buildType="release"
-    artefactVer="\$VER_${buildDirUpper}"
-    artefactPath="\$LP3D_${buildDirUpper}"
     ;;
   esac
   # OBS build routine...
@@ -657,9 +653,9 @@ for buildDir in ldglite ldview povray; do
   fi
   sleep .5
   # Perform build
-  Info && Info "Build $artefactVer..."
+  Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
-  if [ ! -d "$artefactPath" ]; then
+  if [ ! -d "${!artefactPath}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
@@ -674,7 +670,7 @@ for buildDir in ldglite ldview povray; do
       fi
     fi
   else
-    Info "Artefact $artefactVer exists - build skipped."
+    Info "Artefact ${!artefactVer} exists - build skipped."
   fi
   Info && Info "Build ${buildDir} finished."
   cd ${WD}
