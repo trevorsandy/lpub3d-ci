@@ -536,6 +536,10 @@ else
   LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/i386/lpub3d_trace_cui
 fi
 
+echo && echo "================================================"
+echo "DEBUG - DISTRIBUTION FILES:" && find $DIST_PKG_DIR -type f;
+echo "================================================" && echo
+
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
   Info &&  Info "Install $OS_NAME build dependencies..."
@@ -653,7 +657,7 @@ for buildDir in ldglite ldview povray; do
   fi
   sleep .5
   # Perform build
-  Info && Info "Build ${buildDir}..."
+  Info && Info "Build $artefactVer..."
   Info "----------------------------------------------------"
   if [ ! -d "$artefactPath" ]; then
     ${buildCommand} ${buildType} ${buildLog}
