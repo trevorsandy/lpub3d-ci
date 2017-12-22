@@ -655,6 +655,8 @@ for buildDir in ldglite ldview povray; do
   # Perform build
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
+  echo "DEBUG echo - ${!artefactPath} not found"
+  echo "DEBUG find - $(find $DIST_PKG_DIR - name ${!artefactPath} -type f )"
   if [ ! -d "${!artefactPath}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then

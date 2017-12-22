@@ -30,7 +30,7 @@ env:
     - LP3D_UPLOADER_DIR=builds/utilities/ci/dropbox
     - LP3D_DROPBOX_STORE_ROOT_DIR=travis-ci
     - LP3D_DROPBOX_STORE_DIR=${LP3D_DROPBOX_STORE_ROOT_DIR}/releases
-    - LP3D_RELEASE_LABEL="LPub3D (Linux/macOS) $(date +'%d.%m.%Y %R')"
+    - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
 
 before_install:
   - source ${LP3D_CI_DIR}/before_install
@@ -90,6 +90,7 @@ jobs:
       on:
         repo: trevorsandy/lpub3d-ci
         condition: $LP3D_DEPLOY_PKG = yes
+    after_deploy: source ${LP3D_CI_DIR}/after_deploy
 
 notifications:
   email:
