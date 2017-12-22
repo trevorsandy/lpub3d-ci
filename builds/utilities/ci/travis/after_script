@@ -34,12 +34,9 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
   cp -f $file_Logs $LP3D_LOGS_DIR;
   echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
   if [ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ]; then
-    echo "Creating Dropbox store folder '$LP3D_DROPBOX_STORE_DIR'...";
-    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh mkdir /$LP3D_DROPBOX_STORE_DIR/;
-    echo "Uploading release artefacts to Dropbox store at '$LP3D_DROPBOX_STORE_DIR'...";
-    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh upload $LP3D_RELEASE_DIR/ /$LP3D_DROPBOX_STORE_DIR/;
-    echo "Dropbox store artefact list...";
-    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list /$LP3D_DROPBOX_STORE_DIR;
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh mkdir $LP3D_DROPBOX_STORE_ROOT_DIR;
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh upload $LP3D_RELEASE_DIR $LP3D_DROPBOX_STORE_ROOT_DIR/;
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list $LP3D_DROPBOX_STORE_DIR;
   else
     echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform file upload";
   fi;

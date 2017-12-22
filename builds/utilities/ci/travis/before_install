@@ -69,9 +69,9 @@ fi
 # Initialize Dropbox storage uploader
 [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_UPLOADER_DIR}/.dropbox_uploader.enc -out ${LP3D_UPLOADER_DIR}/.dropbox_uploader -d;
 if [ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ]; then
-  # echo "Dropbox Uploader files:" && find $LP3D_UPLOADER_DIR -type f;
   chmod +x ${LP3D_UPLOADER_DIR}/dropbox_uploader.sh;
-  ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh -d info;
-  echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_STORE_DIR'...";
-  ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh -d delete /$LP3D_DROPBOX_STORE_DIR;
+  ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh info;
+  echo $(./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list $LP3D_DROPBOX_STORE_DIR) | grep -w 'DONE' \
+  && echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_STORE_DIR'..." \
+  && ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh delete $LP3D_DROPBOX_STORE_DIR || true
 fi
