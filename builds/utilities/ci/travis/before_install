@@ -39,7 +39,7 @@ if [[ "$LP3D_QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG"
 # be ...1 0 0 to only build LDGlite. It is also possible to override the cache when just compiling the source by entering
 # 'build 3rdpkg 1 1 1' in the commit message.
 if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-  LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/]//g');
+  LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/].*//g');
 elif [ "$LP3D_COMPILE_SOURCE" = "true" ]; then
   LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build 3rdpkg //p');
 fi;
@@ -66,6 +66,6 @@ else
   fi
   export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
 fi
-# Initialize data storage uploader - using dropbox
+# Initialize Dropbox storage uploader
 chmod +x ${LP3D_UPLOADER_DIR}/dropbox_uploader.sh;
 [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_UPLOADER_DIR}/.dropbox_uploader.enc -out ${LP3D_UPLOADER_DIR}/.dropbox_uploader -d;

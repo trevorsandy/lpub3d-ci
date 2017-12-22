@@ -86,12 +86,18 @@ fi
 if [ "${SOURCED}" = "true" ]
 then
     Info "1. capture version info using git queries"
-    cd "$LP3D_PWD/.."
+    cd "$(realpath $LP3D_PWD/..)"
+    if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
+    then
+        # if Travis, pull down tags
+        git remote add origin https://github.com/${TRAVIS_REPO_SLUG}.git
+        git fetch -qfup --depth=200 origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
+        git checkout -qf ${TRAVIS_COMMIT}
+    fi
     lp3d_git_ver_tag_long=`git describe --tags --long`
     lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
     lp3d_git_ver_commit_count=`git rev-list HEAD --count`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
-    cd "${LP3D_CALL_DIR}"
     lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}       # remove prefix ending in "-"
     lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}  # replace . with " "
     lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
@@ -111,27 +117,32 @@ LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${LP3D_BU
 LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${LP3D_DATE_TIME}")"
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
-Info "   LP3D_PWD...............${LP3D_PWD}"
-Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
 Info "   USING_OBS..............${USING_OBS}"
 
-Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
 Info "   VER_MAJOR..............${VER_MAJOR}"
 Info "   VER_MINOR..............${VER_MINOR}"
 Info "   VER_PATCH..............${VER_PATCH}"
 Info "   VER_REVISION...........${VER_REVISION}"
 Info "   VER_BUILD..............${VER_BUILD}"
 Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
-Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
-Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
-Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
 
-Info "   LP3D_VERSION...........${LP3D_VERSION}"
-Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
-Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
-Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
+if [ ! "${CONTINUOUS_INTEGRATION}" = "true" ];
+then
+    Info "   LP3D_PWD...............${LP3D_PWD}"
+    Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
 
-Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
+    Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
+    Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
+    Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
+    Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
+    Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
+    Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
+
+    Info "   LP3D_VERSION...........${LP3D_VERSION}"
+    Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
+
+    Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
+fi
 
 if [ "$LP3D_OS" = Darwin ]
 then

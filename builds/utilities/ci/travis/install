@@ -34,6 +34,13 @@ if [ ! -d "$LP3D_LDRAW_DIR" ]; then
 else
   echo "Using cached LDraw library $LP3D_LDRAW_DIR";
 fi
+# Setup releases directory
+if [ ! -d "$LP3D_RELEASE_DIR" ]; then
+  mkdir -p "${LP3D_RELEASE_DIR}/logs";
+  if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR"; fi;
+else
+  echo "Using cached release directory $LP3D_RELEASE_DIR";
+fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" || "$LP3D_BUILD_MACOS" = "true" ]]; then
@@ -70,12 +77,6 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     chmod +x docker-compose;
     sudo mv docker-compose /usr/local/bin;
     docker-compose version;
-    if [ ! -d "LP3D_RELEASE_DIR" ]; then
-      mkdir -p "$LP3D_RELEASE_DIR";
-      if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR"; fi;
-    else
-      echo "Using cached release directory $LP3D_RELEASE_DIR";
-    fi;
   fi;
 fi
 # setup linux platform-specific 3rd party distribution directory
@@ -98,14 +99,14 @@ if [ -n "$LP3D_BUILD_3RD" ]; then
   LP3D_LDGLITE=$LP3D_DIST_DIR_PATH/ldglite-1.3;
   LP3D_LDVIEW=$LP3D_DIST_DIR_PATH/ldview-4.3;
   LP3D_LPUB3D_TRACE=$LP3D_DIST_DIR_PATH/lpub3d_trace_cui-3.8;
-  if [[ "$LP3D_BUILD_LDGLITE" = "1" && -d $LP3D_LDGLITE ]]; then
-    sudo rm -rf $LP3D_LDGLITE && echo "cached $LP3D_LDGLITE deleted";
+  if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE" ]]; then
+    sudo rm -rf "$LP3D_LDGLITE" && echo "cached $LP3D_LDGLITE deleted";
   fi;
-  if [[ "$LP3D_BUILD_LDVIEW" = "1" && -d $LP3D_LDVIEW ]]; then
-    sudo rm -rf $LP3D_LDVIEW && echo "cached $LP3D_LDVIEW deleted";
+  if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW" ]]; then
+    sudo rm -rf "$LP3D_LDVIEW" && echo "cached $LP3D_LDVIEW deleted";
   fi;
-  if [[ "$LP3D_BUILD_TRACE" = "1" && -d $LP3D_LPUB3D_TRACE ]]; then
-    sudo rm -rf $LP3D_LPUB3D_TRACE && echo "cached $LP3D_LPUB3D_TRACE deleted";
+  if [[ "$LP3D_BUILD_TRACE" = 1 && -d "$LP3D_LPUB3D_TRACE" ]]; then
+    sudo rm -rf "$LP3D_LPUB3D_TRACE" && echo "cached $LP3D_LPUB3D_TRACE deleted";
   fi;
 fi
 # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables

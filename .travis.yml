@@ -19,13 +19,15 @@ env:
   global:
     - LP3D_QT_BASE=59
     - LP3D_LDRAW_DIR=${HOME}/ldraw
-    - LP3D_BUILD_FOLDER=${HOME}/build/${TRAVIS_REPO_SLUG}
+    - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
+    - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
+    - LP3D_LOGS_DIR=${LP3D_RELEASE_DIR}/logs
     - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
-    - LP3D_RELEASE_DIR=${LP3D_BUILD_FOLDER}/builds/releases
     - LP3D_COMPOSE_DIR=builds/linux/docker-compose
     - LP3D_CI_DIR=builds/utilities/ci/travis
     - LP3D_UPLOADER_DIR=builds/utilities/ci/dropbox
+    - LP3D_DROPBOX_STORE_DIR=travis-ci/releases
     - LP3D_RELEASE_NAME="LPub3D (Linux/macOS) $(date +'%d.%m.%Y %R')"
 
 before_install:
