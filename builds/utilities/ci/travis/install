@@ -35,13 +35,13 @@ else
   echo "Using cached LDraw library $LP3D_LDRAW_DIR";
 fi
 # Setup releases directory
-if [ ! -d "$LP3D_RELEASE_DIR" ]; then
-  mkdir -p "${LP3D_RELEASE_DIR}/updates";
-  mkdir -p "${LP3D_RELEASE_DIR}/downloads";
-  mkdir -p "${LP3D_RELEASE_DIR}/logs";
-  if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR"; fi;
+if [ ! -d "$LP3D_RELEASES_DIR" ]; then
+  mkdir -p "${LP3D_RELEASES_DIR}/updates";
+  mkdir -p "${LP3D_RELEASES_DIR}/downloads";
+  mkdir -p "${LP3D_RELEASES_DIR}/logs";
+  if test -d "$LP3D_RELEASES_DIR"; then echo "Created release directory $LP3D_RELEASES_DIR"; fi;
 else
-  echo "Using cached release directory $LP3D_RELEASE_DIR";
+  echo "Using cached release directory $LP3D_RELEASES_DIR";
 fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then

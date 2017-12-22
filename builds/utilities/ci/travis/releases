@@ -19,10 +19,10 @@ else
   echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform file download";
 fi;
 # Verify release files in the Releases directory
-if [ -n "$(find "$LP3D_RELEASE_DIR" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-  echo "$LP3D_RELEASE_DIR is empty. GitHub release aborted.";
+if [ -n "$(find "$LP3D_DOWNLOADS_DIR" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
+  echo "$LP3D_DOWNLOADS_DIR is empty. GitHub release aborted.";
   export LP3D_DEPLOY_PKG=no;
 else
-  echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
+  echo "Release Files:" && find $LP3D_DOWNLOADS_DIR -type f;
 fi
 
