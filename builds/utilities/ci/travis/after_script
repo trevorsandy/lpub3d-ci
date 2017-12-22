@@ -13,15 +13,15 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
       file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
-      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz -type f);
+      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_APP_VERSION}*.pkg.tar.xz -type f);
     fi;
     if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
       file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.rpm -type f);
-      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.rpm -type f);
+      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_APP_VERSION}*.rpm -type f);
     fi;
     if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
       file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.deb -type f);
-      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D_UpdateMaster_${LP3D_APP_VERSION}*.deb -type f);
+      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_APP_VERSION}*.deb -type f);
     fi;
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
@@ -34,12 +34,15 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
   cp -f $file_Logs $LP3D_LOGS_DIR;
   echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
   if [ -f ${LP3D_UPLOADER_DIR}/.dropbox_uploader ]; then
-    echo "Deleting old release files from Dropbox store at $LP3D_DROPBOX_STORE_DIR/...";
-    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh delete $LP3D_DROPBOX_STORE_DIR/;
-    echo "Uploaing release files to Dropbox store at $LP3D_DROPBOX_STORE_DIR/...";
-    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh upload $LP3D_RELEASE_DIR/ $LP3D_DROPBOX_STORE_DIR/;
-    echo "Dropbox store file list...";
-    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list;
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh info
+    echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_STORE_DIR'...";
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh delete /$LP3D_DROPBOX_STORE_DIR;
+    echo "Creating Dropbox store folder '$LP3D_DROPBOX_STORE_DIR'...";
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh mkdir /$LP3D_DROPBOX_STORE_DIR/;
+    echo "Uploading release artefacts to Dropbox store at '$LP3D_DROPBOX_STORE_DIR'...";
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh upload $LP3D_RELEASE_DIR/ /$LP3D_DROPBOX_STORE_DIR/;
+    echo "Dropbox store artefact list...";
+    ./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list /$LP3D_DROPBOX_STORE_DIR;
   else
     echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform file upload";
   fi;

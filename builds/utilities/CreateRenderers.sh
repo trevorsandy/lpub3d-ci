@@ -390,7 +390,7 @@ CallDir=$PWD
 curlopts="-sL -C -"
 
 # Get platform
-OS_NAME=`uname`
+OS_NAME=$(uname)
 if [ "$OS_NAME" = "Darwin" ]; then
   platform=$(echo `sw_vers -productName` `sw_vers -productVersion`)
 else
@@ -429,7 +429,7 @@ elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform............[Travis CI - ${platform}]"
 elif [ "${OBS}" = "true" ]; then
   if [ "$platform" = "" ]; then
-    platform=$(echo `uname`)
+    platform=${OS_NAME}
   fi
   Info "Platform............[Open Build System - ${platform}]"
 else
@@ -519,11 +519,21 @@ LOG_PATH=${WD}
 # initialize mesa build flag
 OSMesaBuilt=0
 
-# define build architecture
-if [ $(uname -m) = x86_64 ]; then
+# define build architecture and cached renderer paths
+VER_LDGLITE=ldglite-1.3
+VER_LDVIEW=ldview-4.3
+VER_POVRAY=lpub3d_trace_cui-3.8
+distArch=$(uname -m)
+if [ "$distArch" = x86_64 ]; then
   buildArch="64bit_release";
+  LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${distArch}/ldglite
+  LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${distArch}/ldview
+  LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${distArch}/lpub3d_trace_cui
 else
   buildArch="32bit_release";
+  LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/i386/ldglite
+  LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/i386/ldview
+  LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/i386/lpub3d_trace_cui
 fi
 
 # install build dependencies for MacOS
@@ -556,6 +566,7 @@ fi
 
 # Main loop
 for buildDir in ldglite ldview povray; do
+  buildDirUpper="$(echo ${buildDir} | awk '{print toupper($0)}')"
   buildLog=${LOG_PATH}/${ME}_${host}_build_${buildDir}.log
   linesBefore=1
   case ${buildDir} in
@@ -567,6 +578,8 @@ for buildDir in ldglite ldview povray; do
     validSubDir="app"
     validExe="${validSubDir}/${buildArch}/ldglite"
     buildType="release"
+    artefactVer="\$VER_${buildDirUpper}"
+    artefactPath="\$LP3D_${buildDirUpper}"
     ;;
   ldview)
     curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
@@ -576,6 +589,8 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
+    artefactVer="\$VER_${buildDirUpper}"
+    artefactPath="\$LP3D_${buildDirUpper}"
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
@@ -585,8 +600,11 @@ for buildDir in ldglite ldview povray; do
     validSubDir="unix"
     validExe="${validSubDir}/lpub3d_trace_cui"
     buildType="release"
+    artefactVer="\$VER_${buildDirUpper}"
+    artefactPath="\$LP3D_${buildDirUpper}"
     ;;
   esac
+  # OBS build routine...
   if [ "$OBS" = "true" ]; then
     if [ -f "${buildDir}.tar.gz" ]; then
       ExtractArchive ${buildDir} ${validSubDir}
@@ -617,34 +635,42 @@ for buildDir in ldglite ldview povray; do
       fi
       ;;
     esac
-  elif [ ! -d "${buildDir}/${validSubDir}" ]; then
-    Info && Info "`echo ${buildDir} | awk '{print toupper($0)}'` build folder does not exist. Checking for tarball archive..."
+  fi
+  # Check if build folder exist and donwload if not
+  if [ ! -d "${buildDir}/${validSubDir}" ]; then
+    Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
     if [ ! -f ${buildDir}.tar.gz ]; then
-      Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
+      Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
       curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
     fi
     ExtractArchive ${buildDir} ${validSubDir}
   else
     cd ${buildDir}
   fi
+  # Install build dependencies
   if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
     InstallDependencies ${buildDir}
   fi
   sleep .5
+  # Perform build
   Info && Info "Build ${buildDir}..."
   Info "----------------------------------------------------"
-  ${buildCommand} ${buildType} ${buildLog}
-  if [ ! "${OBS}" = "true" ]; then
-    if [ -f "${validExe}" ]; then
-      Info && Info "Build check - ${buildDir}..."
-      DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
-      Info
-      DisplayLogTail ${buildLog} 10
-    else
-      Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
-      Info "------------------Build Log-------------------------"
-      cat ${buildLog}
+  if [ ! -d "$artefactPath" ]; then
+    ${buildCommand} ${buildType} ${buildLog}
+    if [ ! "${OBS}" = "true" ]; then
+      if [ -f "${validExe}" ]; then
+        Info && Info "Build check - ${buildDir}..."
+        DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
+        Info
+        DisplayLogTail ${buildLog} 10
+      else
+        Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
+        Info "------------------Build Log-------------------------"
+        cat ${buildLog}
+      fi
     fi
+  else
+    Info "Artefact $artefactVer exists - build skipped."
   fi
   Info && Info "Build ${buildDir} finished."
   cd ${WD}

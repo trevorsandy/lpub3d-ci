@@ -96,18 +96,18 @@ if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
 fi
 # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
 if [ -n "$LP3D_BUILD_3RD" ]; then
-  LP3D_LDGLITE=$LP3D_DIST_DIR_PATH/ldglite-1.3;
-  LP3D_LDVIEW=$LP3D_DIST_DIR_PATH/ldview-4.3;
-  LP3D_LPUB3D_TRACE=$LP3D_DIST_DIR_PATH/lpub3d_trace_cui-3.8;
-  if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE" ]]; then
-    sudo rm -rf "$LP3D_LDGLITE" && echo "cached $LP3D_LDGLITE deleted";
+  LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/ldglite-1.3;
+  LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/ldview-4.3;
+  LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8;
+  if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
+    sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
   fi;
-  if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW" ]]; then
-    sudo rm -rf "$LP3D_LDVIEW" && echo "cached $LP3D_LDVIEW deleted";
+  if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW_DIR" ]]; then
+    sudo rm -rf "$LP3D_LDVIEW_DIR" && echo "cached $LP3D_LDVIEW_DIR deleted";
   fi;
-  if [[ "$LP3D_BUILD_TRACE" = 1 && -d "$LP3D_LPUB3D_TRACE" ]]; then
-    sudo rm -rf "$LP3D_LPUB3D_TRACE" && echo "cached $LP3D_LPUB3D_TRACE deleted";
+  if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
+    sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted";
   fi;
 fi
 # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
-compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
+echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
