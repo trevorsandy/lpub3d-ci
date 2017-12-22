@@ -638,28 +638,28 @@ for buildDir in ldglite ldview povray; do
   fi
 
   # CI/Local build routine...
+  # Check if build folder exist and donwload if not
+  if [ ! -d "${buildDir}/${validSubDir}" ]; then
+    Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+    if [ ! -f ${buildDir}.tar.gz ]; then
+      Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+      curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+    fi
+    ExtractArchive ${buildDir} ${validSubDir}
+  else
+    cd ${buildDir}
+  fi
+  Info && Info "Install ${!artefactVer} dependencies..."
+  Info "----------------------------------------------------"
+  # Install build dependencies
+  if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+    InstallDependencies ${buildDir}
+  fi
+  sleep .5
+  # Perform build
+  Info && Info "Build ${!artefactVer}..."
+  Info "----------------------------------------------------"
   if [ ! -f "${!artefactPath}" ]; then
-    # Check if build folder exist and donwload if not
-    if [ ! -d "${buildDir}/${validSubDir}" ]; then
-      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-      if [ ! -f ${buildDir}.tar.gz ]; then
-        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-      fi
-      ExtractArchive ${buildDir} ${validSubDir}
-    else
-      cd ${buildDir}
-    fi
-    Info && Info "Install ${!artefactVer} dependencies..."
-    Info "----------------------------------------------------"
-    # Install build dependencies
-    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-      InstallDependencies ${buildDir}
-    fi
-    sleep .5
-    # Perform build
-    Info && Info "Build ${!artefactVer}..."
-    Info "----------------------------------------------------"
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
@@ -675,8 +675,6 @@ for buildDir in ldglite ldview povray; do
     fi
     Info && Info "Build ${buildDir} finished."
   else
-    Info && Info "Build ${!artefactVer}..."
-    Info "----------------------------------------------------"
     Info "Renderer artefacts for ${!artefactVer} exists - build skipped."
   fi
   cd ${WD}
