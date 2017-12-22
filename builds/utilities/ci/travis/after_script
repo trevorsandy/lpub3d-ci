@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 21, 2017
+#  Last Update: December 22, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -30,14 +30,17 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
     file_UPkg=$(find $DmgBuildPath/DMGS -name LPub3D-UpdateMaster*.dmg -type f);
     file_Logs=$(find $DmgBuildPath -name *.log -type f);
   fi;
-  cp -f $file_DPkg $file_UPkg $LP3D_RELEASE_DIR;
   cp -f $file_Logs $LP3D_LOGS_DIR;
-  echo "Release Files:" && find $LP3D_RELEASE_DIR -type f;
+  cp -f $file_UPkg $LP3D_UPDATES_DIR;
+  cp -f $file_DPkg $LP3D_DOWNLOADS_DIR;
+  echo "Release Files:" && find $LP3D_RELEASES_DIR -type f;
   if [ -f "${LP3D_UPLOADER_DIR}/.dropbox_uploader" ]; then
     chmod +x "${LP3D_UPLOADER_DIR}/dropbox_uploader.sh";
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_STORE_ROOT_DIR";
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_RELEASE_DIR" "$LP3D_DROPBOX_STORE_ROOT_DIR"/;
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_STORE_DIR";
+    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_RELEASES_DIR";
+    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_UPDATES_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
   else
     echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform file upload";
   fi;

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 17, 2017
+# Last Update December 22, 2017
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 

@@ -20,16 +20,19 @@ env:
     - LP3D_QT_BASE=59
     - LP3D_LDRAW_DIR=${HOME}/ldraw
     - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
-    - LP3D_RELEASE_ROOT_DIR=${LP3D_BUILD_FOLDER}/builds
-    - LP3D_RELEASE_DIR=${LP3D_RELEASE_ROOT_DIR}/releases
-    - LP3D_LOGS_DIR=${LP3D_RELEASE_DIR}/logs
+    - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
+    - LP3D_LOGS_DIR=${LP3D_RELEASES_DIR}/logs
+    - LP3D_UPDATES_DIR=${LP3D_RELEASES_DIR}/updates
+    - LP3D_DOWNLOADS_DIR=${LP3D_RELEASES_DIR}/downloads
     - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
     - LP3D_COMPOSE_DIR=builds/linux/docker-compose
     - LP3D_CI_DIR=builds/utilities/ci/travis
     - LP3D_UPLOADER_DIR=builds/utilities/ci/dropbox
-    - LP3D_DROPBOX_STORE_ROOT_DIR=travis-ci
-    - LP3D_DROPBOX_STORE_DIR=${LP3D_DROPBOX_STORE_ROOT_DIR}/releases
+    - LP3D_DROPBOX_RELEASES_DIR=travis-ci/releases
+    - LP3D_DROPBOX_LOGS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/logs
+    - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
+    - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
     - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
 
 before_install:
@@ -84,13 +87,13 @@ jobs:
       api_key:
         secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
       file_glob: true
-      file: $LP3D_RELEASE_DIR/*
+      file: $LP3D_DOWNLOADS_DIR/*
       overwrite: true
       skip_cleanup: true
       on:
         repo: trevorsandy/lpub3d-ci
         condition: $LP3D_DEPLOY_PKG = yes
-    after_deploy: source ${LP3D_CI_DIR}/after_deploy
+    #after_deploy: source ${LP3D_CI_DIR}/after_deploy
 
 notifications:
   email:

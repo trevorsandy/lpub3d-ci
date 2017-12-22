@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 21, 2017
+#  Last Update: December 22, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -592,7 +592,6 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
-
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
@@ -604,6 +603,7 @@ for buildDir in ldglite ldview povray; do
     buildType="release"
     ;;
   esac
+
   # OBS build routine...
   if [ "$OBS" = "true" ]; then
     if [ -f "${buildDir}.tar.gz" ]; then
@@ -636,26 +636,30 @@ for buildDir in ldglite ldview povray; do
       ;;
     esac
   fi
-  # Check if build folder exist and donwload if not
-  if [ ! -d "${buildDir}/${validSubDir}" ]; then
-    Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-    if [ ! -f ${buildDir}.tar.gz ]; then
-      Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-      curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-    fi
-    ExtractArchive ${buildDir} ${validSubDir}
-  else
-    cd ${buildDir}
-  fi
-  # Install build dependencies
-  if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-    InstallDependencies ${buildDir}
-  fi
-  sleep .5
-  # Perform build
-  Info && Info "Build ${!artefactVer}..."
-  Info "----------------------------------------------------"
+
+  # CI/Local build routine...
   if [ ! -f "${!artefactPath}" ]; then
+    # Check if build folder exist and donwload if not
+    if [ ! -d "${buildDir}/${validSubDir}" ]; then
+      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+      if [ ! -f ${buildDir}.tar.gz ]; then
+        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+      fi
+      ExtractArchive ${buildDir} ${validSubDir}
+    else
+      cd ${buildDir}
+    fi
+    Info && Info "Install ${!artefactVer} dependencies..."
+    Info "----------------------------------------------------"
+    # Install build dependencies
+    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+      InstallDependencies ${buildDir}
+    fi
+    sleep .5
+    # Perform build
+    Info && Info "Build ${!artefactVer}..."
+    Info "----------------------------------------------------"
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
@@ -669,10 +673,12 @@ for buildDir in ldglite ldview povray; do
         cat ${buildLog}
       fi
     fi
+    Info && Info "Build ${buildDir} finished."
   else
+    Info && Info "Build ${!artefactVer}..."
+    Info "----------------------------------------------------"
     Info "Renderer artefacts for ${!artefactVer} exists - build skipped."
   fi
-  Info && Info "Build ${buildDir} finished."
   cd ${WD}
 done
 

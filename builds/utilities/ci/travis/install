@@ -3,7 +3,7 @@
 # Travis build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 21, 2017
+#  Last Update: December 22, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -36,6 +36,8 @@ else
 fi
 # Setup releases directory
 if [ ! -d "$LP3D_RELEASE_DIR" ]; then
+  mkdir -p "${LP3D_RELEASE_DIR}/updates";
+  mkdir -p "${LP3D_RELEASE_DIR}/downloads";
   mkdir -p "${LP3D_RELEASE_DIR}/logs";
   if test -d "$LP3D_RELEASE_DIR"; then echo "Created release directory $LP3D_RELEASE_DIR"; fi;
 else

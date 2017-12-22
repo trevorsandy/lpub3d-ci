@@ -11,9 +11,9 @@ cd $LP3D_BUILD_FOLDER
 if [ -f "${LP3D_UPLOADER_DIR}/.dropbox_uploader" ]; then
   if [[ -f "${LP3D_UPLOADER_DIR}/.dropbox_uploader" && "$LP3D_DEPLOY_PACKAGES" = "true" ]]; then
     chmod +x "${LP3D_UPLOADER_DIR}/dropbox_uploader.sh";
-    echo $(./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list $LP3D_DROPBOX_STORE_DIR) | grep -w 'DONE' \
-    && echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_STORE_DIR'..." \
-    && ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_STORE_DIR" || true
+    echo $(./${LP3D_UPLOADER_DIR}/dropbox_uploader.sh list $LP3D_DROPBOX_RELEASES_DIR) | grep -w 'DONE' \
+    && echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_RELEASES_DIR'..." \
+    && ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_RELEASES_DIR" || true
   fi
 else
   echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform delete.";
