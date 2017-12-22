@@ -303,7 +303,7 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [ ${build_osmesa} = 1 ]; then
+  if [ "${build_osmesa}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}

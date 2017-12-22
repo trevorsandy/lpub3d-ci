@@ -69,3 +69,5 @@ fi
 # Initialize Dropbox storage uploader
 chmod +x ${LP3D_UPLOADER_DIR}/dropbox_uploader.sh;
 [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_UPLOADER_DIR}/.dropbox_uploader.enc -out ${LP3D_UPLOADER_DIR}/.dropbox_uploader -d;
+echo "Dropbox Uploader files:" && find $LP3D_UPLOADER_DIR -type f;
+echo "Dropbox Uploader files list:" && ls -al $LP3D_UPLOADER_DIR/*;
