@@ -655,9 +655,7 @@ for buildDir in ldglite ldview povray; do
   # Perform build
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
-  echo "DEBUG echo - ${!artefactPath} not found"
-  echo "DEBUG find - $(find $DIST_PKG_DIR - name ${!artefactPath} -type f )"
-  if [ ! -d "${!artefactPath}" ]; then
+  if [ ! -f "${!artefactPath}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
@@ -672,7 +670,7 @@ for buildDir in ldglite ldview povray; do
       fi
     fi
   else
-    Info "Artefact ${!artefactVer} exists - build skipped."
+    Info "Renderer artefacts for ${!artefactVer} exists - build skipped."
   fi
   Info && Info "Build ${buildDir} finished."
   cd ${WD}
