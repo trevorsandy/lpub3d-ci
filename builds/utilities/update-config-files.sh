@@ -13,6 +13,7 @@ LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 LP3D_BUILD_DATE=`date "+%Y%m%d"`
 LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
+GIT_DEPTH=500
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
@@ -52,15 +53,14 @@ if [ "$OBS" = true ]; then
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
     LINE_SPEC="95 530"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
-    LP3D_OBS_DIR_=$(realpath $LP3D_PWD/../builds/linux/obs/alldeps)
+    LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs/alldeps)
 else
     USING_OBS=No
     LINE_PKGBUILD=3
     LINE_DSC=5
     LINE_SPEC="93 293"
-    LP3D_OBS_DIR_=$(realpath $LP3D_PWD/../builds/linux/obs)
+    LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs)
 fi
-LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs)
 LP3D_UTIL_DIR=$(realpath $LP3D_PWD/../builds/utilities)
 
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
@@ -85,19 +85,21 @@ fi
 #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
 if [ "${SOURCED}" = "true" ]
 then
-    Info "1. capture version info using git queries"
     cd "$(realpath $LP3D_PWD/..)"
     if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
     then
-        # if Travis, pull down tags
-        git remote add origin https://github.com/${TRAVIS_REPO_SLUG}.git
-        git fetch -qfup --depth=200 origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
+        # if Travis, update refs and tags
+        Info "1. update git tags and capture version info using git queries"
+        git fetch -qfup --depth=${GIT_DEPTH} origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
         git checkout -qf ${TRAVIS_COMMIT}
+    else
+        Info "1. capture version info using git queries"
     fi
     lp3d_git_ver_tag_long=`git describe --tags --long`
     lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
     lp3d_git_ver_commit_count=`git rev-list HEAD --count`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
+    cd "${LP3D_CALL_DIR}"
     lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}       # remove prefix ending in "-"
     lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}  # replace . with " "
     lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
@@ -118,7 +120,7 @@ LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${LP3D_DA
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   USING_OBS..............${USING_OBS}"
-
+Info "   GIT_DEPTH..............${GIT_DEPTH}"
 Info "   VER_MAJOR..............${VER_MAJOR}"
 Info "   VER_MINOR..............${VER_MINOR}"
 Info "   VER_PATCH..............${VER_PATCH}"
@@ -245,14 +247,14 @@ EOF
         rm ${FILE}
     fi
     cat <<EOF >${FILE}
-${LPUB3D} (${LP3D_APP_VERSION}) xenial; urgency=medium
+${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
 
   * LPub3D version ${LP3D_APP_VERSION_LONG} for Linux
 
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-    FILE="$LP3D_OBS_DIR_/debian/${LPUB3D}.dsc"
+    FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
     Info "6. update ${LPUB3D}.dsc   - add version           [$FILE]"
     LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -267,7 +269,7 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    FILE="$LP3D_OBS_DIR_/PKGBUILD"
+    FILE="$LP3D_OBS_DIR/PKGBUILD"
     Info "7. update PKGBUILD        - add version           [$FILE]"
     LineToReplace=${LINE_PKGBUILD}
     if [ -f ${FILE} -a -r ${FILE} ]
@@ -282,7 +284,7 @@ EOF
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi
 
-    FILE="$LP3D_OBS_DIR_/${LPUB3D}.spec"
+    FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
     Info "8. update ${LPUB3D}.spec  - add version and date  [$FILE]"
     LinesToReplace=${LINE_SPEC}
     LastLine=`wc -l < ${FILE}`
