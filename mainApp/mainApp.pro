@@ -162,7 +162,8 @@ UI_DIR          = $$DESTDIR/.ui
 
 # For builds on CI environments (Travis-CI/OpenSUSE OBS)
 # install 3rd party executables, documentation and resources.
-build_package = $$(LP3D_BUILD_PKG)
+macx: build_package = $$(INSTALL_3RD_PARTY)
+else: build_package = $$(LP3D_BUILD_PKG)
 if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
     message("~~~ BUILD DISTRIBUTION PACKAGE: $$build_package ~~~")
 

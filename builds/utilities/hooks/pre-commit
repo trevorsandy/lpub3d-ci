@@ -26,7 +26,7 @@ increment_version=${doIncrement:-yes}                                           
 commitmsg=".git/COMMIT_EDITMSG"
 cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' && build_app=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
 if test x"$build_app" = x"yes"; then
-  cat "$commitmsg" | grep -qE '\[deploy pkg.*\]' && auto_release_tag=yes || true
+  # cat "$commitmsg" | grep -qE '\[deploy pkg.*\]' && auto_release_tag=yes || true
 
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
@@ -47,7 +47,7 @@ if test x"$build_app" = x"yes"; then
   echo "   Old_revision...........$revision"
   echo "   Old_build (count)......$commit_count"
   echo "   Increment version......$increment_version"
-  echo "   Auto-generate tag......$auto_release_tag"
+  # echo "   Auto-generate tag......$auto_release_tag"
   if test x"$increment_version" = x"yes" && test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
 
   working_dir=$PWD/mainApp; export OBS=true
@@ -69,11 +69,11 @@ if test x"$build_app" = x"yes"; then
   # git add builds/linux/obs/debian/changelog
   # git add builds/linux/obs/debian/lpub3d-ci.dsc
 
-  if [ "$auto_release_tag" = "yes"]; then
-    git tag -d $LP3D_APP_VERSION_TAG 2>/dev/null
-    git push origin :refs/tags/$LP3D_APP_VERSION_TAG 2>/dev/null
-    git tag -fa $LP3D_APP_VERSION_TAG -m "LPub3D release - version ${LP3D_VERSION}"
-    git push -fq origin $LP3D_APP_VERSION_TAG
-  fi
+  # if [ "$auto_release_tag" = "yes"]; then
+  #   git tag -d $LP3D_APP_VERSION_TAG 2>/dev/null
+  #   git push origin :refs/tags/$LP3D_APP_VERSION_TAG 2>/dev/null
+  #   git tag -fa $LP3D_APP_VERSION_TAG -m "LPub3D release - version ${LP3D_APP_VERSION}"
+  #   git push -fq origin $LP3D_APP_VERSION_TAG
+  # fi
 fi
 
