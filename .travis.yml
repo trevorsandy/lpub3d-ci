@@ -35,6 +35,13 @@ env:
     - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
     - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
 
+stages:
+  - name: Prepare Release Store
+    if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+\S*
+  - name: Build and Package
+  - name: GitHub Release
+    if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+\S*
+
 before_install:
   - source ${LP3D_CI_DIR}/before_install
 
@@ -47,13 +54,14 @@ script:
 after_script:
   - source ${LP3D_CI_DIR}/after_script
 
-stages:
-  - Build and Package
-  - GitHub Release
-
 jobs:
  fast_finish: true
  include:
+  - stage: Prepare Release Store
+    env: LP3D_DEPLOY_PACKAGES=true
+    os: linux
+    compiler: gcc
+    script: source ${LP3D_CI_DIR}/prepare_store
   - stage: Build and Package
     env: LP3D_BUILD_ARCH2017=true
     os: linux
@@ -93,7 +101,6 @@ jobs:
       on:
         repo: trevorsandy/lpub3d-ci
         condition: $LP3D_DEPLOY_PKG = yes
-    #after_deploy: source ${LP3D_CI_DIR}/after_deploy
 
 notifications:
   email:

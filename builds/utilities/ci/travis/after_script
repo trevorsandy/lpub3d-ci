@@ -26,8 +26,8 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D*.dmg -type f);
-    file_UPkg=$(find $DmgBuildPath/DMGS -name LPub3D-UpdateMaster*.dmg -type f);
+    file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.dmg -type f);
+    file_UPkg=$(find $DmgBuildPath/DMGS -name LPub3D-UpdateMaster_${LP3D_APP_VERSION}*.dmg -type f);
     file_Logs=$(find $DmgBuildPath -name *.log -type f);
   fi;
   cp -f $file_Logs $LP3D_LOGS_DIR;
@@ -42,6 +42,6 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
     ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
     ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
   else
-    echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform file upload";
+    echo "ERROR - ${LP3D_UPLOADER_DIR}/.dropbox_uploader not found - cannot perform upload";
   fi;
 fi

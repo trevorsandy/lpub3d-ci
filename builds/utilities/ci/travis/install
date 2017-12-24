@@ -3,7 +3,7 @@
 # Travis build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 22, 2017
+#  Last Update: December 24, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -82,33 +82,35 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   fi;
 fi
 # setup linux platform-specific 3rd party distribution directory
-if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
-  LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
-elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
-  LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
-elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
-  LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
-elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-  LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
-else
-  LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/trusty;
-fi;
-if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
-  mkdir -p "${LP3D_DIST_DIR_PATH}";
-fi
-# Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
-if [ -n "$LP3D_BUILD_3RD" ]; then
-  LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/ldglite-1.3;
-  LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/ldview-4.3;
-  LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8;
-  if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
-    sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
+if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
+  if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
+  elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
+  elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
+  elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
+  else
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/trusty;
   fi;
-  if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW_DIR" ]]; then
-    sudo rm -rf "$LP3D_LDVIEW_DIR" && echo "cached $LP3D_LDVIEW_DIR deleted";
+  if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
+    mkdir -p "${LP3D_DIST_DIR_PATH}";
   fi;
-  if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
-    sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted";
+  # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
+  if [ -n "$LP3D_BUILD_3RD" ]; then
+    LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/ldglite-1.3;
+    LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/ldview-4.3;
+    LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8;
+    if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
+      sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
+    fi;
+    if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW_DIR" ]]; then
+      sudo rm -rf "$LP3D_LDVIEW_DIR" && echo "cached $LP3D_LDVIEW_DIR deleted";
+    fi;
+    if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
+      sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted";
+    fi;
   fi;
 fi
 # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables

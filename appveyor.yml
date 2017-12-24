@@ -29,6 +29,7 @@ skip_commits:
    - builds/linux/
    - builds/macx/
    - builds/utilities/mesa/
+   - builds/utilities/ci/travis/
    - builds/utilities/dmg-utils/
    - builds/utilities/crete-dmg
    - builds/utilities/CreateRenderers.sh
@@ -71,10 +72,14 @@ init:
         $env:LP3D_BUILD_PKG = "yes"
       }
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like "*deploy pkg*") {
-        write-host "[deploy pkg] detected."
-        $env:LP3D_BUILD_PKG = "yes"
-        $env:LP3D_DEPLOY_PKG = $true
+      If ($env:APPVEYOR_REPO_TAG -eq "true") {
+        If ($env:APPVEYOR_REPO_TAG_NAME -Match '^v[0-9]+\.[0-9]+\.[0-9]+\S*') {
+          write-host "Deploy tag $env:APPVEYOR_REPO_TAG_NAME detected."
+          $env:LP3D_BUILD_PKG = "yes"
+          $env:LP3D_DEPLOY_PKG = $true
+        } Else {
+          write-host "WARNING - Tag $env:APPVEYOR_REPO_TAG_NAME detected but is not a valid Deploy Tag. Deploy ingored."
+        }
       }
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
@@ -106,6 +111,7 @@ init:
 
         Write-Output "Build cache cleared."
       }
+ - ps: $env:LP3D_RELEASE_LABEL = ("LPub3D " + (Get-Date -format "dd.MM.yyyy"))
  - ps: Get-ChildItem Env:LP3D_* | Sort-Object name
 
 # This is where we install MinGW Qt5 for x86 and x86_64 builds. The Qt builds are necessarey because we are using VS image which
@@ -164,6 +170,7 @@ after_build:
 
 deploy:
  - provider: GitHub
+   name: $($LP3D_RELEASE_LABEL)
    repository: trevorsandy/lpub3d-ci
    description: '$(LP3D_PACKAGE) - An LDraw™ editor for LEGO® style digital building instructions.'
    auth_token:

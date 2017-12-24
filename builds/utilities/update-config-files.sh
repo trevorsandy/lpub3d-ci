@@ -49,13 +49,13 @@ LINE_DESKTOP=10                 # Exec=lpub3d20 %f
 LINE_MANPAGE=61                 # /usr/bin/lpub3d20
 LINE_README=1                   # LPub3D 2.0.21.59.126...
 if [ "$OBS" = true ]; then
-    USING_OBS=Yes
+    UPDATE_OBS_CONFIG=Yes
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
     LINE_SPEC="95 530"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
     LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs/alldeps)
 else
-    USING_OBS=No
+    UPDATE_OBS_CONFIG=No
     LINE_PKGBUILD=3
     LINE_DSC=5
     LINE_SPEC="93 293"
@@ -88,10 +88,12 @@ then
     cd "$(realpath $LP3D_PWD/..)"
     if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
     then
-        # if Travis, update refs and tags
+        # Update refs and tags and populate committer email, name
         Info "1. update git tags and capture version info using git queries"
         git fetch -qfup --depth=${GIT_DEPTH} origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
         git checkout -qf ${TRAVIS_COMMIT}
+	    lp3d_git_ver_author="$(git log -1 ${TRAVIS_COMMIT} --pretty="%aN")"
+	    lp3d_git_ver_committer_email="$(git log -1 ${TRAVIS_COMMIT} --pretty="%cE")"
     else
         Info "1. capture version info using git queries"
     fi
@@ -105,37 +107,42 @@ then
     lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
     lp3d_revision_=${lp3d_ver_tmp1%-*}
     LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
+    if test -n "lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=undefined; fi
+    if test -n "lp3d_git_ver_committer_email"; then LP3D_COMMITTER_EMAIL=${lp3d_git_ver_committer_email}; else LP3D_COMMITTER_EMAIL=undefined; fi
 else
     Info "1. capture version info using input arguments"
     LP3D_VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
 fi
 #         1 2 3  4  5   6
 # format "2 0 20 17 663 410fdd7"
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH THE_REST <<< ${LP3D_VERSION_INFO//'"'}
-LP3D_APP_VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
-LP3D_VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-LP3D_APP_VERSION=${LP3D_VERSION}"."${VER_BUILD}
-LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}_${LP3D_BUILD_DATE}
-LP3D_BUILD_VERSION=${LP3D_VERSION}"."${VER_REVISION}"."${VER_BUILD}" ("${LP3D_DATE_TIME}")"
+read LP3D_VER_MAJOR LP3D_VER_MINOR LP3D_VER_PATCH LP3D_VER_REVISION LP3D_VER_BUILD LP3D_VER_SHA_HASH THE_REST <<< ${LP3D_VERSION_INFO//'"'}
+LP3D_APP_VER_SUFFIX=${LP3D_VER_MAJOR}${LP3D_VER_MINOR}
+LP3D_VERSION=${LP3D_VER_MAJOR}"."${LP3D_VER_MINOR}"."${LP3D_VER_PATCH}
+LP3D_APP_VERSION=${LP3D_VERSION}"."${LP3D_VER_BUILD}
+LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}_${LP3D_BUILD_DATE}
+LP3D_APP_VERSION_TAG="v"${LP3D_APP_VERSION}"-"${LP3D_VER_SHA_HASH}
+LP3D_BUILD_VERSION=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}" ("${LP3D_DATE_TIME}")"
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
-Info "   USING_OBS..............${USING_OBS}"
+Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
 Info "   GIT_DEPTH..............${GIT_DEPTH}"
-Info "   VER_MAJOR..............${VER_MAJOR}"
-Info "   VER_MINOR..............${VER_MINOR}"
-Info "   VER_PATCH..............${VER_PATCH}"
-Info "   VER_REVISION...........${VER_REVISION}"
-Info "   VER_BUILD..............${VER_BUILD}"
-Info "   VER_SHA_HASH...........${VER_SHA_HASH}"
 
 if [ ! "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
     Info "   LP3D_PWD...............${LP3D_PWD}"
     Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"
 
+    Info "   LP3D_VER_MAJOR.........${LP3D_VER_MAJOR}"
+    Info "   LP3D_VER_MINOR.........${LP3D_VER_MINOR}"
+    Info "   LP3D_VER_PATCH.........${LP3D_VER_PATCH}"
+    Info "   LP3D_VER_REVISION......${LP3D_VER_REVISION}"
+    Info "   LP3D_VER_BUILD.........${LP3D_VER_BUILD}"
+    Info "   LP3D_VER_SHA_HASH......${LP3D_VER_SHA_HASH}"
+
     Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
     Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
     Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
+    Info "   LP3D_APP_VERSION_TAG...${LP3D_APP_VERSION_TAG}"
     Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
     Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
     Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
@@ -153,9 +160,9 @@ then
     if [ -f "${LP3D_INFO_PLIST_FILE}" ]
     then
         /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${LP3D_INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VER_BUILD}" "${LP3D_INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${LP3D_VER_BUILD}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${LP3D_INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${LP3D_VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
     else
         Info "   Error: update failed, ${LP3D_INFO_PLIST_FILE} not found."
     fi
@@ -166,6 +173,10 @@ then
     # Stop at the end of this block during Travis-CI builds
     export LP3D_APP_VERSION=${LP3D_APP_VERSION}
     export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
+    export LP3D_APP_VERSION_TAG=${LP3D_APP_VERSION_TAG}
+    export LP3D_COMMITTER_EMAIL=${LP3D_COMMITTER_EMAIL}
+    export LP3D_AUTHOR_NAME=${LP3D_AUTHOR_NAME}
+
     Info " update-config-files.sh execution finished."
     echo
 else

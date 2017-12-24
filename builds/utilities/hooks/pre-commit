@@ -10,21 +10,24 @@
 ## cd to your git repository and type:
 ## $ cat << pbEOF >.git/hooks/pre-commit
 ## > #!/bin/sh
-## > commitmsg=".git/COMMIT_EDITMSG"
-## > cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' &&       # trigger if [build pkg*] or [deploy pkg*] exist in commit message
-## > ./builds/utilities/hooks/pre-commit || true                     # location of pre-commit script in your source repository
+## > ./builds/utilities/hooks/pre-commit                     # location of pre-commit script in your source repository
 ## > pbEOF
 ## $
 ##
 ## Ignore Increment:
 ##   In instances where you do NOT want the version info incremented,
 ##   add the environment variable doIncrement=no to your git call.
-##   eg doIncrement=no git commit -m "Message - 00 [ci skip].
-##   This is useful when you change the major version number for example.
+##   e.g. $ env doIncrement=no git commit -m "Message - 00 [ci skip].
+##   This is useful on the first commit after you change the
+##   major/minor/patch version number for example.
 ##
 exec 1>&2
-increment_version=${doIncrement:-yes}        # to disable or run from command line, set default to 'no'
-if test x"$increment_version" = x"yes"; then
+increment_version=${doIncrement:-yes}                                              # to disable or run from command line, set default to 'no'
+commitmsg=".git/COMMIT_EDITMSG"
+cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' && build_app=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
+if test x"$build_app" = x"yes"; then
+  cat "$commitmsg" | grep -qE '\[deploy pkg.*\]' && auto_release_tag=yes || true
+
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
   commit_count=`git rev-list HEAD --count`
@@ -43,7 +46,9 @@ if test x"$increment_version" = x"yes"; then
   echo "   To disable, use: 'doIncrement=FALSE git commit -m \"Commit Message\"'"
   echo "   Old_revision...........$revision"
   echo "   Old_build (count)......$commit_count"
-  if test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
+  echo "   Increment version......$increment_version"
+  echo "   Auto-generate tag......$auto_release_tag"
+  if test x"$increment_version" = x"yes" && test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
 
   working_dir=$PWD/mainApp; export OBS=true
   chmod +x builds/utilities/update-config-files.sh
@@ -63,5 +68,12 @@ if test x"$increment_version" = x"yes"; then
   # git add builds/linux/obs/lpub3d-ci.spec
   # git add builds/linux/obs/debian/changelog
   # git add builds/linux/obs/debian/lpub3d-ci.dsc
+
+  if [ "$auto_release_tag" = "yes"]; then
+    git tag -d $LP3D_APP_VERSION_TAG 2>/dev/null
+    git push origin :refs/tags/$LP3D_APP_VERSION_TAG 2>/dev/null
+    git tag -fa $LP3D_APP_VERSION_TAG -m "LPub3D release - version ${LP3D_VERSION}"
+    git push -fq origin $LP3D_APP_VERSION_TAG
+  fi
 fi
 
