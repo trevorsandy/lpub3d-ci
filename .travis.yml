@@ -39,7 +39,6 @@ stages:
   - name: Prepare Release Store
     if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+\S*
   - name: Build and Package
-  - name: Compile Source
   - name: GitHub Release
     if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+\S*
 
@@ -79,11 +78,11 @@ jobs:
     env: LP3D_BUILD_MACOS=true
     os: osx
     compiler: clang
-  - stage: Compile Source
+  - stage: Build and Package
     env: LP3D_COMPILE_SOURCE=true
     os: linux
     compiler: gcc
-  - stage: Compile Source
+  - stage: Build and Package
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     compiler: clang
