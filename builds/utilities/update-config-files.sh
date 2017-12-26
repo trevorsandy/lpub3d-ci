@@ -6,7 +6,7 @@
 
 echo "   Start update-config-files.sh execution..."
 
-LP3D_ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
 LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
@@ -19,7 +19,7 @@ if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED=
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-LPUB3D="$(basename "$(echo "$basedir")")"
+LPUB3D=$(basename "$(echo "$basedir")")
 
 Info () {
     if [ "${SOURCED}" = "true" ]
@@ -53,15 +53,15 @@ if [ "$OBS" = true ]; then
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
     LINE_SPEC="95 530"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
-    LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs/alldeps)
+    LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 else
     UPDATE_OBS_CONFIG=No
     LINE_PKGBUILD=3
     LINE_DSC=5
     LINE_SPEC="93 293"
-    LP3D_OBS_DIR=$(realpath $LP3D_PWD/../builds/linux/obs)
+    LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
 fi
-LP3D_UTIL_DIR=$(realpath $LP3D_PWD/../builds/utilities)
+LP3D_UTIL_DIR=$(realpath "$LP3D_PWD/../builds/utilities")
 
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
