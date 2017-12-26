@@ -48,7 +48,8 @@ realpath() {
 LINE_DESKTOP=10                 # Exec=lpub3d20 %f
 LINE_MANPAGE=61                 # /usr/bin/lpub3d20
 LINE_README=1                   # LPub3D 2.0.21.59.126...
-if [ "$OBS" = true ]; then
+if [ "$OBS" = true ]
+then
     UPDATE_OBS_CONFIG=Yes
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
