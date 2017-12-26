@@ -50,10 +50,10 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
     echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f;
     elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      export INSTALL_3RD_PARTY=yes
-    fi
-    qmake -v;
-    qmake -r;
-    make;
+      export INSTALL_3RD_PARTY=yes;
+    fi;
+    #qmake -v;
+    #qmake -r;
+    #make;
   fi;
 fi
