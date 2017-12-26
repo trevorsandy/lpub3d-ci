@@ -19,9 +19,6 @@ shallow_clone: true
 
 image: Visual Studio 2017
 
-branches:
-  only:
-   - master
 skip_commits:
   files:
    - mainApp/linuxfiledistro.pri
@@ -180,5 +177,4 @@ deploy:
    prerelease: true
    force_update: true
    on:
-    branch: master
     lp3d_deploy_pkg: true
