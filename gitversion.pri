@@ -18,7 +18,7 @@ exists($$PWD/.git) {
     !appveyor_qt_mingw64: message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
 
-appveyor_qt_mingw64: GIT_DIR = undefined
+#appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
     # Update and retrieve version info from git
     GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)

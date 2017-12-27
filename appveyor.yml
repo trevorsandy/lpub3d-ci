@@ -150,7 +150,7 @@ test: off
 
 after_build:
  - ps: |
-      If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 77) {
+      If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 350) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
         $Sv = git describe --tags --long
         $Sc = git rev-list HEAD --count
@@ -177,4 +177,5 @@ deploy:
    prerelease: true
    force_update: true
    on:
+    branch: $(APPVEYOR_REPO_BRANCH)
     lp3d_deploy_pkg: true
