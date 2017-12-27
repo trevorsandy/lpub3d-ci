@@ -9,7 +9,7 @@ win32 {
 }
 
 # 64bit MinGW Qt/qmake has a git.exe/cygwin conflict on AppVeyor that returns no .git directory found so use version.info file
-# TO TEST AppVeyor logic locally - use CONFIG+=appveyor_qt_mingw64
+# DEBUG - CONFIG+=appveyor_qt_mingw64
 
 GIT_DIR = undefined
 # Default location of Git directory
