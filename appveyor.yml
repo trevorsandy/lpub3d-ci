@@ -70,7 +70,7 @@ init:
       }
  - ps: |
       If ($env:APPVEYOR_REPO_TAG -eq "true") {
-        If ($env:APPVEYOR_REPO_TAG_NAME -Match '^v[0-9]+\.[0-9]+\.[0-9]+\S*') {
+        If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$').Success) {
           write-host "Deploy tag $env:APPVEYOR_REPO_TAG_NAME detected."
           $env:LP3D_BUILD_PKG = "yes"
           $env:LP3D_DEPLOY_PKG = $true

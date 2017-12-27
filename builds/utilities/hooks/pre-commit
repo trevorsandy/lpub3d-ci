@@ -10,7 +10,7 @@
 ## cd to your git repository and type:
 ## $ cat << pbEOF >.git/hooks/pre-commit
 ## > #!/bin/sh
-## > ./builds/utilities/hooks/pre-commit                     # location of pre-commit script in your source repository
+## > ./builds/utilities/hooks/pre-commit                                                     # location of pre-commit script in your source repository
 ## > pbEOF
 ## $
 ##
@@ -22,11 +22,10 @@
 ##   major/minor/patch version number for example.
 ##
 exec 1>&2
-increment_version=${doIncrement:-yes}                                              # to disable or run from command line, set default to 'no'
+increment_version=${doIncrement:-yes}                                                        # to disable or run from command line, set default to 'no'
 commitmsg=".git/COMMIT_EDITMSG"
-cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' && build_app=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
-if test x"$build_app" = x"yes"; then
-  # cat "$commitmsg" | grep -qE '\[deploy pkg.*\]' && auto_release_tag=yes || true
+cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' && update_config_files=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
+if test x"$update_config_files" = x"yes"; then
 
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
@@ -36,10 +35,12 @@ if test x"$build_app" = x"yes"; then
   valid_commit="yes"
   if test x"`git diff HEAD --name-only`" = x""; then valid_commit="no"; fi
 
-  tmp1=${tag_long#*-}       # remove prefix ending in "-"
-  tmp2=${tag_short//./" "}  # replace . with " "
-  version_=${tmp2/v/}       # replace v with ""
-  revision=${tmp1%-*}
+  tmp1=${tag_long#*-}                                    # remove everything before and including "-"
+  revision=${tmp1%-*}                                    # remove everything after and including "-"
+  tmp2=${tag_short//./" "}                               # replace . with " "
+  version_=${tmp2/v/}                                    # replace v with ""
+  suffix=${tmp2#*_}                                      # remove everything before and including "_" if it exist
+  if test -n "$suffix"; then version_=${version_%_*}; fi # remove everything after and including "_"
   read major minor patch <<< ${version_}
 
   echo "0. Incrementing Git version info..."
@@ -47,14 +48,13 @@ if test x"$build_app" = x"yes"; then
   echo "   Old_revision...........$revision"
   echo "   Old_build (count)......$commit_count"
   echo "   Increment version......$increment_version"
-  # echo "   Auto-generate tag......$auto_release_tag"
   if test x"$increment_version" = x"yes" && test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
 
   working_dir=$PWD/mainApp; export OBS=true
   chmod +x builds/utilities/update-config-files.sh
-  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short
-  git add builds/utilities/version.info
+  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
 
+  git add builds/utilities/version.info
   git add mainApp/docs/lpub3d${major}${minor}.1
   git add mainApp/docs/README.txt
   git add mainApp/lpub3d.desktop
@@ -63,17 +63,5 @@ if test x"$build_app" = x"yes"; then
   git add builds/linux/obs/alldeps/lpub3d-ci.spec
   git add builds/linux/obs/alldeps/debian/changelog
   git add builds/linux/obs/alldeps/debian/lpub3d-ci.dsc
-
-  # git add builds/linux/obs/PKGBUILD
-  # git add builds/linux/obs/lpub3d-ci.spec
-  # git add builds/linux/obs/debian/changelog
-  # git add builds/linux/obs/debian/lpub3d-ci.dsc
-
-  # if [ "$auto_release_tag" = "yes"]; then
-  #   git tag -d $LP3D_APP_VERSION_TAG 2>/dev/null
-  #   git push origin :refs/tags/$LP3D_APP_VERSION_TAG 2>/dev/null
-  #   git tag -fa $LP3D_APP_VERSION_TAG -m "LPub3D release - version ${LP3D_APP_VERSION}"
-  #   git push -fq origin $LP3D_APP_VERSION_TAG
-  # fi
 fi
 

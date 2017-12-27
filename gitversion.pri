@@ -14,25 +14,9 @@ exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
     message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
-# Trying to get git to work here when MSYS2/Mingw64 enabled - not successful
-# appveyor_qt_mingw64 {
-#     _PROGRAM_FILES = $$(PROGRAMFILES)
-#     exists($${_PROGRAM_FILES}/Git/cmd) {
-#         WIN_GIT = $${_PROGRAM_FILES}/Git/cmd/git
-# win32 {
-    # LP3D_WIN_GIT_PATH = $$(LP3D_WIN_GIT)
-    # exists($${LP3D_WIN_GIT_PATH}\\git.exe) {
-        # BASE_GIT = $${LP3D_WIN_GIT_PATH}\\git.exe
-        # message("~~~ LP3D_WIN_GIT_EXE $$BASE_GIT IS VALID ~~~")
-    # } else {
-        # BASE_GIT = git
-        # message("~~~ LP3D_WIN_GIT_EXE $${LP3D_WIN_GIT_PATH}\\git.exe IS NOT VALID - USING $$BASE_GIT ~~~")    
-    # }
-# } else {
-    # BASE_GIT = git
-# }
 
 # AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so use version.info file
+# TO TEST AppVeyor logic locally - use CONFIG+=appveyor_qt_mingw64
 appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
     appveyor_qt_mingw64 {
@@ -40,7 +24,7 @@ equals(GIT_DIR, undefined) {
         CONFIG(debug, debug|release): BUILD_TYPE = debug
         message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
         # Trying to get version from git tag / revision
-        RET = $$system($$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_ $$basename(PARENT_FOLDER))
+        RET = $$system(cmd.exe /c "$$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_")
     } else {
         message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
     }
@@ -57,20 +41,20 @@ equals(GIT_DIR, undefined) {
     #message(~~~ DEBUG ~~ GIT_VERSION [FROM FILE RAW]: $$GIT_VERSION)
 
     # Separate the build number into major, minor and service pack etc.
-    VER_MAJOR = $$section(GIT_VERSION, " ", 0, 0)
-    VER_MINOR = $$section(GIT_VERSION, " ", 1, 1)
-    VER_PATCH = $$section(GIT_VERSION, " ", 2, 2)
+    VER_MAJOR        = $$section(GIT_VERSION, " ", 0, 0)
+    VER_MINOR        = $$section(GIT_VERSION, " ", 1, 1)
+    VER_PATCH        = $$section(GIT_VERSION, " ", 2, 2)
     VER_REVISION_STR = $$section(GIT_VERSION, " ", 3, 3)
-    VER_BUILD_STR = $$section(GIT_VERSION, " ", 4, 4)
+    VER_BUILD_STR    = $$section(GIT_VERSION, " ", 4, 4)
     VER_SHA_HASH_STR = $$section(GIT_VERSION, " ", 5, 5)
+    VER_SUFFIX       = $$section(GIT_VERSION, " ", 6, 6)
 
 } else {
     # Need to call git with manually specified paths to repository
-	# BASE_GIT_COMMAND = $${BASE_GIT} --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
     BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
     # Trying to get version from git tag / revision
-    GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
+    GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --tags --long 2> $$NULL_DEVICE)
 
     # Check if we only have hash without version number (i.e. not version tag found)
     !contains(GIT_VERSION,\d+\.\d+\.\d+) {
@@ -91,17 +75,23 @@ equals(GIT_DIR, undefined) {
 
     # Convert output from gv2.0.20-37-ge99beed-600 into "gv2.0.20.37.ge99beed.600"
     GIT_VERSION ~= s/-/"."
-    GIT_VERSION ~= s/g/""
-    GIT_VERSION ~= s/v/""
+    GIT_VERSION ~= s/gv/""
     #message(~~~ DEBUG ~~ GIT_VERSION [FORMATTED]: $$GIT_VERSION)
 
     # Separate the build number into major, minor and service pack etc.
-    VER_MAJOR = $$section(GIT_VERSION, ., 0, 0)
-    VER_MINOR = $$section(GIT_VERSION, ., 1, 1)
-    VER_PATCH = $$section(GIT_VERSION, ., 2, 2)
+    VER_MAJOR        = $$section(GIT_VERSION, ., 0, 0)
+    VER_MINOR        = $$section(GIT_VERSION, ., 1, 1)
     VER_REVISION_STR = $$section(GIT_VERSION, ., 3, 3)
     VER_SHA_HASH_STR = $$section(GIT_VERSION, ., 4, 4)
-    VER_BUILD_STR = $$section(GIT_VERSION, ., 5, 5)
+    VER_BUILD_STR    = $$section(GIT_VERSION, ., 5, 5)
+    # Capture and convert version suffix - everything after "_" if it exist
+    GIT_VER_TMP      = $$section(GIT_VERSION, ., 2, 2)
+    VER_SUFFIX       = $$section(GIT_VER_TMP, _, 1)
+    !isEmpty(VER_SUFFIX) {
+        VER_PATCH    = $$section(GIT_VER_TMP, _, 0, 0)
+    } else {
+        VER_PATCH    = $$section(GIT_VERSION, ., 2, 2)
+    }
 }
 
 # Here we process the build date and time
@@ -143,8 +133,13 @@ DEFINES += VER_BUILD_STR=\\\"$$VER_BUILD_STR\\\"
 DEFINES += VER_SHA_HASH_STR=\\\"$$VER_SHA_HASH_STR\\\"
 DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 
+LP3D_VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR
+!isEmpty(VER_SUFFIX) {
+    DEFINES += VER_SUFFIX=\\\"$$VER_SUFFIX\\\"
+    LP3D_VERSION_INFO += $$VER_SUFFIX
+}
 # Now we are ready to pass parsed version to Qt ===
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
-# Echo the complete version string
-message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR ~~~)
+# Display the complete version string
+message(~~~ LP3D_VERSION_INFO: $$LP3D_VERSION_INFO ~~~)

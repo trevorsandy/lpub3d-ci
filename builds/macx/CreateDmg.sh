@@ -126,7 +126,7 @@ fi
 echo "-  source update_config_files.sh..." && echo
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
-SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
+SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
 
 # set pwd before entering lpub3d root directory
 export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
@@ -267,9 +267,9 @@ else
 fi
 
 if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" ]; then
-  cp -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${LP3D_APP_VERSION}_macos.dmg"
+  cp -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${LP3D_VERSION}_macos.dmg"
   echo "      Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_macos.dmg"
-  echo "      Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_macos.dmg"
+  echo "      Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}_macos.dmg"
 
   echo "- cleanup..."
   rm -f -R DMGSRC

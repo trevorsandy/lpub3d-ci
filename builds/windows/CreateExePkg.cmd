@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 1, 2017
+rem  Last Update: December 27, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -28,7 +28,6 @@ IF "%CWD%" NEQ "%LPUB3D%" (
 )
 
 SET _PRO_FILE_PWD_=%CD%\mainApp
-CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
 
 CD /D "builds\windows"
 
@@ -196,30 +195,17 @@ IF NOT EXIST "%zipExe%" (
 )
 
 :MAIN
-SET PRODUCT=unknown
-SET LP3D_VERSION=unknown
-SET VER_MAJOR=unknown
-SET VER_MINOR=unknown
-SET VER_BUILD=unknown
-SET VER_PATCH=unknown
-SET VER_REVISION=unknown
-SET VER_SHA_HASH=unknown
-
 SET LP3D_ARCH=unknown
 SET LP3D_ARCH_EXT=unknown
 
-SET LP3D_YEAR=unknown
-SET LP3D_MONTH=unknown
-SET LP3D_DAY=unknown
-SET LP3D_TIME=unknown
-
-SET COMPANY=unknown
-SET COMMENTS=unknown
-SET PUBLISHER=unknown
-SET COMPANY_URL=unknown
-SET BUILD_DATE=unknown
-SET REVISION_FILE=unknown
-SET SUPPORT_EMAIL=unknown
+SET LP3D_PRODUCT=unknown
+SET LP3D_COMPANY=unknown
+SET LP3D_COMMENTS=unknown
+SET LP3D_PUBLISHER=unknown
+SET LP3D_COMPANY_URL=unknown
+SET LP3D_BUILD_DATE_ALT=unknown
+SET LP3D_REVISION_FILE=unknown
+SET LP3D_SUPPORT_EMAIL=unknown
 SET LPUB3D_BUILD_FILE=unknown
 
 SET LAST_VER_EXE=unknown
@@ -228,41 +214,25 @@ SET LAST_VER_DEB=unknown
 SET LAST_VER_RPM=unknown
 SET LAST_VER_PKG=unknown
 
-SET ALT_VER_EXE=unknown
-SET ALT_VER_DMG=unknown
-SET ALT_VER_DEB=unknown
-SET ALT_VER_RPM=unknown
-SET ALT_VER_PKG=unknown
-
-SET ALTERNATE_VERSION=unknown
-SET AVAILABLE_VERSIONS=unknown
+SET ALTERNATE_VER_PKG_EXE=unknown
+SET ALTERNATE_VER_PKG_DMG=unknown
+SET ALTERNATE_VER_PKG_DEB=unknown
+SET ALTERNATE_VER_PKG_RPM=unknown
+SET ALTERNATE_VER_PKG_PKG=unknown
 
 ECHO.
 ECHO - Setting up release build parameters...
 
 CD /D "%utilitiesPath%"
 
-SET VERSION_INFO_FILE=version.info
-FOR /f "tokens=1" %%i IN (%VERSION_INFO_FILE%) DO SET VER_MAJOR=%%i
-FOR /f "tokens=2" %%i IN (%VERSION_INFO_FILE%) DO SET VER_MINOR=%%i
-FOR /f "tokens=3" %%i IN (%VERSION_INFO_FILE%) DO SET VER_PATCH=%%i
-FOR /f "tokens=4" %%i IN (%VERSION_INFO_FILE%) DO SET VER_REVISION=%%i
-FOR /f "tokens=5" %%i IN (%VERSION_INFO_FILE%) DO SET VER_BUILD=%%i
-FOR /f "tokens=6" %%i IN (%VERSION_INFO_FILE%) DO SET VER_SHA_HASH=%%i
-
-FOR /f "tokens=7" %%i IN (%VERSION_INFO_FILE%) DO SET LP3D_DAY=%%i
-FOR /f "tokens=8" %%i IN (%VERSION_INFO_FILE%) DO SET LP3D_MONTH=%%i
-FOR /f "tokens=9" %%i IN (%VERSION_INFO_FILE%) DO SET LP3D_YEAR=%%i
-FOR /f "tokens=10" %%i IN (%VERSION_INFO_FILE%) DO SET LP3D_TIME=%%i
-
-FOR /f "tokens=11" %%i IN (%VERSION_INFO_FILE%) DO SET AVAILABLE_VERSIONS=%%i
+CALL update-config-files.bat %_PRO_FILE_PWD_%
 
 REM available versions (by platform) -set tokens to select specific version(s)
-FOR /F "tokens=* delims=," %%i IN ("%AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_EXE=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_DMG=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_DEB=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_RPM=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_PKG=%%i
+FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_EXE=%%i
+FOR /F "tokens=1-2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_DMG=%%i
+FOR /F "tokens=1-2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_DEB=%%i
+FOR /F "tokens=1-2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_RPM=%%i
+FOR /F "tokens=1-2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_PKG=%%i
 
 FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_EXE%") DO SET LAST_VER_EXE=%%i
 FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_DMG%") DO SET LAST_VER_DMG=%%i
@@ -270,58 +240,55 @@ FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_DEB%") DO SET LAST_VER_DEB=%
 FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_RPM%") DO SET LAST_VER_RPM=%%i
 FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_PKG%") DO SET LAST_VER_PKG=%%i
 
-FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_EXE%") DO SET ALT_VER_EXE=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_DMG%") DO SET ALT_VER_DMG=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_DEB%") DO SET ALT_VER_DEB=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_RPM%") DO SET ALT_VER_RPM=%%i
-FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_PKG%") DO SET ALT_VER_PKG=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_EXE%") DO SET ALTERNATE_VER_PKG_EXE=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_DMG%") DO SET ALTERNATE_VER_PKG_DMG=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_DEB%") DO SET ALTERNATE_VER_PKG_DEB=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_RPM%") DO SET ALTERNATE_VER_PKG_RPM=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_PKG%") DO SET ALTERNATE_VER_PKG_PKG=%%i
 
 CD /D "%WIN_PKG_DIR%"
 CD /D "%devRootPath%"
 
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_BLD_STR" version.h') DO SET COMPANY=%%i %%j
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" version.h') DO SET PRODUCT=%%i
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET PUBLISHER=%%i %%j
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h') DO SET COMPANY_URL=%%i
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_FILEDESCRIPTION_STR" version.h') DO SET COMMENTS=%%i %%j
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_SUPPORT_EMAIL_STR" version.h') DO SET SUPPORT_EMAIL=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_BLD_STR" version.h') DO SET LP3D_COMPANY=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" version.h') DO SET LP3D_PRODUCT=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET LP3D_PUBLISHER=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h') DO SET LP3D_COMPANY_URL=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_FILEDESCRIPTION_STR" version.h') DO SET LP3D_COMMENTS=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_SUPPORT_EMAIL_STR" version.h') DO SET LP3D_SUPPORT_EMAIL=%%i
 
-SET VER_BUILD=%VER_BUILD:"=%
-SET PRODUCT=%PRODUCT:"=%
-
+SET LP3D_PRODUCT=%LP3D_PRODUCT:"=%
 SET LP3D_DATE_TIME=%LP3D_YEAR% %LP3D_MONTH% %LP3D_DAY% %LP3D_TIME%
-SET LP3D_VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_PATCH%
-SET BUILD_VERSION=%LP3D_VERSION%.%VER_REVISION%.%VER_BUILD%
-SET FULL_VERSION=%LP3D_VERSION%.%VER_REVISION%.%VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%
-SET DOWNLOAD_PRODUCT=%PRODUCT%-%FULL_VERSION%
-SET SUPPORT_EMAIL=%SUPPORT_EMAIL% %BUILD_VERSION%
-SET PRODUCT_DIR=%PRODUCT%-Any-%FULL_VERSION%
-SET LPUB3D_BUILD_FILE=%PRODUCT%%VER_MAJOR%%VER_MINOR%.exe
+SET LP3D_BUILD_VERSION_ALT=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%
+SET LP3D_SUPPORT_EMAIL=%LP3D_SUPPORT_EMAIL% %LP3D_BUILD_VERSION_ALT%
+SET LP3D_PRODUCT_DIR=%LP3D_PRODUCT%-Any-%LP3D_APP_VERSION_LONG%
+SET LP3D_DOWNLOAD_PRODUCT=%LP3D_PRODUCT%-%LP3D_APP_VERSION_LONG%
+SET LP3D_BUILD_FILE=%LP3D_PRODUCT%%LP3D_VER_MAJOR%%LP3D_VER_MINOR%.exe
+SET LPUB3D_BUILD_FILE=%LP3D_BUILD_FILE%
 
 CD /D "%WIN_PKG_DIR%"
 
-IF NOT EXIST "release\%PRODUCT_DIR%" (
+IF NOT EXIST "release\%LP3D_PRODUCT_DIR%" (
   ECHO.
-  ECHO * Did not find product directory. Expected %PRODUCT_DIR% at "%cd%\release\"
+  ECHO * Did not find product directory. Expected %LP3D_PRODUCT_DIR% at "%cd%\release\"
   ECHO Build script will terminate.
   GOTO :END
 )
 
-REM pwd = windows/release/PRODUCT_DIR [holds _PKG_DIST_DIR, PKG_UPDATE_DIR, PKG_DOWNLOAD_DIR]
-CD /D "release\%PRODUCT_DIR%"
+REM pwd = windows/release/LP3D_PRODUCT_DIR [holds _PKG_DIST_DIR, PKG_UPDATE_DIR, PKG_DOWNLOAD_DIR]
+CD /D "release\%LP3D_PRODUCT_DIR%"
 
 ECHO.
 ECHO - Create folders and delete old content...
 
-IF NOT EXIST "%PRODUCT%_Download\" (
-  MKDIR "%PRODUCT%_Download\"
+IF NOT EXIST "%LP3D_PRODUCT%_Download\" (
+  MKDIR "%LP3D_PRODUCT%_Download\"
 )
-SET PKG_DOWNLOAD_DIR=%PRODUCT%_Download
+SET PKG_DOWNLOAD_DIR=%LP3D_PRODUCT%_Download
 
-IF NOT EXIST "%PRODUCT%_Update\" (
-  MKDIR "%PRODUCT%_Update\"
+IF NOT EXIST "%LP3D_PRODUCT%_Update\" (
+  MKDIR "%LP3D_PRODUCT%_Update\"
 )
-SET PKG_UPDATE_DIR=%PRODUCT%_Update
+SET PKG_UPDATE_DIR=%LP3D_PRODUCT%_Update
 
 DEL /Q "%PKG_DOWNLOAD_DIR%\*.*"
 
@@ -330,49 +297,51 @@ DEL /Q "%PKG_UPDATE_DIR%\*.*"
 ECHO.
 ECHO - Building distribution package...
 ECHO.
-ECHO   VERSION_INFO_FILE...[%VERSION_INFO_FILE%]
+ECHO   LP3D_VER_MAJOR...........[%LP3D_VER_MAJOR%]
+ECHO   LP3D_VER_MINOR...........[%LP3D_VER_MINOR%]
+ECHO   LP3D_VER_PATCH...........[%LP3D_VER_PATCH%]
+ECHO   LP3D_VER_REVISION........[%LP3D_VER_REVISION%]
+ECHO   LP3D_VER_BUILD...........[%LP3D_VER_BUILD%]
+ECHO   LP3D_VER_SHA_HASH........[%LP3D_VER_SHA_HASH%]
 ECHO.
-ECHO   VER_MAJOR...........[%VER_MAJOR%]
-ECHO   VER_MINOR...........[%VER_MINOR%]
-ECHO   VER_PATCH...........[%VER_PATCH%]
-ECHO   VER_REVISION........[%VER_REVISION%]
-ECHO   VER_BUILD...........[%VER_BUILD%]
-ECHO   VER_SHA_HASH........[%VER_SHA_HASH%]
+ECHO   LP3D_YEAR................[%LP3D_YEAR%]
+ECHO   LP3D_MONTH...............[%LP3D_MONTH%]
+ECHO   LP3D_DAY.................[%LP3D_DAY%]
+ECHO   LP3D_TIME................[%LP3D_TIME%]
 ECHO.
-ECHO   LP3D_YEAR...........[%LP3D_YEAR%]
-ECHO   LP3D_MONTH..........[%LP3D_MONTH%]
-ECHO   LP3D_DAY............[%LP3D_DAY%]
-ECHO   LP3D_TIME...........[%LP3D_TIME%]
-ECHO   LP3D_DATE_TIME......[%LP3D_DATE_TIME%]
+ECHO   LP3D_VERSION.............[%LP3D_VERSION%]
+ECHO   LP3D_APP_VERSION_LONG....[%LP3D_APP_VERSION_LONG%]
+REM
+REM Vars above this line are sourced from update-config-files.bat and below are local
 ECHO.
-ECHO   COMPANY.............[%COMPANY%]
-ECHO   PRODUCT.............[%PRODUCT%]
-ECHO   PUBLISHER...........[%PUBLISHER%]
-ECHO   COMPANY_URL.........[%COMPANY_URL%]
-ECHO   SUPPORT_EMAIL.......[%SUPPORT_EMAIL%"]
-ECHO   COMMENTS............[%COMMENTS%]
+ECHO   LP3D_COMPANY.............[%LP3D_COMPANY%]
+ECHO   LP3D_PRODUCT.............[%LP3D_PRODUCT%]
+ECHO   LP3D_PUBLISHER...........[%LP3D_PUBLISHER%]
+ECHO   LP3D_COMPANY_URL.........[%LP3D_COMPANY_URL%]
+ECHO   LP3D_SUPPORT_EMAIL.......[%LP3D_SUPPORT_EMAIL%"]
+ECHO   LP3D_COMMENTS............[%LP3D_COMMENTS%]
 ECHO.
-ECHO   ALT_VER_EXE.........[%ALT_VER_EXE%]
-ECHO   ALT_VER_DMG.........[%ALT_VER_DMG%]
-ECHO   ALT_VER_DEB.........[%ALT_VER_DEB%]
-ECHO   ALT_VER_RPM.........[%ALT_VER_RPM%]
-ECHO   ALT_VER_PKG.........[%ALT_VER_PKG%]
-ECHO   LAST_VER_EXE........[%LAST_VER_EXE%]
-ECHO   LAST_VER_DMG........[%LAST_VER_DMG%]
-ECHO   LAST_VER_DEB........[%LAST_VER_DEB%]
-ECHO   LAST_VER_RPM........[%LAST_VER_RPM%]
-ECHO   LAST_VER_PKG........[%LAST_VER_PKG%]
-ECHO   AVAILABLE_VERS_EXE..[%AVAILABLE_VERS_EXE%]
-ECHO   AVAILABLE_VERS_DMG..[%AVAILABLE_VERS_DMG%]
-ECHO   AVAILABLE_VERS_DEB..[%AVAILABLE_VERS_DEB%]
-ECHO   AVAILABLE_VERS_RPM..[%AVAILABLE_VERS_RPM%]
-ECHO   AVAILABLE_VERS_PKG..[%AVAILABLE_VERS_PKG%]
+ECHO   LP3D_DATE_TIME...........[%LP3D_DATE_TIME%]
+ECHO   LP3D_BUILD_VERSION_ALT...[%LP3D_BUILD_VERSION_ALT%]
+ECHO   LP3D_DOWNLOAD_PRODUCT....[%LP3D_DOWNLOAD_PRODUCT%]
+ECHO   LP3D_PRODUCT_DIR.........[%LP3D_PRODUCT_DIR%]
+ECHO   LP3D_BUILD_FILE..........[%LP3D_BUILD_FILE%]
 ECHO.
-ECHO   LP3D_VERSION........[%LP3D_VERSION%]
-ECHO   BUILD_VERSION.......[%BUILD_VERSION%]
-ECHO   FULL_VERSION........[%FULL_VERSION%]
-ECHO   DOWNLOAD_PRODUCT....[%DOWNLOAD_PRODUCT%]
-ECHO   PRODUCT_DIR.........[%PRODUCT_DIR%]
+ECHO   LAST_VER_EXE.............[%LAST_VER_EXE%]
+ECHO   LAST_VER_DMG.............[%LAST_VER_DMG%]
+ECHO   LAST_VER_DEB.............[%LAST_VER_DEB%]
+ECHO   LAST_VER_RPM.............[%LAST_VER_RPM%]
+ECHO   LAST_VER_PKG.............[%LAST_VER_PKG%]
+ECHO   ALTERNATE_VER_PKG_EXE....[%ALTERNATE_VER_PKG_EXE%]
+ECHO   ALTERNATE_VER_PKG_DMG....[%ALTERNATE_VER_PKG_DMG%]
+ECHO   ALTERNATE_VER_PKG_DEB....[%ALTERNATE_VER_PKG_DEB%]
+ECHO   ALTERNATE_VER_PKG_RPM....[%ALTERNATE_VER_PKG_RPM%]
+ECHO   ALTERNATE_VER_PKG_PKG....[%ALTERNATE_VER_PKG_PKG%]
+ECHO   AVAILABLE_VERS_EXE.......[%AVAILABLE_VERS_EXE%]
+ECHO   AVAILABLE_VERS_DMG.......[%AVAILABLE_VERS_DMG%]
+ECHO   AVAILABLE_VERS_DEB.......[%AVAILABLE_VERS_DEB%]
+ECHO   AVAILABLE_VERS_RPM.......[%AVAILABLE_VERS_RPM%]
+ECHO   AVAILABLE_VERS_PKG.......[%AVAILABLE_VERS_PKG%]
 
 IF %UNIVERSAL_BUILD% NEQ 1 (
   IF "%APPVEYOR%" EQU "True" (
@@ -398,10 +367,10 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
       )
     )
   )
-  SET PKG_DISTRO_DIR=%PRODUCT%_%LP3D_ARCH%
-  SET PKG_DISTRO_PORTABLE_DIR=%PRODUCT%_%LP3D_ARCH%-%FULL_VERSION%
+  SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%LP3D_ARCH%
+  SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%LP3D_ARCH%-%LP3D_APP_VERSION_LONG%
   ECHO.
-  ECHO - Configuring %PRODUCT% %LP3D_ARCH% build...
+  ECHO - Configuring %LP3D_PRODUCT% %LP3D_ARCH% build...
   ECHO.
   ECHO   LP3D_ARCH...........[%LP3D_ARCH%]
   ECHO   PKG_DISTRO_DIR......[%PKG_DISTRO_DIR%]
@@ -417,12 +386,12 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   ECHO - Executing universal package build...
   FOR %%A IN ( x86_64, x86 ) DO (
     SET LP3D_ARCH=%%A
-    SET PKG_DISTRO_DIR=%PRODUCT%_%%A
+    SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
     ECHO.
-    ECHO - Configuring %PRODUCT% %%A build...
+    ECHO - Configuring %LP3D_PRODUCT% %%A build...
     ECHO.
     ECHO   LP3D_ARCH...........[%%A]
-    ECHO   PKG_DISTRO_DIR......[%PRODUCT%_%%A]
+    ECHO   PKG_DISTRO_DIR......[%LP3D_PRODUCT%_%%A]
     CALL :COPYCHANGELOG
   )
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
@@ -430,8 +399,8 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
   IF %SIGN_APP% == 1 CALL :SIGNAPP
   FOR %%A IN ( x86_64, x86 ) DO (
-    SET PKG_DISTRO_DIR=%PRODUCT%_%%A
-    SET PKG_DISTRO_PORTABLE_DIR=%PRODUCT%_%%A-%FULL_VERSION%
+    SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
+    SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%%A-%LP3D_APP_VERSION_LONG%
     IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
   )
 )
@@ -444,24 +413,24 @@ REM Product _ Version . Revision . Build _ Date (YYYYMMDD)
 REM LPub3D  _ 2.0.20  . 106      . 752   _ 20170929
 
 REM Directory Structure Format:
-REM Windows                                              - builds/windows
-REM   |_ Release                                         - windows/release
-REM        |_PRODUCT_DIR          = PRODUCT FULL_VERSION - LPub3D_2.0.20.106.752_20170929
-REM            |_PKG_DIST_DIR     = PRODUCT LP3D_ARCH    - LPub3D_x86_64
-REM            |_PKG_DOWNLOAD_DIR = PRODUCT_Download     - LPub3D_Download
-REM            |_PKG_UPDATE_DIR   = PRODUCT_Update       - LPub3D_Update
+REM Windows                                                            - builds/windows
+REM   |_ Release                                                       - windows/release
+REM        |_PRODUCT_DIR          = LP3D_PRODUCT LP3D_APP_VERSION_LONG - LPub3D_2.0.20.106.752_20170929
+REM            |_PKG_DIST_DIR     = LP3D_PRODUCT LP3D_ARCH             - LPub3D_x86_64
+REM            |_PKG_DOWNLOAD_DIR = PRODUCT_Download                   - LPub3D_Download
+REM            |_PKG_UPDATE_DIR   = PRODUCT_Update                     - LPub3D_Update
 IF NOT EXIST "%PKG_DISTRO_DIR%" (
   ECHO.
   ECHO * Did not find distribution package directory.
   ECHO * Expected "%PKG_DISTRO_DIR%" at "%cd%".
-  ECHO * Build "%PRODUCT%_%FULL_VERSION%" will terminate.
+  ECHO * Build "%LP3D_PRODUCT%_%LP3D_APP_VERSION_LONG%" will terminate.
   EXIT /b 5
 )
 
 ECHO.
 ECHO - Copying change_log_%LP3D_VERSION% to media folder...
 
-REM pwd = windows/release/PRODUCT_DIR
+REM pwd = windows/release/LP3D_PRODUCT_DIR
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_UPDATE_DIR%\change_log.txt /A | findstr /i /v /r /c:"copied\>"
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_UPDATE_DIR%\change_log_%LP3D_VERSION%.txt /A | findstr /i /v /r /c:"copied\>"
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_DOWNLOAD_DIR%\ /A | findstr /i /v /r /c:"copied\>"
@@ -476,16 +445,16 @@ SET versionFile=..\..\..\utilities\nsis-scripts\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
 :GENERATE AppVersion.nsh NSIS build parameters file
->%genVersion% !define Company %COMPANY%
+>%genVersion% !define Company %LP3D_COMPANY%
 >>%genVersion% ; ${Company}
 >>%genVersion%.
->>%genVersion% !define ProductName "%PRODUCT%"
+>>%genVersion% !define ProductName "%LP3D_PRODUCT%"
 >>%genVersion% ; ${ProductName}
 >>%genVersion%.
 >>%genVersion% !define Version "%LP3D_VERSION%"
 >>%genVersion% ; ${Version}
 >>%genVersion%.
->>%genVersion% !define CompleteVersion "%LP3D_VERSION%.%VER_REVISION%.%VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%"
+>>%genVersion% !define CompleteVersion "%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%"
 >>%genVersion% ; ${CompleteVersion}
 >>%genVersion%.
 >>%genVersion% !define UniversalBuild %UNIVERSAL_BUILD%
@@ -497,27 +466,27 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% !define ArchExt %LP3D_ARCH_EXT%
 >>%genVersion% ; ${ArchExt}
 >>%genVersion%.
->>%genVersion% !define ProductDir "..\..\windows\release\%PRODUCT_DIR%"
+>>%genVersion% !define ProductDir "..\..\windows\release\%LP3D_PRODUCT_DIR%"
 >>%genVersion% ; ${ProductDir}
 >>%genVersion%.
 >>%genVersion% ; OutFile Dir
->>%genVersion% !define OutFileDir "..\..\windows\release\%PRODUCT_DIR%"
+>>%genVersion% !define OutFileDir "..\..\windows\release\%LP3D_PRODUCT_DIR%"
 >>%genVersion% ; ${OutFileDir}
 >>%genVersion%.
 >>%genVersion% ; InFile Dir:
 IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion%.
->>%genVersion% !define WinBuildDir "..\..\windows\release\%PRODUCT_DIR%\%PRODUCT%_x86_64"
+>>%genVersion% !define WinBuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_x86_64"
 >>%genVersion% ; ${WinBuildDir} - non-binary file location - using x86_64 loc for each arche
 >>%genVersion%.
->>%genVersion% !define Win64BuildDir "..\..\windows\release\%PRODUCT_DIR%\%PRODUCT%_x86_64"
+>>%genVersion% !define Win64BuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_x86_64"
 >>%genVersion% ; ${Win64BuildDir}
 >>%genVersion%.
->>%genVersion% !define Win32BuildDir "..\..\windows\release\%PRODUCT_DIR%\%PRODUCT%_x86"
+>>%genVersion% !define Win32BuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_x86"
 >>%genVersion% ; ${Win32BuildDir}
 ) ELSE (
 >>%genVersion%.
->>%genVersion% !define WinBuildDir "..\..\windows\release\%PRODUCT_DIR%\%PKG_DISTRO_DIR%"
+>>%genVersion% !define WinBuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%PKG_DISTRO_DIR%"
 >>%genVersion% ; ${WinBuildDir}
 )
 >>%genVersion%.
@@ -548,30 +517,30 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% !define LPub3D_TraceExe "%LPUB3D_TRACE_EXE%"
 >>%genVersion% ; ${LPub3D_TraceExe}
 >>%genVersion%.
->>%genVersion% !define BuildRevision "%VER_REVISION%"
+>>%genVersion% !define BuildRevision "%LP3D_VER_REVISION%"
 >>%genVersion% ; ${BuildRevision}
 >>%genVersion%.
->>%genVersion% !define BuildNumber "%VER_BUILD%"
+>>%genVersion% !define BuildNumber "%LP3D_VER_BUILD%"
 >>%genVersion% ; ${BuildNumber}
 >>%genVersion%.
 >>%genVersion% !define BuildDate "%LP3D_DATE_TIME%"
 >>%genVersion% ; ${BuildDate}
 >>%genVersion%.
->>%genVersion% !define Publisher %PUBLISHER%
+>>%genVersion% !define Publisher %LP3D_PUBLISHER%
 >>%genVersion% ; ${Publisher}
 >>%genVersion%.
->>%genVersion% !define CompanyURL %COMPANY_URL%
+>>%genVersion% !define CompanyURL %LP3D_COMPANY_URL%
 >>%genVersion% ; ${CompanyURL}
 >>%genVersion%.
->>%genVersion% !define Comments %COMMENTS%
+>>%genVersion% !define Comments %LP3D_COMMENTS%
 >>%genVersion% ; ${Comments}
 >>%genVersion%.
->>%genVersion% !define SupportEmail %SUPPORT_EMAIL% %LP3D_VERSION%.%VER_REVISION%.%VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%"
+>>%genVersion% !define SupportEmail %LP3D_SUPPORT_EMAIL% %LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%"
 >>%genVersion% ; ${SupportEmail}
 >>%genVersion%.
 EXIT /b
 
-REM pwd = windows/release/PRODUCT_DIR
+REM pwd = windows/release/LP3D_PRODUCT_DIR
 :NSISBUILD
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update Installer Build...
@@ -590,9 +559,9 @@ IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Download Installer Build...
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Download Installer Build
 
-IF %RUN_NSIS% == 1 COPY /V /Y %PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_DOWNLOAD_DIR%\%DOWNLOAD_PRODUCT%.exe | findstr /i /v /r /c:"copied\>"
-IF %RUN_NSIS% == 1 COPY /V /Y %PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_UPDATE_DIR%\%PRODUCT%-UpdateMaster.exe | findstr /i /v /r /c:"copied\>"
-IF %RUN_NSIS% == 1 MOVE /Y    %PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_UPDATE_DIR%\ | findstr /i /v /r /c:"moved\>"
+IF %RUN_NSIS% == 1 COPY /V /Y %LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_DOWNLOAD_DIR%\%LP3D_DOWNLOAD_PRODUCT%.exe | findstr /i /v /r /c:"copied\>"
+IF %RUN_NSIS% == 1 COPY /V /Y %LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_UPDATE_DIR%\%LP3D_PRODUCT%-UpdateMaster.exe | findstr /i /v /r /c:"copied\>"
+IF %RUN_NSIS% == 1 MOVE /Y    %LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_UPDATE_DIR%\ | findstr /i /v /r /c:"moved\>"
 
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Download Installer Build
@@ -605,12 +574,12 @@ IF %SIGN_APP% == 1 ECHO - Start Application Code Signing...
 IF %SIGN_APP% == 0 ECHO.
 IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing
 
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_DOWNLOAD_DIR%\%DOWNLOAD_PRODUCT%.exe
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_UPDATE_DIR%\%PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_UPDATE_DIR%\%PRODUCT%-UpdateMaster.exe
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_DOWNLOAD_DIR%\%LP3D_DOWNLOAD_PRODUCT%.exe
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_UPDATE_DIR%\%LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_UPDATE_DIR%\%LP3D_PRODUCT%-UpdateMaster.exe
 IF %UNIVERSAL_BUILD% EQU 1 (
-  IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PRODUCT%_x86\%LPUB3D_BUILD_FILE%
-  IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PRODUCT%_x86_64\%LPUB3D_BUILD_FILE%
+  IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %LP3D_PRODUCT%_x86\%LPUB3D_BUILD_FILE%
+  IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %LP3D_PRODUCT%_x86_64\%LPUB3D_BUILD_FILE%
 ) ELSE (
   IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% %PKG_DISTRO_DIR%\%LPUB3D_BUILD_FILE%
 )
@@ -618,12 +587,12 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Generating Code Signing Hash Checksum listing...
 
-IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_DOWNLOAD_DIR%\%DOWNLOAD_PRODUCT%.exe SHA256                     >  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
-IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_UPDATE_DIR%\%PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe SHA256   >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
-IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_UPDATE_DIR%\%PRODUCT%-UpdateMaster.exe SHA256                  >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_DOWNLOAD_DIR%\%LP3D_DOWNLOAD_PRODUCT%.exe SHA256                     >  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_UPDATE_DIR%\%LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe SHA256   >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_UPDATE_DIR%\%LP3D_PRODUCT%-UpdateMaster.exe SHA256                  >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
 IF %UNIVERSAL_BUILD% EQU 1 (
-  IF %SIGN_APP% == 1 CertUtil -hashfile %PRODUCT%_x86\%LPUB3D_BUILD_FILE%                                 >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
-  IF %SIGN_APP% == 1 CertUtil -hashfile %PRODUCT%_x86_64\%LPUB3D_BUILD_FILE%                              >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
+  IF %SIGN_APP% == 1 CertUtil -hashfile %LP3D_PRODUCT%_x86\%LPUB3D_BUILD_FILE%                                 >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
+  IF %SIGN_APP% == 1 CertUtil -hashfile %LP3D_PRODUCT%_x86_64\%LPUB3D_BUILD_FILE%                              >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
 ) ELSE (
   IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_DISTRO_DIR%\%LPUB3D_BUILD_FILE% SHA256                       >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
 )
@@ -634,10 +603,10 @@ EXIT /b
 
 :CREATEPORTABLEDISTRO
 IF %CREATE_PORTABLE% == 1 ECHO.
-IF %CREATE_PORTABLE% == 1 ECHO - Create %PRODUCT% %LP3D_ARCH% portable install archive package file...
+IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_ARCH% portable install archive package file...
 
 IF %CREATE_PORTABLE% == 0 ECHO.
-IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %PRODUCT% portable install archive package file
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %LP3D_PRODUCT% portable install archive package file
 
 IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip %PKG_DOWNLOAD_DIR%\%PKG_DISTRO_PORTABLE_DIR%.zip %PKG_DISTRO_DIR%\ | findstr /i /r /c:"^Creating\>" /c:"^Everything\>"
 EXIT /b
@@ -707,7 +676,7 @@ SET genlastVersionInsert_Pkg=%lastVersionInsert_PkgFile% ECHO
 >%genlastVersionInsert_Pkg% "alternate-version-%LAST_VER_PKG%-pkg": {
 >>%genlastVersionInsert_Pkg%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_PKG%/",
 >>%genlastVersionInsert_Pkg%   "latest-version": "%LAST_VER_PKG%",
->>%genlastVersionInsert_Pkg%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_PKG%_%LP3D_ARCH%.pkg.tar.xz",
+>>%genlastVersionInsert_Pkg%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_PKG%_1-%LP3D_ARCH%.pkg.tar.xz",
 >>%genlastVersionInsert_Pkg%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LAST_VER_PKG%.txt"
 >>%genlastVersionInsert_Pkg% },
 
@@ -778,11 +747,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_osx.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DMG%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VERSION%-dmg": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VERSION%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VERSION%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VERSION%_osx.dmg",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VERSION%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_DMG%-dmg": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_DMG%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_DMG%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_DMG%_osx.dmg",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_DMG%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-deb": {
@@ -791,11 +760,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_amd64.deb",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VERSION%-deb": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VERSION%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VERSION%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VERSION%_amd64.deb",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VERSION%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_DEB%-deb": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_DEB%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_DEB%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_DEB%_amd64.deb",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_DEB%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-rpm": {
@@ -804,24 +773,24 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_fc.%LP3D_ARCH%.rpm",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VERSION%-rpm": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VERSION%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VERSION%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VERSION%_fc.%LP3D_ARCH%.rpm",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VERSION%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_RPM%-rpm": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_RPM%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_RPM%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_RPM%_fc.%LP3D_ARCH%.rpm",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_RPM%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-pkg": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_%LP3D_ARCH%.pkg.tar.xz",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_1-%LP3D_ARCH%.pkg.tar.xz",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VERSION%-pkg": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VERSION%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VERSION%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VERSION%_%LP3D_ARCH%.pkg.tar.xz",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VERSION%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_PKG%-pkg": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_PKG%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_PKG%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_PKG%_1-%LP3D_ARCH%.pkg.tar.xz",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_PKG%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     }
 >>%genLPub3DUpdates%   }
@@ -833,19 +802,19 @@ ECHO - Generating lpub3dupdates.json package distribution file...
 
 (
   FOR /F "tokens=*" %%i IN (%PKG_UPDATE_DIR%\lpub3dupdates.json) DO (
-    IF "%%i" EQU ""alternate-version-%ALT_VER_EXE%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_EXE%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Exe.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALT_VER_DMG%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_DMG%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Dmg.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALT_VER_DEB%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_DEB%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Deb.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALT_VER_RPM%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_RPM%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Rpm.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALT_VER_PKG%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_PKG%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Pkg.txt
     )
   ECHO %%i
@@ -861,7 +830,7 @@ DEL /Q %PKG_UPDATE_DIR%\lastVersionInsert_Pkg.txt
 ECHO.
 ECHO - Copying additional json FILES to media folder...
 
-REM pwd = windows\release\PRODUCT_DIR
+REM pwd = windows\release\LP3D_PRODUCT_DIR
 COPY /V /Y ..\..\..\utilities\json\complete.json %PKG_UPDATE_DIR%\ /A | findstr /i /v /r /c:"copied\>"
 COPY /V /Y ..\..\..\utilities\json\lpub3dldrawunf.json %PKG_UPDATE_DIR%\ /A | findstr /i /v /r /c:"copied\>"
 
@@ -884,7 +853,7 @@ SET OfficialCONTENT=complete.zip
 SET UnofficialCONTENT=ldrawunf.zip
 SET Lpub3dCONTENT=lpub3dldrawunf.zip
 
-SET OutputPATH=%WIN_PKG_DIR%\release\%PRODUCT_DIR%
+SET OutputPATH=%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%
 
 REM The 'appveyor' command does not work when script called from PS - but the cscript code works very well.
 REM IF "%APPVEYOR%" EQU "True" GOTO APPVEYORDOWNLOAD
@@ -979,8 +948,8 @@ IF "%LibraryOPTION%" EQU "Unofficial" (
   IF %UNIVERSAL_BUILD% EQU 1 (
     ECHO.
     ECHO - Copy and move archive file %OfficialCONTENT% to extras directory...
-    COPY /V /Y ".\%Lpub3dCONTENT%"  "%PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-    MOVE /y ".\%Lpub3dCONTENT%"  "%PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+    COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
   ) ELSE (
     ECHO.
     ECHO - Move archive file %OfficialCONTENT% to extras directory...
@@ -1011,8 +980,8 @@ cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF %UNIVERSAL_BUILD% EQU 1 (
   ECHO.
   ECHO - Copy and move archive file %OfficialCONTENT% to extras directory
-  COPY /V /Y ".\%OfficialCONTENT%"  "%PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-  MOVE /y ".\%OfficialCONTENT%"  "%PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+  COPY /V /Y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+  MOVE /y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
 ) ELSE (
   ECHO.
   ECHO - Move archive file %OfficialCONTENT% to extras directory
@@ -1025,31 +994,31 @@ ECHO.
 ECHO - LDraw archive libraries download finshed
 EXIT /b 0
 
-REM pwd = windows/release/PRODUCT_DIR
+REM pwd = windows/release/LP3D_PRODUCT_DIR
 :APPVEYORDOWNLOAD
 ECHO.
 ECHO - Download LDraw Official archive library %OfficialCONTENT%...
 IF NOT EXIST "%WIN_PKG_DIR%\%OfficialCONTENT%" (
-  appveyor Downloadfile "http://www.ldraw.org/library/updates/%OfficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%OfficialCONTENT%"
+  appveyor Downloadfile "http://www.ldraw.org/library/updates/%OfficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%OfficialCONTENT%"
 ) ELSE (
   ECHO   %OfficialCONTENT% exists - moving to staging...
-  MOVE /y ".\%OfficialCONTENT%"  "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
+  MOVE /y ".\%OfficialCONTENT%"  "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
 )
 ECHO.
 ECHO - Download LDraw Unifficial archive library %UnofficialCONTENT%...
 IF NOT EXIST "%WIN_PKG_DIR%\%Lpub3dCONTENT%" (
-  appveyor Downloadfile "http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\%Lpub3dCONTENT%"
+  appveyor Downloadfile "http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%Lpub3dCONTENT%"
 ) ELSE (
   ECHO   %Lpub3dCONTENT% exists - moving to staging...
-  MOVE /y ".\%Lpub3dCONTENT%"  "%WIN_PKG_DIR%\release\%PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
+  MOVE /y ".\%Lpub3dCONTENT%"  "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
 )
 ECHO.
 ECHO - Copy and move archive files to extras directory...
 IF %UNIVERSAL_BUILD% EQU 1 (
-  COPY /V /Y ".\%OfficialCONTENT%"  "%PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-  COPY /V /Y ".\%Lpub3dCONTENT%"  "%PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-  MOVE /y ".\%OfficialCONTENT%"  "%PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-  MOVE /y ".\%Lpub3dCONTENT%"  "%PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+  COPY /V /Y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+  COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+  MOVE /y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+  MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
 ) ELSE (
   MOVE /y ".\%OfficialCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
   MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
@@ -1064,7 +1033,7 @@ IF %AUTO% NEQ 1 (
   ECHO - Post process...
   ECHO.
   ECHO - If everything went well Press any key to EXIT!
-  %SystemRoot%\explorer.exe "%WIN_PKG_DIR%\release\%PRODUCT_DIR%"
+  %SystemRoot%\explorer.exe "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%"
   PAUSE >NUL
 )
 

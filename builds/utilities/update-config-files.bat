@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 15, 2017
+rem  Last Update: December 27, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 rem --
@@ -29,16 +29,17 @@ SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
 
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
-  ECHO  1. capture version info using git queries...
+  ECHO  capture version info using git queries...
   CALL :GET_GIT_VERSION
 ) ELSE (
-  ECHO  1. capture version info using version arguments...
+  ECHO  capture version info using version arguments...
   SET LP3D_VER_MAJOR=%2
   SET LP3D_VER_MINOR=%3
   SET LP3D_VER_PATCH=%4
   SET LP3D_VER_REVISION=%5
   SET LP3D_VER_BUILD=%6
   SET LP3D_VER_SHA_HASH=%7
+  IF [%8] NEQ [] (SET LP3D_VER_SUFFIX=%8)
 )
 
 SET LP3D_VERSION=unknown
@@ -58,13 +59,16 @@ SET LP3D_APP_VERSION=%LP3D_VERSION%.%LP3D_VER_BUILD%
 SET LP3D_APP_VERSION_TAG=v%LP3D_VERSION%
 SET LP3D_APP_VER_SUFFIX=%LP3D_VER_MAJOR%%LP3D_VER_MINOR%
 SET LP3D_APP_VERSION_LONG=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_BUILD_DATE%
-SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% (%LP3D_BUILD_DATE_TIME%)
+SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^^(%LP3D_BUILD_DATE_TIME%^^)
 
 CALL :GET_AVAILABLE_VERSIONS %*
 
 rem AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
 IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
-SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH% %LP3D_BUILD_DATE_TIME% %LP3D_AVAILABLE_VERSIONS%
+SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH%
+IF [%LP3D_VER_SUFFIX%] NEQ [] (
+  SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
+)
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (
 ECHO   FILE version.info..............[written to .\builds\utilities\version.info]
@@ -84,6 +88,9 @@ ECHO   LP3D_VER_PATCH.................[%LP3D_VER_PATCH%]
 ECHO   LP3D_VER_REVISION..............[%LP3D_VER_REVISION%]
 ECHO   LP3D_VER_BUILD.................[%LP3D_VER_BUILD%]
 ECHO   LP3D_VER_SHA_HASH..............[%LP3D_VER_SHA_HASH%]
+IF [%LP3D_VER_SUFFIX%] NEQ [] (
+  ECHO   LP3D_VER_SUFFIX................[%LP3D_VER_SUFFIX%]
+)
 ECHO   LP3D_APP_VER_SUFFIX............[%LP3D_APP_VER_SUFFIX%]
 ECHO   LP3D_BUILD_VERSION.............[%LP3D_BUILD_VERSION%]
 ECHO   LP3D_BUILD_DATE_TIME...........[%LP3D_BUILD_DATE_TIME%]
@@ -95,7 +102,6 @@ ECHO   LP3D_APP_VERSION_LONG..........[%LP3D_APP_VERSION_LONG%]
 ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
-
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
 GOTO :END
@@ -122,12 +128,12 @@ REM Extract Revision Number
 FOR /F "usebackq delims==" %%G IN (`git describe --tags --long`) DO SET lp3d_git_ver_tag_long=%%G
 SET "tag_input=%lp3d_git_ver_tag_long%"
 
-REM Remove revision prefix ending in "-"
+REM Remove everything before and including "-"
 SET "tag_val_1=%tag_input:*-=%"
-IF "%tag_val_1%"=="%tag_input%" ECHO revision prefix ending in "-" not found
+IF "%tag_val_1%"=="%tag_input%" ECHO ERROR - revision prefix ending in "-" not found in %tag_input%
 FOR /F "delims=\" %%a IN ("%tag_val_1%") DO SET "tag_val_1=%%~a"
 
-REM remove revision suffix starting with "-"
+REM Remove everything after and including "-"
 SET "lp3d_revision_=%tag_val_1%"
 FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET LP3D_VER_REVISION=%%~a
 
@@ -142,6 +148,14 @@ FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0`) DO SET lp3
 
 REM Remove version prefix 'v'
 SET "lp3d_version_=%lp3d_git_ver_tag_short:v=%"
+
+REM Capture version suffix - everything after "_" if it exist
+FOR /F "tokens=2 delims=_" %%a IN ("%lp3d_version_%") DO SET LP3D_VER_SUFFIX=%%~a
+
+REM Remove version suffix - everything after and including "_" if it exist
+IF [%LP3D_VER_SUFFIX%] NEQ [] (
+  FOR /F "tokens=1 delims=_" %%a IN ("%lp3d_version_%") DO SET lp3d_version_=%%~a
+)
 
 REM Replace version '.' with ' '
 SET "lp3d_version_=%lp3d_version_:.= %"
@@ -204,12 +218,12 @@ EXIT /b
 :GET_AVAILABLE_VERSIONS
 SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PAST_RELEASES%
 SET LP3D_PREVIOUS_TAG=unknown
-IF [%8] == [] (
+IF [%9] == [] (
   FOR /F "usebackq" %%G IN (`git describe --abbrev^=0 %lp3d_git_ver_tag_short%^^^^ 2^> nul`) DO (
     IF [%%G] NEQ [] SET LP3D_PREVIOUS_TAG=%%G
   )
 ) ELSE (
-  FOR /F "tokens=8*" %%G IN ("%*") DO SET LP3D_PREVIOUS_VERSION=%%G
+  FOR /F "tokens=9*" %%G IN ("%*") DO SET LP3D_PREVIOUS_VERSION=%%G
 )
 IF "%LP3D_PREVIOUS_TAG%" NEQ "unknown" (
   FOR /F "usebackq" %%G IN (`git describe --abbrev^=0 %LP3D_PREVIOUS_TAG%^^^^ 2^> nul`) DO (
@@ -246,5 +260,39 @@ EXIT /b
 
 :END
 ECHO  %LP3D_ME% execution finished.
-ENDLOCAL
+ENDLOCAL & (
+  SET LP3D_SOURCE_DIR=%LP3D_SOURCE_DIR%
+  SET LP3D_CALL_DIR=%LP3D_CALL_DIR%
+
+  SET LP3D_DAY=%LP3D_DAY%
+  SET LP3D_MONTH=%LP3D_MONTH%
+  SET LP3D_YEAR=%LP3D_YEAR%
+  SET LP3D_HOUR=%LP3D_HOUR%
+  SET LP3D_MIN=%LP3D_MIN%
+  SET LP3D_SEC=%LP3D_SEC%
+
+  SET LP3D_WEEK_DAY=%LP3D_WEEK_DAY%
+  SET LP3D_MONTH_OF_YEAR=%LP3D_MONTH_OF_YEAR%
+
+  SET LP3D_VER_MAJOR=%LP3D_VER_MAJOR%
+  SET LP3D_VER_MINOR=%LP3D_VER_MINOR%
+  SET LP3D_VER_PATCH=%LP3D_VER_PATCH%
+  SET LP3D_VER_REVISION=%LP3D_VER_REVISION%
+  SET LP3D_VER_BUILD=%LP3D_VER_BUILD%
+  SET LP3D_VER_SHA_HASH=%LP3D_VER_SHA_HASH%
+  IF [%LP3D_VER_SUFFIX%] NEQ [] (
+    SET LP3D_VER_SUFFIX=%LP3D_VER_SUFFIX%
+  )
+
+  SET LP3D_VERSION=%LP3D_VERSION%
+  SET LP3D_APP_VERSION=%LP3D_APP_VERSION%
+  SET LP3D_APP_VERSION_TAG=%LP3D_APP_VERSION_TAG%
+  SET LP3D_APP_VER_SUFFIX=%LP3D_APP_VER_SUFFIX%
+  SET LP3D_APP_VERSION_LONG=%LP3D_APP_VERSION_LONG%
+  SET LP3D_BUILD_VERSION=%LP3D_BUILD_VERSION%
+  SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO%
+  SET LP3D_BUILD_DATE_TIME=%LP3D_BUILD_DATE_TIME%
+  SET LP3D_CHANGE_DATE_LONG=%LP3D_CHANGE_DATE_LONG%
+  SET LP3D_AVAILABLE_VERSIONS=%LP3D_AVAILABLE_VERSIONS%
+)
 EXIT /b 0

@@ -1,8 +1,11 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 22, 2017
+# Last Update December 27, 2017
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
+#
+# To Run:
+# env _PRO_FILE_PWD_=$PWD/mainApp OBS=true ./builds/utilities/update-config-files.sh
 
 echo "   Start update-config-files.sh execution..."
 
@@ -83,7 +86,7 @@ then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
-#Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7]"
+#Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7], \$8 [$8]"
 if [ "${SOURCED}" = "true" ]
 then
     cd "$(realpath $LP3D_PWD/..)"
@@ -103,26 +106,33 @@ then
     lp3d_git_ver_commit_count=`git rev-list HEAD --count`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
     cd "${LP3D_CALL_DIR}"
-    lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}       # remove prefix ending in "-"
-    lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}  # replace . with " "
-    lp3d_version_=${lp3d_ver_tmp2/v/}               # replace v with ""
-    lp3d_revision_=${lp3d_ver_tmp1%-*}
-    LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
+    lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}                             # remove everything before and including "-"
+    lp3d_revision_=${lp3d_ver_tmp1%-*}                                    # remove everything after and including "-"
+    lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}                        # replace . with " "
+    lp3d_version_=${lp3d_ver_tmp2/v/}                                     # replace v with ""
+    lp3d_suffix=${lp3d_ver_tmp2#*_}                                       # capture version suffix - everything after "_" if it exist
+    if test -n "$lp3d_suffix"; then lp3d_version_=${lp3d_version_%_*}; fi # remove everything after and including "_"
     if test -n "lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=undefined; fi
     if test -n "lp3d_git_ver_committer_email"; then LP3D_COMMITTER_EMAIL=${lp3d_git_ver_committer_email}; else LP3D_COMMITTER_EMAIL=undefined; fi
+    LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 else
     Info "1. capture version info using input arguments"
+    if test -n "$8"; then lp3d_suffix=$8; fi
     LP3D_VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
+fi
+if test -n "$lp3d_suffix"; then
+    LP3D_VERSION_INFO="$LP3D_VERSION_INFO $lp3d_suffix"
 fi
 #         1 2 3  4  5   6
 # format "2 0 20 17 663 410fdd7"
-read LP3D_VER_MAJOR LP3D_VER_MINOR LP3D_VER_PATCH LP3D_VER_REVISION LP3D_VER_BUILD LP3D_VER_SHA_HASH THE_REST <<< ${LP3D_VERSION_INFO//'"'}
+read LP3D_VER_MAJOR LP3D_VER_MINOR LP3D_VER_PATCH LP3D_VER_REVISION LP3D_VER_BUILD LP3D_VER_SHA_HASH LP3D_VER_SUFFIX THE_REST <<< ${LP3D_VERSION_INFO//'"'}
 LP3D_APP_VER_SUFFIX=${LP3D_VER_MAJOR}${LP3D_VER_MINOR}
 LP3D_VERSION=${LP3D_VER_MAJOR}"."${LP3D_VER_MINOR}"."${LP3D_VER_PATCH}
+LP3D_BUILD_VERSION=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}" ("${LP3D_DATE_TIME}")"
 LP3D_APP_VERSION=${LP3D_VERSION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}_${LP3D_BUILD_DATE}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
-LP3D_BUILD_VERSION=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}" ("${LP3D_DATE_TIME}")"
+
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
@@ -139,7 +149,9 @@ then
     Info "   LP3D_VER_REVISION......${LP3D_VER_REVISION}"
     Info "   LP3D_VER_BUILD.........${LP3D_VER_BUILD}"
     Info "   LP3D_VER_SHA_HASH......${LP3D_VER_SHA_HASH}"
-
+    if test -n "$LP3D_VER_SUFFIX"; then
+        Info "   LP3D_VER_SUFFIX........${LP3D_VER_SUFFIX}"
+    fi
     Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
     Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
     Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
@@ -157,11 +169,14 @@ fi
 if [ "$LP3D_OS" = Darwin ]
 then
     Info "2. update the Info.plist with version major, version minor, build and git sha hash"
+    if test -n "$LP3D_VER_SUFFIX"; then
+        LP3D_BUNDLE_VERSION=${LP3D_VER_BUILD}-${LP3D_VER_SUFFIX}
+    fi
     LP3D_INFO_PLIST_FILE="$LP3D_PWD/Info.plist"
     if [ -f "${LP3D_INFO_PLIST_FILE}" ]
     then
         /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${LP3D_INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${LP3D_VER_BUILD}" "${LP3D_INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${LP3D_BUNDLE_VERSION}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${LP3D_VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
     else
@@ -172,11 +187,12 @@ fi
 if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
     # Stop at the end of this block during Travis-CI builds
-    export LP3D_APP_VERSION=${LP3D_APP_VERSION}
+    export LP3D_VERSION=${LP3D_VERSION}
     export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
     export LP3D_APP_VERSION_TAG=${LP3D_APP_VERSION_TAG}
     export LP3D_COMMITTER_EMAIL=${LP3D_COMMITTER_EMAIL}
     export LP3D_AUTHOR_NAME=${LP3D_AUTHOR_NAME}
+    if test -n "$LP3D_VER_SUFFIX"; then export LP3D_VER_SUFFIX=$LP3D_VER_SUFFIX; fi
 
     Info " update-config-files.sh execution finished."
     echo
@@ -188,7 +204,7 @@ else
         rm ${FILE}
     fi
     cat <<EOF >${FILE}
-${LP3D_VERSION_INFO} ${LP3D_DATE_TIME}
+${LP3D_VERSION_INFO}
 EOF
     if [ -f "${FILE}" ];
     then

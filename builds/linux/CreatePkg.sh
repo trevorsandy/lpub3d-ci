@@ -130,8 +130,8 @@ then
     cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${PKG_EXTENSION}"
     echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${PKG_EXTENSION}"
 
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${PKG_EXTENSION}"
-    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_APP_VERSION}_${PKG_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}_${PKG_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}_${PKG_EXTENSION}"
 else
     echo "9. package ${DISTRO_FILE} not found."
 fi
