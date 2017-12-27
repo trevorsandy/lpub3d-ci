@@ -18,8 +18,9 @@ echo "$TRAVIS_COMMIT_MESSAGE" | grep -E '\[build pkg.*\]' \
 && echo "[build pkg] detected." || true
 
 # Build and deploy package if pushed tag exists and has a valid format (vN.N.N[-A])
-echo "$TRAVIS_TAG" | grep -P '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$' \
+echo "$TRAVIS_TAG" | grep -qP '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$' \
 && echo "Deploy tag $TRAVIS_TAG detected." \
+&& echo "Deploy branch is $TRAVIS_BRANCH." \
 && export LP3D_BUILD_PKG=yes \
 && export LP3D_DEPLOY_PKG=yes || true
 

@@ -8,27 +8,28 @@ win32 {
     NULL_DEVICE = /dev/null
 }
 
+# 64bit MinGW Qt/qmake has a git.exe/cygwin conflict on AppVeyor that returns no .git directory found so use version.info file
+# TO TEST AppVeyor logic locally - use CONFIG+=appveyor_qt_mingw64
+
 GIT_DIR = undefined
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
-    message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
+    !appveyor_qt_mingw64: message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
 
-# AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so use version.info file
-# TO TEST AppVeyor logic locally - use CONFIG+=appveyor_qt_mingw64
 appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
+    # Update and retrieve version info from git
+    GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
     appveyor_qt_mingw64 {
-        BUILD_TYPE = release
-        CONFIG(debug, debug|release): BUILD_TYPE = debug
         message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
-        # Trying to get version from git tag / revision
-        RET = $$system(cmd.exe /c "$$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_")
+        UPDATE_CONFIG_FILES=$$system_path($$PWD/builds/utilities/update-config-files.bat)
+        RET = $$system(cmd.exe /c "IF EXIST \"$$GIT_VER_FILE\" DEL /Q $$GIT_VER_FILE")
+        RET = $$system(cmd.exe /c "$$UPDATE_CONFIG_FILES $$_PRO_FILE_PWD_")
     } else {
         message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
     }
-    GIT_VER_FILE = $$PWD/builds/utilities/version.info
     exists($$GIT_VER_FILE) {
         GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
     } else {

@@ -96,6 +96,7 @@ jobs:
       skip_cleanup: true
       on:
         repo: trevorsandy/lpub3d-ci
+        branch: $TRAVIS_BRANCH
         condition: $LP3D_DEPLOY_PKG = yes
 
 notifications:
