@@ -135,8 +135,8 @@ install:
 
 build_script:
  - ps: |
-      write-host "  Distribution Directory.....[$env:LP3D_PACKAGE_PATH]"
-      write-host "  Working Directory..........[$PWD]"
+      write-host "  Distribution Directory.........[$env:LP3D_PACKAGE_PATH]"
+      write-host "  Working Directory..............[$PWD]"
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -ins -chk 2`>`&1
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
@@ -152,7 +152,23 @@ after_build:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 350) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
-        $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
+        $Sv = git describe --tags --long
+        $Sb = git rev-list HEAD --count
+        $Sd = Get-Date -format yyyyMMdd
+        $Sr = $Sv.substring($Sv.IndexOf('-')+1,$Sv.substring($Sv.IndexOf('-')+1).IndexOf('-'))
+        $Sv = $Sv.substring(0,$Sv.IndexOf('-')).replace("v","")
+        $p1 = $Sv.IndexOf('.')
+        $p2 = $Sv.substring($p1+1).IndexOf('.')
+        $p3 = $Sv.substring($p1+1+$p2+1).IndexOf('_')
+        $V1 = $Sv.substring(0,$p1)
+        $V2 = $Sv.substring($p1+1,$p2)
+        if ($p3 -ne -1) {
+          $V3 = $Sv.substring($p1+1+$p2+1,$p3)
+        } else {
+          $V3 = $Sv.substring($p1+1+$p2+1)
+        }
+        $env:LP3D_BUILD_VERSION = $V1+"."+$V2+"."+$V3+"."+$Sr+"."+$Sb+"_"+$Sd
+        $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_BUILD_VERSION}"
         $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
         $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
         $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
