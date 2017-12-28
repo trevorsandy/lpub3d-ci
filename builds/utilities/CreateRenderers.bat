@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 11, 2017
+rem  Last Update: December 28, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -139,9 +139,9 @@ IF %BUILD_ARCH% EQU x86 (
 )
 ECHO.
 IF "%PATH_PREPENDED%" EQU "True" (
-  ECHO   PATH_ALREADY_PREPENDED..[%PATH%]
+  ECHO   PATH_ALREADY_PREPENDED.........[%PATH%]
 ) ELSE (
-  ECHO   PATH_PREPEND............[%PATH%]
+  ECHO   PATH_PREPEND...................[%PATH%]
   SET PATH_PREPENDED=True
 )
 CALL :SET_BUILD_ARGS

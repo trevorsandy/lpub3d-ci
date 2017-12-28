@@ -152,11 +152,7 @@ after_build:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 350) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
-        $Sv = git describe --tags --long
-        $Sc = git rev-list HEAD --count
-        $Sd = Get-Date -format yyyyMMdd
-        $env:LP3D_BUILD_VERSION =($Sv.substring(0,$Sv.lastIndexOf('-'))+"."+$Sc+"_"+$Sd).replace("v","").replace("-",".")
-        $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_BUILD_VERSION}"
+        $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
         $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
         $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
         $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"

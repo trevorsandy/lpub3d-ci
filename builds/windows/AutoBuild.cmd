@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 10, 2017
+rem  Last Update: December 28, 2017
 rem  Copyright (c) 2017 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -24,6 +24,9 @@ IF "%SCRIPT_DIR%" EQU "windows" (
   SET ABS_WD=%CD%
 )
 
+SET PACKAGE=LPub3D
+SET CONFIGURATION=release
+
 rem Variables - change these as required by your build environments
 IF "%APPVEYOR%" EQU "True" (
   IF [%LP3D_DIST_DIR_PATH%] == [] (
@@ -36,6 +39,8 @@ IF "%APPVEYOR%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET LDRAW_DOWNLOAD_DIR=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
+  SET PACKAGE=%LP3D_PACKAGE%
+  SET CONFIGURATION=%configuration%
 ) ELSE (
   SET DIST_DIR=..\lpub3d_windows_3rdparty
   SET LDRAW_DOWNLOAD_DIR=%USERPROFILE%
@@ -48,10 +53,6 @@ SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
 SET zipWin64=C:\program files\7-zip
 SET OfficialCONTENT=complete.zip
-
-SET PACKAGE=LPub3D
-SET VERSION=2.1.0
-SET CONFIGURATION=release
 
 SET BUILD_THIRD=unknown
 SET THIRD_INSTALL=unknown
@@ -146,25 +147,28 @@ IF NOT EXIST "%LP3D_WIN_GIT%" (
   SET LP3D_WIN_GIT=
   SET LP3D_WIN_GIT_MSG=Not Found
 )
+
+
+
 rem Display build settings
 ECHO.
 IF "%APPVEYOR%" EQU "True" (
-  ECHO   BUILD_HOST.................[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
-  ECHO   BUILD_ID...................[%APPVEYOR_BUILD_ID%]
-  ECHO   BUILD_BRANCH...............[%APPVEYOR_REPO_BRANCH%]
-  ECHO   PROJECT_NAME...............[%APPVEYOR_PROJECT_NAME%]
-  ECHO   REPOSITORY_NAME............[%APPVEYOR_REPO_NAME%]
-  ECHO   REPO_PROVIDER..............[%APPVEYOR_REPO_PROVIDER%]
-  ECHO   LP3D_WIN_GIT_DIR...........[%LP3D_WIN_GIT_MSG%]
+  ECHO   BUILD_HOST.....................[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
+  ECHO   BUILD_ID.......................[%APPVEYOR_BUILD_ID%]
+  ECHO   BUILD_BRANCH...................[%APPVEYOR_REPO_BRANCH%]
+  ECHO   PROJECT_NAME...................[%APPVEYOR_PROJECT_NAME%]
+  ECHO   REPOSITORY_NAME................[%APPVEYOR_REPO_NAME%]
+  ECHO   REPO_PROVIDER..................[%APPVEYOR_REPO_PROVIDER%]
+  ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
 )
-ECHO   PACKAGE....................[%PACKAGE%]
-ECHO   VERSION....................[%VERSION%]
-ECHO   LP3D_QT32_MSYS2............[%LP3D_QT32_MSYS2%]
-ECHO   LP3D_QT64_MSYS2............[%LP3D_QT64_MSYS2%]
-ECHO   WORKING_DIRECTORY_LPUB3D...[%ABS_WD%]
-ECHO   DISTRIBUTION_DIRECTORY.....[%DIST_DIR:/=\%]
-ECHO   LDRAW_DIRECTORY............[%LDRAW_DIR%]
-ECHO   LDRAW_DOWNLOAD_DIR.........[%LDRAW_DOWNLOAD_DIR%]
+ECHO   PACKAGE........................[%PACKAGE%]
+ECHO   CONFIGURATION..................[%CONFIGURATION%]
+ECHO   LP3D_QT32_MSYS2................[%LP3D_QT32_MSYS2%]
+ECHO   LP3D_QT64_MSYS2................[%LP3D_QT64_MSYS2%]
+ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
+ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR:/=\%]
+ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
+ECHO   LDRAW_DOWNLOAD_DIR.............[%LDRAW_DOWNLOAD_DIR%]
 ECHO.
 
 rem set application version variables
@@ -257,7 +261,7 @@ FOR /R %%I IN (
   "mainApp\object_script.*"
 ) DO DEL /S /Q "%%~I" >nul 2>&1
 ECHO.
-ECHO   PLATFORM (BUILD_ARCH)..[%PLATFORM%]
+ECHO   PLATFORM (BUILD_ARCH)..........[%PLATFORM%]
 SET PATH=%SYS_DIR%;%LP3D_WIN_GIT%
 SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release
 IF "%APPVEYOR%" EQU "True" (
@@ -267,7 +271,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 IF "%LP3D_BUILD_PKG%" EQU "yes" (
-  ECHO   LP3D_BUILD_PKG.........[%LP3D_BUILD_PKG%]
+  ECHO   LP3D_BUILD_PKG.................[%LP3D_BUILD_PKG%]
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=stagewindistcontent
 )
 IF %PLATFORM% EQU x86 (
@@ -277,9 +281,9 @@ IF %PLATFORM% EQU x86 (
 )
 SET LPUB3D_MAKE_ARGS=-f Makefile
 SET PATH_PREPENDED=True
-ECHO   LPUB3D_CONFIG_ARGS.....[%LPUB3D_CONFIG_ARGS%]
+ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
 SETLOCAL ENABLEDELAYEDEXPANSION
-ECHO(  PATH_PREPEND............[!PATH!]
+ECHO(  PATH_PREPEND...................[!PATH!]
   ENDLOCAL
 )
 EXIT /b
@@ -523,7 +527,7 @@ EXIT /b
 
 :END
 ECHO.
-ECHO -%PACKAGE% v%VERSION% %~nx0 finished.
+ECHO -%PACKAGE% v%LP3D_VERSION% %~nx0 finished.
 SET end=%time%
 SET options="tokens=1-4 delims=:.,"
 FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100

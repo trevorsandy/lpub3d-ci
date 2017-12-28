@@ -69,13 +69,6 @@ SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_V
 IF [%LP3D_VER_SUFFIX%] NEQ [] (
   SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
 )
-ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
-IF EXIST "%LP3D_VER_INFO_FILE%" (
-ECHO   FILE version.info..............[written to .\builds\utilities\version.info]
-) ELSE (
-ECHO   FILE version.info..............[ERROR - file not found]
-)
-ECHO.
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
@@ -99,11 +92,17 @@ ECHO   LP3D_CHANGE_DATE_LONG..........[%LP3D_CHANGE_DATE_LONG%]
 ECHO   LP3D_VERSION...................[%LP3D_VERSION%]
 ECHO   LP3D_APP_VERSION...............[%LP3D_APP_VERSION%]
 ECHO   LP3D_APP_VERSION_LONG..........[%LP3D_APP_VERSION_LONG%]
-ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
+REM ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
+ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
+IF EXIST "%LP3D_VER_INFO_FILE%" (
+ECHO   FILE version.info..............[written to .\builds\utilities\version.info]
+) ELSE (
+ECHO   FILE version.info..............[ERROR - file not found]
+)
 GOTO :END
 
 :FIXUP_PWD
