@@ -8,40 +8,18 @@ win32 {
     NULL_DEVICE = /dev/null
 }
 
-# 64bit MinGW Qt/qmake has a git.exe/cygwin conflict on AppVeyor that returns no .git directory found so use version.info file
-# DEBUG - CONFIG+=appveyor_qt_mingw64
-
 GIT_DIR = undefined
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
-    !appveyor_qt_mingw64: message("~~~ GIT_DIR [DEFAULT] $$GIT_DIR ~~~")
 }
 
-#appveyor_qt_mingw64: GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
-    # Update and retrieve version info from git
-    GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
-    appveyor_qt_mingw64 {
-        message("~~~ GIT_DIR [APPVEYOR, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
-        UPDATE_CONFIG_FILES=$$system_path($$PWD/builds/utilities/update-config-files.bat)
-        RET = $$system(cmd.exe /c "IF EXIST \"$$GIT_VER_FILE\" DEL /Q $$GIT_VER_FILE")
-        RET = $$system(cmd.exe /c "$$UPDATE_CONFIG_FILES $$_PRO_FILE_PWD_")
-    } else {
-        message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
-    }
-    exists($$GIT_VER_FILE) {
-        GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
-    } else {
-        message("~~~ ERROR! GIT_DIR $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}-00-00000000-000
-    }
-    # Token position       0 1 2  3  4   5
-    # Version string       2 0 20 17 663 410fdd7
-    GIT_VERSION ~= s/\\\"/""
-    #message(~~~ DEBUG ~~ GIT_VERSION [FROM FILE RAW]: $$GIT_VERSION)
+    message("~~~ GIT_DIR [UNDEFINED, USING GIT_VERSION $${VERSION}.0.0.00000000.noversion ~~~")
+    GIT_VERSION = $${VERSION}.0.0.00000000.noversion
+    GIT_VERSION ~= s/\./" "
 
-    # Separate the build number into major, minor and service pack etc.
+    # Separate the build number into major, minor and service pack etc...
     VER_MAJOR        = $$section(GIT_VERSION, " ", 0, 0)
     VER_MINOR        = $$section(GIT_VERSION, " ", 1, 1)
     VER_PATCH        = $$section(GIT_VERSION, " ", 2, 2)
@@ -49,7 +27,6 @@ equals(GIT_DIR, undefined) {
     VER_BUILD_STR    = $$section(GIT_VERSION, " ", 4, 4)
     VER_SHA_HASH_STR = $$section(GIT_VERSION, " ", 5, 5)
     VER_SUFFIX       = $$section(GIT_VERSION, " ", 6, 6)
-
 } else {
     # Need to call git with manually specified paths to repository
     BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
@@ -72,6 +49,8 @@ equals(GIT_DIR, undefined) {
             GIT_VERSION = g$$GIT_VERSION-$$GIT_COMMIT_COUNT
         }
     }
+    # Token position       0 1 2  3  4   5      [6]
+    # Version string       2 0 20 17 663 410fdd7 beta1
     #message(~~~ DEBUG ~~ GIT_VERSION [RAW]: $$GIT_VERSION)
 
     # Convert output from gv2.0.20-37-ge99beed-600 into "gv2.0.20.37.ge99beed.600"

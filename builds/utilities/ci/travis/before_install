@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 26, 2017
+#  Last Update: December 28, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -17,8 +17,9 @@ echo "$TRAVIS_COMMIT_MESSAGE" | grep -E '\[build pkg.*\]' \
 && export LP3D_BUILD_PKG=yes \
 && echo "[build pkg] detected." || true
 
-# Build and deploy package if pushed tag exists and has a valid format (vN.N.N[-A])
-echo "$TRAVIS_TAG" | grep -qP '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$' \
+# Build and deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
+LP3D_VALID_DEPLOY_TAG=$(echo "$TRAVIS_TAG" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"') \
+&& [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ] \
 && echo "Deploy tag $TRAVIS_TAG detected." \
 && echo "Deploy branch is $TRAVIS_BRANCH." \
 && export LP3D_BUILD_PKG=yes \
