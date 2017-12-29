@@ -545,8 +545,8 @@ if [ "$OS_NAME" = "Darwin" ]; then
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
   for buildDir in ldview povray; do
-    artefactPath="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"  
-    if [ ! -f "${!artefactPath}" ]; then
+    artefactBinary="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"  
+    if [ ! -f "${!artefactBinary}" ]; then
       case ${buildDir} in
       ldview)
         brewDeps="tinyxml gl2ps libjpeg minizip"
@@ -579,7 +579,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
     brew install $brewDeps >> $depsLog 2>&1
     Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
   else
-    Info "Renderer artefacts exist, nothing to build. Install dependencies skippes"
+    Info "Renderer artefacts exist, nothing to build. Install dependencies skipped"
   fi
 fi
 
@@ -587,7 +587,7 @@ fi
 for buildDir in ldglite ldview povray; do
   buildDirUpper="$(echo ${buildDir} | awk '{print toupper($0)}')"
   artefactVer="VER_${buildDirUpper}"
-  artefactPath="LP3D_${buildDirUpper}"
+  artefactBinary="LP3D_${buildDirUpper}"
   buildLog=${LOG_PATH}/${ME}_${host}_build_${buildDir}.log
   linesBefore=1
   case ${buildDir} in
@@ -654,28 +654,28 @@ for buildDir in ldglite ldview povray; do
   fi
 
   # CI/Local build routine...
-  # Check if build folder exist and donwload if not
-  if [ ! -d "${buildDir}/${validSubDir}" ]; then
-    Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-    if [ ! -f ${buildDir}.tar.gz ]; then
-      Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-      curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-    fi
-    ExtractArchive ${buildDir} ${validSubDir}
-  else
-    cd ${buildDir}
-  fi
-  Info && Info "Install ${!artefactVer} dependencies..."
-  Info "----------------------------------------------------"
   # Install build dependencies
   if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+    Info && Info "Install ${!artefactVer} dependencies..."
+    Info "----------------------------------------------------"
     InstallDependencies ${buildDir}
     sleep .5
   fi
-  # Perform build
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
-  if [ ! -f "${!artefactPath}" ]; then
+  if [ ! -f "${!artefactBinary}" ]; then
+    # Check if build folder exist and donwload if not
+    if [ ! -d "${buildDir}/${validSubDir}" ]; then
+      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+      if [ ! -f ${buildDir}.tar.gz ]; then
+        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+      fi
+      ExtractArchive ${buildDir} ${validSubDir}
+    else
+      cd ${buildDir}
+    fi
+    # Perform build
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
@@ -691,7 +691,7 @@ for buildDir in ldglite ldview povray; do
     fi
     Info && Info "Build ${buildDir} finished."
   else
-    Info "Renderer artefacts for ${!artefactVer} exists - build skipped."
+    Info "Renderer artefact binary for ${!artefactVer} exists - build skipped."
   fi
   cd ${WD}
 done
