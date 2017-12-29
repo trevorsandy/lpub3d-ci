@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 27, 2017
+rem  Last Update: December 29, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -12,6 +12,7 @@ SETLOCAL
 ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
+REM Set the current working directory to the source directory root - e.g. lpub3d\
 FOR %%* IN (.) DO SET CWD=%%~nx*
 IF "%CWD%" EQU "windows" (
   CD /D ../../
@@ -28,9 +29,7 @@ IF "%CWD%" NEQ "%LPUB3D%" (
 )
 
 SET _PRO_FILE_PWD_=%CD%\mainApp
-
 CD /D "builds\windows"
-
 SET WIN_PKG_DIR=%CD%
 
 SET RUN_NSIS=1
@@ -214,11 +213,11 @@ SET LAST_VER_DEB=unknown
 SET LAST_VER_RPM=unknown
 SET LAST_VER_PKG=unknown
 
-SET ALTERNATE_VER_PKG_EXE=unknown
-SET ALTERNATE_VER_PKG_DMG=unknown
-SET ALTERNATE_VER_PKG_DEB=unknown
-SET ALTERNATE_VER_PKG_RPM=unknown
-SET ALTERNATE_VER_PKG_PKG=unknown
+SET ALTERNATE_VER_EXE=unknown
+SET ALTERNATE_VER_DMG=unknown
+SET ALTERNATE_VER_DEB=unknown
+SET ALTERNATE_VER_RPM=unknown
+SET ALTERNATE_VER_PKG=unknown
 
 ECHO.
 ECHO - Setting up release build parameters...
@@ -226,6 +225,19 @@ ECHO - Setting up release build parameters...
 CD /D "%utilitiesPath%"
 
 CALL update-config-files.bat %_PRO_FILE_PWD_%
+
+IF "%APPVEYOR%" EQU "True" (
+  ECHO.
+  ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
+
+  CALL :CREATE_PS_VARS_FILE
+  
+  IF EXIST "%set_ps_vars%" (
+    ECHO   FILE set_ps_vars.ps1...........[written to builds\utilities\set_ps_vars.ps1]
+  ) ELSE (
+    ECHO   FILE set_ps_vars.ps1...........[ERROR - file %set_ps_vars% not found]
+  )
+)
 
 REM available versions (by platform) -set tokens to select specific version(s)
 FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET AVAILABLE_VERS_EXE=%%i
@@ -240,11 +252,11 @@ FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_DEB%") DO SET LAST_VER_DEB=%
 FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_RPM%") DO SET LAST_VER_RPM=%%i
 FOR /F "tokens=1 delims=," %%i IN ("%AVAILABLE_VERS_PKG%") DO SET LAST_VER_PKG=%%i
 
-FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_EXE%") DO SET ALTERNATE_VER_PKG_EXE=%%i
-FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_DMG%") DO SET ALTERNATE_VER_PKG_DMG=%%i
-FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_DEB%") DO SET ALTERNATE_VER_PKG_DEB=%%i
-FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_RPM%") DO SET ALTERNATE_VER_PKG_RPM=%%i
-FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_PKG%") DO SET ALTERNATE_VER_PKG_PKG=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_EXE%") DO SET ALTERNATE_VER_EXE=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_DMG%") DO SET ALTERNATE_VER_DMG=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_DEB%") DO SET ALTERNATE_VER_DEB=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_RPM%") DO SET ALTERNATE_VER_RPM=%%i
+FOR /F "tokens=2 delims=," %%i IN ("%AVAILABLE_VERS_PKG%") DO SET ALTERNATE_VER_PKG=%%i
 
 CD /D "%WIN_PKG_DIR%"
 CD /D "%devRootPath%"
@@ -333,11 +345,11 @@ ECHO   AVAILABLE_VERS_DMG.......[%AVAILABLE_VERS_DMG%]
 ECHO   AVAILABLE_VERS_DEB.......[%AVAILABLE_VERS_DEB%]
 ECHO   AVAILABLE_VERS_RPM.......[%AVAILABLE_VERS_RPM%]
 ECHO   AVAILABLE_VERS_PKG.......[%AVAILABLE_VERS_PKG%]
-ECHO   ALTERNATE_VER_PKG_EXE....[%ALTERNATE_VER_PKG_EXE%]
-ECHO   ALTERNATE_VER_PKG_DMG....[%ALTERNATE_VER_PKG_DMG%]
-ECHO   ALTERNATE_VER_PKG_DEB....[%ALTERNATE_VER_PKG_DEB%]
-ECHO   ALTERNATE_VER_PKG_RPM....[%ALTERNATE_VER_PKG_RPM%]
-ECHO   ALTERNATE_VER_PKG_PKG....[%ALTERNATE_VER_PKG_PKG%]
+ECHO   ALTERNATE_VER_EXE........[%ALTERNATE_VER_EXE%]
+ECHO   ALTERNATE_VER_DMG........[%ALTERNATE_VER_DMG%]
+ECHO   ALTERNATE_VER_DEB........[%ALTERNATE_VER_DEB%]
+ECHO   ALTERNATE_VER_RPM........[%ALTERNATE_VER_RPM%]
+ECHO   ALTERNATE_VER_PKG........[%ALTERNATE_VER_PKG%]
 ECHO   LAST_VER_EXE.............[%LAST_VER_EXE%]
 ECHO   LAST_VER_DMG.............[%LAST_VER_DMG%]
 ECHO   LAST_VER_DEB.............[%LAST_VER_DEB%]
@@ -750,11 +762,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_osx.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DMG%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_DMG%-dmg": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_DMG%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_DMG%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_DMG%_osx.dmg",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_DMG%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_DMG%-dmg": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_DMG%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_DMG%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_DMG%_osx.dmg",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_DMG%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-deb": {
@@ -763,11 +775,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_amd64.deb",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_DEB%-deb": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_DEB%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_DEB%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_DEB%_amd64.deb",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_DEB%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_DEB%-deb": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_DEB%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_DEB%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_DEB%_amd64.deb",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_DEB%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-rpm": {
@@ -776,11 +788,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_fc.%LP3D_ARCH%.rpm",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_RPM%-rpm": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_RPM%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_RPM%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_RPM%_fc.%LP3D_ARCH%.rpm",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_RPM%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_RPM%-rpm": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_RPM%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_RPM%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_RPM%_fc.%LP3D_ARCH%.rpm",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_RPM%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-pkg": {
@@ -789,11 +801,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_1-%LP3D_ARCH%.pkg.tar.xz",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG_PKG%-pkg": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG_PKG%/",
->>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG_PKG%",
->>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG_PKG%_1-%LP3D_ARCH%.pkg.tar.xz",
->>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG_PKG%.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALTERNATE_VER_PKG%-pkg": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALTERNATE_VER_PKG%/",
+>>%genLPub3DUpdates%         "latest-version": "%ALTERNATE_VER_PKG%",
+>>%genLPub3DUpdates%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALTERNATE_VER_PKG%_1-%LP3D_ARCH%.pkg.tar.xz",
+>>%genLPub3DUpdates%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALTERNATE_VER_PKG%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     }
 >>%genLPub3DUpdates%   }
@@ -805,19 +817,19 @@ ECHO - Generating lpub3dupdates.json package distribution file...
 
 (
   FOR /F "tokens=*" %%i IN (%PKG_UPDATE_DIR%\lpub3dupdates.json) DO (
-    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_EXE%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_EXE%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Exe.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_DMG%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_DMG%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Dmg.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_DEB%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_DEB%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Deb.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_RPM%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_RPM%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Rpm.txt
     )
-    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG_PKG%": {" (
+    IF "%%i" EQU ""alternate-version-%ALTERNATE_VER_PKG%": {" (
       TYPE %PKG_UPDATE_DIR%\lastVersionInsert_Pkg.txt
     )
   ECHO %%i
@@ -1029,6 +1041,57 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 ECHO.
 ECHO - LDraw archive libraries download finshed
 EXIT /b 0
+
+:CREATE_PS_VARS_FILE
+SET set_ps_vars=%CD%\set_ps_vars.ps1
+>%set_ps_vars% echo # This script sets the update-config-files environment variables in Powershell
+>>%set_ps_vars% echo #
+>>%set_ps_vars% echo # From PowerShell scripts, run as follows:
+>>%set_ps_vars% echo #
+>>%set_ps_vars% echo #   Set-ExecutionPolicy remotesigned -scope process -force
+>>%set_ps_vars% echo #   %set_ps_vars%
+>>%set_ps_vars% echo #
+>>%set_ps_vars% echo # From batch files, run as follows:
+>>%set_ps_vars% echo #
+>>%set_ps_vars% echo #   powershell -executionpolicy remotesigned -File %set_ps_vars%
+>>%set_ps_vars% echo #
+>>%set_ps_vars% echo # Both procedures will cause the following envionment variables to be set:
+>>%set_ps_vars% echo.
+>>%set_ps_vars% echo $env:LP3D_SOURCE_DIR = "%LP3D_SOURCE_DIR%"
+>>%set_ps_vars% echo $env:LP3D_CALL_DIR = "%LP3D_CALL_DIR%"
+>>%set_ps_vars% echo $env:LP3D_DAY = "%LP3D_DAY%"
+>>%set_ps_vars% echo $env:LP3D_MONTH = "%LP3D_MONTH%"
+>>%set_ps_vars% echo $env:LP3D_YEAR = "%LP3D_YEAR%"
+>>%set_ps_vars% echo $env:LP3D_HOUR = "%LP3D_HOUR%"
+>>%set_ps_vars% echo $env:LP3D_MIN = "%LP3D_MIN%"
+>>%set_ps_vars% echo $env:LP3D_SEC = "%LP3D_SEC%"
+>>%set_ps_vars% echo $env:LP3D_TIME = "%LP3D_TIME%"
+>>%set_ps_vars% echo $env:LP3D_WEEK_DAY = "%LP3D_WEEK_DAY%"
+>>%set_ps_vars% echo $env:LP3D_MONTH_OF_YEAR = "%LP3D_MONTH_OF_YEAR%"
+>>%set_ps_vars% echo $env:LP3D_VER_MAJOR = "%LP3D_VER_MAJOR%"
+>>%set_ps_vars% echo $env:LP3D_VER_MINOR = "%LP3D_VER_MINOR%"
+>>%set_ps_vars% echo $env:LP3D_VER_PATCH = "%LP3D_VER_PATCH%"
+>>%set_ps_vars% echo $env:LP3D_VER_REVISION = "%LP3D_VER_REVISION%"
+>>%set_ps_vars% echo $env:LP3D_VER_BUILD = "%LP3D_VER_BUILD%"
+>>%set_ps_vars% echo $env:LP3D_VER_SHA_HASH = "%LP3D_VER_SHA_HASH%"
+IF [%LP3D_VER_SUFFIX%] NEQ [] (
+  >>%set_ps_vars% echo $env:LP3D_VER_SUFFIX = "%LP3D_VER_SUFFIX%"
+)
+>>%set_ps_vars% echo $env:LP3D_VERSION = "%LP3D_VERSION%"
+>>%set_ps_vars% echo $env:LP3D_APP_VERSION = "%LP3D_APP_VERSION%"
+>>%set_ps_vars% echo $env:LP3D_APP_VERSION_TAG = "%LP3D_APP_VERSION_TAG%"
+>>%set_ps_vars% echo $env:LP3D_APP_VER_SUFFIX = "%LP3D_APP_VER_SUFFIX%"
+>>%set_ps_vars% echo $env:LP3D_APP_VERSION_LONG = "%LP3D_APP_VERSION_LONG%"
+>>%set_ps_vars% echo $env:LP3D_BUILD_VERSION = "%LP3D_BUILD_VERSION%"
+>>%set_ps_vars% echo $env:LP3D_VERSION_INFO = "%LP3D_VERSION_INFO%"
+>>%set_ps_vars% echo $env:LP3D_BUILD_DATE_TIME = "%LP3D_BUILD_DATE_TIME%"
+>>%set_ps_vars% echo $env:LP3D_CHANGE_DATE_LONG = "%LP3D_CHANGE_DATE_LONG%"
+>>%set_ps_vars% echo $env:LP3D_AVAILABLE_VERSIONS = "%LP3D_AVAILABLE_VERSIONS%"
+>>%set_ps_vars% echo $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
+>>%set_ps_vars% echo $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
+>>%set_ps_vars% echo $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
+>>%set_ps_vars% echo $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
+EXIT /b
 
 :POSTPROCESS
 IF %AUTO% NEQ 1 (
