@@ -621,7 +621,7 @@ for buildDir in ldglite ldview povray; do
     ;;
   esac
 
-  # OBS build routine...
+  # OBS build setup routine...
   if [ "$OBS" = "true" ]; then
     if [ -f "${buildDir}.tar.gz" ]; then
       ExtractArchive ${buildDir} ${validSubDir}
@@ -654,18 +654,11 @@ for buildDir in ldglite ldview povray; do
     esac
   fi
 
-  # CI/Local build routine...
-  # Install build dependencies
-  if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-    Info && Info "Install ${!artefactVer} build dependencies..."
+  # CI/Local build setup routine...
+  if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
+    # Check if build folder exist - donwload tarball and extract if not
+    Info && Info "Setup ${!artefactVer} source files..."
     Info "----------------------------------------------------"
-    InstallDependencies ${buildDir}
-    sleep .5
-  fi
-  Info && Info "Build ${!artefactVer}..."
-  Info "----------------------------------------------------"
-  if [ ! -f "${!artefactBinary}" ]; then
-    # Check if build folder exist and donwload if not
     if [ ! -d "${buildDir}/${validSubDir}" ]; then
       Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
       if [ ! -f ${buildDir}.tar.gz ]; then
@@ -676,7 +669,19 @@ for buildDir in ldglite ldview povray; do
     else
       cd ${buildDir}
     fi
-    # Perform build
+    # Install build dependencies
+    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+      Info && Info "Install ${!artefactVer} build dependencies..."
+      Info "----------------------------------------------------"
+      InstallDependencies ${buildDir}
+      sleep .5
+    fi
+  fi
+  
+  # Perform build
+  Info && Info "Build ${!artefactVer}..."
+  Info "----------------------------------------------------"
+  if [ ! -f "${!artefactBinary}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then

@@ -1036,56 +1036,57 @@ EXIT /b 0
 :CREATE_PS_VARS_FILE
 ECHO.
 ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
-SET set_ps_vars=%CD%\set_ps_vars.ps1 ECHO
->%set_ps_vars% echo # This script sets the update-config-files environment variables in Powershell
->>%set_ps_vars% echo #
->>%set_ps_vars% echo # From PowerShell scripts, run as follows:
->>%set_ps_vars% echo #
->>%set_ps_vars% echo #   Set-ExecutionPolicy remotesigned -scope process -force
->>%set_ps_vars% echo #   %set_ps_vars%
->>%set_ps_vars% echo #
->>%set_ps_vars% echo # From batch files, run as follows:
->>%set_ps_vars% echo #
->>%set_ps_vars% echo #   powershell -executionpolicy remotesigned -File %set_ps_vars%
->>%set_ps_vars% echo #
->>%set_ps_vars% echo # Both procedures will cause the following envionment variables to be set:
->>%set_ps_vars% echo.
->>%set_ps_vars% echo $env:LP3D_SOURCE_DIR = "%LP3D_SOURCE_DIR%"
->>%set_ps_vars% echo $env:LP3D_CALL_DIR = "%LP3D_CALL_DIR%"
->>%set_ps_vars% echo $env:LP3D_DAY = "%LP3D_DAY%"
->>%set_ps_vars% echo $env:LP3D_MONTH = "%LP3D_MONTH%"
->>%set_ps_vars% echo $env:LP3D_YEAR = "%LP3D_YEAR%"
->>%set_ps_vars% echo $env:LP3D_HOUR = "%LP3D_HOUR%"
->>%set_ps_vars% echo $env:LP3D_MIN = "%LP3D_MIN%"
->>%set_ps_vars% echo $env:LP3D_SEC = "%LP3D_SEC%"
->>%set_ps_vars% echo $env:LP3D_TIME = "%LP3D_TIME%"
->>%set_ps_vars% echo $env:LP3D_WEEK_DAY = "%LP3D_WEEK_DAY%"
->>%set_ps_vars% echo $env:LP3D_MONTH_OF_YEAR = "%LP3D_MONTH_OF_YEAR%"
->>%set_ps_vars% echo $env:LP3D_VER_MAJOR = "%LP3D_VER_MAJOR%"
->>%set_ps_vars% echo $env:LP3D_VER_MINOR = "%LP3D_VER_MINOR%"
->>%set_ps_vars% echo $env:LP3D_VER_PATCH = "%LP3D_VER_PATCH%"
->>%set_ps_vars% echo $env:LP3D_VER_REVISION = "%LP3D_VER_REVISION%"
->>%set_ps_vars% echo $env:LP3D_VER_BUILD = "%LP3D_VER_BUILD%"
->>%set_ps_vars% echo $env:LP3D_VER_SHA_HASH = "%LP3D_VER_SHA_HASH%"
+SET set_ps_vars=%CD%\set_ps_vars.ps1 
+SET genFile=%set_ps_vars% ECHO
+>%genFile% # This script sets the update-config-files environment variables in Powershell
+>>%genFile% #
+>>%genFile% # From PowerShell scripts, run as follows:
+>>%genFile% #
+>>%genFile% #   Set-ExecutionPolicy remotesigned -scope process -force
+>>%genFile% #   %set_ps_vars%
+>>%genFile% #
+>>%genFile% # From batch files, run as follows:
+>>%genFile% #
+>>%genFile% #   powershell -executionpolicy remotesigned -File %set_ps_vars%
+>>%genFile% #
+>>%genFile% # Both procedures will cause the following envionment variables to be set:
+>>%genFile%.
+>>%genFile% $env:LP3D_SOURCE_DIR = "%LP3D_SOURCE_DIR%"
+>>%genFile% $env:LP3D_CALL_DIR = "%LP3D_CALL_DIR%"
+>>%genFile% $env:LP3D_DAY = "%LP3D_DAY%"
+>>%genFile% $env:LP3D_MONTH = "%LP3D_MONTH%"
+>>%genFile% $env:LP3D_YEAR = "%LP3D_YEAR%"
+>>%genFile% $env:LP3D_HOUR = "%LP3D_HOUR%"
+>>%genFile% $env:LP3D_MIN = "%LP3D_MIN%"
+>>%genFile% $env:LP3D_SEC = "%LP3D_SEC%"
+>>%genFile% $env:LP3D_TIME = "%LP3D_TIME%"
+>>%genFile% $env:LP3D_WEEK_DAY = "%LP3D_WEEK_DAY%"
+>>%genFile% $env:LP3D_MONTH_OF_YEAR = "%LP3D_MONTH_OF_YEAR%"
+>>%genFile% $env:LP3D_VER_MAJOR = "%LP3D_VER_MAJOR%"
+>>%genFile% $env:LP3D_VER_MINOR = "%LP3D_VER_MINOR%"
+>>%genFile% $env:LP3D_VER_PATCH = "%LP3D_VER_PATCH%"
+>>%genFile% $env:LP3D_VER_REVISION = "%LP3D_VER_REVISION%"
+>>%genFile% $env:LP3D_VER_BUILD = "%LP3D_VER_BUILD%"
+>>%genFile% $env:LP3D_VER_SHA_HASH = "%LP3D_VER_SHA_HASH%"
 IF [%LP3D_VER_SUFFIX%] NEQ [] (
-  >>%set_ps_vars% echo $env:LP3D_VER_SUFFIX = "%LP3D_VER_SUFFIX%"
+  >>%genFile% $env:LP3D_VER_SUFFIX = "%LP3D_VER_SUFFIX%"
 )
->>%set_ps_vars% echo $env:LP3D_VERSION = "%LP3D_VERSION%"
->>%set_ps_vars% echo $env:LP3D_APP_VERSION = "%LP3D_APP_VERSION%"
->>%set_ps_vars% echo $env:LP3D_APP_VERSION_TAG = "%LP3D_APP_VERSION_TAG%"
->>%set_ps_vars% echo $env:LP3D_APP_VER_SUFFIX = "%LP3D_APP_VER_SUFFIX%"
->>%set_ps_vars% echo $env:LP3D_APP_VERSION_LONG = "%LP3D_APP_VERSION_LONG%"
->>%set_ps_vars% echo $env:LP3D_BUILD_VERSION = "%LP3D_BUILD_VERSION%"
->>%set_ps_vars% echo $env:LP3D_VERSION_INFO = "%LP3D_VERSION_INFO%"
->>%set_ps_vars% echo $env:LP3D_BUILD_DATE_TIME = "%LP3D_BUILD_DATE_TIME%"
->>%set_ps_vars% echo $env:LP3D_CHANGE_DATE_LONG = "%LP3D_CHANGE_DATE_LONG%"
->>%set_ps_vars% echo $env:LP3D_AVAILABLE_VERSIONS = "%LP3D_AVAILABLE_VERSIONS%"
->>%set_ps_vars% echo $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
->>%set_ps_vars% echo $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
->>%set_ps_vars% echo $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
->>%set_ps_vars% echo $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
->>%set_ps_vars% echo write-host "Update-config-files environment variables set in Powershell"
->>%set_ps_vars% echo write-host "`n"
+>>%genFile% $env:LP3D_VERSION = "%LP3D_VERSION%"
+>>%genFile% $env:LP3D_APP_VERSION = "%LP3D_APP_VERSION%"
+>>%genFile% $env:LP3D_APP_VERSION_TAG = "%LP3D_APP_VERSION_TAG%"
+>>%genFile% $env:LP3D_APP_VER_SUFFIX = "%LP3D_APP_VER_SUFFIX%"
+>>%genFile% $env:LP3D_APP_VERSION_LONG = "%LP3D_APP_VERSION_LONG%"
+>>%genFile% $env:LP3D_BUILD_VERSION = "%LP3D_BUILD_VERSION%"
+>>%genFile% $env:LP3D_VERSION_INFO = "%LP3D_VERSION_INFO%"
+>>%genFile% $env:LP3D_BUILD_DATE_TIME = "%LP3D_BUILD_DATE_TIME%"
+>>%genFile% $env:LP3D_CHANGE_DATE_LONG = "%LP3D_CHANGE_DATE_LONG%"
+>>%genFile% $env:LP3D_AVAILABLE_VERSIONS = "%LP3D_AVAILABLE_VERSIONS%"
+>>%genFile% $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
+>>%genFile% $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
+>>%genFile% $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
+>>%genFile% $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
+>>%genFile% write-host "Update-config-files environment variables set in Powershell"
+>>%genFile% write-host "`n"
 IF EXIST "%set_ps_vars%" (
   ECHO   FILE set_ps_vars.ps1...........[written to %set_ps_vars%]
 ) ELSE (
