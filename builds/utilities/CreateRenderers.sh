@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 22, 2017
+#  Last Update: December 29, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -541,30 +541,46 @@ fi
 
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
-  Info &&  Info "Install $OS_NAME build dependencies..."
-  brewDeps="openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip boost autoconf automake pkg-config"
+  Info &&  Info "Install $OS_NAME renderer build dependencies..."
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
-  Info "Dependencies List...[X11 ${brewDeps}]"
-  Info "Checking for X11 (xquartz) at /usr/X11..."
-  if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
-    Info "Good to go - X11 found."
-  else
-    Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
-    if [ "${TRAVIS}" != "true" ]; then
-      Info "  You can install xquartz using homebrew:"
-      Info "  \$ brew cask list"
-      Info "  \$ brew cask install xquartz"
-      Info "  Note: elevated access password will be required."
+  for buildDir in ldview povray; do
+    artefactPath="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"  
+    if [ ! -f "${!artefactPath}" ]; then
+      case ${buildDir} in
+      ldview)
+        brewDeps="tinyxml gl2ps libjpeg minizip"
+        ;;
+      povray)
+        brewDeps="$brewDeps openexr sdl2 libtiff boost autoconf automake pkg-config"
+        ;;
+      esac
     fi
-    # Elapsed execution time
-    FinishElapsedTime
-    exit 1
+  done
+  if [ -n $brewDeps ]; then
+    Info "Dependencies List...[X11 ${brewDeps}]"
+    Info "Checking for X11 (xquartz) at /usr/X11..."
+    if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
+      Info "Good to go - X11 found."
+    else
+      Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
+      if [ "${TRAVIS}" != "true" ]; then
+        Info "  You can install xquartz using homebrew:"
+        Info "  \$ brew cask list"
+        Info "  \$ brew cask install xquartz"
+        Info "  Note: elevated access password will be required."
+      fi
+      # Elapsed execution time
+      FinishElapsedTime
+      exit 1
+    fi
+    depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
+    brew update > $depsLog 2>&1
+    brew install $brewDeps >> $depsLog 2>&1
+    Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
+  else
+    Info "Renderer artefacts exist, nothing to build. Install dependencies skippes"
   fi
-  depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
-  brew update > $depsLog 2>&1
-  brew install $brewDeps >> $depsLog 2>&1
-  Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
 fi
 
 # Main loop
@@ -654,8 +670,8 @@ for buildDir in ldglite ldview povray; do
   # Install build dependencies
   if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
     InstallDependencies ${buildDir}
+    sleep .5
   fi
-  sleep .5
   # Perform build
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
