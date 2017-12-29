@@ -227,16 +227,7 @@ CD /D "%utilitiesPath%"
 CALL update-config-files.bat %_PRO_FILE_PWD_%
 
 IF "%APPVEYOR%" EQU "True" (
-  ECHO.
-  ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
-
   CALL :CREATE_PS_VARS_FILE
-  
-  IF EXIST "%set_ps_vars%" (
-    ECHO   FILE set_ps_vars.ps1...........[written to builds\utilities\set_ps_vars.ps1]
-  ) ELSE (
-    ECHO   FILE set_ps_vars.ps1...........[ERROR - file %set_ps_vars% not found]
-  )
 )
 
 REM available versions (by platform) -set tokens to select specific version(s)
@@ -1043,7 +1034,9 @@ ECHO - LDraw archive libraries download finshed
 EXIT /b 0
 
 :CREATE_PS_VARS_FILE
-SET set_ps_vars=%CD%\set_ps_vars.ps1
+ECHO.
+ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
+SET set_ps_vars=%CD%\set_ps_vars.ps1 ECHO
 >%set_ps_vars% echo # This script sets the update-config-files environment variables in Powershell
 >>%set_ps_vars% echo #
 >>%set_ps_vars% echo # From PowerShell scripts, run as follows:
@@ -1091,7 +1084,14 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%set_ps_vars% echo $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
 >>%set_ps_vars% echo $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
 >>%set_ps_vars% echo $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
-EXIT /b
+>>%set_ps_vars% echo write-host "Update-config-files environment variables set in Powershell"
+>>%set_ps_vars% echo write-host "`n"
+IF EXIST "%set_ps_vars%" (
+  ECHO   FILE set_ps_vars.ps1...........[written to %set_ps_vars%]
+) ELSE (
+  ECHO   FILE set_ps_vars.ps1...........[ERROR - file %set_ps_vars% not found]
+)
+EXIT /b 0
 
 :POSTPROCESS
 IF %AUTO% NEQ 1 (

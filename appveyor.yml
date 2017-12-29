@@ -80,7 +80,7 @@ init:
       }
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
-        If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '([^\D]\s?[0-1]?\s?[0-1]?\s?[0-1]?).*$') {
+        If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
           $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
           $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
           $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
@@ -153,7 +153,7 @@ after_build:
       If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 350) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
         builds\utilities\set_ps_vars.ps1
-        Get-ChildItem Env:LP3D_* | Sort-Object name
+        Get-ChildItem Env:LP3D_BUILD_* | Sort-Object name
         $root = Resolve-Path .\${env:LP3D_BUILD_DOWNLOAD_TARGET}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
         $root = Resolve-Path .\${env:LP3D_BUILD_UPDATE_TARGET};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
       }
