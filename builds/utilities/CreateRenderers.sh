@@ -557,7 +557,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
       esac
     fi
   done
-  if [ -n $brewDeps ]; then
+  if [ -n "$brewDeps" ]; then
     Info "Dependencies List...[X11 ${brewDeps}]"
     Info "Checking for X11 (xquartz) at /usr/X11..."
     if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
