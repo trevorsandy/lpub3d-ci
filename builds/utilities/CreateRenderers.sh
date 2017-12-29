@@ -542,6 +542,7 @@ fi
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
   Info &&  Info "Install $OS_NAME renderer build dependencies..."
+  Info "----------------------------------------------------"
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
   for buildDir in ldview povray; do
@@ -656,7 +657,7 @@ for buildDir in ldglite ldview povray; do
   # CI/Local build routine...
   # Install build dependencies
   if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-    Info && Info "Install ${!artefactVer} dependencies..."
+    Info && Info "Install ${!artefactVer} build dependencies..."
     Info "----------------------------------------------------"
     InstallDependencies ${buildDir}
     sleep .5
