@@ -92,7 +92,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.319
+Version: 2.0.20.331
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -527,5 +527,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Dec 28 2017 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.319
+* Sat Dec 30 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.331
 - LPub3D Linux package (rpm) release
