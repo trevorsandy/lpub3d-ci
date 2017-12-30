@@ -546,7 +546,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
   Info "Platform............[macos]"
   Info "Using sudo..........[No]"
   for buildDir in ldview povray; do
-    artefactBinary="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"  
+    artefactBinary="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"
     if [ ! -f "${!artefactBinary}" ]; then
       case ${buildDir} in
       ldview)
@@ -677,7 +677,7 @@ for buildDir in ldglite ldview povray; do
       sleep .5
     fi
   fi
-  
+
   # Perform build
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"

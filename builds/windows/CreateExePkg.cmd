@@ -227,7 +227,7 @@ CD /D "%utilitiesPath%"
 CALL update-config-files.bat %_PRO_FILE_PWD_%
 
 IF "%APPVEYOR%" EQU "True" (
-  CALL :CREATE_PS_VARS_FILE
+  CALL :CREATE_LP3D_VARS_FILE
 )
 
 REM available versions (by platform) -set tokens to select specific version(s)
@@ -1033,10 +1033,10 @@ ECHO.
 ECHO - LDraw archive libraries download finshed
 EXIT /b 0
 
-:CREATE_PS_VARS_FILE
+:CREATE_LP3D_VARS_FILE
 ECHO.
 ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
-SET set_ps_vars=%CD%\set_ps_vars.ps1 
+SET set_ps_vars=%CD%\set_ps_vars.ps1
 SET genFile=%set_ps_vars% ECHO
 >%genFile% # This script sets the update-config-files environment variables in Powershell
 >>%genFile% #
@@ -1085,12 +1085,65 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
 >>%genFile% $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
 >>%genFile% $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
->>%genFile% write-host "Update-config-files environment variables set in Powershell"
->>%genFile% write-host "`n"
+>>%genFile% write-host "`n- Update-config-files environment variables set in Powershell"
 IF EXIST "%set_ps_vars%" (
   ECHO   FILE set_ps_vars.ps1...........[written to %set_ps_vars%]
 ) ELSE (
   ECHO   FILE set_ps_vars.ps1...........[ERROR - file %set_ps_vars% not found]
+)
+ECHO.
+ECHO - Create set_bash_vars.ps1 to add update-config-files environment variables to Bash...
+SET LP3D_PACKAGE_PATH_BASH=%LP3D_PACKAGE_PATH:\=/%
+SET set_bash_vars=%CD%\set_bash_vars.sh
+SET genFile=%set_bash_vars% ECHO
+>%genFile% #!/bin/bash
+>>%genFile% #
+>>%genFile% # This script sets the update-config-files environment variables in Bash
+>>%genFile% #
+>>%genFile% #  Trevor SANDY <trevor.sandy@gmail.com>
+>>%genFile% #  Last Update: December 30, 2017
+>>%genFile% #  Copyright (c) 2017 by Trevor SANDY
+>>%genFile%.
+>>%genFile% export LP3D_SOURCE_DIR="%LP3D_SOURCE_DIR%"
+>>%genFile% export LP3D_CALL_DIR="%LP3D_CALL_DIR%"
+>>%genFile% export LP3D_DAY="%LP3D_DAY%"
+>>%genFile% export LP3D_MONTH="%LP3D_MONTH%"
+>>%genFile% export LP3D_YEAR="%LP3D_YEAR%"
+>>%genFile% export LP3D_HOUR="%LP3D_HOUR%"
+>>%genFile% export LP3D_MIN="%LP3D_MIN%"
+>>%genFile% export LP3D_SEC="%LP3D_SEC%"
+>>%genFile% export LP3D_TIME="%LP3D_TIME%"
+>>%genFile% export LP3D_WEEK_DAY="%LP3D_WEEK_DAY%"
+>>%genFile% export LP3D_MONTH_OF_YEAR="%LP3D_MONTH_OF_YEAR%"
+>>%genFile% export LP3D_VER_MAJOR="%LP3D_VER_MAJOR%"
+>>%genFile% export LP3D_VER_MINOR="%LP3D_VER_MINOR%"
+>>%genFile% export LP3D_VER_PATCH="%LP3D_VER_PATCH%"
+>>%genFile% export LP3D_VER_REVISION="%LP3D_VER_REVISION%"
+>>%genFile% export LP3D_VER_BUILD="%LP3D_VER_BUILD%"
+>>%genFile% export LP3D_VER_SHA_HASH="%LP3D_VER_SHA_HASH%"
+IF [%LP3D_VER_SUFFIX%] NEQ [] (
+  >>%genFile% export LP3D_VER_SUFFIX="%LP3D_VER_SUFFIX%"
+)
+>>%genFile% export LP3D_VERSION="%LP3D_VERSION%"
+>>%genFile% export LP3D_APP_VERSION="%LP3D_APP_VERSION%"
+>>%genFile% export LP3D_APP_VERSION_TAG="%LP3D_APP_VERSION_TAG%"
+>>%genFile% export LP3D_APP_VER_SUFFIX="%LP3D_APP_VER_SUFFIX%"
+>>%genFile% export LP3D_APP_VERSION_LONG="%LP3D_APP_VERSION_LONG%"
+>>%genFile% export LP3D_BUILD_VERSION="%LP3D_BUILD_VERSION%"
+>>%genFile% export LP3D_VERSION_INFO="%LP3D_VERSION_INFO%"
+>>%genFile% export LP3D_BUILD_DATE_TIME="%LP3D_BUILD_DATE_TIME%"
+>>%genFile% export LP3D_CHANGE_DATE_LONG="%LP3D_CHANGE_DATE_LONG%"
+>>%genFile% export LP3D_AVAILABLE_VERSIONS="%LP3D_AVAILABLE_VERSIONS%"
+>>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PACKAGE%-Any-%LP3D_CHANGE_DATE_LONG%"
+>>%genFile% export LP3D_BUILD_TARGET="%LP3D_PACKAGE_PATH_BASH%/${LP3D_BUILD_PACKAGE}"
+>>%genFile% export LP3D_BUILD_DOWNLOAD_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
+>>%genFile% export LP3D_BUILD_UPDATE_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
+>>%genFile% echo && echo "- Update-config-files environment variables set in Bash"
+>>%genFile% echo && echo exported LP3D* environment variables && env | grep LP3D_ | while read line; do echo $line=${!line};done
+IF EXIST "%set_bash_vars%" (
+  ECHO   FILE set_bash_vars.sh..........[written to %set_bash_vars%]
+) ELSE (
+  ECHO   FILE set_bash_vars.sh..........[ERROR - file %set_bash_vars% not found]
 )
 EXIT /b 0
 

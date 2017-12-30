@@ -34,15 +34,16 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
   cp -f $file_UPkg $LP3D_UPDATES_DIR;
   cp -f $file_DPkg $LP3D_DOWNLOADS_DIR;
   echo "Release Files:" && find $LP3D_RELEASES_DIR -type f;
+
   # Decrypt Dropbox storage uploader
-  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_UPLOADER_DIR}/.dropbox_uploader_travis.enc -out /tmp/.dropbox_uploader -d;
+  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.dropbox_uploader_travis.enc -out /tmp/.dropbox_uploader -d;
   if [ -f "/tmp/.dropbox_uploader" ]; then
-    chmod +x "${LP3D_UPLOADER_DIR}/dropbox_uploader.sh";
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_RELEASES_DIR";
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_UPDATES_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
-    ./"${LP3D_UPLOADER_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
+    chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_RELEASES_DIR";
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_UPDATES_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
   else
     echo "ERROR - /tmp/.dropbox_uploader not found - cannot perform upload";
   fi;
