@@ -34,11 +34,13 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
   cp -f $file_UPkg $LP3D_UPDATES_DIR;
   cp -f $file_DPkg $LP3D_DOWNLOADS_DIR;
   echo "Release Files:" && find $LP3D_RELEASES_DIR -type f;
-  # upload assets to Dropbox for temp storage
-  chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_RELEASES_DIR";
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_UPDATES_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
+  if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+    # upload assets to Dropbox for temp storage
+    chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_RELEASES_DIR";
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_UPDATES_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
+  fi;
 fi
