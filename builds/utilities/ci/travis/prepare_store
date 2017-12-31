@@ -3,16 +3,12 @@
 # Travis build [prepare_store] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 30, 2017
+#  Last Update: December 31, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
-if [ -f "/tmp/.dropbox_uploader" ]; then
-  chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-  echo $(./"${LP3D_CI_DIR}"/dropbox_uploader.sh list "$LP3D_DROPBOX_RELEASES_DIR") | grep -w 'DONE' \
-  && echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_RELEASES_DIR'..." \
-  && ./"${LP3D_CI_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_RELEASES_DIR" || true
-else
-  echo "ERROR - /tmp/.dropbox_uploader not found - cannot perform delete.";
-fi;
+chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+echo $(./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR") | grep -w 'DONE' \
+&& echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_RELEASES_DIR'..." \
+&& ./"${LP3D_CI_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_RELEASES_DIR" || true

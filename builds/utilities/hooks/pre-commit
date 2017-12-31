@@ -3,6 +3,10 @@
 # This commit-msg hook updates the LPub3D version information when
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: December 31, 2017
+#  Copyright (c) 2017 by Trevor SANDY
+#
 ## Automatically generate git revision info
 ##
 ## Setup
@@ -26,7 +30,6 @@ increment_version=${doIncrement:-yes}                                           
 commitmsg=".git/COMMIT_EDITMSG"
 cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' && update_config_files=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
 if test x"$update_config_files" = x"yes"; then
-
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
   commit_count=`git rev-list HEAD --count`

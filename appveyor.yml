@@ -171,8 +171,9 @@ after_build:
         $root = Resolve-Path .\${env:LP3D_BUILD_UPDATE_TARGET};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
         If ($env:LP3D_DEPLOY_PKG -eq $true) {
           cmd.exe /c nuget install secure-file -ExcludeVersion
-          cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\sfdeploy_appveyor_rsa.enc -secret %LP3D_SF_SECRET%
-          bash -lc "chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh"
+          cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\sfdeploy_rsa.enc -secret %LP3D_SF_SECRET%
+          C:\msys64\usr\bin\bash -lc "chmod +x builds/utilities/ci/sfdeploy.sh"
+          C:\msys64\usr\bin\bash -lc "./builds/utilities/ci/sfdeploy.sh"
         }
       }
 

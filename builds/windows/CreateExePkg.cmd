@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 29, 2017
+rem  Last Update: December 31, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -1139,7 +1139,7 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_BUILD_DOWNLOAD_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
 >>%genFile% export LP3D_BUILD_UPDATE_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
 >>%genFile% echo && echo "- Update-config-files environment variables set in Bash"
->>%genFile% echo && echo exported LP3D* environment variables && env | grep LP3D_ | while read line; do echo $line=${!line};done
+>>%genFile% echo && echo "- Exported LP3D* environment variables" && env | grep LP3D_ | while read line; do echo $line=${!line};done
 IF EXIST "%set_bash_vars%" (
   ECHO   FILE set_bash_vars.sh..........[written to %set_bash_vars%]
 ) ELSE (
