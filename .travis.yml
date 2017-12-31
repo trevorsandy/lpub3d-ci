@@ -118,7 +118,6 @@ jobs:
           condition: $LP3D_DEPLOY_PKG = yes
           condition: $LP3D_DEPLOY_SF_PKG = yes;
 
-
 notifications:
   email:
     on_success: never
