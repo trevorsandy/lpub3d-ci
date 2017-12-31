@@ -38,12 +38,13 @@ if test x"$update_config_files" = x"yes"; then
   valid_commit="yes"
   if test x"`git diff HEAD --name-only`" = x""; then valid_commit="no"; fi
 
-  tmp1=${tag_long#*-}                                    # remove everything before and including "-"
-  revision=${tmp1%-*}                                    # remove everything after and including "-"
-  tmp2=${tag_short//./" "}                               # replace . with " "
-  version_=${tmp2/v/}                                    # replace v with ""
-  suffix=${tmp2#*_}                                      # remove everything before and including "_" if it exist
-  if test -n "$suffix"; then version_=${version_%_*}; fi # remove everything after and including "_"
+  tmp1=${tag_long#*-}                                     # remove everything before and including "-"
+  revision=${tmp1%-*}                                     # remove everything after and including "-"
+  tmp1=${tag_short//./" "}                                # replace . with " "
+  version_=${tmp1/v/}                                     # replace v with ""
+  tmp1=${version_#*_}                                     # remove everything before and including "_" if exist
+  if test "$tmp1" != "$version_"; then suffix=${tmp1}; fi # check if ver_tmp not same as version_ - suffix exist
+  if test -n "$suffix"; then version_=${version_%_*}; fi  # remove everything after and including "_" - suffix exist
   read major minor patch <<< ${version_}
 
   echo "0. Incrementing Git version info..."

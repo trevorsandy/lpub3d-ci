@@ -50,11 +50,11 @@ environment:
   lp3d_librepo: lpub3d_mingw-Qt5_libs
   lp3d_librepodir: /c/projects/$(APPVEYOR_PROJECT_NAME)/$(lp3d_librepo)
   LP3D_SECURE_DIR: builds\utilities\ci\secure
-  LP3D_SF_SECRET:
+  SECURE_SF_SECRET:
     secure: VDiCarfAWcBEzuWImZp2TQ==
-  LP3D_SF_DOWNLOAD_CONNECT:
+  SECURE_SF_DOWNLOAD_CONNECT:
     secure: zXFc1WWIwSNa/+vIgCvjfz1Eu5y4pnB9mHcY7StIaZRR9bNe6wawtfGjfvZrtxlDo9sCLbiS9MhXdLVWp+Xjiw==
-  LP3D_SF_UDPATE_CONNECT:
+  SECURE_SF_UDPATE_CONNECT:
     secure: zXFc1WWIwSNa/+vIgCvjfz1Eu5y4pnB9mHcY7StIaZTFPnKy95h6kknC5+/oZ9yEZjpb4DbMasDv12bpBf6nJw==
 
 # Build package if commit message contains [build pkg]
@@ -116,7 +116,7 @@ init:
         Write-Output "Build cache cleared."
       }
  - ps: $env:LP3D_RELEASE_LABEL = ("LPub3D " + (Get-Date -format "dd.MM.yyyy"))
- - ps: Get-ChildItem Env:* -Include ("LP3D_*") -Exclude ("LP3D_SF_*") | Sort-Object name
+ - ps: Get-ChildItem Env:LP3D_* | Sort-Object name
 
 # This is where we install MinGW Qt5 for x86 and x86_64 builds. The Qt builds are necessarey because we are using VS image which
 # does not have Qt x86 but it does have Msys2/Mingw. As there is no x86_64 MinGW Qt, we build both the x86 and x86_64 architectures.
@@ -141,9 +141,8 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE && echo cached $LP3D_LDGLITE deleted; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW && echo cached $LP3D_LDVIEW deleted; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_TRACE\" = \"1\" && test -d \"$LP3D_LPUB3D_TRACE\"; then rm -rf $LP3D_LPUB3D_TRACE && echo cached $LP3D_LPUB3D_TRACE deleted; fi"
- - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.2-2-release; pacman -U --needed --noconfirm ${LP3D_QT32_LIBS} ${LP3D_QT64_LIBS} > CreateQtBuildEnv.log 2>&1"
- - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm rsync >> CreateQtBuildEnv.log 2>&1"
-
+ - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.2-2-release; pacman -U --needed --noconfirm ${LP3D_QT32_LIBS} ${LP3D_QT64_LIBS} > InstallQtBuildEnv.log 2>&1"
+ - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallRSync.log 2>&1"
 
 build_script:
  - ps: |
@@ -171,7 +170,7 @@ after_build:
         $root = Resolve-Path .\${env:LP3D_BUILD_UPDATE_TARGET};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
         If ($env:LP3D_DEPLOY_PKG -eq $true) {
           cmd.exe /c nuget install secure-file -ExcludeVersion
-          cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\sfdeploy_rsa.enc -secret %LP3D_SF_SECRET%
+          cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
           C:\msys64\usr\bin\bash -lc 'chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh'
         }
       }

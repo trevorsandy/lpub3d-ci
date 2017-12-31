@@ -9,17 +9,11 @@
 #  Note: this script requires a host private key
 
 # load environment
-if [ "$APPVEYOR" = "True" ]; then
-  echo "- Deploying to Sourceforge.net..." && echo
-  echo "- source set_bash_vars.sh..." && echo
-  source builds/utilities/ci/set_bash_vars.sh
-  LP3D_UPDATE_ASSETS=$LP3D_BUILD_UPDATE_TARGET
-  LP3D_DOWNLOAD_ASSETS=$LP3D_BUILD_DOWNLOAD_TARGET
-elif [ "$TRAVIS" = "true" ]; then
-  echo "Deploying to Sourceforge.net..." && echo
-  LP3D_UPDATE_ASSETS=$LP3D_UPDATE_DIR
-  LP3D_DOWNLOAD_ASSETS=$LP3D_DOWNLOAD_DIR
-fi
+echo "- Deploying to Sourceforge.net..." && echo
+echo "- source set_bash_vars.sh..." && echo
+source builds/utilities/ci/set_bash_vars.sh
+LP3D_UPDATE_ASSETS=$LP3D_BUILD_UPDATE_TARGET
+LP3D_DOWNLOAD_ASSETS=$LP3D_BUILD_DOWNLOAD_TARGET
 
 # set working directory
 sfParent_dir=${PWD##*/}
@@ -34,13 +28,13 @@ LP3D_SF_REMOTE_HOST=216.34.181.57 # frs.sourceforge.net
 [ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $IP >> ~/.ssh/known_hosts
 
 # add host private key to ssh-agent
-if [ -f "builds/utilities/ci/sfdeploy_rsa" ]; then
-  mv -f "builds/utilities/ci/sfdeploy_rsa" "/tmp/sfdeploy_rsa"
+if [ -f "builds/utilities/ci/secure/.sfdeploy_appveyor_rsa" ]; then
+  mv -f "builds/utilities/ci/secure/.sfdeploy_appveyor_rsa" "/tmp/.sfdeploy_appveyor_rsa"
   eval "$(ssh-agent -s)"
-  chmod 600 /tmp/sfdeploy_rsa
-  ssh-add /tmp/sfdeploy_rsa
+  chmod 600 /tmp/.sfdeploy_appveyor_rsa
+  ssh-add /tmp/.sfdeploy_appveyor_rsa
 else
-  echo "ERROR - builds/utilities/ci/sfdeploy_rsa was not found."
+  echo "ERROR - builds/utilities/ci/secure/.sfdeploy_appveyor_rsa was not found."
 fi
 
 # upload assets
@@ -52,7 +46,7 @@ for OPTION in UDPATE DOWNLOAD; do
       echo "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted.";
     else
       echo "Download Release Assets:" && find $LP3D_UPDATE_ASSETS -type f
-	    rsync -r --quiet $LP3D_UPDATE_ASSETS/* $LP3D_SF_UDPATE_CONNECT/
+	    rsync -r --quiet $LP3D_UPDATE_ASSETS/* $SECURE_SF_UDPATE_CONNECT/
 	  fi
     ;;
   DOWNLOAD)
@@ -61,7 +55,7 @@ for OPTION in UDPATE DOWNLOAD; do
       echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted.";
     else
       echo "Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
-	    rsync -r --quiet $LP3D_DOWNLOAD_ASSETS/* $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
+	    rsync -r --quiet $LP3D_DOWNLOAD_ASSETS/* $SECURE_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
 	  fi
     ;;
   esac

@@ -148,6 +148,7 @@ CONFIG(debug, debug|release) {
     }
     !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
+MAN_PAGE = $$join(TARGET,,,.1)
 message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} ~~~")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -371,35 +372,14 @@ OTHER_FILES += \
     lpub3d.desktop \
     lpub3d.xml \
     lpub3d.sh \
-    $$MAN_PAGE \
-    ../builds/macx/CreateDmg.sh \
-    ../builds/macx/CreateDmgAlt.sh \
-    ../builds/linux/CreateRpm.sh \
-    ../builds/linux/CreateDeb.sh \
-    ../builds/linux/CreatePkg.sh \
-    ../builds/linux/obs/_service \
-    ../builds/linux/obs/lpub3d.spec \
-    ../builds/linux/obs/PKGBUILD \
-    ../builds/linux/obs/debian/rules \
-    ../builds/linux/obs/debian/control \
-    ../builds/linux/obs/debian/copyright \
-    ../builds/linux/obs/debian/lpub3d.dsc \
-    ../builds/linux/obs/debian/shlibs.local \
-    ../builds/linux/obs/_service \
-    ../builds/windows/CreateExe.bat \
-    ../builds/utilities/Copyright-Source-Headers.txt \
-    ../builds/utilities/update-config-files.sh \
-    ../builds/utilities/update-config-files.bat \
-    ../builds/utilities/dmg-utils/dmg-license.py \
-    ../builds/utilities/dmg-utils/template.appplescript \
-    ../builds/utilities/nsis-scripts/LPub3DNoPack.nsi \
-    ../builds/utilities/nsis-scripts/nsisFunctions.nsh \
-    ../builds/utilities/create-dmg \
-    ../builds/utilities/README.md \
+    $$lower($$MAN_PAGE) \
+    lpub3d.1 \
     ../README.md \
     ../.gitignore \
     ../.travis.yml \
     ../appveyor.yml
+
+include(otherfiles.pri)
 
 RESOURCES += \
     lpub3d.qrc

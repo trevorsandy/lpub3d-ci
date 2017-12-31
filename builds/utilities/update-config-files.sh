@@ -106,14 +106,15 @@ then
     lp3d_git_ver_commit_count=`git rev-list HEAD --count`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
     cd "${LP3D_CALL_DIR}"
-    lp3d_ver_tmp1=${lp3d_git_ver_tag_long#*-}                             # remove everything before and including "-"
-    lp3d_revision_=${lp3d_ver_tmp1%-*}                                    # remove everything after and including "-"
-    lp3d_ver_tmp2=${lp3d_git_ver_tag_short//./" "}                        # replace . with " "
-    lp3d_version_=${lp3d_ver_tmp2/v/}                                     # replace v with ""
-    lp3d_suffix=${lp3d_ver_tmp2#*_}                                       # capture version suffix - everything after "_" if it exist
-    if test -n "$lp3d_suffix"; then lp3d_version_=${lp3d_version_%_*}; fi # remove everything after and including "_"
-    if test -n "lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=undefined; fi
-    if test -n "lp3d_git_ver_committer_email"; then LP3D_COMMITTER_EMAIL=${lp3d_git_ver_committer_email}; else LP3D_COMMITTER_EMAIL=undefined; fi
+    lp3d_ver_tmp=${lp3d_git_ver_tag_long#*-}                                          # remove everything before and including "-"
+    lp3d_revision_=${lp3d_ver_tmp%-*}                                                 # remove everything after and including "-"
+    lp3d_ver_tmp=${lp3d_git_ver_tag_short//./" "}                                     # replace . with " "
+    lp3d_version_=${lp3d_ver_tmp/v/}                                                  # replace v with ""
+    lp3d_ver_tmp=${lp3d_version_#*_}                                                  # remove everything before and including "_" if exist
+    if test "$lp3d_ver_tmp" != "$lp3d_version_"; then lp3d_suffix=${lp3d_ver_tmp}; fi # check if ver_tmp not same as version_ - suffix exist
+    if test -n "$lp3d_suffix"; then lp3d_version_=${lp3d_version_%_*}; fi             # remove everything after and including "_" - suffix exist
+    if test -n "$lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=`echo $USER`; fi
+    if test -n "$lp3d_git_ver_committer_email"; then LP3D_COMMITTER_EMAIL=${lp3d_git_ver_committer_email}; else LP3D_COMMITTER_EMAIL=undefined; fi
     LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 else
     Info "1. capture version info using input arguments"

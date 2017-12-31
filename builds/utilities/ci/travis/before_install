@@ -70,15 +70,10 @@ else
   fi
   export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
 fi
+# Decrypt Dropbox
 if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
-  # Decrypt Dropbox private key
-  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.dropbox_uploader_rsa.enc -out /tmp/.dropbox_uploader_rsa -d;
-  if [ -f "/tmp/.dropbox_uploader_rsa" ]; then
-    # add key to ssh-agent
-    eval "$(ssh-agent -s)";
-    chmod 600 /tmp/.dropbox_uploader_rsa;
-    ssh-add /tmp/.dropbox_uploader_rsa;
-  else
+  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.dropbox_oauth.enc -out /tmp/.dropbox_oauth -d;
+  if [ ! -f "/tmp/.dropbox_oauth" ]; then
     echo "ERROR - /tmp/.dropbox_uploader_rsa not found - cannot perform Dropbox transfers";
   fi;
 fi

@@ -227,7 +227,8 @@ CD /D "%utilitiesPath%"
 CALL update-config-files.bat %_PRO_FILE_PWD_%
 
 IF "%APPVEYOR%" EQU "True" (
-  CALL :CREATE_LP3D_VARS_FILE
+  CALL :CREATE_LP3D_PS_VARS_FILE
+  CALL :CREATE_LP3D_BASH_VARS_FILE
 )
 
 REM available versions (by platform) -set tokens to select specific version(s)
@@ -346,8 +347,6 @@ ECHO   LAST_VER_DMG.............[%LAST_VER_DMG%]
 ECHO   LAST_VER_DEB.............[%LAST_VER_DEB%]
 ECHO   LAST_VER_RPM.............[%LAST_VER_RPM%]
 ECHO   LAST_VER_PKG.............[%LAST_VER_PKG%]
-
-
 
 IF %UNIVERSAL_BUILD% NEQ 1 (
   IF "%APPVEYOR%" EQU "True" (
@@ -1033,7 +1032,7 @@ ECHO.
 ECHO - LDraw archive libraries download finshed
 EXIT /b 0
 
-:CREATE_LP3D_VARS_FILE
+:CREATE_LP3D_PS_VARS_FILE
 ECHO.
 ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
 SET set_ps_vars=%CD%\set_ps_vars.ps1
@@ -1091,8 +1090,11 @@ IF EXIST "%set_ps_vars%" (
 ) ELSE (
   ECHO   FILE set_ps_vars.ps1...........[ERROR - file %set_ps_vars% not found]
 )
+EXIT /b 0
+
+:CREATE_LP3D_BASH_VARS_FILE
 ECHO.
-ECHO - Create set_bash_vars.ps1 to add update-config-files environment variables to Bash...
+ECHO - Create set_bash_vars.sh to add update-config-files environment variables to Bash...
 SET LP3D_PACKAGE_PATH_BASH=%LP3D_PACKAGE_PATH:\=/%
 SET set_bash_vars=%CD%\set_bash_vars.sh
 SET genFile=%set_bash_vars% ECHO
@@ -1100,9 +1102,9 @@ SET genFile=%set_bash_vars% ECHO
 >>%genFile% #
 >>%genFile% # This script sets the update-config-files environment variables in Bash
 >>%genFile% #
->>%genFile% #  Trevor SANDY <trevor.sandy@gmail.com>
->>%genFile% #  Last Update: December 30, 2017
->>%genFile% #  Copyright (c) 2017 by Trevor SANDY
+>>%genFile% #  Trevor SANDY ^<trevor.sandy@gmail.com^>
+>>%genFile% #  Last Update: December 31, 2017
+>>%genFile% #  Copyright ^(c^) 2017 by Trevor SANDY
 >>%genFile%.
 >>%genFile% export LP3D_SOURCE_DIR="%LP3D_SOURCE_DIR%"
 >>%genFile% export LP3D_CALL_DIR="%LP3D_CALL_DIR%"
@@ -1138,13 +1140,14 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_BUILD_TARGET="%LP3D_PACKAGE_PATH_BASH%/${LP3D_BUILD_PACKAGE}"
 >>%genFile% export LP3D_BUILD_DOWNLOAD_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
 >>%genFile% export LP3D_BUILD_UPDATE_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
->>%genFile% echo && echo "- Update-config-files environment variables set in Bash"
->>%genFile% echo && echo "- Exported LP3D* environment variables" && env | grep LP3D_ | while read line; do echo $line=${!line};done
+>>%genFile% echo ^&^& echo "- Update-config-files environment variables set in Bash"
+>>%genFile% echo ^&^& echo "- Exported LP3D* environment variables" ^&^& env ^| grep LP3D_ ^| while read line; do echo $line=${!line};done
 IF EXIST "%set_bash_vars%" (
   ECHO   FILE set_bash_vars.sh..........[written to %set_bash_vars%]
 ) ELSE (
   ECHO   FILE set_bash_vars.sh..........[ERROR - file %set_bash_vars% not found]
 )
+EXIT /b 0
 EXIT /b 0
 
 :POSTPROCESS

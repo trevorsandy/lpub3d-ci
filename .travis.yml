@@ -31,8 +31,8 @@ env:
     - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
     - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
     - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
-    - secure: "aOvx3tG/0xA4yFgttNdbPATfZruWpsjkcJSGdtTy4ICgTAvXKb0lUT3oeG3RNIeLnG1ENjzBdzhlYYFJ5+JWi53DHzw9BEfPkwUsJzjqprd2pWqDlp0gIWoZ/lFg1PNSERDknw7ROKBBzJ1CnnNNZuFp0RM7D7ijaqB11e/sodEdqiYrcMvDIpgp2/qp13azvSytYgWMCGH1JFRiTgKdnaJDWIVA7zJliuH6MOWzVBcHGEBD8Zk8fNeQRUPl7LEWiPSoLOcTkuY22Q1xZkMpkQ6066RRrPavJtjeY6II20k82pFeR411jufuUN+15z+eKqa+b8ZaRLbSKCNsrD5xELTrAks9omML6DIgDfr5+hfW5LGit6AJxjnKgF/Si0uvDkvkws5Mtb0wGLDZwL8oYw6o6uuMzaYBKijaQ1nU3/qYw8f2GAuZVVlvX7BqKTaA7D+Y/SNLBEM4YEN0HfrHpCUiSRTzDURplaTuhovgb8hK1f4nFJjt3FsQxsstBjlmE4rUuNBYb6H8ST/Y7m70guJ6Svn9oEdMJD+cXmSuDuz2hPzJDacvwgk94Lyg+azcQCxUcXKOguAbWObcUqJclsbnKCjcghqHOhSmD7hmC81u6vyfwkJKn0M8884NmHi9AiHCkCnlMJw/aFfdL2mQJDLpjhewMkaWnlhRHgOgKhU="
-    - secure: "c/wWajidzTZ4knDEzsZIEpPo9xglrXqEJ198LlUP9SglUIbrTDQgnpWqU2gH7J2WiyGMdYFqZJI+Z4crkaQvN4154Ucg2rMyzMIxkjJCR+T/geJ45WvJ6k4PlsecLEjsqA74qo5Fr5BAF0UKN6dB3sVfMTmC92S9Uas6vDHZR8pI4sJo2riIzAhNPKi8gTZ+QmFUkvuY33K5FrLQC3hYFta6Neg1OpdNiRWVjU7mVRi8+TbQ7vNSicaK1dQOmct80zx8SgdZ9fJTe8PQVCQUccDZ6yGONJp02maHWTq2UrDJMU8krOd3SEz9zJr4rU3P1qUISxtXiimWp9B5PowTL1qohZTOthApr2nvpULQUOKm4fkpI+HTCpLWj6wQdOuD+gEgn4FcuGyhx1iozUZj+w92Jc/ok8ldW2Yytgvs2mLAEPUppL+mLvWr8YjEjuTxrnqUF5ATZDrAfmxP0oYtuv2+XqQkJXk2wnJc5opcMp6tsGfCwqgd9ifm6whpDry8HhTCjRoefrpsjRN0HBvqNy/MqxqnrZt3wT3X/heC69VvVUa8I2vl8Pwqj8jzEs9eReUrQQIrIoeGqsNa36lOuKe7tumAfkVOO6cfrduhz0vwVK0ABMIsYIQNqGl7SmkhO4yqMNbFZcBqA8Yj3LRDhGYPhs4qG6u9XtZItt25qEU="
+    - secure: "borWKC2OLFOt13ZlxkLtVNfWMGfW3vtlivpJdNu7g5ZiIeySLO4641U7xY1f3c5eFtnEif5XtB4WrKI7M+eXypJl7qs/Ds6nauSKOP3XCw8yNjxZomU1DD8dMWaQibe8b3rFC5emFFZ/KtG438C4IPHSkd2paaGYyXcGWMaPZLsAuReW78H0eZTvAkNn17kusZ11rwtk5avzZKm/2eD95z7ac2RCa+pZTKUGMK+aq3GM3iplyV0Kopi/p/jYvnYaxqW4/HD6+0NMiWs6YlVv9m5eMmUEwbh2VFW7nl/hinUf9xGlLuzQj5mIlxn2moQXA0I526kObm7zELLZp+OR4cwC+oMH5CHXCopBe0jy6KAc8/k7nZ3205llT0VrtBw5zXV1LMDut4hsefcyEilT1kRnFpQjapFd61a/Pd9iSZwl/KBXj6pmE+wkEK65GTgUA7JIVtp+ILz+oapwjDdyYguqU8WF31OiJIP5FyRmh/VF9azsJv93WVzbER8BQho5ZvdyHLWs+GSt807mKEqrpWvaukYYR2jB4T0K54M25e4wMKYU25DEiltTP1F017UIlGEqLWy0nNltGGPBQukp6rg4XbPInIHIQoydklgaHOMuARDstzncnIEViNlXULJKdnXiPvMgBODIo0aZFHMxvYufBDgycj0ZHLfTb2+/Qto="
+    - secure: "O14SvpHHE7mBCahNrI/5DQjBow46T5jitYDBqOLVji0GgOdRXAa3BC+U6fF3YWuQhW24484M4yDXA3zNlXExeXwyqVSzmdOSgdj9Fasz+T4pDeAUKF5mJKpmQHHychNQN0+GfsK1csxNNG0/qjeZXbqFmQ15vWYbsPGwfDtDlQETE0xz2n0K4Np2gi/FF68XzXJPjIIHIysXGYEJsMNf15njgjID2/CzVWZt0ZAQREw4nB+telZunysj+NBtzEk5TkRImMsg84Q1ZdqVJBQpAccbLT6qzduSLiLkjTcMqOFc5DW9IKC7tvCAIxNCFfBWSuNY7A1c/el241wxfWPsn9TGHdRTbRTPezY+dKULDoj0TWCh1CEcrXrRU3Kbin2IltEYcGcfOnqnlz4i97e5pSN+mjOUTs0ijHLWGRygUDILICcVxKyqkYe6T0EGh+QNhfVGT6g0ssDn7u1+XqEBmP3+Kc71+NK13cG/aRVyUPAQigaNo5zGl0iux/QVJoREHO3CX6HLLL+wmj+A3UIYcRYbH4PuhqmpvECe5oGz5TvMFV7G51XyAvPyBgeBZWhR2m2f85aiiAiWZBMiOh0m+TBdWEX3vQ1HY/qhsyAYklpReVt48ngQoVWOACq0mcXQOeRcixjpEeRBA4IwXUmR21xaUtdMioMKWZuRhF1upOI="
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
@@ -106,13 +106,13 @@ jobs:
           condition: $LP3D_DEPLOY_PKG = yes
       - provider: script
         skip_cleanup: true
-        script: rsync -r --quiet ${LP3D_DOWNLOADS_DIR}/* ${LP3D_SF_DOWNLOAD_CONNECT}/${$LP3D_VERSION}/
+        script: rsync -r --quiet ${LP3D_DOWNLOADS_DIR}/* ${SECURE_SF_DOWNLOAD_CONNECT}/${$LP3D_VERSION}/
         on:
           branch: $TRAVIS_BRANCH
           condition: $LP3D_DEPLOY_SF_PKG = yes
       - provider: script
         skip_cleanup: true
-        script: rsync -r --quiet ${LP3D_UPDATES_DIR}/* ${LP3D_SF_UDPATE_CONNECT}/
+        script: rsync -r --quiet ${LP3D_UPDATES_DIR}/* ${SECURE_SF_UDPATE_CONNECT}/
         on:
           branch: $TRAVIS_BRANCH
           condition: $LP3D_DEPLOY_PKG = yes
