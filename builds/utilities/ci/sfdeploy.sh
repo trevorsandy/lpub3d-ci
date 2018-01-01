@@ -32,7 +32,7 @@ LP3D_SF_REMOTE_HOST=216.34.181.57 # frs.sourceforge.net
 [ ! -d ~/.ssh ] && mkdir -p ~/.ssh && touch ~/.ssh/known_hosts || \
 [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts || true
 [ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts || \
-echo && echo  "- Remote host public key for $LP3D_SF_REMOTE_HOST exist in known_hosts."
+echo && echo  "- Public key for remote host $LP3D_SF_REMOTE_HOST exist in known_hosts."
 
 # add host private key to ssh-agent
 if [ -f "builds/utilities/ci/secure/.sfdeploy_appveyor_rsa" ]; then
@@ -50,19 +50,19 @@ for OPTION in UDPATE DOWNLOAD; do
   UDPATE)
     # Verify release files in the Update directory
     if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-      echo && echo  "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted.";
+      echo && echo "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted.";
     else
-      echo && echo  "- Download Release Assets:" && find $LP3D_UPDATE_ASSETS -type f
-      rsync -r --quiet $LP3D_UPDATE_ASSETS/* $SECURE_SF_UDPATE_CONNECT/
+      echo && echo "- Update Release Assets:" && find $LP3D_UPDATE_ASSETS -type f
+      rsync --recursive --verbose $LP3D_UPDATE_ASSETS/* $SECURE_SF_UDPATE_CONNECT/
     fi
     ;;
   DOWNLOAD)
     # Verify release files in the Download directory
     if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-      echo && echo  "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted.";
+      echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted.";
     else
-      echo && echo  "- Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
-      rsync -r --quiet $LP3D_DOWNLOAD_ASSETS/* $SECURE_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
+      echo && echo "- Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
+      rsync --recursive --verbose $LP3D_DOWNLOAD_ASSETS/* $SECURE_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
     fi
     ;;
   esac

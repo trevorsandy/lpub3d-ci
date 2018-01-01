@@ -1141,7 +1141,7 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_BUILD_DOWNLOAD_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
 >>%genFile% export LP3D_BUILD_UPDATE_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
 >>%genFile% echo ^&^& echo "- Update-config-files environment variables set in Bash"
->>%genFile% echo ^&^& echo "- LP3D* Environment Variables:" ^&^& env ^| sort ^| grep 'LP3D_*'
+>>%genFile% echo ^&^& echo "- LP3D BUILD Environment Variables:" ^&^& env ^| sort ^| grep 'LP3D_BUILD_*'
 IF EXIST "%set_bash_vars%" (
   ECHO   FILE set_bash_vars.sh..........[written to %set_bash_vars%]
 ) ELSE (
