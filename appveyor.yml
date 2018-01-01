@@ -171,7 +171,7 @@ after_build:
         If ($env:LP3D_DEPLOY_PKG -eq $true) {
           cmd.exe /c nuget install secure-file -ExcludeVersion
           cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
-          C:\msys64\usr\bin\bash -lc 'chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh'
+          C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh'
         }
       }
 
