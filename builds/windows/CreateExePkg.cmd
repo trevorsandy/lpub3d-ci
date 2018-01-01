@@ -1035,7 +1035,7 @@ EXIT /b 0
 :CREATE_LP3D_PS_VARS_FILE
 ECHO.
 ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
-SET set_ps_vars=%CD%\set_ps_vars.ps1
+SET set_ps_vars=%CD%\ci\set_ps_vars.ps1
 SET genFile=%set_ps_vars% ECHO
 >%genFile% # This script sets the update-config-files environment variables in Powershell
 >>%genFile% #
@@ -1096,7 +1096,7 @@ EXIT /b 0
 ECHO.
 ECHO - Create set_bash_vars.sh to add update-config-files environment variables to Bash...
 SET LP3D_PACKAGE_PATH_BASH=%LP3D_PACKAGE_PATH:\=/%
-SET set_bash_vars=%CD%\set_bash_vars.sh
+SET set_bash_vars=%CD%\ci\set_bash_vars.sh
 SET genFile=%set_bash_vars% ECHO
 >%genFile% #!/bin/bash
 >>%genFile% #
@@ -1136,12 +1136,12 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_BUILD_DATE_TIME="%LP3D_BUILD_DATE_TIME%"
 >>%genFile% export LP3D_CHANGE_DATE_LONG="%LP3D_CHANGE_DATE_LONG%"
 >>%genFile% export LP3D_AVAILABLE_VERSIONS="%LP3D_AVAILABLE_VERSIONS%"
->>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PACKAGE%-Any-%LP3D_CHANGE_DATE_LONG%"
+>>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PACKAGE%-Any-%LP3D_APP_VERSION_LONG%"
 >>%genFile% export LP3D_BUILD_TARGET="%LP3D_PACKAGE_PATH_BASH%/${LP3D_BUILD_PACKAGE}"
 >>%genFile% export LP3D_BUILD_DOWNLOAD_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
 >>%genFile% export LP3D_BUILD_UPDATE_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
 >>%genFile% echo ^&^& echo "- Update-config-files environment variables set in Bash"
->>%genFile% echo ^&^& echo "- Exported LP3D* environment variables" ^&^& env ^| grep LP3D_ ^| while read line; do echo $line=${!line};done
+>>%genFile% echo ^&^& echo "- LP3D* Environment Variables:" ^&^& env ^| sort ^| grep 'LP3D_*'
 IF EXIST "%set_bash_vars%" (
   ECHO   FILE set_bash_vars.sh..........[written to %set_bash_vars%]
 ) ELSE (

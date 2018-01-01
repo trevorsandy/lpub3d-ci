@@ -44,7 +44,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
       ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOADS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
       ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
     else
-      echo "ERROR - /tmp/.dropbox_oauth not found - cannot perform upload";
+      echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform upload";
     fi;
   fi;
 fi

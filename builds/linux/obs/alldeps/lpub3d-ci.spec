@@ -527,5 +527,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Dec 31 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.338
+* Mon Jan 01 2018 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.338
 - LPub3D Linux package (rpm) release

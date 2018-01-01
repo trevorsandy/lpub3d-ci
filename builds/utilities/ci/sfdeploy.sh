@@ -8,10 +8,12 @@
 #
 #  Note: this script requires a host private key
 
-# load environment
-echo "- Deploying to Sourceforge.net..." && echo
-echo "- source set_bash_vars.sh..." && echo
+# load environment variables
+echo && echo "- Deploying to Sourceforge.net..."
+echo && echo "- source set_bash_vars.sh..."
 source builds/utilities/ci/set_bash_vars.sh
+
+# set local update and download asset paths
 LP3D_UPDATE_ASSETS=$LP3D_BUILD_UPDATE_TARGET
 LP3D_DOWNLOAD_ASSETS=$LP3D_BUILD_DOWNLOAD_TARGET
 
@@ -20,12 +22,17 @@ sfParent_dir=${PWD##*/}
 if  [ "$sfParent_dir" = "ci" ]; then
   sfChkdir="$(realpath ../../../../)"
   [ -d "$chkdir" ] && sfWD=$sfChkdir || sfWD=$PWD
+else
+  sfWD=$PWD
 fi
-echo "sfdeploy.sh working directory..[$sfWD]"
+echo && echo "  Working directory............[$sfWD]" && echo
 
 # add host public key to known_hosts - prevent interactive prompt
 LP3D_SF_REMOTE_HOST=216.34.181.57 # frs.sourceforge.net
-[ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $IP >> ~/.ssh/known_hosts
+[ ! -d ~/.ssh ] && mkdir -p ~/.ssh && touch ~/.ssh/known_hosts || \
+[ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts || true
+[ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts || \
+echo && echo  "- Remote host public key for $LP3D_SF_REMOTE_HOST exist in known_hosts."
 
 # add host private key to ssh-agent
 if [ -f "builds/utilities/ci/secure/.sfdeploy_appveyor_rsa" ]; then
@@ -34,7 +41,7 @@ if [ -f "builds/utilities/ci/secure/.sfdeploy_appveyor_rsa" ]; then
   chmod 600 /tmp/.sfdeploy_appveyor_rsa
   ssh-add /tmp/.sfdeploy_appveyor_rsa
 else
-  echo "ERROR - builds/utilities/ci/secure/.sfdeploy_appveyor_rsa was not found."
+  echo && echo "  ERROR - builds/utilities/ci/secure/.sfdeploy_appveyor_rsa was not found."
 fi
 
 # upload assets
@@ -43,20 +50,21 @@ for OPTION in UDPATE DOWNLOAD; do
   UDPATE)
     # Verify release files in the Update directory
     if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-      echo "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted.";
+      echo && echo  "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted.";
     else
-      echo "Download Release Assets:" && find $LP3D_UPDATE_ASSETS -type f
-	    rsync -r --quiet $LP3D_UPDATE_ASSETS/* $SECURE_SF_UDPATE_CONNECT/
-	  fi
+      echo && echo  "- Download Release Assets:" && find $LP3D_UPDATE_ASSETS -type f
+      rsync -r --quiet $LP3D_UPDATE_ASSETS/* $SECURE_SF_UDPATE_CONNECT/
+    fi
     ;;
   DOWNLOAD)
     # Verify release files in the Download directory
     if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-      echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted.";
+      echo && echo  "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted.";
     else
-      echo "Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
-	    rsync -r --quiet $LP3D_DOWNLOAD_ASSETS/* $SECURE_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
-	  fi
+      echo && echo  "- Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
+      rsync -r --quiet $LP3D_DOWNLOAD_ASSETS/* $SECURE_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
+    fi
     ;;
   esac
 done
+

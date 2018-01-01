@@ -14,5 +14,5 @@ if [ -f "/tmp/.dropbox_oauth" ]; then
   && echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_RELEASES_DIR'..." \
   && ./"${LP3D_CI_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_RELEASES_DIR" || true
 else
-  echo "ERROR - /tmp/.dropbox_oauth not found - cannot perform delete.";
+  echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform delete.";
 fi;
