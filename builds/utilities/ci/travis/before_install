@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 31, 2017
+#  Last Update: January 01, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
@@ -73,8 +73,10 @@ else
 fi
 # Decrypt Dropbox oauth token
 if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
-  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.dropbox_oauth.enc -out /tmp/.dropbox_oauth -d;
-  if [ ! -f "/tmp/.dropbox_oauth" ]; then
-    echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform Dropbox transfers";
+  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.secrets.tar.enc -out /tmp/.secrets.tar -d;
+  if [ ! -f "/tmp/.secrets.tar" ]; then
+    echo "ERROR - /tmp/.secrets.tar file not found - cannot perform secure transfers";
+  else
+   tar xvf /tmp/.secrets.tar -C /tmp/;
   fi;
 fi

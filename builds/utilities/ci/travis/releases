@@ -37,10 +37,8 @@ else
   echo "LPub3D Update Assets:" && find $LP3D_UPDATES_DIR -type f;
   export LP3D_DEPLOY_SF_PKG=yes;
 fi
-# Decrypt Sourceforge private key
-[ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.sfdeploy_travis_rsa.enc -out /tmp/.sfdeploy_travis_rsa -d;
+# Add Sourceforge private key to ssh-agent
 if [ -f "/tmp/.sfdeploy_travis_rsa" ]; then
-  # add key to ssh-agent
   eval "$(ssh-agent -s)";
   chmod 600 /tmp/.sfdeploy_travis_rsa;
   ssh-add /tmp/.sfdeploy_travis_rsa;
