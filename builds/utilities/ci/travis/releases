@@ -8,8 +8,6 @@
 #
 cd $LP3D_BUILD_FOLDER
 
-# GitHub release deployment
-echo "Deploying to GitHub releases ...";
 # Download release files from temp Dropbox store
 if [ -f "/tmp/.dropbox_oauth" ]; then
   chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
@@ -22,28 +20,23 @@ else
 fi;
 # Verify release files in the Download directory
 if [ -n "$(find "$LP3D_DOWNLOADS_DIR" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-  echo "ERROR - $LP3D_DOWNLOADS_DIR folder is empty.";
-  echo "GitHub release and Sourceforge.net download aborted.";
-  export LP3D_DEPLOY_PKG=no;
+  echo "ERROR - The $LP3D_DOWNLOADS_DIR folder is empty.";
+  echo "GitHub release and Sourceforge.net download assets deploy aborted.";
+  export LP3D_DEPLOY_PKG="no";
 else
   echo "LPub3D Download Assets:" && find $LP3D_DOWNLOADS_DIR -type f;
 fi
 # Verify release files in the Updates directory for Sourceforge upload
 if [ -n "$(find "$LP3D_UPDATES_DIR" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-  echo "ERROR - $LP3D_UPDATES_DIR folder is empty.";
-  echo "Sourceforge.net update release aborted.";
-  export LP3D_DEPLOY_SF_PKG=no;
+  echo "ERROR - The $LP3D_UPDATES_DIR folder is empty.";
+  echo "Sourceforge.net update assets deploy aborted.";
+  export LP3D_SF_DEPLOY_ABORT="true";
 else
   echo "LPub3D Update Assets:" && find $LP3D_UPDATES_DIR -type f;
-  export LP3D_DEPLOY_SF_PKG=yes;
 fi
-# Add Sourceforge private key to ssh-agent
-if [ -f "/tmp/.sfdeploy_travis_rsa" ]; then
-  eval "$(ssh-agent -s)";
-  chmod 600 /tmp/.sfdeploy_travis_rsa;
-  ssh-add /tmp/.sfdeploy_travis_rsa;
+# Deploy to Sourceforge.net
+if [[ "$LP3D_DEPLOY_PKG" = "yes" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
+  chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
 else
-  echo "ERROR - /tmp/.sfdeploy_travis_rsa not found - cannot perform Sourceforge.net transfers";
-  export LP3D_DEPLOY_SF_PKG=no;
-fi;
-
+  echo "ERROR - There was a problem getting the deploy assets."
+fi

@@ -52,12 +52,6 @@ environment:
   LP3D_SECURE_DIR: builds\utilities\ci\secure
   SECURE_SF_SECRET:
     secure: VDiCarfAWcBEzuWImZp2TQ==
-  SECURE_SF_REMOTE_HOST:
-    secure: PWcilATN6MJI3DkquzOB7SrvxSaU7qRoCBC7ep5hBvw=
-  SECURE_SF_DOWNLOAD_CONNECT:
-    secure: vE/vBWPkgtlzdbrbl31YI7D9nYd0js/Y1F4p2jF0FzoAQt63Pj80sojqzKJu+nMNt/vJmeq584qe0a3mqVHkbA==
-  SECURE_SF_UDPATE_CONNECT:
-    secure: vE/vBWPkgtlzdbrbl31YI7D9nYd0js/Y1F4p2jF0Fzoo9C1UEyWCjmSIXIexSKtLDi2z95dEjt4+dGooTluDY8OJtZ5EQiwASf/9xe03Eb4=
 
 # Build package if commit message contains [build pkg]
 # Parse the commit message for 3rd party build override

@@ -42,7 +42,7 @@ stages:
   - name: Prepare Release Store
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
-  - name: GitHub Release
+  - name: GitHub and Sourceforge Deploy
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 
 before_install:
@@ -89,35 +89,22 @@ jobs:
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     compiler: clang
-  - stage: GitHub Release
+  - stage: GitHub and Sourceforge Deploy
     env: LP3D_DEPLOY_PACKAGES=true
     script: source ${LP3D_CI_SCRIPT_DIR}/releases
     deploy:
-      - provider: releases
-        name: $LP3D_RELEASE_LABEL
-        api_key:
-          secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
-        file_glob: true
-        file: $LP3D_DOWNLOADS_DIR/*
-        overwrite: true
-        skip_cleanup: true
-        on:
-          repo: trevorsandy/lpub3d-ci
-          branch: $TRAVIS_BRANCH
-          condition: $LP3D_DEPLOY_PKG = yes
-      - provider: script
-        skip_cleanup: true
-        script: rsync -r --quiet ${LP3D_DOWNLOADS_DIR}/* ${SECURE_SF_DOWNLOAD_CONNECT}/${$LP3D_VERSION}/
-        on:
-          branch: $TRAVIS_BRANCH
-          condition: $LP3D_DEPLOY_SF_PKG = yes
-      - provider: script
-        skip_cleanup: true
-        script: rsync -r --quiet ${LP3D_UPDATES_DIR}/* ${SECURE_SF_UDPATE_CONNECT}/
-        on:
-          branch: $TRAVIS_BRANCH
-          condition: $LP3D_DEPLOY_PKG = yes
-          condition: $LP3D_DEPLOY_SF_PKG = yes;
+      provider: releases
+      name: $LP3D_RELEASE_LABEL
+      api_key:
+        secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
+      file_glob: true
+      file: $LP3D_DOWNLOADS_DIR/*
+      overwrite: true
+      skip_cleanup: true
+      on:
+        repo: trevorsandy/lpub3d-ci
+        branch: $TRAVIS_BRANCH
+        condition: $LP3D_DEPLOY_PKG = yes
 
 notifications:
   email:
