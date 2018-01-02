@@ -18,8 +18,8 @@ env:
     - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
     - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
     - LP3D_LOGS_DIR=${LP3D_RELEASES_DIR}/logs
-    - LP3D_UPDATES_DIR=${LP3D_RELEASES_DIR}/updates
-    - LP3D_DOWNLOADS_DIR=${LP3D_RELEASES_DIR}/downloads
+    - LP3D_UPDATE_ASSETS=${LP3D_RELEASES_DIR}/updates
+    - LP3D_DOWNLOAD_ASSETS=${LP3D_RELEASES_DIR}/downloads
     - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
     - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
     - LP3D_COMPOSE_DIR=builds/linux/docker-compose
@@ -31,15 +31,12 @@ env:
     - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
     - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
     - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
-    - secure: "rW/U+pAgOM/HMrELMRynv5lLpkq7AeDedrdPfeH8o82L/vnjvmB8URwp0Ye1sXcIfdWmskSWbWYwbXSdmp3BnHVSymuYzxjn8wZz4t+mVqrMul3wbavZzKFCmg0iZ23QuXOoEAZDktwxjJKkwlq3mrXqLjO28akVAjzD8nyEsrFDN+jLjD+O8NO5pUxybnVJJrQMxhRe9kxV20JfeQyDxk4prOUnESmvAPq60/oTdxV8sCA1srhV9WKJ41H0FuoRpB/EbVAID0wvaDvJnloflqfXhlIgM9/xBAsM3EftyUXp3fawx7RcIfyzQPLT24ryTv6IZ4thMOtNaetx8zwWjZFDj9N/459UmOBDpL8acSSkG/9hZnBx5wzFtv57OaYp182ELAbPp1kmsVveV7z1Jyqplirz0RdeFvRwfs9vki8y5fKC/Q+NSe5Q8TAz3JuKMyzkB+i/FPuD9yAGN395+C+39D9ORONTJFY+FQMtOkGtmtUhXM5jwQJJOlxfI0ghZvIubxgVPO2MESHRYRSYa7twiNLyKLPG2/JONN/DbJOi9NgSWgnx8UbS0nPXkMVzp+pUo6dlYfxOMtoW9/jCGuvIYc9dKuVoCyIBdpKCxX90BSKW9kVNVtT2tntXLALz4GUbM4cK6lrXYIsxeat/iPhVCWypHnmZO/mGugfEQtY="
-    - secure: "VKCM8LlWYKCnJqWMsRmLtv3KdlU9/aw8IpHKxyj26LtJhWpkR+zxtPT7Dc8q5QDsdtimNzC7RBXs7Lc2AdM04u1iIbn8ZVPeqsVLEZP8mBnTq0EXkSoodRJDg/pOdKo6UH7be5qzOOsHtRgtBn7G9LYAmruxZJo7MmUjOHPYIMI47Q5wfGnVCSVe/z7CWwXipxrdxmd1wT4762otPiQii76xtYhhcGPGDl0CUbxAzZsQjRQn9mz5dEhp9BBHNjJ5Y+hNyWS72sDXbLMJf+FI+vlYLU1XqSrsSCk3nkGmiIGtbGyzR3ZrJB150c6a/BxI/MHH5dseqgXwmML7+RXctH2KH0qy6cYN7GZt005FsQ+KisqHBi5rZpnNaIkBK+IsQF4G4uIB6GmrkjsfPzQnxCgdaCafOz6IaW3WGFu+jVbY3jr5g4p+fF11mzy6MqJFgMgdjHnrN3BLImq8E+eCYCQF37m4L7iN3dr07lJiffJJOkuE4eMqKe0s1r8PwOsqq0ydw+0s7MZNfqgmyHjmplYOu4ShjoLhXRtGDXrarYn98cLdywliGTqS6oX3HJ26YgpD4qxzPL3M7izShyeM4HSyGGdXaKuFeqhzczEWOEmc8O06stUN+AdQ5OYLC76Q6/s4I/aEpdko9R1uiDBaFYmeNyZ3JDIq/+w6yp8KqKU="
-    - secure: "uchIbJOmB3W4N5ZZ3foyeA3pXztuVUNOz6Wi+HQP0eR05uojK+Hmc5PfOZnNiDlu11lbjOjdmb/BXqO0zaNTd2VME7WO4S8s2jP4MneqhLz/SH7XshQUAr+u+vMUiDwu+MIkOX20YWH46oChKBT8HaH7vpZydNmK/3aHU5KjP0KTZvKFOl1PG31haL3SBu+wEpGeMUI3M10hrQm5FufnTa6vPNvY3GPHQPQy/7hs/+9OxDcxGoLuUVodyYJrVkRiuakA957HVzx4WtbU2wfKVUY8c70n3KasQqhLKTUJYTkzVnk2NRCJxufY5GtWa3Jr0AkqqbtxeGKZaUcTQKk34hU7+WYjZun19e3RGFEM7iCcd/aPwwRI1ddiyRNjNnAJiEW5pVvHd5Py2phOms6WxCOIR1gPbF2eD89THFn6TN7H9Pdo0qJBoK3U5ASg/2/zC/yOAMiOgHL4+g8ga9QYtHkSqb1RI7gXDiO8vCanYWh922hJvoQS6LbohdLb+aQQ7WOVAS5iBLdxkJEe0nHCwu9AEQ9NyjAJitH00YdLX+Wqv3PX6ws1XlFiX/2OfkNA2nhNr4zfyjMURDHHxzlg6tprptyzaUwC6hau4cnmB0u1NlSrVSF0NTO2O1KX2LLKA8JPyo3sEN55i8EYMPU5hbctC+sfnXXEW3LISR1mXJY="
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
 
 stages:
-  - name: Prepare Release Store
+  - name: Prepare Release Storage
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
   - name: GitHub and Sourceforge Deploy
@@ -95,10 +92,11 @@ jobs:
     deploy:
       provider: releases
       name: $LP3D_RELEASE_LABEL
+      body: 'LPub3D - An LDraw™ editor for LEGO® style digital building instructions.'
       api_key:
         secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
       file_glob: true
-      file: $LP3D_DOWNLOADS_DIR/*
+      file: $LP3D_DOWNLOAD_ASSETS/*
       overwrite: true
       skip_cleanup: true
       on:

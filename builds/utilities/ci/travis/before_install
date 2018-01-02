@@ -3,28 +3,36 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 01, 2017
+#  Last Update: January 02, 2017
 #  Copyright (c) 2017 by Trevor SANDY
 #
 
 # Skip build if the commit message contains [skip travis] or [travis skip]
-echo "$TRAVIS_COMMIT_MESSAGE" | grep -E '\[(skip travis|travis skip)\]' \
+echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[(skip travis|travis skip)\]' \
 && echo "[skip travis] detected, exiting." \
 && exit 0 || true
 
 # Build package if commit message contains [build pkg]
-echo "$TRAVIS_COMMIT_MESSAGE" | grep -E '\[build pkg.*\]' \
+echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg.*\]' \
 && export LP3D_BUILD_PKG=yes \
 && echo "[build pkg] detected." || true
 
-# Build and deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
-LP3D_VALID_DEPLOY_TAG=$(echo "$TRAVIS_TAG" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"') \
-&& [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ] \
-&& echo "Deploy tag detected." \
-&& echo "Deploy tag is $TRAVIS_TAG." \
-&& echo "Deploy branch is $TRAVIS_BRANCH." \
-&& export LP3D_BUILD_PKG=yes \
-&& export LP3D_DEPLOY_PKG=yes || true
+# Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
+# Automatically deploy to GitHub Release and Sourceforge.net.
+# Skip Sourceforge.net if git annotation contains [skip sfr]
+LP3D_VALID_DEPLOY_TAG=$(echo "$TRAVIS_TAG" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"');
+if [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ]; then
+  echo "Deploy tag detected.";
+  echo "Deploy tag is $TRAVIS_TAG.";
+  echo "Deploy branch is $TRAVIS_BRANCH.";
+  export LP3D_BUILD_PKG=yes;
+  export LP3D_DEPLOY_PKG=yes;
+  echo $(git tag -l -n $TRAVIS_TAG | awk '{print tolower($0)}') | grep -E '\[skip sfr\]' \
+  && export LP3D_SKIP_SF_DEPLOY=yes \
+  && echo "Skip Sourceforge deploy detected." || true;
+elif [ -n "$TRAVIS_TAG" ]; then
+  echo "WARNING - Tag $TRAVIS_TAG detected but is not a valid Deploy Tag. Deploy ingored.";
+fi
 
 # Add private qt repositories
 if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
@@ -75,7 +83,7 @@ fi
 if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
   [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_cacf73a1954d_key -iv $encrypted_cacf73a1954d_iv -in ${LP3D_SECURE_DIR}/.secrets.tar.enc -out /tmp/.secrets.tar -d;
   if [ -f "/tmp/.secrets.tar" ]; then
-    tar xvf /tmp/.secrets.tar -C /tmp/;
+    echo "Extracting secrets..." && tar xvf /tmp/.secrets.tar -C /tmp/;
   else
     echo "ERROR - /tmp/.secrets.tar file not found - cannot perform secure transfers";
   fi;

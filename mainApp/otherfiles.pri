@@ -27,9 +27,6 @@ OTHER_FILES += \
 ../builds/linux/obs/_service \
 ../builds/macx/CreateDmg.sh \
 ../builds/utilities/ci/dropbox_uploader.sh \
-../builds/utilities/ci/secure/.dropbox_oauth.enc \
-../builds/utilities/ci/secure/.sfdeploy_appveyor_rsa.enc \
-../builds/utilities/ci/secure/.sfdeploy_travis_rsa.enc \
 ../builds/utilities/ci/sfdeploy.sh \
 ../builds/utilities/ci/travis/after_script \
 ../builds/utilities/ci/travis/before_install \

@@ -2,13 +2,17 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 31, 2017
+rem  Last Update: January 02, 2018
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
 @break off
 @color 0a
 
+SET start=%time%
+
+ECHO.
+ECHO -Start %~nx0
 ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
@@ -1082,8 +1086,8 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% $env:LP3D_AVAILABLE_VERSIONS = "%LP3D_AVAILABLE_VERSIONS%"
 >>%genFile% $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
 >>%genFile% $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
->>%genFile% $env:LP3D_BUILD_DOWNLOAD_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
->>%genFile% $env:LP3D_BUILD_UPDATE_TARGET = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
+>>%genFile% $env:LP3D_DOWNLOAD_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
+>>%genFile% $env:LP3D_UPDATE_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
 >>%genFile% write-host "`n- Update-config-files environment variables set in Powershell"
 IF EXIST "%set_ps_vars%" (
   ECHO   FILE set_ps_vars.ps1...........[written to %set_ps_vars%]
@@ -1138,8 +1142,8 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_AVAILABLE_VERSIONS="%LP3D_AVAILABLE_VERSIONS%"
 >>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PACKAGE%-Any-%LP3D_APP_VERSION_LONG%"
 >>%genFile% export LP3D_BUILD_TARGET="%LP3D_PACKAGE_PATH_BASH%/${LP3D_BUILD_PACKAGE}"
->>%genFile% export LP3D_BUILD_DOWNLOAD_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
->>%genFile% export LP3D_BUILD_UPDATE_TARGET="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
+>>%genFile% export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
+>>%genFile% export LP3D_UPDATE_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
 >>%genFile% echo ^&^& echo "- Update-config-files environment variables set in Bash"
 >>%genFile% echo ^&^& echo "- LP3D BUILD Environment Variables:" ^&^& env ^| sort ^| grep 'LP3D_BUILD_*'
 IF EXIST "%set_bash_vars%" (
@@ -1147,7 +1151,6 @@ IF EXIST "%set_bash_vars%" (
 ) ELSE (
   ECHO   FILE set_bash_vars.sh..........[ERROR - file %set_bash_vars% not found]
 )
-EXIT /b 0
 EXIT /b 0
 
 :POSTPROCESS
@@ -1162,6 +1165,21 @@ IF %AUTO% NEQ 1 (
 
 :END
 ECHO.
-ECHO - Finished
+ECHO -%~nx0 finished.
+SET end=%time%
+SET options="tokens=1-4 delims=:.,"
+FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
+FOR /f %options% %%a IN ("%end%") DO SET end_h=%%a&SET /a end_m=100%%b %% 100&SET /a end_s=100%%c %% 100&SET /a end_ms=100%%d %% 100
+
+SET /a hours=%end_h%-%start_h%
+SET /a mins=%end_m%-%start_m%
+SET /a secs=%end_s%-%start_s%
+SET /a ms=%end_ms%-%start_ms%
+IF %ms% lss 0 SET /a secs = %secs% - 1 & SET /a ms = 100%ms%
+IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
+IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
+IF %hours% lss 0 SET /a hours = 24%hours%
+IF 1%ms% lss 100 SET ms=0%ms%
+ECHO -Elapsed build time %hours%:%mins%:%secs%.%ms%
 ENDLOCAL
-EXIT /b 0
+EXIT /b
