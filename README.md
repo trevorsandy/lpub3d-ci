@@ -51,7 +51,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
     - Automated installer and portable distributions available
     - Full capabilities to build from source or Build Service
 
-Copyright (c) 2015 - 2017 by Trevor SANDY
+Copyright (c) 2015 - 2018 by Trevor SANDY
 
 [icon]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/images/lpub3d128.png
 [changelog]:        https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt

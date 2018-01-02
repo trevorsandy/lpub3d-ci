@@ -57,7 +57,7 @@ after_script:
 jobs:
  fast_finish: true
  include:
-  - stage: Prepare Release Store
+  - stage: Prepare Release Storage
     env: LP3D_DEPLOY_PACKAGES=true
     os: linux
     compiler: gcc

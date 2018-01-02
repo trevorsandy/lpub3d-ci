@@ -1,6 +1,6 @@
 ;LPub3D Setup Script
 ;Last Update: October 10, 2017
-;Copyright (C) 2016 - 2017 by Trevor Sandy
+;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 ;--------------------------------
 ;Include Modern UI

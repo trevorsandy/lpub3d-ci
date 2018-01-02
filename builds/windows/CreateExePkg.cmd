@@ -3,7 +3,7 @@ Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: January 02, 2018
-rem  Copyright (c) 2015 - 2017 by Trevor Sandy
+rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
 @break off
@@ -1108,7 +1108,7 @@ SET genFile=%set_bash_vars% ECHO
 >>%genFile% #
 >>%genFile% #  Trevor SANDY ^<trevor.sandy@gmail.com^>
 >>%genFile% #  Last Update: December 31, 2017
->>%genFile% #  Copyright ^(c^) 2017 by Trevor SANDY
+>>%genFile% #  Copyright ^(c^) 2018 by Trevor SANDY
 >>%genFile%.
 >>%genFile% export LP3D_SOURCE_DIR="%LP3D_SOURCE_DIR%"
 >>%genFile% export LP3D_CALL_DIR="%LP3D_CALL_DIR%"
