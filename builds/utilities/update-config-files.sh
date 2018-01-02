@@ -185,6 +185,21 @@ then
     fi
 fi
 
+FILE="$LP3D_PWD/docs/README.txt"
+Info "3. update README.txt      - build version         [$FILE]"
+LineToReplace=${LINE_README}
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
+    else
+        sed -i "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
 if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
     # Stop at the end of this block during Travis-CI builds
@@ -214,24 +229,9 @@ EOF
         Info "   FILE version.info error, file not found";
     fi
 
-    FILE="$LP3D_PWD/docs/README.txt"
-    Info "2. update README.txt      - add version           [$FILE]"
-    LineToReplace=${LINE_README}
-    if [ -f ${FILE} -a -r ${FILE} ]
-    then
-        if [ "$LP3D_OS" = Darwin ]
-        then
-            sed -i "" "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
-        else
-            sed -i "${LineToReplace}s/.*/LPub3D ${LP3D_BUILD_VERSION}/" "${FILE}"
-        fi
-    else
-        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-    fi
-
     # -----
     FILE="$LP3D_PWD/lpub3d.desktop"
-    Info "3. update desktop config  - add version suffix    [$FILE]"
+    Info "4. update desktop config  - add version suffix    [$FILE]"
     LineToReplace=${LINE_DESKTOP}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -246,7 +246,7 @@ EOF
     fi
 
     FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
-    Info "4. update man page        - add version suffix    [$FILE]"
+    Info "5. update man page        - add version suffix    [$FILE]"
     LineToReplace=${LINE_MANPAGE}
     FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
     if [ -f ${FILE_TEMPLATE} ];
@@ -270,7 +270,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR/debian/changelog"
-    Info "5. create changelog       - add version and date  [$FILE]"
+    Info "6. create changelog       - add version and date  [$FILE]"
     if [ -f ${FILE} -a -r ${FILE} ]
     then
         rm ${FILE}
@@ -284,7 +284,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
 EOF
 
     FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
-    Info "6. update ${LPUB3D}.dsc   - add version           [$FILE]"
+    Info "7. update ${LPUB3D}.dsc   - add version           [$FILE]"
     LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -299,7 +299,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR/PKGBUILD"
-    Info "7. update PKGBUILD        - add version           [$FILE]"
+    Info "8. update PKGBUILD        - add version           [$FILE]"
     LineToReplace=${LINE_PKGBUILD}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -314,7 +314,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-    Info "8. update ${LPUB3D}.spec  - add version and date  [$FILE]"
+    Info "9. update ${LPUB3D}.spec  - add version and date  [$FILE]"
     LinesToReplace=${LINE_SPEC}
     LastLine=`wc -l < ${FILE}`
     if [ -f ${FILE} -a -r ${FILE} ]

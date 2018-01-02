@@ -21,11 +21,14 @@ IF [%LP3D_BUILDS_DIR%] == [] (
   GOTO :END
 )
 
+SET LINE_README_TXT=1
+SET LINE_README_MD=75
+
 SET LP3D_GIT_DEPTH=500
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET LP3D_CALL_DIR=%CD%
-SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
+
 
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
@@ -59,12 +62,36 @@ SET LP3D_APP_VERSION=%LP3D_VERSION%.%LP3D_VER_BUILD%
 SET LP3D_APP_VERSION_TAG=v%LP3D_VERSION%
 SET LP3D_APP_VER_SUFFIX=%LP3D_VER_MAJOR%%LP3D_VER_MINOR%
 SET LP3D_APP_VERSION_LONG=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_BUILD_DATE%
-SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^^(%LP3D_BUILD_DATE_TIME%^^)
+SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^(%LP3D_BUILD_DATE_TIME%^)
 
 CALL :GET_AVAILABLE_VERSIONS %*
 
-rem AppVeyor 64bit Qt MinGW build has git.exe/cygwin conflict returning no .git directory found so generate version.info file
-IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
+SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
+ECHO  update README.txt build version [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_README_TXT%
+SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+
+SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
+ECHO  update README.md version        [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_README_MD%
+SET "Replacement=[sfreleases]:       https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+
 SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH%
 IF [%LP3D_VER_SUFFIX%] NEQ [] (
   SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
@@ -97,6 +124,8 @@ REM ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
+SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
+IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (
   ECHO   FILE version.info..............[written to builds\utilities\version.info]

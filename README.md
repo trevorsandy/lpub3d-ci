@@ -3,8 +3,10 @@
 [![Travis-CI build status][travis-badge]][travis-url]
 [![AppVeyor build status][appveyor-badge]][appveyor-url]
 [![GitHub release][gh-rel-badge]][gh-rel-url]
+[![Github commits (since latest release)][gh-comm-badge]][gh-comm-url]
+[![Sourceforge week downloads][sf-dw-badge]][sf-dw-badge-url]
 [![Sourceforge total downloads][sf-dt-badge]][sf-dt-badge-url]
-[![Maintained status][maintained-badge]](README.md "Last edited 10-10-2017")
+[![Maintained status][maintained-badge]](README.md "Last edited 01-02-2018")
 
 LDraw™ editor for LEGO® style digital building instructions.
 
@@ -12,16 +14,23 @@ LDraw™ editor for LEGO® style digital building instructions.
 LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive
 library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
 
+LPub3D provides three popular LDraw image renderers - custom adapted for tight integration and robust performance.
+ - [LDGLite - imbedded console, fast image rendering][ldglite]
+ - [LDView - imbedded console, feature rich rendering and pov file generation][ldview]
+ - [LPub3D-Trace (POV-Ray) - imbedded console, high quality image and feature rich image rendering][povray]
+
 Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components.
 
 ### Compatibility
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, Mac OSX and Windows Operating Systems.
+ - [GitHub Releases][githubreleases]
+ - [Sourceforge Releases][sfreleases]
 
 ### Quick Links
  - [Build LPub3D package from source][buildfromsource]
  - [Change log][changelog]
  - [Credits][credits]
- 
+
 ### License
 LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][copying].
 
@@ -59,15 +68,30 @@ Copyright (c) 2015 - 2018 by Trevor SANDY
 [copying]:          https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:  https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
+[ldglite]:          https://github.com/trevorsandy/ldglite
+[ldview]:           https://github.com/trevorsandy/ldview
+[povray]:           https://github.com/trevorsandy/povray
+
+[sfreleases]:       https://sourceforge.net/projects/lpub3d/files/2.1.0/
+[githubreleases]:   https://github.com/trevorsandy/lpub3d/releases
+
 [travis-badge]:     https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
 [travis-url]:       https://travis-ci.org/trevorsandy/lpub3d-ci
+
 [appveyor-badge]:   https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg?label=appveyor
 [appveyor-url]:     https://ci.appveyor.com/project/trevorsandy/lpub3d-ci
+
 [gh-rel-badge]:     https://img.shields.io/github/release/trevorsandy/lpub3d.svg
 [gh-rel-url]:       https://github.com/trevorsandy/lpub3d-ci/releases/latest
+
+[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d.svg
+[gh-comm-url]:     https://github.com/trevorsandy/lpub3d-ci/releases/latest
+
+[sf-dw-badge]:      https://img.shields.io/sourceforge/dw/lpub3d.svg
+[sf-dw-badge-url]:  https://sourceforge.net/projects/lpub3d
 
 [sf-dt-badge]:      https://img.shields.io/sourceforge/dt/lpub3d.svg
 [sf-dt-badge-url]:  https://sourceforge.net/projects/lpub3d
 
-[maintained-badge]: https://img.shields.io/maintenance/yes/2017.svg
+[maintained-badge]: https://img.shields.io/maintenance/yes/2018.svg
 
