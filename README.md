@@ -57,10 +57,10 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Automated installer and portable distributions available
  - Full capabilities to build from source or Build Service
 
-[icon]:                https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
-[changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
-[credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
-[copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
+[icon]:                https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/mainApp/images/lpub3d128.png
+[changelog]:           https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/README.txt
+[credits]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/CREDITS.txt
+[copying]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
 [ldglite]:             https://github.com/trevorsandy/ldglite

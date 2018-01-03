@@ -97,8 +97,8 @@ reflect the git version, revision, build number and date the of the LPub3D build
 * C:\Msys2\Msys64\mingw32\bin
 * C:\Msys2\Msys64\mingw64\bin
 
-However, you may choose to download and install [Qt][qtwebsite], in which case you must change the [AutoBuild.cmd][autobuild] script paths above to the  
-Qt install path. Also be sure to **not** select the **-all** install parameter if you do not have both 64 and 32bit Qt platforms installed. 
+However, you may choose to download and install [Qt][qtwebsite], in which case you must change the [AutoBuild.cmd][autobuild] script paths above  
+to the Qt install path. Also be sure to **not** select the **-all** install parameter if you do not have both 64 and 32bit Qt platforms installed. 
 
 **Note:** I use [Visual Studion 2017][vs2017], but it is possible to use other versions - for example Visual Studio 2015
 
@@ -116,13 +116,17 @@ Qt install path. Also be sure to **not** select the **-all** install parameter i
 #### ___________ ALL LINUX DISTROS - DOCKER (WINDOWS) BUILD ___________
 **Platform-specific Dependencies:**
 * [Docker][dockerinstall]
-* [Docker Compose][dockercompose]   
+* [Docker Compose][dockercompose]  
 * [WSL - Windows Subsystem for Linux][wsl]
 
-**Note:** Be sure to set C as a Shared Drive available to your containers
-**Note:** Compose instructions below are quite likely the same for Docker on Linux or macOS
-**Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux 2017][dockerarch], [Ubuntu Xenial][dockerxenial] and [Fedora 25][dockerfedora] are available.
-**Note:** [WSL - Windows Subsystem for Linux][wsl] is not essential and can be substitued with Git Bash.
+**Note:** Be sure to set C as a Shared Drive available to your containers  
+
+**Note:** Compose instructions below are quite likely the same for Docker on Linux or macOS  
+
+**Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux 2017][dockerarch], [Ubuntu Xenial][dockerxenial] and [Fedora 25][dockerfedora] are available.  
+
+**Note:** [WSL - Windows Subsystem for Linux][wsl] is not essential and can be substitued with Git Bash.  
+
 **Note:** You can substitue [Fedora 25][dockerfedora] with [archlinux 2017][dockerarch] or [Ubuntu Xenial][dockerxenial] in the steps below.
 
 **Steps:**

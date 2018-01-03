@@ -22,8 +22,7 @@ IF [%LP3D_BUILDS_DIR%] == [] (
 )
 
 SET LINE_README_TXT=1
-SET LINE_README_MD_VER=75
-SET LINE_README_MD_TAG=87
+SET LINE_README_MD_VER=70
 
 SET LP3D_GIT_DEPTH=500
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
@@ -90,19 +89,6 @@ SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
 ECHO  update README.md version        [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_README_MD_VER%
 SET "Replacement=[sfreleases]:       https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
-
-SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
-ECHO  update README.md version tag    [%LP3D_FILE%]
-SET /a LineToReplace=%LINE_README_MD_TAG%
-SET "Replacement=[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d-ci/%LP3D_APP_VERSION_TAG%.svg"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
