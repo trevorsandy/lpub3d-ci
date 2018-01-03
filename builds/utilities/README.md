@@ -44,7 +44,7 @@ reflect the git version, revision, build number and date the of the LPub3D build
 - [ ] 4. enable execute permissions and execute package script  
 `$ chmod +x CreateDmg.sh && ./CreateDmg.sh`
 - [ ] 5. mount and install package available in ./dmgbuild/DMGS  
-`hdiutil attach dmgbuild/DMGS/LPub3D_2.1.0.0.700_20180102_osx.dmg`
+`$ hdiutil attach dmgbuild/DMGS/LPub3D_2.1.0.0.700_20180102_osx.dmg`
 - [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD ARCH 'PKG.TAR.XZ' PACKAGE ___________
