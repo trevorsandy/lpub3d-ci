@@ -2,7 +2,7 @@ Application-Name: lpub3d
 Source: https://github.com/trevorsandy/lpub3d
 
 Files: *
-Copyright: 2015-2017 Trevor SANDY <trevor.sandy@gmail.com>
+Copyright: 2015-2018 Trevor SANDY <trevor.sandy@gmail.com>
 License: GPL-3
 
 Files:
