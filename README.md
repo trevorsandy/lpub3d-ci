@@ -61,7 +61,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [changelog]:           https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/README.txt
 [credits]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/CREDITS.txt
 [copying]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/COPYING.txt
-[buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
+[buildfromsource]:     https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/utilities/README.md
 
 [ldglite]:             https://github.com/trevorsandy/ldglite
 [ldview]:              https://github.com/trevorsandy/ldview
