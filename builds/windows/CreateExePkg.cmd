@@ -413,8 +413,14 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
     IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
   )
 )
-CALL :GENERATE_JSON ELSE EXIT /b %ERRORLEVEL%
-GOTO POSTPROCESS
+
+CALL :GENERATE_JSON
+
+IF %AUTO% NEQ 1 (
+  CALL :POSTPROCESS
+)
+
+GOTO :END
 
 :COPYCHANGELOG
 REM Product Full Version Format:
@@ -1154,18 +1160,16 @@ IF EXIST "%set_bash_vars%" (
 EXIT /b 0
 
 :POSTPROCESS
-IF %AUTO% NEQ 1 (
-  ECHO.
-  ECHO - Post process...
-  ECHO.
-  ECHO - If everything went well Press any key to EXIT!
-  %SystemRoot%\explorer.exe "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%"
-  PAUSE >NUL
-)
+ECHO.
+ECHO - Post process...
+ECHO.
+ECHO - If everything went well Press any key to EXIT!
+%SystemRoot%\explorer.exe "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%"
+PAUSE >NUL
 
 :END
 ECHO.
-ECHO -%~nx0 finished.
+ECHO - %~nx0 finished.
 SET end=%time%
 SET options="tokens=1-4 delims=:.,"
 FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
@@ -1180,6 +1184,6 @@ IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
 IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
 IF %hours% lss 0 SET /a hours = 24%hours%
 IF 1%ms% lss 100 SET ms=0%ms%
-ECHO -Elapsed build time %hours%:%mins%:%secs%.%ms%
+ECHO   Elapsed build time %hours%:%mins%:%secs%.%ms%
 ENDLOCAL
 EXIT /b

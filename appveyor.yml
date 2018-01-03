@@ -78,10 +78,6 @@ init:
       If ($env:APPVEYOR_REPO_TAG -eq "true") {
         If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$').Success) {
           write-host "Deploy tag $env:APPVEYOR_REPO_TAG_NAME detected."
-          If ((git tag -l -n $env:APPVEYOR_REPO_TAG) -Like "*skip sfr*") {
-            write-host "Skip Sourceforge deploy detected."
-            $env:LP3D_SKIP_SF_DEPLOY = $true
-          }
           $env:LP3D_BUILD_PKG = "yes"
           $env:LP3D_DEPLOY_PKG = $true
         } Else {
@@ -180,11 +176,15 @@ after_build:
         write-host "`n"
         $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
         $root = Resolve-Path .\${env:LP3D_UPDATE_ASSETS};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
-        If ($env:LP3D_DEPLOY_PKG -eq $true -And $env:LP3D_SKIP_SF_DEPLOY -ne $true) {
-          write-host "`n"
-          cmd.exe /c nuget install secure-file -ExcludeVersion
-          cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
-          C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
+        If ($env:LP3D_DEPLOY_PKG -eq $true) {
+          If ((git tag -l -n $env:APPVEYOR_REPO_TAG) -NotLike "*skip sfr*") {
+            write-host "`n"
+            cmd.exe /c nuget install secure-file -ExcludeVersion
+            cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
+            C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
+          } else {
+            write-host "Skip Sourceforge deploy detected."
+          }
         }
       }
 
