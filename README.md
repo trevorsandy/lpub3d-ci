@@ -84,7 +84,7 @@ Copyright (c) 2015 - 2018 by Trevor SANDY
 [gh-rel-badge]:     https://img.shields.io/github/release/trevorsandy/lpub3d.svg
 [gh-rel-url]:       https://github.com/trevorsandy/lpub3d-ci/releases/latest
 
-[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d-ci/v2.1.0_beta1
+[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d-ci/v2.1.0_beta1.svg
 [gh-comm-url]:     https://github.com/trevorsandy/lpub3d-ci/commit/
 
 [sf-dw-badge]:      https://img.shields.io/sourceforge/dw/lpub3d.svg
