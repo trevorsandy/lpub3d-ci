@@ -102,7 +102,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
 ECHO  update README.md version tag    [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_README_MD_TAG%
-SET "Replacement=[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d-ci/%LP3D_APP_VERSION_TAG%"
+SET "Replacement=[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d-ci/%LP3D_APP_VERSION_TAG%.svg"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
