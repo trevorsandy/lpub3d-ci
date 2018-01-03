@@ -191,7 +191,7 @@ after_build:
 # Nothing special here, just a standard GitHub provider
 deploy:
  - provider: GitHub
-   name: $($LP3D_RELEASE_LABEL)
+   name: $(LP3D_RELEASE_LABEL)
    repository: trevorsandy/lpub3d-ci
    description: '$(LP3D_PACKAGE) - An LDraw™ editor for LEGO® style digital building instructions.'
    auth_token:
