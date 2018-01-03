@@ -165,8 +165,13 @@ UI_DIR          = $$DESTDIR/.ui
 # install 3rd party executables, documentation and resources.
 macx: build_package = $$(INSTALL_3RD_PARTY)
 else: build_package = $$(LP3D_BUILD_PKG)
-if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
-    message("~~~ BUILD DISTRIBUTION PACKAGE: $$build_package ~~~")
+if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
+    args = deb rpm pkg dmg exe
+    for(arg, args) {
+        contains(CONFIG, $$arg): opt = $$arg
+    }
+    isEmpty(opt): opt = $$build_package
+    message("~~~ BUILD DISTRIBUTION PACKAGE: $$opt ~~~")
 
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
     !exists($$THIRD_PARTY_DIST_DIR_PATH) {
@@ -178,12 +183,13 @@ if(deb|rpm|pkg|dmg|contains(build_package, yes)) {
     }
     message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
-    unix {
+    if (unix|copy3rd) {
         CONFIG+=copy3rdexe
         CONFIG+=copy3rdexeconfig
         CONFIG+=copy3rdcontent
     }
     win32 {
+        CONFIG+=stagewindistcontent
         CONFIG+=stage3rdexe
         CONFIG+=stage3rdexeconfig
         CONFIG+=stage3rdcontent

@@ -1,7 +1,7 @@
     # These settings are used for package distribution
 win32 {
 
-    CONFIG(debug, debug|release) {DIST = debug } else { DIST = release }
+    CONFIG(debug, debug|release) { DIST = debug } else { DIST = release }
 
     # The Windows package distribution settings below requires a specific dev env configuration.
     # Basically, if you create a projects folder e.g. c:\Users\<user>\Projects and
@@ -42,8 +42,8 @@ win32 {
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES      = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
     # install paths
-    isEmpty(INSTALL_PREFIX):INSTALL_PREFIX   = $$OUT_PWD
-    isEmpty(LPUB3D_INS_CONTENT_PATH):LPUB3D_INS_CONTENT_PATH = $$INSTALL_PREFIX/$$DIST/3rdParty
+    isEmpty(INSTALL_PREFIX):INSTALL_PREFIX          = $$OUT_PWD
+    isEmpty(LPUB3D_INS_CONTENT_PATH):LPUB3D_INS_CONTENT_PATH = $$INSTALL_PREFIX/$$join(ARCH,,,bit_$$DIST)/3rdParty
 
     # install data directories - 3rd party components
     isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$LPUB3D_INS_CONTENT_PATH/$$VER_LDGLITE/bin
