@@ -22,7 +22,8 @@ IF [%LP3D_BUILDS_DIR%] == [] (
 )
 
 SET LINE_README_TXT=1
-SET LINE_README_MD=75
+SET LINE_README_MD_VER=75
+SET LINE_README_MD_TAG=87
 
 SET LP3D_GIT_DEPTH=500
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
@@ -66,6 +67,12 @@ SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^(%LP
 
 CALL :GET_AVAILABLE_VERSIONS %*
 
+SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH%
+IF [%LP3D_VER_SUFFIX%] NEQ [] (
+  SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
+  SET LP3D_APP_VERSION_TAG=v%LP3D_VERSION%_%LP3D_VER_SUFFIX%
+)
+
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
 ECHO  update README.txt build version [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_README_TXT%
@@ -81,7 +88,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 
 SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
 ECHO  update README.md version        [%LP3D_FILE%]
-SET /a LineToReplace=%LINE_README_MD%
+SET /a LineToReplace=%LINE_README_MD_VER%
 SET "Replacement=[sfreleases]:       https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
@@ -92,10 +99,19 @@ SET "Replacement=[sfreleases]:       https://sourceforge.net/projects/lpub3d/fil
 ))>"%LP3D_FILE%.new"
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 
-SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH%
-IF [%LP3D_VER_SUFFIX%] NEQ [] (
-  SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
-)
+SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
+ECHO  update README.md version tag    [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_README_MD_TAG%
+SET "Replacement=[gh-comm-badge]:   https://img.shields.io/github/commits-since/trevorsandy/lpub3d-ci/%LP3D_APP_VERSION_TAG%"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
