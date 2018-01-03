@@ -178,7 +178,7 @@ after_build:
         $root = Resolve-Path .\${env:LP3D_UPDATE_ASSETS};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
         If ($env:LP3D_DEPLOY_PKG -eq $true) {
           write-host "`n"
-          If ((git tag -l -n $env:APPVEYOR_REPO_TAG) -NotLike "*skip sfr*") {
+          If ((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") {
             cmd.exe /c nuget install secure-file -ExcludeVersion
             cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
             C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'

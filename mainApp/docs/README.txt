@@ -2,8 +2,20 @@ LPub3D 2.1.0.1.362 (03 01 2018 21:03:22)
 
 Features and enhancements
 ------------
-Fix: Callout not displayed and part count incorrect when loading a model using multiple, separate ldr-format files (r877)
- * These behaviours were introduced in LPub3D 2.0.0. The immediate work around is to merge the individual ldr files into a single MPD-format file. However, these behaviours are now corrected.
+Integrate 3rd party renderers - LDGlite, LDView and LPub3D-Trace (POV-Ray). To well deliver this capability, LPub3D 2.1.0 implements a major 'build, packaging and deployment' redesign to maximize use of cloud infrastructure and services.
+The end-to-end build, packaging and deployment process is now fully automted and 100% cloud enabled - using Travis-CI for
+Linux and macOS artefacts, and AppVeyor for Microsoft. All Linux distro are built via Docker containerization on Travis-CI.
+
+Along with the core LPub3D source, LDGlite, LDView and LPub3D-Trace (POV-Ray) are compiled from source during the build process. While
+this approach adds material time to the build process, it ensures all dependencies are properly addressed during Linux and macOS builds. The
+end result is a complete and consistent solution package across all supported Linux, macOS and Microsoft platforms where a single install
+will account for all the required LPub3D commpnents needed to deliver the full compliment of LPub3D capabilities.
+
+In addition to tight integration, the LPub3D renderers have been adapted with additional capabilites specifically designed to work with LPub3D.
+Enhancements were carefully designed to allow maximum compatability with their original upstream source to ensure upstream enhancements, fixes and
+progressions are effiiciently integrated into the LPub3d-specific branches.
+
+
 
 LPub3D 2.0.20.2.629
 
