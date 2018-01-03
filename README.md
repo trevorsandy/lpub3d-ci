@@ -1,6 +1,6 @@
 ![Icon][icon]
 # LPub3D  (CI Testing)
-LDraw™ editor for LEGO® style digital building instructions.
+An LDraw™ editor for LEGO® style digital building instructions.
   
 | [![GitHub release][gh-rel-badge]][gh-rel-url] | [![Travis-CI build status][travis-badge]][travis-url] | [![AppVeyor build status][appveyor-badge]][appveyor-url] | [![GitHub top language][gh-top-lang-badge]][gh-top-lang-url] |
 | :---        |    :----:   |    :----:   |          ---: |
@@ -12,9 +12,9 @@ LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts libr
 library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
 
 LPub3D provides three popular LDraw image renderers - custom adapted for tight integration and robust performance.
- - [LDGLite - imbedded console, fast image rendering][ldglite]
- - [LDView - imbedded console, feature rich rendering and pov file generation][ldview]
- - [LPub3D-Trace (POV-Ray) - imbedded console, high quality image and feature rich image rendering][povray]
+ - [LDGLite][ldglite] - imbedded console, fast image rendering
+ - [LDView][ldview] - imbedded console, feature rich rendering and pov file generation
+ - [LPub3D-Trace (POV-Ray)][povray] - imbedded console, high quality image and feature rich image rendering
 
 Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components.
 
