@@ -211,11 +211,17 @@ SET LP3D_REVISION_FILE=unknown
 SET LP3D_SUPPORT_EMAIL=unknown
 SET LPUB3D_BUILD_FILE=unknown
 
-SET LP3D_ALTERNATE_VERSIONS_EXE=unknown
-SET LP3D_ALTERNATE_VERSIONS_DMG=unknown
-SET LP3D_ALTERNATE_VERSIONS_DEB=unknown
-SET LP3D_ALTERNATE_VERSIONS_RPM=unknown
-SET LP3D_ALTERNATE_VERSIONS_PKG=unknown
+SET LP3D_ALTERNATE_VERSIONS_exe=unknown
+SET LP3D_ALTERNATE_VERSIONS_dmg=unknown
+SET LP3D_ALTERNATE_VERSIONS_deb=unknown
+SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
+SET LP3D_ALTERNATE_VERSIONS_pkg=unknown
+
+SET LP3D_AVAILABLE_VERSIONS_exe=unknown
+SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
+SET LP3D_AVAILABLE_VERSIONS_deb=unknown
+SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
+SET LP3D_AVAILABLE_VERSIONS_pkg=unknown
 
 ECHO.
 ECHO - Setting up release build parameters...
@@ -225,15 +231,17 @@ CD /D "%utilitiesPath%"
 CALL update-config-files.bat %_PRO_FILE_PWD_%
 
 IF "%APPVEYOR%" EQU "True" (
+
   CALL :CREATE_LP3D_PS_VARS_FILE
   CALL :CREATE_LP3D_BASH_VARS_FILE
+  
 )
 
 REM Token assignments
 REM tokens=2* : first token in %%i, rest in next token - e.g. %%j
 REM tokens=1,2: first token in %%i, second in %%j - e.g. %%i, %%j
 
-REM available versions (by platform) -set tokens to select specific version(s)
+REM available versions by platform, set tokens to select specific version or versions as appropriate
 FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_EXE=%%i
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_DMG=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_DEB=%%i,%%j,%%k
@@ -396,6 +404,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
   IF %SIGN_APP% == 1 CALL :SIGNAPP
   FOR %%A IN ( x86_64, x86 ) DO (
+    SET LP3D_ARCH=%%A
     SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
     SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%%A-%LP3D_APP_VERSION_LONG%
     IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
@@ -412,7 +421,7 @@ GOTO :END
 
 :COPYCHANGELOG
 REM Product Full Version Format:
-REM Product _ Version . Revision . Build _ Date (YYYYMMDD)
+REM Product _ Version . Revision . Build _ Date YYYYMMDD
 REM LPub3D  _ 2.0.20  . 106      . 752   _ 20170929
 
 REM Directory Structure Format:
@@ -553,8 +562,7 @@ IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Installer Build
 
 IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster ..\..\..\utilities\nsis-scripts\LPub3DNoPack.nsi | findstr /i /r /c:"^Processing\>" /c:"^Output\>"
 
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update Installer Build
+IF %RUN_NSIS% == 1 ECHO   Finished NSIS Master Update Installer Build
 
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Download Installer Build...
@@ -566,8 +574,7 @@ IF %RUN_NSIS% == 1 COPY /V /Y %LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PK
 IF %RUN_NSIS% == 1 COPY /V /Y %LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_UPDATE_DIR%\%LP3D_PRODUCT%-UpdateMaster.exe | findstr /i /v /r /c:"copied\>"
 IF %RUN_NSIS% == 1 MOVE /Y    %LP3D_PRODUCT%-UpdateMaster_%LP3D_VERSION%.exe %PKG_UPDATE_DIR%\ | findstr /i /v /r /c:"moved\>"
 
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Download Installer Build
+IF %RUN_NSIS% == 1 ECHO   Finished NSIS Manual Download Installer Build
 EXIT /b
 
 :SIGNAPP
@@ -600,8 +607,7 @@ IF %UNIVERSAL_BUILD% EQU 1 (
   IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_DISTRO_DIR%\%LPUB3D_BUILD_FILE% SHA256                       >>  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
 )
 
-IF %SIGN_APP% == 1 ECHO.
-IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing
+IF %SIGN_APP% == 1 ECHO   Finished Application Code Signing
 EXIT /b
 
 :CREATEPORTABLEDISTRO
@@ -617,13 +623,10 @@ EXIT /b
 :GENERATE_JSON
 ECHO.
 ECHO - Generating update package json components...
-IF "%LP3D_ARCH%" EQU "x86_64" (
-  SET LP3D_AMDARCH=amd64
-) ELSE (
-  SET LP3D_AMDARCH=amd32
-)
-FOR %%v IN ( exe, dmg, deb, rpm, pkg  ) DO (
- CALL :GENERATE_VERSION_INSERTS %%v
+SET LP3D_ARCH=x86_64
+SET LP3D_AMDARCH=amd64
+FOR %%e IN ( exe, dmg, deb, rpm, pkg  ) DO (
+ CALL :GENERATE_VERSION_INSERTS %%e
 )
 
 ECHO.
@@ -731,7 +734,7 @@ COPY /V /Y ..\..\..\utilities\json\complete.json %PKG_UPDATE_DIR%\ /A | findstr 
 COPY /V /Y ..\..\..\utilities\json\lpub3dldrawunf.json %PKG_UPDATE_DIR%\ /A | findstr /i /v /r /c:"copied\>"
 
 ECHO.
-ECHO - Generating latest.txt version input file (backgward compatability)...
+ECHO - Generating latest.txt version input file (for backgward compatability)...
 
 SET latestFile=%PKG_UPDATE_DIR%\latest.txt
 SET genLatest=%latestFile% ECHO
@@ -748,14 +751,14 @@ SET "dmg=_macos.%LP3D_EXT%"
 SET "deb=_amd64.%LP3D_EXT%"
 SET "rpm=_fc.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=_1-%LP3D_ARCH%.pkg.tar.xz"
-SET "ALTERNATE_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
+SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
 REM _LP3D_EXT_ expands to LP3D_EXTension exe, dep, rpm etc...
 CALL SET "_LP3D_EXT_=%%%LP3D_EXT%%%"
 REM ALT_VERS expands to the alternate version for a given LP3D_EXTension
-CALL SET "ALT_VERS=%%%ALTERNATE_VERS%%%"
+CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
 SET versionInsert=%PKG_UPDATE_DIR%\versionInsert_%LP3D_EXT%.txt
 SET genVersionInsert=%versionInsert% ECHO
-FOR %%V IN ( %ALT_VERS% ) DO (
+FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   >>%genVersionInsert% "alternate-version-%%V-%LP3D_EXT%": {
   >>%genVersionInsert%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%%V/",
   >>%genVersionInsert%   "latest-version": "%%V",
