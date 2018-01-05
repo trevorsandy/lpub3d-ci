@@ -68,4 +68,3 @@ if test x"$update_config_files" = x"yes"; then
   git add builds/linux/obs/alldeps/debian/changelog
   git add builds/linux/obs/alldeps/debian/lpub3d-ci.dsc
 fi
-

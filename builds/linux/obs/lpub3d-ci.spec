@@ -154,7 +154,7 @@ BuildRequires: qca, gnu-free-sans-fonts
  LeoCAD© 2015 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2017 Trevor SANDY
+ © 2015-2018 Trevor SANDY
 
 %prep
 set +x

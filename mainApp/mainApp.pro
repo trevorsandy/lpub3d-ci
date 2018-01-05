@@ -59,7 +59,7 @@ win32 {
 
     QMAKE_TARGET_COMPANY = "LPub3D Software"
     QMAKE_TARGET_DESCRIPTION = "An LDraw Building Instruction Editor."
-    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015-2017 Trevor SANDY"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015-2018 Trevor SANDY"
     QMAKE_TARGET_PRODUCT = "LPub3D ($$join(ARCH,,,bit))"
     RC_LANG = "English (United Kingdom)"
     RC_ICONS = "lpub3d.ico"

@@ -224,9 +224,9 @@ ${LP3D_VERSION_INFO}
 EOF
     if [ -f "${FILE}" ];
     then
-        Info "   FILE version.info written to...................[$FILE]";
+        Info "   create version.info    - insert version info   [$FILE]";
     else
-        Info "   FILE version.info error, file not found";
+        Info "   ERROR - version info   - file not found";
     fi
 
     # -----
@@ -284,7 +284,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
 EOF
 
     FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
-    Info "7. update ${LPUB3D}.dsc   - add version           [$FILE]"
+    Info "7. update ${LPUB3D}.dsc      - add version           [$FILE]"
     LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
@@ -314,7 +314,7 @@ EOF
     fi
 
     FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-    Info "9. update ${LPUB3D}.spec  - add version and date  [$FILE]"
+    Info "9. update ${LPUB3D}.spec     - add version and date  [$FILE]"
     LinesToReplace=${LINE_SPEC}
     LastLine=`wc -l < ${FILE}`
     if [ -f ${FILE} -a -r ${FILE} ]
