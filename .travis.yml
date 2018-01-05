@@ -31,8 +31,8 @@ env:
     - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
     - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
     - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
-    - LP3D_BUILD_STAGE=$(echo $TRAVIS_COMMIT_MESSAGE | grep -qE '\[build pkg.*\]' && echo yes || echo no)
-    - LP3D_DEPLOY_STAGE=$(echo $TRAVIS_TAG | grep -qE 'v[0-9]+\.[0-9]+\.[0-9]+' && echo yes || echo no)
+    - LP3D_BUILD_STAGE=$(echo ${TRAVIS_COMMIT_MESSAGE} | grep -qE '\[build pkg.*\]' && echo 'true' || true)
+    - LP3D_DEPLOY_STAGE=$(echo ${TRAVIS_TAG} | grep -qE 'v[0-9]+\.[0-9]+\.[0-9]+' && echo 'true' || true)
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
@@ -43,7 +43,7 @@ stages:
   - name: Build and Package
     if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
   - name: Compile Source Only
-    if: env(LP3D_BUILD_STAGE) = no AND env(LP3D_DEPLOY_STAGE) = no
+    if: env(LP3D_BUILD_STAGE) IS blank AND env(LP3D_DEPLOY_STAGE) IS blank
   - name: GitHub and Sourceforge Deploy
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 
