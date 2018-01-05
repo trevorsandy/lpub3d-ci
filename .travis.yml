@@ -89,7 +89,6 @@ jobs:
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     compiler: clang
-    os: linux
   - stage: GitHub and Sourceforge Deploy
     env: LP3D_DEPLOY_PACKAGES=true
     script: source ${LP3D_CI_SCRIPT_DIR}/releases
