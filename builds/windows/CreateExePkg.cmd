@@ -234,7 +234,7 @@ IF "%APPVEYOR%" EQU "True" (
 
   CALL :CREATE_LP3D_PS_VARS_FILE
   CALL :CREATE_LP3D_BASH_VARS_FILE
-  
+
 )
 
 REM Token assignments
@@ -744,7 +744,6 @@ SET genLatest=%latestFile% ECHO
 EXIT /b
 
 :GENERATE_VERSION_INSERTS
-ECHO   Generating %1 json component
 SET "LP3D_EXT=%1%"
 SET "exe=.%LP3D_EXT%"
 SET "dmg=_macos.%LP3D_EXT%"
@@ -766,6 +765,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   >>%genVersionInsert%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%%V.txt"
   >>%genVersionInsert% },
 )
+ECHO   Generated %1 json component
 EXIT /b
 
 :DOWNLOADLDRAWLIBS

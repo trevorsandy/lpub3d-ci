@@ -50,6 +50,8 @@ environment:
   lp3d_librepo: lpub3d_mingw-Qt5_libs
   lp3d_librepodir: /c/projects/$(APPVEYOR_PROJECT_NAME)/$(lp3d_librepo)
   LP3D_SECURE_DIR: builds\utilities\ci\secure
+  SECURE_AV_SECRET:
+    secure: nQtdZL7czHUCbI5HicAKEwLHmW88oGm9Y55LPalj8L4=
   SECURE_SF_SECRET:
     secure: VDiCarfAWcBEzuWImZp2TQ==
 
@@ -100,7 +102,7 @@ init:
         write-host "[clear avcache] detected."
 
         $apiUrl = 'https://ci.appveyor.com/api'
-        $token = 'h2o1p08rkt8jgen5f0ke'
+        $token = $env:SECURE_AV_SECRET
         $headers = @{
           "Authorization" = "Bearer $token"
           "Content-type" = "application/json"

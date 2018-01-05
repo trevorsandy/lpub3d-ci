@@ -16,10 +16,10 @@ LPub3D provides three popular LDraw image renderers - custom adapted for tight i
  - [LDView][ldview] - imbedded console, feature rich rendering and pov file generation
  - [LPub3D-Trace (POV-Ray)][povray] - imbedded console, high quality image and feature rich image rendering
 
-Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components.
+Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
 ### Compatibility
-LPub3D runs on Debian, Red Hat and Arch derived Linux distros, Mac OSX and Windows Operating Systems.
+LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
  - [GitHub Releases][githubreleases]
  - [Sourceforge Releases][sfreleases]
 
