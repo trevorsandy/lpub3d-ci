@@ -46,6 +46,7 @@ stages:
     if: env(LP3D_BUILD_PKG) = no AND env(LP3D_DEPLOY_PKG) = no
   - name: GitHub and Sourceforge Deploy
     if: env(LP3D_DEPLOY_PKG) = yes
+  - name: Foo
 
 before_install:
   - source ${LP3D_CI_SCRIPT_DIR}/before_install
@@ -83,14 +84,17 @@ jobs:
     env: LP3D_BUILD_MACOS=true
     os: osx
     compiler: clang
-  - stage: Build and Package
+  - stage: Compile Source Only
     env: LP3D_COMPILE_SOURCE=true
     os: linux
     compiler: gcc
-  - stage: Build and Package
+  - stage: Compile Source Only
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     compiler: clang
+  - stage: Foo
+    env: TESTING_STAGES=true
+    os: linux
   - stage: GitHub and Sourceforge Deploy
     env: LP3D_DEPLOY_PACKAGES=true
     script: source ${LP3D_CI_SCRIPT_DIR}/releases
