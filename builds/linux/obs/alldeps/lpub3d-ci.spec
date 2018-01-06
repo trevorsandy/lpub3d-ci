@@ -317,7 +317,7 @@ BuildRequires:  nasm
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(alsa) >= 0.9.0
 BuildRequires:  pkgconfig(dbus-1)
-%if !0%{?sles_version} && !0%{?centos_version}
+%if !0%{?sles_version} || !0%{?centos_version}
 BuildRequires:  pkgconfig(fcitx)
 %endif
 BuildRequires:  pkgconfig(egl)
