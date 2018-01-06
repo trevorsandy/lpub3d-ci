@@ -44,7 +44,6 @@ stages:
   - name: Build and Package
     if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
   - name: Compile Source Only
-    if: (NOT env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]) AND env(TRAVIS_TAG) IS blank
   - name: GitHub and Sourceforge Deploy
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 
@@ -91,6 +90,7 @@ jobs:
   - stage: Compile Source Only
     env: LP3D_COMPILE_SOURCE=true
     os: osx
+    if: env(LP3D_SOURCE_STAGE) = true
     compiler: clang
   - stage: GitHub and Sourceforge Deploy
     env: LP3D_DEPLOY_PACKAGES=true
