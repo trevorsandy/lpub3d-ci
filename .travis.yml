@@ -43,9 +43,9 @@ stages:
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
     if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
-  - name: Compile Source Only
   - name: GitHub and Sourceforge Deploy
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+  - name: Compile Source Only
 
 before_install:
   - source ${LP3D_CI_SCRIPT_DIR}/before_install
@@ -84,13 +84,14 @@ jobs:
     os: osx
     compiler: clang
   - stage: Compile Source Only
+    if: env(LP3D_SOURCE_STAGE) = true
     env: LP3D_COMPILE_SOURCE=true
     os: linux
     compiler: gcc
   - stage: Compile Source Only
+    if: env(LP3D_SOURCE_STAGE) = true
     env: LP3D_COMPILE_SOURCE=true
     os: osx
-    if: env(LP3D_SOURCE_STAGE) = true
     compiler: clang
   - stage: GitHub and Sourceforge Deploy
     env: LP3D_DEPLOY_PACKAGES=true
