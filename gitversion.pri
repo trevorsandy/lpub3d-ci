@@ -14,11 +14,25 @@ exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
 }
 
+# enable to Test
+# GIT_DIR = undefined
 equals(GIT_DIR, undefined) {
-    message("~~~ GIT_DIR [UNDEFINED, USING GIT_VERSION $${VERSION}.0.0.00000000.noversion ~~~")
-    GIT_VERSION = $${VERSION}.0.0.00000000.noversion
-    GIT_VERSION ~= s/\./" "
-
+    open_build_service = $$(OBS)
+    contains(open_build_service, true) {
+        message("~~~ GIT_DIR [OBS, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+    } else {
+        message("~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+    }
+    GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
+    exists($$GIT_VER_FILE) {
+        GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
+    } else {
+        message("~~~ ERROR! VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
+        UNDEFINED_VERSION = $${VERSION}.0.0.00000000.noversion
+        message("~~~ GIT_DIR [UNDEFINED, USING VERSION] $$UNDEFINED_VERSION ~~~")
+        GIT_VERSION  = $$UNDEFINED_VERSION
+        GIT_VERSION ~= s/\./" "
+    }
     # Separate the build number into major, minor and service pack etc...
     VER_MAJOR        = $$section(GIT_VERSION, " ", 0, 0)
     VER_MINOR        = $$section(GIT_VERSION, " ", 1, 1)

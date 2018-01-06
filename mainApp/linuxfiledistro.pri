@@ -166,7 +166,7 @@ unix:!macx {
     isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDGLITE/bin
     isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDVIEW/bin
     isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_POVRAY/bin
-    
+
     # installed data directories - 3rd party components
     isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/doc
     isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/resources

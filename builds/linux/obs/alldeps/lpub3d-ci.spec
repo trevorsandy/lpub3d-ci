@@ -95,7 +95,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.406
+Version: 2.1.0.408
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -168,7 +168,7 @@ BuildRequires: -post-build-checks
 BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
-%if 0%{?mgaversion} > 5
+%if 0%{?mageia} > 5
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
@@ -176,7 +176,7 @@ BuildRequires: lib64sane1, lib64proxy-webkit
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
-%if 0%{?mgaversion} > 5
+%if 0%{?mageia} > 5
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
@@ -317,7 +317,7 @@ BuildRequires:  nasm
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(alsa) >= 0.9.0
 BuildRequires:  pkgconfig(dbus-1)
-%if !0%{?sles_version} || !0%{?centos_version}
+%if 0%{?fedora}
 BuildRequires:  pkgconfig(fcitx)
 %endif
 BuildRequires:  pkgconfig(egl)
@@ -550,5 +550,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sat Jan 06 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.406
+* Sat Jan 06 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.408
 - LPub3D Linux package (rpm) release
