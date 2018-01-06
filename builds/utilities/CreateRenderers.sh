@@ -207,7 +207,7 @@ InstallDependencies() {
       ;;
     esac
     depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
-    Info "Platform............[${platform_id}]"
+    Info "Platform_id.........[${platform_id}]"
     case ${platform_id} in
     fedora|redhat|suse|mageia)
       # Initialize install mesa
