@@ -67,32 +67,32 @@ jobs:
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build and Package
-    if: env(LP3D_BUILD_STAGE) = true
+    if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
     env: LP3D_BUILD_ARCH2017=true
     os: linux
     compiler: gcc
   - stage: Build and Package
-    if: env(LP3D_BUILD_STAGE) = true
+    if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
     env: LP3D_BUILD_FEDORA25=true
     os: linux
     compiler: gcc
   - stage: Build and Package
-    if: env(LP3D_BUILD_STAGE) = true
+    if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
     env: LP3D_BUILD_XENIAL=true
     os: linux
     compiler: gcc
   - stage: Build and Package
-    if: env(LP3D_BUILD_STAGE) = true
+    if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
     env: LP3D_BUILD_MACOS=true
     os: osx
     compiler: clang
   - stage: Compile Source Only
-    if: env(LP3D_SOURCE_STAGE) = true
+    if: env(TRAVIS_COMMIT_MESSAGE) =~ ^((?!\[build pkg\]).)*$ AND (NOT tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$)
     env: LP3D_COMPILE_SOURCE=true
     os: linux
     compiler: gcc
   - stage: Compile Source Only
-    if: env(LP3D_SOURCE_STAGE) = true
+    if: env(TRAVIS_COMMIT_MESSAGE) =~ ^((?!\[build pkg\]).)*$ AND (NOT tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$)
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     compiler: clang
