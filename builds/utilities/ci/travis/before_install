@@ -35,7 +35,7 @@ elif [ -n "$TRAVIS_TAG" ]; then
 fi
 
 # Add private qt repositories
-if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" ]]; then
+if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
   if [ "$LP3D_QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi;
   if [ "$LP3D_QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi;
   if [ "$LP3D_QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi;

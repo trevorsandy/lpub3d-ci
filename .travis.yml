@@ -39,7 +39,6 @@ stages:
   - name: Prepare Release Storage
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
-    if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
   - name: Compile Source Only
   - name: GitHub and Sourceforge Deploy
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$

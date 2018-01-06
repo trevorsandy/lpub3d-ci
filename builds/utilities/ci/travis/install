@@ -12,7 +12,7 @@ cd $LP3D_BUILD_FOLDER
 _PRO_FILE_PWD_=$PWD/mainApp;
 source builds/utilities/update-config-files.sh
 # Install qt5 on Linux
-if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" ]]; then
+if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
   if [ "$LP3D_QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi;
   if [ "$LP3D_QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi;
   if [ "$LP3D_QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi;
