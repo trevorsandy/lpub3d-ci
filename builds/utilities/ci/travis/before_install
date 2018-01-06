@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Travis build [before_install] procedures - Travis.yml
+# Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update: January 05, 2017
