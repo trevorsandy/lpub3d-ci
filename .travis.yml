@@ -42,10 +42,9 @@ stages:
   - name: Prepare Release Storage
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
-    if: env(TRAVIS_COMMIT_MESSAGE) =~ \[build pkg.*\]
+  - name: Compile Source Only
   - name: GitHub and Sourceforge Deploy
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
-  - name: Compile Source Only
 
 before_install:
   - source ${LP3D_CI_SCRIPT_DIR}/before_install
@@ -68,18 +67,22 @@ jobs:
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build and Package
+    if: env(LP3D_BUILD_STAGE) = true
     env: LP3D_BUILD_ARCH2017=true
     os: linux
     compiler: gcc
   - stage: Build and Package
+    if: env(LP3D_BUILD_STAGE) = true
     env: LP3D_BUILD_FEDORA25=true
     os: linux
     compiler: gcc
   - stage: Build and Package
+    if: env(LP3D_BUILD_STAGE) = true
     env: LP3D_BUILD_XENIAL=true
     os: linux
     compiler: gcc
   - stage: Build and Package
+    if: env(LP3D_BUILD_STAGE) = true
     env: LP3D_BUILD_MACOS=true
     os: osx
     compiler: clang
