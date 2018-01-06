@@ -28,7 +28,7 @@
 exec 1>&2
 increment_version=${doIncrement:-yes}                                                            # to disable or run from command line, set default to 'no'
 commitmsg=".git/COMMIT_EDITMSG"
-[ cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' ] && update_config_files=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
+cat "$commitmsg" | grep -qE '\[(build|deploy) pkg.*\]' && update_config_files=yes || true    # trigger if [build pkg*] or [deploy pkg*] exist in commit message
 if test x"$update_config_files" = x"yes"; then
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`

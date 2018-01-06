@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 29, 2017
+#  Last Update: January 05, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -196,20 +196,19 @@ TreatLongProcess() {
 InstallDependencies() {
   if [ "$OS_NAME" = "Linux" ]; then
     Info &&  Info "Install $1 build dependencies..."
-    platform_=$(. /etc/os-release && echo $ID)
     useSudo="sudo"
     Info "Using sudo..........[Yes]"
-    case ${platform_} in
+    case ${platform_id} in
     fedora|redhat|suse|mageia|arch|ubuntu|debian)
       true
       ;;
     *)
-      Info "ERROR - Unable to process this target platform: [$platform_]."
+      Info "ERROR - Unable to process this target platform: [$platform_id]."
       ;;
     esac
     depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
-    Info "Platform............[${platform_}]"
-    case ${platform_} in
+    Info "Platform............[${platform_id}]"
+    case ${platform_id} in
     fedora|redhat|suse|mageia)
       # Initialize install mesa
       case $1 in
@@ -287,7 +286,7 @@ InstallDependencies() {
       Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
       ;;
       *)
-      Info "ERROR - Unknown platform [$platform_]"
+      Info "ERROR - Unknown platform [$platform_id]"
       ;;
     esac;
   else
@@ -318,6 +317,17 @@ BuildLDGLite() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDView() {
+  # patch .pro for fatal error: stdlib.h: No such file or directory - obs and docker
+  case ${platform_id} in
+  redhat)
+     case ${platform_ver} in
+     25)
+        Info "Apply stdlib error patch to $platform_id v$platform_ver..."
+        sed s/'    # detect system libraries paths'/'    QMAKE_CFLAGS_ISYSTEM =\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
+       ;;
+     esac
+    ;;
+  esac
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
@@ -388,14 +398,6 @@ CallDir=$PWD
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-# Get platform
-OS_NAME=$(uname)
-if [ "$OS_NAME" = "Darwin" ]; then
-  platform=$(echo `sw_vers -productName` `sw_vers -productVersion`)
-else
-  platform=$(. /etc/os-release && if test "$PRETTY_NAME" != ""; then echo "$PRETTY_NAME"; else echo `uname`; fi)
-fi
-
 Info && Info "Building............[LPub3D 3rd Party Renderers]"
 
 # Check for required 'WD' variable
@@ -421,19 +423,53 @@ if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
   OBS=true
 fi
 
-# Platform ID
-if [ "${DOCKER}" = "true" ]; then
-  Info "Platform............[Docker - ${platform}]"
-elif [ "${TRAVIS}" = "true" ]; then
-  Info "Platform............[Travis CI - ${platform}]"
-elif [ "${OBS}" = "true" ]; then
-  if [ "$platform" = "" ]; then
-    platform=${OS_NAME}
-  fi
-  Info "Platform............[Open Build System - ${platform}]"
+# Get pretty platform name, short platform name and platform version
+OS_NAME=$(uname)
+if [ "$OS_NAME" = "Darwin" ]; then
+  platform_pretty=$(echo `sw_vers -productName` `sw_vers -productVersion`)
+  platform_id=macos
+  platform_ver=$(echo `sw_vers -productVersion`)
 else
-  Info "Platform............[${platform}]"
+  if [ "${OBS}" = "true" ]; then
+    if [ -n "$TARGET_VENDOR" ]; then
+      platform_id=$TARGET_VENDOR
+    else
+      Info "WARNING - Open Build Service did not provide a target platform."
+      platform_id=$(echo $OS_NAME | awk '{print tolower($0)}')
+    fi
+    if [ -n "$PLATFORM_PRETTY_OBS" ]; then
+      platform_pretty=$PLATFORM_PRETTY_OBS
+    else
+      Info "WARNING - Open Build Service did not provide a platform pretty name."
+      platform_pretty=$OS_NAME
+    fi
+    if [ -n "$PLATFORM_VER_OBS" ]; then
+      platform_ver=$PLATFORM_VER_OBS
+    else
+      Info "WARNING - Open Build Service did not provide a platform version."
+      platform_ver=undefined
+    fi
+  else
+    platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
+    platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
+    platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
+  fi
 fi
+[ -n "$platform_id" ] && host=$platform_id || host=undefined
+
+# Display Platform
+Info "Platform_id.........[${platform_id}]"
+if [ "${DOCKER}" = "true" ]; then
+  Info "Platform_pretty.....[Docker - ${platform_pretty}]"
+elif [ "${TRAVIS}" = "true" ]; then
+  Info "Platform_pretty.....[Travis CI - ${platform_pretty}]"
+elif [ "${OBS}" = "true" ]; then
+  Info "Platform_pretty.....[Open Build System - ${platform_pretty}]"
+else
+  Info "Platform_pretty.....[${platform_pretty}]"
+fi
+Info "Platform_version....[$platform_ver]"
+
 Info "Working directory...[$WD]"
 
 # Distribution directory
@@ -447,22 +483,6 @@ if [ ! -d "${DIST_PKG_DIR}" ]; then
   mkdir -p ${DIST_PKG_DIR}
 fi
 Info "Dist Directory......[${DIST_PKG_DIR}]"
-
-# get host name
-if [ "${OBS}" = "true" ]; then
-  host=obs
-else
-  if [ ! "$OS_NAME" = "Darwin" ]; then
-    platform_=$(. /etc/os-release && echo $ID)
-    if [ -n "$platform_" ]; then
-      host=$platform_
-    else
-      host=undefined
-    fi
-  else
-    host=macos
-  fi
-fi
 
 # Change to Working directory
 cd ${WD}
@@ -621,60 +641,50 @@ for buildDir in ldglite ldview povray; do
     ;;
   esac
 
-  # OBS build setup routine...
   if [ "$OBS" = "true" ]; then
+    # OBS build setup routine...
     if [ -f "${buildDir}.tar.gz" ]; then
       ExtractArchive ${buildDir} ${validSubDir}
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-    platform_=$(. /etc/os-release && echo $ID)
-    case ${platform_} in
+    case ${platform_id} in
     arch|ubuntu|debian)
-      Info "Processing OBS platform_ ${platform_}..."
-      if [ "$platform_" = "arch" ]; then
+      Info "Processing OBS platform_id ${platform_id}..."
+      if [ "$platform_id" = "arch" ]; then
         build_tinyxml=1
       fi
-      true
       ;;
     *)
-      if [ "$TARGET_VENDOR" != "" ]; then
-        platform_=$TARGET_VENDOR
-      else
-        if [ -z "$platform_" ]; then
-          platform_=undefined
-        fi
-        Info "WARNING - Open Build Service did not provide a target platform."
-      fi
       if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
-        Info "Processing OBS platform_ ${platform_}..."
+        Info "Processing OBS platform_id ${platform_id}..."
         BuildMesaLibs
       fi
       ;;
     esac
-  fi
-
-  # CI/Local build setup routine...
-  if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
-    # Check if build folder exist - donwload tarball and extract if not
-    Info && Info "Setup ${!artefactVer} source files..."
-    Info "----------------------------------------------------"
-    if [ ! -d "${buildDir}/${validSubDir}" ]; then
-      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-      if [ ! -f ${buildDir}.tar.gz ]; then
-        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-      fi
-      ExtractArchive ${buildDir} ${validSubDir}
-    else
-      cd ${buildDir}
-    fi
-    # Install build dependencies
-    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-      Info && Info "Install ${!artefactVer} build dependencies..."
+  else
+    # CI/Local build setup routine...
+    if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
+      # Check if build folder exist - donwload tarball and extract if not
+      Info && Info "Setup ${!artefactVer} source files..."
       Info "----------------------------------------------------"
-      InstallDependencies ${buildDir}
-      sleep .5
+      if [ ! -d "${buildDir}/${validSubDir}" ]; then
+        Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+        if [ ! -f ${buildDir}.tar.gz ]; then
+          Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+          curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+        fi
+        ExtractArchive ${buildDir} ${validSubDir}
+      else
+        cd ${buildDir}
+      fi
+      # Install build dependencies
+      if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+        Info && Info "Install ${!artefactVer} build dependencies..."
+        Info "----------------------------------------------------"
+        InstallDependencies ${buildDir}
+        sleep .5
+      fi
     fi
   fi
 

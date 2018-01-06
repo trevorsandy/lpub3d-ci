@@ -44,6 +44,9 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 # get the script location
 ScriptDir=$(dirname "$0")
 
+# set the osmesa-config default location
+osmesaConfDir=$(cd $ScriptDir && echo $PWD)
+
 # Get platform
 OS_NAME=`uname`
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -85,12 +88,13 @@ if [ "${WD}" = "" ]; then
 fi
 
 Info
-Info "Working Directory....[${WD}]"
-Info "Script Directory.....[${ScriptDir}]"
-Info "LLVM-Config Path.....[${llvm_config}]"
-Info "Install Prefix.......[${osmesaprefix}]"
-Info "OSMesa Version.......[${mesaversion}]"
-Info "GLU Version..........[${gluversion}]"
+Info "Working Directory........[${WD}]"
+Info "Script Directory.........[${ScriptDir}]"
+Info "OSMesa-config Directory..[$osmesaConfDir]"
+Info "LLVM-Config Path.........[${llvm_config}]"
+Info "Install Prefix...........[${osmesaprefix}]"
+Info "OSMesa Version...........[${mesaversion}]"
+Info "GLU Version..............[${gluversion}]"
 
 # build OSMesa
 Info && Info "building OSMesa..."
@@ -122,7 +126,8 @@ if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
   if [ ! "$OBS" = "true" ]; then
     #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && Info "mesa-${mesaversion}.tar.gz copied to ~/"
 	  Info "downloading Mesa ${mesaversion}..."
-	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz" || curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/${mesaversion}/mesa-${mesaversion}.tar.gz"
+	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz" || \
+    curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/${mesaversion}/mesa-${mesaversion}.tar.gz"
   else
     Info "ERROR - archive file mesa-${mesaversion}.tar.gz was not found. $ME will terminate."
     exit 1

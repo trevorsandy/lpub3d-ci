@@ -32,15 +32,18 @@
 # set target platform id
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
+%define build_sdl2 1
 %endif
 
 %if 0%{?sles_version}
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
 %define build_sdl2 1
+%define build_osmesa 1
 %endif
 
 %if 0%{?fedora}
 %define dist fc
+%define build_osmesa 1
 %endif
 
 %if 0%{?mageia}
@@ -89,7 +92,7 @@ BuildRequires: fdupes
 %define _iconsdir %{_datadir}/icons
 
 # preamble
-Summary: An LDraw Building Instruction Editor
+Version: 2.1.0.405
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: 2.1.0.366
@@ -118,13 +121,12 @@ BuildRequires: git
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 %endif
 
-%if (0%{?rhel_version}>=700 && 0%{?centos_version}>=700 && 0%{?fedora}>=26)
+%if (0%{?rhel_version}>=700 && 0%{?centos_version}>=700)
 BuildRequires: libjpeg-turbo-devel
 %endif
 
 %if 0%{?fedora}
-%define build_osmesa 1
-BuildRequires: tinyxml-devel, gl2ps-devel
+BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
 %if 0%{?buildservice}
 BuildRequires: samba4-libs
 %if 0%{?fedora_version}==23
@@ -160,9 +162,6 @@ BuildRequires: Mesa-devel
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
-%endif
-%if (0%{?suse_version} && !0%{?sles_version})
-BuildRequires: libSDL2-devel
 %endif
 
 %if 0%{?mageia}
@@ -287,7 +286,7 @@ BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 BuildRequires:  libelf-devel
 %endif
 %endif
-%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse})
+%if 0%{?suse_version} > 1320 || (0%{?sles_version} >= 120300 && 0%{?is_opensuse})
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
@@ -318,12 +317,15 @@ BuildRequires:  nasm
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(alsa) >= 0.9.0
 BuildRequires:  pkgconfig(dbus-1)
-%if !0%{?sle_version}
+%if !0%{?sles_version} && !0%{?centos_version}
 BuildRequires:  pkgconfig(fcitx)
 %endif
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(gl)
+%if !0%{?centos_version}
 BuildRequires:  pkgconfig(glesv1_cm)
+BuildRequires:  pkgconfig(wayland-server)
+%endif
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(glu)
@@ -338,7 +340,7 @@ BuildRequires:  pkgconfig(tslib)
 BuildRequires:  pkgconfig(libpulse-simple) >= 0.9
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(udev)
-BuildRequires:  pkgconfig(wayland-server)
+
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcursor)
 BuildRequires:  pkgconfig(xext)
@@ -449,25 +451,46 @@ for ArchiveSourceFile in \
 done
 #set -x
 # 3rd-party renderers build-from-source requirements
-%if 0%{?centos_version}
-export build_sdl2=1
-export build_tinyxml=1
-export build_gl2ps=1
-%endif
 %if 0%{?suse_version}
+export PLATFORM_PRETTY_OBS="OpenSUSE"
+export PLATFORM_VER_OBS=%{suse_version}
 export build_tinyxml=1
-%endif
 %if (0%{?suse_version} < 1210 || 0%{?suse_version}==1315)
 export build_gl2ps=1
 %endif
+%endif
 %if 0%{?sles_version}
+export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server"
+export PLATFORM_VER_OBS=%{sles_version}
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if "%{osmesa_found}" != "1"
-%define build_osmesa 1
-export build_osmesa=%{?build_osmesa}
+export build_osmesa=1
 %endif
 export build_sdl2=1
 export build_tinyxml=1
+%endif
+%if 0%{?centos_ver} || 0%{?centos_version}
+export PLATFORM_PRETTY_OBS="CentOS"
+export PLATFORM_VER_OBS=%{centos_version}
+export build_sdl2=1
+export build_tinyxml=1
+export build_gl2ps=1
+%endif
+%if 0%{?fedora}
+export PLATFORM_PRETTY_OBS="Fedora"
+export PLATFORM_VER_OBS=%{fedora}
+%define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
+%if "%{osmesa_found}" != "1"
+export build_osmesa=1
+%endif
+%endif
+%if 0%{?rhel_version}
+export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
+export PLATFORM_VER_OBS=%{rhel_version}
+%endif
+%if 0%{?mageia}
+export PLATFORM_PRETTY_OBS="Mageia"
+export PLATFORM_VER_OBS=%{mageia}
 %endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
@@ -527,5 +550,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Jan 05 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.366
+* Sat Jan 06 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.405
 - LPub3D Linux package (rpm) release
