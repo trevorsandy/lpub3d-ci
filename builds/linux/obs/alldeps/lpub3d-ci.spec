@@ -32,13 +32,16 @@
 # set target platform id
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
-%define build_sdl2 1
 %endif
 
 %if 0%{?sles_version}
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
-%define build_sdl2 1
 %define build_osmesa 1
+%endif
+
+%if 0%{?centos_ver}
+%define centos_version %{centos_ver}00
+%define dist cos
 %endif
 
 %if 0%{?fedora}
@@ -49,12 +52,6 @@
 %if 0%{?mageia}
 %define dist .mga%{mgaversion}
 %define distsuffix .mga%{mgaversion}
-%endif
-
-%if 0%{?centos_ver}
-%define centos_version %{centos_ver}00
-%define dist cos
-%define build_sdl2 1
 %endif
 
 %if 0%{?rhel_version}
@@ -98,9 +95,11 @@ Icon: lpub3d.xpm
 Version: 2.1.0.408
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
-Vendor: Trevor SANDY
+Version: 2.1.0.409
 BuildRoot: %{_builddir}/%{name}
 BuildRequires: unzip
+BuildRequires: autoconf
+BuildRequires: automake
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
@@ -117,7 +116,7 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?suse_version}
+%if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 %endif
 
@@ -146,9 +145,7 @@ BuildRequires: libqt5-qtbase-devel
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: cmake, update-desktop-files
 BuildRequires: zlib-devel
-%if 0%{?suse_version}!=1315
 BuildRequires: libpng16-compat-devel, libjpeg8-devel, libqt5-linguist
-%endif
 Requires(pre): gconf2
 %if (0%{?suse_version} > 1210 && 0%{?suse_version}!=1315)
 BuildRequires: gl2ps-devel
@@ -180,9 +177,36 @@ BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
-BuildRequires: libsane1, libproxy-webkit
+BuildRequires: libsane1, libproxy-webkit libopenssl-devel
 %endif
 %endif
+%endif
+
+# POV-Ray dependencies
+%if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
+%if 0%{?suse_version} > 1325
+BuildRequires:  libboost_system-devel
+BuildRequires:  libboost_thread-devel
+%else
+BuildRequires:  boost-devel
+%endif
+
+BuildRequires:  dos2unix
+BuildRequires:  fdupes
+BuildRequires:  gcc-c++
+BuildRequires:  libjpeg-devel
+BuildRequires:  libpng-devel
+BuildRequires:  libtiff-devel
+
+%if 0%{?suse_version}
+BuildRequires:  xorg-x11-libX11-devel
+BuildRequires:  xorg-x11-libXpm-devel
+%else
+BuildRequires:  libXpm-devel
+%endif
+BuildRequires:  pkgconfig(OpenEXR)
+BuildRequires:  pkgconfig(sdl2)
+BuildRequires:  pkgconfig(zlib)
 %endif
 
 # build OSMesa and libGLU from source
@@ -550,5 +574,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sat Jan 06 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.408
+* Sat Jan 06 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.409
 - LPub3D Linux package (rpm) release
