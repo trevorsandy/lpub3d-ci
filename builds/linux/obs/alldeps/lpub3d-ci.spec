@@ -92,14 +92,12 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.408
+Version: 2.1.0.410
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
-Version: 2.1.0.409
+Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
 BuildRequires: unzip
-BuildRequires: autoconf
-BuildRequires: automake
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
@@ -184,6 +182,8 @@ BuildRequires: libsane1, libproxy-webkit libopenssl-devel
 
 # POV-Ray dependencies
 %if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
+BuildRequires: autoconf
+BuildRequires: automake
 %if 0%{?suse_version} > 1325
 BuildRequires:  libboost_system-devel
 BuildRequires:  libboost_thread-devel
@@ -201,11 +201,11 @@ BuildRequires:  libtiff-devel
 %if 0%{?suse_version}
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
+BuildRequires:  pkgconfig(sdl2)
 %else
 BuildRequires:  libXpm-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
-BuildRequires:  pkgconfig(sdl2)
 BuildRequires:  pkgconfig(zlib)
 %endif
 
@@ -574,5 +574,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sat Jan 06 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.409
+* Sun Jan 07 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.410
 - LPub3D Linux package (rpm) release
