@@ -37,11 +37,13 @@
 %if 0%{?sles_version}
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
 %define build_osmesa 1
+%define build_sdl2 1
 %endif
 
 %if 0%{?centos_ver}
 %define centos_version %{centos_ver}00
 %define dist cos
+%define build_sdl2 1
 %endif
 
 %if 0%{?fedora}
@@ -92,7 +94,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.410
+Version: 2.1.0.411
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -574,5 +576,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 07 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.410
+* Sun Jan 07 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.411
 - LPub3D Linux package (rpm) release
