@@ -94,7 +94,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.411
+Version: 2.1.0.412
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -145,10 +145,13 @@ BuildRequires: libqt5-qtbase-devel
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: cmake, update-desktop-files
 BuildRequires: zlib-devel
-BuildRequires: libpng16-compat-devel, libjpeg8-devel, libqt5-linguist
+BuildRequires: libpng16-compat-devel, libjpeg8-devel
 Requires(pre): gconf2
 %if (0%{?suse_version} > 1210 && 0%{?suse_version}!=1315)
 BuildRequires: gl2ps-devel
+%if !0%{?sles_version}
+BuildRequires: libqt5-linguist
+%endif
 %endif
 %if 0%{?suse_version} > 1220
 BuildRequires: glu-devel
@@ -169,7 +172,7 @@ BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64m
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
-BuildRequires: lib64sane1, lib64proxy-webkit
+BuildRequires: lib64sane1, lib64proxy-webkit lib64openssl-devel
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
@@ -194,7 +197,9 @@ BuildRequires:  boost-devel
 %endif
 
 BuildRequires:  dos2unix
+%if 0%{?suse_version} || 0%{?sles_version}
 BuildRequires:  fdupes
+%endif
 BuildRequires:  gcc-c++
 BuildRequires:  libjpeg-devel
 BuildRequires:  libpng-devel
@@ -203,7 +208,9 @@ BuildRequires:  libtiff-devel
 %if 0%{?suse_version}
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
+%if !0%{?sles_version}
 BuildRequires:  pkgconfig(sdl2)
+%endif
 %else
 BuildRequires:  libXpm-devel
 %endif
@@ -576,5 +583,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 07 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.411
+* Sun Jan 07 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.412
 - LPub3D Linux package (rpm) release
