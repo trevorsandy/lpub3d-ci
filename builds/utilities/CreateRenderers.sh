@@ -296,7 +296,7 @@ InstallDependencies() {
 
 # args: <none>
 ApplyLDViewStdlibFix(){
-  Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_id v$platform_ver..."
+  Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
   sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
 }
 
@@ -468,26 +468,26 @@ fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
 # Display platform settings
-Info "Platform_id.........[${platform_id}]"
+Info "Platform_id..............[${platform_id}]"
 if [ "${DOCKER}" = "true" ]; then
-  Info "Platform_pretty.....[Docker Container - ${platform_pretty}]"
+  Info "Platform_pretty_name.....[Docker Container - ${platform_pretty}]"
 elif [ "${TRAVIS}" = "true" ]; then
-  Info "Platform_pretty.....[Travis CI - ${platform_pretty}]"
+  Info "Platform_pretty_name.....[Travis CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
-  Info "Platform_pretty.....[Open Build Service - ${platform_pretty}]"
+  Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   if [ "$platform_id" = "arch" ]; then
     build_tinyxml=1
   fi
-  [ -n "$build_osmesa" ] && echo "Build OSMesa from source detected."
-  [ -n "$build_sdl2" ] && echo "Build SDL2 from source detected."
-  [ -n "$build_tinyxml" ] && echo "Build TinyXML from source detected."
-  [ -n "$build_gl2ps" ] && echo "Build GL2PS from source detected."
+  [ -n "$build_osmesa" ] && echo "Build OSMesa from source detected." || true
+  [ -n "$build_sdl2" ] && echo "Build SDL2 from source detected." || true
+  [ -n "$build_tinyxml" ] && echo "Build TinyXML from source detected." || true
+  [ -n "$build_gl2ps" ] && echo "Build GL2PS from source detected." || true
 else
-  Info "Platform_pretty.....[${platform_pretty}]"
+  Info "Platform_pretty_name.....[${platform_pretty}]"
 fi
-Info "Platform_version....[$platform_ver]"
+Info "Platform_version.........[$platform_ver]"
 
-Info "Working directory...[$WD]"
+Info "Working directory........[$WD]"
 
 # Distribution directory
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -499,7 +499,7 @@ DIST_PKG_DIR=${WD}/${DIST_DIR}
 if [ ! -d "${DIST_PKG_DIR}" ]; then
   mkdir -p ${DIST_PKG_DIR}
 fi
-Info "Dist Directory......[${DIST_PKG_DIR}]"
+Info "Dist Directory...........[${DIST_PKG_DIR}]"
 
 # Change to Working directory
 cd ${WD}
@@ -523,11 +523,11 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined."
   fi
 elif [ ! "$OS_NAME" = "Darwin" ]; then
-  Info "LDraw library.......[${LDRAWDIR}]"
+  Info "LDraw library............[${LDRAWDIR}]"
 fi
 # Additional LDraw configuration for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
-  Info "LDraw library.......[${LDRAWDIR}]"
+  Info "LDraw library............[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."
   chmod +x ${LPUB3D}/builds/utilities/set-ldrawdir.command && ./${LPUB3D}/builds/utilities/set-ldrawdir.command
   grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
@@ -580,8 +580,8 @@ fi
 if [ "$OS_NAME" = "Darwin" ]; then
   Info &&  Info "Install $OS_NAME renderer build dependencies..."
   Info "----------------------------------------------------"
-  Info "Platform............[macos]"
-  Info "Using sudo..........[No]"
+  Info "Platform.................[macos]"
+  Info "Using sudo...............[No]"
   for buildDir in ldview povray; do
     artefactBinary="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"
     if [ ! -f "${!artefactBinary}" ]; then
