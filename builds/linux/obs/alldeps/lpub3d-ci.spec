@@ -36,7 +36,6 @@
 
 %if 0%{?sles_version}
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
-%define build_osmesa 1
 %define build_sdl2 1
 %endif
 
@@ -48,16 +47,16 @@
 
 %if 0%{?fedora}
 %define dist fc
-%define build_osmesa 1
 %endif
 
 %if 0%{?mageia}
-%define dist .mga%{mgaversion}
-%define distsuffix .mga%{mgaversion}
+%define dist .mga%{mageia}
+%define mageia_version %{mageia}00
 %endif
 
 %if 0%{?rhel_version}
 %define dist rhel
+%define build_sdl2 1
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -95,7 +94,7 @@ Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: 2.1.0.412
-Release: %{?dist}
+Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
@@ -107,6 +106,7 @@ Source10: lpub3d-ci-rpmlintrc
 %if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
+BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?fedora}
 BuildRequires: qt5-linguist, SDL2-devel
@@ -114,10 +114,6 @@ BuildRequires: qt5-linguist, SDL2-devel
 %if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
-%endif
-
-%if 0%{?fedora} || 0%{?centos_version}
-BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 %endif
 
 %if (0%{?rhel_version}>=700 && 0%{?centos_version}>=700)
@@ -133,9 +129,15 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %if 0%{?fedora_version}==25
 BuildRequires: llvm-libs
+%define build_osmesa 1
 %endif
 %if 0%{?fedora_version}==26
 BuildRequires: openssl-devel, storaged
+%endif
+%if 0%{?fedora_version}==27
+# work around fc27 error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
+%undefine _debuginfo_subpackages
+%define build_osmesa 1
 %endif
 %endif
 %endif
@@ -159,6 +161,9 @@ BuildRequires: glu-devel
 %if 0%{?suse_version} > 1300
 BuildRequires: Mesa-devel
 %endif
+%if (0%{?suse_version} < 1210 || 0%{?suse_version}==1315)
+%define build_gl2ps 1
+%endif
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
@@ -168,7 +173,7 @@ BuildRequires: -post-build-checks
 BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
-%if 0%{?mageia} > 5
+%if 0%{?mageia_version} > 500
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
@@ -176,12 +181,19 @@ BuildRequires: lib64sane1, lib64proxy-webkit lib64openssl-devel
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
-%if 0%{?mageia} > 5
+%if 0%{?mageia_version} > 500
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit libopenssl-devel
 %endif
+%endif
+%endif
+
+%if 0%{?sles_version}
+%define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
+%if 0%{osmesa_found} != 1
+%define build_osmesa 1
 %endif
 %endif
 
@@ -208,7 +220,7 @@ BuildRequires:  libtiff-devel
 %if 0%{?suse_version}
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
-%if !0%{?sles_version}
+%if (!0%{?sles_version} && !0%{?centos_version})
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %else
@@ -218,7 +230,7 @@ BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
 %endif
 
-# build OSMesa and libGLU from source
+# OSMesa and libGLU dependencies
 %if 0%{?build_osmesa}
 %define buildosmesa yes
 # libGLU build-from-source dependencies
@@ -340,7 +352,7 @@ Requires:       libglvnd >= 0.1.0
 %endif
 %endif
 
-# build SDL2 from source
+# SDL2 debendencies
 %if 0%{?build_sdl2}
 %define builsdl2 yes
 BuildRequires:  cmake
@@ -400,31 +412,44 @@ BuildRequires:  pkgconfig(xxf86vm)
  © 2015-2018 Trevor SANDY
 
 %prep
+export RPM_PLATFORM=true
 set +x
 %if 0%{?suse_version}
 echo "OpenSUSE.......................%{suse_version}"
+export PLATFORM_PRETTY_OBS="OpenSUSE %{suse_version}"
+export PLATFORM_VER_OBS=%{suse_version}
 %endif
 %if 0%{?sles_version}
 echo "SUSE Linux Enterprise Server...%{sles_version}"
+export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sles_version}"
+export PLATFORM_VER_OBS=%{sles_version}
 %endif
 %if 0%{?centos_ver}
-echo "CentOS.........................%{centos_ver}"
+echo "CentOS.........................%{centos_version}"
+export PLATFORM_PRETTY_OBS="CentOS"
+export PLATFORM_VER_OBS=%{centos_version}
 %endif
 %if 0%{?fedora}
-echo "Fedora.........................%{fedora}"
+echo "Fedora.........................%{fedora_version}"
+export PLATFORM_PRETTY_OBS="Fedora"
+export PLATFORM_VER_OBS=%{fedora_version}
 %endif
 %if 0%{?rhel_version}
 echo "RedHat Enterprise Linux........%{rhel_version}"
+export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
+export PLATFORM_VER_OBS=%{rhel_version}
 %endif
 %if 0%{?scientificlinux_version}
 echo "Scientific Linux...............%{scientificlinux_version}"
 %endif
 %if 0%{?mageia}
-echo "Mageia.........................%{mageia}"
+echo "Mageia.........................%{mageia_version}"
+export PLATFORM_PRETTY_OBS="Mageia"
+export PLATFORM_VER_OBS=%{mageia_version}
 %endif
-echo "Using OpenBuildService.........%{usingbuildservice}"
 %if 0%{?buildservice}
-echo "OpenBuildService Target........%{_target_vendor}"
+echo "Using OpenBuildService.........%{usingbuildservice}"
+export OBS=%{usingbuildservice}
 %endif
 %if 0%{?build_osmesa}
 echo "Build OSMesa from source.......%{buildosmesa}"
@@ -446,18 +471,30 @@ echo "Source20.......................%{SOURCE10}"
 echo "Service Provider...............%{serviceprovider}"
 echo "Packing Platform...............%{packingplatform}"
 echo "Build Package..................%{name}-%{version}-%{release}-%{_arch}.rpm"
+# 3rd-party renderers build-from-source requirements
+export TARGET_VENDOR=%{_target_vendor}
+%if 0%{?build_osmesa}
+echo "Build OSMesa from source.......yes"
+export build_osmesa=%{build_osmesa}
+%endif
+%if 0%{?build_sdl2}
+echo "Build SDL2 from source.........yes"
+export build_sdl2=%{build_sdl2}
+%endif
+%if 0%{?build_gl2ps}
+echo "Build GL2PS from source........yes"
+export build_gl2ps=%{build_gl2ps}
+%endif
+%if 0%{?build_tinyxml}
+echo "Build TinyXML from source......yes"
+export build_tinyxml=%{build_tinyxml}
+%endif
 set -x
 %setup -q -n %{name}-git
 
 %build
-export OBS=%{usingbuildservice}
-export TARGET_VENDOR=%{_target_vendor}
-export QT_SELECT=qt5
-# instruct qmake to install 3rd-party renderers
-export LP3D_BUILD_PKG=yes
-#set +x
 echo "Current working directory: $PWD"
-# download ldraw archive libraries
+# copy ldraw archive libraries
 LDrawLibOffical=../../SOURCES/complete.zip
 LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
 if [ -f ${LDrawLibOffical} ] ; then
@@ -482,54 +519,14 @@ for ArchiveSourceFile in \
     mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
 done
-#set -x
-# 3rd-party renderers build-from-source requirements
-%if 0%{?suse_version}
-export PLATFORM_PRETTY_OBS="OpenSUSE"
-export PLATFORM_VER_OBS=%{suse_version}
-export build_tinyxml=1
-%if (0%{?suse_version} < 1210 || 0%{?suse_version}==1315)
-export build_gl2ps=1
-%endif
-%endif
-%if 0%{?sles_version}
-export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server"
-export PLATFORM_VER_OBS=%{sles_version}
-%define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
-%if "%{osmesa_found}" != "1"
-export build_osmesa=1
-%endif
-export build_sdl2=1
-export build_tinyxml=1
-%endif
-%if 0%{?centos_ver} || 0%{?centos_version}
-export PLATFORM_PRETTY_OBS="CentOS"
-export PLATFORM_VER_OBS=%{centos_version}
-export build_sdl2=1
-export build_tinyxml=1
-export build_gl2ps=1
-%endif
-%if 0%{?fedora}
-export PLATFORM_PRETTY_OBS="Fedora"
-export PLATFORM_VER_OBS=%{fedora}
-%define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
-%if "%{osmesa_found}" != "1"
-export build_osmesa=1
-%endif
-%endif
-%if 0%{?rhel_version}
-export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
-export PLATFORM_VER_OBS=%{rhel_version}
-%endif
-%if 0%{?mageia}
-export PLATFORM_PRETTY_OBS="Mageia"
-export PLATFORM_VER_OBS=%{mageia}
-%endif
+# instruct qmake to install 3rd-party renderers
+export LP3D_BUILD_PKG=yes
+export QT_SELECT=qt5
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # use Qt5
-%if 0%{?fedora}==23
+%if 0%{?fedora_version}==23
 %ifarch x86_64
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif

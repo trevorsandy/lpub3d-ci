@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 05, 2017
+#  Last Update: January 07, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -27,12 +27,12 @@ FinishElapsedTime() {
 
 # Functions
 Info () {
-    if [ "${SOURCED}" = "true" ]
-    then
-        echo "   renderers: ${*}" >&2
-    else
-        echo "-${*}" >&2
-    fi
+  if [ "${SOURCED}" = "true" ]
+  then
+    echo "   renderers: ${*}" >&2
+  else
+    echo "-${*}" >&2
+  fi
 }
 
 ExtractArchive() {
@@ -199,7 +199,7 @@ InstallDependencies() {
     useSudo="sudo"
     Info "Using sudo..........[Yes]"
     case ${platform_id} in
-    fedora|redhat|suse|mageia|arch|ubuntu|debian)
+    fedora|arch|ubuntu)
       true
       ;;
     *)
@@ -209,7 +209,7 @@ InstallDependencies() {
     depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
     Info "Platform_id.........[${platform_id}]"
     case ${platform_id} in
-    fedora|redhat|suse|mageia)
+    fedora)
       # Initialize install mesa
       case $1 in
       ldglite)
@@ -262,7 +262,7 @@ InstallDependencies() {
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
       Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
       ;;
-    ubuntu|debian)
+    ubuntu)
       case $1 in
       ldglite)
         controlFile="$PWD/obs/debian/control"
@@ -294,6 +294,12 @@ InstallDependencies() {
   fi
 }
 
+# args: <none>
+ApplyLDViewStdlibFix(){
+  Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_id v$platform_ver..."
+  sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
+}
+
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDGLite() {
   BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
@@ -321,11 +327,13 @@ BuildLDView() {
   case ${platform_id} in
   redhat)
      case ${platform_ver} in
-     25)
-        Info "Apply stdlib error patch to $platform_id v$platform_ver..."
-        sed s/'    # detect system libraries paths'/'    QMAKE_CFLAGS_ISYSTEM =\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
+     25|27)
+       ApplyLDViewStdlibFix
        ;;
      esac
+    ;;
+  arch)
+    ApplyLDViewStdlibFix
     ;;
   esac
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
@@ -430,41 +438,50 @@ if [ "$OS_NAME" = "Darwin" ]; then
   platform_id=macos
   platform_ver=$(echo `sw_vers -productVersion`)
 else
+  platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
+  platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
+  platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
   if [ "${OBS}" = "true" ]; then
-    if [ -n "$TARGET_VENDOR" ]; then
-      platform_id=$TARGET_VENDOR
-    else
-      Info "WARNING - Open Build Service did not provide a target platform."
-      platform_id=$(echo $OS_NAME | awk '{print tolower($0)}')
+    if [ "$RPM_PLATFORM" = "true" ]; then
+      Info "Open Build Service RPM Platform detected."
+      if [ -n "$TARGET_VENDOR" ]; then
+        platform_id=$TARGET_VENDOR
+      else
+        Info "WARNING - Open Build Service did not provide a target platform."
+        platform_id=$(echo $OS_NAME | awk '{print tolower($0)}')
+      fi
+      if [ -n "$PLATFORM_PRETTY_OBS" ]; then
+        platform_pretty=$PLATFORM_PRETTY_OBS
+      else
+        Info "WARNING - Open Build Service did not provide a platform pretty name."
+        platform_pretty=$OS_NAME
+      fi
+      if [ -n "$PLATFORM_VER_OBS" ]; then
+        platform_ver=$PLATFORM_VER_OBS
+      else
+        Info "WARNING - Open Build Service did not provide a platform version."
+        platform_ver=undefined
+      fi
     fi
-    if [ -n "$PLATFORM_PRETTY_OBS" ]; then
-      platform_pretty=$PLATFORM_PRETTY_OBS
-    else
-      Info "WARNING - Open Build Service did not provide a platform pretty name."
-      platform_pretty=$OS_NAME
-    fi
-    if [ -n "$PLATFORM_VER_OBS" ]; then
-      platform_ver=$PLATFORM_VER_OBS
-    else
-      Info "WARNING - Open Build Service did not provide a platform version."
-      platform_ver=undefined
-    fi
-  else
-    platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
-    platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
-    platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
   fi
 fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
-# Display Platform
+# Display platform settings
 Info "Platform_id.........[${platform_id}]"
 if [ "${DOCKER}" = "true" ]; then
-  Info "Platform_pretty.....[Docker - ${platform_pretty}]"
+  Info "Platform_pretty.....[Docker Container - ${platform_pretty}]"
 elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform_pretty.....[Travis CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
-  Info "Platform_pretty.....[Open Build System - ${platform_pretty}]"
+  Info "Platform_pretty.....[Open Build Service - ${platform_pretty}]"
+  if [ "$platform_id" = "arch" ]; then
+    build_tinyxml=1
+  fi
+  [ -n "$build_osmesa" ] && echo "Build OSMesa from source detected."
+  [ -n "$build_sdl2" ] && echo "Build SDL2 from source detected."
+  [ -n "$build_tinyxml" ] && echo "Build TinyXML from source detected."
+  [ -n "$build_gl2ps" ] && echo "Build GL2PS from source detected."
 else
   Info "Platform_pretty.....[${platform_pretty}]"
 fi
@@ -529,7 +546,7 @@ else
 fi
 
 # get Qt version
-Info && ${QMAKE_EXEC} -v
+Info && ${QMAKE_EXEC} -v && Info
 QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 
 # set log output path
@@ -648,20 +665,9 @@ for buildDir in ldglite ldview povray; do
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-    case ${platform_id} in
-    arch|ubuntu|debian)
-      Info "Processing OBS platform_id ${platform_id}..."
-      if [ "$platform_id" = "arch" ]; then
-        build_tinyxml=1
-      fi
-      ;;
-    *)
-      if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
-        Info "Processing OBS platform_id ${platform_id}..."
-        BuildMesaLibs
-      fi
-      ;;
-    esac
+    if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+      BuildMesaLibs
+    fi
   else
     # CI/Local build setup routine...
     if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then

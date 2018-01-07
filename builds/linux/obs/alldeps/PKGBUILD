@@ -16,13 +16,13 @@ noextract=("complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "
 md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
-	# loc = ../src
+	# location is ../src
 	echo "  -> Current working directory: $PWD"
 	export WD=$PWD
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh
-	# loc = ../src/${pkgname}-git
+	# location is ../src/${pkgname}-git
 	echo "  -> Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras

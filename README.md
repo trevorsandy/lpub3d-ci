@@ -4,8 +4,8 @@ An LDraw™ editor for LEGO® style digital building instructions.
   
 | [![GitHub release][gh-rel-badge]][gh-rel-url] | [![Travis-CI build status][travis-badge]][travis-url] | [![AppVeyor build status][appveyor-badge]][appveyor-url] | [![GitHub top language][gh-top-lang-badge]][gh-top-lang-url] |
 | :---        |    :----:   |    :----:   |          ---: |
-| [![Sourceforge weekly downloads][sf-dw-badge]][sf-dw-badge-url] | [![Sourceforge total downloads][sf-dt-badge]][sf-dt-badge-url] | [![Github total downloads][gh-dl-badge]][gh-dl-url] | [![Maintained status][maintained-badge]](README.md "Last edited 01-02-2018") |
-| [![Github commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url] | [![GitHub issues][gh-issue-badge]][gh-issue-url] | [![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url] | [![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url] |
+| [![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url] | [![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url] | [![GitHub total downloads][gh-dl-badge]][gh-dl-url] | [![Maintained status][maintained-badge]](README.md "Last edited 07-01-2018") |
+| [![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url] | [![GitHub issues][gh-issue-badge]][gh-issue-url] | [![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url] | [![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url] |
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions.
 LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive
