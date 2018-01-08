@@ -487,7 +487,7 @@ export OBS=%{usingbuildservice}
 export PLATFORM_PRETTY_OBS="OpenSUSE %{suse_version}"
 export PLATFORM_VER_OBS=%{suse_version}
 %if 0%{?suse_version}==1315
-export OBS_SUSE_1315_OPTFLAGS=%{optflags}
+export OBS_SUSE_1315_OPTFLAGS="%{optflags}"
 %endif
 %endif
 %if 0%{?sles_version}
@@ -531,7 +531,7 @@ export build_tinyxml=%{build_tinyxml}
 set -x
 export TARGET_VENDOR=%{_target_vendor}
 export RPM_BUILD=true
-export RPM_MFLAGS=%{?_smp_mflags}
+export RPM_MFLAGS="%{?_smp_mflags}"
 export RPM_LIBDIR=%{_libdir}
 %endif
 # instruct qmake to install 3rd-party renderers
