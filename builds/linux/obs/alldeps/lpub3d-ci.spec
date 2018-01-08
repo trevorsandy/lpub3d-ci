@@ -90,7 +90,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.416
+Version: 2.1.0.418
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -150,12 +150,9 @@ BuildRequires: libpng16-compat-devel, libjpeg8-devel
 Requires(pre): gconf2
 %if (0%{?suse_version} > 1210 && 0%{?suse_version}!=1315)
 BuildRequires: gl2ps-devel
+BuildRequires: libqt5-linguist
 %else
 %define build_gl2ps 1
-%endif
-%if !0%{?sles_version}
-BuildRequires: libqt5-linguist
-%endif
 %endif
 %if 0%{?suse_version} > 1220
 BuildRequires: glu-devel
@@ -177,7 +174,7 @@ BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64m
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
-BuildRequires: lib64sane1, lib64proxy-webkit lib64compat-openssl10-devel
+BuildRequires: lib64sane1, lib64proxy-webkit, lib64openssl-devel
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
@@ -185,7 +182,7 @@ BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
-BuildRequires: libsane1, libproxy-webkit libcompat-openssl10-devel
+BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
 %endif
@@ -589,5 +586,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Mon Jan 08 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.416
+* Mon Jan 08 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.418
 - LPub3D Linux package (rpm) release

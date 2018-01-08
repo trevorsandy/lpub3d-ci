@@ -38,13 +38,13 @@ addons:
 
 stages:
   - name: Prepare Release Storage
-    if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+    if: tag IS present AND tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
-    if: env(LP3D_BUILD_AND_PACKAGE) = yes OR tag IS present AND tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
-  - name: Compile Source Only
+    if: tag IS present AND tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$ OR env(LP3D_BUILD_AND_PACKAGE) = yes
+  - name: Compile Source
     if: branch = master
   - name: GitHub and Sourceforge Deploy
-    if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+    if: tag IS present AND tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 
 before_install:
   - source ${LP3D_CI_SCRIPT_DIR}/before_install
