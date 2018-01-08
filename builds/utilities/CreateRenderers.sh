@@ -313,10 +313,10 @@ BuildLDGLite() {
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make
+    make $BUILD_MFLAGS
     make install
   else
-    make > $2 2>&1
+    make $BUILD_MFLAGS > $2 2>&1
     make install >> $2 2>&1
   fi
 }
@@ -325,9 +325,9 @@ BuildLDGLite() {
 BuildLDView() {
   # patch LDViewGlobal.pri for fatal error: stdlib.h: No such file or directory
   case ${platform_id} in
-  redhat)
+  redhat|suse)
      case ${platform_ver} in
-     24|25|27)
+     24|25|27|1550)
        ApplyLDViewStdlibFix
        ;;
      esac
@@ -353,10 +353,10 @@ BuildLDView() {
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make
+    make $BUILD_MFLAGS
     make install
   else
-    make > $2 2>&1 &
+    make $BUILD_MFLAGS > $2 2>&1 &
     TreatLongProcess "$!" "60" "LDView make"
     make install >> $2 2>&1
   fi
@@ -375,13 +375,24 @@ BuildPOVRay() {
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   cd unix && chmod +x prebuild3rdparty.sh && ./prebuild3rdparty.sh && cd ../
-  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  [ "$platform_id" = "suse" ] && [ "$platform_ver" = "1315" ] && \
+  Info "Using SUSE v1315 config options: ${OBS_SUSE_1315_OPTFLAGS}" && \
+  CXXFLAGS="${OBS_SUSE_1315_OPTFLAGS} -fno-strict-aliasing -Wno-multichar -std=c++11" CFLAGS="${CXXFLAGS}" \
+  ./configure \
+  --libdir=${RPM_LIBDIR} \
+  COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG} \
+  --disable-dependency-tracking \
+  --disable-strip \
+  --disable-optimiz \
+  --with-boost-libdir=${RPM_LIBDIR} \
+  || ./configure \
+  COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make
+    make $BUILD_MFLAGS
     make install
     make check
   else
-    make > $2 2>&1 &
+    make $BUILD_MFLAGS > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
     make check >> $2 2>&1
     make install >> $2 2>&1
@@ -463,6 +474,7 @@ else
         Info "WARNING - Open Build Service did not provide a platform version."
         platform_ver=undefined
       fi
+      BUILD_MFLAGS=$RPM_MFLAGS
     fi
   fi
 fi
@@ -697,6 +709,7 @@ for buildDir in ldglite ldview povray; do
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
   if [ ! -f "${!artefactBinary}" ]; then
+    [ -z "$BUILD_MFLAGS" ] && BUILD_MFLAGS="-j4" || true
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then

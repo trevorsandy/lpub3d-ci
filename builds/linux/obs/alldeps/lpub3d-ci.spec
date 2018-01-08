@@ -16,7 +16,7 @@
 %define packingplatform %(echo openSUSE Build Service)
 %else
 %define usingbuildservice false
-%define packingplatform %(source /etc/os-release && if [ "$PRETTY_NAME" != "" ]; then echo $HOSTNAME ["$PRETTY_NAME"]; else echo $HOSTNAME [`uname`]; fi)
+%define packingplatform %(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $HOSTNAME [`uname`])
 %endif
 
 # set packer
@@ -31,31 +31,31 @@
 
 # set target platform id
 %if 0%{?suse_version}
-%define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
+%define dist openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
 
 %if 0%{?sles_version}
-%define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
+%define dist SUSE%(echo %{sles_version} | sed 's/0$//')
 %define build_sdl2 1
 %endif
 
 %if 0%{?centos_ver}
+%define dist cos%{centos_ver}
 %define centos_version %{centos_ver}00
-%define dist cos
 %define build_sdl2 1
 %endif
 
 %if 0%{?fedora}
-%define dist fc
+%define dist fc%{fedora}
 %endif
 
 %if 0%{?mageia}
-%define dist .mga%{mageia}
+%define dist mga%{mageia}
 %define mageia_version %{mageia}00
 %endif
 
 %if 0%{?rhel_version}
-%define dist rhel
+%define dist rhel%{rhel_version}
 %define build_sdl2 1
 %define build_osmesa 1
 %endif
@@ -222,14 +222,14 @@ BuildRequires:  libtiff-devel
 %if 0%{?suse_version}
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
-%if (!0%{?sles_version} && !0%{?centos_version} && 0%{?suse_version}!=1315)
-BuildRequires:  pkgconfig(sdl2)
-%endif
 %else
 BuildRequires:  libXpm-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
+%if (!0%{?sles_version} && !0%{?centos_version} && 0%{?suse_version}!=1315)
+BuildRequires:  pkgconfig(sdl2)
+%endif
 %endif
 
 # OSMesa and libGLU dependencies
@@ -480,10 +480,15 @@ for ArchiveSourceFile in \
     mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
 done
-# Platform id and version
+# OBS Platform id and version
+%if 0%{?buildservice}
+export OBS=%{usingbuildservice}
 %if 0%{?suse_version}
 export PLATFORM_PRETTY_OBS="OpenSUSE %{suse_version}"
 export PLATFORM_VER_OBS=%{suse_version}
+%if 0%{?suse_version}==1315
+export OBS_SUSE_1315_OPTFLAGS=%{optflags}
+%endif
 %endif
 %if 0%{?sles_version}
 export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sles_version}"
@@ -504,9 +509,6 @@ export PLATFORM_VER_OBS=%{rhel_version}
 %if 0%{?mageia}
 export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
-%endif
-%if 0%{?buildservice}
-export OBS=%{usingbuildservice}
 %endif
 # 3rd-party renderers build-from-source requirements
 set +x
@@ -529,6 +531,9 @@ export build_tinyxml=%{build_tinyxml}
 set -x
 export TARGET_VENDOR=%{_target_vendor}
 export RPM_BUILD=true
+export RPM_MFLAGS=%{?_smp_mflags}
+export RPM_LIBDIR=%{_libdir}
+%endif
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
 export QT_SELECT=qt5
