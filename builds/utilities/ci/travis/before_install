@@ -19,7 +19,7 @@ echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg
 
 # Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
 # Automatically deploy to GitHub Release and Sourceforge.net.
-# Skip Sourceforge.net if git annotation contains [skip sfr]
+# Skip Sourceforge.net if git annotation contains [skip sfr].
 LP3D_VALID_DEPLOY_TAG=$(echo "$TRAVIS_TAG" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
 if [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ]; then
   echo "Deploy tag detected.";
