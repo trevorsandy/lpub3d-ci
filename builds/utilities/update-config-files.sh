@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 27, 2017
+# Last Update January 08, 2018
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -56,7 +56,7 @@ then
     UPDATE_OBS_CONFIG=Yes
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
-    LINE_SPEC="93 589"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
+    LINE_SPEC="93 593"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
     LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 else
     UPDATE_OBS_CONFIG=No

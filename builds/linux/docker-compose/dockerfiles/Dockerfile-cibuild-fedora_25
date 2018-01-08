@@ -4,7 +4,6 @@ RUN dnf install -y git wget unzip which rpmlint ccache dnf-plugins-core rpm-buil
 RUN dnf install -y qt5-qtbase-devel qt5-qttools-devel >> CreateDockerImage_fedora_25.log 2>&1
 RUN dnf update -x kernel* -y >> CreateDockerImage_fedora_25.log 2>&1
 RUN dnf install -y sudo \
-    && sed 's/= -isystem/= -I/' -i /usr/lib64/qt5/mkspecs/common/gcc-base.conf; echo “Applied stdlib patch” \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \
     && chmod 755 /user \

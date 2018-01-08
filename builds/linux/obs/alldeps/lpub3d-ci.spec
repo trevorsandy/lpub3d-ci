@@ -132,6 +132,7 @@ BuildRequires: llvm-libs
 %endif
 %if 0%{?fedora_version}==26
 BuildRequires: openssl-devel, storaged
+%define build_osmesa 1
 %endif
 %if 0%{?fedora_version}==27
 # work around fc27 error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
@@ -148,17 +149,20 @@ BuildRequires: cmake, update-desktop-files
 BuildRequires: zlib-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 Requires(pre): gconf2
-%if (0%{?suse_version} > 1210 && 0%{?suse_version}!=1315)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315)
 BuildRequires: gl2ps-devel
 BuildRequires: libqt5-linguist
 %else
 %define build_gl2ps 1
 %endif
-%if 0%{?suse_version} > 1220
+%if 0%{?suse_version}>1220
 BuildRequires: glu-devel
 %endif
-%if 0%{?suse_version} > 1300
+%if 0%{?suse_version}>1300
 BuildRequires: Mesa-devel
+%endif
+%if 0%{?suse_version}==1315
+%define build_sdl2 1
 %endif
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
@@ -170,7 +174,7 @@ BuildRequires: -post-build-checks
 BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
-%if 0%{?mageia_version} > 500
+%if 0%{?mageia_version}>500
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
@@ -178,7 +182,7 @@ BuildRequires: lib64sane1, lib64proxy-webkit, lib64openssl-devel
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
-%if 0%{?mageia_version} > 500
+%if 0%{?mageia_version}>500
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
@@ -199,7 +203,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
 BuildRequires: autoconf
 BuildRequires: automake
-%if 0%{?suse_version} > 1325
+%if 0%{?suse_version}>1325
 BuildRequires:  libboost_system-devel
 BuildRequires:  libboost_thread-devel
 %else
@@ -524,7 +528,7 @@ export build_tinyxml=%{build_tinyxml}
 %endif
 set -x
 export TARGET_VENDOR=%{_target_vendor}
-export RPM_PLATFORM=true
+export RPM_BUILD=true
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
 export QT_SELECT=qt5

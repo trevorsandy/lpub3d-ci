@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 07, 2017
+#  Last Update: January 08, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -323,11 +323,11 @@ BuildLDGLite() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDView() {
-  # patch .pro for fatal error: stdlib.h: No such file or directory - obs and docker
+  # patch LDViewGlobal.pri for fatal error: stdlib.h: No such file or directory
   case ${platform_id} in
   redhat)
      case ${platform_ver} in
-     25|27)
+     24|25|27)
        ApplyLDViewStdlibFix
        ;;
      esac
@@ -346,10 +346,10 @@ BuildLDView() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "$build_tinyxml" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OBS_TINYXML"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_TINYXML"
   fi
   if [ "$build_gl2ps" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OBS_GL2PS"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
@@ -442,8 +442,8 @@ else
   platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
   platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
   if [ "${OBS}" = "true" ]; then
-    if [ "$RPM_PLATFORM" = "true" ]; then
-      Info "Open Build Service RPM Platform detected."
+    if [ "$RPM_BUILD" = "true" ]; then
+      Info "OBS build family.........[RPM_BUILD]"
       if [ -n "$TARGET_VENDOR" ]; then
         platform_id=$TARGET_VENDOR
       else
@@ -452,6 +452,7 @@ else
       fi
       if [ -n "$PLATFORM_PRETTY_OBS" ]; then
         platform_pretty=$PLATFORM_PRETTY_OBS
+        [ "$platform_id" = "suse" ] && export PRETTY_NAME=$PLATFORM_PRETTY_OBS || true
       else
         Info "WARNING - Open Build Service did not provide a platform pretty name."
         platform_pretty=$OS_NAME
@@ -475,13 +476,11 @@ elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform_pretty_name.....[Travis CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
-  if [ "$platform_id" = "arch" ]; then
-    build_tinyxml=1
-  fi
-  [ -n "$build_osmesa" ] && echo "Build OSMesa from source detected." || true
-  [ -n "$build_sdl2" ] && echo "Build SDL2 from source detected." || true
-  [ -n "$build_tinyxml" ] && echo "Build TinyXML from source detected." || true
-  [ -n "$build_gl2ps" ] && echo "Build GL2PS from source detected." || true
+  [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
+  [ -n "$build_osmesa" ] && Info "Build from source........[OSMesa]" || true
+  [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
+  [ -n "$build_tinyxml" ] && Info "Build from source........[TinyXML]" || true
+  [ -n "$build_gl2ps" ] && Info "Build from source........[GL2PS]" || true
 else
   Info "Platform_pretty_name.....[${platform_pretty}]"
 fi
