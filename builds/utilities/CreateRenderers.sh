@@ -406,7 +406,7 @@ CallDir=$PWD
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-Info && Info "Building............[LPub3D 3rd Party Renderers]"
+Info && Info "Building.................[LPub3D 3rd Party Renderers]"
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
