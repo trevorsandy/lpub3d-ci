@@ -673,7 +673,7 @@ for buildDir in ldglite ldview povray; do
     if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
       BuildMesaLibs
     fi
-    if [[ "$platform_id" = "suse" && "$platform_ver" = "1315" ]]; then    
+    if [[ "$platform_id" = "suse" && "$platform_ver" = "1315" && "${buildDir}" = "povray" ]]; then    
       OBS_SUSE_1315_BUILD_CONFIG="--libdir=${RPM_LIBDIR} --x-libraries=${RPM_LIBDIR} --disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
       OBS_SUSE_1315_CXXFLAGS="${OBS_SUSE_1315_OPTFLAGS} -fno-strict-aliasing -Wno-multichar -std=c++11"
       Info "Using SUSE v1315 flags: ${OBS_SUSE_1315_CXXFLAGS}, and config: ${OBS_SUSE_1315_BUILD_CONFIG}"
