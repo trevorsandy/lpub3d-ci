@@ -135,8 +135,6 @@ BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
 %if 0%{?fedora_version}==27
-# work around fc27 error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
-%undefine _debuginfo_subpackages
 %define build_osmesa 1
 %endif
 %endif
@@ -412,6 +410,11 @@ BuildRequires:  pkgconfig(xxf86vm)
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
+ 
+%if 0%{?fedora_version}==27
+# work around fc27 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
+%global debug_package %{nil}
+%endif 
 
 %prep
 set +x

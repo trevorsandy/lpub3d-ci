@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 08, 2017
+#  Last Update: January 09, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -325,7 +325,7 @@ BuildLDGLite() {
 BuildLDView() {
   # patch LDViewGlobal.pri for fatal error: stdlib.h: No such file or directory
   case ${platform_id} in
-  redhat|suse)
+  redhat|fedora|suse)
      case ${platform_ver} in
      24|25|27|1550)
        ApplyLDViewStdlibFix
@@ -370,23 +370,17 @@ BuildPOVRay() {
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
   fi
+  if [ -n "$OBS_SUSE_1315_BUILD_CONFIG" ]; then
+    BUILD_CONFIG="$OBS_SUSE_1315_BUILD_CONFIG $BUILD_CONFIG"
+  fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   cd unix && chmod +x prebuild3rdparty.sh && ./prebuild3rdparty.sh && cd ../
-  [ "$platform_id" = "suse" ] && [ "$platform_ver" = "1315" ] && \
-  Info "Using SUSE v1315 config options: ${OBS_SUSE_1315_OPTFLAGS}" && \
-  CXXFLAGS="${OBS_SUSE_1315_OPTFLAGS} -fno-strict-aliasing -Wno-multichar -std=c++11" CFLAGS="${CXXFLAGS}" \
-  ./configure \
-  --libdir=${RPM_LIBDIR} \
-  COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG} \
-  --disable-dependency-tracking \
-  --disable-strip \
-  --disable-optimiz \
-  --with-boost-libdir=${RPM_LIBDIR} \
-  || ./configure \
-  COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  [ -n "$OBS_SUSE_1315_CXXFLAGS" ] && CXXFLAGS="$OBS_SUSE_1315_CXXFLAGS" CFLAGS="${CXXFLAGS}" \
+  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG} || \
+  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make $BUILD_MFLAGS
     make install
@@ -679,6 +673,11 @@ for buildDir in ldglite ldview povray; do
     if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
       BuildMesaLibs
     fi
+    if [[ "$platform_id" = "suse" && "$platform_ver" = "1315" ]]; then    
+      OBS_SUSE_1315_BUILD_CONFIG="--libdir=${RPM_LIBDIR} --x-libraries=${RPM_LIBDIR} --disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
+      OBS_SUSE_1315_CXXFLAGS="${OBS_SUSE_1315_OPTFLAGS} -fno-strict-aliasing -Wno-multichar -std=c++11"
+      Info "Using SUSE v1315 flags: ${OBS_SUSE_1315_CXXFLAGS}, and config: ${OBS_SUSE_1315_BUILD_CONFIG}"
+    fi 
   else
     # CI/Local build setup routine...
     if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
