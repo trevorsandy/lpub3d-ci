@@ -54,15 +54,9 @@ LINE_README=1                   # LPub3D 2.0.21.59.126...
 if [ "$OBS" = true ]
 then
     UPDATE_OBS_CONFIG=Yes
-    LINE_PKGBUILD=3             # pkgver=2.0.21.129
-    LINE_DSC=5                  # Version: 2.0.21.129
-    LINE_SPEC="93 599"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
     LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 else
     UPDATE_OBS_CONFIG=No
-    LINE_PKGBUILD=3
-    LINE_DSC=5
-    LINE_SPEC="93 293"
     LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
 fi
 LP3D_UTIL_DIR=$(realpath "$LP3D_PWD/../builds/utilities")
@@ -285,14 +279,13 @@ EOF
 
     FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
     Info "7. update ${LPUB3D}.dsc   - add version           [$FILE]"
-    LineToReplace=${LINE_DSC}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
         if [ "$LP3D_OS" = Darwin ]
         then
-            sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+            sed -i "" "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
         else
-            sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+            sed -i "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
         fi
     else
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
@@ -300,14 +293,13 @@ EOF
 
     FILE="$LP3D_OBS_DIR/PKGBUILD"
     Info "8. update PKGBUILD        - add version           [$FILE]"
-    LineToReplace=${LINE_PKGBUILD}
     if [ -f ${FILE} -a -r ${FILE} ]
     then
         if [ "$LP3D_OS" = Darwin ]
         then
-            sed -i "" "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+            sed -i "" "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
         else
-            sed -i "${LineToReplace}s/.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+            sed -i "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
         fi
     else
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
@@ -315,40 +307,17 @@ EOF
 
     FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
     Info "9. update ${LPUB3D}.spec  - add version and date  [$FILE]"
-    LinesToReplace=${LINE_SPEC}
-    LastLine=`wc -l < ${FILE}`
     if [ -f ${FILE} -a -r ${FILE} ]
     then
-        read FirstLine SecondLine <<< ${LinesToReplace}
-        for LineToReplace in ${LinesToReplace}; do
-            case $LineToReplace in
-            $FirstLine)
-                if [ "$LP3D_OS" = Darwin ]; then
-                    sed -i "" "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-                else
-                    sed -i "${LineToReplace}s/.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-                fi
-                ;;
-            $SecondLine)
-                if [ "$LP3D_OS" = Darwin ]; then
-                    sed -i "" "${LineToReplace}s/.*/* ${LP3D_CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-                else
-                    sed -i "${LineToReplace}s/.*/* ${LP3D_CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${LP3D_APP_VERSION}/" "${FILE}"
-                fi
-                ;;
-            esac
-        done
-        if [ "$doDebChange" != "" ];
+        if [ "$LP3D_OS" = Darwin ]
         then
-            ((LastLine++))
-            if [ "$LP3D_OS" = Darwin ]
-            then
-                sed -i "" "${LastLine}s/.*/- /" "${FILE}"
-            else
-                sed -i "${LastLine}s/.*/- /" "${FILE}"
-            fi
+            sed -i "" -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}" \
+                      -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
+
+        else
+            sed -i -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}" \
+                   -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
         fi
-        #cat "${FILE}"
     else
         Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
     fi

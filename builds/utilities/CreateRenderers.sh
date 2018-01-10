@@ -370,15 +370,20 @@ BuildPOVRay() {
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
   fi
-  if [ -n "$OBS_SUSE_BUILD_CONFIG" ]; then
-    BUILD_CONFIG="$OBS_SUSE_BUILD_CONFIG $BUILD_CONFIG"
+  if [ -n "$OBS_RPM_BUILD_CONFIG" ]; then
+    BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
   fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod +x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
-  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  if [[ -n "$OBS_RPM_BUILD_CFLAGS" && -n "$OBS_RPM_BUILD_CXXFLAGS" ]]; then
+    CFLAGS="$OBS_RPM_BUILD_CFLAGS" && CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS" && \
+    ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  else
+    ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  fi
   if [ "${OBS}" = "true" ]; then
     make
     make install
@@ -671,8 +676,11 @@ for buildDir in ldglite ldview povray; do
       BuildMesaLibs
     fi
     if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" && $(echo "$platform_ver" | grep -E '1315') ]]; then
-      Info && OBS_SUSE_BUILD_CONFIG="--libdir=${RPM_LIBDIR} --disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
-      Info "Using SUSE config: ${OBS_SUSE_BUILD_CONFIG}"
+      OBS_RPM_BUILD_CFLAGS="$RPM_OPTFLAGS -fno-strict-aliasing -Wno-multichar"
+      OBS_RPM_BUILD_CXXFLAGS="$OBS_RPM_BUILD_CFLAGS -std=c++11 -Wno-reorder -Wno-sign-compare -Wno-unused-variable \
+      -Wno-unused-function -Wno-comment -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-switch"
+      OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
+      Info && Info "Using RPM_BUILD_FLAGS: $OBS_RPM_BUILD_CXXFLAGS and  OBS_RPM_BUILD_CONFIG: ${OBS_RPM_BUILD_CONFIG}" && Info
     fi
   else
     # CI/Local build setup routine...

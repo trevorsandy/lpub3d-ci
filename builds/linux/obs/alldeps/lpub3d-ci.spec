@@ -21,7 +21,7 @@
 
 # set packer
 %define serviceprovider %(echo Trevor SANDY trevor.sandy@gmail.com)
-%if 0%{?buildservice}==1
+%if 0%{?buildservice}
 %define distpacker %(echo openSUSE Build Service [`whoami`])
 %define targetplatform %{_target}
 %else
@@ -36,7 +36,7 @@
 
 %if 0%{?sles_version}
 %define dist SUSE%{sles_version}
-%define sles_version=%{sles_version}00
+%define sles_version=%{sles_version}
 %define build_sdl2 1
 %endif
 
@@ -52,13 +52,24 @@
 
 %if 0%{?mageia}
 %define dist mga%{mageia}
-%define mageia_version %{mageia}00
+%define mageia_version %{mageia}
 %endif
 
 %if 0%{?rhel_version}
 %define dist rhel%{rhel_version}
 %define build_sdl2 1
 %define build_osmesa 1
+%endif
+
+# distinguish between OpenSUSE and SLE
+%if 0%{?sle_version}==120300
+%define suse_dist_label %(echo SUSE Linux Enterprise Server...)
+%define suse_dist_pretty_name %(echo %{suse_dist_label} %{sle_version})
+%define suse_dist_version %{sles_version}
+%else
+%define suse_dist_label %(echo OpenSUSE.......................)
+%define suse_dist_pretty_name %(echo %{suse_dist_label} %{suse_version})
+%define suse_dist_version %{suse_version}
 %endif
 
 # distro group settings
@@ -91,7 +102,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.435
+Version: 2.1.0.436
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -173,7 +184,7 @@ BuildRequires: -post-build-checks
 BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
-%if 0%{?mageia_version}>500
+%if 0%{?mageia_version}>5
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
@@ -181,7 +192,7 @@ BuildRequires: lib64sane1, lib64proxy-webkit, lib64openssl-devel
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
-%if 0%{?mageia_version}>500
+%if 0%{?mageia_version}>5
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
@@ -219,15 +230,17 @@ BuildRequires:  libpng-devel
 BuildRequires:  libtiff-devel
 
 %if 0%{?suse_version}
-BuildRequires:  libSM-devel
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
 %else
 BuildRequires:  libXpm-devel
 %endif
+%if 0%{?suse_version} || 0%{?centos_version}
+BuildRequires:  libSM-devel
+%endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (!0%{?centos_version} && 0%{?sles_version}!=131500 && 0%{?suse_version}!=1315)
+%if (0%{?centos_version}!=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -413,18 +426,15 @@ BuildRequires:  pkgconfig(xxf86vm)
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
 
-%if 0%{?fedora_version}==27
 # work around fc27 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
+%if 0%{?fedora_version}==27
 %global debug_package %{nil}
 %endif
 
 %prep
 set +x
-%if 0%{?suse_version}
-echo "OpenSUSE.......................%{suse_version}"
-%endif
-%if 0%{?sles_version}
-echo "SUSE Linux Enterprise Server...%{sles_version}"
+%if 0%{?suse_version} || 0%{?sles_version}
+echo "%{suse_dist_label}%{suse_version}"
 %endif
 %if 0%{?centos_ver}
 echo "CentOS.........................%{centos_version}"
@@ -488,13 +498,9 @@ done
 # OBS Platform id and version
 %if 0%{?buildservice}
 export OBS=%{usingbuildservice}
-%if 0%{?suse_version}
-export PLATFORM_PRETTY_OBS="OpenSUSE %{suse_version}"
-export PLATFORM_VER_OBS=%{suse_version}
-%endif
-%if 0%{?sles_version}
-export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sles_version}"
-export PLATFORM_VER_OBS=%{sles_version}
+%if 0%{?suse_version} || 0%{?sles_version}
+export PLATFORM_PRETTY_OBS="%{suse_dist_pretty_name}"
+export PLATFORM_VER_OBS=%{suse_dist_version}
 %endif
 %if 0%{?centos_ver}
 export PLATFORM_PRETTY_OBS="CentOS"
@@ -532,8 +538,9 @@ export build_tinyxml=%{build_tinyxml}
 %endif
 set -x
 export TARGET_VENDOR=%{_target_vendor}
-export RPM_BUILD=true
 export RPM_LIBDIR=%{_libdir}
+export RPM_OPTFLAGS=%{optflags}
+export RPM_BUILD=true
 %endif
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
@@ -596,5 +603,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Wed Jan 10 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.435
+* Wed Jan 10 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.436
 - LPub3D Linux package (rpm) release
