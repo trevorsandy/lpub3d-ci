@@ -56,7 +56,7 @@ then
     UPDATE_OBS_CONFIG=Yes
     LINE_PKGBUILD=3             # pkgver=2.0.21.129
     LINE_DSC=5                  # Version: 2.0.21.129
-    LINE_SPEC="93 598"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
+    LINE_SPEC="93 599"          # 1st 2.0.0.21.166 2nd * Fri Oct 27 2017...
     LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 else
     UPDATE_OBS_CONFIG=No

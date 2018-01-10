@@ -34,8 +34,8 @@
 %define dist openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
 
-%if 0%{?sles_version}
-%define dist SUSE%(echo %{sles_version} | sed 's/0$//')
+%if 0%{?sle_version}
+%define dist SUSE%{sle_version}
 %define build_sdl2 1
 %endif
 
@@ -61,7 +61,7 @@
 %endif
 
 # distro group settings
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 Group: Productivity/Graphics/Viewers
 %endif
 
@@ -77,7 +77,7 @@ Group: Amusements/Graphics
 License: GPLv3+
 %endif
 
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 License: GPL-2.0+
 BuildRequires: fdupes
 %endif
@@ -90,7 +90,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.421
+Version: 2.1.0.435
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -189,7 +189,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
 
-%if 0%{?sles_version}
+%if 0%{?sle_version}
 %define build_tinyxml 1
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if 0%{osmesa_found} != 1
@@ -198,7 +198,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 
 # POV-Ray dependencies
-%if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
+%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version}
 BuildRequires: autoconf
 BuildRequires: automake
 %if 0%{?suse_version}>1325
@@ -209,7 +209,7 @@ BuildRequires:  boost-devel
 %endif
 
 BuildRequires:  dos2unix
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 BuildRequires:  fdupes
 %endif
 BuildRequires:  gcc-c++
@@ -218,6 +218,7 @@ BuildRequires:  libpng-devel
 BuildRequires:  libtiff-devel
 
 %if 0%{?suse_version}
+BuildRequires:  libSM-devel
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
 %else
@@ -225,7 +226,7 @@ BuildRequires:  libXpm-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (!0%{?sles_version} && !0%{?centos_version} && 0%{?suse_version}!=1315)
+%if (!0%{?centos_version} && 0%{?sle_version}>=120300 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -331,7 +332,7 @@ BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 BuildRequires:  libelf-devel
 %endif
 %endif
-%if 0%{?suse_version} > 1320 || (0%{?sles_version} >= 120300 && 0%{?is_opensuse})
+%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse})
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
@@ -410,19 +411,19 @@ BuildRequires:  pkgconfig(xxf86vm)
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
- 
+
 %if 0%{?fedora_version}==27
 # work around fc27 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
 %global debug_package %{nil}
-%endif 
+%endif
 
 %prep
 set +x
 %if 0%{?suse_version}
 echo "OpenSUSE.......................%{suse_version}"
 %endif
-%if 0%{?sles_version}
-echo "SUSE Linux Enterprise Server...%{sles_version}"
+%if 0%{?sle_version}
+echo "SUSE Linux Enterprise Server...%{sle_version}"
 %endif
 %if 0%{?centos_ver}
 echo "CentOS.........................%{centos_version}"
@@ -489,13 +490,10 @@ export OBS=%{usingbuildservice}
 %if 0%{?suse_version}
 export PLATFORM_PRETTY_OBS="OpenSUSE %{suse_version}"
 export PLATFORM_VER_OBS=%{suse_version}
-%if 0%{?suse_version}==1315
-export OBS_SUSE_1315_OPTFLAGS="%{optflags}"
 %endif
-%endif
-%if 0%{?sles_version}
-export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sles_version}"
-export PLATFORM_VER_OBS=%{sles_version}
+%if 0%{?sle_version}
+export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sle_version}"
+export PLATFORM_VER_OBS=%{sle_version}
 %endif
 %if 0%{?centos_ver}
 export PLATFORM_PRETTY_OBS="CentOS"
@@ -559,7 +557,7 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
 # skip rpath check on 3rd-party binaries
@@ -569,7 +567,7 @@ export NO_BRP_CHECK_RPATH=true
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%if 0%{?sles_version} || 0%{?suse_version}
+%if 0%{?sle_version} || 0%{?suse_version}
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
@@ -598,5 +596,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Mon Jan 08 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.421
+* Wed Jan 10 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.435
 - LPub3D Linux package (rpm) release
