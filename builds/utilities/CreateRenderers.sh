@@ -313,10 +313,10 @@ BuildLDGLite() {
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make $BUILD_MFLAGS
+    make
     make install
   else
-    make $BUILD_MFLAGS > $2 2>&1
+    make > $2 2>&1
     make install >> $2 2>&1
   fi
 }
@@ -353,10 +353,10 @@ BuildLDView() {
   fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make $BUILD_MFLAGS
+    make
     make install
   else
-    make $BUILD_MFLAGS > $2 2>&1 &
+    make > $2 2>&1 &
     TreatLongProcess "$!" "60" "LDView make"
     make install >> $2 2>&1
   fi
@@ -380,11 +380,11 @@ BuildPOVRay() {
   chmod +x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make $BUILD_MFLAGS
+    make
     make install
     make check
   else
-    make $BUILD_MFLAGS > $2 2>&1 &
+    make > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
     make check >> $2 2>&1
     make install >> $2 2>&1
@@ -466,7 +466,6 @@ else
         Info "WARNING - Open Build Service did not provide a platform version."
         platform_ver=undefined
       fi
-      BUILD_MFLAGS=$RPM_MFLAGS
     fi
   fi
 fi
@@ -671,8 +670,8 @@ for buildDir in ldglite ldview povray; do
     if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
       BuildMesaLibs
     fi
-    if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" ]]; then
-      OBS_SUSE_BUILD_CONFIG="--libdir=${RPM_LIBDIR} --disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
+    if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" && $(echo "$platform_ver" | grep -E '1315') ]]; then
+      Info && OBS_SUSE_BUILD_CONFIG="--libdir=${RPM_LIBDIR} --disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
       Info "Using SUSE config: ${OBS_SUSE_BUILD_CONFIG}"
     fi
   else
@@ -705,7 +704,6 @@ for buildDir in ldglite ldview povray; do
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
   if [ ! -f "${!artefactBinary}" ]; then
-    [ -z "$BUILD_MFLAGS" ] && BUILD_MFLAGS="-j4" || true
     ${buildCommand} ${buildType} ${buildLog}
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then

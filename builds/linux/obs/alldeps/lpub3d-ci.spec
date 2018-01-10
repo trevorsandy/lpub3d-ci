@@ -34,8 +34,9 @@
 %define dist openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
 
-%if 0%{?sle_version}
-%define dist SUSE%{sle_version}
+%if 0%{?sles_version}
+%define dist SUSE%{sles_version}
+%define sles_version=%{sles_version}00
 %define build_sdl2 1
 %endif
 
@@ -61,7 +62,7 @@
 %endif
 
 # distro group settings
-%if 0%{?suse_version} || 0%{?sle_version}
+%if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
 %endif
 
@@ -77,7 +78,7 @@ Group: Amusements/Graphics
 License: GPLv3+
 %endif
 
-%if 0%{?suse_version} || 0%{?sle_version}
+%if 0%{?suse_version} || 0%{?sles_version}
 License: GPL-2.0+
 BuildRequires: fdupes
 %endif
@@ -189,7 +190,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
 
-%if 0%{?sle_version}
+%if 0%{?sles_version}
 %define build_tinyxml 1
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if 0%{osmesa_found} != 1
@@ -198,7 +199,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 
 # POV-Ray dependencies
-%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version}
+%if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
 BuildRequires: autoconf
 BuildRequires: automake
 %if 0%{?suse_version}>1325
@@ -209,7 +210,7 @@ BuildRequires:  boost-devel
 %endif
 
 BuildRequires:  dos2unix
-%if 0%{?suse_version} || 0%{?sle_version}
+%if 0%{?suse_version} || 0%{?sles_version}
 BuildRequires:  fdupes
 %endif
 BuildRequires:  gcc-c++
@@ -226,7 +227,7 @@ BuildRequires:  libXpm-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (!0%{?centos_version} && 0%{?sle_version}>=120300 && 0%{?suse_version}!=1315)
+%if (!0%{?centos_version} && 0%{?sles_version}!=131500 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -422,8 +423,8 @@ set +x
 %if 0%{?suse_version}
 echo "OpenSUSE.......................%{suse_version}"
 %endif
-%if 0%{?sle_version}
-echo "SUSE Linux Enterprise Server...%{sle_version}"
+%if 0%{?sles_version}
+echo "SUSE Linux Enterprise Server...%{sles_version}"
 %endif
 %if 0%{?centos_ver}
 echo "CentOS.........................%{centos_version}"
@@ -491,9 +492,9 @@ export OBS=%{usingbuildservice}
 export PLATFORM_PRETTY_OBS="OpenSUSE %{suse_version}"
 export PLATFORM_VER_OBS=%{suse_version}
 %endif
-%if 0%{?sle_version}
-export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sle_version}"
-export PLATFORM_VER_OBS=%{sle_version}
+%if 0%{?sles_version}
+export PLATFORM_PRETTY_OBS="SUSE Linux Enterprise Server %{sles_version}"
+export PLATFORM_VER_OBS=%{sles_version}
 %endif
 %if 0%{?centos_ver}
 export PLATFORM_PRETTY_OBS="CentOS"
@@ -532,7 +533,6 @@ export build_tinyxml=%{build_tinyxml}
 set -x
 export TARGET_VENDOR=%{_target_vendor}
 export RPM_BUILD=true
-export RPM_MFLAGS="%{?_smp_mflags}"
 export RPM_LIBDIR=%{_libdir}
 %endif
 # instruct qmake to install 3rd-party renderers
@@ -557,7 +557,7 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
-%if 0%{?suse_version} || 0%{?sle_version}
+%if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
 # skip rpath check on 3rd-party binaries
@@ -567,7 +567,7 @@ export NO_BRP_CHECK_RPATH=true
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%if 0%{?sle_version} || 0%{?suse_version}
+%if 0%{?sles_version} || 0%{?suse_version}
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
