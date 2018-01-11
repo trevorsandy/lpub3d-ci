@@ -1,5 +1,5 @@
 <services>
-  <service name="obs_scm">
+  <service name="tar_scm">
       <param name="url">git://github.com/trevorsandy/lpub3d-ci</param>
       <param name="scm">git</param>
       <param name="exclude">lc_lib/tools</param>
@@ -59,8 +59,7 @@
                           */builds/linux/obs/alldeps/lpub3d-ci.spec
       </param>
   </service>
-  <service mode="buildtime" name="tar">
-  <service mode="buildtime" name="recompress">
+  <service name="recompress">
     <param name="file">*.tar</param>
     <param name="compression">gz</param>
   </service>
