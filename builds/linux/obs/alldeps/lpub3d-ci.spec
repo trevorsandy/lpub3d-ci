@@ -46,6 +46,11 @@
 %define build_sdl2 1
 %endif
 
+%if 0%{?scientificlinux_version}
+%define dist sl%{scientificlinux_version}
+%define build_sdl2 1
+%endif
+
 %if 0%{?fedora}
 %define dist fc%{fedora}
 %endif
@@ -63,12 +68,14 @@
 
 # distinguish between OpenSUSE and SLE
 %if 0%{?sle_version}==120300
-%define suse_dist_label %(echo SUSE Linux Enterprise Server...)
-%define suse_dist_pretty_name %(echo %{suse_dist_label} %{sle_version})
+%define suse_dist_name %(echo SUSE Linux Enterprise Server)
+%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
 %define suse_dist_version %{sles_version}
 %else
-%define suse_dist_label %(echo OpenSUSE.......................)
-%define suse_dist_pretty_name %(echo %{suse_dist_label} %{suse_version})
+%define suse_dist_name %(echo OpenSUSE)
+%define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
 %endif
 
@@ -89,7 +96,7 @@ Group: Amusements/Graphics
 License: GPLv3+
 %endif
 
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sles_version} || 0%{?scientificlinux_version}
 License: GPL-2.0+
 BuildRequires: fdupes
 %endif
@@ -112,7 +119,7 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version}
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}>=600
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
@@ -125,7 +132,7 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?rhel_version} || 0%{?centos_version}
+%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
 BuildRequires: libjpeg-turbo-devel, freeglut-devel
 %define build_tinyxml 1
 %define build_gl2ps 1
@@ -240,7 +247,7 @@ BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (0%{?centos_version}!=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
+%if (0%{?centos_version}!=700 && 0%{?scientificlinux_version}!=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -448,6 +455,9 @@ echo "RedHat Enterprise Linux........%{rhel_version}"
 %if 0%{?mageia}
 echo "Mageia.........................%{mageia_version}"
 %endif
+%if 0%{?scientificlinux_version}
+echo "Scientific Linux...............%{scientificlinux_version}"
+%endif
 %if 0%{?buildservice}
 echo "Using OpenBuildService.........%{usingbuildservice}"
 %endif
@@ -517,6 +527,10 @@ export PLATFORM_VER_OBS=%{rhel_version}
 %if 0%{?mageia}
 export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
+%endif
+%if 0%{?scientificlinux_version}
+export PLATFORM_PRETTY_OBS="Scientific Linux"
+export PLATFORM_VER_OBS=%{scientificlinux_version}
 %endif
 # 3rd-party renderers build-from-source requirements
 set +x

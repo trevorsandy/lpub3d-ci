@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 10, 2017
+#  Last Update: January 11, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -679,7 +679,7 @@ for buildDir in ldglite ldview povray; do
       OBS_RPM_BUILD_CFLAGS="$RPM_OPTFLAGS -fno-strict-aliasing -Wno-multichar"
       OBS_RPM_BUILD_CXXFLAGS="$OBS_RPM_BUILD_CFLAGS -std=c++11 -Wno-reorder -Wno-sign-compare -Wno-unused-variable \
       -Wno-unused-function -Wno-comment -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-switch"
-      OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
+      OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR} --with-boost-date-time"
       Info && Info "Using RPM_BUILD_FLAGS: $OBS_RPM_BUILD_CXXFLAGS and  OBS_RPM_BUILD_CONFIG: ${OBS_RPM_BUILD_CONFIG}" && Info
     fi
   else
