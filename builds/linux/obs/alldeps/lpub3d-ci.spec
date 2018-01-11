@@ -46,11 +46,6 @@
 %define build_sdl2 1
 %endif
 
-%if 0%{?scientificlinux_version}
-%define dist sl%{scientificlinux_version}
-%define build_sdl2 1
-%endif
-
 %if 0%{?fedora}
 %define dist fc%{fedora}
 %endif
@@ -96,7 +91,7 @@ Group: Amusements/Graphics
 License: GPLv3+
 %endif
 
-%if 0%{?suse_version} || 0%{?sles_version} || 0%{?scientificlinux_version}
+%if 0%{?suse_version} || 0%{?sles_version}
 License: GPL-2.0+
 BuildRequires: fdupes
 %endif
@@ -119,7 +114,7 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}>=600
+%if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
@@ -132,7 +127,7 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{?rhel_version} || 0%{?centos_version}
 BuildRequires: libjpeg-turbo-devel, freeglut-devel
 %define build_tinyxml 1
 %define build_gl2ps 1
@@ -247,7 +242,7 @@ BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (0%{?centos_version}!=700 && 0%{?scientificlinux_version}!=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
+%if (0%{?centos_version}!=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -455,9 +450,6 @@ echo "RedHat Enterprise Linux........%{rhel_version}"
 %if 0%{?mageia}
 echo "Mageia.........................%{mageia_version}"
 %endif
-%if 0%{?scientificlinux_version}
-echo "Scientific Linux...............%{scientificlinux_version}"
-%endif
 %if 0%{?buildservice}
 echo "Using OpenBuildService.........%{usingbuildservice}"
 %endif
@@ -527,10 +519,6 @@ export PLATFORM_VER_OBS=%{rhel_version}
 %if 0%{?mageia}
 export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
-%endif
-%if 0%{?scientificlinux_version}
-export PLATFORM_PRETTY_OBS="Scientific Linux"
-export PLATFORM_VER_OBS=%{scientificlinux_version}
 %endif
 # 3rd-party renderers build-from-source requirements
 set +x
