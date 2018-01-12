@@ -3,6 +3,8 @@ app: LPub3D
 build:
   packages:
     - linuxdeployqt
+    - glibc-devel
+    - gcc-c++
     - autoconf
     - automake
     - libpng-devel
@@ -21,6 +23,7 @@ build:
     - libqt5-linguist
     - pkgconfig(OpenEXR)
     - pkgconfig(sdl2)
+    - pkgconfig(fcitx)
     - xorg-x11-libX11-devel
     - xorg-x11-libXpm-devel
     - libSM-devel
@@ -29,6 +32,7 @@ build:
     - libOSMesa-devel
     - Mesa-devel
     - boost-devel
+    - unzip
 
 script:
   - cd $BUILD_SOURCE_DIR
@@ -36,8 +40,9 @@ script:
   - mkdir lpub3d-ci && tar -mxzf lpub3d-ci-git.tar.gz -C lpub3d-ci --strip-components=1
   - test -d lpub3d-ci/builds && cd lpub3d-ci || echo "ERROR - lpub3d-ci.tar.gz did not extract properly."
   - test -d mainApp && cp -f ../*.zip mainApp/extras || echo "ERROR - could not copy LDraw zip archives."
-  - export WD=$(readlink -e ../); chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-  - export LP3D_BUILD_PKG=yes; export QT_SELECT=qt5;test "$(uname -m)" = x86_64 && export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC" || true
+  - export WD=$(readlink -e ../); export APPIMAGE_BUILD=true 
+  - chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+  - export LP3D_BUILD_PKG=yes; export QT_SELECT=qt5
   - test -x /usr/bin/qmake && QMAKE_EXEC=qmake || test -x /usr/bin/qmake-qt5 && QMAKE_EXEC=qmake-qt5 || echo "ERROR - could not find qmake."
   - $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
   - make INSTALL_ROOT=$BUILD_APPDIR install
@@ -48,5 +53,5 @@ script:
   - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 1-3 | sed s/" "/./g)
   - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
   - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop -appimage -verbose=2
-  - echo "AppImage Dynamic Lib Dependencies:" && find $BUILD_APPDIR -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo
-  - AppImageFile=$(ls LPub3D*.AppImage) && test -f $AppImageFile && echo "AppImage build completed successfully." || echo "AppImage build completed with exceptions."
+  - set +x; echo "AppImage Dynamic Lib Dependencies:" && find $BUILD_APPDIR -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo
+  - AppImageFile=$(ls LPub3D*.AppImage) && test -f $AppImageFile && echo "AppImage build completed successfully." || echo "AppImage build completed with exceptions."; set -x

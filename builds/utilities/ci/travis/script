@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 12, 2018
+#  Last Update: January 13, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -14,7 +14,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [[ "$LP3D_BUILD_ARCH2017" = "true" || "$LP3D_BUILD_FEDORA25" = "true" || "$LP3D_BUILD_XENIAL" = "true" ]]; then
         if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
-          ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" &&
+          ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
           if test -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; fi;
         else
           echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}";
@@ -33,7 +33,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     fi;
     if [ "$LP3D_BUILD_MACOS" = "true" ]; then
       if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" &&
+        ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
         if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
       else
         echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
@@ -42,10 +42,11 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       echo "Package Files:" && find $DmgBuildPath/DMGS -type f;
     fi;
   fi
-  if [[ "$LP3D_COMPILE_SOURCE" = "true" || "$LP3D_BUILD_APPIMAGE" = "true" ]]; then
-    export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD);
+  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ) || \
+        ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+    export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD);export APPIMAGE_BUILD=true
     if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
-      ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" &&
+      ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" && \
       if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
     else
       echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
@@ -70,7 +71,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
       ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2;
       ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2;
-      echo "AppImage Dynamic Library Dependencies (should be only system libs):" && \
+      echo "AppImage Dynamic Library Dependencies:" && \
       find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
       mkdir -p $AppImageBuildPath/AppImage && AppImageFile=$(ls LPub3D*.AppImage) && mv -f $AppImageFile $AppImageBuildPath/AppImage/$AppImageFile
       [ -f $AppImageBuildPath/AppImage/$AppImageFile ] && echo "AppImage Asset:" $PWD/$(find $AppImageBuildPath/AppImage -type f) && \

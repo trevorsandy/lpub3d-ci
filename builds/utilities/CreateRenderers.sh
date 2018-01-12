@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 11, 2017
+#  Last Update: January 13, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -377,7 +377,7 @@ BuildPOVRay() {
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
-  chmod +x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
+  chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   if [[ -n "$OBS_RPM_BUILD_CFLAGS" && -n "$OBS_RPM_BUILD_CXXFLAGS" ]]; then
     CFLAGS="$OBS_RPM_BUILD_CFLAGS" && CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS" && \
     ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
@@ -396,7 +396,7 @@ BuildPOVRay() {
   fi
 }
 
-# Grab te script name
+# Grab the script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 # Start message and set sourced flag
@@ -478,6 +478,9 @@ fi
 
 # Display platform settings
 Info "Platform_id..............[${platform_id}]"
+if [ "$APPIMAGE_BUILD" = "true" ]; then
+  platform_pretty="AppImage (using $platform_pretty)"
+fi
 if [ "${DOCKER}" = "true" ]; then
   Info "Platform_pretty_name.....[Docker Container - ${platform_pretty}]"
 elif [ "${TRAVIS}" = "true" ]; then
