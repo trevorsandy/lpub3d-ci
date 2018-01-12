@@ -74,7 +74,8 @@ jobs:
   - stage: Build and Package
     env: LP3D_BUILD_XENIAL=true
     os: linux
-  - tage: Build and Package
+    compiler: gcc
+  - stage: Build and Package
     env: LP3D_BUILD_APPIMAGE=true
     os: linux
     compiler: gcc
