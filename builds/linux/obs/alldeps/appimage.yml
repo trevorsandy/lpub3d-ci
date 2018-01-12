@@ -1,0 +1,42 @@
+app: lpub3d-ci
+
+build:
+  packages:
+    - linuxdeployqt
+    - zlib-devel
+    - libpng-devel
+    - libtiff-devel
+    - libjpeg-turbo-devel
+    - tinyxml-devel
+    - gl2ps-devel
+    - qt5-qtbase-devel
+    - qt5-qttools-devel
+    - libqt5-linguist
+    - mesa-libOSMesa-devel
+    - mesa-libGLU-devel
+    - OpenEXR-devel
+    - SDL2-devel
+    - freeglut-devel
+    - boost-devel
+    - qca
+    - gnu-free-sans-fonts
+
+script:
+  - cd $BUILD_SOURCE_DIR
+  - echo "Current working directory $PWD" && ls .
+  - mkdir lpub3d-ci && tar -mxzf lpub3d-ci.tar.gz -C lpub3d-ci --strip-components=1
+  - [ -d lpub3d-ci/builds ] && cd lpub3d-ci || echo "ERROR - lpub3d-ci.tar.gz did not extract properly."
+  - [ -d mainApp ] && cp -f ../*.zip mainApp/extras || echo "ERROR - could not copy LDraw zip archives."
+  - export WD=$(readlink -e ../); chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+  - export LP3D_BUILD_PKG=yes; export QT_SELECT=qt5;[ "$(uname -m)" = x86_64 ] && export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC" || true
+  - [ -x /usr/bin/qmake ] && QMAKE_EXEC=qmake || [ -x /usr/bin/qmake-qt5 ] && QMAKE_EXEC=qmake-qt5 || echo "ERROR - could not find qmake."
+  - $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
+  - make INSTALL_ROOT=$BUILD_APPDIR install
+  - echo "AppImage Input Files:" && find $BUILD_APPDIR -type f && echo
+  - renderers=$(find $BUILD_APPDIR/opt -type f);
+  - for r in $renderers; do executables="$executables -executable=$r"; done
+  - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
+  - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 6)
+  - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
+  - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop -appimage -verbose=2
+  - echo "AppImage Dependencies:" && find $BUILD_APPDIR -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo

@@ -104,7 +104,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.437
+Version: 2.1.0.440
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -127,12 +127,6 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?rhel_version} || 0%{?centos_version}
-BuildRequires: libjpeg-turbo-devel, freeglut-devel
-%define build_tinyxml 1
-%define build_gl2ps 1
-%endif
-
 %if 0%{?fedora}
 BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
 %if 0%{?buildservice}
@@ -152,6 +146,12 @@ BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
 %endif
+%endif
+
+%if 0%{?centos_version} || 0%{?rhel_version}
+BuildRequires: libjpeg-turbo-devel, freeglut-devel
+%define build_tinyxml 1
+%define build_gl2ps 1
 %endif
 
 %if 0%{?suse_version}
@@ -211,7 +211,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
 
-# POV-Ray dependencies
+# POV-Ray dependencies - SUSE/CentOS builds
 %if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
 BuildRequires: autoconf
 BuildRequires: automake
@@ -247,6 +247,9 @@ BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
 
+# ------------------------------
+# Build from source dependencies
+# ------------------------------
 # OSMesa and libGLU dependencies
 %if 0%{?build_osmesa}
 %define buildosmesa yes
@@ -605,5 +608,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Jan 11 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.437
+* Fri Jan 12 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.440
 - LPub3D Linux package (rpm) release

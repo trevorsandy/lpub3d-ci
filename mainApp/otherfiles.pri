@@ -6,6 +6,7 @@ OTHER_FILES += \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux_2017 \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25 \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial \
+../builds/linux/obs/alldeps/appimage.yml \
 ../builds/linux/obs/alldeps/debian/changelog \
 ../builds/linux/obs/alldeps/debian/control \
 ../builds/linux/obs/alldeps/debian/lpub3d-ci.dsc \

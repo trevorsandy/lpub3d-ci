@@ -85,6 +85,8 @@ Updater::Updater() {
       m_platform = "linux-rpm";
   #elif defined PKG_DISTRO
       m_platform = "linux-pkg";
+  #elif defined API_DISTRO
+      m_platform = "linux-api";
   #endif
 #elif defined Q_OS_ANDROID
     m_platform = "android";
@@ -606,12 +608,12 @@ void Updater::setUpdateAvailable (const bool& available) {
                 m_downloader->startDownload (downloadUrl());
 
             else
-                QDesktopServices::openUrl (QUrl (downloadUrl())); 
+                QDesktopServices::openUrl (QUrl (downloadUrl()));
         }
     }
 
     else if (showAllNotifications()) {
-        box.setStandardButtons (QMessageBox::Close);        
+        box.setStandardButtons (QMessageBox::Close);
         box.setText ("<b>" + tr ("You are up-to-date!") +
                      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
         box.setInformativeText (

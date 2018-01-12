@@ -216,12 +216,14 @@ SET LP3D_ALTERNATE_VERSIONS_dmg=unknown
 SET LP3D_ALTERNATE_VERSIONS_deb=unknown
 SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
 SET LP3D_ALTERNATE_VERSIONS_pkg=unknown
+SET LP3D_ALTERNATE_VERSIONS_api=unknown
 
 SET LP3D_AVAILABLE_VERSIONS_exe=unknown
 SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
 SET LP3D_AVAILABLE_VERSIONS_deb=unknown
 SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
 SET LP3D_AVAILABLE_VERSIONS_pkg=unknown
+SET LP3D_AVAILABLE_VERSIONS_api=unknown
 
 ECHO.
 ECHO - Setting up release build parameters...
@@ -247,12 +249,14 @@ FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AV
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_DEB=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_RPM=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_PKG=%%i,%%j,%%k
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_API=%%i
 
 FOR /F "tokens=2* delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_EXE%") DO SET LP3D_ALTERNATE_VERSIONS_exe=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_DMG%") DO SET LP3D_ALTERNATE_VERSIONS_dmg=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_DEB%") DO SET LP3D_ALTERNATE_VERSIONS_deb=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_RPM%") DO SET LP3D_ALTERNATE_VERSIONS_rpm=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_PKG%") DO SET LP3D_ALTERNATE_VERSIONS_pkg=%%i,%%j
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_API%") DO SET LP3D_ALTERNATE_VERSIONS_api=%%i
 
 CD /D "%WIN_PKG_DIR%"
 CD /D "%devRootPath%"
@@ -341,12 +345,14 @@ ECHO   LP3D_AVAILABLE_VERSIONS_DMG....[%LP3D_AVAILABLE_VERSIONS_DMG%]
 ECHO   LP3D_AVAILABLE_VERSIONS_DEB....[%LP3D_AVAILABLE_VERSIONS_DEB%]
 ECHO   LP3D_AVAILABLE_VERSIONS_RPM....[%LP3D_AVAILABLE_VERSIONS_RPM%]
 ECHO   LP3D_AVAILABLE_VERSIONS_PKG....[%LP3D_AVAILABLE_VERSIONS_PKG%]
+ECHO   LP3D_AVAILABLE_VERSIONS_PKG....[%LP3D_AVAILABLE_VERSIONS_API%]
 ECHO.
 ECHO   LP3D_ALTERNATE_VERSIONS_EXE....[%LP3D_ALTERNATE_VERSIONS_EXE%]
 ECHO   LP3D_ALTERNATE_VERSIONS_DMG....[%LP3D_ALTERNATE_VERSIONS_DMG%]
 ECHO   LP3D_ALTERNATE_VERSIONS_DEB....[%LP3D_ALTERNATE_VERSIONS_DEB%]
 ECHO   LP3D_ALTERNATE_VERSIONS_RPM....[%LP3D_ALTERNATE_VERSIONS_RPM%]
 ECHO   LP3D_ALTERNATE_VERSIONS_PKG....[%LP3D_ALTERNATE_VERSIONS_PKG%]
+ECHO   LP3D_ALTERNATE_VERSIONS_PKG....[%LP3D_ALTERNATE_VERSIONS_API%]
 
 IF %UNIVERSAL_BUILD% NEQ 1 (
   IF "%APPVEYOR%" EQU "True" (
@@ -625,7 +631,8 @@ ECHO.
 ECHO - Generating update package json components...
 SET LP3D_ARCH=x86_64
 SET LP3D_AMDARCH=amd64
-FOR %%e IN ( exe, dmg, deb, rpm, pkg  ) DO (
+SET LP3D_DIST_EXTENSIONS=exe, dmg, deb, rpm, pkg, api
+FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
  CALL :GENERATE_VERSION_INSERTS %%e
 )
 
@@ -688,6 +695,14 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_DEB%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-pkg": {}
+>>%genLPub3DUpdates%     },
+>>%genLPub3DUpdates%     "linux-api": {
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
+>>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%.AppImage",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_DEB%",
+>>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-api": {}
 >>%genLPub3DUpdates%     }
 >>%genLPub3DUpdates%   }
 >>%genLPub3DUpdates% }
@@ -716,15 +731,16 @@ ECHO - Merging json components into lpub3dupdates.json...
     IF "%%i" EQU ""alt-version-gen-placeholder-linux-pkg": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_pkg.txt
     )
+    IF "%%i" EQU ""alt-version-gen-placeholder-linux-api": {}" (
+      TYPE %PKG_UPDATE_DIR%\versionInsert_api.txt
+    )
   ECHO %%i
   )
 ) >temp.txt
 MOVE /y temp.txt %PKG_UPDATE_DIR%\lpub3dupdates.json | findstr /i /v /r /c:"moved\>"
-DEL /Q %PKG_UPDATE_DIR%\versionInsert_exe.txt
-DEL /Q %PKG_UPDATE_DIR%\versionInsert_dmg.txt
-DEL /Q %PKG_UPDATE_DIR%\versionInsert_deb.txt
-DEL /Q %PKG_UPDATE_DIR%\versionInsert_rpm.txt
-DEL /Q %PKG_UPDATE_DIR%\versionInsert_pkg.txt
+FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
+  DEL /Q %PKG_UPDATE_DIR%\versionInsert_%%e.txt
+)
 
 ECHO.
 ECHO - Copying additional json FILES to media folder...
@@ -750,8 +766,9 @@ SET "dmg=_macos.%LP3D_EXT%"
 SET "deb=_amd64.%LP3D_EXT%"
 SET "rpm=_fc.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=_1-%LP3D_ARCH%.pkg.tar.xz"
+SET "api=.AppImage"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
-REM _LP3D_EXT_ expands to LP3D_EXTension exe, dep, rpm etc...
+REM _LP3D_EXT_ expands to LP3D_EXTension variable - e.g. exe -> exe, deb -> _amd64.deb, api -> .AppImage etc...
 CALL SET "_LP3D_EXT_=%%%LP3D_EXT%%%"
 REM ALT_VERS expands to the alternate version for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"

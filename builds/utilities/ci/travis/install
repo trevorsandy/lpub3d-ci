@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 26, 2017
+#  Last Update: January 12, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -12,7 +12,8 @@ cd $LP3D_BUILD_FOLDER
 _PRO_FILE_PWD_=$PWD/mainApp;
 source builds/utilities/update-config-files.sh
 # Install qt5 on Linux
-if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
+if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
+     ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$LP3D_QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi;
   if [ "$LP3D_QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi;
   if [ "$LP3D_QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi;
@@ -47,7 +48,7 @@ else
 fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-  if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" || "$LP3D_BUILD_MACOS" = "true" && "$LP3D_BUILD_PKG" = "yes" ]]; then
+  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_MACOS" = "true") ]]; then
     if [ "$LP3D_QT_BASE" = "55" ]; then
       brew install qt55;
       brew link --force qt55;
@@ -62,14 +63,14 @@ if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
     fi;
     if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-      mkdir -p ../dmgbuild;
+      [ -d "../dmgbuild" ] && rm -rf ../dmgbuild; mkdir -p ../dmgbuild;
       export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
     fi;
   fi;
 fi
 # Update docker-engine, docker-compose and define release folder path
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
+  if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_BUILD_APPIMAGE" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
     sudo apt-get update -qq;
@@ -81,6 +82,10 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     chmod +x docker-compose;
     sudo mv docker-compose /usr/local/bin;
     docker-compose version;
+  fi;
+  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    [ -d "../appimagebuild" ] && rm -rf ../appimagebuild; mkdir -p ../appimagebuild;
+    export AppImageBuildPath=$(cd ../ && echo "$PWD/appimagebuild");
   fi;
 fi
 # setup linux platform-specific 3rd party distribution directory

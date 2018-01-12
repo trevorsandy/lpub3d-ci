@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 05, 2017
+#  Last Update: January 12, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -35,7 +35,8 @@ elif [ -n "$TRAVIS_TAG" ]; then
 fi
 
 # Add private qt repositories
-if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
+if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
+     ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$LP3D_QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi;
   if [ "$LP3D_QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi;
   if [ "$LP3D_QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi;
@@ -63,7 +64,7 @@ if [ -n "$LP3D_BUILD_3RD" ]; then
 fi
 # Update repository index and download package build dependencies if required
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
+  if [[ (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     sudo apt-get update -qq;
   fi;
   export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
