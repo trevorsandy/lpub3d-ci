@@ -3,23 +3,32 @@ app: LPub3D
 build:
   packages:
     - linuxdeployqt
-    - zlib-devel
+    - autoconf
+    - automake
     - libpng-devel
     - libtiff-devel
-    - libjpeg-turbo-devel
+    - libjpeg8-devel
     - tinyxml-devel
     - gl2ps-devel
-    - qt5-qtbase-devel
-    - qt5-qttools-devel
+    - pkgconfig(zlib)
+    - pkgconfig(Qt5Gui)
+    - pkgconfig(Qt5Widgets)
+    - pkgconfig(Qt5OpenGL)
+    - pkgconfig(Qt5PrintSupport)
+    - libQt5Core-devel
+    - libQt5Network-devel
+    - libqt5-qttools-devel
     - libqt5-linguist
-    - mesa-libOSMesa-devel
-    - mesa-libGLU-devel
-    - OpenEXR-devel
-    - SDL2-devel
+    - pkgconfig(OpenEXR)
+    - pkgconfig(sdl2)
+    - xorg-x11-libX11-devel
+    - xorg-x11-libXpm-devel
+    - libSM-devel
     - freeglut-devel
+    - glu-devel
+    - libOSMesa-devel
+    - Mesa-devel
     - boost-devel
-    - qca
-    - gnu-free-sans-fonts
 
 script:
   - cd $BUILD_SOURCE_DIR

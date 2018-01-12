@@ -8,7 +8,7 @@
 #
 cd $LP3D_BUILD_FOLDER
 
-# Build distributions package (using docker-compose for linux builds) or just compile the code
+# Build distributions package (using docker-compose and AppImage for linux builds) or just compile the code
 if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
   if [ "$LP3D_BUILD_PKG" = "yes" ]; then
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
@@ -41,7 +41,8 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
       echo "Package Files:" && find $DmgBuildPath/DMGS -type f;
     fi;
-  elif [[ "$LP3D_COMPILE_SOURCE" = "true" || "$LP3D_BUILD_APPIMAGE" = "true" ]]; then
+  fi
+  if [[ "$LP3D_COMPILE_SOURCE" = "true" || "$LP3D_BUILD_APPIMAGE" = "true" ]]; then
     export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD);
     if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
       ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" &&
@@ -69,7 +70,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       export VERSION="$LP3D_VER_SHA_HASH"    # git-SHA - linuxdeployqt uses this for naming the file
       ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
       ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2
-      echo "AppImage Dependencies:" && find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
+      echo "AppImage Library Dependencies:" && find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
     else
       qmake -r
       make -j$(nproc);
