@@ -699,7 +699,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-api": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%.AppImage",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-%LP3D_VERSION%.AppImage",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_DEB%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-api": {}
@@ -760,25 +760,30 @@ SET genLatest=%latestFile% ECHO
 EXIT /b
 
 :GENERATE_VERSION_INSERTS
-SET "LP3D_EXT=%1%"
+SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
 SET "dmg=_macos.%LP3D_EXT%"
 SET "deb=_amd64.%LP3D_EXT%"
 SET "rpm=_fc.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=_1-%LP3D_ARCH%.pkg.tar.xz"
-SET "api=.AppImage"
+SET "api=AppImage"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
 REM _LP3D_EXT_ expands to LP3D_EXTension variable - e.g. exe -> exe, deb -> _amd64.deb, api -> .AppImage etc...
 CALL SET "_LP3D_EXT_=%%%LP3D_EXT%%%"
 REM ALT_VERS expands to the alternate version for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
+IF "%1" EQU "api" (
+  SET "DIST_PREFIX=LPub3D-"
+) ELSE (
+  SET "DIST_PREFIX=LPub3D-UpdateMaster_"
+)
 SET versionInsert=%PKG_UPDATE_DIR%\versionInsert_%LP3D_EXT%.txt
 SET genVersionInsert=%versionInsert% ECHO
 FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   >>%genVersionInsert% "alternate-version-%%V-%LP3D_EXT%": {
   >>%genVersionInsert%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%%V/",
   >>%genVersionInsert%   "latest-version": "%%V",
-  >>%genVersionInsert%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%%V%_LP3D_EXT_%",
+  >>%genVersionInsert%   "download-url": "http://lpub3d.sourceforge.net/%DIST_PREFIX%%%V.%_LP3D_EXT_%",
   >>%genVersionInsert%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%%V.txt"
   >>%genVersionInsert% },
 )

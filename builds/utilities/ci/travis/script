@@ -56,7 +56,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       export INSTALL_3RD_PARTY=yes;
     fi;
     qmake -v;
-    if [[ "$LP3D_BUILD_PKG" = "yes" && "$TRAVIS_OS_NAME" = "linux" ]]; then
+    if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ]]; then
       qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api;
       make -j$(nproc);
       make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
@@ -66,11 +66,15 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       chmod a+x linuxdeployqt-continuous-x86_64.AppImage;
       renderers=$(find $AppImageBuildPath/opt -type f);
       for r in $renderers; do executables="$executables -executable=$r"; done;
-      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-      export VERSION="$LP3D_VER_SHA_HASH"    # git-SHA - linuxdeployqt uses this for naming the file
-      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
-      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2
-      echo "AppImage Library Dependencies:" && find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
+      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
+      export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
+      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2;
+      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2;
+      echo "AppImage Dynamic Library Dependencies (should be only system libs):" && \
+      find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
+      mkdir -p $AppImageBuildPath/AppImage && AppImageFile=$(ls LPub3D*.AppImage) && mv -f $AppImageFile $AppImageBuildPath/AppImage/$AppImageFile
+      [ -f $AppImageBuildPath/AppImage/$AppImageFile ] && echo "AppImage Asset:" $PWD/$(find $AppImageBuildPath/AppImage -type f) && \
+      echo "AppImage build completed successfully." || echo "AppImage build completed with exceptions.";
     else
       qmake -r
       make -j$(nproc);
