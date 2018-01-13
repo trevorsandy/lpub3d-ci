@@ -1,8 +1,6 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
 Name=LPub3D
-GenericName=An LDraw Building Instruction Editor
 Comment=An LDraw Building Instruction Editor
 Comment[fr]=Un éditeur d'instructions de construction LDraw
 Comment[it]=Un editor di istruzioni LDraw Edilizia
@@ -12,5 +10,5 @@ Terminal=false
 Type=Application
 Icon=lpub3d
 MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw;
-Categories=Graphics;3DGraphics;Education;Application;Amusement;Publishing;Engineering;
+Categories=Education;
 Keywords=;Instructions;CAD;LEGO;LDraw;Renderer;Editor;

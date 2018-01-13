@@ -1,7 +1,7 @@
 #
 # spec file for package lpub3d
 #
-# Copyright © 2017 Trevor SANDY
+# Copyright © 2018 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
@@ -149,7 +149,7 @@ BuildRequires: qca, gnu-free-sans-fonts
  most comprehensive library of digital Open Source LEGO® bricks
  available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
  file formats. LPub3D is available for free under the GNU Public License v3
- and runs on Windows, Linux and OSX Operating Systems.
+ and runs on Windows, Linux and macOS Operating Systems.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
  LeoCAD© 2015 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
@@ -267,6 +267,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{_libdir}/*
 %{_datadir}/pixmaps/*
+%{_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
 %{_datadir}/lpub3d

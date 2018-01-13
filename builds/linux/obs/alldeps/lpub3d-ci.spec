@@ -104,7 +104,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.443
+Version: 2.1.0.446
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -424,7 +424,7 @@ BuildRequires:  pkgconfig(xxf86vm)
  most comprehensive library of digital Open Source LEGO® bricks
  available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
  file formats. LPub3D is available for free under the GNU Public License v3
- and runs on Windows, Linux and OSX Operating Systems.
+ and runs on Windows, Linux and macOS Operating Systems.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
  LeoCAD© 2015 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
@@ -585,6 +585,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{_libdir}/*
 %{_datadir}/pixmaps/*
+%{_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
 %{_datadir}/lpub3d
@@ -608,5 +609,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Jan 12 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.443
+* Sat Jan 13 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.446
 - LPub3D Linux package (rpm) release

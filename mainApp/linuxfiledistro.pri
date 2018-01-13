@@ -40,6 +40,7 @@ unix:!macx {
     isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
     isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
     isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/pixmaps
+    isEmpty(APPDATA_DIR):APPDATA_DIR       = $$SHARE_DIR/metainfo
     isEmpty(MAN_DIR):MAN_DIR               = $$SHARE_DIR/man/man1
     isEmpty(DESKTOP_DIR):DESKTOP_DIR       = $$SHARE_DIR/applications
     isEmpty(MIME_DIR):MIME_DIR             = $$SHARE_DIR/mime/packages
@@ -58,7 +59,11 @@ unix:!macx {
     desktop.files += $$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    ##icon.files += images/lpub3d.png
+    #appdata.files += lpub3d.appdata.xml
+    appdata.files += $$join(DIST_TARGET,,,.appdata.xml)
+    appdata.path = $$APPDATA_DIR
+
+    #icon.files += images/lpub3d.png
     icon.files += images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
@@ -104,6 +109,7 @@ unix:!macx {
     docs \
     man \
     desktop \
+    appdata \
     icon\
     mime\
     mime_ldraw_icon \
