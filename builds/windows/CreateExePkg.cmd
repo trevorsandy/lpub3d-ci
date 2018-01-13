@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 13, 2018
+rem  Last Update: January 14, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
@@ -768,7 +768,7 @@ SET "rpm=_fc.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=_1-%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
 SET "api=-%LP3D_ARCH%.AppImage"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
-REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension variable - e.g. exe -> exe, deb -> _amd64.deb, api -> .AppImage etc...
+REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension variable, e.g. exe ^= exe, deb ^= _amd64.deb, api ^= .AppImage etc...
 CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
 REM LP3D_ALT_VERS expands to the alternate version for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
