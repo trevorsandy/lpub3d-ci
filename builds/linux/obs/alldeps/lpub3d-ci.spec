@@ -104,7 +104,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.451
+Version: 2.1.0.452
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -576,9 +576,9 @@ make INSTALL_ROOT=%buildroot install
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
+# skip rpath check on 3rd-party binaries to avoid 'RPATH "" ... is not allowed' fail on SUSE builds
+export NO_BRP_CHECK_RPATH=true
 %endif
-# skip rpath check on 3rd-party binaries
-#export NO_BRP_CHECK_RPATH=true
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -614,5 +614,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.451
+* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.452
 - LPub3D Linux package (rpm) release
