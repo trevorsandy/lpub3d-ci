@@ -151,42 +151,42 @@ BuildRequires: libsane1, libproxy-webkit
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
 
- %prep
- set +x
- %if 0%{?suse_version} || 0%{?sles_version}
- echo "%{suse_dist_label}%{suse_version}"
- %endif
- %if 0%{?centos_ver}
- echo "CentOS.........................%{centos_version}"
- %endif
- %if 0%{?fedora}
- echo "Fedora.........................%{fedora_version}"
- %endif
- %if 0%{?rhel_version}
- echo "RedHat Enterprise Linux........%{rhel_version}"
- %endif
- %if 0%{?mageia}
- echo "Mageia.........................%{mageia_version}"
- %endif
- %if 0%{?buildservice}
- echo "Using OpenBuildService.........%{usingbuildservice}"
- %endif
- echo "Target.........................%{_target}"
- echo "Target Vendor..................%{_target_vendor}"
- echo "Target CPU.....................%{_target_cpu}"
- echo "Name...........................%{name}"
- echo "Summary........................%{summary}"
- echo "Version........................%{version}"
- echo "Vendor.........................%{vendor}"
- echo "Release........................%{release}"
- echo "Distribution packer............%{distpacker}"
- echo "Source0........................%{SOURCE0}"
- echo "Source20.......................%{SOURCE10}"
- echo "Service Provider...............%{serviceprovider}"
- echo "Packing Platform...............%{packingplatform}"
- echo "Build Package..................%{name}-%{version}-%{release}-%{_arch}.rpm"
- set -x
- %setup -q -n %{name}-git
+%prep
+set +x
+%if 0%{?suse_version} || 0%{?sles_version}
+echo "%{suse_dist_label}%{suse_version}"
+%endif
+%if 0%{?centos_ver}
+echo "CentOS.........................%{centos_version}"
+%endif
+%if 0%{?fedora}
+echo "Fedora.........................%{fedora_version}"
+%endif
+%if 0%{?rhel_version}
+echo "RedHat Enterprise Linux........%{rhel_version}"
+%endif
+%if 0%{?mageia}
+echo "Mageia.........................%{mageia_version}"
+%endif
+%if 0%{?buildservice}
+echo "Using OpenBuildService.........%{usingbuildservice}"
+%endif
+echo "Target.........................%{_target}"
+echo "Target Vendor..................%{_target_vendor}"
+echo "Target CPU.....................%{_target_cpu}"
+echo "Name...........................%{name}"
+echo "Summary........................%{summary}"
+echo "Version........................%{version}"
+echo "Vendor.........................%{vendor}"
+echo "Release........................%{release}"
+echo "Distribution packer............%{distpacker}"
+echo "Source0........................%{SOURCE0}"
+echo "Source20.......................%{SOURCE10}"
+echo "Service Provider...............%{serviceprovider}"
+echo "Packing Platform...............%{packingplatform}"
+echo "Build Package..................%{name}-%{version}-%{release}-%{_arch}.rpm"
+set -x
+%setup -q -n %{name}-git
 
 %build
 echo "Current working directory: $PWD"
