@@ -213,13 +213,19 @@ for ArchiveSourceFile in \
     mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
 done
+# Indicate OBS status (should always be No for this spec file)
+export OBS=%{usingbuildservice}
+# RPM exported variables
+export TARGET_VENDOR=%{_target_vendor}
+export RPM_BUILD=true
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
+# set Qt5
 export QT_SELECT=qt5
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
-chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-# use Qt5
+chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+# option flags and qmake settings
 %if 0%{?fedora}==23
 %ifarch x86_64
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
@@ -236,7 +242,7 @@ make %{?_smp_mflags}
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version}
-%suse_update_desktop_file lpub3d Graphics
+%suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering Science Construction
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}

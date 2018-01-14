@@ -104,7 +104,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.449
+Version: 2.1.0.450
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -152,7 +152,6 @@ BuildRequires: libOSMesa-devel, glu-devel, openexr-devel, freeglut-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-Requires(pre): gconf2
 %if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315)
 BuildRequires: gl2ps-devel
 %else
@@ -502,7 +501,6 @@ for ArchiveSourceFile in \
 done
 # OBS Platform id and version
 %if 0%{?buildservice}
-export OBS=%{usingbuildservice}
 %if 0%{?suse_version} || 0%{?sles_version}
 export PLATFORM_PRETTY_OBS="%{suse_dist_pretty_name}"
 export PLATFORM_VER_OBS=%{suse_dist_version}
@@ -542,18 +540,22 @@ echo "Build TinyXML from source......yes"
 export build_tinyxml=%{build_tinyxml}
 %endif
 set -x
+%endif
+# Indicate OBS status (should always be yes for this spec file)
+export OBS=%{usingbuildservice}
+# RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}
 export RPM_LIBDIR="%{_libdir}"
 export RPM_OPTFLAGS="%{optflags}"
 export RPM_BUILD=true
-%endif
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
+# set Qt5
 export QT_SELECT=qt5
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
-chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-# use Qt5
+chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+# option flags and qmake settings
 %if 0%{?fedora_version}==23
 %ifarch x86_64
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
@@ -570,7 +572,7 @@ make %{?_smp_mflags}
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version}
-%suse_update_desktop_file lpub3d Graphics
+%suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering Science Construction
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
@@ -612,5 +614,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.449
+* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.450
 - LPub3D Linux package (rpm) release
