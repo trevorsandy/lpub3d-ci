@@ -104,7 +104,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.447
+Version: 2.1.0.448
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -146,12 +146,6 @@ BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
 %endif
-%endif
-
-%if 0%{?centos_version} || 0%{?rhel_version}
-BuildRequires: libjpeg-turbo-devel, freeglut-devel
-%define build_tinyxml 1
-%define build_gl2ps 1
 %endif
 
 %if 0%{?suse_version}
@@ -201,6 +195,12 @@ BuildRequires: libopenexr-devel
 BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
+%endif
+
+%if 0%{?centos_version} || 0%{?rhel_version}
+BuildRequires: libjpeg-turbo-devel, freeglut-devel
+%define build_tinyxml 1
+%define build_gl2ps 1
 %endif
 
 %if 0%{?sles_version}
@@ -609,5 +609,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.447
+* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.448
 - LPub3D Linux package (rpm) release

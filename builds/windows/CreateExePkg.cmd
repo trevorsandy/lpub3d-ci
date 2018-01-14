@@ -897,12 +897,12 @@ IF "%LibraryOPTION%" EQU "Unofficial" (
   REN %UnofficialCONTENT% %Lpub3dCONTENT%
   IF %UNIVERSAL_BUILD% EQU 1 (
     ECHO.
-    ECHO - Copy and move archive file %UnofficialCONTENT% to extras directory...
+    ECHO - Copy and move archive file %Lpub3dCONTENT% to extras directory...
     COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
     MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
   ) ELSE (
     ECHO.
-    ECHO - Move archive file %UnofficialCONTENT% to extras directory...
+    ECHO - Move archive file %Lpub3dCONTENT% to extras directory...
     MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
   )
 )
@@ -910,6 +910,8 @@ ECHO.
 ECHO - LDraw archive library %UnofficialCONTENT% downloaded
 
 SET LibraryOPTION=Official
+SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
 IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip" (
   ECHO.
   ECHO - Copy LDraw %LibraryOPTION% library archive...
@@ -926,9 +928,6 @@ IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip" (
   ECHO.
   ECHO - LDraw archive libraries download and copy finshed
 ) ELSE (
-  SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-  SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
-
   ECHO.
   ECHO - Download LDraw %LibraryOPTION% library archive...
 

@@ -263,9 +263,9 @@ IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
     ECHO.
     ECHO -Set LDRAWDIR to %LDRAW_DIR%.
     SET LDRAWDIR=%LDRAW_DIR%
-    ECHO.
-    ECHO -Cleanup %ARCHIVE_FILE%...
-    DEL /Q "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
+    REM ECHO.
+    REM ECHO -Cleanup %ARCHIVE_FILE%...
+    REM DEL /Q "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
   ) ELSE (
       ECHO.
       ECHO -[ERROR] LDraw library folder %LDRAW_DIR% is not valid.
