@@ -628,7 +628,7 @@ EXIT /b
 
 :GENERATE_JSON
 ECHO.
-ECHO - Generating update package json components...
+ECHO - Generating update package platform available versions json inserts...
 SET LP3D_ARCH=x86_64
 SET LP3D_AMDARCH=amd64
 SET LP3D_DIST_EXTENSIONS=exe, dmg, deb, rpm, pkg, api
@@ -637,7 +637,7 @@ FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
 )
 
 ECHO.
-ECHO - Generating lpub3dupdates.json template file...
+ECHO - Generating update package lpub3dupdates.json template file...
 
 SET updatesFile=%PKG_UPDATE_DIR%\lpub3dupdates.json
 SET genLPub3DUpdates=%updatesFile% ECHO
@@ -768,7 +768,7 @@ SET "rpm=_fc.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=_1-%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
 SET "api=-%LP3D_ARCH%.AppImage"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
-REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension variable, e.g. exe ^= exe, deb ^= _amd64.deb, api ^= .AppImage etc...
+REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension variable
 CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
 REM LP3D_ALT_VERS expands to the alternate version for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
@@ -787,7 +787,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   >>%genVersionInsert%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%%V.txt"
   >>%genVersionInsert% },
 )
-ECHO   Generated %1 json component
+ECHO   Generated %1 json version insert
 EXIT /b
 
 :DOWNLOADLDRAWLIBS
@@ -797,11 +797,16 @@ ECHO - Download LDraw archive libraries...
 SET OfficialCONTENT=complete.zip
 SET UnofficialCONTENT=ldrawunf.zip
 SET Lpub3dCONTENT=lpub3dldrawunf.zip
+IF "%APPVEYOR%" EQU "True" (
+  SET LDRAW_OFFICIAL_LIBRARY_DIR=%APPVEYOR_BUILD_FOLDER%
+) ELSE (
+  SET LDRAW_OFFICIAL_LIBRARY_DIR=%USERPROFILE%
+)
+IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip" (
+  SET OfficialCONTENT=%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip
+)
 
 SET OutputPATH=%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%
-
-REM The 'appveyor' command does not work when script called from PS - but the cscript code works very well.
-REM IF "%APPVEYOR%" EQU "True" GOTO APPVEYORDOWNLOAD
 
 ECHO.
 ECHO - Prepare BATCH to VBS to Web Content Downloader...
@@ -892,12 +897,12 @@ IF "%LibraryOPTION%" EQU "Unofficial" (
   REN %UnofficialCONTENT% %Lpub3dCONTENT%
   IF %UNIVERSAL_BUILD% EQU 1 (
     ECHO.
-    ECHO - Copy and move archive file %OfficialCONTENT% to extras directory...
+    ECHO - Copy and move archive file %UnofficialCONTENT% to extras directory...
     COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
     MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
   ) ELSE (
     ECHO.
-    ECHO - Move archive file %OfficialCONTENT% to extras directory...
+    ECHO - Move archive file %UnofficialCONTENT% to extras directory...
     MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
   )
 )
@@ -905,71 +910,55 @@ ECHO.
 ECHO - LDraw archive library %UnofficialCONTENT% downloaded
 
 SET LibraryOPTION=Official
-SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
-
-ECHO.
-ECHO - Download LDraw %LibraryOPTION% library archive...
-
-ECHO.
-ECHO - Web URL: "%WebNAME%"
-ECHO.
-ECHO - Download archive file: %WebCONTENT%
-
-IF EXIST %WebCONTENT% (
- DEL %WebCONTENT%
-)
-
-ECHO.
-cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-IF %UNIVERSAL_BUILD% EQU 1 (
+IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip" (
   ECHO.
-  ECHO - Copy and move archive file %OfficialCONTENT% to extras directory
-  COPY /V /Y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-  MOVE /y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-) ELSE (
+  ECHO - Copy LDraw %LibraryOPTION% library archive...
+  IF %UNIVERSAL_BUILD% EQU 1 (
+    ECHO.
+    ECHO - Copy archive file %OfficialCONTENT% to extras directory
+    COPY /V /Y "%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO - Copy archive file %OfficialCONTENT% to extras directory
+    COPY /V /Y "%OfficialCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
+  )
   ECHO.
-  ECHO - Move archive file %OfficialCONTENT% to extras directory
-  MOVE /y ".\%OfficialCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
-)
+  ECHO - LDraw archive libraries download and copy finshed
+) ELSE (
+  SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
+  SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
 
-ECHO.
-ECHO - LDraw archive library %OfficialCONTENT% downloaded
-ECHO.
-ECHO - LDraw archive libraries download finshed
-EXIT /b 0
+  ECHO.
+  ECHO - Download LDraw %LibraryOPTION% library archive...
 
-REM pwd = windows/release/LP3D_PRODUCT_DIR
-:APPVEYORDOWNLOAD
-ECHO.
-ECHO - Download LDraw Official archive library %OfficialCONTENT%...
-IF NOT EXIST "%WIN_PKG_DIR%\%OfficialCONTENT%" (
-  appveyor Downloadfile "http://www.ldraw.org/library/updates/%OfficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%OfficialCONTENT%"
-) ELSE (
-  ECHO   %OfficialCONTENT% exists - moving to staging...
-  MOVE /y ".\%OfficialCONTENT%"  "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
+  ECHO.
+  ECHO - Web URL: "%WebNAME%"
+  ECHO.
+  ECHO - Download archive file: %WebCONTENT%
+
+  IF EXIST %WebCONTENT% (
+    DEL %WebCONTENT%
+  )
+
+  ECHO.
+  cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+  IF %UNIVERSAL_BUILD% EQU 1 (
+    ECHO.
+    ECHO - Copy and move archive file %OfficialCONTENT% to extras directory
+    COPY /V /Y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    MOVE /y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO.
+    ECHO - Move archive file %OfficialCONTENT% to extras directory
+    MOVE /y ".\%OfficialCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
+  )
+
+  ECHO.
+  ECHO - LDraw archive library %OfficialCONTENT% downloaded
+  ECHO.
+  ECHO - LDraw archive libraries download finshed
 )
-ECHO.
-ECHO - Download LDraw Unifficial archive library %UnofficialCONTENT%...
-IF NOT EXIST "%WIN_PKG_DIR%\%Lpub3dCONTENT%" (
-  appveyor Downloadfile "http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%" -FileName "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%Lpub3dCONTENT%"
-) ELSE (
-  ECHO   %Lpub3dCONTENT% exists - moving to staging...
-  MOVE /y ".\%Lpub3dCONTENT%"  "%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\" | findstr /i /v /r /c:"moved\>"
-)
-ECHO.
-ECHO - Copy and move archive files to extras directory...
-IF %UNIVERSAL_BUILD% EQU 1 (
-  COPY /V /Y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-  COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-  MOVE /y ".\%OfficialCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-  MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-) ELSE (
-  MOVE /y ".\%OfficialCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
-  MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
-)
-ECHO.
-ECHO - LDraw archive libraries download finshed
 EXIT /b 0
 
 :CREATE_LP3D_PS_VARS_FILE
