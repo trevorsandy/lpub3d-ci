@@ -104,7 +104,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.448
+Version: 2.1.0.449
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -119,9 +119,6 @@ BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
-%if 0%{?fedora}
-BuildRequires: qt5-linguist, SDL2-devel
-%endif
 %if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
@@ -129,6 +126,7 @@ BuildRequires: git
 
 %if 0%{?fedora}
 BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
+BuildRequires: qt5-linguist, SDL2-devel
 %if 0%{?buildservice}
 BuildRequires: samba4-libs
 %if 0%{?fedora_version}==23
@@ -151,13 +149,12 @@ BuildRequires: openssl-devel, storaged
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel, freeglut-devel
-BuildRequires: cmake, update-desktop-files
-BuildRequires: zlib-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
+BuildRequires: update-desktop-files
+BuildRequires: zlib-devel
 Requires(pre): gconf2
 %if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315)
 BuildRequires: gl2ps-devel
-BuildRequires: libqt5-linguist
 %else
 %define build_gl2ps 1
 %endif
@@ -208,6 +205,9 @@ BuildRequires: libjpeg-turbo-devel, freeglut-devel
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if 0%{osmesa_found} != 1
 %define build_osmesa 1
+%endif
+%if 0%{?buildservice}
+BuildRequires:  -post-build-checks
 %endif
 %endif
 
@@ -569,11 +569,14 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
+%if 0%{?suse_version}
+%suse_update_desktop_file lpub3d Graphics
+%endif
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
 # skip rpath check on 3rd-party binaries
-export NO_BRP_CHECK_RPATH=true
+#export NO_BRP_CHECK_RPATH=true
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -609,5 +612,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.448
+* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.449
 - LPub3D Linux package (rpm) release

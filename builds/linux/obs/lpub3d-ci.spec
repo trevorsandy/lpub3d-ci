@@ -16,12 +16,12 @@
 %define packingplatform %(echo openSUSE Build Service)
 %else
 %define usingbuildservice false
-%define packingplatform %(source /etc/os-release && if [ "$PRETTY_NAME" != "" ]; then echo $HOSTNAME ["$PRETTY_NAME"]; else echo $HOSTNAME [`uname`]; fi)
+%define packingplatform %(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $HOSTNAME [`uname`])
 %endif
 
 # set packer
 %define serviceprovider %(echo Trevor SANDY trevor.sandy@gmail.com)
-%if 0%{?buildservice}==1
+%if 0%{?buildservice}
 %define distpacker %(echo openSUSE Build Service [`whoami`])
 %define targetplatform %{_target}
 %else
@@ -31,33 +31,39 @@
 
 # set target platform id
 %if 0%{?suse_version}
-%define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
+%define dist openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
 
 %if 0%{?sles_version}
-%define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
-%endif
-
-%if 0%{?fedora}
-%define dist fc
-%endif
-
-%if 0%{?mageia}
-%define dist .mga%{mgaversion}
-%define distsuffix .mga%{mgaversion}
+%define dist SUSE%{sles_version}
+%define sles_version=%{sles_version}
 %endif
 
 %if 0%{?centos_ver}
+%define dist cos%{centos_ver}
 %define centos_version %{centos_ver}00
-%define dist cos
+%endif
+
+%if 0%{?fedora}
+%define dist fc%{fedora}
+%endif
+
+%if 0%{?mageia}
+%define dist mga%{mageia}
+%define mageia_version %{mageia}
 %endif
 
 %if 0%{?rhel_version}
-%define dist rhel
+%define dist rhel%{rhel_version}
 %endif
 
-%if 0%{?scientificlinux_version}
-%define dist scl
+# distinguish between OpenSUSE and SLE
+%if 0%{?sle_version}==120300
+%define suse_dist_name %(echo SUSE Linux Enterprise Server)
+%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
+%else
+%define suse_dist_name %(echo OpenSUSE)
+%define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
 %endif
 
 # distro group settings
@@ -90,8 +96,8 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.313
-Release: %{?dist}
+Version: <set at build time>
+Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
@@ -103,9 +109,6 @@ Source10: lpub3d-ci-rpmlintrc
 %if 0%{?fedora} || 0%{?centos_version}
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 BuildRequires: gcc-c++, make
-%if 0%{?fedora}
-BuildRequires: qt5-linguist
-%endif
 %if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
@@ -113,10 +116,8 @@ BuildRequires: git
 
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel
+BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if 0%{?suse_version} > 1300
-BuildRequires: Mesa-devel
-%endif
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
@@ -135,12 +136,6 @@ BuildRequires: libsane1, libproxy-webkit
 %endif
 %endif
 
-%if 0%{?fedora}
-%if 0%{?fedora_version}==23
-BuildRequires: qca, gnu-free-sans-fonts
-%endif
-%endif
-
 # configuration settings
 %description
  LPub3D is an Open Source WYSIWYG editing application for creating
@@ -156,57 +151,44 @@ BuildRequires: qca, gnu-free-sans-fonts
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
 
-%prep
-set +x
-%if 0%{?suse_version}
-echo "OpenSUSE.......................%{suse_version}"
-%endif
-%if 0%{?sles_version}
-echo "SUSE Linux Enterprise Server...%{sles_version}"
-%endif
-%if 0%{?centos_ver}
-echo "CentOS.........................%{centos_ver}"
-%endif
-%if 0%{?fedora}
-echo "Fedora.........................%{fedora}"
-%endif
-%if 0%{?rhel_version}
-echo "RedHat Enterprise Linux........%{rhel_version}"
-%endif
-%if 0%{?scientificlinux_version}
-echo "Scientific Linux...............%{scientificlinux_version}"
-%endif
-%if 0%{?mageia}
-echo "Mageia.........................%{mageia}"
-%endif
-echo "Using OpenBuildService.........%{usingbuildservice}"
-%if 0%{?buildservice}==1
-echo "OpenBuildService Target........%{_target_vendor}"
-%endif
-echo "Target.........................%{_target}"
-echo "Target Vendor..................%{_target_vendor}"
-echo "Target CPU.....................%{_target_cpu}"
-echo "Name...........................%{name}"
-echo "Summary........................%{summary}"
-echo "Version........................%{version}"
-echo "Vendor.........................%{vendor}"
-echo "Release........................%{release}"
-echo "Distribution packer............%{distpacker}"
-echo "Source0........................%{SOURCE0}"
-echo "Source20.......................%{SOURCE10}"
-echo "Service Provider...............%{serviceprovider}"
-echo "Packing Platform...............%{packingplatform}"
-echo "Build Package..................%{name}-%{version}-%{release}-%{_arch}.rpm"
-set -x
-%setup -q -n %{name}-git
+ %prep
+ set +x
+ %if 0%{?suse_version} || 0%{?sles_version}
+ echo "%{suse_dist_label}%{suse_version}"
+ %endif
+ %if 0%{?centos_ver}
+ echo "CentOS.........................%{centos_version}"
+ %endif
+ %if 0%{?fedora}
+ echo "Fedora.........................%{fedora_version}"
+ %endif
+ %if 0%{?rhel_version}
+ echo "RedHat Enterprise Linux........%{rhel_version}"
+ %endif
+ %if 0%{?mageia}
+ echo "Mageia.........................%{mageia_version}"
+ %endif
+ %if 0%{?buildservice}
+ echo "Using OpenBuildService.........%{usingbuildservice}"
+ %endif
+ echo "Target.........................%{_target}"
+ echo "Target Vendor..................%{_target_vendor}"
+ echo "Target CPU.....................%{_target_cpu}"
+ echo "Name...........................%{name}"
+ echo "Summary........................%{summary}"
+ echo "Version........................%{version}"
+ echo "Vendor.........................%{vendor}"
+ echo "Release........................%{release}"
+ echo "Distribution packer............%{distpacker}"
+ echo "Source0........................%{SOURCE0}"
+ echo "Source20.......................%{SOURCE10}"
+ echo "Service Provider...............%{serviceprovider}"
+ echo "Packing Platform...............%{packingplatform}"
+ echo "Build Package..................%{name}-%{version}-%{release}-%{_arch}.rpm"
+ set -x
+ %setup -q -n %{name}-git
 
 %build
-export OBS=%{usingbuildservice}
-export TARGET_VENDOR=%{_target_vendor}
-export QT_SELECT=qt5
-# instruct qmake to install 3rd-party renderers
-export LP3D_BUILD_PKG=yes
-#set +x
 echo "Current working directory: $PWD"
 # download ldraw archive libraries
 LDrawLibOffical=../../SOURCES/complete.zip
@@ -231,7 +213,9 @@ for ArchiveSourceFile in \
     mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
 done
-#set -x
+# instruct qmake to install 3rd-party renderers
+export LP3D_BUILD_PKG=yes
+export QT_SELECT=qt5
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
@@ -251,6 +235,9 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
+%if 0%{?suse_version}
+%suse_update_desktop_file lpub3d Graphics
+%endif
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
 %endif
@@ -291,5 +278,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Wed Dec 27 2017 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.313
+* <set at build time> - trevor.dot.sandy.at.gmail.dot.com <set at build time>
 - LPub3D Linux package (rpm) release
