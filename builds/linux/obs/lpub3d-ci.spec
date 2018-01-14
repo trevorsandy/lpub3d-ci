@@ -242,7 +242,7 @@ make %{?_smp_mflags}
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version}
-%suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering Science Construction
+%suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
 %fdupes %{buildroot}/%{_iconsdir}
