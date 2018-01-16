@@ -561,7 +561,7 @@ export RPM_BUILD=true
 export LP3D_BUILD_PKG=yes
 # set Qt5 - Download Qt5 Library for CentOS 6, RHEL and Scientific Linux - these platforms don't have Qt5
 %if 0%{?get_qt5}
-chmod a+x builds/utilities/GetQt5Libs.sh && ./builds/utilities/GetQt5Libs.sh
+source builds/utilities/GetQt5Libs.sh
 %else
 export QT_SELECT=qt5
 %endif
