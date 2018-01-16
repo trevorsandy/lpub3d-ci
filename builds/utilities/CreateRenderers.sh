@@ -550,7 +550,7 @@ else
   # Qt setup - Linux
   export QT_SELECT=qt5
   if [ -x /usr/bin/qmake-qt5 ] ; then
-      QMAKE_EXEC=qmake-qt5
+      QMAKE_EXEC=/usr/bin/qmake-qt5
   elif [ -x $QT5_BIN/qmake ] ; then
     QMAKE_EXEC=$QT5_BIN/qmake
   else
