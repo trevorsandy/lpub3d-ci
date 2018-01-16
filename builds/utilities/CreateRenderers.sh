@@ -558,8 +558,8 @@ else
   export QT_SELECT=qt5
   if [ -x /usr/bin/qmake-qt5 ] ; then
       QMAKE_EXEC=/usr/bin/qmake-qt5
-  elif [ -x $QT5_BIN/qmake ] ; then
-    QMAKE_EXEC=$QT5_BIN/qmake
+  elif [ -x $LP3D_QT5_BIN/qmake ] ; then
+    QMAKE_EXEC=$LP3D_QT5_BIN/qmake
   else
     QMAKE_EXEC=qmake
   fi

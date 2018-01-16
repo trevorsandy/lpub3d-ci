@@ -32,5 +32,5 @@ echo "ERROR - Could not extract Qt library!"
 [ -f "Qt/5.9.3/gcc_64/bin/qmake" ] && \
 cp $LP3D_BINPATCHER/bin/qtbinpatcher Qt/5.9.3/gcc_64/bin && \
 cd Qt/5.9.3/gcc_64/bin && ./qtbinpatcher --verbose --nobackup &&
-export QT5_BIN=$PWD || \
+export LP3D_QT5_BIN=$PWD || \
 echo "ERROR - Could not copy and run QtBinPatcher!"
