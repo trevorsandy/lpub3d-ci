@@ -139,6 +139,9 @@ BuildRequires: git
 %endif
 
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?scientificlinux_version}
+BuildRequires: kde-runtime
+%endif
 BuildRequires: libjpeg-turbo-devel
 %if 0%{?rhel_version}
 %define build_osmesa 1

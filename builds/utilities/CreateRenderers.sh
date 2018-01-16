@@ -494,7 +494,7 @@ elif [ "${TRAVIS}" = "true" ]; then
 elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
-  [ -n "$get_qt5" ] && Info "Get Qt5 library..........[Qt5-5.9.3-gcc_x64]" || true
+  [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
   [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
   [ -n "$build_osmesa" ] && Info "Build from source........[OSMesa]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
@@ -555,13 +555,15 @@ if [ "$OS_NAME" = "Darwin" ]; then
   QMAKE_EXEC=qmake
 else
   # Qt setup - Linux
-  export QT_SELECT=qt5
-  if [ -x /usr/bin/qmake-qt5 ] ; then
-      QMAKE_EXEC=/usr/bin/qmake-qt5
-  elif [ -x $LP3D_QT5_BIN/qmake ] ; then
+  if [ -f $LP3D_QT5_BIN/qmake ] ; then
     QMAKE_EXEC=$LP3D_QT5_BIN/qmake
   else
-    QMAKE_EXEC=qmake
+    export QT_SELECT=qt5
+    if [ -x /usr/bin/qmake-qt5 ] ; then
+      QMAKE_EXEC=/usr/bin/qmake-qt5
+    else
+      QMAKE_EXEC=qmake
+    fi
   fi
 fi
 
