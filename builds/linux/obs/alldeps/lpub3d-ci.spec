@@ -119,7 +119,7 @@ Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
 %if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-%if ( !0%{?fedora} && !0%{?centos_version}==700 ) && ( 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
+%if ( !0%{?fedora} && !0%{?centos_version}==700 )
 # For CentOS 6 and RHEL 6/7, cannot build gallium driver for libOSMesa and no openexr support for POV-Ray
 %define get_qt5 1
 %define no_gallium 1
