@@ -118,9 +118,7 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-%if ( !0%{?fedora} && !0%{?centos_version}==700 )
-# For CentOS 6 and RHEL 6/7, cannot build gallium driver for libOSMesa and no openexr support for POV-Ray
+%if 0%{?centos_version}==600 || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %define get_qt5 1
 %define no_gallium 1
 BuildRequires: cmake
@@ -128,6 +126,7 @@ BuildRequires: cmake
 %if 0%{?fedora} || 0%{?centos_version}==700
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %endif
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %if !0%{?rhel_version}
 BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
 %endif
@@ -542,6 +541,10 @@ export build_tinyxml=%{build_tinyxml}
 echo "Gallium driver not available...yes"
 export no_gallium=%{no_gallium}
 %endif
+%if 0%{?get_qt5}
+echo "Get Qt5 library................yes"
+export get_qt5=%{get_qt5}
+%endif
 set -x
 %endif
 # Indicate OBS status (should always be yes for this spec file)
@@ -555,7 +558,6 @@ export RPM_BUILD=true
 export LP3D_BUILD_PKG=yes
 # set Qt5 - Download Qt5 Library for CentOS 6, RHEL and Scientific Linux - these platforms don't have Qt5
 %if 0%{?get_qt5}
-export get_qt5=%{get_qt5}
 chmod a+x builds/utilities/GetQt5Libs.sh && ./builds/utilities/GetQt5Libs.sh
 %else
 export QT_SELECT=qt5

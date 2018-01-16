@@ -494,7 +494,7 @@ elif [ "${TRAVIS}" = "true" ]; then
 elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
-  [ -n "$get_qt5" ] && Info "Use Qt5 library..........[Qt5-5.9.3-gcc_x64]" || true
+  [ -n "$get_qt5" ] && Info "Get Qt5 library..........[Qt5-5.9.3-gcc_x64]" || true
   [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
   [ -n "$build_osmesa" ] && Info "Build from source........[OSMesa]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
