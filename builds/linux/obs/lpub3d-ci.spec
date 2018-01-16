@@ -44,6 +44,14 @@
 %define centos_version %{centos_ver}00
 %endif
 
+%if 0%{?rhel_version}
+%define dist rhel%{rhel_version}
+%endif
+
+%if 0%{?scientificlinux_version}
+%define dist scl%{scientificlinux_version}
+%endif
+
 %if 0%{?fedora}
 %define dist fc%{fedora}
 %endif
@@ -51,10 +59,6 @@
 %if 0%{?mageia}
 %define dist mga%{mageia}
 %define mageia_version %{mageia}
-%endif
-
-%if 0%{?rhel_version}
-%define dist rhel%{rhel_version}
 %endif
 
 # distinguish between OpenSUSE and SLE
@@ -79,8 +83,8 @@ Group: Graphics
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia}
-License: GPLv3+
+%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+License: GPLv2+
 %endif
 
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -106,8 +110,12 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version}
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if ( 0%{?centos_version}<=600 || 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
+%define build_qt5 0
+%else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
+%endif
 BuildRequires: gcc-c++, make
 %if 0%{?buildservice}!=1
 BuildRequires: git
@@ -164,6 +172,9 @@ echo "Fedora.........................%{fedora_version}"
 %endif
 %if 0%{?rhel_version}
 echo "RedHat Enterprise Linux........%{rhel_version}"
+%endif
+%if 0%{?scientificlinux_version}
+echo "Scientific Linux...............%{scientificlinux_version}"
 %endif
 %if 0%{?mageia}
 echo "Mageia.........................%{mageia_version}"

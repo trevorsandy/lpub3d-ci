@@ -46,6 +46,16 @@
 %define build_sdl2 1
 %endif
 
+%if 0%{?rhel_version}
+%define dist rhel%{rhel_version}
+%define build_sdl2 1
+%endif
+
+%if 0%{?scientificlinux_version}
+%define dist scl%{scientificlinux_version}
+%define build_sdl2 1
+%endif
+
 %if 0%{?fedora}
 %define dist fc%{fedora}
 %endif
@@ -53,12 +63,6 @@
 %if 0%{?mageia}
 %define dist mga%{mageia}
 %define mageia_version %{mageia}
-%endif
-
-%if 0%{?rhel_version}
-%define dist rhel%{rhel_version}
-%define build_sdl2 1
-%define build_osmesa 1
 %endif
 
 # distinguish between OpenSUSE and SLE
@@ -79,7 +83,7 @@
 Group: Productivity/Graphics/Viewers
 %endif
 
-%if 0%{?mageia} || 0%{?rhel_version}
+%if 0%{?mageia} || 0%{?rhel_version} || 0%{scientificlinux_version}
 Group: Graphics
 %endif
 
@@ -87,8 +91,8 @@ Group: Graphics
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia}
-License: GPLv3+
+%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+License: GPLv2+
 %endif
 
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -114,14 +118,24 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version}
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if ( 0%{?centos_version}<=600 || 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
+%define use_lpub3d_qt5 1
+%else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
+%endif
 BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
+%endif
+
+%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+BuildRequires: libjpeg-turbo-devel
+%define build_tinyxml 1
+%define build_gl2ps 1
 %endif
 
 %if 0%{?fedora}
@@ -193,12 +207,6 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
 
-%if 0%{?centos_version} || 0%{?rhel_version}
-BuildRequires: libjpeg-turbo-devel, freeglut-devel
-%define build_tinyxml 1
-%define build_gl2ps 1
-%endif
-
 %if 0%{?sles_version}
 %define build_tinyxml 1
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
@@ -241,7 +249,7 @@ BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (0%{?centos_version}!=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
+%if (0%{?centos_version}<=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -389,8 +397,8 @@ BuildRequires:  pkgconfig(gl)
 %if !0%{?centos_version}
 BuildRequires:  pkgconfig(glesv1_cm)
 BuildRequires:  pkgconfig(wayland-server)
-%endif
 BuildRequires:  pkgconfig(glesv2)
+%endif
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(glu)
 BuildRequires:  pkgconfig(ibus-1.0)
@@ -449,6 +457,9 @@ echo "Fedora.........................%{fedora_version}"
 %if 0%{?rhel_version}
 echo "RedHat Enterprise Linux........%{rhel_version}"
 %endif
+%if 0%{?scientificlinux_version}
+echo "Scientific Linux...............%{scientificlinux_version}"
+%endif
 %if 0%{?mageia}
 echo "Mageia.........................%{mageia_version}"
 %endif
@@ -493,6 +504,8 @@ for ArchiveSourceFile in \
   ../../SOURCES/ldglite.tar.gz \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz \
+  ../../SOURCES/qt5-5.9.3-gcc_64-rhel.tar.gz \
+  ../../SOURCES/QtBinPatcher-2.2.1.tar.gz \
   ../../SOURCES/mesa-17.2.6.tar.gz \
   ../../SOURCES/glu-9.0.0.tar.bz2; do
   if [ -f "${ArchiveSourceFile}" ]; then
@@ -517,12 +530,21 @@ export PLATFORM_VER_OBS=%{fedora_version}
 export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
 export PLATFORM_VER_OBS=%{rhel_version}
 %endif
+%if 0%{?scientificlinux_version}
+export PLATFORM_PRETTY_OBS="Scientific Linux"
+export PLATFORM_VER_OBS=%{scientificlinux_version}
+%endif
 %if 0%{?mageia}
 export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
 %endif
-# 3rd-party renderers build-from-source requirements
 set +x
+# Use LPub3D Qt5
+%if 0%{?use_lpub3d_qt5}
+echo "Use LPub3d Qt5 library.........yes"
+export use_lpub3d_qt5=%{use_lpub3d_qt5}
+%endif
+# 3rd-party renderers build-from-source requirements
 %if 0%{?build_osmesa}
 echo "Build OSMesa from source.......yes"
 export build_osmesa=%{build_osmesa}
