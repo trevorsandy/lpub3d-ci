@@ -311,6 +311,9 @@ BuildLDGLite() {
   if [ "${build_osmesa}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
+  if [ "${no_gallium}" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
+  fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -344,6 +347,9 @@ BuildLDView() {
   fi
   if [ "$build_osmesa" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
+  fi
+  if [ "${no_gallium}" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$build_tinyxml" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_TINYXML"
@@ -489,6 +495,7 @@ elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Use Qt5 library..........[Qt5-5.9.3-gcc_x64]" || true
+  [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
   [ -n "$build_osmesa" ] && Info "Build from source........[OSMesa]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
   [ -n "$build_tinyxml" ] && Info "Build from source........[TinyXML]" || true

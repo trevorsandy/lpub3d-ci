@@ -119,16 +119,15 @@ Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
 %if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-%if ( 0%{?centos_version}<=600 || 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
+%if ( !0%{?fedora} && !0%{?centos_version}==700 ) && ( 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
+# For CentOS 6 and RHEL 6/7, cannot build gallium driver for libOSMesa and no openexr support for POV-Ray
 %define get_qt5 1
+%define no_gallium 1
 BuildRequires: cmake
 %else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %endif
-%if 0%{?rhel_version}>=600
-# Not sure why mesa-libOSMesa-devel is not available for RHEL on OBS - it's in rhel-7-server-optional-rpms
-BuildRequires: openexr-devel
-%else
+%if !0%{?rhel_version}
 BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
 %endif
 BuildRequires: mesa-libGLU-devel
@@ -261,7 +260,7 @@ BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (0%{?centos_version}>=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
+%if (!0%{?centos_version} && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -294,26 +293,23 @@ BuildRequires:  pkgconfig
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires:  python
 BuildRequires:  python-libs
+BuildRequires:  pkgconfig(libdrm)
 %else
 BuildRequires:  python-xml
 BuildRequires:  python-base
-%endif
-BuildRequires:  python-mako
-%if 0%{?rhel_version} || 0%{?scientificlinux_version}
-BuildRequires:  pkgconfig(libdrm)
-%else
 BuildRequires:  pkgconfig(libdrm) >= 2.4.75
 %endif
+BuildRequires:  python-mako
 BuildRequires:  pkgconfig(dri2proto)
 BuildRequires:  pkgconfig(dri3proto)
 BuildRequires:  pkgconfig(expat)
 BuildRequires:  pkgconfig(glproto)
 BuildRequires:  pkgconfig(libkms) >= 1.0.0
 BuildRequires:  pkgconfig(libudev) > 151
-BuildRequires:  pkgconfig(libva)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(presentproto)
 %if !0%{?rhel_version}
+BuildRequires:  pkgconfig(libva)
 BuildRequires:  pkgconfig(vdpau) >= 1.1
 BuildRequires:  pkgconfig(xcb-dri3)
 BuildRequires:  pkgconfig(xcb-present)
@@ -346,9 +342,7 @@ BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
 %endif
 %ifarch %ix86 x86_64
-%if 0%{?rhel_version}
-BuildRequires:  mesa-private-llvm-devel
-%else
+%if !0%{?rhel_version}
 BuildRequires:  llvm-devel
 %endif
 BuildRequires:  ncurses-devel
@@ -400,7 +394,6 @@ BuildRequires:  pkgconfig(tslib)
 BuildRequires:  pkgconfig(libpulse-simple) >= 0.9
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(udev)
-
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcursor)
 BuildRequires:  pkgconfig(xext)
@@ -543,6 +536,10 @@ export build_gl2ps=%{build_gl2ps}
 %if 0%{?build_tinyxml}
 echo "Build TinyXML from source......yes"
 export build_tinyxml=%{build_tinyxml}
+%endif
+%if 0%{?no_gallium}
+echo "Gallium driver not available...yes"
+export no_gallium=%{no_gallium}
 %endif
 set -x
 %endif

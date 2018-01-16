@@ -16,6 +16,8 @@ SECONDS=0
 # configuration options:
 # specify the osmesa verion to build
 mesaversion="${OSMESA_VERSION:-17.2.6}"
+# specify if gallium dirver not available (e.g. RHEL on OBS does not support llvm so gallium driver not available)
+nogallium="${NO_GALLIUM:-0}"
 # specify llvm-config path if different from system default
 llvm_config="${LLVM_CONFIG:-/usr/bin/llvm-config}"
 # specify the libglu version
@@ -91,7 +93,11 @@ Info
 Info "Working Directory........[${WD}]"
 Info "Script Directory.........[${ScriptDir}]"
 Info "OSMesa-config Directory..[$osmesaConfDir]"
-Info "LLVM-Config Path.........[${llvm_config}]"
+if [ " $nogallium" = 1 ]; then
+  Info "LLVM not needed..........[Gallium driver not available]"
+else
+  Info "LLVM-Config Path.........[${llvm_config}]"
+fi
 Info "Install Prefix...........[${osmesaprefix}]"
 Info "OSMesa Version...........[${mesaversion}]"
 Info "GLU Version..............[${gluversion}]"
@@ -111,8 +117,10 @@ fi
 #check for llvm-config
 if [ ! -f "${llvm_config}" ]; then
   if [ "$OBS" = "true" ]; then
-    Info "ERROR - llmv-config not found. $ME will terminate"
-    exit 1
+    if [ ! "$nogallium" = 1 ]; then
+      Info "ERROR - llmv-config not found. $ME will terminate"
+      exit 1
+    fi
   else
     Info "llmv-config not found, (re)installing Mesa build dependencies..."
 	  sudo dnf builddep -y mesa
@@ -168,13 +176,28 @@ confopts="\
 --disable-shared-glapi \
 --disable-driglx-direct \
 --with-dri-drivers= \
---with-osmesa-bits=32 \
 --with-platforms= \
---disable-osmesa \
---enable-gallium-osmesa \
---enable-llvm=yes \
---disable-llvm-shared-libs \
---with-gallium-drivers=swrast \
+--with-osmesa-bits=32 \
+"
+if [ "$nogallium" = 1 ]; then
+  confopts="\
+  $confopts \
+  --disable-gallium-osmesa \
+  --disable-llvm=yes \
+  --enable-osmesa \
+  "
+else
+  confopts="\
+  $confopts \
+  --disable-osmesa \
+  --enable-gallium-osmesa \
+  --enable-llvm=yes \
+  --disable-llvm-shared-libs \
+  --with-gallium-drivers=swrast \
+  "
+fi
+confopts="\
+$confopts \
 --prefix=${osmesaprefix} \
 "
 if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
