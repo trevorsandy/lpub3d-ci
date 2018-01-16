@@ -124,7 +124,8 @@ Source10: lpub3d-ci-rpmlintrc
 %define get_qt5 1
 %define no_gallium 1
 BuildRequires: cmake
-%else
+%endif
+%if 0%{?fedora} || 0%{?centos_version}==700
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %endif
 %if !0%{?rhel_version}
