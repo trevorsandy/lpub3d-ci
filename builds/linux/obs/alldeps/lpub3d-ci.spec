@@ -49,6 +49,7 @@
 %if 0%{?rhel_version}
 %define dist rhel%{rhel_version}
 %define build_sdl2 1
+%define no_gallium 1
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -120,7 +121,6 @@ Source10: lpub3d-ci-rpmlintrc
 # package requirements
 %if 0%{?centos_version}==600 || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %define get_qt5 1
-%define no_gallium 1
 BuildRequires: cmake
 %endif
 %if 0%{?fedora} || 0%{?centos_version}==700
@@ -258,7 +258,7 @@ BuildRequires:  xorg-x11-libXpm-devel
 %else
 BuildRequires:  libXpm-devel
 %endif
-%if 0%{?suse_version} || 0%{?centos_version}
+%if 0%{?suse_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)

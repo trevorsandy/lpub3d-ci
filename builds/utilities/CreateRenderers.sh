@@ -71,12 +71,12 @@ BuildMesaLibs() {
     Info "${1} GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
   fi
   Info && Info "Build OSMesa and GLU static libraries..."
-  chmod +x "${mesaSpecDir}/build_osmesa.sh"
+  chmod a+x "${mesaSpecDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
-    "${mesaSpecDir}/build_osmesa.sh" &
+    env NO_GALLIUM=${no_gallium} ${mesaSpecDir}/build_osmesa.sh &
   else
-    "${mesaSpecDir}/build_osmesa.sh" > $mesaBuildLog 2>&1 &
+    ${mesaSpecDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
   fi
   TreatLongProcess $! 60 "OSMesa and GLU build"
 
