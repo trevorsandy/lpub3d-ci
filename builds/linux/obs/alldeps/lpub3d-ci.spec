@@ -83,7 +83,7 @@
 Group: Productivity/Graphics/Viewers
 %endif
 
-%if 0%{?mageia} || 0%{?rhel_version} || 0%{scientificlinux_version}
+%if 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 Group: Graphics
 %endif
 
@@ -120,11 +120,18 @@ Source10: lpub3d-ci-rpmlintrc
 # package requirements
 %if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %if ( 0%{?centos_version}<=600 || 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
-%define use_lpub3d_qt5 1
+%define get_qt5 1
+BuildRequires: cmake
 %else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %endif
-BuildRequires: mesa-libOSMesa-devel, mesa-libGLU-devel, OpenEXR-devel
+%if 0%{?rhel_version}>=600
+# Not sure why mesa-libOSMesa-devel is not available for RHEL on OBS - it's in rhel-7-server-optional-rpms
+BuildRequires: openexr-devel
+%else
+BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
+%endif
+BuildRequires: mesa-libGLU-devel
 BuildRequires: freeglut-devel, boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?buildservice}!=1
@@ -134,6 +141,9 @@ BuildRequires: git
 
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires: libjpeg-turbo-devel
+%if 0%{?rhel_version}
+%define build_osmesa 1
+%endif
 %define build_tinyxml 1
 %define build_gl2ps 1
 %endif
@@ -189,7 +199,8 @@ BuildRequires: -post-build-checks
 %if 0%{?mageia}
 BuildRequires: qttools5
 %ifarch x86_64
-BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel, lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
+BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel
+BuildRequires: lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: lib64openexr-devel
 %endif
@@ -197,7 +208,8 @@ BuildRequires: lib64openexr-devel
 BuildRequires: lib64sane1, lib64proxy-webkit, lib64openssl-devel
 %endif
 %else
-BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel, libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
+BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel
+BuildRequires: libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: libopenexr-devel
 %endif
@@ -249,7 +261,7 @@ BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
-%if (0%{?centos_version}<=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
+%if (0%{?centos_version}>=700 && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -266,86 +278,59 @@ BuildRequires:  libtool
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(gl)
 # libMesa build-from-source dependencies
-%define libglvnd 0
-%if 0%{?suse_version} >= 1330
-%define libglvnd 1
-%endif
-%define glamor 1
 %define _name_archive mesa
 %define _version 17.2.6
-%define with_opencl 0
-%define with_vulkan 0
-%ifarch %ix86 x86_64
-%define gallium_loader 1
-%else
-%define gallium_loader 0
-%endif
-%ifarch %ix86 x86_64
-%define xvmc_support 1
-%define vdpau_nouveau 1
-%define vdpau_radeon 1
-%else
-%define xvmc_support 0
-%define vdpau_nouveau 0
-%define vdpau_radeon 0
-%endif
-%ifarch %ix86 x86_64
-%define with_nine 1
-%endif
-%if 0%{gallium_loader} && 0%{?suse_version} >= 1330
-%ifarch %ix86 x86_64
-%define with_vulkan 1
-%endif
-%endif
 BuildRequires:  autoconf >= 2.60
 BuildRequires:  automake
 BuildRequires:  bison
+%if !0%{?rhel_version}
 BuildRequires:  fdupes
+%endif
 BuildRequires:  flex
 BuildRequires:  gcc-c++
 BuildRequires:  imake
 BuildRequires:  libtool
 BuildRequires:  pkgconfig
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires:  python
 BuildRequires:  python-libs
 %else
 BuildRequires:  python-xml
 BuildRequires:  python-base
-BuildRequires:  pkgconfig(libdrm) >= 2.4.75
-BuildRequires:  pkgconfig(libdrm_amdgpu) >= 2.4.79
-BuildRequires:  pkgconfig(libdrm_nouveau) >= 2.4.66
-BuildRequires:  pkgconfig(libdrm_radeon) >= 2.4.71
 %endif
 BuildRequires:  python-mako
+%if 0%{?rhel_version} || 0%{?scientificlinux_version}
+BuildRequires:  pkgconfig(libdrm)
+%else
+BuildRequires:  pkgconfig(libdrm) >= 2.4.75
+%endif
 BuildRequires:  pkgconfig(dri2proto)
 BuildRequires:  pkgconfig(dri3proto)
 BuildRequires:  pkgconfig(expat)
 BuildRequires:  pkgconfig(glproto)
-%if 0%{?libglvnd}
-BuildRequires:  pkgconfig(libglvnd) >= 0.1.0
-%endif
 BuildRequires:  pkgconfig(libkms) >= 1.0.0
 BuildRequires:  pkgconfig(libudev) > 151
 BuildRequires:  pkgconfig(libva)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(presentproto)
+%if !0%{?rhel_version}
 BuildRequires:  pkgconfig(vdpau) >= 1.1
+BuildRequires:  pkgconfig(xcb-dri3)
+BuildRequires:  pkgconfig(xcb-present)
+BuildRequires:  pkgconfig(xshmfence)
+BuildRequires:  pkgconfig(xvmc)
+%endif
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(x11-xcb)
 BuildRequires:  pkgconfig(xcb-dri2)
-BuildRequires:  pkgconfig(xcb-dri3)
 BuildRequires:  pkgconfig(xcb-glx)
-BuildRequires:  pkgconfig(xcb-present)
 BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  pkgconfig(xshmfence)
-BuildRequires:  pkgconfig(xvmc)
 BuildRequires:  pkgconfig(xxf86vm)
 BuildRequires:  pkgconfig(zlib)
 %ifarch x86_64 %ix86
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel_version}
 BuildRequires:  elfutils
 BuildRequires:  elfutils-libelf-devel
 BuildRequires:  libdrm-devel
@@ -354,9 +339,6 @@ BuildRequires:  libelf-devel
 BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %else
-%if 0%{with_opencl}
-BuildRequires:  libelf-devel
-%endif
 %endif
 %if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse})
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
@@ -364,18 +346,12 @@ BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
 %endif
 %ifarch %ix86 x86_64
+%if 0%{?rhel_version}
+BuildRequires:  mesa-private-llvm-devel
+%else
 BuildRequires:  llvm-devel
+%endif
 BuildRequires:  ncurses-devel
-%endif
-%if 0%{with_opencl}
-BuildRequires:  clang-devel
-BuildRequires:  clang-devel-static
-BuildRequires:  libclc
-%endif
-%if 0%{?libglvnd}
-Requires:       Mesa-libEGL1  = %{version}
-Requires:       Mesa-libGL1  = %{version}
-Requires:       libglvnd >= 0.1.0
 %endif
 %endif
 
@@ -392,20 +368,32 @@ BuildRequires:  pkgconfig(dbus-1)
 %if 0%{?fedora}
 BuildRequires:  pkgconfig(fcitx)
 %endif
+%if !0%{?rhel_version} == 600
 BuildRequires:  pkgconfig(egl)
+%endif
 BuildRequires:  pkgconfig(gl)
 %if !0%{?centos_version}
+%if !0%{?rhel_version} && !0%{?scientificlinux_version}
 BuildRequires:  pkgconfig(glesv1_cm)
 BuildRequires:  pkgconfig(wayland-server)
+%endif
+%if !0%{?rhel_version} && !0%{?scientificlinux_version} == 600
 BuildRequires:  pkgconfig(glesv2)
+%endif
 %endif
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(glu)
-BuildRequires:  pkgconfig(ibus-1.0)
 BuildRequires:  pkgconfig(ice)
 # KMS/DRM driver needs libdrm and libgbm
+%if !0%{?rhel_version}
+BuildRequires:  pkgconfig(ibus-1.0)
 BuildRequires:  pkgconfig(gbm) >= 9.0.0
+%endif
+%if 0%{?rhel_version} == 600 || 0%{?scientificlinux_version} == 600
+BuildRequires:  pkgconfig(libdrm)
+%else
 BuildRequires:  pkgconfig(libdrm) >= 2.4.46
+%endif
 %if 0%{?suse_version} > 1220
 BuildRequires:  pkgconfig(tslib)
 %endif
@@ -499,15 +487,15 @@ if [ -f ${LDrawLibUnofficial} ] ; then
 else
   echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
 fi
-# Copy 3rd party renderer source archives and build renderers
+# Copy 3rd party renderer source archives and Qt5 libraries
 for ArchiveSourceFile in \
   ../../SOURCES/ldglite.tar.gz \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz \
-  ../../SOURCES/qt5-5.9.3-gcc_64-rhel.tar.gz \
-  ../../SOURCES/QtBinPatcher-2.2.1.tar.gz \
   ../../SOURCES/mesa-17.2.6.tar.gz \
-  ../../SOURCES/glu-9.0.0.tar.bz2; do
+  ../../SOURCES/glu-9.0.0.tar.bz2 \
+  ../../SOURCES/qt5-5.9.3-gcc_64-rhel.tar.gz \
+  ../../SOURCES/QtBinPatcher-2.2.1.tar.gz; do
   if [ -f "${ArchiveSourceFile}" ]; then
     mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
@@ -539,11 +527,6 @@ export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
 %endif
 set +x
-# Use LPub3D Qt5
-%if 0%{?use_lpub3d_qt5}
-echo "Use LPub3d Qt5 library.........yes"
-export use_lpub3d_qt5=%{use_lpub3d_qt5}
-%endif
 # 3rd-party renderers build-from-source requirements
 %if 0%{?build_osmesa}
 echo "Build OSMesa from source.......yes"
@@ -572,8 +555,13 @@ export RPM_OPTFLAGS="%{optflags}"
 export RPM_BUILD=true
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
-# set Qt5
+# set Qt5 - Download Qt5 Library for CentOS 6, RHEL and Scientific Linux - these platforms don't have Qt5
+%if 0%{?get_qt5}
+export get_qt5=%{get_qt5}
+chmod a+x builds/utilities/GetQt5Libs.sh && ./builds/utilities/GetQt5Libs.sh
+%else
 export QT_SELECT=qt5
+%endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
@@ -585,6 +573,8 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
   qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+elif test -d "$LP3D_QT5_BIN" ; then
+  $LP3D_QT5_BIN/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 else
   qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 fi
