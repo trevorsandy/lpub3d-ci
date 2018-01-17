@@ -395,8 +395,8 @@ BuildPOVRay() {
     make install
     make check
     if [ ! -f "unix/lpub3d_trace_cui" ]; then
-      echo "ERROR - lpub3d_trace_cui build failed!"
-      echo "The config.log may give some insights."
+      Info "ERROR - lpub3d_trace_cui build failed!"
+      Info "The config.log may give some insights."
       cat config.log
     fi
   else

@@ -236,30 +236,32 @@ BuildRequires:  -post-build-checks
 %if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires: autoconf
 BuildRequires: automake
+BuildRequires:  gcc-c++
+BuildRequires:  dos2unix
+BuildRequires:  libjpeg-devel
+BuildRequires:  libpng-devel
+BuildRequires:  libtiff-devel
 BuildRequires:  libSM-devel
+BuildRequires:  pkgconfig(zlib)
+%if 0%{?suse_version} || 0%{?sles_version}
+BuildRequires:  fdupes
+%endif
 %if 0%{?suse_version}>1325
 BuildRequires:  libboost_system-devel
 BuildRequires:  libboost_thread-devel
 %else
 BuildRequires:  boost-devel
 %endif
-BuildRequires:  dos2unix
-%if 0%{?suse_version} || 0%{?sles_version}
-BuildRequires:  fdupes
-%endif
-BuildRequires:  gcc-c++
-BuildRequires:  libjpeg-devel
-BuildRequires:  libpng-devel
-BuildRequires:  libtiff-devel
 %if 0%{?suse_version}
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
 %else
 BuildRequires:  libXpm-devel
 %endif
+%if !0%{?rhel_version}
 BuildRequires:  pkgconfig(OpenEXR)
-BuildRequires:  pkgconfig(zlib)
-%if (!0%{?centos_version} && 0%{?sles_version}!=1315 && 0%{?suse_version}!=1315)
+%endif
+%if (0%{?sles_version}!=1315 && 0%{?suse_version}!=1315 && !0%{?centos_version} && !0%{?rhel_version} && !0%{?scientificlinux_version})
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
