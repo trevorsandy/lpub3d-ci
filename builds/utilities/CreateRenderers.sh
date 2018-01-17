@@ -733,6 +733,7 @@ for buildDir in ldglite ldview povray; do
   Info "----------------------------------------------------"
   if [ ! -f "${!artefactBinary}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
+    [ -f "${validExe}" ] && Info && Info "LDD check..."  && ldd ${validExe} 2>/dev/null || Info "ERROR - LDD failed for ${validExe}"
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
         Info && Info "Build check - ${buildDir}..."

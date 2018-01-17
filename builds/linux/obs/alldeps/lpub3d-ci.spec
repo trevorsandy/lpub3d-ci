@@ -109,7 +109,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.452
+Version: 2.1.0.469
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -581,6 +581,13 @@ else
 fi
 make clean
 make %{?_smp_mflags}
+%if 0%{?get_qt5}
+# check dependencies with LDD - this is just to see what Qt files remain depended on
+[ "$(uname -m)" = x86_64 ] && buildArch="64bit_release" || buildArch="32bit_release"
+export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+validExe=mainApp/${buildArch}/lpub3d${versuffix}
+[ -f "${validExe}" ] && echo "LDD check..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
+%endif
 
 %install
 make INSTALL_ROOT=%buildroot install
@@ -627,5 +634,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jan 14 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.452
+* Wed Jan 17 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.469
 - LPub3D Linux package (rpm) release

@@ -297,7 +297,7 @@ else
 fi
 
 FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
-Info "9. update ${LPUB3D}.spec     - add version and date  [$FILE]"
+Info "9. update ${LPUB3D}.spec  - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
