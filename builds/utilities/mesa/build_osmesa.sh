@@ -183,7 +183,6 @@ if [ "$nogallium" = 1 ]; then
   confopts="\
   $confopts \
   --disable-gallium-osmesa \
-  --disable-llvm=yes \
   --enable-osmesa \
   "
 else
@@ -200,6 +199,7 @@ confopts="\
 $confopts \
 --prefix=${osmesaprefix} \
 "
+echo "Using confops: $confopts"
 if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
 	# configure command
 	env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \

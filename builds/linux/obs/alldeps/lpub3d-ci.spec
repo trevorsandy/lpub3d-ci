@@ -233,16 +233,16 @@ BuildRequires:  -post-build-checks
 %endif
 
 # POV-Ray dependencies - SUSE/CentOS builds
-%if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version}
+%if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires: autoconf
 BuildRequires: automake
+BuildRequires:  libSM-devel
 %if 0%{?suse_version}>1325
 BuildRequires:  libboost_system-devel
 BuildRequires:  libboost_thread-devel
 %else
 BuildRequires:  boost-devel
 %endif
-
 BuildRequires:  dos2unix
 %if 0%{?suse_version} || 0%{?sles_version}
 BuildRequires:  fdupes
@@ -251,15 +251,11 @@ BuildRequires:  gcc-c++
 BuildRequires:  libjpeg-devel
 BuildRequires:  libpng-devel
 BuildRequires:  libtiff-devel
-
 %if 0%{?suse_version}
 BuildRequires:  xorg-x11-libX11-devel
 BuildRequires:  xorg-x11-libXpm-devel
 %else
 BuildRequires:  libXpm-devel
-%endif
-%if 0%{?suse_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-BuildRequires:  libSM-devel
 %endif
 BuildRequires:  pkgconfig(OpenEXR)
 BuildRequires:  pkgconfig(zlib)
@@ -528,6 +524,10 @@ set +x
 echo "Build OSMesa from source.......yes"
 export build_osmesa=%{build_osmesa}
 %endif
+%if 0%{?no_gallium}
+echo "Gallium driver not available...yes"
+export no_gallium=%{no_gallium}
+%endif
 %if 0%{?build_sdl2}
 echo "Build SDL2 from source.........yes"
 export build_sdl2=%{build_sdl2}
@@ -539,10 +539,6 @@ export build_gl2ps=%{build_gl2ps}
 %if 0%{?build_tinyxml}
 echo "Build TinyXML from source......yes"
 export build_tinyxml=%{build_tinyxml}
-%endif
-%if 0%{?no_gallium}
-echo "Gallium driver not available...yes"
-export no_gallium=%{no_gallium}
 %endif
 %if 0%{?get_qt5}
 echo "Get Qt5 library................yes"
