@@ -545,12 +545,10 @@ export build_tinyxml=%{build_tinyxml}
 %if 0%{?get_qt5}
 echo "Get Qt5 library................yes"
 export get_qt5=%{get_qt5}
-%define deploy_qt5 1
 %endif
 %if 0%{?get_local_libs}
 echo "Get local libraries............yes"
 export get_local_libs=%{get_local_libs}
-%define deploy_local_libs 1
 %endif
 set -x
 %endif
@@ -561,6 +559,7 @@ export TARGET_VENDOR=%{_target_vendor}
 export RPM_LIBDIR="%{_libdir}"
 export RPM_OPTFLAGS="%{optflags}"
 export RPM_BUILD=true
+export RPM_STAGE=build
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
 # set Qt5 - Download Qt5 Library for CentOS 6, RHEL and Scientific Linux - these platforms don't have Qt5
@@ -600,9 +599,9 @@ validExe=mainApp/${buildArch}/lpub3d${versuffix}
 %endif
 
 %install
+export RPM_STAGE=install
 make INSTALL_ROOT=%buildroot install
-%if 0%{?deploy_qt5}
-export DEPLOY_QT5=1
+%if 0%{?get_qt5}
 source builds/linux/obs/alldeps/GetQt5Libs.sh
 install -D -m 644 ${LP3D_QT5_LIB}/* $RPM_BUILD_ROOT%{_libdir}/qt5/lib/*
 install -D -m 644 ${LP3D_QT5_PLUGINS}/bearer/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/bearer/*
@@ -610,8 +609,7 @@ install -D -m 644 ${LP3D_QT5_PLUGINS}/iconengines/* $RPM_BUILD_ROOT%{_libdir}/qt
 install -D -m 644 ${LP3D_QT5_PLUGINS}/imageformats/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/imageformats/*
 install -D -m 644 ${LP3D_QT5_PLUGINS}/platforms/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/platforms/*
 %endif
-%if 0%{?deploy_local_libs}
-export DEPLOY_LOCAL_LIBS=1
+%if 0%{?get_local_libs}
 source builds/linux/obs/alldeps/GetLocalLibs.sh
 install -D -m 644 ${LP3D_LL_USR}/lib64/llvm/* $RPM_BUILD_ROOT%{_libdir}/llvm/*
 install -D -m 644 ${LP3D_LL_USR}/lib64/pkgconfig/* $RPM_BUILD_ROOT%{_libdir}/pkgconfig/*

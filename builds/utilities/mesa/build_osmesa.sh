@@ -122,17 +122,10 @@ fi
 
 # Process local lib paths if specified
 if [ ! "${LOCAL_LIBS}" = 0 ]; then
-  export PKG_CONFIG_PATH=$LOCAL_USR_PATH/lib64/pkgconfig && \
-  LOCAL_PATHS=\
-  $LOCAL_USR_PATH/bin:\
-  $LOCAL_USR_PATH/include:\
-  $LOCAL_USR_PATH/lib:\
-  $LOCAL_USR_PATH/lib64:\
-  $LOCAL_ETC_PATH:\
-  $LOCAL_ETC_PATH/ld.so.conf.d && \
-  Info "Append OSMesa build PATH with: $LOCAL_PATHS" && \
-  PATH=$LOCAL_PATHS:$PATH && \
-  export PATH
+  export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
+  Info "Prepend OSMesa PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
+  LOCAL_PATHS=$LOCAL_USR_PATH/bin:$LOCAL_USR_PATH/include:$LOCAL_USR_PATH/lib:$LOCAL_USR_PATH/lib64:$LOCAL_ETC_PATH:$LOCAL_ETC_PATH/ld.so.conf.d && \
+  PATH=$LOCAL_PATHS:$PATH && export PATH && Info "Prepend OSMesa build PATH with: $PATH"
 fi
 
 #check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)

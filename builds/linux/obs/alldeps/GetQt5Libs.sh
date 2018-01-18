@@ -17,26 +17,26 @@
 
 # Set working directory and qt dir path
 LP3D_OBS_WD=$PWD && echo "Entering Qt5 working directory..."
-LP3D_QT_WD=$(cd ../ && echo $PWD)
+LP3D_QT_WD=$(cd ../ && echo $PWD) && cd $LP3D_QT_WD
 LP3D_QT5_DIR="qt5/5.9.3/gcc_64"
 
 # Extract Qt library
-cd $LP3D_QT_WD && [ ! -d "$LP3D_QT5_DIR" ] && \
+[ ! -d "$LP3D_QT5_DIR" ] && \
 echo "Extracting tarball qt5-5.9.3-gcc_64-el.tar.gz..." && \
 tar -xzf qt5-5.9.3-gcc_64-el.tar.gz || true
 
 # Set QtBinPatcher command options
-[ "$DEPLOY_QT5" = 0 ] && patchopts="--verbose --nobackup" || \
+[ "$RPM_STAGE" = "build" ] && patchopts="--verbose --nobackup" || \
 patchopts="--verbose --nobackup --qt-dir=$PWD/$LP3D_QT5_DIR/bin --new-dir=$RPM_LIBDIR"
 
 # Run QtBinPatcher - export QT5_BIN path
 [ -f "$PWD/$LP3D_QT5_DIR/bin/qmake" ] && \
 cd $PWD/$LP3D_QT5_DIR/bin && ./qtbinpatcher $patchopts &&
-export LP3D_QT5_BIN=$PWD && echo "Export LP3D_QT5_BIN: $LP3D_QT5_BIN" || \
+export LP3D_QT5_BIN=$PWD || \
 echo "ERROR - Could not run QtBinPatcher"
 
 # Generate a qt.conf and connect it to lpub3d.qrc - set before the install call
-if [ "$DEPLOY_QT5" = 0 ]; then
+if [ "$RPM_STAGE" = "build" ]; then
   LP3D_QTCONF_FILE="$LP3D_OBS_WD/mainApp/qt.conf"
   LP3D_QTQRC_FILE="$LP3D_OBS_WD/mainApp/lpub3d.qrc"
   cat <<EOF >$LP3D_QTCONF_FILE
@@ -54,7 +54,7 @@ EOF
 fi
 
 # Install Qt libs if DEPLOY_QT5=1 specified
-if [ "$DEPLOY_QT5" = 1 ]; then
+if [ "$RPM_STAGE" = "install" ]; then
   cd $LP3D_QT_WD && mkdir qt5deploy
   LP3D_QT5_LIB=$LP3D_QT5_DIR/lib
   LP3D_QT5_PLUGINS=$LP3D_QT5_DIR/plugins
@@ -82,10 +82,8 @@ if [ "$DEPLOY_QT5" = 1 ]; then
   cp -f --parents ${LP3D_QT5_LIB}/libQt5OpenGL.so qt5deploy
   cp -f --parents ${LP3D_QT5_LIB}/libQt5PrintSupport.so qt5deploy
   cp -f --parents ${LP3D_QT5_LIB}/libQt5Widgets.so qt5deploy
-  export LP3D_QT5_LIB=$LP3D_QT_WD/qt5deploy/$LP3D_QT5_DIR/lib && \
-  echo "Export LP3D_QT5_LIB: $LP3D_QT5_LIB"
-  export LP3D_QT5_PLUGINS=$LP3D_QT_WD/qt5deploy/$LP3D_QT5_DIR/plugins && \
-  echo "Export LP3D_QT5_PLUGINS: $LP3D_QT5_PLUGINS"
+  export LP3D_QT5_LIB=$LP3D_QT_WD/qt5deploy/$LP3D_QT5_DIR/lib
+  export LP3D_QT5_PLUGINS=$LP3D_QT_WD/qt5deploy/$LP3D_QT5_DIR/plugins
 fi
 
 # Restore working directory

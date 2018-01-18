@@ -322,12 +322,7 @@ BuildLDGLite() {
   if [ "${no_gallium}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
-  if [ "$get_local_libs" = 1 ]; then
-    Info "Append LDGlite build PATH with: $LOCAL_PATHS" && \
-    LOCAL_PATHS=$LP3D_LL_USR/include:$LP3D_LL_USR/lib64 && \
-    PATH=$LOCAL_PATHS:$PATH && \
-    export PATH
-  fi
+  ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -372,8 +367,10 @@ BuildLDView() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && \
+    echo "Append LDView CONFIG with CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
+  ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -398,10 +395,6 @@ BuildPOVRay() {
   fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
-  fi
-  if [ "$get_local_libs" = 1 ]; then
-    Info "Append POV-Ray PKG_CONFIG_PATH with: $PKG_CONFIG_PATH" && \
-    export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
@@ -721,8 +714,15 @@ for buildDir in ldglite ldview povray; do
       OBS_RPM_BUILD_CFLAGS="$RPM_OPTFLAGS -fno-strict-aliasing -Wno-multichar"
       OBS_RPM_BUILD_CXXFLAGS="$OBS_RPM_BUILD_CFLAGS -std=c++11 -Wno-reorder -Wno-sign-compare -Wno-unused-variable \
       -Wno-unused-function -Wno-comment -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-switch"
-      OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR} --with-boost-date-time"
+      OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
       Info && Info "Using RPM_BUILD_FLAGS: $OBS_RPM_BUILD_CXXFLAGS and  OBS_RPM_BUILD_CONFIG: ${OBS_RPM_BUILD_CONFIG}" && Info
+    fi
+    if [ "$get_local_libs" = 1 ]; then
+      LOCAL_PATHS=$LP3D_LL_USR/include:$LP3D_LL_USR/lib64 && \
+      PATH=$LOCAL_PATHS:$PATH && export PATH && \
+      Info "Prepend PATH with: $PATH"
+      export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
+      Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
     fi
   else
     # CI/Local build setup routine...
