@@ -49,7 +49,7 @@
 %if 0%{?rhel_version}
 %define dist rhel%{rhel_version}
 %define build_sdl2 1
-%define no_gallium 1
+%define get_local_libs 1
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -488,8 +488,8 @@ for ArchiveSourceFile in \
   ../../SOURCES/povray.tar.gz \
   ../../SOURCES/mesa-17.2.6.tar.gz \
   ../../SOURCES/glu-9.0.0.tar.bz2 \
-  ../../SOURCES/qt5-5.9.3-gcc_64-rhel.tar.gz \
-  ../../SOURCES/QtBinPatcher-2.2.1.tar.gz; do
+  ../../SOURCES/qt5-5.9.3-gcc_64-el.tar.gz \
+  ../../SOURCES/locallibs.el.x86_64.tar.gz; do
   if [ -f "${ArchiveSourceFile}" ]; then
     mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
   fi
@@ -545,6 +545,12 @@ export build_tinyxml=%{build_tinyxml}
 %if 0%{?get_qt5}
 echo "Get Qt5 library................yes"
 export get_qt5=%{get_qt5}
+%define deploy_qt5 1
+%endif
+%if 0%{?get_local_libs}
+echo "Get local libraries............yes"
+export get_local_libs=%{get_local_libs}
+%define deploy_local_libs 1
 %endif
 set -x
 %endif
@@ -559,9 +565,13 @@ export RPM_BUILD=true
 export LP3D_BUILD_PKG=yes
 # set Qt5 - Download Qt5 Library for CentOS 6, RHEL and Scientific Linux - these platforms don't have Qt5
 %if 0%{?get_qt5}
-source builds/utilities/GetQt5Libs.sh
+source builds/linux/obs/alldeps/GetQt5Libs.sh
 %else
 export QT_SELECT=qt5
+%endif
+# set OSMesa, LLVM, OpenEXR and their dependent libs from locallibs.el.x86_64.tar.gz tarball - for RHEL
+%if 0%{?get_local_libs}
+source builds/linux/obs/alldeps/GetLocalLibs.sh
 %endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
@@ -586,11 +596,28 @@ make %{?_smp_mflags}
 [ "$(uname -m)" = x86_64 ] && buildArch="64bit_release" || buildArch="32bit_release"
 export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
 validExe=mainApp/${buildArch}/lpub3d${versuffix}
-[ -f "${validExe}" ] && echo "LDD check..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
+[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
 %endif
 
 %install
 make INSTALL_ROOT=%buildroot install
+%if 0%{?deploy_qt5}
+export DEPLOY_QT5=1
+source builds/linux/obs/alldeps/GetQt5Libs.sh
+install -D -m 644 ${LP3D_QT5_LIB}/* $RPM_BUILD_ROOT%{_libdir}/qt5/lib/*
+install -D -m 644 ${LP3D_QT5_PLUGINS}/bearer/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/bearer/*
+install -D -m 644 ${LP3D_QT5_PLUGINS}/iconengines/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/iconengines/*
+install -D -m 644 ${LP3D_QT5_PLUGINS}/imageformats/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/imageformats/*
+install -D -m 644 ${LP3D_QT5_PLUGINS}/platforms/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/platforms/*
+%endif
+%if 0%{?deploy_local_libs}
+export DEPLOY_LOCAL_LIBS=1
+source builds/linux/obs/alldeps/GetLocalLibs.sh
+install -D -m 644 ${LP3D_LL_USR}/lib64/llvm/* $RPM_BUILD_ROOT%{_libdir}/llvm/*
+install -D -m 644 ${LP3D_LL_USR}/lib64/pkgconfig/* $RPM_BUILD_ROOT%{_libdir}/pkgconfig/*
+install -D -m 644 ${LP3D_LL_USR}/lib64/*.so.* $RPM_BUILD_ROOT%{_libdir}/*.so.*
+install -D -m 644 ${LP3D_LL_USR}/lib/udev/rules.d/91-drm-modeset.rules $RPM_BUILD_ROOT/lib/udev/rules.d/91-drm-modeset.rules
+install -D -m 644 ${LP3D_LL_ETC}/ld.so.conf.d/llvm-x86_64.conf $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/llvm-x86_64.conf
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
@@ -634,5 +661,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Wed Jan 17 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.469
+* Thu Jan 18 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.469
 - LPub3D Linux package (rpm) release

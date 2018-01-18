@@ -3,7 +3,7 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 31, 2017
+#  Last Update: January 18, 2018
 #  Copyright (c) 2017 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -32,6 +32,12 @@ osmesaprefix="${OSMESA_PREFIX:-$WD/lpub3d_linux_3rdparty/mesa}"
 cleanbuild="${CLEAN:-0}"
 # specify if to overwrite the existing osmesa-config - this file is copied during the build process
 config_copy="${COPY_CONFIG:-0}"
+# using local libs for LLVM and OSMesa
+local_libs="${LOCAL_LIBS:-0}"
+# /usr
+local_usr_path="${LOCAL_USR_PATH:-}"
+# /etc
+local_etc_path="${LOCAL_ETC_PATH:-}"
 # building on Open Build Service
 #using_obs="${OBS:-false}"
 # compiler flags
@@ -114,7 +120,22 @@ if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
 	fi
 fi
 
-#check for llvm-config
+# Process local lib paths if specified
+if [ ! "${LOCAL_LIBS}" = 0 ]; then
+  export PKG_CONFIG_PATH=$LOCAL_USR_PATH/lib64/pkgconfig && \
+  LOCAL_PATHS=\
+  $LOCAL_USR_PATH/bin:\
+  $LOCAL_USR_PATH/include:\
+  $LOCAL_USR_PATH/lib:\
+  $LOCAL_USR_PATH/lib64:\
+  $LOCAL_ETC_PATH:\
+  $LOCAL_ETC_PATH/ld.so.conf.d && \
+  Info "Append OSMesa build PATH with: $LOCAL_PATHS" && \
+  PATH=$LOCAL_PATHS:$PATH && \
+  export PATH
+fi
+
+#check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)
 if [ ! -f "${llvm_config}" ]; then
   if [ "$OBS" = "true" ]; then
     if [ ! "$nogallium" = 1 ]; then
@@ -126,7 +147,7 @@ if [ ! -f "${llvm_config}" ]; then
 	  sudo dnf builddep -y mesa
   fi
 else
-  Info "Found llvm_config."
+  Info "Found llvm_config at $llvm_config"
 fi
 
 # sourcepath="${SOURCE_PATH:-projects/Working/Docker-output}"

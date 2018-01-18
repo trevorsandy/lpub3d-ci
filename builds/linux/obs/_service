@@ -85,14 +85,14 @@
   <service name="download_url">
     <param name="protocol">https</param>
     <param name="host">github.com</param>
-    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v5.9.3-gcc-rhel-x86_64/qt5-5.9.3-gcc_64-rhel.tar.gz</param>
-    <param name="filename">qt5-5.9.3-gcc_64-rhel.tar.gz</param>
+    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/qt5-5.9.3-gcc_64-el.tar.gz</param>
+    <param name="filename">qt5-5.9.3-gcc_64-el.tar.gz</param>
   </service>
   <service name="download_url">
     <param name="protocol">https</param>
     <param name="host">github.com</param>
-    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v5.9.3-gcc-rhel-x86_64/QtBinPatcher-2.2.1.tar.gz</param>
-    <param name="filename">QtBinPatcher-2.2.1.tar.gz</param>
+    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/locallibs.el.x86_64.tar.gz</param>
+    <param name="filename">locallibs.el.x86_64.tar.gz</param>
   </service>
   <service name="download_url">
    <param name="protocol">http</param>

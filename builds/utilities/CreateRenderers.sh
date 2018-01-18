@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 16, 2018
+#  Last Update: January 18, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -74,7 +74,15 @@ BuildMesaLibs() {
   chmod a+x "${mesaSpecDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
-    env NO_GALLIUM=${no_gallium} ${mesaSpecDir}/build_osmesa.sh &
+    [ "$get_local_libs" = 1 ] && \
+    LLVM_CONFIG=${LP3D_LL_BIN}/llvm-config-64 || true
+    env \
+    NO_GALLIUM=${no_gallium} \
+    LOCAL_LIBS=${get_local_libs} \
+    LLVM_CONFIG=${LLVM_CONFIG} \
+    LOCAL_USR_PATH=$LP3D_LL_USR \
+    LOCAL_ETC_PATH=$LP3D_LL_ETC \
+    ${mesaSpecDir}/build_osmesa.sh &
   else
     ${mesaSpecDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
   fi
@@ -314,6 +322,12 @@ BuildLDGLite() {
   if [ "${no_gallium}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
+  if [ "$get_local_libs" = 1 ]; then
+    Info "Append LDGlite build PATH with: $LOCAL_PATHS" && \
+    LOCAL_PATHS=$LP3D_LL_USR/include:$LP3D_LL_USR/lib64 && \
+    PATH=$LOCAL_PATHS:$PATH && \
+    export PATH
+  fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -357,6 +371,9 @@ BuildLDView() {
   if [ "$build_gl2ps" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
+  if [ "$get_local_libs" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+  fi
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -381,6 +398,10 @@ BuildPOVRay() {
   fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
+  fi
+  if [ "$get_local_libs" = 1 ]; then
+    Info "Append POV-Ray PKG_CONFIG_PATH with: $PKG_CONFIG_PATH" && \
+    export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
@@ -500,8 +521,9 @@ elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
-  [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
   [ -n "$build_osmesa" ] && Info "Build from source........[OSMesa]" || true
+  [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
+  [ -n "$get_local_libs" ] && Info "Get local libraries..... [2.4.74]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
   [ -n "$build_tinyxml" ] && Info "Build from source........[TinyXML]" || true
   [ -n "$build_gl2ps" ] && Info "Build from source........[GL2PS]" || true
@@ -733,7 +755,7 @@ for buildDir in ldglite ldview povray; do
   Info "----------------------------------------------------"
   if [ ! -f "${!artefactBinary}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
-    [ -f "${validExe}" ] && Info && Info "LDD check..."  && ldd ${validExe} 2>/dev/null || Info "ERROR - LDD failed for ${validExe}"
+    [ -f "${validExe}" ] && Info && Info "LDD check ${buildDir}..."  && ldd ${validExe} 2>/dev/null || Info "ERROR - LDD failed for ${validExe}"
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
         Info && Info "Build check - ${buildDir}..."
