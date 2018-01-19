@@ -39,6 +39,13 @@ if [ "$RPM_STAGE" = "build" ]; then
   [ -f $LP3D_LL_USR/bin/llvm-config ] && export LP3D_LL_BIN &&\
   echo "Created symlink $LP3D_LL_USR/bin/llvm-config " || \
   echo "ERROR - unable to create symlink $LP3D_LL_USR/bin/llvm-config"
+
+  # Create symlink for pkg-config
+  [ -d $LP3D_LL_USR/lib64/pkgconfig ] && \
+  ln -f -s $LP3D_LL_USR/lib64/pkgconfig $LP3D_LL_USR/lib64/pkg-config && \
+  [ -f $LP3D_LL_USR/lib64/pkg-config ] && \
+  echo "Created symlink $LP3D_LL_USR/lib64/pkg-config " || \
+  echo "ERROR - unable to create symlink $LP3D_LL_USR/lib64/pkg-config"
 fi
 
 # Export library base paths

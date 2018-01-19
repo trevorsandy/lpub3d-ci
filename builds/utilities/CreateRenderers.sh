@@ -74,15 +74,17 @@ BuildMesaLibs() {
   chmod a+x "${mesaSpecDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
-    [ "$get_local_libs" = 1 ] && \
-    LLVM_CONFIG=${LP3D_LL_BIN}/llvm-config-64 || true
-    env \
-    NO_GALLIUM=${no_gallium} \
-    LOCAL_LIBS=${get_local_libs} \
-    LLVM_CONFIG=${LLVM_CONFIG} \
-    LOCAL_USR_PATH=$LP3D_LL_USR \
-    LOCAL_ETC_PATH=$LP3D_LL_ETC \
-    ${mesaSpecDir}/build_osmesa.sh &
+    if [ "$get_local_libs" = 1 ]; then
+      LLVM_CONFIG=${LP3D_LL_BIN}/llvm-config-64
+      env \
+      NO_GALLIUM=${no_gallium} \
+      LOCAL_LIBS=${get_local_libs} \
+      LLVM_CONFIG=${LLVM_CONFIG} \
+      LOCAL_USR_PATH=$LP3D_LL_USR \
+      ${mesaSpecDir}/build_osmesa.sh &
+    else
+      ${mesaSpecDir}/build_osmesa.sh &
+    fi
   else
     ${mesaSpecDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
   fi
@@ -321,6 +323,10 @@ BuildLDGLite() {
   fi
   if [ "${no_gallium}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
+  fi
+  if [ "$get_local_libs" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && \
+    echo "Append LDView CONFIG with CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -591,6 +597,22 @@ fi
 Info && ${QMAKE_EXEC} -v && Info
 QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 
+# processor flags
+if [ "$get_local_libs" = 1 ]; then
+  export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
+  Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
+  PATH=$LP3D_LL_USR/bin:$PATH && export PATH && \
+  Info "Prepend PATH with: $PATH"
+  INCLFLAGS="-I$LP3D_LL_USR/include"
+  CXXFLAGS="$INCLFLAGS" && CFLAGS="$INCLFLAGS"
+  LDFLAGS="-L$LP3D_LL_USR/lib64"
+  Info "Append CXXFLAGS and CFLAGS with $INCLFLAGS and add LDFLAGS $LDFLAGS"
+  Q_CXXFLAGS="$Q_CXXFLAGS $INCLFLAGS"
+  Q_CFLAGS="$Q_CXXFLAGS"
+  Q_LDFLAGS="$LDFLAGS"
+  export Q_CFLAGS Q_CXXFLAGS Q_LDFLAGS
+fi
+
 # set log output path
 LOG_PATH=${WD}
 
@@ -716,13 +738,6 @@ for buildDir in ldglite ldview povray; do
       -Wno-unused-function -Wno-comment -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-switch"
       OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
       Info && Info "Using RPM_BUILD_FLAGS: $OBS_RPM_BUILD_CXXFLAGS and  OBS_RPM_BUILD_CONFIG: ${OBS_RPM_BUILD_CONFIG}" && Info
-    fi
-    if [ "$get_local_libs" = 1 ]; then
-      LOCAL_PATHS=$LP3D_LL_USR/include:$LP3D_LL_USR/lib64 && \
-      PATH=$LOCAL_PATHS:$PATH && export PATH && \
-      Info "Prepend PATH with: $PATH"
-      export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
-      Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
     fi
   else
     # CI/Local build setup routine...

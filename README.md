@@ -2,7 +2,7 @@
 # LPub3D  (CI Testing)
 An LDraw™ editor for LEGO® style digital building instructions.
   
-| [![GitHub release][gh-rel-badge]][gh-rel-url] | [![Travis-CI build status][travis-badge]][travis-url] | [![AppVeyor build status][appveyor-badge]][appveyor-url] | [![GitHub top language][gh-top-lang-badge]][gh-top-lang-url] |
+| [![GitHub release][gh-rel-badge]][gh-rel-url]| [![Travis-CI build status][travis-badge]][travis-url] | [![AppVeyor build status][appveyor-badge]][appveyor-url] | [![GitHub top language][gh-top-lang-badge]][gh-top-lang-url] |
 | :---        |    :----:   |    :----:   |          ---: |
 | [![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url] | [![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url] | [![GitHub total downloads][gh-dl-badge]][gh-dl-url] | [![Maintained status][maintained-badge]](README.md "Last edited 07-01-2018") |
 | [![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url] | [![GitHub issues][gh-issue-badge]][gh-issue-url] | [![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url] | [![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url] |
@@ -22,6 +22,11 @@ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leo
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
  - [GitHub Releases][githubreleases]
  - [Sourceforge Releases][sfreleases]
+ - [Open Build Service Releases][obsreleases]
+ 
+|[![Appimage-Icon][appimage-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/AppImage/)|[![Arch-Icon][arch-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/)|[![Centos-Icon][centos-icon]]( https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/)|[![Debian-Icon][debian-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/Debian_9.0/)|[![Fedora-Icon][fedora-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_27/)|[![Mageia-Icon][mageia-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/Mageia_6/)|[![Macos-Icon][macos-icon]](https://github.com/trevorsandy/lpub3d-ci/releases/download/v2.1.0/LPub3D-2.1.0.0.363_20180103_macos.dmg)|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|[![Opensuse-Icon][opensuse-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Factory/)|[![Rhel-Icon][rhel-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/RHEL_7/)|[![Sl-Icon][sl-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/ScientificLinux_7/)|[![Sle-Icon][sle-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/SLE_12_SP3/)|[![Ubuntu-Icon][ubuntu-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_17.10/)|[![Univention-Icon][univention-icon]](https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/)|[![Windows-Icon][windows-icon]](https://github.com/trevorsandy/lpub3d-ci/releases/download/v2.1.0/LPub3D-2.1.0.0.363_20180103.exe)|
 
 ### Quick Links
  - [Build LPub3D package from source][buildfromsource]
@@ -69,7 +74,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 [sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0/
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
-
+[obsreleases]:         https://software.opensuse.org//download.html?project=home:trevorsandy&package=lpub3d-ci
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
 [travis-url]:          https://travis-ci.org/trevorsandy/lpub3d-ci
 
@@ -105,4 +110,18 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 [maintained-badge]:    https://img.shields.io/maintenance/yes/2018.svg
 
+[appimage-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/appimage.png
+[arch-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/arch.png
+[centos-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/centos.png
+[debian-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/debian.png
+[fedora-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/fedora.png
+[macos-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/macos.png
+[mageia-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/mageia.png
+[opensuse-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/opensuse.png
+[rhel-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/rhel.png
+[sl-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/sl.png
+[sle-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/sle.png
+[ubuntu-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/ubuntu.png
+[univention-icon]:   https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/univention.png
+[windows-icon]:      https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/windows.png
 Copyright (c) 2015 - 2018 by Trevor SANDY

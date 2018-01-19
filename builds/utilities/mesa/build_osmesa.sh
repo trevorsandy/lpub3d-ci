@@ -36,8 +36,6 @@ config_copy="${COPY_CONFIG:-0}"
 local_libs="${LOCAL_LIBS:-0}"
 # /usr
 local_usr_path="${LOCAL_USR_PATH:-}"
-# /etc
-local_etc_path="${LOCAL_ETC_PATH:-}"
 # building on Open Build Service
 #using_obs="${OBS:-false}"
 # compiler flags
@@ -121,11 +119,17 @@ if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
 fi
 
 # Process local lib paths if specified
-if [ ! "${LOCAL_LIBS}" = 0 ]; then
-  export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
+if [ ! "${local_libs}" = 0 ]; then
+  export PKG_CONFIG_PATH=$local_usr_path/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend OSMesa PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
-  LOCAL_PATHS=$LOCAL_USR_PATH/bin:$LOCAL_USR_PATH/include:$LOCAL_USR_PATH/lib:$LOCAL_USR_PATH/lib64:$LOCAL_ETC_PATH:$LOCAL_ETC_PATH/ld.so.conf.d && \
-  PATH=$LOCAL_PATHS:$PATH && export PATH && Info "Prepend OSMesa build PATH with: $PATH"
+  PATH=$local_usr_path/bin:$PATH && export PATH && \
+  Info "Prepend OSMesa build PATH with: $PATH"
+  INCLFLAGS="-I$local_usr_path/include"
+  CXXFLAGS="$INCLFLAGS" && CFLAGS="$INCLFLAGS"
+  LDFLAGS="-L$local_usr_path/lib64"
+  LIBDRM_CFLAGS="-I$local_usr_path/include -I$local_usr_path/include/libdrm"
+  LIBDRM_LIBS="-L$local_usr_path/lib64 -ldrm"
+  Info "Append CXXFLAGS and CFLAGS with $INCLFLAGS and add LDFLAGS $LDFLAGS"
 fi
 
 #check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)
@@ -218,7 +222,8 @@ Info "Using confops: $confopts"
 if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
 	# configure command
 	env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
-	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
+	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS" \
+  LDFLAGS="$LDFLAGS" LIBDRM_CFLAGS="$LIBDRM_CFLAGS" LIBDRM_LIBS="$LIBDRM_LIBS"
 
 	# build command
 	Info && make -j${mkjobs}
