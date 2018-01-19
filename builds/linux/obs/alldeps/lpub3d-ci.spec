@@ -109,7 +109,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.473
+Version: 2.1.0.475
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -144,7 +144,8 @@ BuildRequires: kde-runtime
 %endif
 BuildRequires: libjpeg-turbo-devel
 %if 0%{?rhel_version}
-%define build_osmesa 1
+# Disable this as we have local OSMesa library
+%define build_osmesa_foo foo
 %endif
 %define build_tinyxml 1
 %define build_gl2ps 1
@@ -603,17 +604,17 @@ export RPM_STAGE=install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?get_qt5}
 source builds/linux/obs/alldeps/GetQt5Libs.sh
-install -D -m 644 ${LP3D_QT5_LIB}/* $RPM_BUILD_ROOT%{_libdir}/qt5/lib/*
-install -D -m 644 ${LP3D_QT5_PLUGINS}/bearer/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/bearer/*
-install -D -m 644 ${LP3D_QT5_PLUGINS}/iconengines/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/iconengines/*
-install -D -m 644 ${LP3D_QT5_PLUGINS}/imageformats/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/imageformats/*
-install -D -m 644 ${LP3D_QT5_PLUGINS}/platforms/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/platforms/*
+install -D -m 644 ${LP3D_QT5_LIB}/* $RPM_BUILD_ROOT%{_libdir}/qt5/lib/
+install -D -m 644 ${LP3D_QT5_PLUGINS}/bearer/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/bearer/
+install -D -m 644 ${LP3D_QT5_PLUGINS}/iconengines/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/iconengines/
+install -D -m 644 ${LP3D_QT5_PLUGINS}/imageformats/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/imageformats/
+install -D -m 644 ${LP3D_QT5_PLUGINS}/platforms/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/platforms/
 %endif
 %if 0%{?get_local_libs}
 source builds/linux/obs/alldeps/GetLocalLibs.sh
-install -D -m 644 ${LP3D_LL_USR}/lib64/llvm/* $RPM_BUILD_ROOT%{_libdir}/llvm/*
-install -D -m 644 ${LP3D_LL_USR}/lib64/pkgconfig/* $RPM_BUILD_ROOT%{_libdir}/pkgconfig/*
-install -D -m 644 ${LP3D_LL_USR}/lib64/*.so.* $RPM_BUILD_ROOT%{_libdir}/*.so.*
+install -D -m 644 ${LP3D_LL_USR}/lib64/llvm/* $RPM_BUILD_ROOT%{_libdir}/llvm/
+install -D -m 644 ${LP3D_LL_USR}/lib64/pkgconfig/* $RPM_BUILD_ROOT%{_libdir}/pkgconfig/
+install -D -m 644 ${LP3D_LL_USR}/lib64/*.so.* $RPM_BUILD_ROOT%{_libdir}/
 install -D -m 644 ${LP3D_LL_USR}/lib/udev/rules.d/91-drm-modeset.rules $RPM_BUILD_ROOT/lib/udev/rules.d/91-drm-modeset.rules
 install -D -m 644 ${LP3D_LL_ETC}/ld.so.conf.d/llvm-x86_64.conf $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/llvm-x86_64.conf
 %endif
@@ -660,5 +661,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Jan 19 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.473
+* Fri Jan 19 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.475
 - LPub3D Linux package (rpm) release

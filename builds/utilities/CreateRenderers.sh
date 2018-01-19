@@ -318,15 +318,16 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [ "${build_osmesa}" = 1 ]; then
+  if [[ "${build_osmesa}" = 1 && ! "$get_local_libs" = 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "${no_gallium}" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$get_local_libs" = 1 ]; then
+    BUILD_CONFIG="INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64 $BUILD_CONFIG"
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && \
-    echo "Append LDView CONFIG with CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+    Info "Append LDGlite BUILD_CONFIG with $BUILD_CONFIG" && Info
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -360,7 +361,7 @@ BuildLDView() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [ "$build_osmesa" = 1 ]; then
+  if [[ "${build_osmesa}" = 1 && ! "$get_local_libs" = 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "${no_gallium}" = 1 ]; then
@@ -373,8 +374,9 @@ BuildLDView() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
   if [ "$get_local_libs" = 1 ]; then
+    BUILD_CONFIG="INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64 $BUILD_CONFIG"
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && \
-    echo "Append LDView CONFIG with CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+    Info "Append LDView CONFIG with CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && Info
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -401,6 +403,10 @@ BuildPOVRay() {
   fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
+  fi
+  if [ "$get_local_libs" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS" && \
+    Info "Append POVRay BUILD_CONFIG with $BUILD_CONFIG" && Info
   fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
@@ -520,7 +526,7 @@ elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
-  [ -n "$build_osmesa" ] && Info "Build from source........[OSMesa]" || true
+  [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "Build from source........[OSMesa]" || true
   [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
   [ -n "$get_local_libs" ] && Info "Get local libraries..... [2.4.74]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
@@ -604,7 +610,8 @@ if [ "$get_local_libs" = 1 ]; then
   PATH=$LP3D_LL_USR/bin:$PATH && export PATH && \
   Info "Prepend PATH with: $PATH"
   INCLFLAGS="-I$LP3D_LL_USR/include"
-  CXXFLAGS="$INCLFLAGS" && CFLAGS="$INCLFLAGS"
+  CXXFLAGS="$INCLFLAGS"
+  CFLAGS="$INCLFLAGS"
   LDFLAGS="-L$LP3D_LL_USR/lib64"
   Info "Append CXXFLAGS and CFLAGS with $INCLFLAGS and add LDFLAGS $LDFLAGS"
   Q_CXXFLAGS="$Q_CXXFLAGS $INCLFLAGS"
@@ -729,7 +736,7 @@ for buildDir in ldglite ldview povray; do
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-    if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+    if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 && ! "$get_local_libs" = 1 ]]; then
       BuildMesaLibs
     fi
     if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" && $(echo "$platform_ver" | grep -E '1315') ]]; then
