@@ -49,7 +49,7 @@ EOF
 
   # DEBUG
   echo "DEBUG-DEBUG-DEBUG"
-  tail 5 $LP3D_QTQRC_FILE
+  tail $LP3D_QTQRC_FILE
   cat $LP3D_QTCONF_FILE
 fi
 
