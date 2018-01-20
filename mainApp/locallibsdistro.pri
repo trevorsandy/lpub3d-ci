@@ -1,14 +1,14 @@
 unix:!macx {
   # Install libraries not available natively - used for RHEL builds
   install_qt_libs    = $$(get_qt5)
-  install_local_el_libs = $$(get_local_el_libs)
+  install_local_el_libs = $$(get_local_libs)
 
   isEmpty(INSTALL_SYSCONF):INSTALL_SYSCONF             = /etc
   isEmpty(LP3D_LIBDIR):LP3D_LIBDIR                     = $${INSTALL_PREFIX}/lib$${LIB_ARCH}/lpub3dlib
   isEmpty(LP3D_LIBDIR_LLVM):LP3D_LIBDIR_LLVM           = $${LP3D_LIBDIR}/llvm
   isEmpty(LP3D_LIBDIR_PKGCONFIG):LP3D_LIBDIR_PKGCONFIG = $${LP3D_LIBDIR}/pkgconfig
-  isEmpty(LP3D_LIBDIR_QT5):LP3D_LIBDIR_QT5             = $${LP3D_LIBDIR}/qt5/lib
-  isEmpty(LP3D_SO_CONF_DIR):$$LP3D_SO_CONF_DIR         = $${INSTALL_SYSCONF}/ld.so.conf.d
+  isEmpty(LP3D_LIBDIR_QT5):LP3D_LIBDIR_QT5             = $${LP3D_LIBDIR}/qt5
+  isEmpty(LP3D_SO_CONF_DIR):LP3D_SO_CONF_DIR           = $${INSTALL_SYSCONF}/ld.so.conf.d
   isEmpty(LP3D_DRM_RULES):LP3D_DRM_RULES               = $${INSTALL_PREFIX}/lib/udev/rules.d
   isEmpty(LP3D_LOCAL_LIBDIR_SRC):LP3D_LOCAL_LIBDIR_SRC = $$_PRO_FILE_PWD_/../../usr
   isEmpty(LP3D_LOCAL_LIBDIR_ETC):LP3D_LOCAL_LIBDIR_ETC = $$_PRO_FILE_PWD_/../../etc
@@ -110,8 +110,6 @@ unix:!macx {
         qt5_conf_d
   }
 
-  !exists($$LP3D_LOCAL_LIBDIR_SRC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_SRC not found ~~~")
-  !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
   equals(install_local_el_libs, 1): exists($$LP3D_LOCAL_LIBDIR_SRC) {
     message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
     message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_SRC ~~~")
@@ -139,40 +137,40 @@ unix:!macx {
     local_el_libdrm_rules.path = $$LP3D_DRM_RULES
 
     local_el_libs.files += \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm.so.2.4.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_amdgpu.so.1.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_intel.so.1.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_nouveau.so.2.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_radeon.so.1.0.1 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libglapi.so.0.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libGLU.so.1.3.1 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libHalf.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIex.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIexMath.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIlmImf.so.7.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIlmThread.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libImath.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libkms.so.1.0.0 \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libOSMesa.so.8.0.0
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libdrm.so.2.4.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libdrm_amdgpu.so.1.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libdrm_intel.so.1.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libdrm_nouveau.so.2.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libdrm_radeon.so.1.0.1 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libglapi.so.0.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libGLU.so.1.3.1 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libHalf.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libIex.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libIexMath.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libIlmImf.so.7.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libIlmThread.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libImath.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libkms.so.1.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/libOSMesa.so.8.0.0
     local_el_libs.path = $$LP3D_LIBDIR
 
     local_el_libs_llvm.files += \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/BugpointPasses.so \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/libLLVM-3.4.so \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/libLTO.so \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/LLVMgold.so
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/llvm/BugpointPasses.so \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/llvm/libLLVM-3.4.so \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/llvm/libLTO.so \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/llvm/LLVMgold.so
     local_el_libs_llvm.path = $$LP3D_LIBDIR_LLVM
 
     local_el_libs_pkgconfig.files += \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/IlmBase.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_amdgpu.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_intel.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_nouveau.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_radeon.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libkms.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/OpenEXR.pc \
-        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/osmesa.pc
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/IlmBase.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/libdrm.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/libdrm_amdgpu.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/libdrm_intel.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/libdrm_nouveau.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/libdrm_radeon.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/libkms.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/OpenEXR.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/pkgconfig/osmesa.pc
     local_el_libs_pkgconfig.path = $$LP3D_LIBDIR_PKGCONFIG
 
     INSTALLS += \
@@ -181,5 +179,8 @@ unix:!macx {
         local_el_libs \
         local_el_libs_llvm \
         local_el_libs_pkgconfig
+  } else {
+    !exists($$LP3D_LOCAL_LIBDIR_SRC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_SRC not found ~~~")
+    !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
   }
 }

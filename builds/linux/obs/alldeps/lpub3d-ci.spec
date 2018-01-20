@@ -592,14 +592,17 @@ else
 fi
 make clean
 make %{?_smp_mflags}
+[ -f “mainApp/qt.conf.foo” ] && echo "Attempting to cat qt.conf" && cat mainApp/qt.conf.foo || echo "could not find qt.conf"
+[ -f “mainApp/lpub3d-qtlibs.conf.foo” ] && echo "Attempting to cat qtlibs.conf" && cat mainApp/lpub3d-qtlibs.conf.foo || echo "could not find qtlibs.conf"
+[ -f “mainApp/resource_update.foo” ] && echo "Attempting to cat resource.foo" && cat mainApp/resource_update.foo || echo "could not find resource"
 
 %install
 make INSTALL_ROOT=%buildroot install
 # check lpub3d dependencies with LDD to ensure all dependencies are met
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%buildroot/%{_bindir}/:%buildroot/%{_libdir}"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
 %if 0%{?get_qt5} || 0%{?get_local_libs}
 export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-validExe=%{_bindir}/lpub3d${versuffix}
+validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
 [ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
 %endif
 %if 0%{?suse_version}
