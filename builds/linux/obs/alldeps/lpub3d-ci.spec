@@ -592,9 +592,9 @@ else
 fi
 make clean
 make %{?_smp_mflags}
-[ -f “mainApp/qt.conf.foo” ] && echo "Attempting to cat qt.conf" && cat mainApp/qt.conf.foo || echo "could not find qt.conf"
-[ -f “mainApp/lpub3d-qtlibs.conf.foo” ] && echo "Attempting to cat qtlibs.conf" && cat mainApp/lpub3d-qtlibs.conf.foo || echo "could not find qtlibs.conf"
-[ -f “mainApp/resource_update.foo” ] && echo "Attempting to cat resource.foo" && cat mainApp/resource_update.foo || echo "could not find resource"
+[ -f "mainApp/qt.conf.foo" ] && echo "Attempting to cat qt.conf" && cat mainApp/qt.conf.foo || echo "could not find qt.conf"
+[ -f "mainApp/lpub3d-qtlibs.conf.foo" ] && echo "Attempting to cat qtlibs.conf" && cat mainApp/lpub3d-qtlibs.conf.foo || echo "could not find qtlibs.conf"
+[ -f "mainApp/resource_update.foo" ] && echo "Attempting to cat resource.foo" && cat mainApp/resource_update.foo || echo "could not find resource"
 
 %install
 make INSTALL_ROOT=%buildroot install
