@@ -50,7 +50,6 @@ Libraries=lib
 Plugins=plugins
 EOF
   sed -i '/<\/qresource>/a <qresource prefix="\/qt\/etc"><file alias="qt.conf">qt.conf<\/file><\/qresource>' "$LP3D_QTQRC_FILE"
-
   # create lpub3d-qtlibs.conf
   cat <<EOF >$LP3D_QTLDCONF_FILE
 $RPM_LIBDIR/lpub3dlib/qt5/lib

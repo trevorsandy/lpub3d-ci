@@ -605,15 +605,11 @@ Info && ${QMAKE_EXEC} -v && Info
 QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 
 # processor and linkier flags for local libs
+LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
 if [ "$get_local_libs" = 1 ]; then
   # Update ld_library_path
-  export LD_LIBRARY_PATH=\
-  $LD_LIBRARY_PATH:\
-  $LP3D_LL_USR/bin:\
-  $LP3D_LL_USR/include:\
-  $LP3D_LL_USR/include/libdrm:\
-  $LP3D_LL_USR/include/OpenEXR:\
-  $LP3D_LL_USR/lib64
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR:$LP3D_LL_USR/lib64 && \
+  Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
   PATH=$LP3D_LL_USR/bin:$PATH && export PATH && \
@@ -804,6 +800,7 @@ for buildDir in ldglite ldview povray; do
     Info "Renderer artefact binary for ${!artefactVer} exists - build skipped."
   fi
   cd ${WD}
+  export LD_LIBRARY_PATH=$LP3D_LD_LIBRARY_PATH_SAVED
 done
 
 # Elapsed execution time

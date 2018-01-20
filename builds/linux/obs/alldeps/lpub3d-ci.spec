@@ -109,7 +109,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.476
+Version: 2.1.0.477
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -592,21 +592,16 @@ else
 fi
 make clean
 make %{?_smp_mflags}
-%if 0%{?get_qt5} || 0%{?get_local_libs}
-# check dependencies with LDD - this is just to see what Qt files remain depended on
-[ "$(uname -m)" = x86_64 ] && buildArch="64bit_release" || buildArch="32bit_release"
-export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-validExe=mainApp/${buildArch}/lpub3d${versuffix}
-[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
-%endif
 
 %install
-%if 0%{?get_qt5}
-export RPM_STAGE=install
-export RPM_LIBDIR="%{_libdir}"
-source builds/linux/obs/alldeps/GetQt5Libs.sh
-%endif
 make INSTALL_ROOT=%buildroot install
+# check lpub3d dependencies with LDD to ensure all dependencies are met
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%buildroot/%{_bindir}/:%buildroot/%{_libdir}"
+%if 0%{?get_qt5} || 0%{?get_local_libs}
+export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+validExe=%{_bindir}/lpub3d${versuffix}
+[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
+%endif
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
@@ -639,25 +634,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
 %if 0%{?get_qt5} || 0%{?get_local_libs}
-%{_sysconfdir}/ld.so.conf.d/*
-%dir %{_libdir}/lpub3dlib
 %{_libdir}/lpub3dlib/*
+%{_sysconfdir}/ld.so.conf.d/*
 %if 0%{?get_qt5}
-%dir %{_libdir}/lpub3dlib/qt5/lib
 %{_libdir}/lpub3dlib/qt5/lib/*
-%dir %{_libdir}/lpub3dlib/qt5/bearer
 %{_libdir}/lpub3dlib/qt5/bearer/*
-%dir %{_libdir}/lpub3dlib/qt5/iconengines
 %{_libdir}/lpub3dlib/qt5/iconengines/*
-%dir %{_libdir}/lpub3dlib/qt5/imageformats
 %{_libdir}/lpub3dlib/qt5/imageformats/*
-%dir %{_libdir}/lpub3dlib/qt5/platforms
 %{_libdir}/lpub3dlib/qt5/platforms/*
 %endif
 %if 0%{?get_local_libs}
-%dir %{_libdir}/lpub3dlib/llvm
 %{_libdir}/lpub3dlib/llvm/*
-%dir %{_libdir}/lpub3dlib/pkgconfig
 %{_libdir}/lpub3dlib/pkgconfig/*
 %{_exec_prefix}/lib/udev/rules.d/*
 %endif
@@ -674,5 +661,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sat Jan 20 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.476
+* Sat Jan 20 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.477
 - LPub3D Linux package (rpm) release

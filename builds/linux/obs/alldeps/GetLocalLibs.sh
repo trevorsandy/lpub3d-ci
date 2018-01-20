@@ -20,12 +20,6 @@ LP3D_LL_USR=$LP3D_LL_WD/usr
 LP3D_LL_ETC=$LP3D_LL_WD/etc
 LP3D_LL_BIN=$LP3D_LL_USR/bin
 
-# Export usr base paths - consumed by qmake install
-[ -d $LP3D_LL_USR ] && export LP3D_LL_USR || \
-echo "ERROR - $LP3D_LL_USR does not exist"
-[ -d $LP3D_LL_ETC ] && export LP3D_LL_ETC || \
-echo "ERROR - $LP3D_LL_ETC does not exist"
-
 # Extract library folders
 if [ "$RPM_STAGE" = "build" ]; then
   # Extact tarball
@@ -45,6 +39,12 @@ if [ "$RPM_STAGE" = "build" ]; then
   [ -f $LP3D_LL_BIN/llvm-config ] && export LP3D_LL_BIN &&\
   echo "Created symlink $LP3D_LL_USR/bin/llvm-config " || \
   echo "ERROR - unable to create symlink $LP3D_LL_USR/bin/llvm-config"
+
+  # Export usr base paths - consumed by qmake install
+  [ -d $LP3D_LL_USR ] && export LP3D_LL_USR || \
+  echo "ERROR - $LP3D_LL_USR does not exist"
+  [ -d $LP3D_LL_ETC ] && export LP3D_LL_ETC || \
+  echo "ERROR - $LP3D_LL_ETC does not exist"
 
   # list library files
   echo "Library list..." && find $LP3D_LL_USR/lib64 -type f
