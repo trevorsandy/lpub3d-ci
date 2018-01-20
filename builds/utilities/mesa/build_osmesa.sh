@@ -118,18 +118,27 @@ if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
 	fi
 fi
 
-# Process local lib paths if specified
+# Processor and liker flags for local libs
 if [ ! "${local_libs}" = 0 ]; then
+  # Update ld_library_path
+  export LD_LIBRARY_PATH=\
+  $LD_LIBRARY_PATH:\
+  $local_usr_path/bin:\
+  $local_usr_path/include:\
+  $local_usr_path/include/libdrm:\
+  $local_usr_path/include/llvm:\
+  $local_usr_path/lib64:\
+  $local_usr_path/lib64/llvm
   export PKG_CONFIG_PATH=$local_usr_path/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend OSMesa PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
   PATH=$local_usr_path/bin:$PATH && export PATH && \
   Info "Prepend OSMesa build PATH with: $PATH"
-  INCLFLAGS="-I$local_usr_path/include"
-  CXXFLAGS="$INCLFLAGS" && CFLAGS="$INCLFLAGS"
+  OPTFLAGS="-I$local_usr_path/include"
+  CXXFLAGS="$OPTFLAGS" && CFLAGS="$OPTFLAGS"
   LDFLAGS="-L$local_usr_path/lib64"
   LIBDRM_CFLAGS="-I$local_usr_path/include -I$local_usr_path/include/libdrm"
   LIBDRM_LIBS="-L$local_usr_path/lib64 -ldrm"
-  Info "Append CXXFLAGS and CFLAGS with $INCLFLAGS and add LDFLAGS $LDFLAGS"
+  Info "Append CXXFLAGS and CFLAGS with $OPTFLAGS and add LDFLAGS $LDFLAGS" && Info
 fi
 
 #check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)

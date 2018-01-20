@@ -325,9 +325,8 @@ BuildLDGLite() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    BUILD_CONFIG="INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64 $BUILD_CONFIG"
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && \
-    Info "Append LDGlite BUILD_CONFIG with $BUILD_CONFIG" && Info
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+    #BUILD_CONFIG="$BUILD_CONFIG INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64"
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -374,9 +373,8 @@ BuildLDView() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    BUILD_CONFIG="INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64 $BUILD_CONFIG"
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && \
-    Info "Append LDView CONFIG with CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR" && Info
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+    #BUILD_CONFIG="$BUILD_CONFIG INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64"
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -404,18 +402,21 @@ BuildPOVRay() {
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
-  if [ "$get_local_libs" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS" && \
-    Info "Append POVRay BUILD_CONFIG with $BUILD_CONFIG" && Info
-  fi
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
-  if [[ -n "$OBS_RPM_BUILD_CFLAGS" && -n "$OBS_RPM_BUILD_CXXFLAGS" ]]; then
-    CFLAGS="$OBS_RPM_BUILD_CFLAGS" && CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS" && \
-    ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
-  else
-    ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  if [ "$get_local_libs" = 1 ]; then
+    OPTFLAGS="$OPTFLAGS -I$LP3D_LL_USR/include -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
+    CXXFLAGS="$OPTFLAGS"
+    CFLAGS="$OPTFLAGS"
+    LDFLAGS="$LDFLAGS -L$LP3D_LL_USR/lib"
+    BUILD_CONFIG="$BUILD_CONFIG CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS"
   fi
+  if [[ -n "$OBS_RPM_BUILD_CFLAGS" && -n "$OBS_RPM_BUILD_CXXFLAGS" ]]; then
+    CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS $OPTFLAGS"
+    CFLAGS="$OBS_RPM_BUILD_CFLAGS $OPTFLAGS"
+    BUILD_CONFIG="$BUILD_CONFIG CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS"
+  fi
+  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
     make install
@@ -528,7 +529,7 @@ elif [ "${OBS}" = "true" ]; then
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
   [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "Build from source........[OSMesa]" || true
   [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
-  [ -n "$get_local_libs" ] && Info "Get local libraries..... [2.4.74]" || true
+  [ -n "$get_local_libs" ] && Info "Get local libraries..... [OSMesa, LLVM, OpenEXR, DRM]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
   [ -n "$build_tinyxml" ] && Info "Build from source........[TinyXML]" || true
   [ -n "$build_gl2ps" ] && Info "Build from source........[GL2PS]" || true
@@ -603,18 +604,26 @@ fi
 Info && ${QMAKE_EXEC} -v && Info
 QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 
-# processor flags
+# processor and linkier flags for local libs
 if [ "$get_local_libs" = 1 ]; then
+  # Update ld_library_path
+  export LD_LIBRARY_PATH=\
+  $LD_LIBRARY_PATH:\
+  $LP3D_LL_USR/bin:\
+  $LP3D_LL_USR/include:\
+  $LP3D_LL_USR/include/libdrm:\
+  $LP3D_LL_USR/include/OpenEXR:\
+  $LP3D_LL_USR/lib64
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
   PATH=$LP3D_LL_USR/bin:$PATH && export PATH && \
   Info "Prepend PATH with: $PATH"
-  INCLFLAGS="-I$LP3D_LL_USR/include"
-  CXXFLAGS="$INCLFLAGS"
-  CFLAGS="$INCLFLAGS"
+  OPTFLAGS="-I$LP3D_LL_USR/include"
+  CXXFLAGS="$OPTFLAGS"
+  CFLAGS="$OPTFLAGS"
   LDFLAGS="-L$LP3D_LL_USR/lib64"
-  Info "Append CXXFLAGS and CFLAGS with $INCLFLAGS and add LDFLAGS $LDFLAGS"
-  Q_CXXFLAGS="$Q_CXXFLAGS $INCLFLAGS"
+  Info "Append CXXFLAGS and CFLAGS with $OPTFLAGS and add LDFLAGS $LDFLAGS" && Info
+  Q_CXXFLAGS="$Q_CXXFLAGS $OPTFLAGS"
   Q_CFLAGS="$Q_CXXFLAGS"
   Q_LDFLAGS="$LDFLAGS"
   export Q_CFLAGS Q_CXXFLAGS Q_LDFLAGS

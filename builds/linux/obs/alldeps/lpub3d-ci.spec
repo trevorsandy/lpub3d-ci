@@ -109,7 +109,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.475
+Version: 2.1.0.476
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -558,6 +558,7 @@ export OBS=%{usingbuildservice}
 # RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}
 export RPM_LIBDIR="%{_libdir}"
+export RPM_SYSCONFDIR="%{_sysconfdir}"
 export RPM_OPTFLAGS="%{optflags}"
 export RPM_BUILD=true
 export RPM_STAGE=build
@@ -591,7 +592,7 @@ else
 fi
 make clean
 make %{?_smp_mflags}
-%if 0%{?get_qt5}
+%if 0%{?get_qt5} || 0%{?get_local_libs}
 # check dependencies with LDD - this is just to see what Qt files remain depended on
 [ "$(uname -m)" = x86_64 ] && buildArch="64bit_release" || buildArch="32bit_release"
 export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
@@ -600,24 +601,12 @@ validExe=mainApp/${buildArch}/lpub3d${versuffix}
 %endif
 
 %install
-export RPM_STAGE=install
-make INSTALL_ROOT=%buildroot install
 %if 0%{?get_qt5}
+export RPM_STAGE=install
+export RPM_LIBDIR="%{_libdir}"
 source builds/linux/obs/alldeps/GetQt5Libs.sh
-install -D -m 644 ${LP3D_QT5_LIB}/* $RPM_BUILD_ROOT%{_libdir}/qt5/lib/
-install -D -m 644 ${LP3D_QT5_PLUGINS}/bearer/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/bearer/
-install -D -m 644 ${LP3D_QT5_PLUGINS}/iconengines/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/iconengines/
-install -D -m 644 ${LP3D_QT5_PLUGINS}/imageformats/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/imageformats/
-install -D -m 644 ${LP3D_QT5_PLUGINS}/platforms/* $RPM_BUILD_ROOT%{_libdir}/qt5/plugins/platforms/
 %endif
-%if 0%{?get_local_libs}
-source builds/linux/obs/alldeps/GetLocalLibs.sh
-install -D -m 644 ${LP3D_LL_USR}/lib64/llvm/* $RPM_BUILD_ROOT%{_libdir}/llvm/
-install -D -m 644 ${LP3D_LL_USR}/lib64/pkgconfig/* $RPM_BUILD_ROOT%{_libdir}/pkgconfig/
-install -D -m 644 ${LP3D_LL_USR}/lib64/*.so.* $RPM_BUILD_ROOT%{_libdir}/
-install -D -m 644 ${LP3D_LL_USR}/lib/udev/rules.d/91-drm-modeset.rules $RPM_BUILD_ROOT/lib/udev/rules.d/91-drm-modeset.rules
-install -D -m 644 ${LP3D_LL_ETC}/ld.so.conf.d/llvm-x86_64.conf $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/llvm-x86_64.conf
-%endif
+make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
@@ -649,6 +638,30 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
+%if 0%{?get_qt5} || 0%{?get_local_libs}
+%{_sysconfdir}/ld.so.conf.d/*
+%dir %{_libdir}/lpub3dlib
+%{_libdir}/lpub3dlib/*
+%if 0%{?get_qt5}
+%dir %{_libdir}/lpub3dlib/qt5/lib
+%{_libdir}/lpub3dlib/qt5/lib/*
+%dir %{_libdir}/lpub3dlib/qt5/bearer
+%{_libdir}/lpub3dlib/qt5/bearer/*
+%dir %{_libdir}/lpub3dlib/qt5/iconengines
+%{_libdir}/lpub3dlib/qt5/iconengines/*
+%dir %{_libdir}/lpub3dlib/qt5/imageformats
+%{_libdir}/lpub3dlib/qt5/imageformats/*
+%dir %{_libdir}/lpub3dlib/qt5/platforms
+%{_libdir}/lpub3dlib/qt5/platforms/*
+%endif
+%if 0%{?get_local_libs}
+%dir %{_libdir}/lpub3dlib/llvm
+%{_libdir}/lpub3dlib/llvm/*
+%dir %{_libdir}/lpub3dlib/pkgconfig
+%{_libdir}/lpub3dlib/pkgconfig/*
+%{_exec_prefix}/lib/udev/rules.d/*
+%endif
+%endif
 %post -p /sbin/ldconfig
 %if 0%{?buildservice}!=1
 update-mime-database  /usr/share/mime >/dev/null || true
@@ -661,5 +674,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Jan 19 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.475
+* Sat Jan 20 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.476
 - LPub3D Linux package (rpm) release

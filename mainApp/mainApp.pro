@@ -39,9 +39,11 @@ macx {
 contains(QT_ARCH, x86_64) {
     ARCH = 64
     STG_ARCH = x86_64
+    LIB_ARCH = 64
 } else {
     ARCH = 32
     STG_ARCH = x86
+    LIB_ARCH =
 }
 
 CONFIG += precompile_header
@@ -72,6 +74,10 @@ win32 {
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
+QMAKE_CFLAGS    += $(Q_CFLAGS)
+QMAKE_LFLAGS    += $(Q_LDFLAGS)
 
 lessThan(QT_MAJOR_VERSION, 5) {
     unix {

@@ -38,6 +38,7 @@ unix:!macx {
     isEmpty(SHARE_DIR):SHARE_DIR = $$INSTALL_PREFIX/share
 
     isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
+
     isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
     isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/pixmaps
     isEmpty(APPDATA_DIR):APPDATA_DIR       = $$SHARE_DIR/metainfo
@@ -184,4 +185,6 @@ unix:!macx {
 
     # install 3rd party content
     include(install3rdpartycontent.pri)
+    # install local libraries - used for RHEL builds
+    include(locallibsdistro.pri)
 }

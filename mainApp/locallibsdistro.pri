@@ -1,0 +1,185 @@
+unix:!macx {
+  # Install libraries not available natively - used for RHEL builds
+  install_qt_libs    = $$(get_qt5)
+  install_local_el_libs = $$(get_local_el_libs)
+
+  isEmpty(INSTALL_SYSCONF):INSTALL_SYSCONF             = /etc
+  isEmpty(LP3D_LIBDIR):LP3D_LIBDIR                     = $${INSTALL_PREFIX}/lib$${LIB_ARCH}/lpub3dlib
+  isEmpty(LP3D_LIBDIR_LLVM):LP3D_LIBDIR_LLVM           = $${LP3D_LIBDIR}/llvm
+  isEmpty(LP3D_LIBDIR_PKGCONFIG):LP3D_LIBDIR_PKGCONFIG = $${LP3D_LIBDIR}/pkgconfig
+  isEmpty(LP3D_LIBDIR_QT5):LP3D_LIBDIR_QT5             = $${LP3D_LIBDIR}/qt5/lib
+  isEmpty(LP3D_SO_CONF_DIR):$$LP3D_SO_CONF_DIR         = $${INSTALL_SYSCONF}/ld.so.conf.d
+  isEmpty(LP3D_DRM_RULES):LP3D_DRM_RULES               = $${INSTALL_PREFIX}/lib/udev/rules.d
+  isEmpty(LP3D_LOCAL_LIBDIR_SRC):LP3D_LOCAL_LIBDIR_SRC = $$_PRO_FILE_PWD_/../../usr
+  isEmpty(LP3D_LOCAL_LIBDIR_ETC):LP3D_LOCAL_LIBDIR_ETC = $$_PRO_FILE_PWD_/../../etc
+
+
+  equals(install_qt_libs, 1) {
+    message("~~~ INSTALL QT $$QT_VERSION LIBS AND PLUGINS SPECIFIED ~~~")
+
+    LP3D_QTCONF_FILE     = $$_PRO_FILE_PWD_/qt.conf.foo
+    LP3D_QTCONF_LINES   += [Paths]
+    LP3D_QTCONF_LINES   += Prefix=$$LP3D_LIBDIR_QT5
+    LP3D_QTCONF_LINES   += Libraries=lib
+    LP3D_QTCONF_LINES   += Plugins=plugins
+
+    !write_file($$LP3D_QTCONF_FILE, LP3D_QTCONF_LINES ) {
+      warning("DEBUG: Could not create qt.conf.foo")
+    } else {
+      message("~~~ DEBUG: FILE $$LP3D_QTCONF_FILE created ~~~")
+      exists($$LP3D_QTCONF_FILE) {
+        message("File exists, attempting to display $$LP3D_QTCONF_FILE")
+        ret = $$system("cat $$LP3D_QTCONF_FILE")
+      }
+    }
+
+    LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf.foo
+    LP3D_QTLDCONF_LINES += $$LP3D_LIBDIR_QT5
+
+    !write_file($$LP3D_QTLDCONF_FILE, $$LP3D_QTLDCONF_LINES) {
+      warning("DEBUG: Could not create $$LP3D_QTLDCONF_FILE")
+    } else {
+      message("~~~ DEBUG: FILE $$LP3D_QTLDCONF_FILE created ~~~")
+      exists($$LP3D_QTLDCONF_FILE) {
+        message("File exists, attempting to display $$LP3D_QTLDCONF_FILE")
+        ret = $$system("cat $$LP3D_QTLDCONF_FILE")
+      }
+    }
+
+    FOO_FILE   = $$_PRO_FILE_PWD_/resource_update.foo
+    FOO_LINES += <RCC>
+    FOO_LINES += <qresource prefix="/resources">
+    FOO_LINES += <file alias="addbom.png">images/addbom.png</file>
+    FOO_LINES += </qresource>
+    FOO_LINES += </RCC>
+    !write_file($$FOO_FILE, FOO_LINES) {
+      warning("DEBUG: Could not create qt.conf.foo")
+    } else {
+      message("~~~ DEBUG: FILE $$FOO_FILE created ~~~")
+      exists($$FOO_FILE) {
+        message("File exists, attempting to display $$FOO_FILE")
+        ret = $$system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$FOO_FILE >/dev/null")
+        ret = $$system("cat $$FOO_FILE")
+      }
+    }
+
+    qt5_conf_d.files += \
+        $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf
+    qt5_conf_d.path = $$LP3D_SO_CONF_DIR
+
+    qt5_plugin_bearer.files += \
+        $$[QT_INSTALL_PLUGINS]/bearer/libqgenericbearer.so
+    qt5_plugin_bearer.path = $${LP3D_LIBDIR_QT5}/bearer
+
+    qt5_plugin_iconengines.files += \
+        $$[QT_INSTALL_PLUGINS]/iconengines/libqsvgicon.so
+    qt5_plugin_iconengines.path = $${LP3D_LIBDIR_QT5}/iconengines
+
+    qt5_plugin_imageformats.files += \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqgif.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqicns.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqico.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqjpeg.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqsvg.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqtga.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqtiff.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqwbmp.so \
+        $$[QT_INSTALL_PLUGINS]/imageformats/libqwebp.so
+    qt5_plugin_imageformats.path = $${LP3D_LIBDIR_QT5}/imageformats
+
+    qt5_plugin_platforms.files += \
+        $$[QT_INSTALL_PLUGINS]/platforms/libqlinuxfb.so \
+        $$[QT_INSTALL_PLUGINS]/platforms/libqxcb.so
+    qt5_plugin_platforms.path = $${LP3D_LIBDIR_QT5}/platforms
+
+    qt5_qtlibs.files += \
+        $$[QT_INSTALL_LIBS]/libQt5Core.so \
+        $$[QT_INSTALL_LIBS]/libQt5Gui.so \
+        $$[QT_INSTALL_LIBS]/libQt5Network.so \
+        $$[QT_INSTALL_LIBS]/libQt5OpenGL.so \
+        $$[QT_INSTALL_LIBS]/libQt5PrintSupport.so \
+        $$[QT_INSTALL_LIBS]/libQt5Widgets.so
+    qt5_qtlibs.path = $${LP3D_LIBDIR_QT5}/lib
+
+    INSTALLS += \
+        qt5_plugin_bearer \
+        qt5_plugin_iconengines \
+        qt5_plugin_imageformats \
+        qt5_plugin_platforms \
+        qt5_qtlibs \
+        qt5_conf_d
+  }
+
+  !exists($$LP3D_LOCAL_LIBDIR_SRC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_SRC not found ~~~")
+  !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
+  equals(install_local_el_libs, 1): exists($$LP3D_LOCAL_LIBDIR_SRC) {
+    message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
+    message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_SRC ~~~")
+
+    LP3D_LDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-libs.conf.foo
+    LP3D_LDCONF_LINES += $$LP3D_LIBDIR
+    LP3D_LDCONF_LINES += $$LP3D_LIBDIR_LLVM
+
+    !write_file($$LP3D_LDCONF_FILE, LP3D_LDCONF_LINES) {
+      warning("DEBUG: Could not create $$LP3D_LDCONF_FILE")
+    } else {
+      message("~~~ DEBUG: FILE $$LP3D_LDCONF_FILE created ~~~")
+      exists($$LP3D_LDCONF_FILE) {
+        message("File exists, attempting to display $$LP3D_LDCONF_FILE")
+        ret = $$system("cat $$LP3D_LDCONF_FILE")
+      }
+    }
+
+    local_el_llvm_conf_d.files += \
+        $$LP3D_LOCAL_LIBDIR_ETC/ld.so.conf.d/llvm-x86_64.conf
+    local_el_llvm_conf_d.path = $$LP3D_SO_CONF_DIR
+
+    local_el_libdrm_rules.files += \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib/udev/rules.d/91-drm-modeset.rules
+    local_el_libdrm_rules.path = $$LP3D_DRM_RULES
+
+    local_el_libs.files += \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm.so.2.4.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_amdgpu.so.1.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_intel.so.1.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_nouveau.so.2.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libdrm_radeon.so.1.0.1 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libglapi.so.0.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libGLU.so.1.3.1 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libHalf.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIex.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIexMath.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIlmImf.so.7.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libIlmThread.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libImath.so.6.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libkms.so.1.0.0 \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/libOSMesa.so.8.0.0
+    local_el_libs.path = $$LP3D_LIBDIR
+
+    local_el_libs_llvm.files += \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/BugpointPasses.so \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/libLLVM-3.4.so \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/libLTO.so \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/llvm/LLVMgold.so
+    local_el_libs_llvm.path = $$LP3D_LIBDIR_LLVM
+
+    local_el_libs_pkgconfig.files += \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/IlmBase.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_amdgpu.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_intel.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_nouveau.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libdrm_radeon.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/libkms.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/OpenEXR.pc \
+        $$LP3D_LOCAL_LIBDIR_SRC/lib$${LIB_ARCH}/lpub3dlib/pkgconfig/osmesa.pc
+    local_el_libs_pkgconfig.path = $$LP3D_LIBDIR_PKGCONFIG
+
+    INSTALLS += \
+        local_el_llvm_conf_d \
+        local_el_libdrm_rules \
+        local_el_libs \
+        local_el_libs_llvm \
+        local_el_libs_pkgconfig
+  }
+}
