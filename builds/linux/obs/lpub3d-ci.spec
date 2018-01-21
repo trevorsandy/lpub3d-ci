@@ -216,12 +216,12 @@ else
   echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
 fi
 # Copy 3rd party renderer source archives and build renderers
-for ArchiveSourceFile in \
+for TarballFile in \
   ../../SOURCES/ldglite.tar.gz \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz; do
-  if [ -f "${ArchiveSourceFile}" ]; then
-    mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
+  if [ -f "${TarballFile}" ]; then
+    mv -f ${TarballFile} ../ && echo "$(basename ${TarballFile}) moved to $(readlink -e ../)"
   fi
 done
 # Indicate OBS status (should always be No for this spec file)

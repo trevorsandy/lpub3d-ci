@@ -109,7 +109,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.477
+Version: 2.1.0.480
 Release: %{dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -483,7 +483,7 @@ else
   echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
 fi
 # Copy 3rd party renderer source archives and Qt5 libraries
-for ArchiveSourceFile in \
+for TarballFile in \
   ../../SOURCES/ldglite.tar.gz \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz \
@@ -491,8 +491,8 @@ for ArchiveSourceFile in \
   ../../SOURCES/glu-9.0.0.tar.bz2 \
   ../../SOURCES/qt5-5.9.3-gcc_64-el.tar.gz \
   ../../SOURCES/locallibs.el.x86_64.tar.gz; do
-  if [ -f "${ArchiveSourceFile}" ]; then
-    mv -f ${ArchiveSourceFile} ../ && echo "$(basename ${ArchiveSourceFile}) moved to $(readlink -e ../)"
+  if [ -f "${TarballFile}" ]; then
+    mv -f ${TarballFile} ../ && echo "$(basename ${TarballFile}) moved to $(readlink -e ../)"
   fi
 done
 # OBS Platform id and version
@@ -583,24 +583,38 @@ chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRender
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
+# Qt setup
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
-  qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  QMAKE_EXEC=qmake-qt5
 elif test -d "$LP3D_QT5_BIN" ; then
-  $LP3D_QT5_BIN/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  QMAKE_EXEC=$LP3D_QT5_BIN/qmake
 else
-  qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  QMAKE_EXEC=qmake
 fi
+echo && ${QMAKE_EXEC} -v && echo
+# configure and build LPub3d
+${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
 make %{?_smp_mflags}
-[ -f "mainApp/qt.conf.foo" ] && echo "Attempting to cat qt.conf" && cat mainApp/qt.conf.foo || echo "could not find qt.conf"
-[ -f "mainApp/lpub3d-qtlibs.conf.foo" ] && echo "Attempting to cat qtlibs.conf" && cat mainApp/lpub3d-qtlibs.conf.foo || echo "could not find qtlibs.conf"
-[ -f "mainApp/resource_update.foo" ] && echo "Attempting to cat resource.foo" && cat mainApp/resource_update.foo || echo "could not find resource"
+# Check generated and updated config files
+%if 0%{?get_qt5}
+[ -f "mainApp/qt.conf" ] && echo "Generated qt.conf..." && \
+cat mainApp/qt.conf || echo "Could not find qt.conf"
+[ -f "mainApp/lpub3d.qrc" ] && echo "Updated lpub3d.qrc..." && \
+tail mainApp/lpub3d.qrc || echo "Could not find lpub3d.qrc"
+[ -f "mainApp/lpub3d-qtlibs.conf" ] && echo "Generated qtlibs.conf..." && \
+cat mainApp/lpub3d-qtlibs.conf || echo "Could not find lpub3d-qtlibs.conf"
+%endif
+%if 0%{?get_local_libs}
+[ -f "mainApp/lpub3d-libs.conf" ] && echo "Generated lpub3d-libs.conf..." && \
+cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
+%endif
 
 %install
 make INSTALL_ROOT=%buildroot install
 # check lpub3d dependencies with LDD to ensure all dependencies are met
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
 %if 0%{?get_qt5} || 0%{?get_local_libs}
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
 export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
 validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
 [ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
@@ -623,35 +637,19 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_bindir}/*
 %{_libdir}/*
+%{_datadir}/lpub3d/*
 %{_datadir}/pixmaps/*
 %{_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%{_datadir}/lpub3d
-%{_3rdexedir}/*
-%dir %{_iconsdir}/hicolor/
-%dir %{_iconsdir}/hicolor/scalable/
-%dir %{_iconsdir}/hicolor/scalable/mimetypes/
-%attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%attr(644,-,-) %doc %{_docdir}/lpub3d
-%attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
+%attr(644,-,-) %{_mandir}/man1/*
+%attr(644,-,-) %doc %{_docdir}/lpub3d/*
+%attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %if 0%{?get_qt5} || 0%{?get_local_libs}
-%{_libdir}/lpub3dlib/*
 %{_sysconfdir}/ld.so.conf.d/*
-%if 0%{?get_qt5}
-%{_libdir}/lpub3dlib/qt5/lib/*
-%{_libdir}/lpub3dlib/qt5/bearer/*
-%{_libdir}/lpub3dlib/qt5/iconengines/*
-%{_libdir}/lpub3dlib/qt5/imageformats/*
-%{_libdir}/lpub3dlib/qt5/platforms/*
 %endif
-%if 0%{?get_local_libs}
-%{_libdir}/lpub3dlib/llvm/*
-%{_libdir}/lpub3dlib/pkgconfig/*
-%{_exec_prefix}/lib/udev/rules.d/*
-%endif
-%endif
+
 %post -p /sbin/ldconfig
 %if 0%{?buildservice}!=1
 update-mime-database  /usr/share/mime >/dev/null || true
@@ -664,5 +662,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sat Jan 20 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.477
+* Sun Jan 21 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.480
 - LPub3D Linux package (rpm) release

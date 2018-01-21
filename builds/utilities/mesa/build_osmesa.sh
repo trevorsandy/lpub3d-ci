@@ -3,7 +3,7 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 18, 2018
+#  Last Update: January 21, 2018
 #  Copyright (c) 2017 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -121,18 +121,27 @@ fi
 # Processor and liker flags for local libs
 if [ ! "${local_libs}" = 0 ]; then
   # Update ld_library_path
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$local_usr_path/bin:$local_usr_path/include:$local_usr_path/include/libdrm:$local_usr_path/include/llvm:$local_usr_path/lib64:$local_usr_path/lib64/llvm && \
+  export LD_LIBRARY_PATH=\
+  $LD_LIBRARY_PATH:\
+  $local_usr_path/bin:\
+  $local_usr_path/include:\
+  $local_usr_path/include/libdrm:\
+  $local_usr_path/include/llvm:\
+  $local_usr_path/lib64:\
+  $local_usr_path/lib64/llvm && \
   Info "Append OSMesa LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH=$local_usr_path/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend OSMesa PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
   PATH=$local_usr_path/bin:$PATH && export PATH && \
   Info "Prepend OSMesa build PATH with: $PATH"
-  OPTFLAGS="-I$local_usr_path/include"
-  CXXFLAGS="$OPTFLAGS" && CFLAGS="$OPTFLAGS"
-  LDFLAGS="-L$local_usr_path/lib64"
+  INCLUDEFLAGS="-I$local_usr_path/include"
+  CXXFLAGS="$CXXFLAGS $INCLUDEFLAGS"
+  CFLAGS="$CFLAGS $INCLUDEFLAGS"
+  LDFLAGS="$LDFLAGS -L$local_usr_path/lib64"
+  Info "Append CXXFLAGS with $CXXFLAGS, CFLAGS with $CFLAGS add LDFLAGS with $LDFLAGS"
   LIBDRM_CFLAGS="-I$local_usr_path/include -I$local_usr_path/include/libdrm"
   LIBDRM_LIBS="-L$local_usr_path/lib64 -ldrm"
-  Info "Append CXXFLAGS and CFLAGS with $OPTFLAGS and add LDFLAGS $LDFLAGS" && Info
+  Info "Set LIBDRM_CFLAGS with $LIBDRM_CFLAGS and LIBDRM_LIBS with $LIBDRM_LIBS" && Info
 fi
 
 #check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)

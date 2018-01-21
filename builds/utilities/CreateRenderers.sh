@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 18, 2018
+#  Last Update: January 21, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -405,17 +405,15 @@ BuildPOVRay() {
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   if [ "$get_local_libs" = 1 ]; then
-    OPTFLAGS="$OPTFLAGS -I$LP3D_LL_USR/include -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
-    CXXFLAGS="$OPTFLAGS"
-    CFLAGS="$OPTFLAGS"
+    CXXFLAGS="$CXXFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
+    CFLAGS="$CFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
     LDFLAGS="$LDFLAGS -L$LP3D_LL_USR/lib"
-    BUILD_CONFIG="$BUILD_CONFIG CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS"
   fi
   if [[ -n "$OBS_RPM_BUILD_CFLAGS" && -n "$OBS_RPM_BUILD_CXXFLAGS" ]]; then
-    CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS $OPTFLAGS"
-    CFLAGS="$OBS_RPM_BUILD_CFLAGS $OPTFLAGS"
-    BUILD_CONFIG="$BUILD_CONFIG CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS"
+    CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS $CXXFLAGS"
+    CFLAGS="$OBS_RPM_BUILD_CFLAGS $CFLAGS"
   fi
+  BUILD_CONFIG="$BUILD_CONFIG CFLAGS=\"$CFLAGS\" CXXFLAGS=\"$CXXFLAGS\" LDFLAGS=\"$LDFLAGS\""
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -608,18 +606,24 @@ QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
 if [ "$get_local_libs" = 1 ]; then
   # Update ld_library_path
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR:$LP3D_LL_USR/lib64 && \
+  export LD_LIBRARY_PATH=\
+  $LD_LIBRARY_PATH:\
+  $LP3D_LL_USR/bin:\
+  $LP3D_LL_USR/include:\
+  $LP3D_LL_USR/include/libdrm:\
+  $LP3D_LL_USR/include/OpenEXR:\
+  $LP3D_LL_USR/lib64 && \
   Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
   PATH=$LP3D_LL_USR/bin:$PATH && export PATH && \
   Info "Prepend PATH with: $PATH"
-  OPTFLAGS="-I$LP3D_LL_USR/include"
-  CXXFLAGS="$OPTFLAGS"
-  CFLAGS="$OPTFLAGS"
-  LDFLAGS="-L$LP3D_LL_USR/lib64"
-  Info "Append CXXFLAGS and CFLAGS with $OPTFLAGS and add LDFLAGS $LDFLAGS" && Info
-  Q_CXXFLAGS="$Q_CXXFLAGS $OPTFLAGS"
+  INCLUDEFLAGS="-I$LP3D_LL_USR/include"
+  CXXFLAGS="$CXXFLAGS $INCLUDEFLAGS"
+  CFLAGS="$CFLAGS $INCLUDEFLAGS"
+  LDFLAGS="$LDFLAGS -L$LP3D_LL_USR/lib64"
+  Info "Append CXXFLAGS with $CXXFLAGS, CFLAGS with $CFLAGS add LDFLAGS with $LDFLAGS" && Info
+  Q_CXXFLAGS="$Q_CXXFLAGS $CXXFLAGS"
   Q_CFLAGS="$Q_CXXFLAGS"
   Q_LDFLAGS="$LDFLAGS"
   export Q_CFLAGS Q_CXXFLAGS Q_LDFLAGS

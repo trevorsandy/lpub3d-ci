@@ -34,12 +34,12 @@ configure-stamp:
 	else \
 		echo "LDraw archive library lpub3dldrawunf.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
-	for ArchiveSourceFile in \
+	for TarballFile in \
 		../SOURCES/ldglite.tar.gz \
 		../SOURCES/ldview.tar.gz \
 		../SOURCES/povray.tar.gz; do \
-		if [ -f "$${ArchiveSourceFile}" ]; then \
-			mv -f $${ArchiveSourceFile} ../ && echo "$$(basename $${ArchiveSourceFile}) copied to $$(readlink -e ../)"; \
+		if [ -f "$${TarballFile}" ]; then \
+			mv -f $${TarballFile} ../ && echo "$$(basename $${TarballFile}) copied to $$(readlink -e ../)"; \
 		fi; \
 	done
 	BINARY_FILE_PATH=$$(readlink -e ../)

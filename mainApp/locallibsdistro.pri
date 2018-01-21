@@ -13,53 +13,32 @@ unix:!macx {
   isEmpty(LP3D_LOCAL_LIBDIR_SRC):LP3D_LOCAL_LIBDIR_SRC = $$_PRO_FILE_PWD_/../../usr
   isEmpty(LP3D_LOCAL_LIBDIR_ETC):LP3D_LOCAL_LIBDIR_ETC = $$_PRO_FILE_PWD_/../../etc
 
-
   equals(install_qt_libs, 1) {
     message("~~~ INSTALL QT $$QT_VERSION LIBS AND PLUGINS SPECIFIED ~~~")
 
-    LP3D_QTCONF_FILE     = $$_PRO_FILE_PWD_/qt.conf.foo
+    LP3D_QTCONF_FILE     = $$_PRO_FILE_PWD_/qt.conf
     LP3D_QTCONF_LINES   += [Paths]
     LP3D_QTCONF_LINES   += Prefix=$$LP3D_LIBDIR_QT5
     LP3D_QTCONF_LINES   += Libraries=lib
     LP3D_QTCONF_LINES   += Plugins=plugins
 
     !write_file($$LP3D_QTCONF_FILE, LP3D_QTCONF_LINES ) {
-      warning("DEBUG: Could not create qt.conf.foo")
-    } else {
-      message("~~~ DEBUG: FILE $$LP3D_QTCONF_FILE created ~~~")
-      exists($$LP3D_QTCONF_FILE) {
-        message("File exists, attempting to display $$LP3D_QTCONF_FILE")
-        ret = $$system("cat $$LP3D_QTCONF_FILE")
-      }
+      message("~~~ ERROR - Could not create $LP3D_QTCONF_FILE ~~~")
     }
 
-    LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf.foo
+    LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf
     LP3D_QTLDCONF_LINES += $$LP3D_LIBDIR_QT5
 
     !write_file($$LP3D_QTLDCONF_FILE, $$LP3D_QTLDCONF_LINES) {
-      warning("DEBUG: Could not create $$LP3D_QTLDCONF_FILE")
-    } else {
-      message("~~~ DEBUG: FILE $$LP3D_QTLDCONF_FILE created ~~~")
-      exists($$LP3D_QTLDCONF_FILE) {
-        message("File exists, attempting to display $$LP3D_QTLDCONF_FILE")
-        ret = $$system("cat $$LP3D_QTLDCONF_FILE")
-      }
+      message("~~~ ERROR - Could not create $$LP3D_QTLDCONF_FILE ~~~")
     }
 
-    FOO_FILE   = $$_PRO_FILE_PWD_/resource_update.foo
-    FOO_LINES += <RCC>
-    FOO_LINES += <qresource prefix="/resources">
-    FOO_LINES += <file alias="addbom.png">images/addbom.png</file>
-    FOO_LINES += </qresource>
-    FOO_LINES += </RCC>
-    !write_file($$FOO_FILE, FOO_LINES) {
-      warning("DEBUG: Could not create qt.conf.foo")
+    LP3D_QTQRC_FILE   = $$_PRO_FILE_PWD_/lpub3d.qrc
+    !write_file($$LP3D_QTQRC_FILE, FOO_LINES) {
+      message("~~~ ERROR - Could not create $LP3D_QTQRC_FILE~~~")
     } else {
-      message("~~~ DEBUG: FILE $$FOO_FILE created ~~~")
-      exists($$FOO_FILE) {
-        message("File exists, attempting to display $$FOO_FILE")
-        ret = $$system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$FOO_FILE >/dev/null")
-        ret = $$system("cat $$FOO_FILE")
+      exists($$LP3D_QTQRC_FILE) {
+        ret = $$system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$LP3D_QTQRC_FILE >/dev/null")
       }
     }
 
@@ -114,18 +93,12 @@ unix:!macx {
     message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
     message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_SRC ~~~")
 
-    LP3D_LDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-libs.conf.foo
+    LP3D_LDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-libs.conf
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR_LLVM
 
     !write_file($$LP3D_LDCONF_FILE, LP3D_LDCONF_LINES) {
-      warning("DEBUG: Could not create $$LP3D_LDCONF_FILE")
-    } else {
-      message("~~~ DEBUG: FILE $$LP3D_LDCONF_FILE created ~~~")
-      exists($$LP3D_LDCONF_FILE) {
-        message("File exists, attempting to display $$LP3D_LDCONF_FILE")
-        ret = $$system("cat $$LP3D_LDCONF_FILE")
-      }
+      message("ERROR - Could not create $$LP3D_LDCONF_FILE")
     }
 
     local_el_llvm_conf_d.files += \
@@ -180,7 +153,7 @@ unix:!macx {
         local_el_libs_llvm \
         local_el_libs_pkgconfig
   } else {
-    !exists($$LP3D_LOCAL_LIBDIR_SRC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_SRC not found ~~~")
-    !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
+    equals(install_local_el_libs, 1): !exists($$LP3D_LOCAL_LIBDIR_SRC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_SRC not found ~~~")
+    equals(install_local_el_libs, 1): !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
   }
 }

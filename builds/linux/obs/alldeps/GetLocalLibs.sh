@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# This script is sourced on 2 occasions:
-# 1. to extract local library assets,and
-# 2. to deploy the local library assets
+# Extract local libraries for OSMesa, LLVM, OpenEXR and libDRM
+#
+# This script is sourced to extract local library assets.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 18, 2018
+#  Last Update: January 21, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
-# chmod a+x builds/linux/obs/alldeps/GetLocalLibs.sh && ./builds/linux/obs/alldeps/GetLocalLibs.sh
+# source builds/linux/obs/alldeps/GetLocalLibs.sh
 
 # Set working directory and qt dir path
 LP3D_OBS_WD=$PWD && echo "Entering Local Libs working directory..."
@@ -29,16 +29,10 @@ if [ "$RPM_STAGE" = "build" ]; then
 
   # Extract rpm libraries into library folder(s)
   [ -f "mesa-libOSMesa-17.0.1-6.20170307.el7.x86_64.rpm" ] && \
-  for f in $(find . -type f -name '*.el7.x86_64.rpm'); do
-  echo "Extracting rpm $f..." && rpm2cpio $f | cpio -idm
+  for file in $(find . -type f -name '*.el7.x86_64.rpm')
+  do
+    echo "Extracting local lib rpm $f..." && rpm2cpio $file | cpio -idm
   done || echo "ERROR - locallibs.el.x86_64.tar.gz was not extracted properly"
-
-  # Create symlink for llvm-config-64
-  [ -f $LP3D_LL_BIN/llvm-config-64 ] && \
-  ln -s $LP3D_LL_BIN/llvm-config-64 $LP3D_LL_BIN/llvm-config && \
-  [ -f $LP3D_LL_BIN/llvm-config ] && export LP3D_LL_BIN &&\
-  echo "Created symlink $LP3D_LL_USR/bin/llvm-config " || \
-  echo "ERROR - unable to create symlink $LP3D_LL_USR/bin/llvm-config"
 
   # Export usr base paths - consumed by qmake install
   [ -d $LP3D_LL_USR ] && export LP3D_LL_USR || \
@@ -46,8 +40,35 @@ if [ "$RPM_STAGE" = "build" ]; then
   [ -d $LP3D_LL_ETC ] && export LP3D_LL_ETC || \
   echo "ERROR - $LP3D_LL_ETC does not exist"
 
-  # list library files
-  echo "Library list..." && find $LP3D_LL_USR/lib64 -type f
+  # Create symlink for llvm-config-64
+  pushd $LP3D_LL_BIN
+    [ -f llvm-config-64 ] && \
+    ln -s llvm-config-64 llvm-config && \
+    [ -f llvm-config ] && export LP3D_LL_BIN &&\
+    echo "Created symlink $LP3D_LL_USR/bin/llvm-config " || \
+    echo "ERROR - unable to create symlink $LP3D_LL_USR/bin/llvm-config"
+  popd
+
+  # Generate symlinks if not exist, else list libdir files and symlinks
+  pushd $LP3D_LL_USR/lib64
+    [ -z "$(find . -type l)" ] && \
+    creatingLinks="Creating symlink for local libs..." && echo "$creatingLinks" && \
+    for file in $(find . -type f -name 'lib*.so.*')
+    do
+      echo "File:    ${file##*/}" && shortlib=$file && basename=$file
+      while extn=$(echo $shortlib | sed -n '/\.[0-9][0-9]*$/s/.*\(\.[0-9][0-9]*\)$/\1/p')
+        [ -n "$extn" ]
+      do
+        shortlib=$(basename $shortlib $extn)
+        ln -fs $basename $shortlib
+        basename=$shortlib
+        echo "Symlink: $shortlib"
+      done
+    done || true
+    [ -z "$creatingLinks" ] && \
+    echo "Library file and symlink list..." && \
+    find -name 'lib*.so*' || true
+  popd
 fi
 
 # Restore working directory
