@@ -326,7 +326,6 @@ BuildLDGLite() {
   fi
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
-    #BUILD_CONFIG="$BUILD_CONFIG INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64"
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -374,7 +373,6 @@ BuildLDView() {
   fi
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
-    #BUILD_CONFIG="$BUILD_CONFIG INCLUDEPATH+=$LP3D_LL_USR/include LIBS+=-L$LP3D_LL_USR/lib64"
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
@@ -396,26 +394,25 @@ BuildPOVRay() {
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
   fi
-  if [ -n "$OBS_RPM_BUILD_CONFIG" ]; then
-    BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
-  fi
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
-  export POV_IGNORE_SYSCONF_MSG="yes"
-  chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
+  if [ "$OBS_RPM1315_BUILD_OPTS" = 1 ]; then
+    BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
+    CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS $CXXFLAGS"
+    CFLAGS="$OBS_RPM_BUILD_CFLAGS $CFLAGS"
+  fi
   if [ "$get_local_libs" = 1 ]; then
     CXXFLAGS="$CXXFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
     CFLAGS="$CFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
     LDFLAGS="$LDFLAGS -L$LP3D_LL_USR/lib"
   fi
-  if [ "$OBS_RPM1315_BUILD_OPTS" = 1 ]; then
-    CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS $CXXFLAGS"
-    CFLAGS="$OBS_RPM_BUILD_CFLAGS $CFLAGS"
-  fi
-  [ -n "$CXXFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CXXFLAGS=\"$CXXFLAGS\"" || true
-  [ -n "$CFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CFLAGS=\"$CFLAGS\"" || true
-  [ -n "$LDFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG LDFLAGS=\"$LDFLAGS\"" || true
+  [ -n "$CXXFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CXXFLAGS=\\\"$CXXFLAGS\\\"" || true
+  [ -n "$CFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CFLAGS=\\\"$CFLAGS\\\"" || true
+  [ -n "$LDFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG LDFLAGS=\\\"$LDFLAGS\\\"" || true
+  export POV_IGNORE_SYSCONF_MSG="yes"
+  chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
+  Info "DEBUG, DEBUG BUILD_CONFIG: ${BUILD_CONFIG}"
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -609,12 +606,7 @@ LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
 if [ "$get_local_libs" = 1 ]; then
   # Update ld_library_path
   export LD_LIBRARY_PATH=\
-  $LD_LIBRARY_PATH:\
-  $LP3D_LL_USR/bin:\
-  $LP3D_LL_USR/include:\
-  $LP3D_LL_USR/include/libdrm:\
-  $LP3D_LL_USR/include/OpenEXR:\
-  $LP3D_LL_USR/lib64 && \
+  $LD_LIBRARY_PATH:$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR:$LP3D_LL_USR/lib64 && \
   Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"

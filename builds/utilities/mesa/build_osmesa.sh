@@ -121,14 +121,7 @@ fi
 # Processor and liker flags for local libs
 if [ ! "${local_libs}" = 0 ]; then
   # Update ld_library_path
-  export LD_LIBRARY_PATH=\
-  $LD_LIBRARY_PATH:\
-  $local_usr_path/bin:\
-  $local_usr_path/include:\
-  $local_usr_path/include/libdrm:\
-  $local_usr_path/include/llvm:\
-  $local_usr_path/lib64:\
-  $local_usr_path/lib64/llvm && \
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$local_usr_path/bin:$local_usr_path/include:$local_usr_path/include/libdrm:$local_usr_path/include/llvm:$local_usr_path/lib64:$local_usr_path/lib64/llvm && \
   Info "Append OSMesa LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH=$local_usr_path/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend OSMesa PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"

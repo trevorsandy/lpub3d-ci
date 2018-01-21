@@ -45,7 +45,7 @@ if [ "$RPM_STAGE" = "build" ]; then
     [ -f llvm-config-64 ] && \
     ln -s llvm-config-64 llvm-config && \
     [ -f llvm-config ] && export LP3D_LL_BIN &&\
-    echo "Created symlink $LP3D_LL_USR/bin/llvm-config " || \
+    echo "Created symlink $LP3D_LL_USR/bin/llvm-config" || \
     echo "ERROR - unable to create symlink $LP3D_LL_USR/bin/llvm-config"
   popd
 
@@ -66,6 +66,16 @@ if [ "$RPM_STAGE" = "build" ]; then
         echo "Symlink: $shortlib"
       done
     done || true
+    # for some reason .so symlinks are not automatically for these 2 libs...
+    [ -f libGLU.so.1.3.1 ] && \
+    ln -fs libGLU.so.1.3.1 libGLU.so && \
+    [ -f libGLU.so ] && echo "Created symlink libGLU.so" || \
+    echo "ERROR - unable to create symlink libGLU.so"
+    [ -f libglapi.so.0.0.0 ] && \
+    ln -fs libglapi.so.0.0.0 libglapi.so && \
+    [ -f libglapi.so ] && echo "Created symlink libglapi.so" || \
+    echo "ERROR - unable to create symlink libglapi.so"
+    # show list of files and symlinks
     [ -z "$creatingLinks" ] && \
     echo "Library file and symlink list..." && \
     find -name 'lib*.so*' || true
