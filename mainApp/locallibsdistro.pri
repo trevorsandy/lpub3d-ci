@@ -24,6 +24,8 @@ unix:!macx {
 
     !write_file($$LP3D_QTCONF_FILE, LP3D_QTCONF_LINES ) {
       message("~~~ ERROR - Could not create $LP3D_QTCONF_FILE ~~~")
+    } else {
+      message("~~~ FILE $LP3D_QTCONF_FILE CREATED ~~~")
     }
 
     LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf
@@ -31,15 +33,16 @@ unix:!macx {
 
     !write_file($$LP3D_QTLDCONF_FILE, $$LP3D_QTLDCONF_LINES) {
       message("~~~ ERROR - Could not create $$LP3D_QTLDCONF_FILE ~~~")
+    } else {
+      message("~~~ FILE $LP3D_QTLDCONF_FILE CREATED ~~~")
     }
 
-    LP3D_QTQRC_FILE   = $$_PRO_FILE_PWD_/lpub3d.qrc
-    !write_file($$LP3D_QTQRC_FILE, FOO_LINES) {
-      message("~~~ ERROR - Could not create $LP3D_QTQRC_FILE~~~")
+    LP3D_QTQRC_FILE     = $$_PRO_FILE_PWD_/lpub3d.qrc
+    exists($$LP3D_QTQRC_FILE) {
+      system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$LP3D_QTQRC_FILE >/dev/null")
+      message("~~~ FILE $LP3D_QTQRC_FILE UDATED ~~~")
     } else {
-      exists($$LP3D_QTQRC_FILE) {
-        ret = $$system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$LP3D_QTQRC_FILE >/dev/null")
-      }
+      message("~~~ ERROR - Could not create $LP3D_QTQRC_FILE ~~~")
     }
 
     qt5_conf_d.files += \
@@ -98,7 +101,9 @@ unix:!macx {
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR_LLVM
 
     !write_file($$LP3D_LDCONF_FILE, LP3D_LDCONF_LINES) {
-      message("ERROR - Could not create $$LP3D_LDCONF_FILE")
+      message("~~~ ERROR - Could not create $$LP3D_LDCONF_FILE ~~~")
+    } else {
+      message("~~~ FILE $LP3D_LDCONF_FILE CREATED ~~~")
     }
 
     local_el_llvm_conf_d.files += \

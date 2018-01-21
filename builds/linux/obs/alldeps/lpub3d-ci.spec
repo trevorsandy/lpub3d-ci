@@ -598,15 +598,15 @@ make clean
 make %{?_smp_mflags}
 # Check generated and updated config files
 %if 0%{?get_qt5}
-[ -f "mainApp/qt.conf" ] && echo "Generated qt.conf..." && \
+[ -f "mainApp/qt.conf" ] && echo "Check generated qt.conf..." && \
 cat mainApp/qt.conf || echo "Could not find qt.conf"
-[ -f "mainApp/lpub3d.qrc" ] && echo "Updated lpub3d.qrc..." && \
+[ -f "mainApp/lpub3d.qrc" ] && echo "Check updated lpub3d.qrc..." && \
 tail mainApp/lpub3d.qrc || echo "Could not find lpub3d.qrc"
-[ -f "mainApp/lpub3d-qtlibs.conf" ] && echo "Generated qtlibs.conf..." && \
+[ -f "mainApp/lpub3d-qtlibs.conf" ] && echo "Check generated qtlibs.conf..." && \
 cat mainApp/lpub3d-qtlibs.conf || echo "Could not find lpub3d-qtlibs.conf"
 %endif
 %if 0%{?get_local_libs}
-[ -f "mainApp/lpub3d-libs.conf" ] && echo "Generated lpub3d-libs.conf..." && \
+[ -f "mainApp/lpub3d-libs.conf" ] && echo "Check generated lpub3d-libs.conf..." && \
 cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
 %endif
 

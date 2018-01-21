@@ -50,6 +50,7 @@ if [ "$RPM_STAGE" = "build" ]; then
   popd
 
   # Generate symlinks if not exist, else list libdir files and symlinks
+  # given libx.so.0.0.0, generate libx.so.0.0, libx.so.0, and libx.so
   pushd $LP3D_LL_USR/lib64
     [ -z "$(find . -type l)" ] && \
     creatingLinks="Creating symlink for local libs..." && echo "$creatingLinks" && \

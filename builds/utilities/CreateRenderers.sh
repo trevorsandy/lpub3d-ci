@@ -409,11 +409,13 @@ BuildPOVRay() {
     CFLAGS="$CFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
     LDFLAGS="$LDFLAGS -L$LP3D_LL_USR/lib"
   fi
-  if [[ -n "$OBS_RPM_BUILD_CFLAGS" && -n "$OBS_RPM_BUILD_CXXFLAGS" ]]; then
+  if [ "$OBS_RPM1315_BUILD_OPTS" = 1 ]; then
     CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS $CXXFLAGS"
     CFLAGS="$OBS_RPM_BUILD_CFLAGS $CFLAGS"
   fi
-  BUILD_CONFIG="$BUILD_CONFIG CFLAGS=\"$CFLAGS\" CXXFLAGS=\"$CXXFLAGS\" LDFLAGS=\"$LDFLAGS\""
+  [ -n "$CXXFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CXXFLAGS=\"$CXXFLAGS\"" || true
+  [ -n "$CFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CFLAGS=\"$CFLAGS\"" || true
+  [ -n "$LDFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG LDFLAGS=\"$LDFLAGS\"" || true
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
@@ -754,6 +756,7 @@ for buildDir in ldglite ldview povray; do
       -Wno-unused-function -Wno-comment -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-switch"
       OBS_RPM_BUILD_CONFIG="--disable-dependency-tracking --disable-strip --disable-optimiz --with-boost-libdir=${RPM_LIBDIR}"
       Info && Info "Using RPM_BUILD_FLAGS: $OBS_RPM_BUILD_CXXFLAGS and  OBS_RPM_BUILD_CONFIG: ${OBS_RPM_BUILD_CONFIG}" && Info
+      OBS_RPM1315_BUILD_OPTS=1
     fi
   else
     # CI/Local build setup routine...
