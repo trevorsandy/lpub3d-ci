@@ -93,8 +93,9 @@ unix:!macx {
   }
 
   equals(install_local_el_libs, 1): exists($$LP3D_LOCAL_LIBDIR_SRC) {
+    LP3D_LOCAL_LIBDIR_SOURCE = $$system(cd ../../ && $PWD/usr)
     message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
-    message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_SRC ~~~")
+    message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_SOURCE ~~~")
 
     LP3D_LDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-libs.conf
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR
