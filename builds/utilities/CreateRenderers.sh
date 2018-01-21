@@ -388,9 +388,9 @@ BuildLDView() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildPOVRay() {
-  BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --enable-watch-cursor"
+  BUILD_CONFIG="--prefix='${DIST_PKG_DIR}' LPUB3D_3RD_PARTY='yes' --enable-watch-cursor"
   if [ "$build_sdl2" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2=from-src"
+    BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2='from-src'"
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
   fi
@@ -407,13 +407,13 @@ BuildPOVRay() {
     CFLAGS="$CFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
     LDFLAGS="$LDFLAGS -L$LP3D_LL_USR/lib"
   fi
-  [ -n "$CXXFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CXXFLAGS=\\\"$CXXFLAGS\\\"" || true
-  [ -n "$CFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CFLAGS=\\\"$CFLAGS\\\"" || true
-  [ -n "$LDFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG LDFLAGS=\\\"$LDFLAGS\\\"" || true
+  [ -n "$CXXFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CXXFLAGS='$CXXFLAGS'" || true
+  [ -n "$CFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG CFLAGS='$CFLAGS'" || true
+  [ -n "$LDFLAGS" ] && BUILD_CONFIG="$BUILD_CONFIG LDFLAGS='$LDFLAGS'" || true
   export POV_IGNORE_SYSCONF_MSG="yes"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   Info "DEBUG, DEBUG BUILD_CONFIG: ${BUILD_CONFIG}"
-  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." ${BUILD_CONFIG}
+  ./configure COMPILED_BY='Trevor SANDY <trevor.sandy@gmail.com> for LPub3D.' ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make
     make install
@@ -605,8 +605,7 @@ QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
 if [ "$get_local_libs" = 1 ]; then
   # Update ld_library_path
-  export LD_LIBRARY_PATH=\
-  $LD_LIBRARY_PATH:$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR:$LP3D_LL_USR/lib64 && \
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR:$LP3D_LL_USR/lib64 && \
   Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
