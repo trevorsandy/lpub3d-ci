@@ -48,22 +48,6 @@ ExtractArchive() {
   fi
 }
 
-# args: 1 = <build folder>
-SetLocalLibBuildVars() {
-  # processor and linkier flags for local libs
-  export PATH=$LP3D_LL_USR/bin:$PATH
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/lib64
-  LP3D_CPPFLAGS="-I$LP3D_LL_USR/include" && LP3D_LDFLAGS="-L$LP3D_LL_USR/lib64"
-  if [ "$1" = "povray" ]; then
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR
-  else
-    export Q_LDFLAGS="$LP3D_LDFLAGS"
-  fi
-  Info "Prepend PATH with: $PATH"
-  Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
-  Info "Append LP3D_CPPFLAGS with $LP3D_CPPFLAGS and LP3D_LDFLAGS with $LP3D_LDFLAGS" && Info
-}
-
 BuildMesaLibs() {
   mesaSpecDir="$CallDir/builds/utilities/mesa"
   mesaBuildDeps="TBD"
@@ -333,7 +317,6 @@ BuildLDGLite() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    SetLocalLibBuildVars
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
   ${QMAKE_EXEC} -v && Info
@@ -381,7 +364,6 @@ BuildLDView() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    SetLocalLibBuildVars
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
   ${QMAKE_EXEC} -v && Info
@@ -398,10 +380,9 @@ BuildLDView() {
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildPOVRay() {
-  BUILD_CONFIG="COMPILED_BY='Trevor SANDY <trevor.sandy@gmail.com> for LPub3D.'"
-  BUILD_CONFIG="$BUILD_CONFIG --prefix='${DIST_PKG_DIR}' LPUB3D_3RD_PARTY='yes' --enable-watch-cursor"
+  BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --enable-watch-cursor"
   if [ "$build_sdl2" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2='from-src'"
+    BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2=from-src"
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
   fi
@@ -409,26 +390,23 @@ BuildPOVRay() {
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
   if [ "$OBS_RPM1315_BUILD_OPTS" = 1 ]; then
+    BUILD_FLAGS="$BUILD_FLAGS CXXFLAGS=\"$OBS_RPM_BUILD_CXXFLAGS\" CFLAGS=\"$OBS_RPM_BUILD_CFLAGS\""
     BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
-    LP3D_CXXFLAGS="$OBS_RPM_BUILD_CXXFLAGS"
-    LP3D_CFLAGS="$OBS_RPM_BUILD_CFLAGS"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    SetLocalLibBuildVars
-    LP3D_CPPFLAGS="$LP3D_CPPFLAGS -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR"
-    LP3D_LDFLAGS="$LP3D_LDFLAGS -L$LP3D_LL_USR/lib"
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR
+    [ -z "$BUILD_FLAGS" ] && \
+    BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR\" LDFLAGS=\"$LP3D_LDFLAGS -L$LP3D_LL_USR/lib\"" || \
+    BUILD_FLAGS="$BUILD_FLAGS CPPFLAGS=\"-I$LP3D_LL_USR/include -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR\" LDFLAGS=\"$LP3D_LDFLAGS -L$LP3D_LL_USR/lib\""
   fi
-  [ -n "$LP3D_CPPFLAGS" ] && BUILD_CONFIG="CPPFLAGS='$LP3D_CPPFLAGS' $BUILD_CONFIG" || true
-  [ -n "$LP3D_LDFLAGS" ] && BUILD_CONFIG="LDFLAGS='$LP3D_LDFLAGS' $BUILD_CONFIG" || true
-  [ -n "$LP3D_CXXFLAGS" ] && BUILD_CONFIG="CXXFLAGS='$LP3D_CXXFLAGS' $BUILD_CONFIG" || true
-  [ -n "$LP3D_CFLAGS" ] && BUILD_CONFIG="CFLAGS='$LP3D_CFLAGS' $BUILD_CONFIG" || true
+  Info "DEBUG_DEBUG BUILD_FLAGS: ${BUILD_FLAGS}"
+  Info "DEBUG_DEBUG PRINT_ENV:" && printenv
   export POV_IGNORE_SYSCONF_MSG="yes"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH for POVRay build: $PKG_CONFIG_PATH"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
-  Info "DEBUG_DEBUG BUILD_CONFIG: ${BUILD_CONFIG}"
-  Info "DEBUG_DEBUG PRINT_ENV:" && printenv
-  ./configure ${BUILD_CONFIG}
+  [ -n "$BUILD_FLAGS" ] && env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
+  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
   if [ "${OBS}" = "true" ]; then
     make
     make install
@@ -541,7 +519,7 @@ elif [ "${OBS}" = "true" ]; then
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
   [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "Build from source........[OSMesa]" || true
   [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
-  [ -n "$get_local_libs" ] && Info "Get local libraries..... [OSMesa, LLVM, OpenEXR, DRM]" || true
+  [ -n "$get_local_libs" ] && Info "Get local libraries..... [OSMesa, LLVM, OpenEXR, DRM at $LP3D_LL_USR/lib64]" || true
   [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
   [ -n "$build_tinyxml" ] && Info "Build from source........[TinyXML]" || true
   [ -n "$build_gl2ps" ] && Info "Build from source........[GL2PS]" || true
@@ -624,6 +602,17 @@ LOG_PATH=${WD}
 
 # initialize mesa build flag
 OSMesaBuilt=0
+
+# processor and linkier flags for building local libs
+if [ "$get_local_libs" = 1 ]; then
+  export PATH=$LP3D_LL_USR/bin:$PATH && \
+  Info "Prepend PATH with: $PATH"
+  export LD_LIBRARY_PATH=$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/lib64:$LD_LIBRARY_PATH && \
+  Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
+  LP3D_LDFLAGS="-L$LP3D_LL_USR/lib64" && \
+  Info "Append LP3D_LDFLAGS with $LP3D_LDFLAGS" && Info
+  export Q_LDFLAGS="$LP3D_LDFLAGS"
+fi
 
 # define build architecture and cached renderer paths
 VER_LDGLITE=ldglite-1.3
@@ -790,7 +779,7 @@ for buildDir in ldglite ldview povray; do
         cat ${buildLog}
       fi
     fi
-    Info && Info "Build ${buildDir} finished."
+    Info && Info "Build ${buildDir} finished." && Info
   else
     Info "Renderer artefact binary for ${!artefactVer} exists - build skipped."
   fi
