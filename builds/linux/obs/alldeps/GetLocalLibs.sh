@@ -5,7 +5,7 @@
 # This script is sourced to extract local library assets.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 21, 2018
+#  Last Update: January 22, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
@@ -66,12 +66,12 @@ if [ "$RPM_STAGE" = "build" ]; then
         echo "Symlink: $shortlib"
       done
     done || true
-    # for some reason .so symlinks are not automatically for these 2 libs...
-    [ -f libGLU.so.1.3.1 ] && \
+    # for some reason .so symlinks are not automatically created for these 2 libs...
+    [[ -f libGLU.so.1.3.1 && ! -f libGLU.so ]] && \
     ln -fs libGLU.so.1.3.1 libGLU.so && \
     [ -f libGLU.so ] && echo "Created symlink libGLU.so" || \
     echo "ERROR - unable to create symlink libGLU.so"
-    [ -f libglapi.so.0.0.0 ] && \
+    [[ -f libglapi.so.0.0.0 && ! -f libglapi.so ]] && \
     ln -fs libglapi.so.0.0.0 libglapi.so && \
     [ -f libglapi.so ] && echo "Created symlink libglapi.so" || \
     echo "ERROR - unable to create symlink libglapi.so"

@@ -23,9 +23,9 @@ unix:!macx {
     LP3D_QTCONF_LINES   += Plugins=plugins
 
     !write_file($$LP3D_QTCONF_FILE, LP3D_QTCONF_LINES ) {
-      message("~~~ ERROR - Could not create $LP3D_QTCONF_FILE ~~~")
+      message("~~~ ERROR - Could not create $$LP3D_QTCONF_FILE ~~~")
     } else {
-      message("~~~ FILE $LP3D_QTCONF_FILE CREATED ~~~")
+      message("~~~ FILE $$LP3D_QTCONF_FILE CREATED ~~~")
     }
 
     LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf
@@ -34,15 +34,15 @@ unix:!macx {
     !write_file($$LP3D_QTLDCONF_FILE, $$LP3D_QTLDCONF_LINES) {
       message("~~~ ERROR - Could not create $$LP3D_QTLDCONF_FILE ~~~")
     } else {
-      message("~~~ FILE $LP3D_QTLDCONF_FILE CREATED ~~~")
+      message("~~~ FILE $$LP3D_QTLDCONF_FILE CREATED ~~~")
     }
 
     LP3D_QTQRC_FILE     = $$_PRO_FILE_PWD_/lpub3d.qrc
     exists($$LP3D_QTQRC_FILE) {
       system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$LP3D_QTQRC_FILE >/dev/null")
-      message("~~~ FILE $LP3D_QTQRC_FILE UDATED ~~~")
+      message("~~~ FILE $$LP3D_QTQRC_FILE UDATED ~~~")
     } else {
-      message("~~~ ERROR - Could not create $LP3D_QTQRC_FILE ~~~")
+      message("~~~ ERROR - Could not create $$LP3D_QTQRC_FILE ~~~")
     }
 
     qt5_conf_d.files += \
@@ -93,7 +93,7 @@ unix:!macx {
   }
 
   equals(install_local_el_libs, 1): exists($$LP3D_LOCAL_LIBDIR_SRC) {
-    LP3D_LOCAL_LIBDIR_SOURCE = $$system(cd ../../ && $PWD/usr)
+    LP3D_LOCAL_LIBDIR_SOURCE = $$system(cd ../../ && echo $PWD/usr)
     message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
     message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_SOURCE ~~~")
 
@@ -104,7 +104,7 @@ unix:!macx {
     !write_file($$LP3D_LDCONF_FILE, LP3D_LDCONF_LINES) {
       message("~~~ ERROR - Could not create $$LP3D_LDCONF_FILE ~~~")
     } else {
-      message("~~~ FILE $LP3D_LDCONF_FILE CREATED ~~~")
+      message("~~~ FILE $$LP3D_LDCONF_FILE CREATED ~~~")
     }
 
     local_el_llvm_conf_d.files += \

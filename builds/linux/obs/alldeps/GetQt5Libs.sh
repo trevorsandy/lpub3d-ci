@@ -35,7 +35,7 @@ export LP3D_QT5_BIN=$PWD && export LP3D_QT5_DIR_PATH || \
 echo "ERROR - Could not run QtBinPatcher"
 
 # Update ld_library_path
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_QT5_DIR_PATH/bin
+export LD_LIBRARY_PATH=$LP3D_QT5_DIR_PATH/bin:$LD_LIBRARY_PATH
 
 # Restore working directory
 cd $LP3D_OBS_WD && echo "Return to working directory: $LP3D_OBS_WD"

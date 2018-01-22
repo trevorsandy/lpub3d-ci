@@ -394,28 +394,28 @@ BuildPOVRay() {
     BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
   fi
   if [ "$get_local_libs" = 1 ]; then
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LP3D_LL_USR/include/libdrm:$LP3D_LL_USR/include/OpenEXR
     [ -z "$BUILD_FLAGS" ] && \
-    BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR\" LDFLAGS=\"$LP3D_LDFLAGS -L$LP3D_LL_USR/lib\"" || \
-    BUILD_FLAGS="$BUILD_FLAGS CPPFLAGS=\"-I$LP3D_LL_USR/include -I$LP3D_LL_USR/include/libdrm -I$LP3D_LL_USR/include/OpenEXR\" LDFLAGS=\"$LP3D_LDFLAGS -L$LP3D_LL_USR/lib\""
+    BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\"" || \
+    BUILD_FLAGS="$BUILD_FLAGS CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\""
   fi
   Info "DEBUG_DEBUG BUILD_FLAGS: ${BUILD_FLAGS}"
-  Info "DEBUG_DEBUG PRINT_ENV:" && printenv
+  Info "DEBUG_DEBUG PRINT_ENV:   $BUILD_CONFIG"
   export POV_IGNORE_SYSCONF_MSG="yes"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH for POVRay build: $PKG_CONFIG_PATH"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   [ -n "$BUILD_FLAGS" ] && env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
+  Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
   if [ "${OBS}" = "true" ]; then
     make
     make install
     make check
-    if [ ! -f "unix/lpub3d_trace_cui" ]; then
-      Info "ERROR - lpub3d_trace_cui build failed!"
-      Info "The config.log may give some insights."
-      cat config.log
-    fi
+    # if [ ! -f "unix/lpub3d_trace_cui" ]; then
+    #   Info "ERROR - lpub3d_trace_cui build failed!"
+    #   Info "The config.log may give some insights."
+    #   cat config.log
+    # fi
   else
     make > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
@@ -607,10 +607,10 @@ OSMesaBuilt=0
 if [ "$get_local_libs" = 1 ]; then
   export PATH=$LP3D_LL_USR/bin:$PATH && \
   Info "Prepend PATH with: $PATH"
-  export LD_LIBRARY_PATH=$LP3D_LL_USR/bin:$LP3D_LL_USR/include:$LP3D_LL_USR/lib64:$LD_LIBRARY_PATH && \
-  Info "Append LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
+  export LD_LIBRARY_PATH=$LP3D_LL_USR/bin:$LP3D_LL_USR/lib64:$LD_LIBRARY_PATH && \
+  Info "Prepend LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
   LP3D_LDFLAGS="-L$LP3D_LL_USR/lib64" && \
-  Info "Append LP3D_LDFLAGS with $LP3D_LDFLAGS" && Info
+  Info "Set LP3D_LDFLAGS to $LP3D_LDFLAGS" && Info
   export Q_LDFLAGS="$LP3D_LDFLAGS"
 fi
 
