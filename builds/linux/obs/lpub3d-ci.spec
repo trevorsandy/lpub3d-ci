@@ -30,44 +30,25 @@
 %endif
 
 # set target platform id
-%if 0%{?suse_version}
-%define dist openSUSE%(echo %{suse_version} | sed 's/0$//')
-%endif
-
-%if 0%{?sles_version}
-%define dist SUSE%{sles_version}
-%define sles_version=%{sles_version}
-%endif
-
-%if 0%{?centos_ver}
-%define dist cos%{centos_ver}
-%define centos_version %{centos_ver}00
-%endif
-
-%if 0%{?rhel_version}
-%define dist rhel%{rhel_version}
-%endif
-
-%if 0%{?scientificlinux_version}
-%define dist scl%{scientificlinux_version}
-%endif
-
-%if 0%{?fedora}
-%define dist fc%{fedora}
-%endif
-
-%if 0%{?mageia}
-%define dist mga%{mageia}
-%define mageia_version %{mageia}
-%endif
-
 # distinguish between OpenSUSE and SLE
-%if 0%{?sle_version}==120300
+%if 0%{?sle_version}>=120000
+%define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
 %else
+%if 0%{?suse_version}
+%define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %define suse_dist_name %(echo OpenSUSE)
 %define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
+%endif
+%endif
+
+%if 0%{?centos_ver}
+%define centos_version %{centos_ver}00
+%endif
+
+%if 0%{?mageia}
+%define mageia_version %{mageia}
 %endif
 
 # distro group settings
@@ -162,7 +143,7 @@ BuildRequires: libsane1, libproxy-webkit
 %prep
 set +x
 %if 0%{?suse_version} || 0%{?sles_version}
-echo "%{suse_dist_label}%{suse_version}"
+echo "%{suse_dist_label}"
 %endif
 %if 0%{?centos_ver}
 echo "CentOS.........................%{centos_version}"

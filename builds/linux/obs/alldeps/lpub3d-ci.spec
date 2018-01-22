@@ -30,53 +30,44 @@
 %endif
 
 # set target platform id
-%if 0%{?suse_version}
-%define dist openSUSE%(echo %{suse_version} | sed 's/0$//')
-%endif
-
-%if 0%{?sles_version}
-%define dist SUSE%{sles_version}
-%define sles_version=%{sles_version}
-%define build_sdl2 1
-%endif
-
-%if 0%{?centos_ver}
-%define dist cos%{centos_ver}
-%define centos_version %{centos_ver}00
-%define build_sdl2 1
-%endif
-
-%if 0%{?rhel_version}
-%define dist rhel%{rhel_version}
-%define build_sdl2 1
-%define get_local_libs 1
-%endif
-
-%if 0%{?scientificlinux_version}
-%define dist scl%{scientificlinux_version}
-%define build_sdl2 1
-%endif
-
-%if 0%{?fedora}
-%define dist fc%{fedora}
-%endif
-
-%if 0%{?mageia}
-%define dist mga%{mageia}
-%define mageia_version %{mageia}
-%endif
-
 # distinguish between OpenSUSE and SLE
-%if 0%{?sle_version}==120300
+%if 0%{?sle_version}>=120000
+%define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
+%define build_sdl2 1
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
 %define suse_dist_version %{sles_version}
 %else
+%if 0%{?suse_version}
+%define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %define suse_dist_name %(echo OpenSUSE)
 %define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
+%endif
+%endif
+
+%if 0%{?centos_ver}
+%define centos_version %{centos_ver}00
+%define build_sdl2 1
+%endif
+
+%if 0%{?rhel_version}
+%define build_sdl2 1
+%define get_local_libs 1
+%endif
+
+%if 0%{?scientificlinux_version}
+%define build_sdl2 1
+%endif
+
+%if 0%{?fedora}
+%define fedora_version %{fedora}
+%endif
+
+%if 0%{?mageia}
+%define mageia_version %{mageia}
 %endif
 
 # distro group settings
@@ -110,7 +101,11 @@ Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: 2.1.0.488
-Release: %{dist}
+%if 0%{?buildservice}
+Release: .<B_CNT>%{?dist}
+%else
+Release: %{?dist}
+%endif
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
@@ -429,7 +424,7 @@ BuildRequires:  pkgconfig(xxf86vm)
 %prep
 set +x
 %if 0%{?suse_version} || 0%{?sles_version}
-echo "%{suse_dist_label}%{suse_version}"
+echo "%{suse_dist_label}"
 %endif
 %if 0%{?centos_ver}
 echo "CentOS.........................%{centos_version}"
