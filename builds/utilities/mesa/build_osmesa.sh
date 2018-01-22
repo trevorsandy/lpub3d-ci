@@ -3,7 +3,7 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 21, 2018
+#  Last Update: January 22, 2018
 #  Copyright (c) 2017 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -32,8 +32,6 @@ osmesaprefix="${OSMESA_PREFIX:-$WD/lpub3d_linux_3rdparty/mesa}"
 cleanbuild="${CLEAN:-0}"
 # specify if to overwrite the existing osmesa-config - this file is copied during the build process
 config_copy="${COPY_CONFIG:-0}"
-# using local libs for LLVM and OSMesa
-local_libs="${LOCAL_LIBS:-0}"
 # /usr
 local_usr_path="${LOCAL_USR_PATH:-}"
 # building on Open Build Service
@@ -116,25 +114,6 @@ if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
 	if [ -d "${osmesaprefix}" ]; then
 		rm -rf "${osmesaprefix}"
 	fi
-fi
-
-# Processor and liker flags for local libs
-if [ ! "${local_libs}" = 0 ]; then
-  # Update ld_library_path
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$local_usr_path/bin:$local_usr_path/include:$local_usr_path/include/libdrm:$local_usr_path/include/llvm:$local_usr_path/lib64:$local_usr_path/lib64/llvm && \
-  Info "Append OSMesa LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
-  export PKG_CONFIG_PATH=$local_usr_path/lib64/pkgconfig:$PKG_CONFIG_PATH && \
-  Info "Prepend OSMesa PKG_CONFIG_PATH with: $PKG_CONFIG_PATH"
-  PATH=$local_usr_path/bin:$PATH && export PATH && \
-  Info "Prepend OSMesa build PATH with: $PATH"
-  INCLUDEFLAGS="-I$local_usr_path/include"
-  CXXFLAGS="$CXXFLAGS $INCLUDEFLAGS"
-  CFLAGS="$CFLAGS $INCLUDEFLAGS"
-  LDFLAGS="$LDFLAGS -L$local_usr_path/lib64"
-  Info "Append CXXFLAGS with $CXXFLAGS, CFLAGS with $CFLAGS add LDFLAGS with $LDFLAGS"
-  LIBDRM_CFLAGS="-I$local_usr_path/include -I$local_usr_path/include/libdrm"
-  LIBDRM_LIBS="-L$local_usr_path/lib64 -ldrm"
-  Info "Set LIBDRM_CFLAGS with $LIBDRM_CFLAGS and LIBDRM_LIBS with $LIBDRM_LIBS" && Info
 fi
 
 #check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)
@@ -227,8 +206,7 @@ Info "Using confops: $confopts"
 if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
 	# configure command
 	env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
-	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS" \
-  LDFLAGS="$LDFLAGS" LIBDRM_CFLAGS="$LIBDRM_CFLAGS" LIBDRM_LIBS="$LIBDRM_LIBS"
+	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
 	# build command
 	Info && make -j${mkjobs}
