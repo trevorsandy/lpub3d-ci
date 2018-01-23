@@ -11,7 +11,7 @@
 # -export WD=$PWD; export DOCKER=true; chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # -export OBS=false; source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
 
-# NOTE: OBS flag is 'ON' by default, be sure to set this flag in your calling command accordingly
+# NOTE: OBS flag is 'ON' by default, if not using DOCKER, be sure to set this flag in your build command accordingly
 # NOTE: elevated access required for dnf builddeps, execute with sudo if running noninteractive
 
 # Capture elapsed time - reset BASH time counter
@@ -228,7 +228,7 @@ InstallDependencies() {
         specFile="$PWD/unix/obs/povray.spec"
        ;;
       esac;
-      rpmbuildDeps="TBD"
+      rpmbuildDeps="Sorry, spec file does not support reliable dependency display."
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
       if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
@@ -310,10 +310,10 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [[ "${build_osmesa}" = 1 && ! "$get_local_libs" = 1 ]]; then
+  if [[ "$build_osmesa" = 1 && ! "$get_local_libs" = 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
-  if [ "${no_gallium}" = 1 ]; then
+  if [ "$no_gallium" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$get_local_libs" = 1 ]; then
@@ -351,10 +351,10 @@ BuildLDView() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [[ "${build_osmesa}" = 1 && ! "$get_local_libs" = 1 ]]; then
+  if [[ "$build_osmesa" = 1 && ! "$get_local_libs" = 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
-  if [ "${no_gallium}" = 1 ]; then
+  if [ "$no_gallium" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$build_tinyxml" = 1 ]; then
@@ -390,32 +390,33 @@ BuildPOVRay() {
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
   if [ "$OBS_RPM1315_BUILD_OPTS" = 1 ]; then
-    BUILD_FLAGS="$BUILD_FLAGS CXXFLAGS=\"$OBS_RPM_BUILD_CXXFLAGS\" CFLAGS=\"$OBS_RPM_BUILD_CFLAGS\""
     BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
+    BUILD_FLAGS="$BUILD_FLAGS CXXFLAGS=\"$OBS_RPM_BUILD_CXXFLAGS\" CFLAGS=\"$OBS_RPM_BUILD_CFLAGS\""
   fi
   if [ "$get_local_libs" = 1 ]; then
     [ -z "$BUILD_FLAGS" ] && \
     BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\"" || \
     BUILD_FLAGS="$BUILD_FLAGS CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\""
   fi
-  Info "DEBUG_DEBUG BUILD_FLAGS: ${BUILD_FLAGS}"
-  Info "DEBUG_DEBUG PRINT_ENV:   $BUILD_CONFIG"
+  #Info "DEBUG_DEBUG BUILD_FLAGS: $BUILD_FLAGS"
+  #Info "DEBUG_DEBUG PRINT_ENV:   $BUILD_CONFIG"
   export POV_IGNORE_SYSCONF_MSG="yes"
   export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
   Info "Prepend PKG_CONFIG_PATH for POVRay build: $PKG_CONFIG_PATH"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
-  [ -n "$BUILD_FLAGS" ] && env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
+  [ -n "$BUILD_FLAGS" ] && \
+  env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
-  Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
+  #Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
   if [ "${OBS}" = "true" ]; then
     make
     make install
     make check
-    # if [ ! -f "unix/lpub3d_trace_cui" ]; then
-    #   Info "ERROR - lpub3d_trace_cui build failed!"
-    #   Info "The config.log may give some insights."
-    #   cat config.log
-    # fi
+    if [ ! -f "unix/lpub3d_trace_cui" ]; then
+      Info "ERROR - lpub3d_trace_cui build failed!"
+      Info "The config.log may give some insights."
+      cat config.log
+    fi
   else
     make > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
@@ -517,12 +518,12 @@ elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
-  [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "Build from source........[OSMesa]" || true
-  [ -n "$no_gallium" ] && Info "Gallium driver...........[not available]" || true
-  [ -n "$get_local_libs" ] && Info "Get local libraries..... [OSMesa, LLVM, OpenEXR, DRM at $LP3D_LL_USR/lib64]" || true
-  [ -n "$build_sdl2" ] && Info "Build from source........[SDL2]" || true
-  [ -n "$build_tinyxml" ] && Info "Build from source........[TinyXML]" || true
-  [ -n "$build_gl2ps" ] && Info "Build from source........[GL2PS]" || true
+  [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "OSMesa...................[Build from source]"                   
+  [ -n "$no_gallium" ] && Info "Gallium driver...........[Not available]" || true
+  [ -n "$get_local_libs" ] && Info "Get local libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
+  [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true 
+  [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
+  [ -n "$build_gl2ps" ] && Info "GL2PS....................[Build from source]" || true
 else
   Info "Platform_pretty_name.....[${platform_pretty}]"
 fi

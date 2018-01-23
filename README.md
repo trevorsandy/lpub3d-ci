@@ -20,7 +20,7 @@ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leo
 
 ### Compatibility
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.  
-LPub3D is also availabe as a Linux 'no-install', multi-platform [AppImage][appimage-url].
+LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-info-url].
  - [GitHub Releases][githubreleases]
  - [Sourceforge Releases][sfreleases]
  - [Open Build Service Releases][obsreleases] - Linux add repository and install, openSUSE/SUSE 'one-click' installs
@@ -114,7 +114,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 [maintained-badge]:    https://img.shields.io/maintenance/yes/2018.svg
 
-[appimage-url]:        https://appimage.org/
+[appimage-info-url]:   https://appimage.org/
 [obs-url]:             https://build.opensuse.org/package/show/home:trevorsandy/lpub3d     
 [dockerinstall]:       https://www.docker.com/get-docker
 [dockercomposefile]:   https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml

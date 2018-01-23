@@ -116,7 +116,7 @@ if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
 	fi
 fi
 
-#check for llvm-config - and process OBS alternative config (local libs, no gallium, etc...)
+#check for llvm-config - and process OBS alternative config (e.g. no gallium)
 if [ ! -f "${llvm_config}" ]; then
   if [ "$OBS" = "true" ]; then
     if [ ! "$nogallium" = 1 ]; then

@@ -1,14 +1,15 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 04 2017
+# Last Update January 23 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateDeb.sh
 # [options]:
-#  - export DOCKER=true if using Docker image
-# [note]: elevated access required for apt-get install, execute with sudo
+#  - export DOCKER=true (if using Docker image)
+#  - export OBS=false (if building locally)
+# NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
-# docker-compose/dockerfiles for script exampo of sudo, no password user.
+# docker-compose/dockerfiles for script example of sudo, no password user.
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0

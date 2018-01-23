@@ -17,6 +17,7 @@ Description: LDraw™ editor for LEGO® style digital building instructions.
  available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
  file formats. LPub3D is available for free under the GNU Public License v3
  and runs on Windows, Linux and macOS Operating Systems.
+ LPub3D is also availabe as a Linux 'no-install', multi-platform AppImage.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
  LeoCAD© 2015 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not

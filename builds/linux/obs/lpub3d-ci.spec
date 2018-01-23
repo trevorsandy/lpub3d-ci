@@ -82,7 +82,7 @@ Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: <set at build time>
-Release: %{dist}
+Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
@@ -149,7 +149,7 @@ echo "%{suse_dist_label}"
 echo "CentOS.........................%{centos_version}"
 %endif
 %if 0%{?fedora}
-echo "Fedora.........................%{fedora_version}"
+echo "Fedora.........................%{fedora}"
 %endif
 %if 0%{?rhel_version}
 echo "RedHat Enterprise Linux........%{rhel_version}"

@@ -102,7 +102,7 @@ Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: 2.1.0.488
 %if 0%{?buildservice}
-Release: .<B_CNT>%{?dist}
+Release: <B_CNT>%{?dist}
 %else
 Release: %{?dist}
 %endif
@@ -169,6 +169,7 @@ BuildRequires: openssl-devel, storaged
 %endif
 
 %if 0%{?suse_version}
+Requires(pre): gconf2
 BuildRequires: libqt5-qtbase-devel
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel, freeglut-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
@@ -226,6 +227,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %if 0%{?buildservice}
 BuildRequires:  -post-build-checks
 %endif
+Requires(post): desktop-file-utils
 %endif
 
 # POV-Ray dependencies - SUSE/CentOS builds
@@ -410,6 +412,7 @@ BuildRequires:  pkgconfig(xxf86vm)
  available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
  file formats. LPub3D is available for free under the GNU Public License v3
  and runs on Windows, Linux and macOS Operating Systems.
+ LPub3D is also availabe as a Linux 'no-install', multi-platform AppImage.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
  LeoCAD© 2015 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
@@ -607,12 +610,13 @@ cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
 
 %install
 make INSTALL_ROOT=%buildroot install
+define versuffix %(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
 # check lpub3d dependencies with LDD to ensure all dependencies are met
 %if 0%{?get_qt5} || 0%{?get_local_libs}
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
-export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
-[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || echo "ERROR - LDD failed for ${validExe}"
+validExe=%{buildroot}%{_bindir}/lpub3d%{versuffix}
+[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || \
+echo "ERROR - LDD check failed for ${validExe}"
 %endif
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
@@ -642,9 +646,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d/*
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %if 0%{?get_qt5} || 0%{?get_local_libs}
-%{_sysconfdir}/ld.so.conf.d/*
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/*
 %if 0%{?get_local_libs}
-%{_exec_prefix}/lib/udev/rules.d/*
+%config(noreplace) %{_exec_prefix}/lib/udev/rules.d/*
 %endif
 %endif
 

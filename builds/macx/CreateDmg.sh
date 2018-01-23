@@ -227,7 +227,7 @@ mkdir -p ${DMGDIR}
 # pos: builds/macx
 echo "- generate README file and dmg make script..."
 cat <<EOF >README
-Thank you for installing LPub3D v${APP_VERSION} for MacOS".
+Thank you for installing LPub3D v${APP_VERSION} for macOS".
 
 Drag the LPub3D Application icon to the Applications folder.
 

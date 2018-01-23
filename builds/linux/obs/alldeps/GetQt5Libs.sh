@@ -7,7 +7,7 @@
 # This script is sourced to extract and bin-patch the Qt5 assets.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 21, 2018
+#  Last Update: January 22, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
@@ -25,14 +25,14 @@ echo "Extracting tarball qt5-5.9.3-gcc_64-el.tar.gz..." && \
 tar -xzf qt5-5.9.3-gcc_64-el.tar.gz || true
 
 # Set QtBinPatcher command options
-[ "$RPM_STAGE" = "build" ] && patchopts="--verbose --nobackup" || \
-patchopts="--verbose --nobackup --qt-dir=$PWD/$LP3D_QT5_DIR/bin --new-dir=$RPM_LIBDIR"
+[ "$RPM_STAGE" = "build" ] && patchopts="--verbose --nobackup"
 
 # Run QtBinPatcher - export QT5_BIN path
-[ -f "$PWD/$LP3D_QT5_DIR/bin/qmake" ] && \
-cd $LP3D_QT5_DIR_PATH/bin && ./qtbinpatcher $patchopts &&
-export LP3D_QT5_BIN=$PWD && export LP3D_QT5_DIR_PATH || \
-echo "ERROR - Could not run QtBinPatcher"
+pushd $LP3D_QT5_DIR/bin
+  [ -f "qmake" ] && ./qtbinpatcher $patchopts &&
+  export LP3D_QT5_BIN=$PWD && export LP3D_QT5_DIR_PATH || \
+  echo "ERROR - Could not run QtBinPatcher"
+popd
 
 # Update ld_library_path
 export LD_LIBRARY_PATH=$LP3D_QT5_DIR_PATH/bin:$LD_LIBRARY_PATH
