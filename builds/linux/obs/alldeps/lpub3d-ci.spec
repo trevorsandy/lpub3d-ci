@@ -381,10 +381,6 @@ BuildRequires:  pkgconfig(ice)
 %if !0%{?rhel_version}
 BuildRequires:  pkgconfig(ibus-1.0)
 BuildRequires:  pkgconfig(gbm) >= 9.0.0
-%else
-%if 0%{?rhel_version} == 700
-BuildRequires:  pkgconfig(ibus-1.0)
-%endif
 %endif
 %if 0%{?rhel_version} == 600 || 0%{?scientificlinux_version} == 600
 BuildRequires:  pkgconfig(libdrm)
