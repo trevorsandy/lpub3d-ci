@@ -108,7 +108,7 @@ unix:!macx {
 
     LP3D_PCS = $$system("find $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig -type f")
     isEmpty(LP3D_PCS): message("~~~ ERROR - No .pc files found at $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig ~~~")
-    for(LP3D_PC, $$LP3D_PCS) {
+    for(LP3D_PC, LP3D_PCS) {
         system("sed -i \"s,/usr,$${LP3D_LIBDIR},g\" $$LP3D_PC >/dev/null")
         message("~~~ UPDATE PC FILE $$LP3D_PC PATH PREFIX TO $${LP3D_LIBDIR} ~~~")
     }

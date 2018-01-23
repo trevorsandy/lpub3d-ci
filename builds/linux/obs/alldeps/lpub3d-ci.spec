@@ -381,6 +381,10 @@ BuildRequires:  pkgconfig(ice)
 %if !0%{?rhel_version}
 BuildRequires:  pkgconfig(ibus-1.0)
 BuildRequires:  pkgconfig(gbm) >= 9.0.0
+%else
+%if 0%{?rhel_version} == 700
+BuildRequires:  pkgconfig(ibus-1.0)
+%endif
 %endif
 %if 0%{?rhel_version} == 600 || 0%{?scientificlinux_version} == 600
 BuildRequires:  pkgconfig(libdrm)
@@ -607,7 +611,7 @@ cat mainApp/lpub3d-qtlibs.conf || echo "Could not find lpub3d-qtlibs.conf"
 [ -f "mainApp/lpub3d-libs.conf" ] && echo "Check generated lpub3d-libs.conf..." && \
 cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
 echo "Check updated local library pc file..." && \
-cat %{_sourcedir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_sourcedir}/usr/lib64/pkgconfig/OpenEXR.pc"
+cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc"
 %endif
 
 %install
