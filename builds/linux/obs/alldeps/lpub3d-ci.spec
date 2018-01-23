@@ -637,7 +637,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
-%{_libdir}/*
 %{_datadir}/lpub3d/*
 %{_datadir}/pixmaps/*
 %{_datadir}/metainfo/*
@@ -648,6 +647,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %doc %{_docdir}/lpub3d/*
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %if 0%{?get_qt5} || 0%{?get_local_libs}
+%{_libdir}/*
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/*
 %if 0%{?get_local_libs}
 %config(noreplace) %{_exec_prefix}/lib/udev/rules.d/*

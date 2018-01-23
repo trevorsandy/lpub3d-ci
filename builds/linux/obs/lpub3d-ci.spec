@@ -254,7 +254,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
-%{_libdir}/*
 %{_datadir}/lpub3d/*
 %{_datadir}/pixmaps/*
 %{_datadir}/metainfo/*
