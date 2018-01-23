@@ -31,7 +31,7 @@
 
 # set target platform id
 # distinguish between OpenSUSE and SLE
-%if 0%{?sle_version}>=120000
+%if (0%{?sles_version} && 0%{?sle_version}>=120000)
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
 %define build_sdl2 1
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
@@ -610,11 +610,11 @@ cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
 
 %install
 make INSTALL_ROOT=%buildroot install
-define versuffix %(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
 # check lpub3d dependencies with LDD to ensure all dependencies are met
 %if 0%{?get_qt5} || 0%{?get_local_libs}
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
-validExe=%{buildroot}%{_bindir}/lpub3d%{versuffix}
+export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
 [ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || \
 echo "ERROR - LDD check failed for ${validExe}"
 %endif

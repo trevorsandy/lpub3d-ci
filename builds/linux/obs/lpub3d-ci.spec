@@ -31,7 +31,7 @@
 
 # set target platform id
 # distinguish between OpenSUSE and SLE
-%if 0%{?sle_version}>=120000
+%if (0%{?sles_version} && 0%{?sle_version}>=120000)
 %define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
