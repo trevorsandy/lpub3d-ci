@@ -4,8 +4,8 @@ QT -= gui
 
 # The ABI version.
 # Version format is year.month.day.patch
-win32: VERSION = 16.1.8.0  # major.minor.patch.build
-else: VERSION = 16.1.8     # major.minor.patch
+win32: VERSION = 16.1.8.0   # major.minor.patch.build
+else:  VERSION = 16.1.8     # major.minor.patch
 
 contains(QT_ARCH, x86_64) {
     ARCH = 64
@@ -32,11 +32,13 @@ macx {
 }
 
 CONFIG += skip_target_version_ext
-unix:!macx: TARGET = ldrawini
-else: TARGET = LDrawIni
+unix: !macx: TARGET = ldrawini
+else:        TARGET = LDrawIni
 
-# Indicate build type,
-# be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
+# Build static lib for Linux and macOS
+CONFIG += staticlib
+
+# Indicate build type
 staticlib: BUILD = Static
 else:      BUILD = Shared
 
@@ -65,7 +67,7 @@ QMAKE_EXT_CPP = .c
 include(ldrawini.pri)
 include(../LPub3DPlatformSpecific.pri)
 
-unix {
+!staticlib: unix {
     isEmpty(PREFIX):PREFIX = /usr
     headers.path=$$PREFIX/include
     headers.files=$$HEADERS

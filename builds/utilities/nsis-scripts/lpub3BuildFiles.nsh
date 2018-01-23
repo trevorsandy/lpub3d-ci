@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: October 10, 2017
+;Last Update: January 23, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -14,11 +14,11 @@ ${If} ${RunningX64}
 	IfFileExists "ldrawini.dll" 0
 	Delete "ldrawini.dll"
 
-  ;Deposit new files...
+  ;Deposit new 64bit files...
 	;File "${Win64BuildDir}\${LPub3D64bitBuildFile}"
 	File "${Win64BuildDir}\${LPub3DBuildFile}"
-	File "${Win64BuildDir}\${QuaZIPBuildFile}"
-	File "${Win64BuildDir}\${LDrawIniBuildFile}"
+	;File "${Win64BuildDir}\${QuaZIPBuildFile}"
+	;File "${Win64BuildDir}\${LDrawIniBuildFile}"
 
 	File "${Win64BuildDir}\Qt5Core.dll"
 	File "${Win64BuildDir}\Qt5Network.dll"
@@ -105,11 +105,11 @@ ${Else}
 	IfFileExists "ldrawini.dll" 0
 	Delete "ldrawini.dll"
 
-	;Deposit new files...
+	;Deposit new 32bit files...
 	;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
 	File "${Win32BuildDir}\${LPub3DBuildFile}"
-	File "${Win32BuildDir}\${QuaZIPBuildFile}"
-	File "${Win32BuildDir}\${LDrawIniBuildFile}"
+	;File "${Win32BuildDir}\${QuaZIPBuildFile}"
+	;File "${Win32BuildDir}\${LDrawIniBuildFile}"
 
 	File "${Win32BuildDir}\Qt5Core.dll"
 	File "${Win32BuildDir}\Qt5Network.dll"

@@ -94,8 +94,8 @@ SET SignToolExe="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
 SET utilitiesPath=..\utilities
 SET devRootPath=..\..\mainApp
 
-SET LDRAWINI_BUILD_FILE=LDrawIni161.dll
-SET QUAZIP_BUILD_FILE=QuaZIP07.dll
+REM SET LDRAWINI_BUILD_FILE=LDrawIni161.dll
+REM SET QUAZIP_BUILD_FILE=QuaZIP07.dll
 
 SET LDGLITE_DIR=ldglite-1.3
 SET LDVIEW_DIR=ldview-4.3
@@ -511,12 +511,12 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
 >>%genVersion%.
->>%genVersion% !define QuaZipBuildFile "%QUAZIP_BUILD_FILE%"
->>%genVersion% ; ${QuaZipBuildFile}
->>%genVersion%.
->>%genVersion% !define LDrawIniBuildFile "%LDRAWINI_BUILD_FILE%"
->>%genVersion% ; ${LDrawIniBuildFile}
->>%genVersion%.
+REM >>%genVersion% !define QuaZipBuildFile "%QUAZIP_BUILD_FILE%"
+REM >>%genVersion% ; ${QuaZipBuildFile}
+REM >>%genVersion%.
+REM >>%genVersion% !define LDrawIniBuildFile "%LDRAWINI_BUILD_FILE%"
+REM >>%genVersion% ; ${LDrawIniBuildFile}
+REM >>%genVersion%.
 >>%genVersion% !define LDGliteDir "%LDGLITE_DIR%"
 >>%genVersion% ; ${LDGliteDir}
 >>%genVersion%.

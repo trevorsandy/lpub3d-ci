@@ -5,7 +5,7 @@ macx {
     QMAKE_INFO_PLIST = Info.plist
 
     # libraries
-    CONFIG(release, debug|release) {
+    !staticlib: CONFIG(release, debug|release) {
         libquazip.files += \
             $$DESTDIR/../../quazip/$$join(ARCH,,,bit_release)/libQuaZIP.0.dylib
         libquazip.path = Contents/Libs

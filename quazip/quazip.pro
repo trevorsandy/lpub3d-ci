@@ -3,8 +3,8 @@ CONFIG += qt warn_on
 QT -= gui
 
 # The ABI version.
-win32:VERSION = 0.7.2.0 # major.minor.patch.build
-else:VERSION = 0.7.2    # major.minor.patch
+win32: VERSION = 0.7.2.0  # major.minor.patch.build
+else: VERSION  = 0.7.2    # major.minor.patch
 # 1.0.0 is the first stable ABI.
 # The next binary incompatible change will be 2.0.0 and so on.
 # The existing QuaZIP policy on changing ABI requires to bump the
@@ -45,18 +45,22 @@ win32 {
 macx: LIBS += -lz
 
 CONFIG += skip_target_version_ext
-unix:!macx: TARGET = quazip
-else: TARGET = QuaZIP
+unix: !macx: TARGET = quazip
+else:        TARGET = QuaZIP
 
 # You'll need to define this one manually if using a build system other
 # than qmake or using QuaZIP sources directly in your project.
-# Be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
-CONFIG(staticlib): DEFINES += QUAZIP_STATIC
+
+# Build static lib for Linux and macOS
+CONFIG += staticlib
+
+# Indicate build type
 staticlib {
-    BUILD = Static
+    BUILD    = Static
+    DEFINES += QUAZIP_STATIC
 } else {
     # This one handles dllimport/dllexport directives.
-    BUILD = Shared
+    BUILD    = Shared
     DEFINES += QUAZIP_BUILD
 }
 
@@ -83,7 +87,7 @@ UI_DIR          = $$DESTDIR/.ui
 include(quazip.pri)
 include(../LPub3DPlatformSpecific.pri)
 
-unix:!symbian {
+!staticlib: unix: !symbian {
     isEmpty(PREFIX):PREFIX = /usr
     headers.path=$$PREFIX/include/quazip
     headers.files=$$HEADERS

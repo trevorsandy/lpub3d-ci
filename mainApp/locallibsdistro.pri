@@ -1,6 +1,6 @@
 unix:!macx {
   # Install libraries not available natively - used for RHEL builds
-  install_qt_libs    = $$(get_qt5)
+  install_qt_libs       = $$(get_qt5)
   install_local_el_libs = $$(get_local_libs)
 
   isEmpty(INSTALL_SYSCONF):INSTALL_SYSCONF             = /etc
@@ -31,7 +31,7 @@ unix:!macx {
     LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf
     LP3D_QTLDCONF_LINES += $$LP3D_LIBDIR_QT5
 
-    !write_file($$LP3D_QTLDCONF_FILE, $$LP3D_QTLDCONF_LINES) {
+    !write_file($$LP3D_QTLDCONF_FILE, LP3D_QTLDCONF_LINES) {
       message("~~~ ERROR - Could not create $$LP3D_QTLDCONF_FILE ~~~")
     } else {
       message("~~~ FILE $$LP3D_QTLDCONF_FILE CREATED ~~~")
@@ -109,8 +109,8 @@ unix:!macx {
     LP3D_PCS = $$system("find $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig -type f")
     isEmpty(LP3D_PCS): message("~~~ ERROR - No .pc files found at $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig ~~~")
     for(LP3D_PC, LP3D_PCS) {
-        system("sed -i \"s,/usr,$${LP3D_LIBDIR},g\" $$LP3D_PC >/dev/null")
-        message("~~~ UPDATE PC FILE $$LP3D_PC PATH PREFIX TO $${LP3D_LIBDIR} ~~~")
+        system("sed -i \"s,$${LP3D_LOCAL_LIBDIR_USR},$${LP3D_LIBDIR},g\" $${LP3D_PC} >/dev/null")
+        message("~~~ UPDATE PC FILE $${LP3D_PC} PATH PREFIX TO $${LP3D_LIBDIR} ~~~")
     }
 
     local_el_llvm_conf_d.files += \

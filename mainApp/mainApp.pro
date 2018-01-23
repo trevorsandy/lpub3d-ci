@@ -114,7 +114,7 @@ static {                                     # everything below takes effect wit
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
-# If quazip is already installed, set CONFIG+=quazipnobuld to use installed library
+# If quazip is already installed, set CONFIG+=quazipnobuild to use installed library
 
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
