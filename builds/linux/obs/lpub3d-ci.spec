@@ -223,11 +223,15 @@ chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRender
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
+# Qt setup
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
-  qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  QMAKE_EXEC=qmake-qt5
 else
-  qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+  QMAKE_EXEC=qmake
 fi
+echo && ${QMAKE_EXEC} -v && echo
+# configure and build LPub3d
+${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
 make %{?_smp_mflags}
 
@@ -251,19 +255,16 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_bindir}/*
 %{_libdir}/*
+%{_datadir}/lpub3d/*
 %{_datadir}/pixmaps/*
 %{_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%{_datadir}/lpub3d
-%{_3rdexedir}/*
-%dir %{_iconsdir}/hicolor/
-%dir %{_iconsdir}/hicolor/scalable/
-%dir %{_iconsdir}/hicolor/scalable/mimetypes/
-%attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%attr(644,-,-) %doc %{_docdir}/lpub3d
-%attr(644,-,-) %{_mandir}/man1/*
 %attr(755,-,-) %{_3rdexedir}/*
+%attr(644,-,-) %{_mandir}/man1/*
+%attr(644,-,-) %doc %{_docdir}/lpub3d/*
+%attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
+
 %post -p /sbin/ldconfig
 %if 0%{?buildservice}!=1
 update-mime-database  /usr/share/mime >/dev/null || true

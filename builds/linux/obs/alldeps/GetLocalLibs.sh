@@ -80,6 +80,15 @@ if [ "$RPM_STAGE" = "build" ]; then
     echo "Library file and symlink list..." && \
     find -name 'lib*.so*' || true
   popd
+
+  # Update pc files...
+  pushd ${LP3D_LL_USR}/lib64/pkgconfig
+    echo "Update local libs .pc file..." && \
+    for file in $(find . -type f)
+    do
+      sed -i "s,/usr,${LP3D_LL_USR},g" $file
+    done
+  popd
 fi
 
 # Restore working directory

@@ -27,11 +27,6 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/changelog</param>
-      <param name="outfilename">debian.changelog</param>
-  </service>
-  <service name="extract_file">
-      <param name="archive">*.tar</param>
       <param name="files">*/builds/linux/obs/debian/compat</param>
       <param name="outfilename">debian.compat</param>
   </service>
@@ -42,8 +37,23 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/postrm</param>
+      <param name="outfilename">debian.postrm</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/postinst</param>
+      <param name="outfilename">debian.postinst</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
       <param name="files">*/builds/linux/obs/debian/rules</param>
       <param name="outfilename">debian.rules</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/alldeps/debian/changelog</param>
+      <param name="outfilename">debian.changelog</param>
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>

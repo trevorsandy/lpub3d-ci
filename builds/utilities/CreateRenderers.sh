@@ -518,10 +518,10 @@ elif [ "${OBS}" = "true" ]; then
   Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
-  [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "OSMesa...................[Build from source]"                   
+  [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "OSMesa...................[Build from source]"
   [ -n "$no_gallium" ] && Info "Gallium driver...........[Not available]" || true
   [ -n "$get_local_libs" ] && Info "Get local libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
-  [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true 
+  [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
   [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
   [ -n "$build_gl2ps" ] && Info "GL2PS....................[Build from source]" || true
 else

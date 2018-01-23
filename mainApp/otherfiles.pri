@@ -10,7 +10,8 @@ OTHER_FILES += \
 ../builds/linux/obs/alldeps/debian/changelog \
 ../builds/linux/obs/alldeps/debian/control \
 ../builds/linux/obs/alldeps/debian/lpub3d-ci.dsc \
-../builds/linux/obs/alldeps/debian/postrm \
+../builds/linux/obs/alldeps/GetLocalLibs.sh \
+../builds/linux/obs/alldeps/GetQt5Libs.sh \
 ../builds/linux/obs/alldeps/lpub3d-ci.spec \
 ../builds/linux/obs/alldeps/PKGBUILD \
 ../builds/linux/obs/debian/changelog \
@@ -18,6 +19,8 @@ OTHER_FILES += \
 ../builds/linux/obs/debian/control \
 ../builds/linux/obs/debian/copyright \
 ../builds/linux/obs/debian/lpub3d-ci.dsc \
+../builds/linux/obs/debian/postinst \
+../builds/linux/obs/debian/postrm \
 ../builds/linux/obs/debian/lpub3d-ci.lintian-overrides \
 ../builds/linux/obs/debian/rules \
 ../builds/linux/obs/debian/source/format \

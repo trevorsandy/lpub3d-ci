@@ -100,7 +100,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.1.0.488
+Version: 2.1.0.491
 %if 0%{?buildservice}
 Release: <B_CNT>%{?dist}
 %else
@@ -606,6 +606,8 @@ cat mainApp/lpub3d-qtlibs.conf || echo "Could not find lpub3d-qtlibs.conf"
 %if 0%{?get_local_libs}
 [ -f "mainApp/lpub3d-libs.conf" ] && echo "Check generated lpub3d-libs.conf..." && \
 cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
+echo "Check updated local library pc file..." && \
+cat %{_sourcedir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_sourcedir}/usr/lib64/pkgconfig/OpenEXR.pc"
 %endif
 
 %install
@@ -664,5 +666,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Mon Jan 22 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.488
+* Tue Jan 23 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.491
 - LPub3D Linux package (rpm) release
