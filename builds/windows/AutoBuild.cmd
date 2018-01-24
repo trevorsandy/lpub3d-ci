@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 28, 2017
+rem  Last Update: January 24, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -75,18 +75,24 @@ IF NOT [%1]==[] (
 
 rem Parse platform input flags
 IF [%1]==[] (
+  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="x86" (
+  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="x86_64" (
+  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86_64
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="-all" (
+  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
@@ -147,8 +153,6 @@ IF NOT EXIST "%LP3D_WIN_GIT%" (
   SET LP3D_WIN_GIT=
   SET LP3D_WIN_GIT_MSG=Not Found
 )
-
-
 
 rem Display build settings
 ECHO.
@@ -469,10 +473,23 @@ ECHO -03. (COMMAND ERROR) Invalid command string [%~nx0 %*].
 ECHO      See Usage.
 GOTO :END
 
+:LIBRARY_ERROR
+ECHO.
+CALL :USAGE
+ECHO.
+ECHO -04. (LIBRARY ERROR) Qt MinGW library required for command not found [%~nx0 %*].
+ECHO      See Usage.
+GOTO :END
+
 :USAGE
 ECHO ----------------------------------------------------------------
 ECHO.
 ECHO %PACKAGE% Windows auto build script.
+ECHO.
+ECHO NOTE: To successfully run all options of this script locally,
+ECHO you must have both Win32 and Win64 MinGW configured with Qt.
+ECHO For example, a single MSYS2 install could host both 32bit and
+ECHO 64bit Qt libraries
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
@@ -510,7 +527,7 @@ ECHO ----------------------------------------------------------------
 ECHO  -help......1......Useage flag         [Default=Off] Display useage.
 ECHO  x86........1......Platform flag       [Default=Off] Build 32bit architecture.
 ECHO  x86_64.....1......Platform flag       [Default=Off] Build 64bit architecture.
-ECHO  -all.......1......Configuraiton flag  [Default=On ] Build both  32bit and 64bit architectures
+ECHO  -all.......1......Configuraiton flag  [Default=On ] Build both  32bit and 64bit architectures - Requries Qt libraries for both architectures.
 ECHO  -3rd.......2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
 ECHO  -ins.......2,3....Project flag        [Default=On ] Install distribution as LPub3D 3rd party installation
 ECHO  -chk.......2,3,4..Project flag        [Default=Off] Perform a build check [This flag is not currently functional]

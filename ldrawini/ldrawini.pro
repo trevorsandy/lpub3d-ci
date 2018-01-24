@@ -1,6 +1,7 @@
 TEMPLATE = lib
 CONFIG += qt warn_on
 QT -= gui
+!win32: CONFIG += staticlib
 
 # The ABI version.
 # Version format is year.month.day.patch
@@ -35,9 +36,6 @@ CONFIG += skip_target_version_ext
 unix: !macx: TARGET = ldrawini
 else:        TARGET = LDrawIni
 
-# Build static lib for Linux and macOS
-CONFIG += staticlib
-
 # Indicate build type
 staticlib: BUILD = Static
 else:      BUILD = Shared
@@ -63,36 +61,9 @@ UI_DIR          = $$DESTDIR/.ui
 
 QMAKE_EXT_CPP = .c
 
-# Input
+# Input files
 include(ldrawini.pri)
 include(../LPub3DPlatformSpecific.pri)
-
-!staticlib: unix {
-    isEmpty(PREFIX):PREFIX = /usr
-    headers.path=$$PREFIX/include
-    headers.files=$$HEADERS
-    deb {
-        target.path=$$PREFIX/lib/$$QT_ARCH-linux-gnu
-        message("~~~ LDRAWINI DEB $$join(ARCH,,,bit) LIB ~~~")
-    }
-    rpm {
-        equals (ARCH, 64) {
-            target.path=$$PREFIX/lib$$ARCH
-            message("~~~ LDRAWINI RPM $$join(ARCH,,,bit) LIB ~~~")
-        } else {
-            target.path=$$PREFIX/lib
-            message("~~~ LDRAWINI RPM 32bit LIB ~~~")
-        }
-    }
-    !deb:!rpm {
-        target.path=$$PREFIX/lib
-        message("~~~ LDRAWINI $$join(ARCH,,,bit) LIB ~~~")
-    }
-    INSTALLS += target
-    libheaders: INSTALLS += headers
-    libheaders: message("~~~ INSTALL LDRAWINI LIB HEADERS ~~~")
-
-}
 
 # Suppress warnings
 QMAKE_CFLAGS_WARN_ON += -Wall -W \

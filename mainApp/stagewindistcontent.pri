@@ -6,6 +6,8 @@ win32: stagewindistcontent {
     # 32bit and 64bit
     target.path = $$LPUB3D_STG_PATH
 
+    # On Windows we continue to build dynamic (.dll) libs for LDrawini and QuaZip
+    # because - for the life of me - I can't get statically built libs to link:-(
     lpub3d_libs.files += \
         $$LPUB3D_STG_LIBS/ldrawini/$$join(ARCH,,,bit_$$DIST)/LDrawIni161.dll
     !quazipnobuild {

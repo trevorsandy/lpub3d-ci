@@ -56,8 +56,9 @@ OTHER_FILES += \
 ../builds/utilities/mesa/osmesa-config \
 ../builds/utilities/nsis-scripts/AppVersion.nsh \
 ../builds/utilities/nsis-scripts/EnumUsersReg.nsh \
-../builds/utilities/nsis-scripts/lpub3BuildFiles.nsh \
+../builds/utilities/nsis-scripts/LPub3DInstallFiles.nsh \
 ../builds/utilities/nsis-scripts/LPub3DNoPack.nsi \
+../builds/utilities/nsis-scripts/LPub3DUninstallFiles.nsh \
 ../builds/utilities/nsis-scripts/nsisFunctions.nsh \
 ../builds/utilities/nsis-scripts/un.EnumUsersReg.nsh \
 ../builds/utilities/README.md \

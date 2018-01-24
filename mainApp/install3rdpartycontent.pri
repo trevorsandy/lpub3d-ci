@@ -79,9 +79,11 @@ copy3rdcontent {
         $$LDGLITE_INS_DOC/LICENCE
     ldglite_ins_docs.path = $$LDGLITE_INS_DOC_DIR
 
-    ldglite_ins_resources.files += \
-        $$LDGLITE_INS_RES/set-ldrawdir.command
-    ldglite_ins_resources.path = $$LDGLITE_INS_RES_DIR
+    macx {
+        ldglite_ins_resources.files += \
+            $$LDGLITE_INS_RES/set-ldrawdir.command
+        ldglite_ins_resources.path = $$LDGLITE_INS_RES_DIR
+    }
 
     # ldview contnet
     ldview_ins_docs.files += \

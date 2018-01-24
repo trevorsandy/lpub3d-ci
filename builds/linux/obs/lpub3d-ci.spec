@@ -85,7 +85,7 @@ Version: <set at build time>
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
-BuildRoot: %{_builddir}/%{name}
+BuildRoot: 1%{_builddir}/%{name}
 BuildRequires: unzip
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc

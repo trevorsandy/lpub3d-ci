@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 14, 2018
+rem  Last Update: January 24, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
@@ -511,12 +511,12 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
 >>%genVersion%.
-REM >>%genVersion% !define QuaZipBuildFile "%QUAZIP_BUILD_FILE%"
-REM >>%genVersion% ; ${QuaZipBuildFile}
-REM >>%genVersion%.
-REM >>%genVersion% !define LDrawIniBuildFile "%LDRAWINI_BUILD_FILE%"
-REM >>%genVersion% ; ${LDrawIniBuildFile}
-REM >>%genVersion%.
+>>%genVersion% !define QuaZipBuildFile "%QUAZIP_BUILD_FILE%"
+>>%genVersion% ; ${QuaZipBuildFile}
+>>%genVersion%.
+>>%genVersion% !define LDrawIniBuildFile "%LDRAWINI_BUILD_FILE%"
+>>%genVersion% ; ${LDrawIniBuildFile}
+>>%genVersion%.
 >>%genVersion% !define LDGliteDir "%LDGLITE_DIR%"
 >>%genVersion% ; ${LDGliteDir}
 >>%genVersion%.
@@ -628,7 +628,7 @@ EXIT /b
 
 :GENERATE_JSON
 ECHO.
-ECHO - Generating update package platform available versions json inserts...
+ECHO - Generating update package available versions json inserts...
 SET LP3D_ARCH=x86_64
 SET LP3D_AMDARCH=amd64
 SET LP3D_DIST_EXTENSIONS=exe, dmg, deb, rpm, pkg, api
@@ -667,7 +667,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "osx-dmg": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_osx.dmg",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-macos.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_dmg%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-osx-dmg": {}
@@ -675,7 +675,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-deb": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_%LP3D_AMDARCH%.deb",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-%LP3D_AMDARCH%.deb",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-deb": {}
@@ -683,7 +683,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-rpm": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_fc.%LP3D_ARCH%.rpm",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-fc25.%LP3D_ARCH%.rpm",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-rpm": {}
@@ -691,7 +691,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-pkg": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%_1-%LP3D_ARCH%.pkg.tar.xz",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-1-%LP3D_ARCH%.pkg.tar.xz",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-pkg": {}
@@ -709,7 +709,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%.
 
 ECHO.
-ECHO - Merging json components into lpub3dupdates.json...
+ECHO - Merging update package version inserts into lpub3dupdates.json...
 
 (
   FOR /F "tokens=*" %%i IN (%PKG_UPDATE_DIR%\lpub3dupdates.json) DO (
@@ -762,10 +762,10 @@ EXIT /b
 :GENERATE_VERSION_INSERTS
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
-SET "dmg=_macos.%LP3D_EXT%"
-SET "deb=_amd64.%LP3D_EXT%"
-SET "rpm=_fc.%LP3D_ARCH%.%LP3D_EXT%"
-SET "pkg=_1-%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
+SET "dmg=-macos.%LP3D_EXT%"
+SET "deb=-%LP3D_AMDARCH%.%LP3D_EXT%"
+SET "rpm=-1.fc25.%LP3D_ARCH%.%LP3D_EXT%"
+SET "pkg=-1-%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
 SET "api=-%LP3D_ARCH%.AppImage"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
 REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension variable

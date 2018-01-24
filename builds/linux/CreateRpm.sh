@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 23 2018
+# Last Update January 24 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateRpm.sh
@@ -130,7 +130,7 @@ rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
-if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
+if [ -f ${DISTRO_FILE} ]
 then
     echo "15-1. check rpm packages..."
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
@@ -138,11 +138,11 @@ then
     echo "15-2. create update and download packages..."
     RPM_EXTENSION="${DISTRO_FILE##*-}"
 
-    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
-    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${RPM_EXTENSION}"
+    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
 
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}_${RPM_EXTENSION}"
-    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}_${RPM_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
 else
     echo "15. package ${DISTRO_FILE} not found."
 fi

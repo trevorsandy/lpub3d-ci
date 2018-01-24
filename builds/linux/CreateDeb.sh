@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 23 2018
+# Last Update January 24 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateDeb.sh
@@ -135,16 +135,16 @@ cd ../
 DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
 lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
-if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
+if [ -f ${DISTRO_FILE} ]
 then
     echo "12. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
-    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${DEB_EXTENSION}"
+    cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${DEB_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${DEB_EXTENSION}"
 
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_EXTENSION}"
-    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}_${DEB_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${DEB_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${DEB_EXTENSION}"
 
 else
     echo "12. package ${DISTRO_FILE} not found"

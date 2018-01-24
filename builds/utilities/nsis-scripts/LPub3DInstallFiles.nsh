@@ -1,5 +1,5 @@
-;LPub3D Setup Script
-;Last Update: January 23, 2018
+;LPub3D Install Files Script Include
+;Last Update: January 24, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -15,10 +15,9 @@ ${If} ${RunningX64}
 	Delete "ldrawini.dll"
 
   ;Deposit new 64bit files...
-	;File "${Win64BuildDir}\${LPub3D64bitBuildFile}"
 	File "${Win64BuildDir}\${LPub3DBuildFile}"
-	;File "${Win64BuildDir}\${QuaZIPBuildFile}"
-	;File "${Win64BuildDir}\${LDrawIniBuildFile}"
+	File "${Win64BuildDir}\${QuaZIPBuildFile}"
+	File "${Win64BuildDir}\${LDrawIniBuildFile}"
 
 	File "${Win64BuildDir}\Qt5Core.dll"
 	File "${Win64BuildDir}\Qt5Network.dll"
@@ -54,7 +53,6 @@ ${If} ${RunningX64}
 	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
   CreateDirectory "$INSTDIR\imageformats"
   SetOutPath "$INSTDIR\imageformats"
-	;File "${Win64BuildDir}\imageformats\qdds.dll"
 	File "${Win64BuildDir}\imageformats\qgif.dll"
 	File "${Win64BuildDir}\imageformats\qicns.dll"
 	File "${Win64BuildDir}\imageformats\qico.dll"
@@ -108,8 +106,8 @@ ${Else}
 	;Deposit new 32bit files...
 	;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
 	File "${Win32BuildDir}\${LPub3DBuildFile}"
-	;File "${Win32BuildDir}\${QuaZIPBuildFile}"
-	;File "${Win32BuildDir}\${LDrawIniBuildFile}"
+	File "${Win32BuildDir}\${QuaZIPBuildFile}"
+	File "${Win32BuildDir}\${LDrawIniBuildFile}"
 
 	File "${Win32BuildDir}\Qt5Core.dll"
 	File "${Win32BuildDir}\Qt5Network.dll"
@@ -322,8 +320,7 @@ CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\doc"
 SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\doc"
 File "${WinBuildDir}\3rdParty\${LDGliteDir}\doc\LICENCE"
 File "${WinBuildDir}\3rdParty\${LDGliteDir}\doc\README.TXT"
-SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\resources"
-File "${WinBuildDir}\3rdParty\${LDGliteDir}\resources\set-ldrawdir.command"
+
 ;3rd party renderer utility - LDView
 CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\doc"
 SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\doc"

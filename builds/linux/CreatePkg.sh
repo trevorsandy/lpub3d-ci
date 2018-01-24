@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 23 2018
+# Last Update January 24 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreatePkg.sh
@@ -123,16 +123,16 @@ echo "8. build application package"
 makepkg --syncdeps --noconfirm --needed
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
-if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
+if [ -f ${DISTRO_FILE} ]
 then
     echo "9. create update and download packages"
     IFS=- read PKG_NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
 
-    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}_${PKG_EXTENSION}"
-    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}_${PKG_EXTENSION}"
+    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"
 
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}_${PKG_EXTENSION}"
-    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}_${PKG_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${PKG_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${PKG_EXTENSION}"
 else
     echo "9. package ${DISTRO_FILE} not found."
 fi
