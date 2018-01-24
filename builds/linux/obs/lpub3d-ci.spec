@@ -82,10 +82,10 @@ Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
 Version: <set at build time>
-Release: %{?dist}
+Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
-BuildRoot: 1%{_builddir}/%{name}
+BuildRoot: %{_builddir}/%{name}
 BuildRequires: unzip
 Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc

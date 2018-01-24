@@ -628,7 +628,7 @@ EXIT /b
 
 :GENERATE_JSON
 ECHO.
-ECHO - Generating update package available versions json inserts...
+ECHO - Generating update package available version json inserts...
 SET LP3D_ARCH=x86_64
 SET LP3D_AMDARCH=amd64
 SET LP3D_DIST_EXTENSIONS=exe, dmg, deb, rpm, pkg, api
