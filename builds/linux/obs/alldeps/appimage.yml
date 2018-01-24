@@ -43,7 +43,8 @@ script:
   - test -x /usr/bin/qmake && QMAKE_EXEC=qmake || test -x /usr/bin/qmake-qt5 && QMAKE_EXEC=qmake-qt5 || echo "ERROR - could not find qmake."
   - export WD=$(readlink -e ../); export APPIMAGE_BUILD=true
   - chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-  - $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
+  - echo; $QMAKE_EXEC -v; echo; $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
+  - make clean && make -j$(nproc)
   - make INSTALL_ROOT=$BUILD_APPDIR install
   - echo "AppImage Input Files:" && find $BUILD_APPDIR -type f && echo
   - renderers=$(find $BUILD_APPDIR/opt -type f)

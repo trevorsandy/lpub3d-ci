@@ -208,7 +208,6 @@ copy3rdcontent {
     } else {
         INSTALLS += \
         ldglite_ins_docs \
-        ldglite_ins_resources \
         ldview_ins_docs \
         ldview_ins_resources \
         raytracer_ins_docs \
