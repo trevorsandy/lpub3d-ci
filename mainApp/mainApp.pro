@@ -126,7 +126,7 @@ CONFIG(debug, debug|release) {
             !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP07
         } else {
             LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lLDrawIni
-            !quazipnobuild: LIBS += $$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP
         }
     }
     !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)

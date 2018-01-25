@@ -4,6 +4,21 @@ macx {
     ICON = $$lower($$join(DIST_TARGET,,,.icns))
     QMAKE_INFO_PLIST = Info.plist
 
+    # libraries
+    CONFIG(release, debug|release) {
+        libquazip.files += \
+            $$DESTDIR/../../quazip/$$join(ARCH,,,bit_release)/libQuaZIP.0.dylib
+        libquazip.path = Contents/Libs
+
+        libldrawini.files += \
+            $$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release)/libLDrawIni.16.dylib
+        libldrawini.path = Contents/Libs
+
+        QMAKE_BUNDLE_DATA += \
+            libquazip \
+            libldrawini
+    }
+
     # documents and resources
     document_icon.files += ldraw_document.icns
     document_icon.path = Contents/Resources

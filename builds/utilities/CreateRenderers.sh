@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 22, 2018
+#  Last Update: January 25, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -322,10 +322,10 @@ BuildLDGLite() {
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make
+    make -j${BUILD_CPUs}
     make install
   else
-    make > $2 2>&1
+    make -j${BUILD_CPUs} > $2 2>&1
     make install >> $2 2>&1
   fi
 }
@@ -369,10 +369,10 @@ BuildLDView() {
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make
+    make -j${BUILD_CPUs}
     make install
   else
-    make > $2 2>&1 &
+    make -j${BUILD_CPUs} > $2 2>&1 &
     TreatLongProcess "$!" "60" "LDView make"
     make install >> $2 2>&1
   fi
@@ -393,23 +393,29 @@ BuildPOVRay() {
     BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
     BUILD_FLAGS="$BUILD_FLAGS CXXFLAGS=\"$OBS_RPM_BUILD_CXXFLAGS\" CFLAGS=\"$OBS_RPM_BUILD_CFLAGS\""
   fi
+  # if [ "$OS_NAME" = "Darwin" ]; then
+  #   BUILD_CONFIG="$BUILD_CONFIG --with-macosx-sdk=\"/Developer/SDKs/MacOSX.sdk\" --with-macosx-version-min=\"10.9\""
+  # fi
   if [ "$get_local_libs" = 1 ]; then
     [ -z "$BUILD_FLAGS" ] && \
     BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\"" || \
     BUILD_FLAGS="$BUILD_FLAGS CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\""
+    export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
+    Info "Prepend PKG_CONFIG_PATH for POVRay build: $PKG_CONFIG_PATH"
   fi
   #Info "DEBUG_DEBUG BUILD_FLAGS: $BUILD_FLAGS"
   #Info "DEBUG_DEBUG PRINT_ENV:   $BUILD_CONFIG"
   export POV_IGNORE_SYSCONF_MSG="yes"
-  export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
-  Info "Prepend PKG_CONFIG_PATH for POVRay build: $PKG_CONFIG_PATH"
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   [ -n "$BUILD_FLAGS" ] && \
+  Info "BUILD_FLAGS: $BUILD_FLAGS" && \
+  Info "BUILD_CONFIG: $BUILD_CONFIG" && \
   env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
+  Info "BUILD_CONFIG: $BUILD_CONFIG" && \
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
   #Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
   if [ "${OBS}" = "true" ]; then
-    make
+    make -j${BUILD_CPUs}
     make install
     make check
     if [ ! -f "unix/lpub3d_trace_cui" ]; then
@@ -418,7 +424,7 @@ BuildPOVRay() {
       cat config.log
     fi
   else
-    make > $2 2>&1 &
+    make -j${BUILD_CPUs} > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
     make check >> $2 2>&1
     make install >> $2 2>&1
@@ -591,6 +597,10 @@ else
   fi
 fi
 
+# set dependency profiler and nubmer of CPUs
+LDD_EXEC=ldd
+BUILD_CPUs=$(nproc)
+
 # get Qt version
 Info && ${QMAKE_EXEC} -v && Info
 QMAKE_EXEC="${QMAKE_EXEC} -makefile"
@@ -679,6 +689,9 @@ if [ "$OS_NAME" = "Darwin" ]; then
   else
     Info "Renderer artefacts exist, nothing to build. Install dependencies skipped"
   fi
+  # set dependency profiler and nubmer of CPUs
+  LDD_EXEC=otool -L
+  BUILD_CPUs=$(sysctl -n hw.ncpu)
 fi
 
 # Main loop
@@ -767,7 +780,8 @@ for buildDir in ldglite ldview povray; do
   Info "----------------------------------------------------"
   if [ ! -f "${!artefactBinary}" ]; then
     ${buildCommand} ${buildType} ${buildLog}
-    [ -f "${validExe}" ] && Info && Info "LDD check ${buildDir}..."  && ldd ${validExe} 2>/dev/null || Info "ERROR - LDD failed for ${validExe}"
+    [ -f "${validExe}" ] && Info && Info "$LDD_EXEC check ${buildDir}..." && \
+    $LDD_EXEC ${validExe} 2>/dev/null || Info "ERROR - $LDD_EXEC ${validExe} failed."
     if [ ! "${OBS}" = "true" ]; then
       if [ -f "${validExe}" ]; then
         Info && Info "Build check - ${buildDir}..."

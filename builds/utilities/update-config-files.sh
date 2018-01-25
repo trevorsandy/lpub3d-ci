@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 08, 2018
+# Last Update January 25, 2018
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -302,11 +302,11 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}" \
+        sed -i "" -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
                   -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
 
     else
-        sed -i -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}" \
+        sed -i -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
                -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else

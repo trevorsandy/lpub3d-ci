@@ -1,5 +1,4 @@
-![Icon][icon]
-# LPub3D  (CI Testing)
+# ![Icon][icon] LPub3D  (CI Testing)
 An LDraw™ editor for LEGO® style digital building instructions.
   
 |[![GitHub release][gh-rel-badge]][gh-rel-url]|[![Travis-CI build status][travis-badge]][travis-url]|[![AppVeyor build status][appveyor-badge]][appveyor-url]|[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]|

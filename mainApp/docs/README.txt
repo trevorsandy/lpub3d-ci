@@ -1,7 +1,24 @@
-LPub3D 2.1.0.155.499 (24 01 2018 14:14:53)
+LPub3D 2.1.0.156.500 (25 01 2018 13:14:18)
 
 Features and enhancements
 ------------
+Version 2.1.0 presents a significant update to LPub3D. Most notably is the tight intgegration of its supported renderers - LDView, LDGLite and LPub3D-Trace (POV-Ray clone). Additionally, The entire DevOp process has
+been moved to a cloud and container enabled architecture allowing platorm-independent development, build and release across all major operating systems including macOS, Linux, Windows and the newly available AppImage 'no-install' application bundle distribution. Following is summary of each meaningful applciation correction and or enhancement.
+
+Fix: preference settings not preserved on macOS - When application is closed, the configured preference settings are not preserved. On subsequent, applicaiton launch, the prefrence revert to the default configuration. This behaviour no longer presents on macOS.
+
+Fix: Step number placement - page metas (step number, pli, csi, callout etc...) are placed relative to one or more other metas. For example, the step number meta can be placed relative to the pli (default placement), the csi, page header, page footer or the page. If one were to move a meta depended on by another, the 'other' meta would also move which would lead to unexpected behaviour. The proper way to move a meta is to first move its dependant mata(s) to another dependency. Dependencies can be seen in 'Move...' dialogue available via the context menu. Use the 'Relative To...' dropdown dialogue to see the available metas the given meta can be placed relative to.
+
+Fix: POV-Ray rendering with space in file name or path. LPub3D-Trace (customized verion of POV-Ray) supports spaces in the file name or path.
+
+Fix: POV-Ray very slow in version 2.0.19. Although I could not reproduce this behaviour, it is worthwhile to note that LPub3D-Trace, an updated and better integrated version of POV-Ray, consistently yields better performance that the Off-the-shelf version. Moreover, LPub3D-Trace offers automatic configuration with the capability to implement the full compliment of custom configuration available to POV-Ray.
+
+Fix: Callout within a callout. This capability was not available when using 'single call rendering' - submitting all the images on a page in a single call to LDView versus a call for each image. The image marshalling logic has been redesigned to manage any level of depth between a page and it's elements. Thus, the new behaviour now supports virtually endless callouts within callouts.
+
+Fix: 'Current Submodel' MPD-combo-dropdown current index not set when changed.
+
+
+
 Integrate 3rd party renderers - LDGlite, LDView and LPub3D-Trace (POV-Ray). To well deliver this capability, LPub3D 2.1.0 implements a major 'build, packaging and deployment' redesign to maximize use of cloud infrastructure and services.
 The end-to-end build, packaging and deployment process is now fully automted and 100% cloud enabled - using Travis-CI for
 Linux and macOS artefacts, and AppVeyor for Microsoft. All Linux distro are built via Docker containerization on Travis-CI.
@@ -14,6 +31,8 @@ will account for all the required LPub3D commpnents needed to deliver the full c
 In addition to tight integration, the LPub3D renderers have been adapted with additional capabilites specifically designed to work with LPub3D.
 Enhancements were carefully designed to allow maximum compatability with their original upstream source to ensure upstream enhancements, fixes and
 progressions are effiiciently integrated into the LPub3d-specific branches.
+
+
 
 
 

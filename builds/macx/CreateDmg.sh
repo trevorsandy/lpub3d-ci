@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 12, 2017
+# Last Update January 25, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -90,7 +90,7 @@ else
   cd ../
 fi
 
-echo "-  create DMG build working directory $(realpath dmgbuild)..."
+echo "-  create DMG build working directory $(realpath dmgbuild/)..."
 if [ ! -d dmgbuild ]
 then
   mkdir dmgbuild
@@ -101,20 +101,20 @@ cd dmgbuild
 if [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
   echo "-  you selected download LPub3D source."
-  echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild)..."
+  echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
   if [ -d ${LPUB3D} ]; then
     rm -rf ${LPUB3D}
   fi
   git clone https://github.com/trevorsandy/${LPUB3D}.git
 elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ] || [ ! -d ${LPUB3D} ]
 then
-  echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild)..."
+  echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild/)..."
   if [ ! -d ../${LPUB3D} ]; then
-    echo "-  NOTICE - Could not find folder $(realpath ../${LPUB3D})"
+    echo "-  NOTICE - Could not find folder $(realpath ../${LPUB3D}/)"
     if [ -d ${LPUB3D} ]; then
        rm -rf ${LPUB3D}
     fi
-    echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild)..."
+    echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
     git clone https://github.com/trevorsandy/${LPUB3D}.git
   else
     cp -rf ../${LPUB3D}/ ./${LPUB3D}/
@@ -131,7 +131,7 @@ SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
 # set pwd before entering lpub3d root directory
 export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
 
-echo "-  execute CreateRenderers from $(realpath ${LPUB3D})..."
+echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 cd ${LPUB3D}
 
 chmod +x builds/utilities/CreateRenderers.sh
@@ -141,10 +141,10 @@ if [ ! -f "mainApp/extras/complete.zip" ]
 then
   if [ -f "${HOME}/Library/complete.zip" ]
   then
-    echo "-  copy ldraw official library archive from ${HOME}/Library/ to $(realpath mainApp/extras)..."
+    echo "-  copy ldraw official library archive from ${HOME}/Library/ to $(realpath mainApp/extras/)..."
     cp -f "${HOME}/Library/complete.zip" "mainApp/extras/complete.zip"
   else
-    echo "-  download ldraw official library archive to $(realpath mainApp/extras)..."
+    echo "-  download ldraw official library archive to $(realpath mainApp/extras/)..."
     curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
   fi
 else
@@ -152,7 +152,7 @@ else
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
-  echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras)..."
+  echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
   curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
 else
   echo "-  ldraw unofficial library exist. skipping download"
@@ -160,20 +160,25 @@ fi
 
 echo && echo "-  configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
-qmake -v
+echo && qmake -v && echo
 qmake CONFIG+=x86_64 CONFIG+=release CONFIG-=debug_and_release CONFIG+=dmg
 /usr/bin/make
 
 # Check if build is OK or stop and return error.
 if test $(uname -m) = x86_64; then release="64bit_release"; else release="32bit_release"; fi
 if [ ! -d "mainApp/$release/LPub3D.app" ]; then
-  echo "ERROR - build output at $(realpath mainApp/$release/LPub3D.app) not found."
+  echo "ERROR - build output at $(realpath mainApp/$release/LPub3D.app/) not found."
   ElapsedTime
   exit 1
 # Stop here if we are only compiling
 elif [ "$BUILD_OPT" = "compile" ]; then
   ElapsedTime
   exit 0
+else
+  # run otool -L on LPub3D.ap
+  echo && echo "otool -L check LPub3D.app/Contents/MacOS/LPub3D..." && \
+  otool -L mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null || \
+  Info "ERROR - otool -L check LPub3D.app/Contents/MacOS/LPub3D - failed."
 fi
 
 # create dmg environment - begin #
@@ -206,17 +211,17 @@ echo "- change library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
-echo "- setup dmg source dir $(realpath DMGSRC)..."
+echo "- setup dmg source dir $(realpath DMGSRC/)..."
 if [ -d DMGSRC ]
 then
   rm -f -R DMGSRC
 fi
 mkdir DMGSRC
 
-echo "- move LPub3D.app to $(realpath DMGSRC)..."
+echo "- move LPub3D.app to $(realpath DMGSRC/)..."
 mv -f LPub3D.app DMGSRC/LPub3D.app
 
-echo "- setup dmg output directory $(realpath ../../../DMGS)..."
+echo "- setup dmg output directory $(realpath ../../../DMGS/)..."
 DMGDIR=../../../DMGS
 if [ -d ${DMGDIR} ]
 then
@@ -256,11 +261,11 @@ cat <<EOF >makedmg
 DMGSRC/
 EOF
 
-echo "- create dmg packages in $(realpath $DMGDIR)..."
+echo "- create dmg packages in $(realpath $DMGDIR/)..."
 if [ -d DMGSRC/LPub3D.app ]; then
    chmod +x makedmg && ./makedmg
 else
-  echo "- Could not find LPub3D.app at $(realpath DMGSRC)"
+  echo "- Could not find LPub3D.app at $(realpath DMGSRC/)"
   echo "- $ME Failed."
   ElapsedTime
   exit 1
