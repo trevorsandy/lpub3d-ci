@@ -2,7 +2,9 @@ FROM base/archlinux:2017.11.01
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN pacman -Syy --noconfirm
 # > CreateDockerImage_archlinux.log 2>&1
-RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel libidn2
+RUN pacman -S --noconfirm --needed libidn2 libmpfr
+# >> CreateDockerImage_archlinux.log 2>&1
+RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel
 # >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed qt5-base qt5-tools
 # >> CreateDockerImage_archlinux.log 2>&1
