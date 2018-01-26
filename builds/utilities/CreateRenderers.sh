@@ -595,11 +595,10 @@ else
       QMAKE_EXEC=qmake
     fi
   fi
+  # set dependency profiler and nubmer of CPUs
+  LDD_EXEC=ldd
+  BUILD_CPUs=$(nproc)
 fi
-
-# set dependency profiler and nubmer of CPUs
-LDD_EXEC=ldd
-BUILD_CPUs=$(nproc)
 
 # get Qt version
 Info && ${QMAKE_EXEC} -v && Info
