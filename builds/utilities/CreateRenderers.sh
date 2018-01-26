@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 25, 2018
+#  Last Update: January 26, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -393,9 +393,9 @@ BuildPOVRay() {
     BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
     BUILD_FLAGS="$BUILD_FLAGS CXXFLAGS=\"$OBS_RPM_BUILD_CXXFLAGS\" CFLAGS=\"$OBS_RPM_BUILD_CFLAGS\""
   fi
-  # if [ "$OS_NAME" = "Darwin" ]; then
-  #   BUILD_CONFIG="$BUILD_CONFIG --with-macosx-sdk=\"/Developer/SDKs/MacOSX.sdk\" --with-macosx-version-min=\"10.9\""
-  # fi
+  if [ "$MACOS_POVRAY_NO_OPTIMIZ" = "true" ]; then
+    BUILD_CONFIG="$BUILD_CONFIG --without-optimiz"
+  fi
   if [ "$get_local_libs" = 1 ]; then
     [ -z "$BUILD_FLAGS" ] && \
     BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\"" || \
@@ -405,7 +405,7 @@ BuildPOVRay() {
   fi
   #Info "DEBUG_DEBUG BUILD_FLAGS: $BUILD_FLAGS"
   #Info "DEBUG_DEBUG PRINT_ENV:   $BUILD_CONFIG"
-  export POV_IGNORE_SYSCONF_MSG="yes"
+  [ ! "$OS_NAME" = "Darwin" ] && export POV_IGNORE_SYSCONF_MSG="yes" || true
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   [ -n "$BUILD_FLAGS" ] && \
   Info "BUILD_FLAGS: $BUILD_FLAGS" && \
@@ -689,8 +689,10 @@ if [ "$OS_NAME" = "Darwin" ]; then
   else
     Info "Renderer artefacts exist, nothing to build. Install dependencies skipped"
   fi
+  # Set povray --without-optimiz flag on macOS High Sierra 10.13
+  [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || true
   # set dependency profiler and nubmer of CPUs
-  LDD_EXEC=otool -L
+  LDD_EXEC="otool -L"
   BUILD_CPUs=$(sysctl -n hw.ncpu)
 fi
 

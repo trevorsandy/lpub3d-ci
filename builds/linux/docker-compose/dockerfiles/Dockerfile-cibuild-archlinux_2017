@@ -1,8 +1,11 @@
 FROM base/archlinux:2017.11.01
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
-RUN pacman -Syy --noconfirm > CreateDockerImage_archlinux.log 2>&1
-RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel >> CreateDockerImage_archlinux.log 2>&1
-RUN pacman -S --noconfirm --needed qt5-base qt5-tools >> CreateDockerImage_archlinux.log 2>&1
+RUN pacman -Syy --noconfirm
+# > CreateDockerImage_archlinux.log 2>&1
+RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel
+# >> CreateDockerImage_archlinux.log 2>&1
+RUN pacman -S --noconfirm --needed qt5-base qt5-tools
+# >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed sudo \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \
