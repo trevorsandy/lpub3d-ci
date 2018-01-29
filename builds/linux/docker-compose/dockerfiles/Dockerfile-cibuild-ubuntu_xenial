@@ -15,7 +15,7 @@ VOLUME ["/buildpkg", "/user/debbuild/lpub3d_linux_3rdparty"]
 CMD sudo chown -R user:user /user/debbuild/.* \
     && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/CreateDeb.sh \
     && export DOCKER=true \
-    && chmod +x CreateDeb.sh \
+    && chmod a+x CreateDeb.sh \
     && ./CreateDeb.sh \
     && if test -d /buildpkg; then \
       sudo cp -f /user/debbuild/*.deb /buildpkg/; \

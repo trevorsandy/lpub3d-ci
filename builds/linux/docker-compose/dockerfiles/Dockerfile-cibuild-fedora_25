@@ -17,7 +17,7 @@ CMD sudo chown -R user:user /user/rpmbuild/.* \
     && wget https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/linux/obs/lpub3d-ci-rpmlintrc \
     && sudo cp -f lpub3d-ci-rpmlintrc /etc/rpmlint \
     && export DOCKER=true \
-    && chmod +x CreateRpm.sh \
+    && chmod a+x CreateRpm.sh \
     && ./CreateRpm.sh \
     && if test -d /buildpkg; then \
       sudo cp -f /user/rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; \

@@ -3,7 +3,7 @@ OTHER_FILES += \
 ../builds/linux/CreatePkg.sh \
 ../builds/linux/CreateRpm.sh \
 ../builds/linux/docker-compose/docker-compose-cibuild-linux.yml \
-../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux_2017 \
+../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25 \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial \
 ../builds/linux/obs/alldeps/appimage.yml \

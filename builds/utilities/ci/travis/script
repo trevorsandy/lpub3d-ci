@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 24, 2018
+#  Last Update: January 28, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -21,7 +21,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         fi;
       fi;
       if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
-        docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm archlinux_2017;
+        docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm archlinux;
       fi;
       if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm fedora_25;

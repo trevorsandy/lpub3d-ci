@@ -40,6 +40,7 @@ class PreferencesDialog : public QDialog
     ~PreferencesDialog();
 	
     QString const ldrawPath();
+    QString const altLDConfigPath();
     QString const lgeoPath();
     QString const pliFile();
     QString const povrayExe();
@@ -96,6 +97,7 @@ class PreferencesDialog : public QDialog
 
   private slots:
     void on_browseLDraw_clicked();
+    void on_browseAltLDConfig_clicked();
     void on_browseLGEO_clicked();
     void on_browsePli_clicked();
     void on_browsePublishLogo_clicked();
@@ -107,6 +109,7 @@ class PreferencesDialog : public QDialog
     void updateChangelog (QString url);
     void checkForUpdates();
 
+    void on_altLDConfigBox_clicked(bool checked);
     void on_includeAllLogAttribBox_clicked(bool checked);
     void on_allLogLevelsBox_clicked(bool checked);
     void on_logLevelsGrpBox_clicked(bool checked);

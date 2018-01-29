@@ -43,6 +43,7 @@ Preferences preferences;
 QDate date = QDate::currentDate();
 
 QString Preferences::ldrawPath                  = "";
+QString Preferences::altLDConfigPath            = "";
 QString Preferences::lpub3dLibFile              = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = ".";
@@ -918,11 +919,13 @@ void Preferences::ldrawPreferences(bool force)
         if (! lpub3dLoaded && Application::instance()->splash->isVisible())
             Application::instance()->splash->hide();
 #endif
-        ldrawPath = QFileDialog::getExistingDirectory(NULL,
-                                                      QFileDialog::tr("Select LDraw Directory"),
-                                                      ldrawPath,
-                                                      QFileDialog::ShowDirsOnly |
-                                                      QFileDialog::DontResolveSymlinks);
+        QString result = QFileDialog::getExistingDirectory(NULL,
+                                                           QFileDialog::tr("Select LDraw Directory"),
+                                                           ldrawPath,
+                                                           QFileDialog::ShowDirsOnly |
+                                                           QFileDialog::DontResolveSymlinks);
+        if (! result.isEmpty())
+            ldrawPath = QDir::toNativeSeparators(result);
     }
 
     if (! ldrawPath.isEmpty()) {
@@ -959,6 +962,71 @@ void Preferences::ldrawPreferences(bool force)
             ldrawPreferences(false);
         }
     }
+
+    // Check for and set alternate LDConfig file if specified
+    QString const altLDConfigPathKey("AltLDConfigPath");
+
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,altLDConfigPathKey))) {
+        altLDConfigPath = Settings.value(QString("%1/%2").arg(SETTINGS,altLDConfigPathKey)).toString();
+    }
+
+    if (! altLDConfigPath.isEmpty()) {
+
+        QFileInfo altLDConfigFile(altLDConfigPath);
+
+        if (altLDConfigFile.exists()) {
+            return;
+        } else {
+#ifdef Q_OS_MAC
+            if (! lpub3dLoaded && Application::instance()->splash->isVisible())
+              Application::instance()->splash->hide();
+#endif
+            // insert dialogue box here...
+            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+            QMessageBox box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+            box.setWindowTitle(QMessageBox::tr ("Alternate LDraw LDConfig"));
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+            QAbstractButton* selectButton  = box.addButton(QMessageBox::tr("Select File"),QMessageBox::YesRole);
+
+            QString header = "<b> " + QMessageBox::tr ("Alternate LDraw LDConfig file not detected!") + "</b>";
+            QString body = QMessageBox::tr ("The alternate LDraw LDConfig path:\n"
+                                            "%1 does not exist.\n"
+                                            "Would you like to select the alternate LDConfig file?").arg(altLDConfigFile.absoluteFilePath());;
+            QString detail = QMessageBox::tr ("The alternate LDraw LDConfig file is optional.\n"
+                                              "You can use 'Select File' to select or 'Cancel' to\n"
+                                              "abandon the alternate LDraw LDConfig file.\n");
+            box.setText (header);
+            box.setInformativeText (body);
+            box.setDetailedText(detail);
+            box.setStandardButtons (QMessageBox::Cancel);
+            box.exec();
+
+            if (box.clickedButton()==selectButton) {
+#ifdef Q_OS_WIN
+                QString filter(QMessageBox::tr("LDraw (*.ldr);;All Files (*.*)"));
+#else
+                QString filter(QMessageBox::tr("All Files (*.*)"));
+#endif
+                altLDConfigPath = QFileDialog::getOpenFileName(NULL,
+                                                               QFileDialog::tr("Select LDRaw LDConfig file"),
+                                                               ldrawPath,
+                                                               filter);
+
+                if (! altLDConfigPath.isEmpty()) {
+
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS,"AltLDConfigPath"),altLDConfigPath);
+
+                  }
+
+              } else {
+                altLDConfigPath.clear();
+              }
+          }
+      }
 #ifdef Q_OS_MAC
         if (! lpub3dLoaded && Application::instance()->splash->isHidden())
             Application::instance()->splash->show();
@@ -1018,7 +1086,7 @@ void Preferences::lgeoPreferences()
   }
   QDir lgeoDirInfo(lgeoDir);
   if (lgeoDirInfo.exists()) {
-      lgeoPath = lgeoDir;
+      lgeoPath = QDir::toNativeSeparators(lgeoDir);
       logInfo() << QString("LGEO library path  : %1").arg(lgeoDirInfo.absolutePath());
        /* Durat's lgeo stl library Check */
       QDir lgeoStlLibInfo(lgeoPath + "/stl");
@@ -1071,21 +1139,21 @@ void Preferences::renderPreferences()
     // LDGLite EXE
     if (ldgliteInfo.exists()) {
       ldgliteInstalled = true;
-      ldgliteExe = ldgliteInfo.absoluteFilePath();
+      ldgliteExe = QDir::toNativeSeparators(ldgliteInfo.absoluteFilePath());
     }
     logInfo() << QString("LDGLIte            : %1").arg(ldgliteInfo.exists() ? ldgliteInfo.absoluteFilePath() : "Not found");
 
     // LDView EXE
     if (ldviewInfo.exists()) {
       ldviewInstalled = true;
-      ldviewExe = ldviewInfo.absoluteFilePath();
+      ldviewExe = QDir::toNativeSeparators(ldviewInfo.absoluteFilePath());
     }
     logInfo() << QString("LDView             : %1").arg(ldviewInfo.exists() ? ldviewInfo.absoluteFilePath() : "Not found");
 
     // POV-Ray EXE
     if (povrayInfo.exists()) {
       povRayInstalled = true;
-      povrayExe = povrayInfo.absoluteFilePath();
+      povrayExe = QDir::toNativeSeparators(povrayInfo.absoluteFilePath());
     }
     logInfo() << QString("POVRay             : %1").arg(povrayInfo.exists() ? povrayInfo.absoluteFilePath() : "Not found");
 
@@ -1200,6 +1268,7 @@ void Preferences::renderPreferences()
                   output << line << endl;
                }
                confFileIn.close();
+               confFileOut.flush();
                confFileOut.close();
             } else {
                 QString confFileError;
@@ -1602,6 +1671,16 @@ bool Preferences::getPreferences()
             }
         }
 
+        if (altLDConfigPath != dialog->altLDConfigPath())
+        {
+            altLDConfigPath = dialog->altLDConfigPath();
+            if (altLDConfigPath == "") {
+                Settings.remove(QString("%1/%2").arg(SETTINGS,"AltLDConfigPath"));
+            } else {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"AltLDConfigPath"),altLDConfigPath);
+            }
+        }
+
         if (pliFile != dialog->pliFile()) {
             pliFile = dialog->pliFile();
             if (pliFile == "") {
@@ -1661,6 +1740,8 @@ bool Preferences::getPreferences()
             } else {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
             }
+            setLDViewSearchPaths(true);   // update ldviewPOVIni
+            setLDViewSearchPaths(false);  // update ldviewInn
         }
 
         if (rendererTimeout != dialog->rendererTimeout()) {
@@ -1902,5 +1983,58 @@ void Preferences::getRequireds()
 void Preferences::setLPub3DLoaded(){
     lpub3dLoaded = true;
 }
+
+void Preferences::setLDViewSearchPaths(bool povini){
+  QFile confFile;
+  if (povini) {
+    confFile.setFileName(ldviewPOVIni);
+  } else {
+    confFile.setFileName(ldviewIni);
+  }
+  QStringList contentList;
+  // populate QStringList
+  if (confFile.open(QIODevice::ReadOnly))
+  {
+     bool foundSearchDirsTag = false;
+     QTextStream input(&confFile);
+     while (!input.atEnd())
+     {
+        QString line = input.readLine();
+        if (line.trimmed() == "[ExtraSearchDirs]" && ldSearchDirs.size() > 0){
+            contentList += line;
+            foreach (QString searchDir, ldSearchDirs)
+                contentList += searchDir;
+            foundSearchDirsTag = true;
+        } else {
+            if (!contentList.contains(line) && !line.isEmpty())
+                contentList += line;
+        }
+     }
+     confFile.close();
+     if (! foundSearchDirsTag)
+       logError() << QString("Did not find [ExtraSearchDirs] tag in %1\n"
+                             "The inf file may be malformed or corrupt.").arg(confFile.fileName());
+  } else {
+      QString confFileError;
+      if (!confFile.errorString().isEmpty())
+          confFileError.append(QString("confFileInError: %1\n").arg(confFile.errorString()));
+      logError() << QString("Could not open input: %1").arg(qPrintable(confFileError));
+  }
+  // write search dir to ldview ini files
+  if (confFile.open(QIODevice::WriteOnly))
+  {
+     QTextStream output(&confFile);
+     foreach (QString line, contentList)
+         output << line << endl;
+     confFile.flush();
+     confFile.close();
+  } else {
+      QString confFileError;
+      if (!confFile.errorString().isEmpty())
+          confFileError.append(QString("confFileOutError: %1").arg(confFile.errorString()));
+      logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
+  }
+}
+
 
 

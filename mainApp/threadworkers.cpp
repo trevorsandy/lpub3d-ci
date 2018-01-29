@@ -148,6 +148,9 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
       logError() << QString("Unable to load search directories.");
     }
+    // Set ldview search directories
+    Preferences::setLDViewSearchPaths(true);
+    Preferences::setLDViewSearchPaths(false);
 }
 /*
  * Load LDraw search directories into Preferences.

@@ -42,9 +42,11 @@ class Preferences
 
     static void setLPub3DLoaded();
     static void getRequireds();
+    static void setLDViewSearchPaths(bool);
     static bool getPreferences();
 
     static QString ldrawPath;
+    static QString altLDConfigPath;
     static QString lpub3dLibFile;
     static QString lgeoPath;
     static QString lpubDataPath;

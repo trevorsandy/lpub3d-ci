@@ -1,10 +1,10 @@
 version: '3'
 services:
-  archlinux_2017:
-    image: "trevorsandy/lpub3d-ci:archlinux_2017"
+  archlinux:
+    image: "trevorsandy/lpub3d-ci:archlinux"
     build:
       context: ./dockerfiles
-      dockerfile: Dockerfile-cibuild-archlinux_2017
+      dockerfile: Dockerfile-cibuild-archlinux
     volumes:
      - .:/buildpkg
      - ./lpub3d_linux_3rdparty:/user/pkgbuild/src/lpub3d_linux_3rdparty

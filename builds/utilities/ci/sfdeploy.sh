@@ -78,7 +78,7 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         rsync --recursive --verbose $LP3D_UPDATE_ASSETS/* $LP3D_SF_UDPATE_CONNECT/
       fi
       ;;
-    DOWNLOAD)
+    FOODOWNLOAD)
       # Verify release files in the Download directory
       if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
         echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."

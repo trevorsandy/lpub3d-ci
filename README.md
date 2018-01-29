@@ -42,7 +42,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 ### Features
  - Integrated 3D Viewer powered by LeoCAD
- - Multiple integrated renderers (LDGlite, LDView and POV-Ray) - no more additional installs
+ - Integrated image renderers (LDGlite, LDView and POV-Ray) - no more additional installs
+ - Renderer config files accessible from the LPub3D user interface
+ - Custom LDraw library LDConfig (part material) file can be passed to LDGlite and LDView renderers
  - Set ROTSTEP (step rotation) meta using 3D Viewer
  - Fade previous step's parts (Fadestep)
  - Unlimited part list (PLI) annotations
@@ -51,7 +53,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - "Go To" page navigation and submodel display via drop-down dialogue
  - Automatically generate formatted cover pages
  - POV-Ray high-quality rendered instructions
- - LGEO high-quality rendering library support
+ - LGEO high-quality rendering library support and auto detection
  - Customizable content page header and footer
  - Text and picture (e.g. logo) front and back page attributes
  - Print/Export preview
@@ -117,7 +119,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [obs-url]:             https://build.opensuse.org/package/show/home:trevorsandy/lpub3d     
 [dockerinstall]:       https://www.docker.com/get-docker
 [dockercomposefile]:   https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml
-[dockerarch]:          https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux_2017
+[dockerarch]:          https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux
 [dockerxenial]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial
 [dockerfedora]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25
 
