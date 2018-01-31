@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 25, 2018
+# Last Update January 31, 2018
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -313,7 +313,21 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
+FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
+Info "10.update ${LPUB3D}.dsc   - add version           [$FILE]"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+    else
+        sed -i "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
 # -----
+
 if [ "${SOURCED}" = "false" ]
 then
     Info "   Script $LP3D_ME execution finshed."
