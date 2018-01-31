@@ -462,14 +462,8 @@ void Updater::onReply (QNetworkReply* reply) {
                 // we are looking to update the latest version
                 m_openUrl = platform.value ("open-url").toString();
                 m_latestVersion = platform.value ("latest-version").toString();
-
-#if defined Q_OS_WIN  //backward compatabiltiy for Windows only
-                m_downloadUrl = platform.value ("download-url-").toString();
-                _changelogUrl = platform.value ("changelog-url-").toString();
-#else
                 m_downloadUrl = platform.value ("download-url").toString();
                 _changelogUrl = platform.value ("changelog-url").toString();
-#endif
                 _updateAvailable = compare (latestVersion(), moduleVersion());
 
             } else {

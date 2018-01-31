@@ -651,6 +651,8 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
+>>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows": {}
 >>%genLPub3DUpdates%     },
@@ -659,8 +661,6 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
->>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-exe": {}
 >>%genLPub3DUpdates%     },

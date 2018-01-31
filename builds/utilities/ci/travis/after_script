@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 12, 2018
+#  Last Update: January 31, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -31,8 +31,8 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_
     file_Logs=$(find $DmgBuildPath -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D*.AppImage -type f);
-    file_UPkg=$(find $AppImageBuildPath/AppImage -name LPub3D*.AppImage -type f);
+    file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
+    file_UPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-UpdateMaster_${LP3D_VERSION}*.AppImage -type f);
     file_Logs=$(find $WD -name *.log -type f);
   fi;
   cp -f $file_Logs $LP3D_LOGS_DIR;
