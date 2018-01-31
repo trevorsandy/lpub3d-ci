@@ -16,7 +16,7 @@ LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 LP3D_BUILD_DATE=`date "+%Y%m%d"`
 LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
-GIT_DEPTH=500
+GIT_DEPTH=700
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
@@ -51,10 +51,10 @@ realpath() {
 if [ "$OBS" = true ]
 then
     UPDATE_OBS_CONFIG=Yes
-    LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
+    LP3D_CONFIG_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 else
     UPDATE_OBS_CONFIG=No
-    LP3D_OBS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
+    LP3D_CONFIG_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
 fi
 LP3D_UTIL_DIR=$(realpath "$LP3D_PWD/../builds/utilities")
 
@@ -268,7 +268,7 @@ else
     Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_OBS_DIR/debian/changelog"
+FILE="$LP3D_CONFIG_DIR/debian/changelog"
 Info "7. create changelog       - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -282,7 +282,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-FILE="$LP3D_OBS_DIR/PKGBUILD"
+FILE="$LP3D_CONFIG_DIR/PKGBUILD"
 Info "8. update PKGBUILD        - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -296,7 +296,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_OBS_DIR/${LPUB3D}.spec"
+FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
 Info "9. update ${LPUB3D}.spec  - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -313,15 +313,31 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_OBS_DIR/debian/${LPUB3D}.dsc"
+FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
 Info "10.update ${LPUB3D}.dsc   - add version           [$FILE]"
+LP3D_DSC_APP_VERSION="${LP3D_APP_VERSION}"
+# if [ "$UPDATE_OBS_CONFIG" = "no" ]; then
+#     LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
+#     LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
+#     case ${LP3D_PLATFORM_ID} in
+#     ubuntu)
+#         case ${LP3D_PLATFORM_VER} in
+#         16.04)
+#             LP3D_PLATFORM_NAME="trusty" || true ;;
+#         16.10)
+#             LP3D_PLATFORM_NAME="xenial" || true ;;
+#         esac
+#       ;;
+#     esac;
+#     [ -n "$LP3D_PLATFORM_NAME" ] && LP3D_DSC_APP_VERSION="${LP3D_DSC_APP_VERSION}-${LP3D_PLATFORM_NAME}" || true
+# fi
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        sed -i "" "s/^Version:.*/Version: ${LP3D_DSC_APP_VERSION}/" "${FILE}"
     else
-        sed -i "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        sed -i "s/^Version:.*/Version: ${LP3D_DSC_APP_VERSION}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
