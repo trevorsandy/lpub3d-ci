@@ -664,18 +664,18 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-exe": {}
 >>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "osx-dmg": {
+>>%genLPub3DUpdates%     "macos-dmg": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-macos.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_dmg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-osx-dmg": {}
+>>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-dmg": {}
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-deb": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-%LP3D_AMDARCH%.deb",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-xenial-%LP3D_AMDARCH%.deb",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-deb": {}
@@ -719,7 +719,7 @@ ECHO - Merging update package version inserts into lpub3dupdates.json...
     IF "%%i" EQU ""alt-version-gen-placeholder-windows-exe": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_exe.txt
     )
-    IF "%%i" EQU ""alt-version-gen-placeholder-osx-dmg": {}" (
+    IF "%%i" EQU ""alt-version-gen-placeholder-macos-dmg": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_dmg.txt
     )
     IF "%%i" EQU ""alt-version-gen-placeholder-linux-deb": {}" (
@@ -763,7 +763,7 @@ EXIT /b
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
 SET "dmg=-macos.%LP3D_EXT%"
-SET "deb=-%LP3D_AMDARCH%.%LP3D_EXT%"
+SET "deb=-xenial-%LP3D_AMDARCH%.%LP3D_EXT%"
 SET "rpm=-1.fc25.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=-1-%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
 SET "api=-%LP3D_ARCH%.AppImage"

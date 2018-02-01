@@ -315,29 +315,13 @@ fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
 Info "10.update ${LPUB3D}.dsc   - add version           [$FILE]"
-LP3D_DSC_APP_VERSION="${LP3D_APP_VERSION}"
-# if [ "$UPDATE_OBS_CONFIG" = "no" ]; then
-#     LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
-#     LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
-#     case ${LP3D_PLATFORM_ID} in
-#     ubuntu)
-#         case ${LP3D_PLATFORM_VER} in
-#         16.04)
-#             LP3D_PLATFORM_NAME="trusty" || true ;;
-#         16.10)
-#             LP3D_PLATFORM_NAME="xenial" || true ;;
-#         esac
-#       ;;
-#     esac;
-#     [ -n "$LP3D_PLATFORM_NAME" ] && LP3D_DSC_APP_VERSION="${LP3D_DSC_APP_VERSION}-${LP3D_PLATFORM_NAME}" || true
-# fi
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/^Version:.*/Version: ${LP3D_DSC_APP_VERSION}/" "${FILE}"
+        sed -i "" "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
     else
-        sed -i "s/^Version:.*/Version: ${LP3D_DSC_APP_VERSION}/" "${FILE}"
+        sed -i "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

@@ -77,7 +77,7 @@ Updater::Updater() {
 #if defined Q_OS_WIN
     m_platform = "windows-exe";
 #elif defined Q_OS_MAC
-    m_platform = "osx-dmg";
+    m_platform = "macos-dmg";
 #elif defined Q_OS_LINUX
   #if defined DEB_DISTRO
       m_platform = "linux-deb";

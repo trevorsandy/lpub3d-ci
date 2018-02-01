@@ -139,12 +139,47 @@ if [ -f ${DISTRO_FILE} ]
 then
     echo "12. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
+    LP3D_DEB_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
+    LP3D_DEB_VERSION=${LP3D_VERSION}
+    LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
+    LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
+    case ${LP3D_PLATFORM_ID} in
+    ubuntu)
+        case ${LP3D_PLATFORM_VER} in
+        14.04)
+            LP3D_PLATFORM_NAME="trusty" ;;
+        16.04)
+            LP3D_PLATFORM_NAME="xenial" ;;
+        16.10)
+            LP3D_PLATFORM_NAME="yakkety" ;;
+        17.04)
+            LP3D_PLATFORM_NAME="zesty" ;;
+        17.10)
+            LP3D_PLATFORM_NAME="artful" ;;
+        *)
+            LP3D_PLATFORM_NAME="ununtu" ;;
+        esac
+        ;;
+    debian)
+        case ${LP3D_PLATFORM_VER} in
+        8)
+            LP3D_PLATFORM_NAME="jessie" ;;
+        9)
+            LP3D_PLATFORM_NAME="stretch" ;;
+        *)
+            LP3D_PLATFORM_NAME="debian" ;;
+        esac
+        ;;
+    esac;
+    [ -n "$LP3D_PLATFORM_NAME" ] && \
+    LP3D_DEB_APP_VERSION_LONG="${LP3D_DEB_APP_VERSION_LONG}-${LP3D_PLATFORM_NAME}" && \
+    LP3D_DEB_VERSION="${LP3D_DEB_VERSION}-${LP3D_PLATFORM_NAME}" || true
 
-    cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${DEB_EXTENSION}"
-    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${DEB_EXTENSION}"
+    cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
 
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${DEB_EXTENSION}"
-    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${DEB_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}"
 
 else
     echo "12. package ${DISTRO_FILE} not found"
