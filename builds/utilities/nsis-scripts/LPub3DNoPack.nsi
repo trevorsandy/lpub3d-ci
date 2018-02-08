@@ -86,7 +86,7 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "©2018 ${COMPANY_NAME}"
+BrandingText "ï¿½2018 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else
