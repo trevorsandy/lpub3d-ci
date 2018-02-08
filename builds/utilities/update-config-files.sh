@@ -205,6 +205,21 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
+FILE="$LP3D_PWD/../README.md"
+Info "11.update README.md       - add version           [$FILE]"
+Replacement="[sfreleases]:          https:\/\/sourceforge.net\/projects\/lpub3d\/files\/"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" "s/^[sfreleases]:.*/${Replacement}\/${LP3D_VERSION}/" "${FILE}"
+    else
+        sed -i "s/^[sfreleases]:.*/${Replacement}\/${LP3D_VERSION}/" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
 if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
     # Stop at the end of this block during Travis-CI builds

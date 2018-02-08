@@ -1,4 +1,4 @@
-# ![Icon][icon] LPub3D  (CI Testing)
+# ![LPub3D-Icon][lpub3d-icon] LPub3D  (CI Testing)
 An LDraw™ editor for LEGO® style digital building instructions.
   
 |[![GitHub release][gh-rel-badge]][gh-rel-url]|[![Travis-CI build status][travis-badge]][travis-url]|[![AppVeyor build status][appveyor-badge]][appveyor-url]|[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]|
@@ -11,22 +11,25 @@ LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts libr
 library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
 
 LPub3D provides three popular LDraw image renderers - custom adapted for tight integration and robust performance.
- - [LDGLite][ldglite] - imbedded console, fast image rendering
- - [LDView][ldview] - imbedded console, feature rich rendering and pov file generation
- - [LPub3D-Trace (POV-Ray)][povray] - imbedded console, high quality image and feature rich image rendering
+ - [LDGLite][ldglite] - console application, fast image rendering
+ - [LDView][ldview] - console application, feature rich rendering and pov file generation
+ - [LPub3D-Trace (POV-Ray)][povray] - console application, high quality image and feature rich image rendering
 
 Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
 ### Compatibility
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.  
 LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-info-url].
+
+### Downloads
  - [GitHub Releases][githubreleases]
  - [Sourceforge Releases][sfreleases]
- - [Open Build Service Releases][obsreleases] - Linux add repository and install, openSUSE/SUSE 'one-click' installs
- 
+ - [Open Build Service Releases][obsreleases] - Linux distributions
+
 |[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]|[![Centos-Icon][centos-icon]][centos-url]|[![Debian-Icon][debian-icon]][debian-url]|[![Fedora-Icon][fedora-icon]][fedora-url]|[![Mageia-Icon][mageia-icon]][mageia-url]|[![Macos-Icon][macos-icon]][macos-url]|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 |[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Rhel-Icon][rhel-icon]][rhel-url]|[![Sl-Icon][sl-icon]][sl-url]|[![Sle-Icon][sle-icon]][sle-url]|[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]|[![Univention-Icon][univention-icon]][univention-url]|[![Windows-Icon][windows-icon]][windows-url]|
+
  - Click icon above to download distribution asset.
 
 ### Quick Links
@@ -67,7 +70,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerxenial] and [Fedora 25][dockerfedora] Linux distros
 
-[icon]:                https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/mainApp/images/lpub3d128.png
+[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/mainApp/images/lpub3d128.png
 [changelog]:           https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/README.txt
 [credits]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/CREDITS.txt
 [copying]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/COPYING.txt
@@ -116,7 +119,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [maintained-badge]:    https://img.shields.io/maintenance/yes/2018.svg
 
 [appimage-info-url]:   https://appimage.org/
-[obs-url]:             https://build.opensuse.org/package/show/home:trevorsandy/lpub3d     
+[obs-url]:             https://build.opensuse.org/package/show/home:trevorsandy/lpub3d
 [dockerinstall]:       https://www.docker.com/get-docker
 [dockercomposefile]:   https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml
 [dockerarch]:          https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux

@@ -14,7 +14,8 @@
 ## cd to your git repository and type:
 ## $ cat << pbEOF >.git/hooks/pre-commit
 ## > #!/bin/sh
-## > ./builds/utilities/hooks/pre-commit                                   # location of pre-commit script in your source repository
+## > # Confirm master branch and set location of pre-commit script in your source repository
+## > [ "$(git rev-parse --abbrev-ref HEAD)" = "master" ] && ./builds/utilities/hooks/pre-commit || true
 ## > pbEOF
 ## $
 ##
