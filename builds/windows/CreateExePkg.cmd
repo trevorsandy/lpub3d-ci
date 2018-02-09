@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: February 08, 2018
+rem  Last Update: February 09, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
@@ -50,19 +50,23 @@ IF "%APPVEYOR%" EQU "True" (
 IF %AUTO% NEQ 1 (
   ECHO.
   SET /p RUN_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
-  IF %RUN_NSIS% EQU 0 (
-     SET SIGN_APP=0
-     SET CREATE_PORTABLE=0
-  )
   IF %RUN_NSIS% EQU 1 (
     ECHO.
     SET /p SIGN_APP= - Code Sign? Type 1 to sign exes', 0 to ignore or 'Enter' to accept default [%SIGN_APP%]:
   )
   ECHO.
   SET /p TEST_APPVEYOR= - Test APPVEYOR Build? Type 1 to run test build, 0 to ignore or 'Enter' to accept default [%TEST_APPVEYOR%]:
-  IF %TEST_APPVEYOR% EQU 1 (
-    SET APPVEYOR=True
-  )
+)
+IF %RUN_NSIS% EQU 0 (
+  SET SIGN_APP=0
+  SET CREATE_PORTABLE=0
+)
+IF %TEST_APPVEYOR% EQU 1 (
+  SET APPVEYOR=True
+  SET build=release
+  SET APPVEYOR_BUILD_FOLDER=%USERPROFILE%
+  SET APPVEYOR_REPO_BRANCH=master
+  FOR /F "usebackq delims==" %%G IN (`git rev-parse HEAD`) DO SET APPVEYOR_REPO_COMMIT=%%G
 )
 
 ECHO.
@@ -229,6 +233,8 @@ ECHO.
 ECHO - Setting up release build parameters...
 
 CD /D "%utilitiesPath%"
+
+SET LP3D_ICON_DIR=%CD%\icons
 
 CALL update-config-files.bat %_PRO_FILE_PWD_%
 
@@ -459,13 +465,6 @@ IF EXIST %PKG_DISTRO_DIR%\docs\COPYING_BRIEF (
 
   MOVE /Y %PKG_DISTRO_DIR%\docs\COPYING_BRIEF %PKG_DISTRO_DIR%\docs\COPYING.txt | findstr /i /v /r /c:"moved\>"
 )
-
-ECHO.
-ECHO - Set installer icon path...
-
-PUSHD ..\..\..\utilities\icons
-SET ICON_DIR=%CD%
-POPD
 EXIT /b
 
 REM AppVersion.nsh pwd = builds\utilities\nsis-scripts
@@ -477,7 +476,7 @@ SET versionFile=..\..\..\utilities\nsis-scripts\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
 :GENERATE AppVersion.nsh NSIS build parameters file
->%genVersion% !define IconDir "%ICON_DIR%"
+>%genVersion% !define IconDir "%LP3D_ICON_DIR%"
 >>%genVersion% ; ${IconDir}
 >>%genVersion%.
 >>%genVersion% !define Company %LP3D_COMPANY%
