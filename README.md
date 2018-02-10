@@ -3,7 +3,7 @@ An LDraw™ editor for LEGO® style digital building instructions.
   
 |[![GitHub release][gh-rel-badge]][gh-rel-url]|[![Travis-CI build status][travis-badge]][travis-url]|[![AppVeyor build status][appveyor-badge]][appveyor-url]|[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]|
 |:-|:-:|:-:|-:|
-|[![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]|[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]|[![GitHub total downloads][gh-dl-badge]][gh-dl-url]|[![Maintained status][maintained-badge]](README.md "Last edited 19-01-2018")|
+|[![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]|[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]|[![GitHub total downloads][gh-dl-badge]][gh-dl-url]|[![Maintained status][maintained-badge]](README.md "Last edited 10-02-2018")|
 |[![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]|[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]|[![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url]|
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions.
@@ -80,7 +80,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ldview]:              https://github.com/trevorsandy/ldview
 [povray]:              https://github.com/trevorsandy/povray
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0/
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
 [obsreleases]:         https://software.opensuse.org//download.html?project=home:trevorsandy&package=lpub3d-ci
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
@@ -140,19 +140,22 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ubuntu-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/ubuntu.png
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/windows.png
-[appimage-url]:        https://download.opensuse.org/repositories/home:/trevorsandy/AppImage/ 
+
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/2.1.0.173.517_20180210.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/2.1.0.173.517_20180210-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/2.1.0.173.517_20180210-x86_64.AppImage
+
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/
 [debian-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Debian_9.0/
 [fedora-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_27/
 [mageia-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Mageia_6/
-[macos-url]:           https://github.com/trevorsandy/lpub3d-ci/releases/download/v2.1.0/LPub3D-2.1.0.0.363_20180103_macos.dmg
+
 [opensuse-url]:        https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Factory/
 [rhel-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/RHEL_7/
 [sl-url]:              https://download.opensuse.org/repositories/home:/trevorsandy/ScientificLinux_7/
 [sle-url]:             https://download.opensuse.org/repositories/home:/trevorsandy/SLE_12_SP3/
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_17.10/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
-[windows-url]:         https://github.com/trevorsandy/lpub3d-ci/releases/download/v2.1.0/LPub3D-2.1.0.0.363_20180103.exe
 
 Copyright (c) 2015 - 2018 by Trevor SANDY
