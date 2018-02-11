@@ -208,22 +208,23 @@ fi
 FILE="$LP3D_PWD/../README.md"
 Info "4. update README.md       - add version           [$FILE]"
 SFReplacement="\[sfreleases\]:          https:\/\/sourceforge.net\/projects\/lpub3d\/files"
-WinReplacement="\[windows-url\]:         https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download"
-MacReplacement="\[macos-url\]:           https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download"
-ApImgReplacement="\[appimage-url\]:        https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download"
+WinReplacement="\[windows-url\]:         https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}"
+MacReplacement="\[macos-url\]:           https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}"
+ApImgReplacement="\[appimage-url\]:        https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}"
+NameReplacement="LPub3D-${LP3D_APP_VERSION_LONG}"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
         sed -i "" -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" "${FILE}" \
-                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${LP3D_APP_VERSION_LONG}.exe/" "${FILE}" \
-                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${LP3D_APP_VERSION_LONG}-macos.dmg/" "${FILE}" \
-                  -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${LP3D_APP_VERSION_LONG}-x86_64.AppImage/" "${FILE}"
+                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${NameReplacement}.exe/" "${FILE}" \
+                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${NameReplacement}-macos.dmg/" "${FILE}" \
+                  -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${NameReplacement}-x86_64.AppImage/" "${FILE}"
     else
         sed -i    -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" "${FILE}" \
-                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${LP3D_APP_VERSION_LONG}.exe/" "${FILE}" \
-                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${LP3D_APP_VERSION_LONG}-macos.dmg/" "${FILE}" \
-                  -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${LP3D_APP_VERSION_LONG}-x86_64.AppImage/" "${FILE}"
+                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${NameReplacement}.exe/" "${FILE}" \
+                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${NameReplacement}-macos.dmg/" "${FILE}" \
+                  -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${NameReplacement}-x86_64.AppImage/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
