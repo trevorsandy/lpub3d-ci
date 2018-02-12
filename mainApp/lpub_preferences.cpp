@@ -305,7 +305,7 @@ void Preferences::loggingPreferences()
 }
 
 void Preferences::lpubPreferences()
-{    
+{
 
     QDir cwd(QCoreApplication::applicationDirPath());
 
@@ -676,7 +676,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                     if (validFile.exists()) {
                         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
                         QString destination = Preferences::ldrawPath;
-                        QString message;                        
+                        QString message;
                         if (!destination.isEmpty()) {
                             destination = destination.remove(destination.size() - 6,6);
 #ifdef Q_OS_WIN
@@ -694,7 +694,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                                             "%1 to your LDraw library %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination));
 #endif
                             validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
-                            if (validFile.exists()) {                                
+                            if (validFile.exists()) {
                                 QString destination = QMessageBox::tr("%1/unofficial").arg(Preferences::ldrawPath);
 #ifdef Q_OS_WIN
                                 QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
@@ -2055,7 +2055,7 @@ bool Preferences::extractLDrawLib() {
 
   QSettings Settings;
   QString const ldrawKey("LDrawDir");
-  bool result = true;
+  bool r = true;
   QFileInfo validFile;
 
   QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
@@ -2073,7 +2073,7 @@ bool Preferences::extractLDrawLib() {
           QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
           if (result.isEmpty()){
               logError() << QString("Failed to extract %1 to %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination);
-              result = false;
+              r = false;
             } else {
               message = QMessageBox::tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
               logInfo() << message;
@@ -2085,7 +2085,7 @@ bool Preferences::extractLDrawLib() {
               QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
               if (result.isEmpty()){
                   logError() << QString("Failed to extract %1 to %2").arg(validFile.absoluteFilePath()).arg(destination);
-                  result = false;
+                  r = false;
                 } else {
                   message = QMessageBox::tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
                   logInfo() << message;
@@ -2093,12 +2093,12 @@ bool Preferences::extractLDrawLib() {
             } else {
               message = QMessageBox::tr ("Required archive file %1 does not exist.").arg(validFile.absoluteFilePath());
               logError() << message;
-              result = false;
+              r = false;
             }
         } else {
           message = QMessageBox::tr("Cannot extract LDraw library archives, library path is not defined!");
           logError() << message;
-          result = false;
+          r = false;
         }
 
     } else {
@@ -2126,9 +2126,9 @@ bool Preferences::extractLDrawLib() {
       box.setInformativeText(body);
       box.exec();
       ldrawPath.clear();
-      result = false;
+      r = false;
     }
-  return result;
+  return r;
 }
 
 
