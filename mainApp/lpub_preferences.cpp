@@ -851,7 +851,6 @@ void Preferences::ldrawPreferences(bool force)
 #ifdef Q_OS_MAC
                         if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                           Application::instance()->splash->hide();
-
 #endif
                         QPixmap _icon = QPixmap(":/icons/lpub96.png");
                         QMessageBox box;

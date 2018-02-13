@@ -128,6 +128,7 @@ init:
 # This includes setting the clone depth, and fetching the last commit and previous tags. Lastly, we manage 3rd party items cache -
 # deleting a component will trigger a new build.
 install:
+ - cmd: git config --global core.autocrlf true
  - cmd: git init %APPVEYOR_BUILD_FOLDER%
  - cmd: cd %APPVEYOR_BUILD_FOLDER%
  - cmd: git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
