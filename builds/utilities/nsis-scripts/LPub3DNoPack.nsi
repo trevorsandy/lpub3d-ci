@@ -777,7 +777,7 @@ Function fnWarning
 FunctionEnd
 
 Function fnUserDataInfo
-          ${NSD_SetText} $UserDataLbl "NOTICE! Data created under Administrator user AppData path. Standard users will not have access."
+          ${NSD_SetText} $UserDataLbl "NOTICE! Data created 'per user'. Only the installing user will have access."
 FunctionEnd
 
 Function fnMoveLibrariesInfo

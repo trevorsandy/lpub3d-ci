@@ -105,6 +105,16 @@ Function un.onInit
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}
 
+	;Save the current ShellVarContext, set context to current, populate $AppDataBaseDir then revert context
+	StrCpy $R0 "$SMPROGRAMS"
+	SetShellVarContext current
+	StrCpy $AppDataBaseDir "$LOCALAPPDATA"
+	StrCmp $R0 "$SMPROGRAMS" 0 SetAll
+	Goto Done
+	SetAll:
+	SetShellVarContext all
+	Done:
+
 	!insertmacro MULTIUSER_UNINIT
 FunctionEnd
 
