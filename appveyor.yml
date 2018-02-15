@@ -117,7 +117,7 @@ init:
 
         Write-Output "Build cache cleared."
       }
- - ps: $env:LP3D_RELEASE_LABEL = ("LPub3D " + (Get-Date -format "dd.MM.yyyy"))
+ - ps: $env:LP3D_RELEASE_LABEL = ("LPub3D " + ([TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, "Central European Standard Time").ToString('dd.MM.yyyy')))
  - ps: Get-ChildItem Env:LP3D_* | Sort-Object name
 
 # This is where we install MinGW Qt5 for x86 and x86_64 builds. The Qt builds are necessarey because we are using VS image which
