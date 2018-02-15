@@ -187,20 +187,6 @@ Section "Core Files (required)" SectionCoreFiles
     !endif
   ${endif}
 
-  ;Machine installation returned null so check nstallation folder for legacy installs
-  StrCpy $4 ""
-  ${if} "$0" == ""
-    ReadRegStr $PerMachineInstallationFolder HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation" "InstallPath"
-    IfFileExists "$PerMachineInstallationFolder\Uninstall.exe" 0 End
-    StrCpy $PerMachineUninstallString "$PerMachineInstallationFolder\Uninstall.exe"
-    StrCpy $0 "AllUsers"
-    StrCpy $4 1
-    DetailPrint "InstallContext $0 (with legacy install)"
-    End:
-  ${else}
-    DetailPrint "InstallContext $0"
-  ${endif}
-
   ${if} "$0" != ""
 
     ;Set InstallString, InstallationFolder
@@ -219,12 +205,12 @@ Section "Core Files (required)" SectionCoreFiles
     ${endif}
 
     ;Remove previous installation
-    DetailPrint "UninstallString $1"
-    DetailPrint "InstallationFolder $3"
+    DetailPrint 'UninstallString $1'
+    DetailPrint 'InstallationFolder $3'
 
     ; Legacy installs will delete everything on Uninstall so ackup user data and registry keys
-    ${if} $4 == 1
-      DetailPrint "Removing legacy install..."
+    ${if} $HasLegacyPerMachineInstallation == 1
+      DetailPrint "Removing legacy install - using mode ($0)..."
       StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
       StrCpy $6 "${INSTDIR_LocalAppData}\Temp\${PRODUCT_NAME}"            ; $6 = LEGACY_INSTDIR_AppDataProduct_Backup
       DetailPrint "Backup files '$5' to '$6'..."
@@ -265,7 +251,7 @@ Section "Core Files (required)" SectionCoreFiles
     ${endif}
 
     ; Restore legacy user data and registry keys
-    ${if} $4 == 1
+    ${if} $HasLegacyPerMachineInstallation == 1
       DetailPrint "Restore files '$6' to '$5'..."
       !insertmacro RestoreFolder "$6" "$5" ; Restore LEGACY_INSTDIR_AppDataProduct_Backup
       ; Restore Reg from Current User Hive Key to Context Hive Key
