@@ -1,4 +1,4 @@
-LPub3D 2.1.0.192.536 (15 02 2018 10:15:15)
+LPub3D 2.1.0.193.537 (16 02 2018 07:00:17)
 
 Features and enhancements
 ------------
@@ -124,6 +124,8 @@ Enhancement: Windows multi-user installation. Multi-user installation allows "pe
 In summary, LPub3D application data is installed 'per-user' only while the application, uninstall registry keys and shortcuts are installed 'per-user' or 'per-machine'. As you have seen on the Windows install program, installing application data during program install is optional. LPub3D will 'initialize' any missing application data at startup.
 
 Enhancement: Windows install/uninstall options. The install program allows 'current user' and 'multi-user' installs already described above. In addition, the components of LPub3D installation are now sectioned to individual selection between application data and settings registry hive key. While the application data has always been optional to install, it, along with settings registry hive key, are now optional to uninstall as well. This functionality allows the user to optionally preserve their registry settings between installs.
+
+Fix: Windows multi-user installation - uninstall error. Installaion hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired.
 
 Fix: preference settings not preserved on macOS - When application is closed, the configured preference settings are not preserved. On subsequent, application launch, the preference revert to the default configuration. This behaviour no longer presents on macOS.
 
