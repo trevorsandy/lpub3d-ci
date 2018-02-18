@@ -1,4 +1,4 @@
-# ![LPub3D-Icon][lpub3d-icon] LPub3D  (CI Testing)
+# ![LPub3D-Icon][lpub3d-icon] LPub3D  (Dev, CI and Testing)
 An LDraw™ editor for LEGO® style digital building instructions.
   
 |[![GitHub release][gh-rel-badge]][gh-rel-url]|[![Travis-CI build status][travis-badge]][travis-url]|[![AppVeyor build status][appveyor-badge]][appveyor-url]|[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]|
@@ -77,8 +77,8 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/utilities/README.md
 
 [ldglite]:             https://github.com/trevorsandy/ldglite
-[ldview]:              https://github.com/trevorsandy/ldview
-[povray]:              https://github.com/trevorsandy/povray
+[ldview]:              https://github.com/trevorsandy/ldview/tree/qmake-build
+[povray]:              https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
 
 [sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
