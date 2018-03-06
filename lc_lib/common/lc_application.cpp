@@ -1,27 +1,22 @@
 #include "lc_global.h"
 #include <stdio.h>
 #include "lc_application.h"
-#include "lc_colors.h"
 #include "lc_library.h"
 #include "lc_profile.h"
-#include "system.h"
 #include "project.h"
-#include "image.h"
 #include "lc_mainwindow.h"
+#include "lc_qpreferencesdialog.h"
+#include "lc_partselectionwidget.h"
 #include "lc_shortcuts.h"
 #include "view.h"
-#include "application.h"
-#include "name.h"
 
-lcApplication* g_App;
+lcApplication* gApplication;
 
 void lcPreferences::LoadDefaults()
 {
-	emit Application::instance()->splashMsgSig("25% - 3D Viewer window defaults loading...");
-
 	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
 	mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
-	mLightingMode = (lcLightingMode)lcGetProfileInt(LC_PROFILE_LIGHTING_MODE);
+	mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
 	mDrawAxes = lcGetProfileInt(LC_PROFILE_DRAW_AXES);
 	mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
 	mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
@@ -36,7 +31,7 @@ void lcPreferences::SaveDefaults()
 {
 	lcSetProfileInt(LC_PROFILE_FIXED_AXES, mFixedAxes);
 	lcSetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY, mMouseSensitivity);
-	lcSetProfileInt(LC_PROFILE_LIGHTING_MODE, mLightingMode);
+	lcSetProfileInt(LC_PROFILE_SHADING_MODE, mShadingMode);
 	lcSetProfileInt(LC_PROFILE_DRAW_AXES, mDrawAxes);
 	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
 	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
@@ -47,37 +42,78 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
 }
 
-lcApplication::lcApplication()
+lcApplication::lcApplication(int& Argc, char** Argv)
+	: QApplication(Argc, Argv)
 {
-  mProject = NULL;
-  mLibrary = NULL;
-  mClipboard = NULL;
-  mLoadFile = NULL;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	setApplicationDisplayName("LeoCAD");
+#endif
 
-  mPreferences.LoadDefaults();
+	setOrganizationDomain("leocad.org");
+	setOrganizationName("LeoCAD Software");
+	setApplicationName("LeoCAD");
+	setApplicationVersion(LC_VERSION_TEXT);
+
+	gApplication = this;
+	mProject = nullptr;
+	mLibrary = nullptr;
+
+	mPreferences.LoadDefaults();
 }
 
 lcApplication::~lcApplication()
 {
     delete mProject;
     delete mLibrary;
+	gApplication = nullptr;
+}
+
+void lcApplication::SaveTabLayout() const
+{
+	if (!mProject || mProject->GetFileName().isEmpty())
+		return;
+
+	QSettings Settings;
+	QByteArray TabLayout = gMainWindow->GetTabLayout();
+
+	Settings.setValue(GetTabLayoutKey(), TabLayout);
+}
+
+QString lcApplication::GetTabLayoutKey() const
+{
+	if (mProject)
+	{
+		QString FileName = mProject->GetFileName();
+		if (!FileName.isEmpty())
+		{
+			FileName.replace('\\', '?');
+			FileName.replace('/', '?');
+			return QString("TabLayouts/%1").arg(FileName);
+		}
+	}
+
+	return QString();
 }
 
 void lcApplication::SetProject(Project* Project)
 {
+	SaveTabLayout();
+
 	delete mProject;
 	mProject = Project;
 
-	const lcArray<View*>& Views = gMainWindow->GetViews();
-	for (int ViewIdx = 0; ViewIdx < Views.GetSize(); ViewIdx++)
-	{
-		View* View = Views[ViewIdx];
-		View->ClearCameras();
-		View->SetModel(lcGetActiveModel());
-	}
+	gMainWindow->RemoveAllModelTabs();
 
 	Project->SetActiveModel(0);
 	lcGetPiecesLibrary()->RemoveTemporaryPieces();
+
+	if (mProject && !mProject->GetFileName().isEmpty())
+	{
+		QSettings Settings;
+		QByteArray TabLayout = Settings.value(GetTabLayoutKey()).toByteArray();
+
+		gMainWindow->RestoreTabLayout(TabLayout);
+	}
 }
 
 void lcApplication::SetClipboard(const QByteArray& Clipboard)
@@ -96,289 +132,314 @@ void lcApplication::ExportClipboard(const QByteArray& Clipboard)
 	SetClipboard(Clipboard);
 }
 
-void lcApplication::GetFileList(const char* Path, lcArray<String>& FileList)
+bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress)
 {
-	QDir Dir(Path);
-	Dir.setFilter(QDir::Files | QDir::Hidden | QDir::Readable);
-
-	FileList.RemoveAll();
-	QStringList Files = Dir.entryList();
-
-	for (int FileIdx = 0; FileIdx < Files.size(); FileIdx++)
-	{
-		QString AbsolutePath = Dir.absoluteFilePath(Files[FileIdx]);
-
-		FileList.Add(AbsolutePath.toLocal8Bit().data());
-	}
-}
-
-bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath)
-{
-        // load search directories
-        partWorkerLDSearchDirs.ldsearchDirPreferences();
-        // process search directories to update library archive
-        partWorkerLDSearchDirs.processLDSearchDirParts();
-
-        emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
-
-	if (mLibrary == NULL)
+	if (mLibrary == nullptr)
 		mLibrary = new lcPiecesLibrary();
 
-    if (LibPath && LibPath[0]) {
-        //logDebug() << QString("LoadPiecesLibrary loaded with LibPath=%1").arg(LibPath);
-		return mLibrary->Load(LibPath);
-    }
-
-	char* EnvPath = getenv("LEOCAD_LIB");
-
-	if (EnvPath && EnvPath[0])
+	if (!OnlyUsePaths)
 	{
-        //logDebug() << QString("LoadPiecesLibrary loaded with EnvPath=%1").arg(EnvPath);
-		return mLibrary->Load(EnvPath);
+		char* EnvPath = getenv("LEOCAD_LIB");
+
+		if (EnvPath && EnvPath[0])
+			return mLibrary->Load(EnvPath, ShowProgress);
+
+		QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
+
+		if (!CustomPath.isEmpty())
+			return mLibrary->Load(CustomPath, ShowProgress);
 	}
 
-	QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
-
-    if (!CustomPath.isEmpty()) {
-        //logDebug() << QString("LoadPiecesLibrary loaded with DefaultPath=%1").arg(CustomPath);
-		return mLibrary->Load(CustomPath.toLatin1().constData()); // todo: qstring
-    }
-
-	if (LibraryInstallPath && LibraryInstallPath[0])
+	for (const QPair<QString, bool>& LibraryPathEntry : LibraryPaths)
 	{
-		char LibraryPath[LC_MAXPATH];
-
-		strcpy(LibraryPath, LibraryInstallPath);
-
-		int i = strlen(LibraryPath) - 1;
-		if ((LibraryPath[i] != '\\') && (LibraryPath[i] != '/'))
-			strcat(LibraryPath, "/");
-
-		strcat(LibraryPath, "library.bin");
-
-		if (mLibrary->Load(LibraryPath))
+		if (mLibrary->Load(LibraryPathEntry.first, ShowProgress))
 		{
-			mLibrary->SetOfficialPieces();
-            //logDebug() << QString("LoadPiecesLibrary loaded with LibraryInstallPath=%1").arg(LibraryInstallPath);
+			if (LibraryPathEntry.second)
+				mLibrary->SetOfficialPieces();
+
 			return true;
 		}
-	}
-
-	if (LDrawPath && LDrawPath[0])
-	{
-		char LibraryPath[LC_MAXPATH];
-
-		strcpy(LibraryPath, LDrawPath);
-
-		int i = strlen(LibraryPath) - 1;
-		if ((LibraryPath[i] != '\\') && (LibraryPath[i] != '/'))
-			strcat(LibraryPath, "/");
-
-		if (mLibrary->Load(LibraryPath))
-            //logDebug() << QString("LoadPiecesLibrary loaded with LDrawPath=%1").arg(LDrawPath);
-			return true;
 	}
 
 	return false;
 }
 
-void lcApplication::ParseIntegerArgument(int* CurArg, int argc, char* argv[], int* Value)
+bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, bool& ShowWindow)
 {
-	if (argc > (*CurArg + 1))
-	{
-		(*CurArg)++;
-		int val;
-
-		if ((sscanf(argv[(*CurArg)], "%d", &val) == 1) && (val > 0))
-			*Value = val;
-		else
-			printf("Invalid value specified for the %s argument.", argv[(*CurArg) - 1]);
-	}
-	else
-	{
-		*Value = 0;
-		printf("Not enough parameters for the %s argument.", argv[(*CurArg) - 1]);
-	}
-}
-
-void lcApplication::ParseStringArgument(int* CurArg, int argc, char* argv[], char** Value)
-{
-	if (argc > (*CurArg + 1))
-	{
-		(*CurArg)++;
-		*Value = argv[(*CurArg)];
-	}
-	else
-	{
-		printf("No path specified after the %s argument.", argv[(*CurArg) - 1]);
-	}
-}
-
-bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstallPath, const char* LDrawPath)
-{
-	char* LibPath = NULL;
-
-	// Image output options.
+	bool OnlyUseLibraryPaths = false;
 	bool SaveImage = false;
 	bool SaveWavefront = false;
 	bool Save3DS = false;
-//	bool ImageHighlight = false;
+	bool SaveCOLLADA = false;
+	bool SaveHTML = false;
+	bool SetCameraAngles = false;
+	bool Orthographic = false;
+	bool ImageHighlight = false;
 	int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
-	lcStep ImageStart = 0;
-	lcStep ImageEnd = 0;
-	char* ImageName = NULL;
-	char* ProjectName = NULL;
-	char* SaveWavefrontName = NULL;
-	char* Save3DSName = NULL;
+	int ImageStart = 0;
+	int ImageEnd = 0;
+	int PartImagesWidth = -1;
+	int PartImagesHeight = -1;
+	float CameraLatitude, CameraLongitude;
+	QString ImageName;
+	QString ModelName;
+	QString CameraName;
+	QString ViewpointName;
+	QString ProjectName;
+	QString SaveWavefrontName;
+	QString Save3DSName;
+	QString SaveCOLLADAName;
+	QString SaveHTMLName;
 
-	emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
+	QStringList Arguments = arguments();
+	const int NumArguments = Arguments.size();
 
-	// Parse the command line arguments.
-	for (int i = 1; i < argc; i++)
+	for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
 	{
-		char* Param = argv[i];
+		const QString& Param = Arguments[ArgIdx];
 
-		if (Param[0] == '-')
-		{
-			if ((strcmp(Param, "-l") == 0) || (strcmp(Param, "--libpath") == 0))
-			{
-				ParseStringArgument(&i, argc, argv, &LibPath);
-			}
-			else if ((strcmp(Param, "-i") == 0) || (strcmp(Param, "--image") == 0))
-			{
-				SaveImage = true;
-
-				if ((argc > (i+1)) && (argv[i+1][0] != '-'))
-				{
-					i++;
-					ImageName = argv[i];
-				}
-			}
-			else if ((strcmp(Param, "-w") == 0) || (strcmp(Param, "--width") == 0))
-			{
-				ParseIntegerArgument(&i, argc, argv, &ImageWidth);
-			}
-			else if ((strcmp(Param, "-h") == 0) || (strcmp(Param, "--height") == 0))
-			{
-				ParseIntegerArgument(&i, argc, argv, &ImageHeight);
-			}
-			else if ((strcmp(Param, "-f") == 0) || (strcmp(Param, "--from") == 0))
-			{
-				int Step;
-				ParseIntegerArgument(&i, argc, argv, &Step);
-				ImageStart = Step;
-			}
-			else if ((strcmp(Param, "-t") == 0) || (strcmp(Param, "--to") == 0))
-			{
-				int Step;
-				ParseIntegerArgument(&i, argc, argv, &Step);
-				ImageEnd = Step;
-			}
-//			else if (strcmp(Param, "--highlight") == 0)
-//				ImageHighlight = true;
-			else if ((strcmp(Param, "-wf") == 0) || (strcmp(Param, "--export-wavefront") == 0))
-			{
-				SaveWavefront = true;
-
-				if ((argc > (i+1)) && (argv[i+1][0] != '-'))
-				{
-					i++;
-					SaveWavefrontName = argv[i];
-				}
-			}
-			else if ((strcmp(Param, "-3ds") == 0) || (strcmp(Param, "--export-3ds") == 0))
-			{
-				Save3DS = true;
-
-				if ((argc > (i+1)) && (argv[i+1][0] != '-'))
-				{
-					i++;
-					Save3DSName = argv[i];
-				}
-			}
-			else if ((strcmp(Param, "-v") == 0) || (strcmp(Param, "--version") == 0))
-			{
-				printf("LeoCAD Version " LC_VERSION_TEXT "\n");
-
-				return false;
-			}
-			else if ((strcmp(Param, "-?") == 0) || (strcmp(Param, "--help") == 0))
-			{
-				printf("Usage: leocad [options] [file]\n");
-				printf("  [options] can be:\n");
-				printf("  -l, --libpath <path>: Loads the Pieces Library from path.\n");
-				printf("  -i, --image <outfile.ext>: Saves a picture in the format specified by ext.\n");
-				printf("  -w, --width <width>: Sets the picture width.\n");
-				printf("  -h, --height <height>: Sets the picture height.\n");
-				printf("  -f, --from <time>: Sets the first frame or step to save pictures.\n");
-				printf("  -t, --to <time>: Sets the last frame or step to save pictures.\n");
-//				printf("  --highlight: Highlight pieces in the steps they appear.\n");
-				printf("  -wf, --export-wavefront <outfile.obj>: Exports the model to Wavefront format.\n");
-                printf("  -3ds, --export-3ds <outfile.3ds>: Exports the model to 3DS format.\n");
-				printf("  \n");
-
-				return false;
-			}
-			else
-				printf("Unknown parameter: %s\n", Param);
-		}
-		else
+		if (Param[0] != '-')
 		{
 			ProjectName = Param;
-            mLoadFile = Param;
+			continue;
 		}
+
+		auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
+		{
+			if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+			{
+				ArgIdx++;
+				Value = Arguments[ArgIdx];
+			}
+			else if (Required)
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+		};
+
+		auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
+		{
+			if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+			{
+				bool Ok = false;
+				ArgIdx++;
+				int NewValue = Arguments[ArgIdx].toInt(&Ok);
+
+				if (Ok)
+					Value = NewValue;
+				else
+					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+			}
+			else
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+		};
+
+		auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
+		{
+			if (ArgIdx < NumArguments - 2 && Arguments[ArgIdx + 1][0] != '-' && Arguments[ArgIdx + 2][0] != '-')
+			{
+				bool Ok1 = false, Ok2 = false;
+
+				ArgIdx++;
+				float NewValue1 = Arguments[ArgIdx].toFloat(&Ok1);
+				ArgIdx++;
+				float NewValue2 = Arguments[ArgIdx].toFloat(&Ok2);
+
+				if (Ok1 && Ok2)
+				{
+					Value1 = NewValue1;
+					Value2 = NewValue2;
+					return true;
+				}
+				else
+					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 2].toLatin1().constData());
+			}
+			else
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+
+			return false;
+		};
+
+		if (Param == QLatin1String("-l") || Param == QLatin1String("--libpath"))
+		{
+			QString LibPath;
+			ParseString(LibPath, true);
+			if (!LibPath.isEmpty())
+			{
+				LibraryPaths.clear();
+				LibraryPaths += qMakePair<QString, bool>(LibPath, false);
+				OnlyUseLibraryPaths = true;
+			}
+		}
+		else if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
+		{
+			SaveImage = true;
+			ParseString(ImageName, false);
+		}
+		else if (Param == QLatin1String("-w") || Param == QLatin1String("--width"))
+			ParseInteger(ImageWidth);
+		else if (Param == QLatin1String("-h") || Param == QLatin1String("--height"))
+			ParseInteger(ImageHeight);
+		else if (Param == QLatin1String("-f") || Param == QLatin1String("--from"))
+			ParseInteger(ImageStart);
+		else if (Param == QLatin1String("-t") || Param == QLatin1String("--to"))
+			ParseInteger(ImageEnd);
+		else if (Param == QLatin1String("-s") || Param == QLatin1String("--submodel"))
+			ParseString(ModelName, true);
+		else if (Param == QLatin1String("-c") || Param == QLatin1String("--camera"))
+			ParseString(CameraName, true);
+		else if (Param == QLatin1String("--viewpoint"))
+			ParseString(ViewpointName, true);
+		else if (Param == QLatin1String("--camera-angles"))
+			SetCameraAngles = ParseVector2(CameraLatitude, CameraLongitude);
+		else if (Param == QLatin1String("--orthographic"))
+			Orthographic = true;
+		else if (Param == QLatin1String("--highlight"))
+			ImageHighlight = true;
+		else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
+		{
+			SaveWavefront = true;
+			ParseString(SaveWavefrontName, false);
+		}
+		else if (Param == QLatin1String("-3ds") || Param == QLatin1String("--export-3ds"))
+		{
+			Save3DS = true;
+			ParseString(Save3DSName, false);
+		}
+		else if (Param == QLatin1String("-dae") || Param == QLatin1String("--export-collada"))
+		{
+			SaveCOLLADA = true;
+			ParseString(SaveCOLLADAName, false);
+		}
+		else if (Param == QLatin1String("-html") || Param == QLatin1String("--export-html"))
+		{
+			SaveHTML = true;
+			ParseString(SaveHTMLName, false);
+		}
+		else if (Param == QLatin1String("--html-parts-width"))
+			ParseInteger(PartImagesWidth);
+		else if (Param == QLatin1String("--html-parts-height"))
+			ParseInteger(PartImagesHeight);
+		else if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
+		{
+			printf("LeoCAD Version " LC_VERSION_TEXT "\n");
+			printf("Compiled " __DATE__ "\n");
+
+			ShowWindow = false;
+			return true;
+		}
+		else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
+		{
+			printf("Usage: leocad [options] [file]\n");
+			printf("  [options] can be:\n");
+			printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
+			printf("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+			printf("  -w, --width <width>: Set the picture width.\n");
+			printf("  -h, --height <height>: Set the picture height.\n");
+			printf("  -f, --from <time>: Set the first step to save pictures.\n");
+			printf("  -t, --to <time>: Set the last step to save pictures.\n");
+			printf("  -s, --submodel <submodel>: Set the active submodel.\n");
+			printf("  -c, --camera <camera>: Set the active camera.\n");
+			printf("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+			printf("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+			printf("  --orthographic: Make the view orthographic.\n");
+			printf("  --highlight: Highlight pieces in the steps they appear.\n");
+			printf("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+			printf("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+			printf("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+			printf("  -html, --export-html <folder>: Create an HTML page for the model.\n");
+			printf("  --html-parts-width <width>: Set the HTML part pictures width.\n");
+			printf("  --html-parts-height <height>: Set the HTML part pictures height.\n");
+			printf("  -v, --version: Output version information and exit.\n");
+			printf("  -?, --help: Display this help message and exit.\n");
+			printf("  \n");
+
+			ShowWindow = false;
+			return true;
+		}
+		else
+			printf("Unknown parameter: '%s'\n", Param.toLatin1().constData());
 	}
 
 	gMainWindow = new lcMainWindow();
 	lcLoadDefaultKeyboardShortcuts();
+	lcLoadDefaultMouseShortcuts();
 
-	// Load all parts
-	if (!LoadPiecesLibrary(LibPath, LibraryInstallPath, LDrawPath))
+	ShowWindow = !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
+
+	if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, ShowWindow))
 	{
-		if (SaveImage || SaveWavefront || Save3DS)
-		{
-			fprintf(stderr, "ERROR: Cannot load pieces library.");
-			return false;
-		}
+		QString Message;
 
 		if (mLibrary->LoadBuiltinPieces())
-			QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("LeoCAD could not find a compatible Parts Library so only a small number of parts will be available.\n\n"
-			                         "Please visit http://www.leocad.org for information on how to download and install a library."));
+			Message = tr("LeoCAD could not find a compatible Parts Library so only a small number of parts will be available.\n\nPlease visit http://www.leocad.org for information on how to download and install a library.");
 		else
-			QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("LeoCAD could not load Parts Library.\n\n"
-			                         "Please visit http://www.leocad.org for information on how to download and install a library."));
+			Message = tr("LeoCAD could not load Parts Library.\n\nPlease visit http://www.leocad.org for information on how to download and install a library.");
+
+		if (ShowWindow)
+			QMessageBox::information(gMainWindow, tr("LeoCAD"), Message);
+		else
+			fprintf(stderr, "%s", Message.toLatin1().constData());
 	}
 
-    gMainWindow->CreateWidgets();
+	gMainWindow->CreateWidgets();
 
-	// Create a new project.
 	Project* NewProject = new Project();
 	SetProject(NewProject);
 
-	// Load project.
-	if (ProjectName && gMainWindow->OpenProject(ProjectName))
+	if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
 	{
+		if (!ModelName.isEmpty())
+			mProject->SetActiveModel(ModelName);
+
+		View* ActiveView = gMainWindow->GetActiveView();
+
+		if (!CameraName.isEmpty())
+		{
+			ActiveView->SetCamera(CameraName.toLatin1()); // todo: qstring
+
+			if (!ViewpointName.isEmpty())
+				printf("Warning: --viewpoint is ignored when --camera is set.\n");
+
+			if (Orthographic)
+				printf("Warning: --orthographic is ignored when --camera is set.\n");
+
+			if (SetCameraAngles)
+				printf("Warning: --camera-angles is ignored when --camera is set.\n");
+		}
+		else
+		{
+			if (!ViewpointName.isEmpty())
+			{
+				if (ViewpointName == QLatin1String("front"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_FRONT);
+				else if (ViewpointName == QLatin1String("back"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_BACK);
+				else if (ViewpointName == QLatin1String("top"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_TOP);
+				else if (ViewpointName == QLatin1String("bottom"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_BOTTOM);
+				else if (ViewpointName == QLatin1String("left"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_LEFT);
+				else if (ViewpointName == QLatin1String("right"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_RIGHT);
+				else if (ViewpointName == QLatin1String("home"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_HOME);
+				else
+					printf("Unknown viewpoint: '%s'\n", ViewpointName.toLatin1().constData());
+
+				if (SetCameraAngles)
+					printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
+			}
+			else if (SetCameraAngles)
+				ActiveView->SetCameraAngles(CameraLatitude, CameraLongitude);
+
+			ActiveView->SetProjection(Orthographic);
+		}
+
 		if (SaveImage)
 		{
-			QString FileName;
-
-			if (ImageName)
-				FileName = ImageName;
-			else
-				FileName = ProjectName;
-
-			QString Extension = QFileInfo(FileName).suffix().toLower();
-
-			if (Extension.isEmpty())
-			{
-				FileName += lcGetProfileString(LC_PROFILE_IMAGE_EXTENSION);
-			}
-			else if (Extension != "bmp" && Extension != "jpg" && Extension != "jpeg" && Extension != "png")
-			{
-				FileName = FileName.left(FileName.length() - Extension.length() - 1);
-				FileName += lcGetProfileString(LC_PROFILE_IMAGE_EXTENSION);
-			}
+			if (ImageName.isEmpty())
+				ImageName = mProject->GetImageFileName();
 
 			if (ImageEnd < ImageStart)
 				ImageEnd = ImageStart;
@@ -386,17 +447,11 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 				ImageStart = ImageEnd;
 
 			if ((ImageStart == 0) && (ImageEnd == 0))
-			{
 				ImageStart = ImageEnd = mProject->GetActiveModel()->GetCurrentStep();
-			}
 			else if ((ImageStart == 0) && (ImageEnd != 0))
-			{
 				ImageStart = ImageEnd;
-			}
 			else if ((ImageStart != 0) && (ImageEnd == 0))
-			{
 				ImageEnd = ImageStart;
-			}
 
 			if (ImageStart > 255)
 				ImageStart = 255;
@@ -408,20 +463,20 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 
 			if (ImageStart != ImageEnd)
 			{
-				QString Extension = QFileInfo(FileName).suffix();
-				Frame = FileName.left(FileName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
+				QString Extension = QFileInfo(ImageName).suffix();
+				Frame = ImageName.left(ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
 			}
 			else
-				Frame = FileName;
+				Frame = ImageName;
 
-			lcGetActiveModel()->SaveStepImages(Frame, ImageWidth, ImageHeight, ImageStart, ImageEnd);
+			lcGetActiveModel()->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
 		}
 
 		if (SaveWavefront)
 		{
 			QString FileName;
 
-			if (SaveWavefrontName)
+			if (!SaveWavefrontName.isEmpty())
 				FileName = SaveWavefrontName;
 			else
 				FileName = ProjectName;
@@ -445,7 +500,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 		{
 			QString FileName;
 
-			if (Save3DSName)
+			if (!Save3DSName.isEmpty())
 				FileName = Save3DSName;
 			else
 				FileName = ProjectName;
@@ -464,10 +519,55 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 
 			mProject->Export3DStudio(FileName);
 		}
+
+		if (SaveCOLLADA)
+		{
+			QString FileName;
+
+			if (!SaveCOLLADAName.isEmpty())
+				FileName = SaveCOLLADAName;
+			else
+				FileName = ProjectName;
+
+			QString Extension = QFileInfo(FileName).suffix().toLower();
+
+			if (Extension.isEmpty())
+			{
+				FileName += ".dae";
+			}
+			else if (Extension != "dae")
+			{
+				FileName = FileName.left(FileName.length() - Extension.length() - 1);
+				FileName += ".dae";
+			}
+
+			mProject->ExportCOLLADA(FileName);
+		}
+
+		if (SaveHTML)
+		{
+			lcHTMLExportOptions Options(mProject);
+
+			if (!SaveHTMLName.isEmpty())
+				Options.PathName = SaveHTMLName;
+
+			if (PartImagesWidth > 0)
+				Options.PartImagesWidth = PartImagesWidth;
+
+			if (PartImagesHeight > 0)
+				Options.PartImagesHeight = PartImagesHeight;
+
+			mProject->ExportHTML(Options);
+		}
 	}
 
-	if (SaveImage || SaveWavefront || Save3DS)
-		return false;
+	if (ShowWindow)
+	{
+		gMainWindow->SetColorIndex(lcGetColorIndex(4));
+		gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+		gMainWindow->UpdateRecentFiles();
+		gMainWindow->show();
+	}
 
 	return true;
 }
@@ -475,7 +575,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 void lcApplication::Shutdown()
 {
 	delete mLibrary;
-	mLibrary = NULL;
+	mLibrary = nullptr;
 }
 
 void lcApplication::ShowPreferencesDialog()
@@ -486,7 +586,6 @@ void lcApplication::ShowPreferencesDialog()
 	Options.Preferences = mPreferences;
 
 	Options.DefaultAuthor = lcGetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME);
-	Options.ProjectsPath = lcGetProfileString(LC_PROFILE_PROJECTS_PATH);
 	Options.LibraryPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 	Options.POVRayPath = lcGetProfileString(LC_PROFILE_POVRAY_PATH);
 	Options.LGEOPath = lcGetProfileString(LC_PROFILE_POVRAY_LGEO_PATH);
@@ -499,10 +598,14 @@ void lcApplication::ShowPreferencesDialog()
 	Options.CategoriesDefault = false;
 
 	Options.KeyboardShortcuts = gKeyboardShortcuts;
-	Options.ShortcutsModified = false;
-	Options.ShortcutsDefault = false;
+	Options.KeyboardShortcutsModified = false;
+	Options.KeyboardShortcutsDefault = false;
+	Options.MouseShortcuts = gMouseShortcuts;
+	Options.MouseShortcutsModified = false;
+	Options.MouseShortcutsDefault = false;
 
-	if (!gMainWindow->DoDialog(LC_DIALOG_PREFERENCES, &Options))
+	lcQPreferencesDialog Dialog(gMainWindow, &Options);
+	if (Dialog.exec() != QDialog::Accepted)
 		return;
 
 	bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
@@ -513,7 +616,6 @@ void lcApplication::ShowPreferencesDialog()
 	mPreferences.SaveDefaults();
 
 	lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Options.DefaultAuthor);
-	lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Options.ProjectsPath);
 	lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Options.LibraryPath);
 	lcSetProfileString(LC_PROFILE_POVRAY_PATH, Options.POVRayPath);
 	lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Options.LGEOPath);
@@ -521,11 +623,11 @@ void lcApplication::ShowPreferencesDialog()
 	lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
 	if (LibraryChanged && AAChanged)
-        QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Parts library and Anti-aliasing changes will only take effect the next time LeoCAD is loaded."));
+		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Parts library and Anti-aliasing changes will only take effect the next time you start LeoCAD."));
 	else if (LibraryChanged)
-        QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Parts library changes will only take effect the next time LeoCAD is loaded."));
+		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Parts library changes will only take effect the next time you start LeoCAD."));
 	else if (AAChanged)
-        QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Anti-aliasing changes will only take effect the next time LeoCAD is loaded."));
+		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Anti-aliasing changes will only take effect the next time you start LeoCAD."));
 
 	if (Options.CategoriesModified)
 	{
@@ -540,9 +642,9 @@ void lcApplication::ShowPreferencesDialog()
 		gMainWindow->UpdateCategories();
 	}
 
-	if (Options.ShortcutsModified)
+	if (Options.KeyboardShortcutsModified)
 	{
-		if (Options.ShortcutsDefault)
+		if (Options.KeyboardShortcutsDefault)
 			lcResetDefaultKeyboardShortcuts();
 		else
 		{
@@ -553,11 +655,23 @@ void lcApplication::ShowPreferencesDialog()
 		gMainWindow->UpdateShortcuts();
 	}
 
+	if (Options.MouseShortcutsModified)
+	{
+		if (Options.MouseShortcutsDefault)
+			lcResetDefaultMouseShortcuts();
+		else
+		{
+			gMouseShortcuts = Options.MouseShortcuts;
+			lcSaveDefaultMouseShortcuts();
+		}
+	}
+
 	// TODO: printing preferences
 	/*
 	strcpy(opts.strFooter, m_strFooter);
 	strcpy(opts.strHeader, m_strHeader);
 	*/
 
+	gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
 	gMainWindow->UpdateAllViews();
 }
