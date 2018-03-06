@@ -663,7 +663,7 @@ void Project::Export3DStudio(const QString& FileName)
 
 	if (ModelParts.IsEmpty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 		return;
 	}
 
@@ -676,7 +676,7 @@ void Project::Export3DStudio(const QString& FileName)
 
 	if (!File.Open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return;
 	}
 
@@ -1110,7 +1110,7 @@ void Project::ExportBrickLink()
 
 	if (PartsList.empty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 		return;
 	}
 
@@ -1124,7 +1124,7 @@ void Project::ExportBrickLink()
 
 	if (!BrickLinkFile.Open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return;
 	}
 
@@ -1177,7 +1177,7 @@ void Project::ExportCOLLADA(const QString& FileName)
 
 	if (ModelParts.IsEmpty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 		return;
 	}
 
@@ -1190,7 +1190,7 @@ void Project::ExportCOLLADA(const QString& FileName)
 
 	if (!File.open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return;
 	}
 
@@ -1202,7 +1202,7 @@ void Project::ExportCOLLADA(const QString& FileName)
 	Stream << "<asset>\r\n";
 	Stream << "\t<created>" << QDateTime::currentDateTime().toString(Qt::ISODate) << "</created>\r\n";
 	Stream << "\t<modified>" << QDateTime::currentDateTime().toString(Qt::ISODate) << "</modified>\r\n";
-	Stream << "<unit name=\"LeoCAD\" meter=\"0.0004\" />\r\n";
+	Stream << "<unit name=\"3DViewer\" meter=\"0.0004\" />\r\n";
 	Stream << "\t<up_axis>Z_UP</up_axis>\r\n";
 	Stream << "</asset>\r\n";
 
@@ -1442,7 +1442,7 @@ void Project::ExportCSV()
 
 	if (PartsList.empty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 		return;
 	}
 
@@ -1456,7 +1456,7 @@ void Project::ExportCSV()
 
 	if (!CSVFile.Open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return;
 	}
 
@@ -1529,7 +1529,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 
 	if (!RenderFramebuffer.first.IsValid())
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Error creating images."));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
 		return QImage();
 	}
 
@@ -1807,7 +1807,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 			if (Options.PartsListEnd)
 				AddPartsListImage(Stream, Model, 0, BaseName);
 
-			Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">LeoCAD</A></I></B><BR></HTML>\r\n");
+			Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">3DViewer</A></I></B><BR></HTML>\r\n");
 		}
 		else
 		{
@@ -1832,7 +1832,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				if (Options.PartsListEnd)
 					Stream << QString::fromLatin1("<A HREF=\"%1-pieces.html\">Pieces Used</A><BR>\r\n").arg(BaseName);
 
-				Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">LeoCAD</A></B></I><BR></HTML>\r\n");
+				Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">3DViewer</A></B></I><BR></HTML>\r\n");
 			}
 
 			for (lcStep Step = 1; Step <= LastStep; Step++)
@@ -1912,7 +1912,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 			if (!RenderFramebuffer.first.IsValid())
 			{
-				QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Error creating images."));
+				QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
 				return;
 			}
 
@@ -2012,7 +2012,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 			}
 		}
 
-		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">LeoCAD</A></B></I><BR></HTML>\r\n");
+		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">3DViewer</A></B></I><BR></HTML>\r\n");
 	}
 }
 
@@ -2024,7 +2024,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (ModelParts.IsEmpty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 		return false;
 	}
 
@@ -2037,7 +2037,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (!POVFile.Open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return false;
 	}
 
@@ -2076,7 +2076,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!TableFile.Open(QIODevice::ReadOnly))
 		{
-			QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 			return false;
 		}
 
@@ -2122,7 +2122,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!ColorFile.Open(QIODevice::ReadOnly))
 		{
-			QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 			return false;
 		}
 
@@ -2317,7 +2317,7 @@ void Project::ExportWavefront(const QString& FileName)
 
 	if (ModelParts.IsEmpty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 		return;
 	}
 
@@ -2331,13 +2331,13 @@ void Project::ExportWavefront(const QString& FileName)
 
 	if (!OBJFile.Open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return;
 	}
 
 	quint32 vert = 1;
 
-	OBJFile.WriteLine("# Model exported from LeoCAD\n");
+	OBJFile.WriteLine("# Model exported from 3DViewer\n");
 
 	QFileInfo SaveInfo(SaveFileName);
 	QString MaterialFileName = QDir(SaveInfo.absolutePath()).absoluteFilePath(SaveInfo.completeBaseName() + QLatin1String(".mtl"));
@@ -2348,11 +2348,11 @@ void Project::ExportWavefront(const QString& FileName)
 	lcDiskFile MaterialFile(MaterialFileName);
 	if (!MaterialFile.Open(QIODevice::WriteOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Could not open file '%1' for writing.").arg(MaterialFileName));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(MaterialFileName));
 		return;
 	}
 
-	MaterialFile.WriteLine("# Colors used by LeoCAD\n\n");
+	MaterialFile.WriteLine("# Colors used by 3DViewer\n\n");
 	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
 	{
 		lcColor* Color = &gColorList[ColorIdx];

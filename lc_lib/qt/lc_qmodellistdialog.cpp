@@ -119,7 +119,7 @@ void lcQModelListDialog::on_ExportModel_clicked()
 
 	if (!Model)
 	{
-		QMessageBox::information(this, tr("LeoCAD"), tr("Nothing to export."));
+		QMessageBox::information(this, tr("3DViewer"), tr("Nothing to export."));
 		return;
 	}
 

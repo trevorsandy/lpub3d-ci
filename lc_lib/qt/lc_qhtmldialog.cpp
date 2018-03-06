@@ -50,7 +50,7 @@ void lcQHTMLDialog::accept()
 
 	if (pathName.isEmpty())
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Output folder cannot be empty."));
+		QMessageBox::information(this, "3DViewer", tr("Output folder cannot be empty."));
 		return;
 	}
 

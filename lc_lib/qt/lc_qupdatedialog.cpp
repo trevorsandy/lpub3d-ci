@@ -124,9 +124,9 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 			}
 
 			if (updateAvailable)
-				status = QString(tr("<p>There's a newer version of LeoCAD available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
+				status = QString(tr("<p>There's a newer version of 3DViewer available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
 			else
-				status = tr("<p>You are using the latest LeoCAD version.</p>");
+				status = tr("<p>You are using the latest 3DViewer version.</p>");
 
 			lcPiecesLibrary* library = lcGetPiecesLibrary();
 

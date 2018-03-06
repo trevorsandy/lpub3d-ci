@@ -4,7 +4,7 @@
 #include "lc_array.h"
 #include "lc_application.h"
 
-#define LC_SCENE_BG				0x010	// Draw bg image
+#define LC_SCENE_BG			0x010	// Draw bg image
 #define LC_SCENE_BG_TILE		0x040	// Tile bg image
 #define LC_SCENE_GRADIENT		0x100	// Draw gradient
 

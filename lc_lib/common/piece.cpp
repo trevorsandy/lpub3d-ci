@@ -175,7 +175,7 @@ bool lcPiece::FileLoad(lcFile& file)
 
 	version = file.ReadU8();
 
-	if (version > 12) // LeoCAD 0.80
+	if (version > 12) // 3DViewer 0.80
 		return false;
 
 	if (version > 8)

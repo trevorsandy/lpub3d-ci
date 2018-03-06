@@ -22,7 +22,7 @@ void lcHttpReply::run()
 	if (sizeof(wchar_t) != sizeof(QChar))
 		return;
 
-	Session = InternetOpen(L"LeoCAD", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+	Session = InternetOpen(L"3DViewer", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if (!Session)
 		return;
 
@@ -127,7 +127,7 @@ void lcSetsDatabaseDialog::accept()
 	QTreeWidgetItem* Current = ui->SetsTree->currentItem();
 	if (!Current)
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Please select a set from the list."));
+		QMessageBox::information(this, "3DViewer", tr("Please select a set from the list."));
 		return;
 	}
 
@@ -179,7 +179,7 @@ void lcSetsDatabaseDialog::on_SearchButton_clicked()
 
 	if (Keyword.isEmpty())
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Keyword cannot be empty."));
+		QMessageBox::information(this, "3DViewer", tr("Keyword cannot be empty."));
 		return;
 	}
 
@@ -251,7 +251,7 @@ void lcSetsDatabaseDialog::ProcessReply(lcHttpReply* Reply)
 
 		if (mKeys.isEmpty())
 		{
-			QMessageBox::information(this, "LeoCAD", tr("Error connecting to server."));
+			QMessageBox::information(this, "3DViewer", tr("Error connecting to server."));
 			close();
 		}
 
@@ -298,7 +298,7 @@ void lcSetsDatabaseDialog::ProcessReply(lcHttpReply* Reply)
 		if (!Reply->error())
 			mInventory = Reply->readAll();
 		else
-			QMessageBox::information(this, "LeoCAD", tr("Error downloading set inventory."));
+			QMessageBox::information(this, "3DViewer", tr("Error downloading set inventory."));
 
 		mInventoryReply = nullptr;
 	}

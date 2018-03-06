@@ -189,7 +189,7 @@ void lcRenderDialog::Update()
 	if (mProcess->state() == QProcess::NotRunning)
 	{
 //		QString Output = mProcess->readAllStandardError();
-//		QMessageBox::information(this, "LeoCAD", Output);
+//		QMessageBox::information(this, "3DViewer", Output);
 
 #ifdef Q_OS_LINUX
 		QByteArray Output = mProcess->readAllStandardOutput();

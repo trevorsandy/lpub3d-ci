@@ -71,7 +71,7 @@ void lcQArrayDialog::accept()
 
 	if (Counts[0] * Counts[1] * Counts[2] < 2)
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Array is empty."));
+		QMessageBox::information(this, "3DViewer", tr("Array is empty."));
 		return;
 	}
 
