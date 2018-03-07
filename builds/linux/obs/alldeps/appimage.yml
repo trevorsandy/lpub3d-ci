@@ -17,6 +17,8 @@ build:
     - pkgconfig(Qt5Widgets)
     - pkgconfig(Qt5OpenGL)
     - pkgconfig(Qt5PrintSupport)
+    - pkgconfig(Qt5Concurrent)
+    - pkgconfig(Qt5Xml)
     - libQt5Core-devel
     - libQt5Network-devel
     - libqt5-qttools-devel
