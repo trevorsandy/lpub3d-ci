@@ -183,7 +183,7 @@ void Application::initialize()
       m_print_output = true;
       printf("Usage: lpub3d [options] [file]\n");
       printf("  [options] can be:\n");
-      //printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
+      printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
       printf("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
       printf("  -w, --width <width>: Set the picture width.\n");
       printf("  -h, --height <height>: Set the picture height.\n");
@@ -201,7 +201,8 @@ void Application::initialize()
       printf("  -html, --export-html <folder>: Create an HTML page for the model.\n");
       printf("  --html-parts-width <width>: Set the HTML part pictures width.\n");
       printf("  --html-parts-height <height>: Set the HTML part pictures height.\n");
-      printf("  -v, --version: Output version information and exit.\n");
+      printf("  -v, --version: Output LPub3D version information and exit.\n");
+      printf("  -vv, --vversion: Output 3DViewer - by LeoCAD version information and exit.\n");
       printf("  -?, --help: Display this help message and exit.\n");
       printf("  \n");
       return;
