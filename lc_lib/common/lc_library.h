@@ -4,6 +4,10 @@
 #include "lc_mesh.h"
 #include "lc_math.h"
 #include "lc_array.h"
+/*** LPub3D Mod - Includes ***/
+#include "name.h"
+#include "QsLog.h"
+/*** LPub3D Mod end ***/
 
 class PieceInfo;
 class lcZipFile;
@@ -174,6 +178,10 @@ public:
 
 	bool Load(const QString& LibraryPath, bool ShowProgress);
 	void Unload();
+/*** LPub3D Mod - library reload ***/
+	bool ReloadUnoffLib();
+/*** LPub3D Mod end ***/
+
 	void RemoveTemporaryPieces();
 	void RemovePiece(PieceInfo* Info);
 

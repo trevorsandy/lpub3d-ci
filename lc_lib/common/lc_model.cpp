@@ -25,6 +25,11 @@
 #include "lc_qutils.h"
 #include "lc_lxf.h"
 
+/*** LPub3D Mod - includes ***/
+#include "lpub.h"
+#include "metaitem.h"
+/*** LPub3D Mod end ***/
+
 void lcModelProperties::LoadDefaults()
 {
 	mAuthor = lcGetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME);
@@ -511,7 +516,13 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 		{
 			LineStream >> Token;
 
-			if (Token == QLatin1String("FILE"))
+/*** LPub3D Mod - parse rotstep line ***/
+			if (Token == QLatin1String("//"))
+			 {
+				 ParseExsitingRotStepLine(LineStream);
+			 }
+/*** LPub3D Mod end ***/
+			else if (Token == QLatin1String("FILE"))
 			{
 				QString Name = LineStream.readAll().trimmed();
 
@@ -1366,7 +1377,7 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 
 	if (!View.BeginRenderToImage(Width, Height))
 	{
-		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Error creating images."));
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
 		return;
 	}
 
@@ -1707,7 +1718,7 @@ void lcModel::GroupSelection()
 {
 	if (!AnyPiecesSelected())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("No pieces selected."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No pieces selected."));
 		return;
 	}
 
@@ -2432,7 +2443,7 @@ void lcModel::InlineSelectedModels()
 
 	if (!NewPieces.GetSize())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("No models selected."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No models selected."));
 		return;
 	}
 
@@ -2702,6 +2713,74 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 		break;
 	}
 }
+
+/*** LPub3D Mod - rotate objects  and parse rotstep line***/
+void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
+{
+    lcVector3 rotateStep = RotateStep;
+
+    QString   rotationType;
+    switch (RotateStepType)
+    {
+    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+        rotationType = "ABS";
+        break;
+    case LC_ROTATESTEP_RELATIVE_ROTATION:
+        rotationType = "REL";
+        break;
+    }
+
+    QString modelNameParts  = mProperties.mName;                    // Model Name Format = csiName_sn_ln.ldr
+            modelNameParts  = modelNameParts.section("_",-1,-1);    // First split to get 'ln.ldr'
+    QString lineNumber      = modelNameParts.section(".",0,-2);     // Second split to get 'ln'
+
+    QString rotationValue("%1 %2 %3 %4 %5");
+    rotationValue = rotationValue.arg(lineNumber,
+                  QString::number(rotateStep[0], 'f', 2),
+                  QString::number(rotateStep[1], 'f', 2),
+                  QString::number(rotateStep[2], 'f', 2),
+                  rotationType);
+
+    MetaItem mi;
+
+    if (gui->getCurFile() != "") {
+
+        mi.writeRotateStep(rotationValue);
+        gui->clearAndRedrawPage();
+        gui->SetExistingRotStep(rotateStep);
+        gui->UpdateStepRotation();
+
+    }
+
+    gMainWindow->UpdateAllViews();
+}
+
+void lcModel::ParseExsitingRotStepLine(QTextStream& LineStream)
+{
+    while (!LineStream.atEnd())
+    {
+        lcVector3 rotStep;
+        QString Token;
+        LineStream >> Token;
+
+        if (Token == QLatin1String("ROTSTEP")) {
+
+            LineStream >> Token;
+
+            if(Token == QLatin1String("REL"))
+                gMainWindow->SetRotateStepType(LC_ROTATESTEP_RELATIVE_ROTATION);
+            else if(Token == QLatin1String("ABS"))
+                gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
+
+            LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
+
+            gui->SetExistingRotStep(rotStep);
+
+            continue;
+        }
+    }
+}
+/*** LPub3D Mod end ***/
 
 void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 {
@@ -3835,6 +3914,7 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
+	case LC_TOOL_ROTATESTEP:
 		break;
 
 	case LC_NUM_TOOLS:
@@ -4139,7 +4219,7 @@ void lcModel::ShowSelectByNameDialog()
 {
 	if (mPieces.IsEmpty() && mCameras.IsEmpty() && mLights.IsEmpty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to select."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to select."));
 		return;
 	}
 
@@ -4155,7 +4235,7 @@ void lcModel::ShowSelectByColorDialog()
 {
 	if (mPieces.IsEmpty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to select."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to select."));
 		return;
 	}
 
@@ -4191,7 +4271,7 @@ void lcModel::ShowArrayDialog()
 
 	if (!GetPieceFocusOrSelectionCenter(Center))
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("No pieces selected."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No pieces selected."));
 		return;
 	}
 	
@@ -4202,7 +4282,7 @@ void lcModel::ShowArrayDialog()
 
 	if (Dialog.mCounts[0] * Dialog.mCounts[1] * Dialog.mCounts[2] < 2)
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Array only has 1 element or less, no pieces added."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Array only has 1 element or less, no pieces added."));
 		return;
 	}
 
@@ -4306,6 +4386,9 @@ void lcModel::UpdateInterface()
 
 	gMainWindow->UpdateSelectedObjects(true);
 	gMainWindow->SetTransformType(gMainWindow->GetTransformType());
+/*** LPub3D Mod - set rotate step type***/
+	gMainWindow->SetRotateStepType(gMainWindow->GetRotateStepType());
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateLockSnap();
 	gMainWindow->UpdateSnap();
 	gMainWindow->UpdateCameraMenu();

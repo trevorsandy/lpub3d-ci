@@ -654,6 +654,27 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+	 // LC_EDIT_ACTION_ROTATESTEP
+	{
+		"Edit.Tool.RotateStep",
+		QT_TRANSLATE_NOOP("Menu", "Insert ROTSTEP"),
+		QT_TRANSLATE_NOOP("Status", "Insert or update LPub ROTSTEP meta"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
+	},
+	// LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION
+	{
+		"Edit.RotateStepAbsoluteRotation",
+		QT_TRANSLATE_NOOP("Menu", "Set Absolute Rotation"),
+		QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying step rotation"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
+	},
+	// LC_EDIT_ROTATESTEP_RELATIVE_ROTATION
+	{
+		"Edit.RotateStepRelativeRotation",
+		 QT_TRANSLATE_NOOP("Menu", "Set Relative Rotation"),
+		 QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying step rotation"),
+		 QT_TRANSLATE_NOOP("Shortcut", "")
+	},
 	// LC_EDIT_CANCEL
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Cancel"),
@@ -1476,28 +1497,28 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_HELP_HOMEPAGE
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.HomePage"),
-		QT_TRANSLATE_NOOP("Menu", "LeoCAD &Home Page"),
-		QT_TRANSLATE_NOOP("Status", "Open LeoCAD's home page on the internet using your default web browser"),
+		QT_TRANSLATE_NOOP("Menu", "3DViewer &Home Page"),
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_HELP_BUG_REPORT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.BugReport"),
 		QT_TRANSLATE_NOOP("Menu", "Report a Bug"),
-		QT_TRANSLATE_NOOP("Status", "Open LeoCAD's bug report form on your default web browser"),
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's bug report form on your default web browser"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_HELP_UPDATES
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.Updates"),
 		QT_TRANSLATE_NOOP("Menu", "Check for &Updates..."),
-		QT_TRANSLATE_NOOP("Status", "Check if a newer LeoCAD version or parts library has been released"),
+		QT_TRANSLATE_NOOP("Status", "Check if a newer 3DViewer version or parts library has been released"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_HELP_ABOUT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.About"),
-		QT_TRANSLATE_NOOP("Menu", "&About..."),
+		QT_TRANSLATE_NOOP("Menu", "&About 3DViewer - by LeoCAD..."),
 		QT_TRANSLATE_NOOP("Status", "Display program version number and system information"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
@@ -1548,7 +1569,8 @@ const char* gToolNames[LC_NUM_TOOLS] =
 	QT_TRANSLATE_NOOP("Mouse", "Pan"),           // LC_TOOL_PAN
 	QT_TRANSLATE_NOOP("Mouse", "Orbit"),         // LC_TOOL_ROTATE_VIEW
 	QT_TRANSLATE_NOOP("Mouse", "Roll"),          // LC_TOOL_ROLL
-	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion")     // LC_TOOL_ZOOM_REGION
+	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion"),    // LC_TOOL_ZOOM_REGION
+	QT_TRANSLATE_NOOP("Mouse", "RotateStep")     // LC_TOOL_ROTATESTEP  /*** LPub3D Mod - Rotate Step Menu ***/
 };
 
 static_assert(sizeof(gToolNames) / sizeof(gToolNames[0]) == LC_NUM_TOOLS, "Array size mismatch.");

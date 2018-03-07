@@ -4,6 +4,10 @@
 #include "object.h"
 #include "lc_commands.h"
 
+/*** LPub3D Mod - logging ***/
+#include "QsLog.h"
+/*** LPub3D Mod end ***/
+
 #define LC_SEL_NO_PIECES                0x0001 // No pieces in model
 #define LC_SEL_PIECE                    0x0002 // At last 1 piece selected
 #define LC_SEL_SELECTED                 0x0004 // At last 1 object selected
@@ -35,6 +39,14 @@ enum lcTransformType
 	LC_TRANSFORM_ABSOLUTE_ROTATION,
 	LC_TRANSFORM_RELATIVE_ROTATION
 };
+
+/*** LPub3D Mod - rotate step ***/
+enum lcRotateStepType
+{
+    LC_ROTATESTEP_ABSOLUTE_ROTATION,
+    LC_ROTATESTEP_RELATIVE_ROTATION
+};
+/*** LPub3D Mod end ***/
 
 enum lcBackgroundType
 {
@@ -317,6 +329,10 @@ public:
 	}
 
 	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
+/*** LPub3D Mod - rotate step ***/
+	void ParseExsitingRotStepLine(QTextStream& LineStream);
+	void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
+/*** LPub3D Mod end ***/
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);

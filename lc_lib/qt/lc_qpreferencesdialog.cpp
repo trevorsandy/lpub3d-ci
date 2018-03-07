@@ -16,13 +16,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 {
     ui->setupUi(this);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-	ui->povrayLabel->hide();
-	ui->povrayExecutable->hide();
-	ui->povrayExecutableBrowse->hide();
-	delete ui->povrayLabel;
-	delete ui->povrayLayout;
-#endif
+/*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
+//#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+//	ui->povrayLabel->hide();
+//	ui->povrayExecutable->hide();
+//	ui->povrayExecutableBrowse->hide();
+//	delete ui->povrayLabel;
+//	delete ui->povrayLayout;
+//#endif
+/*** LPub3D Mod end ***/
 
 	ui->lineWidth->setValidator(new QDoubleValidator(ui->lineWidth));
 	connect(ui->gridStudColor, SIGNAL(clicked()), this, SLOT(colorClicked()));
@@ -91,6 +93,22 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->mouseTree->header()->setResizeMode(2, QHeaderView::ResizeToContents);
 #endif
 	MouseTreeItemChanged(nullptr);
+
+/*** LPub3D Mod - set preferences dialog properties ***/
+	ui->authorName->setDisabled(true);
+	ui->partsLibrary->setDisabled(true);
+	ui->partsLibraryBrowse->hide();
+	ui->povrayExecutable->setDisabled(true);
+	ui->povrayExecutableBrowse->hide();
+	ui->lgeoPath->setDisabled(true);
+	ui->lgeoPathBrowse->hide();
+	ui->checkForUpdates->hide();
+	ui->label_10->hide();                   //label check for updates
+	ui->fixedDirectionKeys->hide(); 
+	ui->tabWidget->removeTab(2);            //hide tabCategories
+	ui->tabWidget->removeTab(2);            //hide tabKeyboard
+	ui->tabWidget->removeTab(2);            //hide mouse
+/*** LPub3D Mod end ***/
 }
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
@@ -103,7 +121,7 @@ void lcQPreferencesDialog::accept()
 	int gridLineSpacing = ui->gridLineSpacing->text().toInt();
 	if (gridLineSpacing < 1)
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Grid spacing must be greater than 0."));
+		QMessageBox::information(this, "3DViewer", tr("Grid spacing must be greater than 0."));
 		return;
 	}
 
@@ -351,7 +369,7 @@ void lcQPreferencesDialog::on_deleteCategory_clicked()
 		return;
 
 	QString question = tr("Are you sure you want to delete the category '%1'?").arg(options->Categories[categoryIndex].Name);
-	if (QMessageBox::question(this, "LeoCAD", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	options->CategoriesModified = true;
@@ -371,7 +389,7 @@ void lcQPreferencesDialog::on_importCategories_clicked()
 	lcArray<lcLibraryCategory> Categories;
 	if (!lcLoadCategories(FileName, Categories))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error loading categories file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error loading categories file."));
 		return;
 	}
 
@@ -389,14 +407,14 @@ void lcQPreferencesDialog::on_exportCategories_clicked()
 
 	if (!lcSaveCategories(FileName, options->Categories))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error saving categories file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error saving categories file."));
 		return;
 	}
 }
 
 void lcQPreferencesDialog::on_resetCategories_clicked()
 {
-	if (QMessageBox::question(this, "LeoCAD", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	lcResetCategories(options->Categories);
@@ -577,7 +595,7 @@ void lcQPreferencesDialog::on_shortcutsImport_clicked()
 	lcKeyboardShortcuts Shortcuts;
 	if (!Shortcuts.Load(FileName))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error loading keyboard shortcuts file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error loading keyboard shortcuts file."));
 		return;
 	}
 
@@ -596,14 +614,14 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 
 	if (!options->KeyboardShortcuts.Save(FileName))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error saving keyboard shortcuts file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error saving keyboard shortcuts file."));
 		return;
 	}
 }
 
 void lcQPreferencesDialog::on_shortcutsReset_clicked()
 {
-	if (QMessageBox::question(this, "LeoCAD", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	options->KeyboardShortcuts.Reset();
@@ -763,7 +781,7 @@ void lcQPreferencesDialog::on_mouseRemove_clicked()
 
 void lcQPreferencesDialog::on_mouseReset_clicked()
 {
-	if (QMessageBox::question(this, "LeoCAD", tr("Are you sure you want to load the default mouse shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default mouse shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	options->MouseShortcuts.Reset();

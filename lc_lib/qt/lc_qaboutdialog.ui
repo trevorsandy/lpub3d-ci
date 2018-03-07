@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About LeoCAD</string>
+   <string>About 3DViewer</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -24,7 +24,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../leocad.qrc">:/resources/leocad.png</pixmap>
+          <pixmap resource="../../mainApp/lpub3d.qrc">:/resources/leocad.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -114,7 +114,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../leocad.qrc"/>
+  <include location="../../mainApp/lpub3d.qrc"/>
  </resources>
  <connections>
   <connection>

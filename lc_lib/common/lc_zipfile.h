@@ -9,7 +9,10 @@
 class lcFile;
 
 // Date/time info.
-struct tm_unz
+/*** LPub3D Mod - resolve quazip\unzip conflict ***/
+//struct tm_unz
+struct tm_unz_lc_zip
+
 {
 	quint32 tm_sec;            // seconds after the minute - [0,59]
 	quint32 tm_min;            // minutes after the hour - [0,59]
@@ -18,6 +21,8 @@ struct tm_unz
 	quint32 tm_mon;            // months since January - [0,11]
 	quint32 tm_year;           // years - [1980..2044]
 };
+/*** LPub3D Mod end ***/
+
 
 // Information about a file in the zipfile.
 struct lcZipFileInfo
@@ -40,7 +45,10 @@ struct lcZipFileInfo
 
 	quint64 offset_curfile;       // relative offset of local header 8 bytes
 	char file_name[256];
-	tm_unz tmu_date;
+/*** LPub3D Mod - resolve quazip\unzip conflict ***/
+	//tm_unz tmu_date;
+	tm_unz_lc_zip tmu_date;
+/*** LPub3D Mod end ***/
 
 	lcMemFile* write_buffer;
 	bool deleted;

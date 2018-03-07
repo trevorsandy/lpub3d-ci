@@ -14,6 +14,7 @@
 #include <ctype.h>
 #include <locale.h>
 #include <zlib.h>
+#include "lpub.h"
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
 #endif
@@ -27,6 +28,9 @@
 #define LC_LIBRARY_CACHE_VERSION   0x0106
 #define LC_LIBRARY_CACHE_ARCHIVE   0x0001
 #define LC_LIBRARY_CACHE_DIRECTORY 0x0002
+/*** LPub3D Mod - part types ***/
+#define LC_LIBRARY_PART_TYPE       1
+/*** LPub3D Mod end ***/
 
 static lcVector2 lcCalculateTexCoord(const lcVector3& Position, const lcLibraryTextureMap* TextureMap)
 {
@@ -86,12 +90,19 @@ static lcVector2 lcCalculateTexCoord(const lcVector3& Position, const lcLibraryT
 lcPiecesLibrary::lcPiecesLibrary()
 	: mLoadMutex(QMutex::Recursive)
 {
+/*** LPub3D Mod - portable cache ***/
+        if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
+                mCachePath = Preferences::lpub3dPath + "/cache";
+        } else {
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-	mCachePath = cachePathList.first();
+		QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+		mCachePath = cachePathList.first();
 #else
-	mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+		mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
 #endif
+	}
+/*** LPub3D Mod end ***/
 
 	QDir Dir;
 	Dir.mkpath(mCachePath);
@@ -305,11 +316,16 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	{
 		lcMemFile ColorFile;
 
-		if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/ldconfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
+		/*** LPub3D Mod - Rename LDConfig.ldr ***/
+		if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/LDConfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
 			lcLoadDefaultColors();
+		/*** LPub3D Mod end ***/
 
 		mLibraryDir = QFileInfo(LibraryPath).absoluteDir();
-		QString UnofficialFileName = mLibraryDir.absoluteFilePath(QLatin1String("ldrawunf.zip"));
+		/*** LPub3D Mod - unoffical library file name ***/
+		QString UnofficialFileName = mLibraryDir.absoluteFilePath(QLatin1String(FILE_LPUB3D_UNOFFICIAL_ARCHIVE));
+		/*** LPub3D Mod end ***/
+
 
 		if (!OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
 			UnofficialFileName.clear();
@@ -435,6 +451,9 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const QString& FileName, lcZipFi
 
 					strncpy(Info->mFileName, FileInfo.file_name + (Name - NameBuffer), sizeof(Info->mFileName));
 					Info->mFileName[sizeof(Info->mFileName) - 1] = 0;
+/*** LPub3D Mod - part type flag ***/
+					Info->m_iPartType = LC_LIBRARY_PART_TYPE;
+/*** LPub3D Mod end ***/
 
 					mPieces[Name] = Info;
 				}
@@ -3407,4 +3426,21 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	lcSynthInit();
 
 	return true;
+}
+
+bool lcPiecesLibrary::ReloadUnoffLib()
+{
+    //unload unofficial library content
+    delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
+    mZipFiles[LC_ZIPFILE_UNOFFICIAL] = NULL;
+
+    //load unofficial library content
+    if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
+        ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName);
+    } else
+        return false;
+
+    //load categories
+    lcLoadDefaultCategories();
+    return true;
 }

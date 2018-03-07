@@ -134,6 +134,13 @@ public:
 		return (m_strDescription[0] == '~');
 	}
 
+/*** LPub3D Mod 137 - part type check ***/
+	bool IsPartType () const
+	{
+		return (m_iPartType != 0);
+	}
+/*** LPub3D Mod end ***/
+
 	void ZoomExtents(float FoV, float AspectRatio, lcMatrix44& ProjectionMatrix, lcMatrix44& ViewMatrix) const;
 	void AddRenderMesh(lcScene& Scene);
 	void AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, bool Focused, bool Selected, bool Highlight) const;
@@ -156,6 +163,9 @@ public:
 public:
 	char mFileName[LC_PIECE_NAME_LEN];
 	char m_strDescription[128];
+/*** LPub3D Mod 166 - part type check ***/
+	int m_iPartType;
+/*** LPub3D Mod end ***/
 	int mZipFileType;
 	int mZipFileIndex;
 	quint32 mFlags;

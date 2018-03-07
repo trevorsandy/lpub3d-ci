@@ -33,16 +33,23 @@ public:
 	bool mFixedAxes;
 };
 
-class lcApplication : public QApplication
+/*** LPub3D Mod - change QApplication to QObject ***/
+class lcApplication : public QObject
+/*** LPub3D Mod end ***/
 {
 	Q_OBJECT
 
 public:
-	lcApplication(int& Argc, char** Argv);
+
+/*** LPub3D Mod - initialization - move arguments to LP3D Application ***/
+	lcApplication();
+/*** LPub3D Mod end ***/
 	~lcApplication();
 
 	void SetProject(Project* Project);
-	bool Initialize(QList<QPair<QString, bool>>& LibraryPaths, bool& ShowWindow);
+/*** LPub3D Mod - add parent, remove ShowWindow ***/
+	bool Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
+/*** LPub3D Mod end ***/
 	void Shutdown();
 	void ShowPreferencesDialog();
 	void SaveTabLayout() const;
@@ -56,6 +63,9 @@ public:
 	lcPiecesLibrary* mLibrary;
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
+/*** LPub3D Mod - command line load file name ***/
+	QString mLoadFile;
+/*** LPub3D Mod end ***/
 
 protected:
 	QString GetTabLayoutKey() const;

@@ -9,6 +9,10 @@
 #include "pieceinf.h"
 #include "lc_synth.h"
 
+/*** LPub3D Mod - Rotate Step ***/
+#include "lpub.h"
+/*** LPub3D Mod end ***/
+
 lcVertexBuffer View::mRotateMoveVertexBuffer;
 lcIndexBuffer View::mRotateMoveIndexBuffer;
 
@@ -403,7 +407,8 @@ LC_CURSOR_TYPE View::GetCursor() const
 		LC_CURSOR_ROTATEY,     // LC_TRACKTOOL_ORBIT_Y
 		LC_CURSOR_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_CURSOR_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_CURSOR_ZOOM_REGION  // LC_TRACKTOOL_ZOOM_REGION
+		LC_CURSOR_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
+		LC_CURSOR_ROTATESTEP   // LC_TRACKTOOL_ROTATESTEP  /*** LPub3D Mod - Rotate Step ***/
 	};
 
 	return CursorFromTrackTool[mTrackTool];
@@ -416,6 +421,8 @@ void View::ShowContextMenu() const
 
 	QMenu* Popup = new QMenu(Widget);
 
+/*** LPub3D Mod - context menu management ***/
+/***
 	Popup->addAction(Actions[LC_EDIT_CUT]);
 	Popup->addAction(Actions[LC_EDIT_COPY]);
 	Popup->addAction(Actions[LC_EDIT_PASTE]);
@@ -433,6 +440,8 @@ void View::ShowContextMenu() const
 	Popup->addAction(Actions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
 
 	Popup->addSeparator();
+***/
+/*** LPub3D Mod end ***/
 
 	Popup->addMenu(gMainWindow->GetToolsMenu());
 	Popup->addMenu(gMainWindow->GetViewpointMenu());
@@ -442,10 +451,23 @@ void View::ShowContextMenu() const
 
 	Popup->addSeparator();
 
+/*** LPub3D Mod - context menu undo/redo ***/
+	Popup->addAction(Actions[LC_EDIT_UNDO]);
+	Popup->addAction(Actions[LC_EDIT_REDO]);
+
+	Popup->addSeparator();
+/*** LPub3D Mod end ***/
+
 	Popup->addAction(Actions[LC_VIEW_SPLIT_HORIZONTAL]);
 	Popup->addAction(Actions[LC_VIEW_SPLIT_VERTICAL]);
 	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);
 	Popup->addAction(Actions[LC_VIEW_RESET_VIEWS]);
+
+/*** LPub3D Mod - context menu preferences ***/
+	Popup->addSeparator();
+
+	Popup->addAction(Actions[LC_VIEW_PREFERENCES]);
+/*** LPub3D Mod end ***/
 
 	Popup->exec(QCursor::pos());
 }
@@ -777,7 +799,9 @@ void View::OnDraw()
 		else if (GetCurrentTool() == LC_TOOL_MOVE && mTrackButton != LC_TRACKBUTTON_NONE)
 			DrawSelectMoveOverlay();
 		else if ((Tool == LC_TOOL_ROTATE || (Tool == LC_TOOL_SELECT && mTrackButton != LC_TRACKBUTTON_NONE && mTrackTool >= LC_TRACKTOOL_ROTATE_X && mTrackTool <= LC_TRACKTOOL_ROTATE_XYZ)) && mModel->AnyPiecesSelected())
-			DrawRotateOverlay();
+/*** LPub3D Mod - Rotate Step onDraw ***/
+		{ DrawRotateOverlay(); 	GetRotateStepAngles(); }
+/*** LPub3D Mod end ***/
 		else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton == LC_TRACKBUTTON_LEFT)
 			DrawSelectZoomRegionOverlay();
 		else if (Tool == LC_TOOL_ROTATE_VIEW && mTrackButton == LC_TRACKBUTTON_NONE)
@@ -1742,7 +1766,8 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_Y
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_TOOL_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_TOOL_ZOOM_REGION  // LC_TRACKTOOL_ZOOM_REGION
+		LC_TOOL_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
+		LC_TOOL_ROTATESTEP   // LC_TRACKTOOL_NONE
 	};
 
 	return ToolFromTrackTool[mTrackTool];
@@ -1773,7 +1798,8 @@ lcTrackTool View::GetOverrideTrackTool(Qt::MouseButton Button) const
 		LC_TRACKTOOL_PAN,        // LC_TOOL_PAN
 		LC_TRACKTOOL_ORBIT_XY,   // LC_TOOL_ROTATE_VIEW
 		LC_TRACKTOOL_ROLL,       // LC_TOOL_ROLL
-		LC_TRACKTOOL_ZOOM_REGION // LC_TOOL_ZOOM_REGION
+		LC_TRACKTOOL_ZOOM_REGION,// LC_TOOL_ZOOM_REGION
+		LC_TRACKTOOL_ROTATESTEP
 	};
 
 	return TrackToolFromTool[OverrideTool];
@@ -2266,6 +2292,10 @@ void View::UpdateTrackTool()
 		NewTrackTool = LC_TRACKTOOL_ZOOM_REGION;
 		break;
 
+        case LC_TOOL_ROTATESTEP:
+                NewTrackTool = LC_TRACKTOOL_ROTATESTEP;
+                break;
+
 	case LC_NUM_TOOLS:
 		break;
 	}
@@ -2356,6 +2386,9 @@ bool View::IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) 
 	case LC_TRACKTOOL_ORBIT_XY:
 	case LC_TRACKTOOL_ROLL:
 	case LC_TRACKTOOL_ZOOM_REGION:
+/*** LPub3D Mod - Rotate Step ***/
+	case LC_TRACKTOOL_ROTATESTEP:
+/*** LPub3D Mod end ***/
 		return true;
 	}
 
@@ -2422,6 +2455,7 @@ void View::StartTracking(lcTrackButton TrackButton)
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
+	case LC_TOOL_ROTATESTEP:
 		break;
 
 	case LC_NUM_TOOLS:
@@ -2508,6 +2542,9 @@ void View::StopTracking(bool Accept)
 				mModel->ZoomRegionToolClicked(mCamera, AspectRatio, Points[0], Target, Corners);
 			}
 		}
+		break;
+
+	case LC_TOOL_ROTATESTEP:
 		break;
 
 	case LC_NUM_TOOLS:
@@ -2624,6 +2661,10 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 	case LC_TRACKTOOL_ZOOM_REGION:
 		StartTracking(TrackButton);
 		break;
+/*** LPub3D Mod - Rotate Step Tracktool ***/
+	case LC_TRACKTOOL_ROTATESTEP:
+		break;
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -3051,10 +3092,53 @@ void View::OnMouseMove()
 	case LC_TRACKTOOL_ZOOM_REGION:
 		Redraw();
 		break;
+/*** LPub3D Mod - Rotate Step mouse move ***/
+	case LC_TRACKTOOL_ROTATESTEP:
+		break;
+/*** LPub3D Mod end ***/
 	}
 }
 
 void View::OnMouseWheel(float Direction)
 {
 	mModel->Zoom(mCamera, (int)(((mInputState.Modifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
+}
+
+/*** LPub3D Mod - Rotate Step get rotate step angles ***/
+void View::GetRotateStepAngles()
+{
+    lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
+
+    if (mTrackButton != LC_TRACKBUTTON_NONE)
+    {
+        float Angle;
+        lcVector3 ExistingRotStep = gui->GetExistingRotStep();
+
+        switch (mTrackTool)
+        {
+        case LC_TRACKTOOL_ROTATE_X:
+            Angle = MouseToolDistance[0] + ExistingRotStep[0];
+            gui->SetRotStepAngleX(Angle);
+            qDebug() << "Rotate X: " << Angle;
+            break;
+        case LC_TRACKTOOL_ROTATE_Y:
+            //Switch leoCAD Y and Z coordinates to match LDraw
+            Angle = MouseToolDistance[1] + ExistingRotStep[2];
+            gui->SetRotStepAngleZ(Angle);
+            qDebug() << "Rotate Y(Z): " << Angle;
+            break;
+        case LC_TRACKTOOL_ROTATE_Z:
+            //LDraw Y axis is vertical, with negative value in the up direction
+            Angle = MouseToolDistance[2] + -ExistingRotStep[1];
+            gui->SetRotStepAngleY(-Angle);
+            qDebug() << "Rotate Z(Y): Angle: " << Angle << " (Neg) Angle: " << -Angle;
+            break;
+        default:
+            Angle = 0.0f;
+            break;
+        };
+        // display the combined angle in the status bar
+        gui->UpdateStepRotation();
+    }
+
 }

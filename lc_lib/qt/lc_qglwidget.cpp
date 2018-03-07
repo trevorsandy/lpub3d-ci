@@ -62,13 +62,16 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{ 15, 15, ":/resources/cursor_pan" },           // LC_CURSOR_PAN
 		{ 15, 15, ":/resources/cursor_roll" },          // LC_CURSOR_ROLL
 		{ 15, 15, ":/resources/cursor_rotate_view" },   // LC_CURSOR_ROTATE_VIEW
+		{  0,  0, "" },		                        /*** LPub3D Mod - rotate step ***/
 	};
 
 	static_assert(sizeof(Cursors) / sizeof(Cursors[0]) == LC_CURSOR_COUNT, "Array size mismatch");
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
-
-	if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
+/*** LPub3D Mod - rotate step ***/
+       //if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
+        if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
+/*** LPub3D Mod end ***/
 	{
 		const lcCursorInfo& Cursor = Cursors[CursorType];
 		widget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));

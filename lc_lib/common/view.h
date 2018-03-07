@@ -4,6 +4,10 @@
 #include "camera.h"
 #include "lc_scene.h"
 
+/*** LPub3D Mod - add logging ***/
+#include "QsLog.h"
+/*** LPub3D Mod end ***/
+
 enum lcTrackButton
 {
 	LC_TRACKBUTTON_NONE,
@@ -42,7 +46,8 @@ enum lcTrackTool
 	LC_TRACKTOOL_ORBIT_Y,
 	LC_TRACKTOOL_ORBIT_XY,
 	LC_TRACKTOOL_ROLL,
-	LC_TRACKTOOL_ZOOM_REGION
+	LC_TRACKTOOL_ZOOM_REGION,
+	LC_TRACKTOOL_ROTATESTEP                /*** LPub3D Mod - Rotate Step ***/
 };
 
 enum class lcDragState
@@ -147,6 +152,9 @@ protected:
 	void DrawAxes();
 	void DrawViewport();
 
+/*** LPub3D Mod - Rotate Step ***/
+	void GetRotateStepAngles();
+/*** LPub3D Mod end ***/
 	void UpdateTrackTool();
 	bool IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) const;
 	lcTool GetCurrentTool() const;

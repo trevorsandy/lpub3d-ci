@@ -11,7 +11,10 @@ lcQAboutDialog::lcQAboutDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	ui->version->setText(tr("LeoCAD Version %1").arg(QString::fromLatin1(LC_VERSION_TEXT)));
+/*** LPub3D Mod - vesion build ***/
+        ui->version->setText(tr("3DViewer - by LeoCAD Version %1 - Rev %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+                                                                         .arg(QString::fromLatin1(LC_VERSION_BUILD)));
+/*** LPub3D Mod end ***/
 
 	QGLWidget* Widget = (QGLWidget*)gMainWindow->GetActiveView()->mWidget;
 	QGLFormat Format = Widget->context()->format();

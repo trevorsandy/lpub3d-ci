@@ -144,10 +144,12 @@ bool Application::modeGUI()
 
 void Application::initialize()
 {
-  // initial
+  // process arguments
   bool headerPrinted = false;
-  QStringList Arguments = arguments();
+  QStringList ListArgs, Arguments = arguments();
   const int NumArguments = Arguments.size();
+  for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
+    ListArgs << Arguments[ArgIdx];
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
   {
     const QString& Param = Arguments[ArgIdx];
@@ -156,7 +158,7 @@ void Application::initialize()
       m_console_mode = true;
       printf("%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
       printf("==========================\n");
-      printf("Arguments: %s\n",Arguments.join(" ").toLatin1().constData());
+      printf("Arguments: %s\n",ListArgs.join(" ").toLatin1().constData());
       headerPrinted = true;
     }
     if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
@@ -165,6 +167,43 @@ void Application::initialize()
       m_print_output = true;
       printf("%s, Version %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
       printf("Compiled on " __DATE__ "\n");
+      return;
+    }
+    else if (Param == QLatin1String("-vv") || Param == QLatin1String("--vversion"))
+    {
+      m_console_mode = true;
+      m_print_output = true;
+      printf("3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_BUILD);
+      printf("Compiled " __DATE__ "\n");
+      return;
+    }
+    else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
+    {
+      m_console_mode = true;
+      m_print_output = true;
+      printf("Usage: lpub3d [options] [file]\n");
+      printf("  [options] can be:\n");
+      //printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
+      printf("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+      printf("  -w, --width <width>: Set the picture width.\n");
+      printf("  -h, --height <height>: Set the picture height.\n");
+      printf("  -f, --from <time>: Set the first step to save pictures.\n");
+      printf("  -t, --to <time>: Set the last step to save pictures.\n");
+      printf("  -s, --submodel <submodel>: Set the active submodel.\n");
+      printf("  -c, --camera <camera>: Set the active camera.\n");
+      printf("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+      printf("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+      printf("  --orthographic: Make the view orthographic.\n");
+      printf("  --highlight: Highlight pieces in the steps they appear.\n");
+      printf("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+      printf("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+      printf("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+      printf("  -html, --export-html <folder>: Create an HTML page for the model.\n");
+      printf("  --html-parts-width <width>: Set the HTML part pictures width.\n");
+      printf("  --html-parts-height <height>: Set the HTML part pictures height.\n");
+      printf("  -v, --version: Output version information and exit.\n");
+      printf("  -?, --help: Display this help message and exit.\n");
+      printf("  \n");
       return;
     }
   }
