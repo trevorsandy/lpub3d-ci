@@ -87,8 +87,8 @@ then
         Info "1. update git tags and capture version info using git queries"
         git fetch -qfup --depth=${GIT_DEPTH} origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
         git checkout -qf ${TRAVIS_COMMIT}
-	    lp3d_git_ver_author="$(git log -1 ${TRAVIS_COMMIT} --pretty="%aN")"
-	    lp3d_git_ver_committer_email="$(git log -1 ${TRAVIS_COMMIT} --pretty="%cE")"
+        lp3d_git_ver_author="$(git log -1 ${TRAVIS_COMMIT} --pretty="%aN")"
+        lp3d_git_ver_committer_email="$(git log -1 ${TRAVIS_COMMIT} --pretty="%cE")"
     else
         Info "1. capture version info using git queries"
     fi
@@ -261,9 +261,12 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/    <release version=.*/    <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" "${FILE}"
+        sed -i "" -e "s/.*<release version=.*/        <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" \
+                  -e "s/.*<binary>lpub3d.*/        <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}"
+
     else
-        sed -i "s/    <release version=.*/    <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" "${FILE}"
+        sed -i -e "s/.*<release version=.*/        <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" \
+               -e "s/.*<binary>lpub3d.*/        <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/"  "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
@@ -321,7 +324,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "10.update ${LPUB3D}.spec  - add version and date  [$FILE]"
+Info "10.update ${LPUB3D}.spec     - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -338,7 +341,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "11.update ${LPUB3D}.dsc   - add version           [$FILE]"
+Info "11.update ${LPUB3D}.dsc      - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]

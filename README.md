@@ -80,7 +80,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
 [povray-url]:          https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.0.20
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
 [obsreleases]:         https://software.opensuse.org//download.html?project=home:trevorsandy&package=lpub3d-ci
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
@@ -141,9 +141,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.193.537_20180216.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.193.537_20180216-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.193.537_20180216-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.0.20/LPub3D-2.0.20.528.559_20180308.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.0.20/LPub3D-2.0.20.528.559_20180308-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.0.20/LPub3D-2.0.20.528.559_20180308-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/
