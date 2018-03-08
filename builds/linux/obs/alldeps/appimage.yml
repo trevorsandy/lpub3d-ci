@@ -47,7 +47,7 @@ script:
   - chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
   - echo; $QMAKE_EXEC -v; echo; $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
   - make clean && make -j$(nproc)
-  - make INSTALL_ROOT=$BUILD_APPDIR install
+  - make INSTALL_ROOT=$BUILD_APPDIR -j$(nproc) install
   - echo "AppImage Input Files:" && find $BUILD_APPDIR -type f && echo
   - renderers=$(find $BUILD_APPDIR/opt -type f)
   - for r in $renderers; do executables="$executables -executable=$r"; done
