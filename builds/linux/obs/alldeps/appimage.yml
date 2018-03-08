@@ -38,8 +38,8 @@ build:
 script:
   - cd $BUILD_SOURCE_DIR
   - set +x; echo "Current working directory $PWD contents:" && ls .; set -x
-  - mkdir lpub3d-obs && tar -mxzf lpub3d-obs-git.tar.gz -C lpub3d-obs --strip-components=1
-  - test -d lpub3d-obs/builds && cd lpub3d-obs || echo "ERROR - lpub3d-obs.tar.gz did not extract properly."
+  - mkdir lpub3d-ci && tar -mxzf lpub3d-ci-git.tar.gz -C lpub3d-ci --strip-components=1
+  - test -d lpub3d-ci/builds && cd lpub3d-ci || echo "ERROR - lpub3d-ci.tar.gz did not extract properly."
   - test -d mainApp && cp -f ../*.zip mainApp/extras || echo "ERROR - could not copy LDraw zip archives."
   - export LP3D_BUILD_PKG=yes; export QT_SELECT=qt5
   - test -x /usr/bin/qmake && QMAKE_EXEC=qmake || test -x /usr/bin/qmake-qt5 && QMAKE_EXEC=qmake-qt5 || echo "ERROR - could not find qmake."
