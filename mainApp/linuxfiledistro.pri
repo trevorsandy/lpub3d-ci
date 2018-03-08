@@ -56,19 +56,17 @@ unix:!macx {
     man.files += $$_PRO_FILE_PWD_/docs/$$MAN_PAGE
     man.path = $$MAN_DIR
 
-    #desktop.files += lpub3d.desktop#
+    # lpub3d.desktop
     desktop.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    #appdata.files += lpub3d.appdata.xml
-    appdata.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.appdata.xml)
+    # org.trevorsandy.lpub3d.appdata.xml
+    appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
     appdata.path = $$APPDATA_DIR
 
-    #icon.files += images/lpub3d.png
     icon.files += $$_PRO_FILE_PWD_/images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
-    #mime.files += lpub3d.xml
     mime.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
 

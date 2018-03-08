@@ -380,7 +380,7 @@ FORMS += \
 OTHER_FILES += \
     Info.plist \
     lpub3d.desktop \
-    lpub3d.appdata.xml \
+    org.trevorsandy.lpub3d.appdata.xml \
     lpub3d.xml \
     lpub3d.sh \
     $$lower($$MAN_PAGE) \

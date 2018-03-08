@@ -1,7 +1,9 @@
-LPub3D 2.0.20.531.562 (08 03 2018 14:59:27)
+LPub3D 2.0.20.532.563 (08 03 2018 16:35:22)
 
 Features and enhancements
 ------------
+Change: Add reverse dns naming to .appdata.xml and .desktop for AppImage. The new AppData file name is org.trevorsandy.lpub3d.appdata.xml. For AppImage builds, lpub3d.desktop is changed to org.trevorsandy.lpub3d.desktop. For the moment, the desktop file for other Linux builds remain lpub3d.desktop. #20
+
 Upgrade: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
 
 Change: Update about-dialogue support links. Add GitHub issues URL #31
