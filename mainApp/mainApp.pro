@@ -200,12 +200,12 @@ if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     }
 }
 
-VER_LDVIEW   = ldview-4.3
-VER_LDGLITE  = ldglite-1.3
-VER_POVRAY   = lpub3d_trace_cui-3.8
-DEFINES     += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
-DEFINES     += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
-DEFINES     += VER_POVRAY=\\\"$$VER_POVRAY\\\"
+VER_LDVIEW     = ldview-4.3
+VER_LDGLITE    = ldglite-1.3
+VER_POVRAY     = lpub3d_trace_cui-3.8
+DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES       += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES       += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
 win32:include(winfiledistro.pri)
 macx:include(macosfiledistro.pri)
@@ -380,6 +380,7 @@ FORMS += \
 OTHER_FILES += \
     Info.plist \
     lpub3d.desktop \
+    org.trevorsandy.lpub3d.desktop \
     org.trevorsandy.lpub3d.appdata.xml \
     lpub3d.xml \
     lpub3d.sh \

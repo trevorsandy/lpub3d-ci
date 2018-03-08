@@ -60,9 +60,15 @@ unix:!macx {
     desktop.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    # org.trevorsandy.lpub3d.appdata.xml
-    appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
-    appdata.path = $$APPDATA_DIR
+    api {
+        # org.trevorsandy.lpub3d.desktop
+        appstream_desktop.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.desktop)
+        appstream_desktop.path = $$DESKTOP_DIR
+
+        # org.trevorsandy.lpub3d.appdata.xml
+        appstream_appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
+        appstream_appdata.path = $$APPDATA_DIR
+    }
 
     icon.files += $$_PRO_FILE_PWD_/images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
@@ -108,7 +114,6 @@ unix:!macx {
     docs \
     man \
     desktop \
-    appdata \
     icon\
     mime\
     mime_ldraw_icon \
@@ -122,6 +127,12 @@ unix:!macx {
     pli_substitution_parts \
     ldraw_unofficial_library \
     ldraw_official_library
+
+    api {
+        INSTALLS += \
+        appstream_desktop \
+        appstream_appdata
+    }
 
     DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 

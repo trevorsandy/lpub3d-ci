@@ -68,9 +68,8 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       for r in $renderers; do executables="$executables -executable=$r"; done;
       unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
       export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
-      cp mainApp/lpub3d.desktop $AppImageBuildPath/org.trevorsandy.lpub3d.desktop
-      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/*.desktop $executables -bundle-non-qt-libs -verbose=2 > CreateAppImage.log 2>&1;
-      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/*.desktop -appimage -verbose=2 >> CreateAppImage.log 2>&1;
+      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2 > CreateAppImage.log 2>&1;
+      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2 >> CreateAppImage.log 2>&1;
       echo && echo "AppImage Dynamic Library Dependencies:" && \
       find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
       AppImageFile=$(ls LPub3D*.AppImage)

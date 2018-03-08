@@ -255,8 +255,11 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
+Info "6. clone lpub3d.desktop   - add org.trevorsandy   [$FILE]"
+cp -f "${FILE}" "$LP3D_PWD/org.trevorsandy.lpub3d.desktop"
+
 FILE="$LP3D_PWD/org.trevorsandy.lpub3d.appdata.xml"
-Info "6. update appdata info    - add version and date  [$FILE]"
+Info "7. update appdata info    - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -273,7 +276,7 @@ else
 fi
 
 FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
-Info "7. update man page        - add version suffix    [$FILE]"
+Info "8. update man page        - add version suffix    [$FILE]"
 FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
 if [ -f ${FILE_TEMPLATE} ];
 then
@@ -296,7 +299,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/changelog"
-Info "8. create changelog       - add version and date  [$FILE]"
+Info "9. create changelog       - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     rm ${FILE}
@@ -310,7 +313,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
 EOF
 
 FILE="$LP3D_CONFIG_DIR/PKGBUILD"
-Info "9. update PKGBUILD        - add version           [$FILE]"
+Info "10. update PKGBUILD        - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -324,7 +327,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "10.update ${LPUB3D}.spec     - add version and date  [$FILE]"
+Info "11.update ${LPUB3D}.spec     - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -341,7 +344,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "11.update ${LPUB3D}.dsc      - add version           [$FILE]"
+Info "12.update ${LPUB3D}.dsc      - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
