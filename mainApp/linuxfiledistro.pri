@@ -61,10 +61,6 @@ unix:!macx {
     desktop.path = $$DESKTOP_DIR
 
     api {
-        # org.trevorsandy.lpub3d.desktop
-        appstream_desktop.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.desktop)
-        appstream_desktop.path = $$DESKTOP_DIR
-
         # org.trevorsandy.lpub3d.appdata.xml
         appstream_appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
         appstream_appdata.path = $$APPDATA_DIR
@@ -129,9 +125,15 @@ unix:!macx {
     ldraw_official_library
 
     api {
-        INSTALLS += \
-        appstream_desktop \
-        appstream_appdata
+# On OBS, this appdata scheme is fucked!
+# No matter what I try, validation across x86 and ARM AppImage builds fail on OBS.
+# On Ubuntu (Travis) there is no evidence of validation but builds are successful.
+# On x86_64 builds validation is reported as successful but there is also a message
+# stating no appstream meta info was found. On ARM builds validation fails with
+# invalid tag 'launchable' - this tag is valid. I spent 2 days on this and zero.
+# I give up!
+#        INSTALLS += \
+#        appstream_appdata
     }
 
     DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
