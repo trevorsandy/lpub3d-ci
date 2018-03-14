@@ -1,7 +1,7 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 # Last Update March 09, 2018
 pkgname=lpub3d-ci
-pkgver=2.0.20.567
+pkgver=2.0.20.568
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
