@@ -2,6 +2,8 @@ LPub3D 2.0.20.536.567 (13 03 2018 22:53:24)
 
 Features and enhancements
 ------------
+Change: Enable 3DViewer to use alternate LDConfig.ldr colour file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique colour submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
+
 Change: Add LPu3D build check - macOS & Windows. DevOps feature as first step to enabling CI-based TDD, and UI checks. See https://github.com/trevorsandy/lpub3d/issues/33 for additional context. #33
 
 Upgrade: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
