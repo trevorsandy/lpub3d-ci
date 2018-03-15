@@ -100,7 +100,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.0.20.572
+Version: 2.0.20.573
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -121,8 +121,9 @@ BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %if !0%{?rhel_version}
 BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
 %endif
+BuildRequires: freeglut-devel
 BuildRequires: mesa-libGLU-devel
-BuildRequires: freeglut-devel, boost-devel, libtiff-devel
+BuildRequires: boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?buildservice}!=1
 BuildRequires: git
@@ -131,6 +132,7 @@ BuildRequires: git
 
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %if 0%{?scientificlinux_version}
+BuildRequires: gnu-free-sans-fonts
 BuildRequires: kde-runtime
 %endif
 BuildRequires: libjpeg-turbo-devel
@@ -166,12 +168,15 @@ BuildRequires: openssl-devel, storaged
 
 %if 0%{?suse_version}
 Requires(pre): gconf2
+%if (0%{?sles_version} && 0%{?sle_version}!=150000)
+BuildRequires: freeglut-devel
+%endif
 BuildRequires: libqt5-qtbase-devel
-BuildRequires: libOSMesa-devel, glu-devel, openexr-devel, freeglut-devel
+BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sles_version} && 0%{?sle_version}!=150000)
 BuildRequires: gl2ps-devel
 %else
 %define build_gl2ps 1
@@ -293,6 +298,9 @@ BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  python-xml
 BuildRequires:  python-base
 BuildRequires:  pkgconfig(libdrm) >= 2.4.75
+%endif
+%if 0%{?scientificlinux_version}
+BuildRequires:  python-gobject-base
 %endif
 BuildRequires:  python-mako
 BuildRequires:  pkgconfig(dri2proto)
@@ -664,5 +672,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Mar 15 2018 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.572
+* Fri Mar 16 2018 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.573
 - LPub3D Linux package (rpm) release
