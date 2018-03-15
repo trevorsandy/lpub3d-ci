@@ -1,7 +1,9 @@
-LPub3D 2.0.20.540.571 (15 03 2018 04:24:12)
+LPub3D 2.0.20.541.572 (15 03 2018 23:05:46)
 
 Features and enhancements
 ------------
+Enhancement: Upgrade LDView renderer to commit e56a9b8bc25a001aaa8042ddab8ffc9cdb9f5a9e (v4.4 alpha). Includes command line snapshot support for -SaveSnapshotsList, fix command line snapshot scale factor bug, and add support for command line scale factor.
+
 Fix: Newer CSI images not saved when using LDView (Single Call) render. When using the LDView Single-call option, generated images were not updated when a newer instance of the model file was opened in LPub3D - for example if an update was saved to the model file. This behaviour resulted in the image files being generated every time the model file was opened or on loading a new step because the conditional check if the model file was newer that the image file would always be true. If the image file exist, the newly generated image file would not be saved. This correction deletes the old image file is a new instance is generated allowing the new instance to be saved. #36
 
 Fix: Appended page is not displayed. When you append a page to your sub/model where the last step does not contain any parts - for example if the last step only contains BOM-related metas (e.g. 0 !LPUB INSERT BOM), the added page meta 0 !LPUB INSERT PAGE is not preceded by a step meta 0 !LPUB STEP and, consequently, is not displayed.
