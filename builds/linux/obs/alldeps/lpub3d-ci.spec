@@ -231,6 +231,7 @@ BuildRequires:  -post-build-checks
 Requires(post): desktop-file-utils
 %endif
 %if 0%{?scientificlinux_version}
+BuildRequires:  python-gobject
 BuildRequires:  python-gobject-base
 %endif
 
