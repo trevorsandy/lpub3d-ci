@@ -299,9 +299,6 @@ BuildRequires:  python-xml
 BuildRequires:  python-base
 BuildRequires:  pkgconfig(libdrm) >= 2.4.75
 %endif
-%if 0%{?scientificlinux_version}
-BuildRequires:  python-gobject-base
-%endif
 BuildRequires:  python-mako
 BuildRequires:  pkgconfig(dri2proto)
 BuildRequires:  pkgconfig(dri3proto)
@@ -362,6 +359,9 @@ BuildRequires:  nasm
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(alsa) >= 0.9.0
 BuildRequires:  pkgconfig(dbus-1)
+%if 0%{?scientificlinux_version}
+BuildRequires:  python-gobject-base
+%endif
 %if 0%{?fedora}
 BuildRequires:  pkgconfig(fcitx)
 %endif
