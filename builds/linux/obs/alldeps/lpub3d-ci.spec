@@ -230,6 +230,9 @@ BuildRequires:  -post-build-checks
 %endif
 Requires(post): desktop-file-utils
 %endif
+%if 0%{?scientificlinux_version}
+BuildRequires:  python-gobject-base
+%endif
 
 # POV-Ray dependencies - SUSE/CentOS builds
 %if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
@@ -359,9 +362,6 @@ BuildRequires:  nasm
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(alsa) >= 0.9.0
 BuildRequires:  pkgconfig(dbus-1)
-%if 0%{?scientificlinux_version}
-BuildRequires:  python-gobject-base
-%endif
 %if 0%{?fedora}
 BuildRequires:  pkgconfig(fcitx)
 %endif
