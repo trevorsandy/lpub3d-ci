@@ -31,7 +31,7 @@
 
 # set target platform id
 # distinguish between SLE, openSUSE Leap and openSUSE
-# SLE
+# SUSE Linux Enterprise Server
 %if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150000 && !0%{?is_opensuse})
 %define dist .SUSE%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
@@ -44,11 +44,11 @@
 %if (0%{?sle_version}>=120100 && 0%{?sle_version}<=150000 && 0%{?is_opensuse})
 %define dist .SUSE%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo openSUSE Leap)
-%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
+%define suse_dist_label %(echo %{suse_dist_name}..................%{sle_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
 %define suse_dist_version %{sle_version}
 %define build_sdl2 1
-%endif
+%else
 # openSUSE
 %if (0%{?suse_version}>=1320 && 0%{?suse_version}<=1550)
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
@@ -56,7 +56,7 @@
 %define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
-
+%endif
 %endif
 
 %if 0%{?centos_ver}
