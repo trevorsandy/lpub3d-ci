@@ -572,6 +572,7 @@ set -x
 export OBS=%{usingbuildservice}
 # RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}
+export TARGET_CPU=%{_target_cpu}
 export RPM_LIBDIR="%{_libdir}"
 export RPM_SYSCONFDIR="%{_sysconfdir}"
 export RPM_OPTFLAGS="%{optflags}"
