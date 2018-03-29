@@ -2,6 +2,13 @@ LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
 
 Features and enhancements
 ------------
+Fix: Application version missing in macOS dmg README. Corrected.
+
+
+LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
+
+Features and enhancements
+------------
 Enhancement: Upgrade LDView renderer to commit e56a9b8bc25a001aaa8042ddab8ffc9cdb9f5a9e (v4.4 alpha). Includes command line snapshot support for -SaveSnapshotsList which improves performance, and add support for command line scale factor.
 
 Fix: Newer CSI images not saved when using LDView (Single Call) render. When using the LDView Single-call option, generated images were not updated when a newer instance of the model file was opened in LPub3D - for example if an update was saved to the model file. This behaviour resulted in the image files being generated every time the model file was opened or on loading a new step because the conditional check if the model file was newer that the image file would always be true. If the image file exist, the newly generated image file would not be saved. This correction deletes the old image file is a new instance is generated allowing the new instance to be saved. #36
