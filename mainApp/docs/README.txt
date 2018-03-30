@@ -1,8 +1,8 @@
-LPub3D 2.0.20.574.605 (30 03 2018 09:53:52)
+LPub3D 2.0.20.574.605 (30 03 2018 12:43:07)
 
 Features and enhancements
 ------------
-LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release containse mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatability and the overall user's experience.
+LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release contains mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatability and the overall user's experience.
 
 Change: Add warnings to LDView standard output. By default LPub3D will use the '-vv' flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
 
