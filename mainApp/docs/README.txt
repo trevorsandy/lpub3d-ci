@@ -2,6 +2,8 @@ LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
 
 Features and enhancements
 ------------
+Change - Add exit button to parameter file edit window. Small improvement of the user experience.
+
 Change - LDView raytracer labels to LDView .pov Generation. Change labels for LDView menu items under Configuration / Edit Parameter Files from 'LDView Raytracer' to 'LDView POV Generation'.
 
 Fix - Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
