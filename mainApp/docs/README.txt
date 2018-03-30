@@ -1,18 +1,20 @@
-LPub3D 2.2.0.1.818 (30 03 2018 06:48:17)
+LPub3D 2.0.20.574.605 (30 03 2018 09:53:52)
 
 Features and enhancements
 ------------
-Change - Add warnings to LDView standard output. By default LPub3D will use the -vv flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
+LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release containse mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatability and the overall user's experience.
 
-Fix - Attempt to correct the save/load main-window settings on macOS. The main-window state is either not saved or retrieved properly on macOS.
+Change: Add warnings to LDView standard output. By default LPub3D will use the '-vv' flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
 
-Change - Update preferences dialogue window settings. An attempt to synchronize the layout across the different build platforms.
+Fix: Attempt to correct the save/load main-window settings on macOS. The main-window state is either not saved or retrieved properly on macOS.
 
-Fix - Attempt to correct wrong build commit count on Windows and macOS builds. While the internal commit count (the count on the About dialogue) is accurate, the packaging script generated commit count does not match the actual commit count on Windows and macOS builds.
+Change: Update preferences dialogue window settings. An attempt to synchronize the layout across the different build platforms.
 
-Fix - Partial install on Windows 7 32bit. This correction addresses the reported bug on Windows 7 32bit where there was no uninstall entry in Control Panel/Programs and features and the uninstall executable would return the message 'There is no installation of LPub3D'. This behaviour was likely exclusive to 32bit Windows 7 (and possibly Windows Vista). See https://github.com/trevorsandy/lpub3d/issues/40 for details. #40
+Fix: Attempt to correct wrong build commit count on Windows and macOS builds. While the internal commit count (the count on the About dialogue) is accurate, the packaging script generated commit count does not match the actual commit count on Windows and macOS builds.
 
-Fix - POV-Ray fails to parse command line with space in executable path. This correction addresses the reported bug on Windows: No PLI or assembly images generated when POV-Ray is set as the renderer. This behaviour manifests when LPub3D is installed in a folder path containing one or more spaces, for example C:\Program Files. See https://github.com/trevorsandy/lpub3d/issues/41 for details. #41
+Fix: Partial install on Windows 7 32bit. This correction addresses the reported bug on Windows 7 32bit where there was no uninstall entry in Control Panel/Programs and features and the uninstall executable would return the message 'There is no installation of LPub3D'. This behaviour was likely exclusive to 32bit Windows 7 (and possibly Windows Vista). See https://github.com/trevorsandy/lpub3d/issues/40 for details. #40
+
+Fix: POV-Ray fails to parse command line with space in executable path. This correction addresses the reported bug on Windows: No PLI or assembly images generated when POV-Ray is set as the renderer. This behaviour manifests when LPub3D is installed in a folder path containing one or more spaces, for example C:\Program Files. See https://github.com/trevorsandy/lpub3d/issues/41 for details. #41
 
 Change: Update LDView to GitSha 7e01dd4. Add error and warning standard output. Trigger Windows console output with -HaveStdOut=1. By default, critical and standard errors will be printed. Access the LDView standard output and standard error logs from the user interface at Help / View LPub3D log. Once the log view windows loads, you can use the 'open file' menu item to open the respective log file.
 
