@@ -172,7 +172,10 @@ BuildRequires: llvm-libs
 BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
-%if 0%{?fedora_version}==27
+%if 0%{?fedora_version} >= 27
+%if 0%{?fedora_version} >= 28
+BuildRequires:  mesa-libwayland-egl
+%endif
 %define build_osmesa 1
 %endif
 %endif
@@ -436,8 +439,8 @@ BuildRequires:  pkgconfig(xxf86vm)
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
 
-# work around fc27 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
-%if 0%{?fedora_version}==27
+# work around fc27 and fc28 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
+%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
 %global debug_package %{nil}
 %endif
 
