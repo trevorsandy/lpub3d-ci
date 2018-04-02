@@ -506,6 +506,7 @@ for TarballFile in \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz \
   ../../SOURCES/mesa-17.2.6.tar.gz \
+  ../../SOURCES/mesa-18.0.0.tar.gz \
   ../../SOURCES/glu-9.0.0.tar.bz2 \
   ../../SOURCES/qt5-5.9.3-gcc_64-el.tar.gz \
   ../../SOURCES/locallibs.el.x86_64.tar.gz; do
