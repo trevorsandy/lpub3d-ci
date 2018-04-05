@@ -2,6 +2,7 @@ LPub3D 2.2.2.0.824 (31 03 2018 20:54:01)
 
 Features and enhancements
 ------------
+Fix: Fade steps final model inserts multiple occurrences of the 0 !LPUB INSERT MODEL and 0 !LPUB INSERT PAGE when the model file contains a trailing 0 !STEP or BOM page at the end of the model file. #44
 Fix: Remove file watcher on file close. This fix corrects the behaviour where when you edit a file that was recently closed in LPub3D, the message '...contents were changed by an external source' is displayed. The expected behaviour is to not receive such message.
 
 Change: Add Fedora 28 to Open Build Service builds
