@@ -173,9 +173,6 @@ BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
 %if 0%{?fedora_version} >= 27
-%if 0%{?fedora_version} >= 28
-BuildRequires:  mesa-libwayland-egl
-%endif
 %define build_osmesa 1
 %endif
 %endif
