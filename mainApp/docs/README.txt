@@ -1,7 +1,17 @@
-LPub3D 2.2.2.0.824 (31 03 2018 20:54:01)
+LPub3D 2.2.1.10.617 (07 04 2018 07:24:38)
 
 Features and enhancements
 ------------
+Change - Run multiple instances of LPub3D on Win, macOS and AppImage. Starting with v 2.2.2, LPub3D supports the running of multiple instances on the same machine under the same user on Windows and macOS. Previously, all distributions of LPub3D on Windows and macOS used the same user settings location - Current User Registry Hive for Windows and PList file for macOS. This behaviour has been changed.
+
+For macOS distributions, simply copy-paste and rename the .app bundle. For example copy LPub3D.app and rename the copied instance LPub3D_alt.app or whatever name you prefer. The settings plist file will be uniquely defined based on the bundle name, for example ~/Library/Preferences/com.lpub3d-software.LPub3D_alt.plist
+
+On Windows, there are 2 options to achieve autonomous instances of LPub3D under the same user:
+
+Just as with the macOS install, you can copy-paste and rename of the LPub3D executable to create a unique instance. However, installations under Program Files will require administrator access privilege to perform this action. Content written to the Current User Registry Hive will use the executable name as the Application Name so each unique executable will have its respective hive path and keys. For example Computer\HKEY_CURRENT_USER\Software\LPub3D Software\LPub3D_alt.
+
+Windows portable (.zip) distributions of LPub3D are now fully autonomous and portable. With this enhancement, portable distributions of LPub3D on Windows will write its application settings to an INI file located at C:\Users\"user"\AppData\Roaming\LPub3D Software\LPub3D_alt. Note that portable distributions also benefit from the same copy-paste behaviour available for installer-based distributions. #46
+
 Change: Improve performance of Software Updater. Upgrade and refactor QSimpleUpater library.
 
 Fix: Fade steps final model inserts multiple occurrences of the 0 !LPUB INSERT MODEL and 0 !LPUB INSERT PAGE when the model file contains a trailing 0 !STEP or BOM page at the end of the model file. #44
