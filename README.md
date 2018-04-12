@@ -141,9 +141,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.19.626_20180408.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.19.626_20180408-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.19.626_20180408-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.26.633_20180409.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.26.633_20180409-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.26.633_20180409-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/
