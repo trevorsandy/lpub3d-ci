@@ -126,7 +126,8 @@ CONFIG(debug, debug|release) {
     }
     # executable target name
     macx: TARGET = $$join(TARGET,,,_debug)
-    else: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
+    win32:TARGET = $$join(TARGET,,,d)
+    unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
     BUILD += Release
     ARCH_BLD = bit_release
