@@ -107,6 +107,7 @@
         <file alias="previousstep.png">images/previousstep.png</file>
         <file alias="print.png">images/print.png</file>
         <file alias="projectsetup.png">images/projectsetup.png</file>
+        <file alias="recentfiles.png">images/recentfiles.png</file>
         <file alias="redraw.png">images/redraw.png</file>
         <file alias="refreshoffarchive.png">images/refreshoffarchive.png</file>
         <file alias="refreshunoffarchive.png">images/refreshunoffarchive.png</file>

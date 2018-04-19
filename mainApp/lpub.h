@@ -904,6 +904,7 @@ private slots:
     void saveAs();
 
     void openRecentFile();
+    void clearRecentFiles();
     void updateCheck();
     bool aboutDialog();
 
@@ -1024,6 +1025,7 @@ private:
   QDockWidget       *modelDockWindow;
 //**
 
+  // Menus
   QMenu    *fileMenu;
   QMenu    *recentFileMenu;
   QMenu    *editMenu;
@@ -1035,6 +1037,7 @@ private:
   QMenu    *editorMenu;
   QMenu    *cacheMenu;
   QMenu    *exportMenu;
+  QMenu    *recentMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1061,6 +1064,7 @@ private:
   QAction  *exportPngAct;
   QAction  *exportJpgAct;
   QAction  *exportBmpAct;
+  QAction  *clearRecentAct;
   QAction  *exitAct;
 
   QAction  *undoAct;

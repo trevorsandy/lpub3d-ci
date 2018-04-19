@@ -1761,6 +1761,9 @@ void Gui::createActions()
                                  SLOT(openRecentFile()));
     }
 
+    clearRecentAct = new QAction(tr("Clear Files"),this);
+    clearRecentAct->setStatusTip(tr("Clear recent files"));
+    connect(clearRecentAct, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
     // undo/redo
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
@@ -2233,11 +2236,16 @@ void Gui::createMenus()
     //fileMenu->addAction(printToFileAct);
     fileMenu->addAction(exportAsPdfPreviewAct);
     fileMenu->addAction(exportAsPdfAct);
+    fileMenu->addSeparator();
 
-    separatorAct = fileMenu->addSeparator();
+    recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));
+    recentFileMenu->setIcon(QIcon(":/resources/recentfiles.png"));
     for (int i = 0; i < MaxRecentFiles; i++) {
-      fileMenu->addAction(recentFilesActs[i]);
+      recentFileMenu->addAction(recentFilesActs[i]);
     }
+    separatorAct = recentFileMenu->addSeparator();
+    recentFileMenu->addAction(clearRecentAct);
+
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 

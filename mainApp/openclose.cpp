@@ -105,6 +105,17 @@ void Gui::openRecentFile()
   }
 }
 
+void Gui::clearRecentFiles()
+{
+  QSettings Settings;
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
+    files.clear();
+     Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
+   }
+  updateRecentFileActions();
+}
+
 void Gui::loadFile(const QString &file)
 {
     QString fileName = file;
