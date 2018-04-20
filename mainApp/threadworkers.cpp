@@ -96,9 +96,9 @@ void PartWorker::ldsearchDirPreferences(){
   logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
   QString singleCall;
   QString renderer = Render::getRenderer();
-  if ((renderer == "LDView") && Preferences::enableLDViewSingleCall)
+  if ((renderer == RENDERER_LDVIEW) && Preferences::enableLDViewSingleCall)
     singleCall = "Single Call";
-  logInfo() << QString("Renderer is %1 %2").arg(Render::getRenderer()).arg(!singleCall.isEmpty() ? "(" + singleCall + ")" : "").trimmed();
+  logInfo() << QString("Renderer is %1 %2").arg(renderer).arg(!singleCall.isEmpty() ? "(" + singleCall + ")" : "").trimmed();
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
@@ -125,26 +125,35 @@ void PartWorker::ldsearchDirPreferences(){
       }
       // If fade step enabled but fade directories not defined in ldSearchDirs, add fade directories
       if (doFadeStep() && !fadeDirsIncluded) {
-          if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+          // We must force the fade directories for LDView as they are needed by ldview ini files
+          if (renderer == RENDERER_LDVIEW) {
               Preferences::ldSearchDirs << _fadePartDir;
-              fadeDirsIncluded = true;
               logStatus() << "Add fade part directory:" << _fadePartDir;
-            } else {
-              logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
-            }
-          if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
               Preferences::ldSearchDirs << _fadePrimDir;
-              fadeDirsIncluded = true;
               logStatus() << "Add fade primitive directory:" << _fadePrimDir;
-            } else {
-              logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
-            }
+              fadeDirsIncluded = true;
+          } else {
+              if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                Preferences::ldSearchDirs << _fadePartDir;
+                fadeDirsIncluded = true;
+                logStatus() << "Add fade part directory:" << _fadePartDir;
+              } else {
+                logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
+              }
+              if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                Preferences::ldSearchDirs << _fadePrimDir;
+                fadeDirsIncluded = true;
+                logStatus() << "Add fade primitive directory:" << _fadePrimDir;
+              } else {
+                logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
+              }
+          }
           // update the registry if fade directory included
           if (fadeDirsIncluded){
               QSettings Settings;
               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
-            }
-        }
+          }
+       }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load from disc file
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
       logStatus() << QString("Ldraw.ini found or search directory reset selected, load ldSearch directories from ldrawini defined or default entries");
@@ -154,8 +163,10 @@ void PartWorker::ldsearchDirPreferences(){
     }
 
     // Update LDView extra search directories - don't need LDGLite search directories here as they are added further down the load sequence.
-    Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
-    Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+       logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+       logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -380,16 +391,17 @@ void PartWorker::processFadePartsArchive(){
         QSettings Settings;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
 
-        Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
-        Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
+        if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+           logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
+        if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+           logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
         populateLdgLiteSearchDirs();
     }
 }
 
 void PartWorker::processFadeColourParts()
 {
-  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-  if (doFadeStep()) {
+  if ((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep)) {
        _timer.start();
       _fadedParts = 0;
 
@@ -402,7 +414,7 @@ void PartWorker::processFadeColourParts()
       Paths::mkfadedirs();
 
       ldrawFile = gui->getLDrawFile();
-      // porcess top-level submodels
+      // process top-level submodels
       emit progressRangeSig(1, ldrawFile._subFileOrder.size());
       for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
           QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
@@ -468,6 +480,7 @@ void PartWorker::processFadeColourParts()
               return;
           }
 
+          // Create the fade part
           createFadePartFiles();
 
           // Append fade parts to unofficial library for 3DViewer's consumption
@@ -503,8 +516,10 @@ void PartWorker::processFadeColourParts()
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
 
-                  Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
-                  Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
+                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+                     logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
+                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+                     logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
                   populateLdgLiteSearchDirs();
                 }
               // Process archive files
@@ -531,7 +546,7 @@ void PartWorker::processFadeColourParts()
 
       QString fileStatus = _fadedParts == 1 ? QString("%1 fade part created and library updated. %2.").arg(_fadedParts).arg(time) :
                            _fadedParts > 1 ? QString("%1 fade parts created and library updated. %2.").arg(_fadedParts).arg(time) :
-                                           QString("Fade parts verified. %1.").arg(time);
+                                           QString("No fade parts created.");
       emit removeProgressStatusSig();
       emit fadeColourFinishedSig();
       emit messageSig(true,fileStatus);
@@ -713,15 +728,13 @@ bool PartWorker::createFadePartFiles(){
     emit progressMessageSig("Creating Fade Colour Parts");
     emit progressRangeSig(1, maxValue);
 
-    QString materialColor  ="16";  // Internal Common Material Colour (main)
-    QString edgeColor      ="24";  // Internal Common Material Color (edge)
-
-    QStringList fadePartContent;
+    QStringList fadePartContent, fadePartColourList;
     QString fadePartFile;
 
-    for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++){
+    for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++) {
 
         emit progressSetValueSig(part);
+
         QMap<QString, ColourPart>::iterator cp = _colourParts.find(_partList[part]);
 
         if(cp != _colourParts.end()){
@@ -751,6 +764,8 @@ bool PartWorker::createFadePartFiles(){
             if (fadeStepColorPartFileInfo.exists()){
                 logNotice() << "PART ALREADY EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
                 continue;
+            } else {
+                logNotice() << "CREATE FADE PART: " << fadeStepColorPartFileInfo.absoluteFilePath();
             }
             fadePartFile = fadeStepColorPartFileInfo.absoluteFilePath();
             //logTrace() << "A. PART CONTENT ABSOLUTE FILEPATH: " << fadeStepColorPartFileInfo.absoluteFilePath();
@@ -775,26 +790,38 @@ bool PartWorker::createFadePartFiles(){
                     }
                     tokens[tokens.size()-1] = fileNameStr;
                 }
-                // check if coloured line and set to 16 if yes
-                if((((tokens.size() == 15 && tokens[0] == "1")  ||
-                     (tokens.size() == 8  && tokens[0] == "2")  ||
-                     (tokens.size() == 11 && tokens[0] == "3")  ||
-                     (tokens.size() == 14 && tokens[0] == "4")  ||
-                     (tokens.size() == 14 && tokens[0] == "5")) &&
-                     (tokens[1] != materialColor) 				&&
-                     (tokens[1] != edgeColor))){
-
-                    //QString oldColour(tokens[1]);       //logging only: show colour lines
-                    tokens[1] = materialColor;
+                // check if coloured line...
+                if((tokens.size() && tokens[0].size() == 1 &&
+                    tokens[0] >= "1" && tokens[0] <= "5")  &&
+                    (tokens[1] != LDRAW_MATERIAL_COLOUR)   &&
+                    (tokens[1] != LDRAW_EDGE_COLOUR)) {
+                    //QString oldColour(tokens[1]);          //logging only: show colour lines
+                    // generate fade colour entry - if useFadeStepColour, set colour to material colour (16)
+                    QString colourCode = Preferences::useFadeStepColour ? LDRAW_MATERIAL_COLOUR : tokens[1];
+                    // add colour line to local list
+                    if (!gui->colourEntryExist(fadePartColourList,colourCode))
+                        fadePartColourList << gui->createColorEntry(colourCode);
+                    // set fade colour
+                    tokens[1] = QString("%1%2").arg(FADE_COLOUR_PREFIX).arg(colourCode);
                     //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                 }
                 line = tokens.join(" ");
                 fadePartContent << line;
             }
+
+            // add the fade part colour list to the header of the fade part contents
+            fadePartColourList.toSet().toList(); // remove dupes
+            fadePartContent.prepend("0");
+            for (int i = 0; i < fadePartColourList.size(); ++i)
+              fadePartContent.prepend(fadePartColourList.at(i));
+            fadePartContent.prepend("0 // LPub3D fade step colours");
+
             //logTrace() << "04 SAVE COLOUR PART: " << fadePartFile;
             if(saveFadeFile(fadePartFile, fadePartContent))
                 _fadedParts++;
+
             fadePartContent.clear();
+            fadePartColourList.clear();
         }
     }
     emit progressSetValueSig(maxValue);
@@ -819,6 +846,7 @@ bool PartWorker::saveFadeFile(
     } else {
         QTextStream out(&file);
         for (int i = 0; i < fadePartContent.size(); i++) {
+
             out << fadePartContent[i] << endl;
         }
         file.close();
@@ -954,7 +982,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           if (okToEmitToProgressBar())
               emit messageSig(false,returnMessage);
           else
-              logError() << returnMessage;
+              logNotice() << returnMessage;
           continue;
       }
       bool ok;
@@ -1009,7 +1037,6 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   return true;
 }
 
-
 ColourPart::ColourPart(
         const QStringList   &contents,
         const QString       &fileNameStr,
@@ -1029,7 +1056,6 @@ ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
     _cpLines = 0;
     _filePath = "";
 }
-
 
 /*
  * build colour part listing

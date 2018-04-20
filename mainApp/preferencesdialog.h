@@ -46,7 +46,6 @@ class PreferencesDialog : public QDialog
     QString const povrayExe();
     QString const ldgliteExe();
     QString const ldviewExe();
-    QString const fadeStepColor();
     QString const moduleVersion();
     QString const preferredRenderer();
     QString const defaultAuthor();
@@ -55,12 +54,14 @@ class PreferencesDialog : public QDialog
     QString const documentLogoFile();
     QString const publishDescription();
     QString const logLevelCombo();
+    QString const fadeStepColour();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();
     bool          centimeters();
     bool          enableFadeStep();
+    bool          useFadeStepColour();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
     bool          showUpdateNotifications();
@@ -70,7 +71,7 @@ class PreferencesDialog : public QDialog
     bool          povrayDisplay();
     int           checkUpdateFrequency();
     int           rendererTimeout();   
-
+    int           fadeStepOpacityPercent();
     bool          includeLogLevel();
     bool          includeTimestamp();
     bool          includeLineNumber();

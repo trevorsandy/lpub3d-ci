@@ -70,7 +70,7 @@ QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepColor              = "Very_Light_Bluish_Grey";
+QString Preferences::fadeStepColour              = "Very_Light_Bluish_Grey";
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::fadeStepColorPartsFile;
 QString Preferences::excludedPartsFile;
@@ -132,18 +132,19 @@ bool    Preferences::logLevel                   = false;
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
-bool    Preferences::enableFadeStep             = false;
 bool    Preferences::preferCentimeters          = true;
 bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
-bool    Preferences::fadeStepSettingChanged     = false;
-bool    Preferences::fadeStepColorChanged       = false;
 bool    Preferences::portableDistribution       = false;
 bool    Preferences::povrayDisplay              = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
+
+bool    Preferences::enableFadeStep             = false;
+bool    Preferences::useFadeStepColour          = false;
+int     Preferences::fadeStepOpacityPercent     = FADE_OPACITY_DEFAULT;    //Default = 100 percent (full opacity)
 
 int     Preferences::checkUpdateFrequency       = 0;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
@@ -1825,12 +1826,28 @@ void Preferences::fadestepPreferences()
         enableFadeStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeStep")).toBool();
     }
 
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"UseFadeStepColor"))) {
+        QVariant eValue(false);
+        useFadeStepColour = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseFadeStepColor"),eValue);
+    } else {
+        useFadeStepColour = Settings.value(QString("%1/%2").arg(SETTINGS,"UseFadeStepColor")).toBool();
+    }
+
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepColor"))) {
         QVariant cValue("Very_Light_Bluish_Grey");
-        fadeStepColor = "Very_Light_Bluish_Grey";
+        fadeStepColour = "Very_Light_Bluish_Grey";
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),cValue);
     } else {
-        fadeStepColor = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
+        fadeStepColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepOpacityPercent"))) {
+        QVariant cValue(FADE_OPACITY_DEFAULT);
+        fadeStepOpacityPercent = FADE_OPACITY_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepOpacityPercent"),cValue);
+    } else {
+        fadeStepOpacityPercent = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepOpacityPercent")).toInt();
     }
 
     fadeStepColorPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColorPartsFile")).toString();
@@ -1954,9 +1971,6 @@ bool Preferences::getPreferences()
 
     bool updateLDViewConfigFiles   = false;
 
-    fadeStepSettingChanged         = false;
-    fadeStepColorChanged           = false;
-
     PreferencesDialog *dialog      = new PreferencesDialog();
 
     QSettings Settings;
@@ -1965,7 +1979,7 @@ bool Preferences::getPreferences()
 
         if (ldrawPath != dialog->ldrawPath()) {
             ldrawPath = dialog->ldrawPath();
-            if (ldrawPath == "") {
+            if (ldrawPath.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"LDrawDir"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawDir"),ldrawPath);
@@ -1979,7 +1993,7 @@ bool Preferences::getPreferences()
         if (altLDConfigPath != dialog->altLDConfigPath())
         {
             altLDConfigPath = dialog->altLDConfigPath();
-            if (altLDConfigPath == "") {
+            if (altLDConfigPath.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"AltLDConfigPath"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"AltLDConfigPath"),altLDConfigPath);
@@ -1988,7 +2002,7 @@ bool Preferences::getPreferences()
 
         if (pliFile != dialog->pliFile()) {
             pliFile = dialog->pliFile();
-            if (pliFile == "") {
+            if (pliFile.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControl"),pliFile);
@@ -1997,7 +2011,7 @@ bool Preferences::getPreferences()
 
         if (preferredRenderer != dialog->preferredRenderer()) {
             preferredRenderer = dialog->preferredRenderer();
-            if (preferredRenderer == "") {
+            if (preferredRenderer.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
@@ -2006,7 +2020,7 @@ bool Preferences::getPreferences()
 
         if (lgeoPath != dialog->lgeoPath()) {
             lgeoPath = dialog->lgeoPath();
-            if(lgeoPath == "") {
+            if(lgeoPath.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(POVRAY,"LGEOPath"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(POVRAY,"LGEOPath"),lgeoPath);
@@ -2027,9 +2041,9 @@ bool Preferences::getPreferences()
         if (ldSearchDirs != dialog->searchDirSettings()) {
             if (! dialog->searchDirSettings().isEmpty()){
                 ldSearchDirs.clear();
-                QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"));
-                QString fadeDirPath  = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade"));
-                QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("models"));
+                QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("unofficial"));
+                QString fadeDirPath  = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath).arg("fade"));
+                QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("models"));
                 foreach (QString dirPath, dialog->searchDirSettings()) {
                     QDir searchDir(dirPath);
                     bool invalidSearchDir = dirPath.contains(unoffDirPath.toLower()) && !dirPath.contains(fadeDirPath.toLower());
@@ -2051,8 +2065,10 @@ bool Preferences::getPreferences()
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
             }
             // update LDView ExtraSearchDirs in ini files
-            setLDViewExtraSearchDirs(ldviewIni);
-            setLDViewExtraSearchDirs(ldviewPOVIni);
+            if (!setLDViewExtraSearchDirs(Preferences::ldviewIni))
+               logError() << qPrintable(QString("Could not update %1").arg(ldviewIni));
+            if (!setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+               logError() << qPrintable(QString("Could not update %1").arg(ldviewPOVIni));
         }
 
         if (rendererTimeout != dialog->rendererTimeout()) {
@@ -2062,7 +2078,7 @@ bool Preferences::getPreferences()
 
         if (documentLogoFile != dialog->documentLogoFile()) {
             documentLogoFile = dialog->documentLogoFile();
-            if (documentLogoFile == "") {
+            if (documentLogoFile.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"),documentLogoFile);
@@ -2071,7 +2087,7 @@ bool Preferences::getPreferences()
 
         if (defaultAuthor != dialog->defaultAuthor()) {
             defaultAuthor = dialog->defaultAuthor();
-            if (defaultAuthor == "") {
+            if (defaultAuthor.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(DEFAULTS,"Author"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Author"),defaultAuthor);
@@ -2080,7 +2096,7 @@ bool Preferences::getPreferences()
 
         if (defaultURL != dialog->defaultURL()) {
             defaultURL = dialog->defaultURL();
-            if (defaultURL == "") {
+            if (!defaultURL.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(DEFAULTS,"URL"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"URL"),defaultURL);
@@ -2089,7 +2105,7 @@ bool Preferences::getPreferences()
 
         if (defaultEmail != dialog->defaultEmail()) {
             defaultEmail = dialog->defaultEmail();
-            if (defaultEmail == "") {
+            if (defaultEmail.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(DEFAULTS,"Email"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Email"),defaultEmail);
@@ -2098,7 +2114,7 @@ bool Preferences::getPreferences()
 
         if (publishDescription != dialog->publishDescription()) {
             publishDescription = dialog->publishDescription();
-            if (publishDescription == "") {
+            if (publishDescription.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(DEFAULTS,"PublishDescription"));
             } else {
                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PublishDescription"),publishDescription);
@@ -2107,16 +2123,26 @@ bool Preferences::getPreferences()
 
         if (enableFadeStep != dialog->enableFadeStep())
         {
-            fadeStepSettingChanged = true;
             enableFadeStep = dialog->enableFadeStep();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),enableFadeStep);
         }
 
-        if (enableFadeStep && (fadeStepColor != dialog->fadeStepColor()))
+        if (enableFadeStep && (fadeStepOpacityPercent != dialog->fadeStepOpacityPercent()))
         {
-            fadeStepColorChanged = true;
-            fadeStepColor = dialog->fadeStepColor();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepColor);
+            fadeStepOpacityPercent = dialog->fadeStepOpacityPercent();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepOpacityPercent"),fadeStepOpacityPercent);
+        }
+
+        if (enableFadeStep && useFadeStepColour != dialog->useFadeStepColour())
+        {
+            useFadeStepColour = dialog->useFadeStepColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseFadeStepColor"),useFadeStepColour);
+        }
+
+        if (fadeStepColour != dialog->fadeStepColour())
+        {
+            fadeStepColour = dialog->fadeStepColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepColour);
         }
 
         if (preferCentimeters != dialog->centimeters())
@@ -2308,7 +2334,8 @@ void Preferences::setLPub3DLoaded(){
  * - Archiving Fade Parts where Fade dirs were not in search dirs: PartWorker::processFadePartsArchive()
  * - Archiving Fade Colour parts where Fade dirs were not in search dirs: PartWorker::processFadeColourParts()
  */
-void Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
+bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
+    bool retVal = true;
     QFile confFile(iniFile);
     QStringList contentList;
     logInfo() << QString("Updating ExtraSearchDirs in %1").arg(iniFile);
@@ -2359,21 +2386,25 @@ void Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
             }
         }  // atEnd
         confFile.close();
-        if (!foundExtraSearchDirs)
+        if (!foundExtraSearchDirs) {
             logError() << QString("Did not find [ExtraSearchDirs] section in %1 "
                                   "The inf file %1 may be malformed or corrupt.").arg(confFile.fileName());
+            retVal = false;
+         }
     } else {
         QString confFileError;
         if (!confFile.errorString().isEmpty())
             confFileError.append(QString(" confFileInError: %1").arg(confFile.errorString()));
         logError() << QString("Could not open input: %1").arg(qPrintable(confFileError));
+        retVal = false;
     }
     // write search dir to ini files
     if (confFile.open(QIODevice::WriteOnly))
     {
         QTextStream output(&confFile);
-        foreach (QString line, contentList)
-            output << line << endl;
+        foreach (QString line, contentList) {
+           output << line << endl;
+        }
         confFile.flush();
         confFile.close();
     } else {
@@ -2381,7 +2412,9 @@ void Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
         if (!confFile.errorString().isEmpty())
             confFileError.append(QString(" confFileOutError: %1").arg(confFile.errorString()));
         logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
+        retVal = false;
     }
+    return retVal;
 }
 
 bool Preferences::extractLDrawLib() {

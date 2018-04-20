@@ -77,6 +77,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldviewBox->setChecked(                         Preferences::ldviewExe != "");
   ui.ldviewSingleCall_Chk->setChecked(              Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
   ui.fadeStepBox->setChecked(                       Preferences::enableFadeStep);
+  ui.fadeStepUseColourBox->setChecked(              Preferences::useFadeStepColour);
+  ui.fadeStepOpacityPercentSlider->setValue(          Preferences::fadeStepOpacityPercent);
   ui.publishLogoBox->setChecked(                    Preferences::documentLogoFile != "");
   ui.publishLogoPath->setText(                      Preferences::documentLogoFile);
   ui.authorName_Edit->setText(                      Preferences::defaultAuthor);
@@ -194,12 +196,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.tabWidget->setCurrentIndex(0);
   }
 
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColor);
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
   fadeStepMeta.fadeColor.setValue(LDrawColor::name(fadeColor.name()));
   ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
   ui.fadeStepColorLabel->setAutoFillBackground(true);
   ui.fadeStepColorsCombo->addItems(LDrawColor::names());
-  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColor)));
+  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColour)));
   connect(ui.fadeStepColorsCombo, SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(colorChange(QString const &)));
 
@@ -245,7 +247,7 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::colorChange(QString const &colorName)
 {
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColor);
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
   QColor newFadeColor = LDrawColor::color(colorName);
   if (fadeColor != newFadeColor) {
     fadeStepMeta.fadeColor.setValue(LDrawColor::name(newFadeColor.name()));
@@ -429,15 +431,12 @@ QString const PreferencesDialog::preferredRenderer()
 
 bool PreferencesDialog::povrayDisplay()
 {
-       return ui.povrayDisplay_Chk->isChecked();
+    return ui.povrayDisplay_Chk->isChecked();
 }
 
-QString const PreferencesDialog::fadeStepColor()
+QString const PreferencesDialog::fadeStepColour()
 {
-    if (ui.fadeStepColorsCombo->isEnabled()) {
-      return ui.fadeStepColorsCombo->currentText();
-    }
-    return "";
+    return ui.fadeStepColorsCombo->currentText();
 }
 
 QString const PreferencesDialog::documentLogoFile()
@@ -446,6 +445,14 @@ QString const PreferencesDialog::documentLogoFile()
         return ui.publishLogoPath->displayText();
     }
     return "";
+}
+
+int PreferencesDialog::fadeStepOpacityPercent()
+{
+    if (ui.fadeStepBox->isChecked()){
+        return ui.fadeStepOpacityPercentSlider->value();
+    }
+    return -1;
 }
 
 bool PreferencesDialog::centimeters()
@@ -461,6 +468,11 @@ bool  PreferencesDialog::enableFadeStep()
 bool PreferencesDialog::enableDocumentLogo()
 {
   return ui.publishLogoBox->isChecked();
+}
+
+bool PreferencesDialog::useFadeStepColour()
+{
+    return ui.fadeStepUseColourBox->isChecked();
 }
 
 bool PreferencesDialog::enableLDViewSingleCall()

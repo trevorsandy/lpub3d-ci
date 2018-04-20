@@ -198,6 +198,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
   QFile inFile;
   QuaZipFile outFile(&zip);
   int archivedPartCount = 0;
+  bool forceFadePartUpdate = gui->getUpdateFadeStepParts();
 
   char c;
   foreach(QFileInfo fileInfo, files) {
@@ -207,21 +208,28 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
         continue;
 
       bool alreadyArchived = false;
+      QString partStatus;
 
-      foreach (QFileInfo zipFileInfo, zipFiles) {        
+      foreach (QFileInfo zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
-              alreadyArchived = true;
-//              qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+              if (forceFadePartUpdate && zipFileInfo.fileName().contains("-fade.dat")) {
+                  partStatus = "Overwrite Archive";
+//                    qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
+              } else {
+                  partStatus = "Archive";
+                  alreadyArchived = true;
+//                    qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+              }
               break;
-            }
-        }
+          }
+      }
 
       if (alreadyArchived)
         continue;
       else
          archivedPartCount++;
 
-      logInfo() << QString("  %1 Archive part: %2").arg(archivedPartCount).arg(fileInfo.fileName());
+      logInfo() << QString("  %1 %2 part: %3").arg(archivedPartCount).arg(partStatus).arg(fileInfo.fileName());
 
       int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
       int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);

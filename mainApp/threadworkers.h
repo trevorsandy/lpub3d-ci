@@ -167,9 +167,9 @@ private:
     bool                      _resetSearchDirSettings;
     int                       _fadedParts;
 
-    LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
-    LDrawFile                  ldrawFile;                       // contains MPD or all files used in model
-    ArchiveParts               archiveParts;                    // add contente to unofficial zip archive (for 3DViewer)
+    LDPartsDirs                ldPartsDirs;     // automatically load LDraw.ini parameters
+    LDrawFile                  ldrawFile;       // contains MPD or all files used in model
+    ArchiveParts               archiveParts;    // add contente to unofficial zip archive (for 3DViewer)
 
 
     bool endThreadNotRequested(){ return ! _endThreadNowRequested;}

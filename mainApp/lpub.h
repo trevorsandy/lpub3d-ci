@@ -457,6 +457,16 @@ public:
   }
   void    displayPage();
 
+  void setUpdateFadeStepParts(bool force = true)
+  {
+    m_updateFadeStepParts = force;
+  }
+
+  bool getUpdateFadeStepParts()
+  {
+    return m_updateFadeStepParts;
+  }
+
   /* We need to send ourselved these, to eliminate resursion and the model
    * changing under foot */
   void drawPage(                   // this is the workhorse for preparing a
@@ -529,6 +539,7 @@ public:
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
   void deleteLine (const Where &here, QUndoCommand *parent = 0);
   QString topLevelFile();
+
   void beginMacro (QString name);
   void endMacro   ();
 
@@ -620,8 +631,8 @@ public slots:
           statusBarMsg(message);
           logStatus() << message;
       }else{
-          QMessageBox::warning(this,tr("LPub3D"),tr(message.toLatin1()));
-          logError() << message;
+          QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+          logNotice() << message;
       }      
   }
 
@@ -698,7 +709,7 @@ public slots:
   void clearCSICache();
   void clearTempCache();
   void clearAllCaches();
-  void clearFadeCache();
+  void clearFadeCache(bool silent = false);
   void clearAndRedrawPage();
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
@@ -800,6 +811,7 @@ private:
   QUndoStack     *undoStack;       // the undo/redo stack
   int             macroNesting;
   int             renderStepNum;    // at what step in the model is a submodel detected and rendered
+  bool            m_updateFadeStepParts; //overwrite existing fade step parts in the archive
 
   void countPages();
 
@@ -884,14 +896,16 @@ private:
 
   void writeToTmp();
 
-  QStringList fadeSubFile(
-     const QStringList &,
-     const QString &color);      // fade all parts in subfile
+  QStringList fadeSubFile(const QStringList &,
+                          const QString &);            // fade all parts in subfile
 
-  QStringList fadeStep(
-     const QStringList &csiParts,
-     const int &stepNum,
-     Where        &current);      // fade parts in a step that are not current
+  QStringList fadeStep(const QStringList &csiParts,
+                       const int         &stepNum,
+                       Where             &current);      // fade parts in a step that are not current
+
+  /* Fade colour processing */
+  QString createColorEntry(QString &colourCode);
+  bool colourEntryExist(QStringList &colourEntries, QString &code);
 
   static bool installExportBanner(
     const int &type,
@@ -1155,6 +1169,7 @@ private:
   QAction *updateAppAct;
   QAction *viewLogAct;
 
+  friend class PartWorker;
 };
 
 extern class Gui *gui;

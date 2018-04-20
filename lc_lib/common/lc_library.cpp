@@ -319,7 +319,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	{
 		lcDiskFile ColorFile(Preferences::altLDConfigPath);
 
-		if (ColorFile.Open(QIODevice::ReadOnly) || lcLoadColorFile(ColorFile))
+		if (ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile))
 			loadAltLDConfig = true;
 		else
 			lcLoadDefaultColors();

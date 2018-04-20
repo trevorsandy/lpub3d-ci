@@ -31,6 +31,7 @@ public:
     static QString assemDir;
     static QString partsDir;
     static QString viewerDir;
+    static QString fadeDir;
     static QString fadePartDir;
     static QString fadeSubDir;
     static QString fadePrimDir;

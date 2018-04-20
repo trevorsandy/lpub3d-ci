@@ -50,7 +50,7 @@ class Preferences
     static void updatePOVRayConfFile(bool);
     static void updatePOVRayIniFile(bool);
 
-    static void setLDViewExtraSearchDirs(const QString &);
+    static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
 
     static QString lpub3dAppName;
@@ -69,7 +69,7 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
-    static QString fadeStepColor;
+    static QString fadeStepColour;
     static QString pliSubstitutePartsFile;
     static QString fadeStepColorPartsFile;
     static QString pliFile;
@@ -110,15 +110,16 @@ class Preferences
     static bool    generateCoverPages;
     static bool    printDocumentTOC;
     static bool    preferCentimeters;
-    static bool    enableFadeStep;
-    static bool    fadeStepSettingChanged;
-    static bool    fadeStepColorChanged;
     static bool    showAllNotifications;
     static bool    showUpdateNotifications;
     static bool    enableDownloader;
     static bool    portableDistribution;
     static bool    lpub3dLoaded;
     static bool    lgeoStlLib;
+
+    static bool    enableFadeStep;
+    static bool    useFadeStepColour;
+    static int     fadeStepOpacityPercent;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

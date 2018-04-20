@@ -74,7 +74,6 @@ public:
                                     bool outOfDate);
   int                    render3DCsiSubModels(QStringList &,
                                              QStringList &,
-                                             QString &fadeColor,
                                              bool doFadeStep = false);
   int                    load3DCsiImage(QString &);
 

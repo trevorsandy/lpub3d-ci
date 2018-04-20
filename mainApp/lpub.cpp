@@ -29,6 +29,7 @@
 #include <QCloseEvent>
 #include <QUndoStack>
 #include <QTextStream>
+#include <QStringList>
 #include <JlCompress.h>
 
 #include "QPushButton"
@@ -655,18 +656,24 @@ void Gui::clearAllCaches()
         return;
     }
 
-       clearPLICache();
-       clearCSICache();
-       clearTempCache();
+    if (Preferences::enableFadeStep) {
+       ldrawFile.clearFadePositions();
 
-       //reload current model file
-       int savePage = displayPageNum;
-       openFile(curFile);
-       displayPageNum = savePage;
-       displayPage();
-       enableActions();
+    }
 
-       statusBarMsg("All content reset and file reloaded");
+     clearPLICache();
+     clearCSICache();
+     clearTempCache();
+     clearFadeCache(true);
+
+     //reload current model file
+     int savePage = displayPageNum;
+     openFile(curFile);
+     displayPageNum = savePage;
+     displayPage();
+     enableActions();
+
+     statusBarMsg("All caches reset and model file reloaded.");
 }
 
 void Gui::clearAndRedrawPage()
@@ -676,50 +683,38 @@ void Gui::clearAndRedrawPage()
         return;
     }
 
-       clearPLICache();
-       clearCSICache();
-       clearTempCache();
+     clearAllCaches();
 
-       if (Preferences::enableFadeStep)
-         ldrawFile.clearFadePositions();
-
-       displayPage();
-
-       QObject *obj = sender();
-       if (obj == editWindow)
-         statusBarMsg("Page regenerated.");
-       else if (obj == clearAllCachesAct)
-         statusBarMsg("Assembly, Parts and 3D content caches reset.");
-       else
-         statusBarMsg("All content reset.");
+     statusBarMsg("All caches reset and model file reloaded.");
 }
 
-void Gui::clearFadeCache()
+void Gui::clearFadeCache(bool silent)
 {
   QMessageBox::StandardButton ret;
-  ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-                             tr("All fade files will be deleted. \nFade files are automatically generated.\n"
-                                "Do you want to delete the current fade files?"),
-                             QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
-  if (ret == QMessageBox::Ok) {
+  QString message = QString("All fade files will be deleted. \nFade files are automatically generated on model file load.");
+  if (silent) {
+      emit gui->messageSig(silent,message);
+  } else {
+      ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+                                 tr("%1\nDo you want to delete the current fade file cache?").arg(message),
+                                 QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
+  }
+
+  if (ret == QMessageBox::Ok || silent) {
 
       QString dirName = QDir::toNativeSeparators(QString("%1/fade").arg(Preferences::lpubDataPath));
 
       int count = 0;
       if (removeDir(count, dirName)){
-          statusBarMsg(QString("Fade parts content cache cleaned.  %1 items removed.").arg(count));
-        } else {
-          QMessageBox::critical(NULL,
-                                tr("LPub3D"),
-                                tr("Unable to remeove fade cache directory \n%1")
-                                .arg(dirName));
-          return;
-        }
+          emit gui->messageSig(silent,QMessageBox::tr("Fade parts content cache cleaned.  %1 items removed.").arg(count));
+      } else {
+          emit gui->messageSig(silent,QMessageBox::tr("Unable to remeove fade cache directory \n%1").arg(dirName));
+        return;
+      }
 
     } else if (ret == QMessageBox::Cancel) {
       return;
     }
-
 }
 
 void Gui::clearPLICache()
@@ -1110,53 +1105,86 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    bool useLDViewSCall       = renderer->useLDViewSCall();
-    bool displayAllAttributes = Preferences::displayAllAttributes;
-    bool generateCoverPages   = Preferences::generateCoverPages;
-    QString ldrawPathCompare  = Preferences::ldrawPath;
-    QString lgeoPathCompare   = Preferences::lgeoPath;
+    bool useLDViewSCallCompare          = Preferences::useLDViewSingleCall;
+    bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
+    bool generateCoverPagesCompare      = Preferences::generateCoverPages;
+    bool enableFadeStepCompare          = Preferences::enableFadeStep;
+    bool useFadeStepColourCompare       = Preferences::useFadeStepColour;
+    int fadeStepOpacityPercentCompare     = Preferences::fadeStepOpacityPercent;
+    QString fadeStepColourCompare       = Preferences::fadeStepColour;
+    QString ldrawPathCompare            = Preferences::ldrawPath;
+    QString lgeoPathCompare             = Preferences::lgeoPath;
+    QString preferredRendererCompare    = Preferences::preferredRenderer;
 
     if (Preferences::getPreferences()) {
 
         Meta meta;
         page.meta = meta;
 
-        QString currentRenderer = Render::getRenderer();
-        Render::setRenderer(Preferences::preferredRenderer);
-        bool rendererChanged           = Render::getRenderer() != currentRenderer;
-        bool fadeStepColorChanged      = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
-        bool useLDViewSCallChanged     = useLDViewSCall != renderer->useLDViewSCall();
-        bool displayAttributesChanged  = Preferences::displayAllAttributes != displayAllAttributes;
-        bool generateCoverPagesChanged = Preferences::generateCoverPages   != generateCoverPages;
-        bool ldrawPathChanged          = Preferences::ldrawPath            != ldrawPathCompare;
-        bool lgeoPathChanged           = Preferences::lgeoPath             != lgeoPathCompare;
+        bool rendererChanged              = Preferences::preferredRenderer      != preferredRendererCompare;
+        bool enableFadeStepChanged        = Preferences::enableFadeStep         != enableFadeStepCompare;
+        bool useFadeStepColourChanged     = Preferences::useFadeStepColour      != useFadeStepColourCompare;
+        bool fadeStepColorChanged         = Preferences::fadeStepColour         != fadeStepColourCompare;
+        int fadeStepOpacityPercentChanged = Preferences::fadeStepOpacityPercent != fadeStepOpacityPercentCompare;
+        bool useLDViewSCallChanged        = Preferences::enableLDViewSingleCall != useLDViewSCallCompare;
+        bool displayAttributesChanged     = Preferences::displayAllAttributes   != displayAllAttributesCompare;
+        bool generateCoverPagesChanged    = Preferences::generateCoverPages     != generateCoverPagesCompare;
+        bool ldrawPathChanged             = Preferences::ldrawPath              != ldrawPathCompare;
+        bool lgeoPathChanged              = Preferences::lgeoPath               != lgeoPathCompare;
 
-        if (Preferences::fadeStepSettingChanged){
+        if (enableFadeStepChanged)
             logInfo() << (Preferences::enableFadeStep ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
-            processFadePartsArchive();
+
+        if ((useFadeStepColourChanged || fadeStepOpacityPercentChanged) && Preferences::enableFadeStep && !enableFadeStepChanged) {
+           setUpdateFadeStepParts();
+           clearFadeCache(true);            // true = silently clear the fade parts cache
+           processFadeColourParts();        // (re)generates fade parts based on the loaded model file
+           setUpdateFadeStepParts(false);   // false = do not overwrite existing fade parts
+           processFadePartsArchive();       // (re)archives fade parts - this does not (re)generate fade parts.
         }
-        if (fadeStepColorChanged)
-            logInfo() << QString("Fade Step Colour preference changed to %1").arg(Preferences::fadeStepColor);
+
+        if (useFadeStepColourChanged && !enableFadeStepChanged)
+            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::useFadeStepColour ? "ON" : "OFF");
+
+        if (fadeStepOpacityPercentChanged && !enableFadeStepChanged)
+            logInfo() << QString("Fade Step Transparency changed from %1 to %2 percent")
+                                 .arg(fadeStepOpacityPercentCompare)
+                                 .arg(Preferences::fadeStepOpacityPercent);
+
+        if (fadeStepColorChanged && !enableFadeStepChanged)
+            logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
+                                 .arg(fadeStepColourCompare.replace("_"," "))
+                                 .arg(QString(Preferences::fadeStepColour).replace("_"," "));
 
         if (rendererChanged) {
-            logInfo() << QString("Renderer preference changed to %1").arg(Render::getRenderer());
+            logInfo() << QString("Renderer preference changed from %1 to %2")
+                                 .arg(preferredRendererCompare)
+                                 .arg(Preferences::preferredRenderer);
+            Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == "LDGLite")
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
 
         if (ldrawPathChanged)
-            logInfo() << QString("LDraw path preference changed to %1").arg(Preferences::ldrawPath);
+            logInfo() << QString("LDraw path preference changed from %1 to %1")
+                                 .arg(ldrawPathCompare)
+                                 .arg(Preferences::ldrawPath);
 
         if (lgeoPathChanged && !ldrawPathChanged)
-            logInfo() << QString("LGEO path preference changed to %1").arg(Preferences::lgeoPath);
+            logInfo() << QString("LGEO path preference changed from %1 to %1")
+                                 .arg(lgeoPathCompare)
+                                 .arg(Preferences::lgeoPath);
+
+        if (generateCoverPagesChanged)
+            logInfo() << QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF");
 
         if (!getCurFile().isEmpty()) {
-            if (Preferences::fadeStepSettingChanged)
-                clearAllCaches();
-            if (rendererChanged           ||
-                fadeStepColorChanged      ||
-                useLDViewSCallChanged     ||
-                displayAttributesChanged  ||
+            if (enableFadeStepChanged         ||
+                useFadeStepColourChanged      ||
+                fadeStepOpacityPercentChanged ||
+                rendererChanged               ||
+                useLDViewSCallChanged         ||
+                displayAttributesChanged      ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -1245,8 +1273,9 @@ Gui::Gui()
     exportOption  = EXPORT_ALL_PAGES;
     exportType    = EXPORT_PDF;
     pageRangeText = displayPageNum;
-    m_previewDialog    = false;
-    m_exportingContent = false;
+    m_previewDialog       = false;
+    m_exportingContent    = false;
+    m_updateFadeStepParts = false;
 
 
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
@@ -1912,7 +1941,7 @@ void Gui::createActions()
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
     clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset All Caches"), this);
-    clearAllCachesAct->setStatusTip(tr("Reset temp file, image and model caches"));
+    clearAllCachesAct->setStatusTip(tr("Reset temp file, image, model and fade part caches"));
     connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
     clearFadeCacheAct = new QAction(QIcon(":/resources/clearfadecache.png"),tr("Reset Fade Files Cache"), this);

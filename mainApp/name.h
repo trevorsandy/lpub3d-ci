@@ -41,6 +41,21 @@ extern Gui *gui;
 #define FILE_LPUB3D_UNOFFICIAL_ARCHIVE    "lpub3dldrawunf.zip"
 
 #define FILE_LDRAW_LDCONFIG               "ldconfig.ldr"
-#define DURAT_LGEO_STL_LIB_INFO           "Durat's LGEO Stl library is available"
+#define DURAT_LGEO_STL_LIB_INFO           "LGEO Stl library is available"
+
+// Renderers
+#define RENDERER_POVRAY                   "POVRay"
+#define RENDERER_LDGLITE                  "LDGLite"
+#define RENDERER_LDVIEW                   "LDView"
+// Internal common material colours
+#define LDRAW_EDGE_COLOUR                 "16"
+#define LDRAW_MATERIAL_COLOUR             "24"
+
+#define EDGE_HIGHLIGHT_COLOUR             "FFFF00" // Bright Yellow
+
+#define FADE_OPACITY_DEFAULT              100
+#define FADE_COLOUR_PREFIX                "100"
+#define FADE_COLOUR_FILE_PREFIX           "colours_"
+#define FADE_COLOUR_TITLE_PREFIX          "Fade_File_"
 
 #endif

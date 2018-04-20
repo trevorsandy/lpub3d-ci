@@ -48,6 +48,7 @@
 #include "paths.h"
 //**3D
 #include "lc_mainwindow.h"
+#include "lc_file.h"
 //**
 
 #ifdef Q_OS_WIN
@@ -117,11 +118,11 @@ QString fixupDirname(const QString &dirNameIn) {
 QString const Render::getRenderer()
 {
   if (renderer == &ldglite) {
-    return "LDGLite";
+    return RENDERER_LDGLITE;
   } else if (renderer == &ldview){
-    return "LDView";
+    return RENDERER_LDVIEW;
   } else {
-    return "POVRay";
+    return RENDERER_POVRAY;
   }
 }
 
@@ -624,13 +625,15 @@ int LDGLite::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-	/* Create the CSI DAT file */
-	QString ldrName;
-	int rc;
-	ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-	if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-	   return rc;
-	}
+  /* Create the CSI DAT file */
+  QString ldrPath, ldrName, ldrFile;
+  int rc;
+  ldrName = "csi.ldr";
+  ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
+  ldrFile = ldrPath + "/" + ldrName;
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile)) < 0) {
+     return rc;
+  }
 
   /* determine camera distance */
 
@@ -677,12 +680,16 @@ int LDGLite::renderCsi(
       }
   }
 
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "=" + Preferences::altLDConfigPath;
+  // if fade step, add custom colour file
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep){
+    arguments << "-ldcF" + ldrPath + "/colours_" + ldrName;
+    logDebug() << qPrintable("-ldcF" + ldrPath + "/colours_" + ldrName);
+  } else if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
   arguments << mf;                  // .png file name
-  arguments << ldrName;             // csi.ldr (input file)
+  arguments << ldrFile;             // csi.ldr (input file)
 
   emit gui->messageSig(true, "Execute command: LDGLite render CSI.");
 
@@ -717,7 +724,7 @@ int LDGLite::renderCsi(
       return -1;
     }
   }
-  //QFile::remove(ldrName);
+  //QFile::remove(ldrFile);
   return 0;
 }
 
@@ -1263,7 +1270,6 @@ int Render::render3DCsi(
     bool        alreadyInserted;
     int         rc;
     bool    doFadeStep  = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(gui->page.meta.LPub.fadeStep.fadeColor.value());
 
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
 
@@ -1277,10 +1283,11 @@ int Render::render3DCsi(
                 QString csiLine = csiParts[index];
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
-                    /* process subfiles in csiParts */
+
                     QString type = argv[argv.size()-1];
 
-                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    /* process subfiles in csiParts */
+                    bool isFadedItem = (type.contains("-fade."));
                     bool isFadedSubModelOrUnofficialPart = false;
                     if (isFadedItem) {
                         QString fadedType = type;
@@ -1328,7 +1335,7 @@ int Render::render3DCsi(
 
             /* process extracted submodels and unofficial files */
             if (csiSubModels.size() > 0){
-                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, fadeColor, doFadeStep);
+                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, doFadeStep);
                 if (rc != 0){
                     QMessageBox::warning(NULL,
                                          QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -1350,7 +1357,7 @@ int Render::render3DCsi(
             }
 
             /* add sub model content to csi3D file */
-            if (! csiSubModelParts.empty())
+            if (! csiSubModelParts.isEmpty())
             {
                 /* append subModel content to csi3D file */
                 QFile csi3DFile(csi3DName);
@@ -1383,7 +1390,6 @@ int Render::render3DCsi(
 
 int Render::render3DCsiSubModels(QStringList &subModels,
                                  QStringList &subModelParts,
-                                 QString &fadeColor,
                                  bool doFadeStep)
 {
     QStringList csiSubModels        = subModels;
@@ -1424,7 +1430,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                     /* check and process any subfiles in csiParts */
                     QString type = argv[argv.size()-1];
 
-                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    bool isFadedItem = (type.contains("-fade."));
                     bool isFadedSubModelOrUnofficialPart = false;
                     if (isFadedItem) {
                         QString fadedType = type;
@@ -1465,7 +1471,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
+            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, doFadeStep);
             if (rc != 0){
                 QMessageBox::warning(NULL,
                                      QMessageBox::tr(VER_PRODUCTNAME_STR),

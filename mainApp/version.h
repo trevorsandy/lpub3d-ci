@@ -72,6 +72,8 @@
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
 #define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
 
+#define VER_FADE_PART_COLOURS_FILE          "fadePartColours.lst"
+
 #ifdef QT_DEBUG_MODE
   #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates-test.json"
 #else
