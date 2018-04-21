@@ -43,6 +43,8 @@ extern Gui *gui;
 #define FILE_LDRAW_LDCONFIG               "ldconfig.ldr"
 #define DURAT_LGEO_STL_LIB_INFO           "LGEO Stl library is available"
 
+#define SPLASH_FONT_COLOUR                "#aa0000" // Maroon
+
 // Renderers
 #define RENDERER_POVRAY                   "POVRay"
 #define RENDERER_LDGLITE                  "LDGLite"
