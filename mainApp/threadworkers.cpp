@@ -791,18 +791,18 @@ bool PartWorker::createFadePartFiles(){
                     tokens[tokens.size()-1] = fileNameStr;
                 }
                 // check if coloured line...
-                if((tokens.size() && tokens[0].size() == 1 &&
-                    tokens[0] >= "1" && tokens[0] <= "5")  &&
-                    (tokens[1] != LDRAW_MATERIAL_COLOUR)   &&
-                    (tokens[1] != LDRAW_EDGE_COLOUR)) {
+                if((tokens.size() && tokens[0].size() == 1    &&
+                    tokens[0] >= "1" && tokens[0] <= "5")     &&
+                    (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR) &&
+                    (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
                     //QString oldColour(tokens[1]);          //logging only: show colour lines
-                    // generate fade colour entry - if useFadeStepColour, set colour to material colour (16)
-                    QString colourCode = Preferences::useFadeStepColour ? LDRAW_MATERIAL_COLOUR : tokens[1];
+                    // generate fade colour entry - if fadeStepUseColour, set colour to material colour (16)
+                    QString colourCode = Preferences::fadeStepUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
                     // add colour line to local list
                     if (!gui->colourEntryExist(fadePartColourList,colourCode))
                         fadePartColourList << gui->createColorEntry(colourCode);
-                    // set fade colour
-                    tokens[1] = QString("%1%2").arg(FADE_COLOUR_PREFIX).arg(colourCode);
+                    // set fade colour - if fadeStepUseColour, do not add fade colour prefix
+                    tokens[1] = Preferences::fadeStepUseColour ? colourCode : QString("%1%2").arg(FADE_COLOUR_PREFIX).arg(colourCode);
                     //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                 }
                 line = tokens.join(" ");

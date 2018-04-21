@@ -49,12 +49,13 @@ extern Gui *gui;
 #define RENDERER_POVRAY                   "POVRay"
 #define RENDERER_LDGLITE                  "LDGLite"
 #define RENDERER_LDVIEW                   "LDView"
-// Internal common material colours
-#define LDRAW_EDGE_COLOUR                 "16"
-#define LDRAW_MATERIAL_COLOUR             "24"
 
 #define EDGE_HIGHLIGHT_COLOUR             "FFFF00" // Bright Yellow
+// Internal common material colours
+#define LDRAW_EDGE_MATERIAL_COLOUR        "24"
+#define LDRAW_MAIN_MATERIAL_COLOUR        "16"
 
+#define FADE_COLOUR_DEFAULT               "Very_Light_Bluish_Grey"
 #define FADE_OPACITY_DEFAULT              100
 #define FADE_COLOUR_PREFIX                "100"
 #define FADE_COLOUR_FILE_PREFIX           "colours_"

@@ -196,7 +196,7 @@
         <string>This setting allows you to fade previous build step parts </string>
        </property>
        <property name="title">
-        <string>Enable Fade Steps</string>
+        <string>Enable Fade Previous Steps</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -206,7 +206,7 @@
        </property>
        <widget class="QGroupBox" name="fadeStepUseColourBox">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="geometry">
          <rect>
@@ -258,9 +258,9 @@
          </property>
         </widget>
        </widget>
-       <widget class="QGroupBox" name="fadeStepPercentBox">
+       <widget class="QGroupBox" name="fadeStepOpacityBox">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="geometry">
          <rect>
@@ -282,9 +282,9 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QSlider" name="fadeStepOpacityPercentSlider">
+        <widget class="QSlider" name="fadeStepOpacitySlider">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>

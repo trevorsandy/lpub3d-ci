@@ -664,7 +664,6 @@ void Gui::clearAllCaches()
      clearPLICache();
      clearCSICache();
      clearTempCache();
-     clearFadeCache(true);
 
      //reload current model file
      int savePage = displayPageNum;
@@ -691,7 +690,9 @@ void Gui::clearAndRedrawPage()
 void Gui::clearFadeCache(bool silent)
 {
   QMessageBox::StandardButton ret;
-  QString message = QString("All fade files will be deleted. \nFade files are automatically generated on model file load.");
+  QString message = QString("All existing fade part files will be deleted and regenerated.\n"
+                            "Warning: Only fade part files for the currently loaded model file will be updated in %1.")
+                            .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
   if (silent) {
       emit gui->messageSig(silent,message);
   } else {
@@ -708,8 +709,15 @@ void Gui::clearFadeCache(bool silent)
       if (removeDir(count, dirName)){
           emit gui->messageSig(silent,QMessageBox::tr("Fade parts content cache cleaned.  %1 items removed.").arg(count));
       } else {
-          emit gui->messageSig(silent,QMessageBox::tr("Unable to remeove fade cache directory \n%1").arg(dirName));
+          emit gui->messageSig(silent,QMessageBox::tr("Unable to remeove fade cache directory: %1").arg(dirName));
         return;
+      }
+
+      // regenerate fade parts
+      if (! getCurFile().isEmpty()) {
+        setUpdateFadeStepParts();        // set overwrite existing fade parts
+        processFadeColourParts();        // (re)generate and archive fade parts based on the loaded model file
+        setUpdateFadeStepParts(false);   // unset overwrite existing fade parts
       }
 
     } else if (ret == QMessageBox::Cancel) {
@@ -1109,8 +1117,8 @@ void Gui::preferences()
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
     bool generateCoverPagesCompare      = Preferences::generateCoverPages;
     bool enableFadeStepCompare          = Preferences::enableFadeStep;
-    bool useFadeStepColourCompare       = Preferences::useFadeStepColour;
-    int fadeStepOpacityPercentCompare     = Preferences::fadeStepOpacityPercent;
+    bool fadeStepUseColourCompare       = Preferences::fadeStepUseColour;
+    int fadeStepOpacityCompare          = Preferences::fadeStepOpacity;
     QString fadeStepColourCompare       = Preferences::fadeStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
@@ -1180,8 +1188,9 @@ void Gui::preferences()
 
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepChanged         ||
-                useFadeStepColourChanged      ||
-                fadeStepOpacityPercentChanged ||
+                fadeStepColorChanged          ||
+                fadeStepUseColourChanged      ||
+                fadeStepOpacityChanged        ||
                 rendererChanged               ||
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
@@ -1995,7 +2004,7 @@ void Gui::createActions()
 
     fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup"), this);
     fadeStepSetupAct->setEnabled(false);
-    fadeStepSetupAct->setStatusTip(tr("Fade all parts not in the current step"));
+    fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
 
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);

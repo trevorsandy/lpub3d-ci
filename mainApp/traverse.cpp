@@ -2525,9 +2525,9 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &fadeCol
           QString contentLine = contents[index];
           split(contentLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
-              if (argv[1] != LDRAW_EDGE_COLOUR) {
+              if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
                   // generate fade colour entry
-                  QString colourCode = Preferences::useFadeStepColour ? fadeColour : argv[1];
+                  QString colourCode = Preferences::fadeStepUseColour ? fadeColour : argv[1];
                   if (!colourEntryExist(subfileColourList,argv[1]))
                      subfileColourList << createColorEntry(colourCode);
                   // set fade colour
@@ -2597,9 +2597,9 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
           split(csiLine, argv);
           if ((index + 1) <= fadePosition) {  // write fade with stuff
               if (argv.size() == 15 && argv[0] == "1") {
-                  if (argv[1] != LDRAW_EDGE_COLOUR) {
+                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
                       // generate fade colour entry
-                      QString colourCode = Preferences::useFadeStepColour ? fadeColour : argv[1];
+                      QString colourCode = Preferences::fadeStepUseColour ? fadeColour : argv[1];
                       if (!colourEntryExist(fadeColourList,argv[1]))
                         fadeColourList << createColorEntry(colourCode);
                       // set fade colour
@@ -2632,9 +2632,9 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
                   argv[argv.size()-1] = fileNameStr;
                 } else if (argv.size() && argv[0].size() == 1 &&
                            argv[0] >= "2" && argv[0] <= "5") {
-                  if (argv[1] != LDRAW_EDGE_COLOUR) {
+                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
                       // generate fade colour entry
-                      QString colourCode = Preferences::useFadeStepColour ? fadeColour : argv[1];
+                      QString colourCode = Preferences::fadeStepUseColour ? fadeColour : argv[1];
                       if (!colourEntryExist(fadeColourList,argv[1]))
                         fadeColourList << createColorEntry(colourCode);
                       // set fade colour code
@@ -2665,7 +2665,7 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
 
 bool Gui::colourEntryExist(QStringList &colourEntries, QString &code)
 {
-  if (Preferences::useFadeStepColour && colourEntries.size() > 0)
+  if (Preferences::fadeStepUseColour && colourEntries.size() > 0)
     return true;
   QStringList colourComponents;
   QString colourCode = QString("%1%2").arg(FADE_COLOUR_PREFIX).arg(code);
@@ -2682,10 +2682,10 @@ bool Gui::colourEntryExist(QStringList &colourEntries, QString &code)
 QString Gui::createColorEntry(QString &colourCode)
 {
   QString fadeColour = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
-  QString _colourCode = Preferences::useFadeStepColour ? fadeColour : colourCode;
+  QString _colourCode = Preferences::fadeStepUseColour ? fadeColour : colourCode;
 
   // Fade Step Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
-  int alphaValue = ((ldrawColors.alpha(_colourCode) * Preferences::fadeStepOpacityPercent) + (100 - 1)) / 100;
+  int alphaValue = ((ldrawColors.alpha(_colourCode) * Preferences::fadeStepOpacity) + (100 - 1)) / 100;
 
   // prepend all fade colour codes with 10
   return QString("0 !COLOUR %1 CODE %2%3 VALUE #%4 EDGE #%5 ALPHA %6")

@@ -61,7 +61,7 @@ class PreferencesDialog : public QDialog
     bool          printDocumentTOC();
     bool          centimeters();
     bool          enableFadeStep();
-    bool          useFadeStepColour();
+    bool          fadeStepUseColour();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
     bool          showUpdateNotifications();
@@ -71,7 +71,7 @@ class PreferencesDialog : public QDialog
     bool          povrayDisplay();
     int           checkUpdateFrequency();
     int           rendererTimeout();   
-    int           fadeStepOpacityPercent();
+    int           fadeStepOpacity();
     bool          includeLogLevel();
     bool          includeTimestamp();
     bool          includeLineNumber();
@@ -120,12 +120,15 @@ class PreferencesDialog : public QDialog
     void on_ldgliteBox_clicked(bool checked);
     void on_POVRayBox_clicked(bool checked);
 
+    void on_fadeStepBox_clicked(bool checked);
+    void on_fadeStepUseColourBox_clicked(bool checked);
+
+    void on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName);
 private:
     Ui::PreferencesDialog ui;
 
     PartWorker       partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
     QWidget         *parent;
-    FadeStepMeta     fadeStepMeta;             // propagate fade color and fade bool
     ParmsWindow     *parmsWindow;              // the parametrer file editor
 
     QSimpleUpdater  *m_updater;

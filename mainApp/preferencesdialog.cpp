@@ -76,9 +76,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldviewPath->setText(                           Preferences::ldviewExe);
   ui.ldviewBox->setChecked(                         Preferences::ldviewExe != "");
   ui.ldviewSingleCall_Chk->setChecked(              Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
-  ui.fadeStepBox->setChecked(                       Preferences::enableFadeStep);
-  ui.fadeStepUseColourBox->setChecked(              Preferences::useFadeStepColour);
-  ui.fadeStepOpacityPercentSlider->setValue(          Preferences::fadeStepOpacityPercent);
   ui.publishLogoBox->setChecked(                    Preferences::documentLogoFile != "");
   ui.publishLogoPath->setText(                      Preferences::documentLogoFile);
   ui.authorName_Edit->setText(                      Preferences::defaultAuthor);
@@ -106,6 +103,21 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.logLevelGrpBox->setChecked(                    Preferences::logLevel);
   ui.logLevelsGrpBox->setChecked(                   Preferences::logLevels);
+  ui.fadeStepBox->setChecked(                    Preferences::enableFadeStep);
+  ui.fadeStepUseColourBox->setEnabled(           Preferences::enableFadeStep);
+  ui.fadeStepUseColourBox->setChecked(           Preferences::fadeStepUseColour);
+  ui.fadeStepColorsCombo->setEnabled(            Preferences::enableFadeStep && Preferences::fadeStepUseColour);
+  ui.fadeStepOpacityBox->setEnabled(             Preferences::enableFadeStep);
+  ui.fadeStepOpacitySlider->setEnabled(          Preferences::enableFadeStep);
+  ui.fadeStepOpacitySlider->setValue(            Preferences::fadeStepOpacity);
+
+  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
+  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColour)));
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
+  if(fadeColor.isValid() ) {
+    ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
+    ui.fadeStepColorLabel->setAutoFillBackground(true);
+  }
 
   QStringList logLevels = tr(VER_LOGGING_LEVELS_STR).split(",");
   ui.logLevelCombo->addItems(logLevels);
@@ -196,15 +208,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.tabWidget->setCurrentIndex(0);
   }
 
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
-  fadeStepMeta.fadeColor.setValue(LDrawColor::name(fadeColor.name()));
-  ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
-  ui.fadeStepColorLabel->setAutoFillBackground(true);
-  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
-  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColour)));
-  connect(ui.fadeStepColorsCombo, SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(colorChange(QString const &)));
-
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
@@ -244,17 +247,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
 PreferencesDialog::~PreferencesDialog()
 {}
-
-void PreferencesDialog::colorChange(QString const &colorName)
-{
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
-  QColor newFadeColor = LDrawColor::color(colorName);
-  if (fadeColor != newFadeColor) {
-    fadeStepMeta.fadeColor.setValue(LDrawColor::name(newFadeColor.name()));
-    ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
-    ui.fadeStepColorLabel->setAutoFillBackground(true);
-  }
-}
 
 void PreferencesDialog::on_browseLDraw_clicked()
 {
@@ -447,12 +439,9 @@ QString const PreferencesDialog::documentLogoFile()
     return "";
 }
 
-int PreferencesDialog::fadeStepOpacityPercent()
+int PreferencesDialog::fadeStepOpacity()
 {
-    if (ui.fadeStepBox->isChecked()){
-        return ui.fadeStepOpacityPercentSlider->value();
-    }
-    return -1;
+  return ui.fadeStepOpacitySlider->value();
 }
 
 bool PreferencesDialog::centimeters()
@@ -470,7 +459,7 @@ bool PreferencesDialog::enableDocumentLogo()
   return ui.publishLogoBox->isChecked();
 }
 
-bool PreferencesDialog::useFadeStepColour()
+bool PreferencesDialog::fadeStepUseColour()
 {
     return ui.fadeStepUseColourBox->isChecked();
 }
@@ -838,4 +827,24 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
       ui.altLDConfigBox->setChecked(false);
     }
   }
+}
+
+void PreferencesDialog::on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName)
+{
+  QColor newFadeColor = LDrawColor::color(colorName);
+  ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
+  ui.fadeStepColorLabel->setAutoFillBackground(true);
+}
+void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
+{
+  ui.fadeStepUseColourBox->setEnabled(checked);
+  ui.fadeStepColorsCombo->setEnabled(checked);
+  ui.fadeStepOpacityBox->setEnabled(checked);
+  ui.fadeStepOpacitySlider->setEnabled(checked);
+}
+
+void PreferencesDialog::on_fadeStepUseColourBox_clicked(bool checked)
+{
+  ui.fadeStepColorsCombo->setEnabled(checked);
+}
 }
