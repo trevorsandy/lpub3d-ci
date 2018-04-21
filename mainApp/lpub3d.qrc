@@ -240,9 +240,9 @@
         <file alias="time_next.png">../lc_lib/resources/time_next.png</file>
         <file alias="time_previous.png">../lc_lib/resources/time_previous.png</file>
         <file alias="time_stop.png">../lc_lib/resources/time_stop.png</file>
-        <file alias="view_look_at.png">../lc_lib/resources/view_look_at.png</file>
         <file alias="view_preferences.png">../lc_lib/resources/view_preferences.png</file>
-        <file alias="view_look_at_16.png">../lc_lib/resources/view_look_at_16.png</file>
+        <file alias="veiw_viewpoint_home.png">../lc_lib/resources/veiw_viewpoint_home.png</file>
+        <file alias="veiw_viewpoint_home_16.png">../lc_lib/resources/veiw_viewpoint_home_16.png</file>
         <file alias="view_split_horizontal.png">../lc_lib/resources/view_split_horizontal.png</file>
         <file alias="view_split_vertical.png">../lc_lib/resources/view_split_vertical.png</file>
         <file alias="view_zoomextents.png">../lc_lib/resources/view_zoomextents.png</file>
