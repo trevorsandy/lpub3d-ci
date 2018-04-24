@@ -1720,9 +1720,23 @@ void Gui::meta()
 
   QTextStream out(&file);
 
+  doc.prepend(QString());
+  doc.prepend(QString("%1 %2 - Generated on %3")
+                       .arg(VER_PRODUCTNAME_STR)
+                       .arg(QFileInfo(fileName).baseName())
+                       .arg(QDateTime::currentDateTime().toString(fmtDateTime)));
+  doc.append(QString());
+  doc.append(QString("End of file."));
+  int n = 0;
   for (int i = 0; i < doc.size(); i++) {
-    out << doc[i] << endl;
+    QString number;
+    if (QString(doc[i]).startsWith('0'))
+        number = QString("%1. ").arg(++n,3,10,QChar('0'));
+    else
+        number = QString();
+    out << number << doc[i] << endl;
   }
+
   file.close();
 }
 
