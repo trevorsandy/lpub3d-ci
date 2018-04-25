@@ -395,15 +395,15 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           filePath.toLower().contains(unoffPrimsDir.toLower())
           ) {
           //qDebug() << "\nLDRAW EXCLUDED DIR FILES: " << filePath;
-          logError() << QString("LDraw directory excluded: %1.").arg(filePath);
-          return;
+          logError() << QString("Encountered excluded LDraw directory: %1.").arg(filePath);
+          continue;
         }
 
       QFileInfo finfo(filePath);
 
       if (finfo.isSymLink()) {
-        logError() << QString("Disc directory entrylist returned a symbolic link.");
-        return;
+        logError() << QString("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath());
+        continue;
       }
 
       if (finfo.isDir()) {
@@ -417,7 +417,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           //qDebug() << "\nLDRAW INCLUDED DIR FILES: " << finfo.filePath();
           list << finfo.filePath();
 
-        }
+       }
 
     }
 }

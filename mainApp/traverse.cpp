@@ -591,7 +591,7 @@ int Gui::drawPage(
 
             case BufferLoadRc:
               csiParts = bfx[curMeta.bfx.value()];
-              ldrawFile.setFadePosition(current.modelName,csiParts.size());
+              ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
               //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
               bfxLoad = true;
               break;
@@ -1452,7 +1452,7 @@ int Gui::findPage(
                       saveRotStep = meta.rotStep;
                     } else if (pageNum == displayPageNum) {
                       csiParts.clear();
-                      saveFadePosition = saveCsiParts.size();
+                      savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
                       if (pageNum == 1) {
                           page.meta = meta;
@@ -1550,7 +1550,7 @@ int Gui::findPage(
                   if ( ! stepGroup) {
                       if (pageNum == displayPageNum) {
                           csiParts.clear();
-                          saveFadePosition = saveCsiParts.size();
+                          savePrevStepPosition = saveCsiParts.size();
                           stepPageNum = saveStepPageNum;
                           if (pageNum == 1) {
                               page.meta = meta;
@@ -1772,7 +1772,7 @@ int Gui::findPage(
   if (partsAdded && ! noStep) {
       if (pageNum == displayPageNum) {
 
-          saveFadePosition = saveCsiParts.size();
+          savePrevStepPosition = saveCsiParts.size();
           page.meta = saveMeta;
           QStringList pliParts;
 
@@ -2240,7 +2240,7 @@ void Gui::drawPage(
   firstStepPageNum = -1;
   lastStepPageNum  = -1;
   renderStepNum    = 0;
-  saveFadePosition = 0;
+  savePrevStepPosition = 0;
 
   PgSizeData pageSize;
   if (exporting()) {
@@ -2603,11 +2603,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
       QString fadeColour  = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
-      int fadePosition   = ldrawFile.getFadePosition(current.modelName);
-      if (fadePosition == 0 && saveFadePosition > 0)
-          fadePosition = saveFadePosition;
+      int prevStepPosition = ldrawFile.getPrevStepPosition(current.modelName);
+      if (prevStepPosition == 0 && savePrevStepPosition > 0)
+          prevStepPosition = savePrevStepPosition;
 
-      //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", FadeStep Get Fade Position:" << fadePosition
+      //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", PrevStep Get Previous Step Position:" << prevStepPosition
       //         << ", CSI Size:" << csiParts.size() << ", Model Size:"  << ldrawFile.size(current.modelName);
       QStringList argv;
 
@@ -2652,7 +2652,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           }
 
           // write fade step entries
-          if (doFadeStep && (updatePosition <= fadePosition)) {
+          if (doFadeStep && (updatePosition <= prevStepPosition)) {
               if (type_1_5_line) {
                   if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
                       // generate fade colour entry
@@ -2682,7 +2682,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           }
 
           // write highlight entries
-          if (doHighlightStep && (updatePosition > fadePosition)) {
+          if (doHighlightStep && (updatePosition > prevStepPosition)) {
               if (type_1_5_line) {
                   if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
                       // generate fade colour entry
@@ -2719,10 +2719,10 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
         }
     } else {
       // no fade step action required so return
-      ldrawFile.setFadePosition(current.modelName,csiParts.size());
+      ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
       return csiParts;
     }
-  ldrawFile.setFadePosition(current.modelName,configuredCsiParts.size());
+  ldrawFile.setPrevStepPosition(current.modelName,configuredCsiParts.size());
 
   // add the fade colour list to the header of the CsiParts list
   stepColourList.toSet().toList();  // remove dupes

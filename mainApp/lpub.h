@@ -428,7 +428,7 @@ public:
   int             saveStepPageNum;
   int             firstStepPageNum;
   int             lastStepPageNum;
-  int             saveFadePosition; // indicate the fade step position.
+  int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
   QList<Where>    topOfPages;
 
   int             boms;            // the number of pli BOMs in the document
@@ -520,9 +520,9 @@ public:
     writeToTmp();
   }
 
-  void clearFadePositions()
+  void clearPrevStepPositions()
   {
-    ldrawFile.clearFadePositions();
+    ldrawFile.clearPrevStepPositions();
   }
 
   LDrawFile getLDrawFile()
@@ -765,9 +765,9 @@ public:
   Page                  page;                         // the abstract version of page contents
 
 // multi-thread worker classes
-//  PartWorker            partWorkerLDSearchDirs;     // part worker to process search directories and fade color parts
+//  PartWorker            partWorkerLDSearchDirs;     // part worker to process search directories and fade and or highlight color parts
   PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
-  PartWorker            *partWorkerCustomColour;      // part worker to process colour part fade
+  PartWorker            *partWorkerCustomColour;      // part worker to process colour part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static colour parts list in separate thread
   ParmsWindow           *parmsWindow;                 // the parametrer file editor
 
@@ -903,7 +903,7 @@ private:
   QStringList configureModelStep(
     const QStringList &csiParts,
     const int         &stepNum,
-    Where             &current);      // fade parts in a step that are not current
+    Where             &current);      // fade and or highlight parts in a step that are not current
 
   /* Fade colour processing */
   QString createColourEntry(

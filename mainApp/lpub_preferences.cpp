@@ -34,6 +34,7 @@
 #include "pli.h"
 #include "version.h"
 #include "name.h"
+#include "paths.h"
 #include "application.h"
 #include "messageboxresizable.h"
 //**3D
@@ -2082,11 +2083,11 @@ bool Preferences::getPreferences()
             if (! dialog->searchDirSettings().isEmpty()){
                 ldSearchDirs.clear();
                 QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("unofficial"));
-                QString fadeDirPath  = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath).arg("fade"));
                 QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("models"));
+                QString customDirPath  = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
                 foreach (QString dirPath, dialog->searchDirSettings()) {
                     QDir searchDir(dirPath);
-                    bool invalidSearchDir = dirPath.contains(unoffDirPath.toLower()) && !dirPath.contains(fadeDirPath.toLower());
+                    bool invalidSearchDir = dirPath.contains(unoffDirPath.toLower()) && !dirPath.contains(customDirPath.toLower());
                     if (!searchDir.exists() || (dirPath.size() > 1 && invalidSearchDir && dirPath.toLower() != modelsDirPath.toLower())){
                         QMessageBox::warning(NULL,
                                              QMessageBox::tr("LPub3D"),

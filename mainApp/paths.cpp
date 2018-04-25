@@ -45,17 +45,17 @@ QString Paths::assemDir  = "LPub3D/assem";
 QString Paths::partsDir  = "LPub3D/parts";
 QString Paths::viewerDir = "LPub3D/viewer";
 
-QString Paths::fadeDir;
-QString Paths::fadePartDir;
-QString Paths::fadeSubDir;
-QString Paths::fadePrimDir;
-QString Paths::fadePrim8Dir;
-QString Paths::fadePrim48Dir;
+QString Paths::customDir       = "custom";
+QString Paths::customPartDir   = "custom/parts";
+QString Paths::customSubDir    = "custom/parts/s";
+QString Paths::customPrimDir   = "custom/p";
+QString Paths::customPrim8Dir  = "custom/p/8";
+QString Paths::customPrim48Dir = "custom/p/48";
 
-QStringList Paths::fadeDirs;
+QStringList Paths::customDirs;
 
 
-void Paths::mkdirs(){
+void Paths::mkDirs(){
 
     QDir dir;
     dir.mkdir(lpubDir);
@@ -66,34 +66,32 @@ void Paths::mkdirs(){
 
 }
 
-void Paths::mkfadedirs(){
+void Paths::mkCustomDirs(){
 
   QDir dir;
 
-  fadeDir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/custom");
-  if(! dir.exists(fadeDir))
-    dir.mkdir(fadeDir);
+  QString dp = Preferences::lpubDataPath;
+  if(! dir.exists(dp + "/" + customDir))
+    dir.mkdir(dp + "/" + customDir);
 
-  fadePartDir = QDir::toNativeSeparators(fadeDir + "/parts");
-  if (! dir.exists(fadePartDir))
-    dir.mkdir(fadePartDir);
+  if (! dir.exists(dp + "/" + customPartDir))
+    dir.mkdir(dp + "/" + customPartDir);
 
-  fadeSubDir = QDir::toNativeSeparators(fadeDir + "/parts/s");
-  if (! dir.exists(fadeSubDir))
-    dir.mkdir(fadeSubDir);
+  if (! dir.exists(dp + "/" + customSubDir))
+    dir.mkdir(dp + "/" + customSubDir);
 
-  fadePrimDir = QDir::toNativeSeparators(fadeDir + "/p");
-  if (! dir.exists(fadePrimDir))
-    dir.mkdir(fadePrimDir);
+  if (! dir.exists(dp + "/" + customPrimDir))
+    dir.mkdir(dp + "/" + customPrimDir);
 
-  fadePrim8Dir = QDir::toNativeSeparators(fadeDir + "/p/8");
-  if (! dir.exists(fadePrim8Dir))
-    dir.mkdir(fadePrim8Dir);
+  if (! dir.exists(dp + "/" + customPrim8Dir))
+    dir.mkdir(dp + "/" + customPrim8Dir);
 
-  fadePrim48Dir = QDir::toNativeSeparators(fadeDir + "/p/48");
-  if (! dir.exists(fadePrim48Dir))
-    dir.mkdir(fadePrim48Dir);
+  if (! dir.exists(dp + "/" + customPrim48Dir))
+    dir.mkdir(dp + "/" + customPrim48Dir);
 
-  fadeDirs << fadePartDir << fadeSubDir << fadePrimDir << fadePrim8Dir << fadePrim48Dir;
+  customDirs << dp + "/" + customPartDir
+             << dp + "/" + customSubDir
+             << dp + "/" + customPrimDir
+             << dp + "/" + customPrim8Dir
+             << dp + "/" + customPrim48Dir;
 }
-

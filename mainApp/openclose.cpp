@@ -96,7 +96,7 @@ void Gui::openRecentFile()
     QFileInfo fileInfo(fileName);
     QDir::setCurrent(fileInfo.absolutePath());
     openFile(fileName);
-    Paths::mkdirs();
+    Paths::mkDirs();
     displayPage();
     enableActions();
     emit messageSig(true, QString("File loaded (%1 parts). %2")
@@ -124,7 +124,7 @@ void Gui::loadFile(const QString &file)
         timer.start();
         QDir::setCurrent(info.absolutePath());
         openFile(fileName);
-        Paths::mkdirs();
+        Paths::mkDirs();
         displayPage();
         enableActions();
         emit messageSig(true, QString("File loaded (%1 parts). %2")
@@ -323,7 +323,7 @@ void Gui::openFile(QString &fileName)
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
-  Paths::mkdirs();
+  Paths::mkDirs();
   emit messageSig(true, "Loading LDraw model file...");
   ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;

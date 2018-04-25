@@ -657,7 +657,7 @@ void Gui::clearAllCaches()
     }
 
     if (Preferences::enableFadeStep) {
-       ldrawFile.clearFadePositions();
+       ldrawFile.clearPrevStepPositions();
 
     }
 
@@ -703,7 +703,7 @@ void Gui::clearCustomPartCache(bool silent)
 
   if (ret == QMessageBox::Yes || silent) {
 
-      QString dirName = QDir::toNativeSeparators(QString("%1/fade").arg(Preferences::lpubDataPath));
+      QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
 
       int count = 0;
       if (removeDir(count, dirName)){
@@ -888,7 +888,7 @@ void Gui::clearStepCSICache(QString &pngName) {
                             .arg(ldrName));
     }
   if (Preferences::enableFadeStep) {
-      clearFadePositions();
+      clearPrevStepPositions();
     }
   displayPage();
 }
@@ -917,7 +917,7 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
           } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
       }
       if (Preferences::enableFadeStep) {
-          clearFadePositions();
+          clearPrevStepPositions();
       }
       displayPage();
    }
@@ -1139,20 +1139,20 @@ void Gui::preferences()
         Meta meta;
         page.meta = meta;
 
-        bool rendererChanged               = Preferences::preferredRenderer      != preferredRendererCompare;
-        bool enableFadeStepChanged         = Preferences::enableFadeStep         != enableFadeStepCompare;
-        bool fadeStepUseColourChanged      = Preferences::fadeStepUseColour      != fadeStepUseColourCompare;
-        bool fadeStepColorChanged          = Preferences::fadeStepColour         != fadeStepColourCompare;
-        bool fadeStepOpacityChanged        = Preferences::fadeStepOpacity        != fadeStepOpacityCompare;
-        bool enableHighlightStepChanged    = Preferences::enableHighlightStep    != enableHighlightStepCompare;
-        bool highlightStepColorChanged     = Preferences::highlightStepColour    != highlightStepColourCompare;
-        bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth != highlightStepLineWidthCompare;
-        bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall != useLDViewSCallCompare;
-        bool displayAttributesChanged      = Preferences::displayAllAttributes   != displayAllAttributesCompare;
-        bool generateCoverPagesChanged     = Preferences::generateCoverPages     != generateCoverPagesCompare;
+        bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
+        bool enableFadeStepChanged         = Preferences::enableFadeStep                         != enableFadeStepCompare;
+        bool fadeStepUseColourChanged      = Preferences::fadeStepUseColour                      != fadeStepUseColourCompare;
+        bool fadeStepColorChanged          = QString(Preferences::fadeStepColour).toLower()      != fadeStepColourCompare.toLower();
+        bool fadeStepOpacityChanged        = Preferences::fadeStepOpacity                        != fadeStepOpacityCompare;
+        bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
+        bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
+        bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
+        bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall                 != useLDViewSCallCompare;
+        bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
+        bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
 
-        bool ldrawPathChanged              = Preferences::ldrawPath              != ldrawPathCompare;
-        bool lgeoPathChanged               = Preferences::lgeoPath               != lgeoPathCompare;
+        bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
+        bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
 
         if (enableFadeStepChanged) {
             logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeStep ? "ON" : "OFF");
