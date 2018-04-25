@@ -245,11 +245,11 @@ HEADERS += \
     dividerdialog.h \
     editwindow.h \
     excludedparts.h \
-    fadestepcolorparts.h \
     globals.h \
     gradients.h \
     highlighter.h \
     hoverpoints.h \
+    ldrawcolourparts.h \
     ldrawfiles.h \
     ldsearchdirs.h \
     lpub.h \
@@ -321,12 +321,13 @@ SOURCES += \
     dividerdialog.cpp \
     editwindow.cpp \
     excludedparts.cpp \
-    fadestepcolorparts.cpp \
     fadestepglobals.cpp \
     formatpage.cpp \
     gradients.cpp \
     highlighter.cpp \
+    highlightstepglobals.cpp \
     hoverpoints.cpp \
+    ldrawcolourparts.cpp \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
     lpub.cpp \
@@ -377,7 +378,7 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
 
 FORMS += \
     preferences.ui \

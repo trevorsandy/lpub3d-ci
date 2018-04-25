@@ -22,6 +22,7 @@
 class Gui;
 
 extern Gui *gui;
+enum PartType { FADE_PART, HIGHLIGHT_PART };
 
 // registry sections
 #define DEFAULTS     "Defaults"
@@ -50,15 +51,19 @@ extern Gui *gui;
 #define RENDERER_LDGLITE                  "LDGLite"
 #define RENDERER_LDVIEW                   "LDView"
 
-#define EDGE_HIGHLIGHT_COLOUR             "FFFF00" // Bright Yellow
 // Internal common material colours
 #define LDRAW_EDGE_MATERIAL_COLOUR        "24"
 #define LDRAW_MAIN_MATERIAL_COLOUR        "16"
 
 #define FADE_COLOUR_DEFAULT               "Very_Light_Bluish_Grey"
 #define FADE_OPACITY_DEFAULT              100
-#define FADE_COLOUR_PREFIX                "100"
-#define FADE_COLOUR_FILE_PREFIX           "colours_"
-#define FADE_COLOUR_TITLE_PREFIX          "Fade_File_"
+
+#define LPUB3D_COLOUR_FADE_PREFIX         "100"
+#define LPUB3D_COLOUR_HIGHLIGHT_PREFIX    "110"
+#define LPUB3D_COLOUR_TITLE_PREFIX        "LPub3D_"
+#define LPUB3D_COLOUR_FILE_PREFIX         "colours_"  //Not used
+
+#define HIGHLIGHT_COLOUR_DEFAULT          "#FFFF00"      // Bright Yellow
+#define HIGHLIGHT_LINE_WIDTH_DEFAULT      1              // line width 1 - 5
 
 #endif

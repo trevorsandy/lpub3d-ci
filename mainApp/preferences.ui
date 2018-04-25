@@ -395,6 +395,107 @@
         </layout>
        </widget>
       </widget>
+      <widget class="QGroupBox" name="highlightStepBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>174</y>
+         <width>191</width>
+         <height>190</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>This setting allows you to highlight current build step parts</string>
+       </property>
+       <property name="title">
+        <string>Enable Highlight Current Step</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <widget class="QSpinBox" name="highlightStepLineWidthSpin">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>125</y>
+          <width>61</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>[For future use] - Set the highlight line width</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>5</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="highlightStepLabel">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>127</y>
+          <width>111</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>[For future use] - Set the highlight line width</string>
+        </property>
+        <property name="text">
+         <string>Highlight line width</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="highlightStepColorLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>41</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="highlightStepBtn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>63</y>
+          <width>121</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Highlight Colour...</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">

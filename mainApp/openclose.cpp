@@ -326,8 +326,11 @@ void Gui::openFile(QString &fileName)
   Paths::mkdirs();
   emit messageSig(true, "Loading LDraw model file...");
   ldrawFile.loadFile(fileName);
+  bool overwriteCustomParts = false;
   emit messageSig(true, "Loading fade colour parts...");
-  processFadeColourParts();
+  processFadeColourParts(overwriteCustomParts);
+  emit messageSig(true, "Loading highlight colour parts...");
+  processHighlightColourParts(overwriteCustomParts);
   emit messageSig(true, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);

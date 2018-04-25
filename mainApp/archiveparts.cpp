@@ -27,7 +27,12 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &result, const QString &comment = QString("")) {
+bool ArchiveParts::Archive(
+    const QString &zipArchive,
+    const QDir &dir,
+    QString &result,
+    const QString &comment,
+    bool overwriteCustomPart) {
 
   //qDebug() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
@@ -198,7 +203,6 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
   QFile inFile;
   QuaZipFile outFile(&zip);
   int archivedPartCount = 0;
-  bool forceFadePartUpdate = gui->getUpdateFadeStepParts();
 
   char c;
   foreach(QFileInfo fileInfo, files) {
@@ -212,7 +216,8 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
 
       foreach (QFileInfo zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
-              if (forceFadePartUpdate && zipFileInfo.fileName().contains("-fade.dat")) {
+              bool okToOverwrite = (zipFileInfo.fileName().contains("-fade.dat") || zipFileInfo.fileName().contains("-highlight.dat"));
+              if (overwriteCustomPart && okToOverwrite) {
                   partStatus = "Overwrite Archive";
 //                    qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
               } else {

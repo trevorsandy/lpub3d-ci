@@ -22,7 +22,6 @@ class QStringList;
 
 class Preferences
 {
-
   public:
     Preferences();
     static void lpubPreferences();
@@ -36,6 +35,7 @@ class Preferences
     static void unitsPreferences();
     static void annotationPreferences();
     static void fadestepPreferences();
+    static void highlightstepPreferences();
     static void publishingPreferences();
     static void loggingPreferences();
     static void exportPreferences();
@@ -52,6 +52,8 @@ class Preferences
 
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
+
+    static void setOverwriteCustomParts(bool);
 
     static QString lpub3dAppName;
     static QString ldrawPath;
@@ -70,8 +72,9 @@ class Preferences
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
     static QString fadeStepColour;
+    static QString ldrawColourPartsFile;
+    static QString highlightStepColour;
     static QString pliSubstitutePartsFile;
-    static QString fadeStepColorPartsFile;
     static QString pliFile;
     static QString titleAnnotationsFile;
     static QString freeformAnnotationsFile;
@@ -118,8 +121,10 @@ class Preferences
     static bool    lgeoStlLib;
 
     static bool    enableFadeStep;
-    static bool    useFadeStepColour;
-    static int     fadeStepOpacityPercent;
+    static bool    fadeStepUseColour;
+    static int     fadeStepOpacity;
+    static bool    enableHighlightStep;
+    static int     highlightStepLineWidth;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

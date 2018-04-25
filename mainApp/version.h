@@ -54,12 +54,11 @@
 #define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
 #define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
 
-
 // ~~~~~~ Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 
-#define VER_FADESTEP_COLORPARTS_FILE        "fadeStepColorParts.lst"
+#define VER_LDRAW_COLOR_PARTS_FILE          "fadeStepColorParts.lst"
 #define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"

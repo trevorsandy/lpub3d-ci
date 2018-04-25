@@ -156,9 +156,9 @@ void Gui::insertFinalModel(){
   // get line to insert final model
   int modelStatus = mi.okToInsertFinalModel();
 
-  if (Preferences::enableFadeStep && modelStatus != modelExist){
+  if ((Preferences::enableFadeStep || Preferences::enableHighlightStep) && modelStatus != modelExist){
       mi.insertFinalModel(modelStatus);
-    } else if (! Preferences::enableFadeStep && modelStatus == modelExist){
+    } else if ((! Preferences::enableFadeStep && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
       mi.deleteFinalModel();
     }
 }
@@ -687,37 +687,39 @@ void Gui::clearAndRedrawPage()
      statusBarMsg("All caches reset and model file reloaded.");
 }
 
-void Gui::clearFadeCache(bool silent)
+void Gui::clearCustomPartCache(bool silent)
 {
   QMessageBox::StandardButton ret;
-  QString message = QString("All existing fade part files will be deleted and regenerated.\n"
-                            "Warning: Only fade part files for the currently loaded model file will be updated in %1.")
+  QString message = QString("All existing custom part files will be deleted and regenerated.\n"
+                            "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
   if (silent) {
       emit gui->messageSig(silent,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-                                 tr("%1\nDo you want to delete the current fade file cache?").arg(message),
-                                 QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
+                                 tr("%1\nDo you want to delete the custom file cache?").arg(message),
+                                 QMessageBox::Yes | QMessageBox::Discard | QMessageBox::Cancel);
   }
 
-  if (ret == QMessageBox::Ok || silent) {
+  if (ret == QMessageBox::Yes || silent) {
 
       QString dirName = QDir::toNativeSeparators(QString("%1/fade").arg(Preferences::lpubDataPath));
 
       int count = 0;
       if (removeDir(count, dirName)){
-          emit gui->messageSig(silent,QMessageBox::tr("Fade parts content cache cleaned.  %1 items removed.").arg(count));
+          emit gui->messageSig(silent,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
+                               .arg(count)
+                               .arg(count == 1 ? "item": "items"));
       } else {
-          emit gui->messageSig(silent,QMessageBox::tr("Unable to remeove fade cache directory: %1").arg(dirName));
+          emit gui->messageSig(silent,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
         return;
       }
 
-      // regenerate fade parts
+      // regenerate custom parts
       if (! getCurFile().isEmpty()) {
-        setUpdateFadeStepParts();        // set overwrite existing fade parts
-        processFadeColourParts();        // (re)generate and archive fade parts based on the loaded model file
-        setUpdateFadeStepParts(false);   // unset overwrite existing fade parts
+        bool overwriteCustomParts = true;
+        processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
+        processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
       }
 
     } else if (ret == QMessageBox::Cancel) {
@@ -1025,6 +1027,11 @@ void Gui::fadeStepSetup()
   GlobalFadeStepDialog::getFadeStepGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
+void Gui::highlightStepSetup()
+{
+  GlobalHighlightStepDialog::getHighlightStepGlobals(ldrawFile.topLevelFile(),page.meta);
+}
+
 void Gui::editTitleAnnotations()
 {
     displayParmsFile(Preferences::titleAnnotationsFile);
@@ -1039,10 +1046,10 @@ void Gui::editFreeFormAnnitations()
     parmsWindow->show();
 }
 
-void Gui::editFadeColourParts()
+void Gui::editLDrawColourParts()
 {
-    displayParmsFile(Preferences::fadeStepColorPartsFile);
-    parmsWindow->setWindowTitle(tr("Fade Colour Parts","Edit/add static coulour parts for fade"));
+    displayParmsFile(Preferences::ldrawColourPartsFile);
+    parmsWindow->setWindowTitle(tr("LDraw Colour Parts","Edit/add LDraw static coulour parts"));
     parmsWindow->show();
 }
 
@@ -1119,7 +1126,10 @@ void Gui::preferences()
     bool enableFadeStepCompare          = Preferences::enableFadeStep;
     bool fadeStepUseColourCompare       = Preferences::fadeStepUseColour;
     int fadeStepOpacityCompare          = Preferences::fadeStepOpacity;
+    bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
+    int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     QString fadeStepColourCompare       = Preferences::fadeStepColour;
+    QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
@@ -1129,41 +1139,57 @@ void Gui::preferences()
         Meta meta;
         page.meta = meta;
 
-        bool rendererChanged              = Preferences::preferredRenderer      != preferredRendererCompare;
-        bool enableFadeStepChanged        = Preferences::enableFadeStep         != enableFadeStepCompare;
-        bool useFadeStepColourChanged     = Preferences::useFadeStepColour      != useFadeStepColourCompare;
-        bool fadeStepColorChanged         = Preferences::fadeStepColour         != fadeStepColourCompare;
-        int fadeStepOpacityPercentChanged = Preferences::fadeStepOpacityPercent != fadeStepOpacityPercentCompare;
-        bool useLDViewSCallChanged        = Preferences::enableLDViewSingleCall != useLDViewSCallCompare;
-        bool displayAttributesChanged     = Preferences::displayAllAttributes   != displayAllAttributesCompare;
-        bool generateCoverPagesChanged    = Preferences::generateCoverPages     != generateCoverPagesCompare;
-        bool ldrawPathChanged             = Preferences::ldrawPath              != ldrawPathCompare;
-        bool lgeoPathChanged              = Preferences::lgeoPath               != lgeoPathCompare;
+        bool rendererChanged               = Preferences::preferredRenderer      != preferredRendererCompare;
+        bool enableFadeStepChanged         = Preferences::enableFadeStep         != enableFadeStepCompare;
+        bool fadeStepUseColourChanged      = Preferences::fadeStepUseColour      != fadeStepUseColourCompare;
+        bool fadeStepColorChanged          = Preferences::fadeStepColour         != fadeStepColourCompare;
+        bool fadeStepOpacityChanged        = Preferences::fadeStepOpacity        != fadeStepOpacityCompare;
+        bool enableHighlightStepChanged    = Preferences::enableHighlightStep    != enableHighlightStepCompare;
+        bool highlightStepColorChanged     = Preferences::highlightStepColour    != highlightStepColourCompare;
+        bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth != highlightStepLineWidthCompare;
+        bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall != useLDViewSCallCompare;
+        bool displayAttributesChanged      = Preferences::displayAllAttributes   != displayAllAttributesCompare;
+        bool generateCoverPagesChanged     = Preferences::generateCoverPages     != generateCoverPagesCompare;
 
-        if (enableFadeStepChanged)
-            logInfo() << (Preferences::enableFadeStep ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
+        bool ldrawPathChanged              = Preferences::ldrawPath              != ldrawPathCompare;
+        bool lgeoPathChanged               = Preferences::lgeoPath               != lgeoPathCompare;
 
-        if ((useFadeStepColourChanged || fadeStepOpacityPercentChanged) && Preferences::enableFadeStep && !enableFadeStepChanged) {
-           setUpdateFadeStepParts();
-           clearFadeCache(true);            // true = silently clear the fade parts cache
-           processFadeColourParts();        // (re)generates fade parts based on the loaded model file
-           setUpdateFadeStepParts(false);   // false = do not overwrite existing fade parts
-           processFadePartsArchive();       // (re)archives fade parts - this does not (re)generate fade parts.
+        if (enableFadeStepChanged) {
+            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeStep ? "ON" : "OFF");
         }
-
-        if (useFadeStepColourChanged && !enableFadeStepChanged)
-            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::useFadeStepColour ? "ON" : "OFF");
-
-        if (fadeStepOpacityPercentChanged && !enableFadeStepChanged)
+        if (fadeStepUseColourChanged && Preferences::enableFadeStep){
+            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepUseColour ? "ON" : "OFF");
+        }
+        if (fadeStepOpacityChanged && Preferences::enableFadeStep) {
             logInfo() << QString("Fade Step Transparency changed from %1 to %2 percent")
-                                 .arg(fadeStepOpacityPercentCompare)
-                                 .arg(Preferences::fadeStepOpacityPercent);
-
-        if (fadeStepColorChanged && !enableFadeStepChanged)
+                                 .arg(fadeStepOpacityCompare)
+                                 .arg(Preferences::fadeStepOpacity);
+        }
+        if (fadeStepColorChanged && Preferences::enableFadeStep && Preferences::fadeStepUseColour) {
             logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
                                  .arg(fadeStepColourCompare.replace("_"," "))
                                  .arg(QString(Preferences::fadeStepColour).replace("_"," "));
-
+        }
+        if (enableHighlightStepChanged) {
+            logInfo() << QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
+        }
+        if (highlightStepLineWidthChanged && Preferences::enableHighlightStep) {
+            logInfo() << QString("Highlight Step line width changed from %1 to %2")
+                                 .arg(highlightStepLineWidthCompare)
+                                 .arg(Preferences::highlightStepLineWidth);
+        }
+        if (highlightStepColorChanged && Preferences::enableHighlightStep) {
+            logInfo() << QString("Highlight Step Colour preference changed from %1 to %2")
+                                 .arg(highlightStepColourCompare)
+                                 .arg(Preferences::highlightStepColour);
+        }
+        if ((((fadeStepColorChanged && Preferences::fadeStepUseColour) ||
+            fadeStepUseColourChanged || fadeStepOpacityChanged) &&
+            Preferences::enableFadeStep && !enableFadeStepChanged) ||
+           ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
+            Preferences::enableHighlightStep && !enableHighlightStepChanged)) {
+           clearCustomPartCache(true);    // true = clear and regenerate custom part files
+        }
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed from %1 to %2")
                                  .arg(preferredRendererCompare)
@@ -1191,6 +1217,9 @@ void Gui::preferences()
                 fadeStepColorChanged          ||
                 fadeStepUseColourChanged      ||
                 fadeStepOpacityChanged        ||
+                enableHighlightStepChanged    ||
+                highlightStepColorChanged     ||
+                highlightStepLineWidthChanged ||
                 rendererChanged               ||
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
@@ -1198,6 +1227,7 @@ void Gui::preferences()
                 clearAndRedrawPage();
             }
         }
+
         // set logging options
         using namespace QsLogging;
         Logger& logger = Logger::instance();
@@ -1284,8 +1314,6 @@ Gui::Gui()
     pageRangeText = displayPageNum;
     m_previewDialog       = false;
     m_exportingContent    = false;
-    m_updateFadeStepParts = false;
-
 
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
@@ -1456,7 +1484,7 @@ void Gui::initialize()
 
 }
 
-void Gui::generateFadeColourPartsList()
+void Gui::generateCustomColourPartsList()
 {
     QMessageBox::StandardButton ret;
     ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
@@ -1469,7 +1497,7 @@ void Gui::generateFadeColourPartsList()
         colourPartListWorker  = new ColourPartListWorker();
         colourPartListWorker->moveToThread(listThread);
 
-        connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateFadeColourPartsList()));
+        connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateCustomColourPartsList()));
         connect(listThread,           SIGNAL(finished()),                              listThread, SLOT(deleteLater()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),             listThread, SLOT(quit()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
@@ -1491,54 +1519,68 @@ void Gui::generateFadeColourPartsList()
     }
 }
 
-void Gui::processFadeColourParts()
+void Gui::processFadeColourParts(bool overwriteCustomParts)
 {
-  bool doFadeStep = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
 
-  if (doFadeStep) {
+      QThread *partThread    = new QThread();
+      partWorkerCustomColour = new PartWorker();
+      partWorkerCustomColour->moveToThread(partThread);
 
-      QThread *partThread  = new QThread();
-      partWorkerFadeColour = new PartWorker();
-      partWorkerFadeColour->moveToThread(partThread);
+      connect(this,                   SIGNAL(operateFadeParts(bool)),    partWorkerCustomColour, SLOT(processFadeColourParts(bool)));
+      connect(partThread,             SIGNAL(finished()),                            partThread, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),             partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()), partWorkerCustomColour, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),                    partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),        partWorkerCustomColour, SLOT(deleteLater()));
+      connect(this,                   SIGNAL(requestEndThreadNowSig()),  partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadeColourParts()));
-      connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
-      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
-      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
-      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
-      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
-      connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
 
-      connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
-
-      connect(partWorkerFadeColour, SIGNAL(progressBarInitSig()),                     this, SLOT(progressBarInit()));
-      connect(partWorkerFadeColour, SIGNAL(progressMessageSig(QString)),              this, SLOT(progressBarSetText(QString)));
-      connect(partWorkerFadeColour, SIGNAL(progressRangeSig(int,int)),                this, SLOT(progressBarSetRange(int,int)));
-      connect(partWorkerFadeColour, SIGNAL(progressSetValueSig(int)),                 this, SLOT(progressBarSetValue(int)));
-      connect(partWorkerFadeColour, SIGNAL(progressResetSig()),                       this, SLOT(progressBarReset()));
-      connect(partWorkerFadeColour, SIGNAL(removeProgressStatusSig()),                this, SLOT(removeProgressStatus()));
+      connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
+      connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
+      connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
+      connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),                   this, SLOT(progressBarSetValue(int)));
+      connect(partWorkerCustomColour, SIGNAL(progressResetSig()),                         this, SLOT(progressBarReset()));
+      connect(partWorkerCustomColour, SIGNAL(removeProgressStatusSig()),                  this, SLOT(removeProgressStatus()));
 
       partThread->start();
+
+      qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+      emit operateFadeParts(overwriteCustomParts);
     }
 }
 
-void Gui::processFadePartsArchive()
+void Gui::processHighlightColourParts(bool overwriteCustomParts)
 {
-  QThread *partThread  = new QThread();
-  partWorkerFadeColour = new PartWorker();
-  partWorkerFadeColour->moveToThread(partThread);
+  if (gui->page.meta.LPub.highlightStep.highlightStep.value()) {
 
-  connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadePartsArchive()));
-  connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
-  connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
-  connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
-  connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
-  connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
-  connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
+      QThread *partThread    = new QThread();
+      partWorkerCustomColour = new PartWorker();
+      partWorkerCustomColour->moveToThread(partThread);
 
-  connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
+      connect(this,                   SIGNAL(operateHighlightParts(bool)), partWorkerCustomColour, SLOT(processHighlightColourParts(bool)));
+      connect(partThread,             SIGNAL(finished()),                              partThread, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),               partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),   partWorkerCustomColour, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),                      partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),          partWorkerCustomColour, SLOT(deleteLater()));
+      connect(this,                   SIGNAL(requestEndThreadNowSig()),    partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-  partThread->start();
+      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
+
+      connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
+      connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
+      connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
+      connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),                   this, SLOT(progressBarSetValue(int)));
+      connect(partWorkerCustomColour, SIGNAL(progressResetSig()),                         this, SLOT(progressBarReset()));
+      connect(partWorkerCustomColour, SIGNAL(removeProgressStatusSig()),                  this, SLOT(removeProgressStatus()));
+
+      partThread->start();
+
+      qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+      emit operateHighlightParts(overwriteCustomParts);
+    }
 }
 
 // left side progress bar
@@ -1696,6 +1738,7 @@ void Gui::meta()
 {
   Meta meta;
   QStringList doc;
+  static const QString fmtDateTime("MM-dd-yyyy hh:mm:ss");
 
   QString fileName = QFileDialog::getSaveFileName(
     this,
@@ -1963,13 +2006,13 @@ void Gui::createActions()
     clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
-    clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset All Caches"), this);
-    clearAllCachesAct->setStatusTip(tr("Reset temp file, image, model and fade part caches"));
+    clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Model Caches"), this);
+    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches"));
     connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
-    clearFadeCacheAct = new QAction(QIcon(":/resources/clearfadecache.png"),tr("Reset Fade Files Cache"), this);
-    clearFadeCacheAct->setStatusTip(tr("Reset the fade part files cache"));
-    connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearFadeCache()));
+    clearFadeCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Reset Custom Files Cache"), this);
+    clearFadeCacheAct->setStatusTip(tr("Reset fade and highlight part files cache"));
+    connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file"));
@@ -2021,6 +2064,11 @@ void Gui::createActions()
     fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
 
+    highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup"), this);
+    highlightStepSetupAct->setEnabled(false);
+    highlightStepSetupAct->setStatusTip(tr("Highlight parts in current step"));
+    connect(highlightStepSetupAct, SIGNAL(triggered()), this, SLOT(highlightStepSetup()));
+
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
     preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
@@ -2033,9 +2081,9 @@ void Gui::createActions()
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editFadeColourPartsAct = new QAction(QIcon(":/resources/editfadeparts.png"),tr("Edit Fade Colour Parts List"), this);
-    editFadeColourPartsAct->setStatusTip(tr("Add/Edit the list of static colour parts used to fade parts"));
-    connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
+    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Colour Parts List"), this);
+    editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static colour parts used to process fade and highlight steps"));
+    connect(editLDrawColourPartsAct, SIGNAL(triggered()), this, SLOT(editLDrawColourParts()));
 
     editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts List"), this);
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
@@ -2069,9 +2117,9 @@ void Gui::createActions()
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
-    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generate Fade Colour Parts List"), this);
-    generateFadeColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
-    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generateFadeColourPartsList()));
+    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Colour Parts List"), this);
+    generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
+    connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
 
     // Help
 
@@ -2146,13 +2194,14 @@ void Gui::enableActions()
   multiStepSetupAct->setEnabled(true);
   projectSetupAct->setEnabled(true);
   fadeStepSetupAct->setEnabled(true);
+  highlightStepSetupAct->setEnabled(true);
 
   addPictureAct->setEnabled(true);
   removeLPubFormattingAct->setEnabled(true);
 
   editTitleAnnotationsAct->setEnabled(true);
   editFreeFormAnnitationsAct->setEnabled(true);
-  editFadeColourPartsAct->setEnabled(true);
+  editLDrawColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
   editLdgliteIniAct->setEnabled(true);
@@ -2201,13 +2250,14 @@ void Gui::disableActions()
   multiStepSetupAct->setEnabled(false);
   projectSetupAct->setEnabled(false);
   fadeStepSetupAct->setEnabled(false);
+  highlightStepSetupAct->setEnabled(false);
 
   addPictureAct->setEnabled(false);
   removeLPubFormattingAct->setEnabled(false);
 
   editTitleAnnotationsAct->setEnabled(false);
   editFreeFormAnnitationsAct->setEnabled(false);
-  editFadeColourPartsAct->setEnabled(false);
+  editLDrawColourPartsAct->setEnabled(false);
   editPliBomSubstitutePartsAct->setEnabled(false);
   editExcludedPartsAct->setEnabled(false);
   editLdgliteIniAct->setEnabled(false);
@@ -2361,10 +2411,11 @@ void Gui::createMenus()
     configMenu->addAction(multiStepSetupAct);
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
+    configMenu->addAction(highlightStepSetupAct);
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
-    editorMenu->addAction(editFadeColourPartsAct);
+    editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
     editorMenu->addAction(editPliBomSubstitutePartsAct);
@@ -2378,7 +2429,7 @@ void Gui::createMenus()
     editorMenu->addAction(editLdviewPovIniAct);
     editorMenu->addAction(editPovrayIniAct);
     editorMenu->addAction(editPovrayConfAct);
-    configMenu->addAction(generateFadeColourPartsAct);
+    configMenu->addAction(generateCustomColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
 

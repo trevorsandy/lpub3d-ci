@@ -42,6 +42,10 @@ LDrawColor::LDrawColor ()
 {
   name2color.clear();
   color2name.clear();
+//  color2alpha.clear();
+//  color2edge.clear();
+//  color2value.clear();
+//  ldname2ldcolor.clear();
   QString ldrawFileName;
   // fist, check if there is an alternative LDConfig defined
   if (!Preferences::altLDConfigPath.isEmpty())
