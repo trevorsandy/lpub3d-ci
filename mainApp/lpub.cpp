@@ -509,13 +509,18 @@ void Gui::fitWidth()
 bool lt(const int &v1, const int &v2){ return v1 < v2; }
 // Compare two variants - greater than.
 bool gt(const int &v1, const int &v2){ return v1 > v2; }
+// Sleeper
+class secSleeper : public QThread
+{
+public:
+    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
+};
 
 bool Gui::continuousPageDialog(Direction d)
 {
 
   pageDirection = d;
   int exportOption, pageCount;
-  QString pageRangeText;
   bool terminateProcess;
 
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
@@ -601,6 +606,8 @@ bool Gui::continuousPageDialog(Direction d)
                 emit messageSig(true,QString("Processed page %1 of %2").arg(displayPageNum).arg(_maxPages));
 
                 qApp->processEvents();
+
+                secSleeper::secSleep(Preferences::pageDisplayPause);
             }
 
           QApplication::restoreOverrideCursor();
@@ -664,9 +671,15 @@ bool Gui::continuousPageDialog(Direction d)
 
               displayPage();
 
-              emit messageSig(true,QString("Processed page %1 of %2 for range %3").arg(displayPageNum).arg(_maxPages).arg(pageRanges.join(" ")));
+              emit messageSig(true,QString("Processed page %1, %2 of %3 for page range %4")
+                              .arg(displayPageNum)
+                              .arg(pageCount)
+                              .arg(_maxPages)
+                              .arg(pageRanges.join(" ")));
 
               qApp->processEvents();
+
+              secSleeper::secSleep(Preferences::pageDisplayPause);
             }
 
           QApplication::restoreOverrideCursor();
@@ -682,7 +695,7 @@ bool Gui::continuousPageDialog(Direction d)
           previousPageContinuousIsRunning = false;
         }
 
-      emit messageSig(true,QString("%1 page processing completed. %1 pages processed.").arg(direction).arg(pageCount));
+      emit messageSig(true,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
 
       return true;
     } else {
