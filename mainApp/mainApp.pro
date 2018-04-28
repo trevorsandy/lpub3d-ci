@@ -314,6 +314,7 @@ SOURCES += \
     calloutglobals.cpp \
     color.cpp \
     commands.cpp \
+    commandline.cpp \
     commonmenus.cpp \
     csiitem.cpp \
     dependencies.cpp \
@@ -378,7 +379,7 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp \
+    undoredo.cpp
 
 FORMS += \
     preferences.ui \
