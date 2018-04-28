@@ -2421,13 +2421,13 @@ RendererGui::RendererGui(
 
   combo = new QComboBox(parent);
   if (Preferences::ldgliteExe != "") {
-    combo->addItem("LDGLite");
+    combo->addItem(RENDERER_LDGLITE);
   }
   if (Preferences::ldviewExe != "") {
-    combo->addItem("LDView");
+    combo->addItem(RENDERER_LDVIEW);
   }
   if (Preferences::povrayExe != "") {
-    combo->addItem("POVRay");
+    combo->addItem(RENDERER_POVRAY);
   }
 
   QString renderer = Render::getRenderer();

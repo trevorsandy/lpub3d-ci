@@ -60,6 +60,7 @@ class PreferencesDialog : public QDialog
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();
+    bool          doNotShowPageProcessDlg();
     bool          centimeters();
     bool          enableFadeStep();
     bool          fadeStepUseColour();

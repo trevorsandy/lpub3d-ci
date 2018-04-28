@@ -296,7 +296,7 @@ bool PartWorker::loadLDrawSearchDirs(){
    and there are more than 0 search directories in Preferences::ldgliteSearchDirs.
 */
 void PartWorker::populateLdgLiteSearchDirs() {
-    if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE && !Preferences::ldSearchDirs.isEmpty()){
 
         emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
         //logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;

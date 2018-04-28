@@ -112,6 +112,7 @@ bool    Preferences::useLDViewSingleCall        = false;
 bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::generateCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
+bool    Preferences::doNotShowPageProcessDlg    = false;
 
 bool    Preferences::includeLogLevel            = false;
 bool    Preferences::includeTimestamp           = false;
@@ -1304,17 +1305,17 @@ void Preferences::rendererPreferences(bool updateExisting)
     // Get preferred renderer from Registry
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey))) {
         preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
-        if (preferredRenderer == "LDGLite") {
+        if (preferredRenderer == RENDERER_LDGLITE) {
             if ( ! ldgliteInstalled)  {
                 preferredRenderer.clear();
                 Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
             }
-        } else if (preferredRenderer == "LDView") {
+        } else if (preferredRenderer == RENDERER_LDVIEW) {
             if ( ! ldviewInstalled) {
                 preferredRenderer.clear();
                 Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
             }
-        } else if (preferredRenderer == "POVRay") {
+        } else if (preferredRenderer == RENDERER_POVRAY) {
             if ( ! povRayInstalled) {
                 preferredRenderer.clear();
                 Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
@@ -1324,13 +1325,13 @@ void Preferences::rendererPreferences(bool updateExisting)
     } else { // No Registry setting so set preferred renderer if installed...
 
         if (ldgliteInstalled && povRayInstalled) {
-            preferredRenderer = ldviewInstalled  ? "LDView" : "LDGLite";
+            preferredRenderer = ldviewInstalled  ? RENDERER_LDVIEW : RENDERER_LDGLITE;
         } else if (povRayInstalled) {
-            preferredRenderer = "POVRay";
+            preferredRenderer = RENDERER_POVRAY;
         } else if (ldviewInstalled) {
-            preferredRenderer = "LDView";
+            preferredRenderer = RENDERER_LDVIEW;
         } else if (ldgliteInstalled) {
-            preferredRenderer = "LDGLite";
+            preferredRenderer = RENDERER_LDGLITE;
         }
         if (!preferredRenderer.isEmpty()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
@@ -1341,7 +1342,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
         QVariant eValue(false);
-        if (preferredRenderer == "LDView") {
+        if (preferredRenderer == RENDERER_LDVIEW) {
             enableLDViewSingleCall = true;
         } else {
             enableLDViewSingleCall = false;
@@ -1351,7 +1352,7 @@ void Preferences::rendererPreferences(bool updateExisting)
         enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
     }
 
-    if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
+    if (preferredRenderer == RENDERER_LDVIEW && enableLDViewSingleCall) {
         useLDViewSingleCall = true;
     } else {
         useLDViewSingleCall = false;
@@ -1437,7 +1438,7 @@ void Preferences::setLDGLiteIniParams()
             confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
         logError() << QString("Could not open input file: %1").arg(qPrintable(confFileError));
     }
-    if (preferredRenderer == "LDGLite")
+    if (preferredRenderer == RENDERER_LDGLITE)
         logInfo() << QString(QString("LDGLite Parameters :%1").arg((ldgliteParms.isEmpty() ? "No parameters" : ldgliteParms.join(" "))));
     if (resourceFile.exists())
         ldgliteIni = resourceFile.absoluteFilePath(); // populate ldglite ini file
@@ -1916,9 +1917,12 @@ void Preferences::exportPreferences()
         QVariant uValue(false);
         ignoreMixedPageSizesMsg = false;
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg"),uValue);
-    } else {
-        ignoreMixedPageSizesMsg = Settings.value(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg")).toBool();
-    }
+      } else {
+        if (Preferences::modeGUI)
+          ignoreMixedPageSizesMsg = Settings.value(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg")).toBool();
+        else
+          ignoreMixedPageSizesMsg = false;
+      }
 }
 
 void Preferences::publishingPreferences()
@@ -1931,6 +1935,17 @@ void Preferences::publishingPreferences()
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"),pageDisplayPause);
     } else {
         pageDisplayPause = Settings.value(QString("%1/%2").arg(SETTINGS,"PageDisplayPause")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"))) {
+        QVariant pValue(false);
+        doNotShowPageProcessDlg = false;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),pValue);
+    } else {
+        if (Preferences::modeGUI)
+          doNotShowPageProcessDlg = Settings.value(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg")).toBool();
+        else
+          doNotShowPageProcessDlg = true;
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"))) {
@@ -2068,6 +2083,17 @@ bool Preferences::getPreferences()
             } else {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
             }
+        }
+
+        if (enableLDViewSingleCall != dialog->enableLDViewSingleCall()) {
+            enableLDViewSingleCall = dialog->enableLDViewSingleCall();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),enableLDViewSingleCall);
+        }
+
+        if (preferredRenderer == RENDERER_LDVIEW && enableLDViewSingleCall) {
+            useLDViewSingleCall = true;
+        } else {
+            useLDViewSingleCall = false;
         }
 
         if (lgeoPath != dialog->lgeoPath()) {
@@ -2227,11 +2253,6 @@ bool Preferences::getPreferences()
             defaultResolutionType(preferCentimeters);
         }
 
-        if (enableLDViewSingleCall != dialog->enableLDViewSingleCall()) {
-            enableLDViewSingleCall = dialog->enableLDViewSingleCall();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),enableLDViewSingleCall);
-        }
-
         if (enableDownloader != dialog->enableDownloader()) {
             enableDownloader = dialog->enableDownloader();
             Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),enableDownloader);
@@ -2267,10 +2288,9 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"),printDocumentTOC);
         }
 
-        if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
-            useLDViewSingleCall = true;
-        } else {
-            useLDViewSingleCall = false;
+        if (doNotShowPageProcessDlg != dialog->doNotShowPageProcessDlg()) {
+            doNotShowPageProcessDlg = dialog->doNotShowPageProcessDlg();
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),doNotShowPageProcessDlg);
         }
 
         if (moduleVersion != dialog->moduleVersion()){
@@ -2412,7 +2432,8 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     bool retVal = true;
     QFile confFile(iniFile);
     QStringList contentList;
-    logInfo() << QString("Updating ExtraSearchDirs in %1").arg(iniFile);
+    if (Preferences::preferredRenderer == RENDERER_LDVIEW)
+      logInfo() << QString("Updating ExtraSearchDirs in %1").arg(iniFile);
     if (confFile.open(QIODevice::ReadOnly))
     {
         bool foundExtraSearchDirs = false;
@@ -2441,7 +2462,8 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                           if (!contentList.contains(nativePath, Qt::CaseSensitivity::CaseInsensitive)) {
                               QString formattedSearchDir = QString("Dir%1=%2").arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                               contentList += formattedSearchDir;
-                              logInfo() << qPrintable(QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir));
+                              if (Preferences::preferredRenderer == RENDERER_LDVIEW)
+                                  logInfo() << qPrintable(QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir));
                           }
                        }
                     }

@@ -82,6 +82,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.displayAllAttributes_Chk->setChecked(       Preferences::displayAllAttributes);
   ui.generateCoverPages_Chk->setChecked(         Preferences::generateCoverPages);
   ui.publishTOC_Chk->setChecked(                 Preferences::printDocumentTOC);
+  ui.doNotShowPageProcessDlgChk->setChecked(     Preferences::doNotShowPageProcessDlg);
   ui.publishURL_Edit->setText(                   Preferences::defaultURL);
   ui.publishEmail_Edit->setText(                 Preferences::defaultEmail);
   ui.publishDescriptionEdit->setText(            Preferences::publishDescription);
@@ -186,30 +187,30 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   bool povRayExists = fileInfo.exists();
   povRayExists &= fileInfo.exists();
   if (povRayExists) {
-      ui.preferredRenderer->addItem("POVRay");
+      ui.preferredRenderer->addItem(RENDERER_POVRAY);
     }
 
   fileInfo.setFile(Preferences::ldgliteExe);
   int ldgliteIndex = ui.preferredRenderer->count();
   bool ldgliteExists = fileInfo.exists();
   if (ldgliteExists) {
-    ui.preferredRenderer->addItem("LDGLite");
+    ui.preferredRenderer->addItem(RENDERER_LDGLITE);
   }
 
   fileInfo.setFile(Preferences::ldviewExe);
   int ldviewIndex = ui.preferredRenderer->count();
   bool ldviewExists = fileInfo.exists();
   if (ldviewExists) {
-    ui.preferredRenderer->addItem("LDView");
+    ui.preferredRenderer->addItem(RENDERER_LDVIEW);
   }
 
-  if (Preferences::preferredRenderer == "LDView" && ldviewExists) {
+  if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
-  } else if (Preferences::preferredRenderer == "LDGLite" && ldgliteExists) {
+  } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
-  }  else if (Preferences::preferredRenderer == "POVRay" && povRayExists) {
+  }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
   } else {
@@ -516,6 +517,11 @@ bool  PreferencesDialog::printDocumentTOC()
   return ui.publishTOC_Chk->isChecked();
 }
 
+bool  PreferencesDialog::doNotShowPageProcessDlg()
+{
+  return ui.doNotShowPageProcessDlgChk->isChecked();
+}
+
 QString const PreferencesDialog::defaultURL()
 {
   return ui.publishURL_Edit->displayText();
@@ -725,7 +731,7 @@ void PreferencesDialog::accept(){
         bool povRayExists = fileInfo.exists();
         if (povRayExists) {
             Preferences::povrayExe = ui.povrayPath->text();
-            ui.preferredRenderer->addItem("POVRay");
+            ui.preferredRenderer->addItem(RENDERER_POVRAY);
         } else {
             emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
@@ -735,7 +741,7 @@ void PreferencesDialog::accept(){
         bool ldgliteExists = fileInfo.exists();
         if (ldgliteExists) {
             Preferences::ldgliteExe = ui.ldglitePath->text();
-            ui.preferredRenderer->addItem("LDGLite");
+            ui.preferredRenderer->addItem(RENDERER_LDGLITE);
         } else {
             emit gui->messageSig(false,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
@@ -745,14 +751,14 @@ void PreferencesDialog::accept(){
 #ifndef Q_OS_LINUX
         fileInfo.setFile(ldviewPath);
 #else
-        // force use command line-only "ldview" (not "LDView") if not using Windows
+        // force use command line-only "ldview" (not RENDERER_LDVIEW) if not using Windows
         QFileInfo info(ldviewPath);
         fileInfo.setFile(QString("%1/%2").arg(info.absolutePath()).arg(info.fileName().toLower()));
 #endif
         bool ldviewExists = fileInfo.exists();
         if (ldviewExists) {
             Preferences::ldviewExe = ldviewPath;
-            ui.preferredRenderer->addItem("LDView");
+            ui.preferredRenderer->addItem(RENDERER_LDVIEW);
         } else {
             emit gui->messageSig(false,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }

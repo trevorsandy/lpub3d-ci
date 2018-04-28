@@ -80,19 +80,20 @@ static int rendererTimeout(){
 
 QString fixupDirname(const QString &dirNameIn) {
 #ifdef Q_OS_WIN
-	long     length = 0;
-    TCHAR*   buffer = NULL;
+    long     length = 0;
+    TCHAR*   buffer = nullptr;
 //  30/11/2014 Generating "invalid conversion from const ushort to const wchar" compile error:
 //  LPCWSTR dirNameWin = dirNameIn.utf16();
-    LPCWSTR dirNameWin = (const wchar_t*)dirNameIn.utf16();
+//  LPCWSTR dirNameWin = (const wchar_t*)dirNameIn.utf16();  // OK
+    LPCWSTR dirNameWin = reinterpret_cast<LPCWSTR>(dirNameIn.utf16()); // trying to solve 'Couldn't get length...'
 
 // First obtain the size needed by passing NULL and 0.
 
-    length = GetShortPathName(dirNameWin, NULL, 0);
+    length = GetShortPathName(dirNameWin, nullptr, 0);
     if (length == 0){
-		qDebug() << "Couldn't get length of short path name, trying long path name\n";
-		return dirNameIn;
-	}
+                qDebug() << "Couldn't get length of short path name length, lastError is " << GetLastError() << ", trying long path name\n";
+                return dirNameIn;
+     }
 // Dynamically allocate the correct size
 // (terminating null char was included in length)
 
@@ -102,7 +103,7 @@ QString fixupDirname(const QString &dirNameIn) {
 
     length = GetShortPathName(dirNameWin, buffer, length);
     if (length == 0){
-		qDebug() << "Couldn't get short path name, trying long path name\n";
+                qDebug() << "Couldn't get short path name (using long path), trying long path name\n";
 		return dirNameIn;
 	}
 
@@ -128,9 +129,9 @@ QString const Render::getRenderer()
 
 void Render::setRenderer(QString const &name)
 {
-  if (name == "LDGLite") {
+  if (name == RENDERER_LDGLITE) {
     renderer = &ldglite;
-  } else if (name == "LDView") {
+  } else if (name == RENDERER_LDVIEW) {
     renderer = &ldview;
   } else {
     renderer = &povray;
@@ -378,7 +379,7 @@ int POVRay::renderCsi(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
@@ -537,7 +538,7 @@ int POVRay::renderPli(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
