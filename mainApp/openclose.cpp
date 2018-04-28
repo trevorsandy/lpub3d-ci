@@ -96,7 +96,7 @@ void Gui::openRecentFile()
     QFileInfo fileInfo(fileName);
     QDir::setCurrent(fileInfo.absolutePath());
     openFile(fileName);
-    Paths::mkdirs();
+    Paths::mkDirs();
     displayPage();
     enableActions();
     emit messageSig(true, QString("File loaded (%1 parts). %2")
@@ -105,7 +105,18 @@ void Gui::openRecentFile()
   }
 }
 
-void Gui::loadFile(const QString &file)
+void Gui::clearRecentFiles()
+{
+  QSettings Settings;
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
+    files.clear();
+     Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
+   }
+  updateRecentFileActions();
+}
+
+bool Gui::loadFile(const QString &file)
 {
     QString fileName = file;
     QFileInfo info(fileName);
@@ -113,17 +124,21 @@ void Gui::loadFile(const QString &file)
         timer.start();
         QDir::setCurrent(info.absolutePath());
         openFile(fileName);
-        Paths::mkdirs();
+        Paths::mkDirs();
         displayPage();
         enableActions();
         emit messageSig(true, QString("File loaded (%1 parts). %2")
                         .arg(ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
+        return true;
     } else {
-        QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Unable to load file %1.")
-                             .arg(fileName));
+        QString message = QString("Unable to load file %1.").arg(fileName);
+        if (Preferences::modeGUI)
+          emit messageSig(false,message);
+        else
+          emit messageSig(true,message);
     }
+    return false;
 }
 
 void Gui::save()
@@ -312,11 +327,14 @@ void Gui::openFile(QString &fileName)
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
-  Paths::mkdirs();
+  Paths::mkDirs();
   emit messageSig(true, "Loading LDraw model file...");
   ldrawFile.loadFile(fileName);
+  bool overwriteCustomParts = false;
   emit messageSig(true, "Loading fade colour parts...");
-  processFadeColourParts();
+  processFadeColourParts(overwriteCustomParts);
+  emit messageSig(true, "Loading highlight colour parts...");
+  processHighlightColourParts(overwriteCustomParts);
   emit messageSig(true, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);

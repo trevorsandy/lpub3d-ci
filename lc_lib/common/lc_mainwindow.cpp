@@ -315,11 +315,11 @@ void lcMainWindow::CreateActions()
 	EditActionPanIcon.addFile(":/resources/action_pan_16.png");
 	mActions[LC_EDIT_ACTION_PAN]->setIcon(EditActionPanIcon);
 
-/*** LPub3D Mod - add view look at icon ***/
-	QIcon ViewLookAtIcon;
-	ViewLookAtIcon.addFile(":/resources/view_look_at.png");
-	ViewLookAtIcon.addFile(":/resources/view_look_at_16.png");
-	mActions[LC_VIEW_LOOK_AT]->setIcon(ViewLookAtIcon);
+/*** LPub3D Mod - add view viewpoint home icon ***/
+	QIcon ViewViewPointHomeIcon;
+	ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home.png");
+	ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home_16.png");
+	mActions[LC_VIEW_VIEWPOINT_HOME]->setIcon(ViewViewPointHomeIcon);
 /*** LPub3D Mod end ***/
 
 	mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
@@ -427,14 +427,16 @@ void lcMainWindow::CreateActions()
 		ModelGroup->addAction(mActions[ActionIdx]);
 	}
 
-/*** LPub3D Mod - rotate step and macOS menu management ***/
+/*** LPub3D Mod - rotate step menu management (sets submenu checkable) ***/
         QActionGroup *RotateStepTypeGroup = new QActionGroup(this);
         for (int ActionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; ActionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; ActionIdx++)
           {
             mActions[ActionIdx]->setCheckable(true);
             RotateStepTypeGroup->addAction(mActions[ActionIdx]);
           }
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - macOS menu management ***/
 #ifdef Q_OS_MAC
   mActions[LC_FILE_EXIT]->setMenuRole(QAction::NoRole);
   mActions[LC_VIEW_PREFERENCES]->setMenuRole(QAction::NoRole);
@@ -747,8 +749,8 @@ void lcMainWindow::CreateToolBars()
         mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
-/*** LPub3D Mod - toolstoolbar look at ***/
-	mToolsToolBar->addAction(mActions[LC_VIEW_LOOK_AT]);
+/*** LPub3D Mod - toolstoolbar viewpoint home ***/
+	mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 /*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DELETE]);

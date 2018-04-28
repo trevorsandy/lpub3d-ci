@@ -61,64 +61,94 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.povrayPath->setReadOnly(true);
   ui.povrayPath->setPalette(readOnlyPalette);
 
-  ui.ldrawPath->setText(                            ldrawPath);
-  ui.pliName->setText(                              Preferences::pliFile);
-  ui.altLDConfigPath->setText(                      Preferences::altLDConfigPath);
-  ui.altLDConfigBox->setChecked(                    Preferences::altLDConfigPath != "");
-  ui.pliBox->setChecked(                            Preferences::pliFile != "");
-  ui.ldglitePath->setText(                          Preferences::ldgliteExe);
-  ui.ldgliteBox->setChecked(                        Preferences::ldgliteExe != "");
-  ui.povrayPath->setText(                           Preferences::povrayExe);
-  ui.POVRayBox->setChecked(                         Preferences::povrayExe != "");
-  ui.lgeoPath->setText(                             Preferences::lgeoPath);
-  ui.lgeoBox->setChecked(                           Preferences::lgeoPath != "");
-  ui.lgeoStlLibLbl->setText(                        Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
-  ui.ldviewPath->setText(                           Preferences::ldviewExe);
-  ui.ldviewBox->setChecked(                         Preferences::ldviewExe != "");
-  ui.ldviewSingleCall_Chk->setChecked(              Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
-  ui.fadeStepBox->setChecked(                       Preferences::enableFadeStep);
-  ui.publishLogoBox->setChecked(                    Preferences::documentLogoFile != "");
-  ui.publishLogoPath->setText(                      Preferences::documentLogoFile);
-  ui.authorName_Edit->setText(                      Preferences::defaultAuthor);
-  ui.displayAllAttributes_Chk->setChecked(          Preferences::displayAllAttributes);
-  ui.generateCoverPages_Chk->setChecked(            Preferences::generateCoverPages);
-  ui.publishTOC_Chk->setChecked(                    Preferences::printDocumentTOC);
-  ui.publishURL_Edit->setText(                      Preferences::defaultURL);
-  ui.publishEmail_Edit->setText(                    Preferences::defaultEmail);
-  ui.publishDescriptionEdit->setText(               Preferences::publishDescription);
-  ui.enableDownloader_Chk->setChecked(              Preferences::enableDownloader);
-  ui.showUpdateNotifications_Chk->setChecked(       Preferences::showUpdateNotifications);
-  ui.showAllNotificstions_Chk->setChecked(          Preferences::showAllNotifications);
-  ui.checkUpdateFrequency_Combo->setCurrentIndex(   Preferences::checkUpdateFrequency);
-  ui.rendererTimeout->setValue(                     Preferences::rendererTimeout);
-  ui.povrayDisplay_Chk->setChecked(                 Preferences::povrayDisplay);
+  ui.ldrawPath->setText(                         ldrawPath);
+  ui.pliName->setText(                           Preferences::pliFile);
+  ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
+  ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
+  ui.pliBox->setChecked(                         Preferences::pliFile != "");
+  ui.ldglitePath->setText(                       Preferences::ldgliteExe);
+  ui.ldgliteBox->setChecked(                     Preferences::ldgliteExe != "");
+  ui.povrayPath->setText(                        Preferences::povrayExe);
+  ui.POVRayBox->setChecked(                      Preferences::povrayExe != "");
+  ui.lgeoPath->setText(                          Preferences::lgeoPath);
+  ui.lgeoBox->setChecked(                        Preferences::lgeoPath != "");
+  ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
+  ui.ldviewPath->setText(                        Preferences::ldviewExe);
+  ui.ldviewBox->setChecked(                      Preferences::ldviewExe != "");
+  ui.ldviewSingleCall_Chk->setChecked(           Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
+  ui.publishLogoBox->setChecked(                 Preferences::documentLogoFile != "");
+  ui.publishLogoPath->setText(                   Preferences::documentLogoFile);
+  ui.authorName_Edit->setText(                   Preferences::defaultAuthor);
+  ui.displayAllAttributes_Chk->setChecked(       Preferences::displayAllAttributes);
+  ui.generateCoverPages_Chk->setChecked(         Preferences::generateCoverPages);
+  ui.publishTOC_Chk->setChecked(                 Preferences::printDocumentTOC);
+  ui.doNotShowPageProcessDlgChk->setChecked(     Preferences::doNotShowPageProcessDlg);
+  ui.publishURL_Edit->setText(                   Preferences::defaultURL);
+  ui.publishEmail_Edit->setText(                 Preferences::defaultEmail);
+  ui.publishDescriptionEdit->setText(            Preferences::publishDescription);
+  ui.enableDownloader_Chk->setChecked(           Preferences::enableDownloader);
+  ui.showUpdateNotifications_Chk->setChecked(    Preferences::showUpdateNotifications);
+  ui.showAllNotificstions_Chk->setChecked(       Preferences::showAllNotifications);
+  ui.checkUpdateFrequency_Combo->setCurrentIndex(Preferences::checkUpdateFrequency);
+  ui.rendererTimeout->setValue(                  Preferences::rendererTimeout);
+  ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
+  ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
 
-  ui.loggingGrpBox->setChecked(                     Preferences::logging);
-  ui.logPathEdit->setText(                          Preferences::logPath);
+  ui.loggingGrpBox->setChecked(                  Preferences::logging);
+  ui.logPathEdit->setText(                       Preferences::logPath);
 
-  ui.includeLogLevelBox->setChecked(                Preferences::includeLogLevel);
-  ui.includeTimestampBox->setChecked(               Preferences::includeTimestamp);
-  ui.includeLineNumberBox->setChecked(              Preferences::includeLineNumber);
-  ui.includeFileNameBox->setChecked(                Preferences::includeFileName);
-  ui.includeFunctionBox->setChecked(                Preferences::includeFunction);
+  ui.includeLogLevelBox->setChecked(             Preferences::includeLogLevel);
+  ui.includeTimestampBox->setChecked(            Preferences::includeTimestamp);
+  ui.includeLineNumberBox->setChecked(           Preferences::includeLineNumber);
+  ui.includeFileNameBox->setChecked(             Preferences::includeFileName);
+  ui.includeFunctionBox->setChecked(             Preferences::includeFunction);
 
-  ui.logLevelGrpBox->setChecked(                    Preferences::logLevel);
-  ui.logLevelsGrpBox->setChecked(                   Preferences::logLevels);
+  ui.logLevelGrpBox->setChecked(                 Preferences::logLevel);
+  ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
+
+  ui.fadeStepBox->setChecked(                    Preferences::enableFadeStep);
+  ui.fadeStepUseColourBox->setEnabled(           Preferences::enableFadeStep);
+  ui.fadeStepUseColourBox->setChecked(           Preferences::fadeStepUseColour);
+  ui.fadeStepColorsCombo->setEnabled(            Preferences::enableFadeStep && Preferences::fadeStepUseColour);
+  ui.fadeStepOpacityBox->setEnabled(             Preferences::enableFadeStep);
+  ui.fadeStepOpacitySlider->setEnabled(          Preferences::enableFadeStep);
+  ui.fadeStepOpacitySlider->setValue(            Preferences::fadeStepOpacity);
+
+  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
+  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColour)));
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
+  if(fadeColor.isValid() ) {
+    ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
+    ui.fadeStepColorLabel->setAutoFillBackground(true);
+  }
+
+  ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
+  ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
+  ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
+  //disabled for future use
+  ui.highlightStepLineWidthSpin->setEnabled(     false);
+  ui.highlightStepLineWidthSpin->setValue(       Preferences::highlightStepLineWidth);
+
+  QColor highlightColour = QColor(Preferences::highlightStepColour);
+  if(highlightColour.isValid() ) {
+    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
+  }
 
   QStringList logLevels = tr(VER_LOGGING_LEVELS_STR).split(",");
   ui.logLevelCombo->addItems(logLevels);
   ui.logLevelCombo->setCurrentIndex(int(ui.logLevelCombo->findText(Preferences::loggingLevel)));
 
-  ui.debugLevelBox->setChecked(                    Preferences::debugLevel);
-  ui.traceLevelBox->setChecked(                    Preferences::traceLevel);
-  ui.noticeLevelBox->setChecked(                   Preferences::noticeLevel);
-  ui.infoLevelBox->setChecked(                     Preferences::infoLevel);
-  ui.statusLevelBox->setChecked(                   Preferences::statusLevel);
-  ui.errorLevelBox->setChecked(                    Preferences::errorLevel);
-  ui.fatalLevelBox->setChecked(                    Preferences::fatalLevel);
+  ui.debugLevelBox->setChecked(                  Preferences::debugLevel);
+  ui.traceLevelBox->setChecked(                  Preferences::traceLevel);
+  ui.noticeLevelBox->setChecked(                 Preferences::noticeLevel);
+  ui.infoLevelBox->setChecked(                   Preferences::infoLevel);
+  ui.statusLevelBox->setChecked(                 Preferences::statusLevel);
+  ui.errorLevelBox->setChecked(                  Preferences::errorLevel);
+  ui.fatalLevelBox->setChecked(                  Preferences::fatalLevel);
 
-  ui.includeAllLogAttribBox->setChecked(           Preferences::includeAllLogAttributes);
-  ui.allLogLevelsBox->setChecked(                  Preferences::allLogLevels);
+  ui.includeAllLogAttribBox->setChecked(         Preferences::includeAllLogAttributes);
+  ui.allLogLevelsBox->setChecked(                Preferences::allLogLevels);
   ui.logValiationLbl->hide();
 
   //search directories
@@ -157,30 +187,30 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   bool povRayExists = fileInfo.exists();
   povRayExists &= fileInfo.exists();
   if (povRayExists) {
-      ui.preferredRenderer->addItem("POVRay");
+      ui.preferredRenderer->addItem(RENDERER_POVRAY);
     }
 
   fileInfo.setFile(Preferences::ldgliteExe);
   int ldgliteIndex = ui.preferredRenderer->count();
   bool ldgliteExists = fileInfo.exists();
   if (ldgliteExists) {
-    ui.preferredRenderer->addItem("LDGLite");
+    ui.preferredRenderer->addItem(RENDERER_LDGLITE);
   }
 
   fileInfo.setFile(Preferences::ldviewExe);
   int ldviewIndex = ui.preferredRenderer->count();
   bool ldviewExists = fileInfo.exists();
   if (ldviewExists) {
-    ui.preferredRenderer->addItem("LDView");
+    ui.preferredRenderer->addItem(RENDERER_LDVIEW);
   }
 
-  if (Preferences::preferredRenderer == "LDView" && ldviewExists) {
+  if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
-  } else if (Preferences::preferredRenderer == "LDGLite" && ldgliteExists) {
+  } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
-  }  else if (Preferences::preferredRenderer == "POVRay" && povRayExists) {
+  }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
   } else {
@@ -193,15 +223,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   } else {
       ui.tabWidget->setCurrentIndex(0);
   }
-
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColor);
-  fadeStepMeta.fadeColor.setValue(LDrawColor::name(fadeColor.name()));
-  ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
-  ui.fadeStepColorLabel->setAutoFillBackground(true);
-  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
-  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColor)));
-  connect(ui.fadeStepColorsCombo, SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(colorChange(QString const &)));
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
@@ -242,17 +263,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
 PreferencesDialog::~PreferencesDialog()
 {}
-
-void PreferencesDialog::colorChange(QString const &colorName)
-{
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColor);
-  QColor newFadeColor = LDrawColor::color(colorName);
-  if (fadeColor != newFadeColor) {
-    fadeStepMeta.fadeColor.setValue(LDrawColor::name(newFadeColor.name()));
-    ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
-    ui.fadeStepColorLabel->setAutoFillBackground(true);
-  }
-}
 
 void PreferencesDialog::on_browseLDraw_clicked()
 {
@@ -343,6 +353,8 @@ void PreferencesDialog::on_pushButtonReset_clicked()
 
       // get enable fade step setting
       Preferences::enableFadeStep = ui.fadeStepBox->isChecked();
+      // get enable highlight step setting
+      Preferences::enableHighlightStep = ui.highlightStepBox->isChecked();
       partWorkerLDSearchDirs.resetSearchDirSettings();
       ui.textEditSearchDirs->clear();
       foreach (QString searchDir, Preferences::ldSearchDirs)
@@ -429,15 +441,17 @@ QString const PreferencesDialog::preferredRenderer()
 
 bool PreferencesDialog::povrayDisplay()
 {
-       return ui.povrayDisplay_Chk->isChecked();
+    return ui.povrayDisplay_Chk->isChecked();
 }
 
-QString const PreferencesDialog::fadeStepColor()
+QString const PreferencesDialog::fadeStepColour()
 {
-    if (ui.fadeStepColorsCombo->isEnabled()) {
-      return ui.fadeStepColorsCombo->currentText();
-    }
-    return "";
+    return ui.fadeStepColorsCombo->currentText();
+}
+
+QString const PreferencesDialog::highlightStepColour()
+{
+    return ui.highlightStepColorLabel->palette().background().color().name();
 }
 
 QString const PreferencesDialog::documentLogoFile()
@@ -446,6 +460,16 @@ QString const PreferencesDialog::documentLogoFile()
         return ui.publishLogoPath->displayText();
     }
     return "";
+}
+
+int PreferencesDialog::fadeStepOpacity()
+{
+  return ui.fadeStepOpacitySlider->value();
+}
+
+int PreferencesDialog::highlightStepLineWidth()
+{
+  return ui.highlightStepLineWidthSpin->value();
 }
 
 bool PreferencesDialog::centimeters()
@@ -458,9 +482,19 @@ bool  PreferencesDialog::enableFadeStep()
   return ui.fadeStepBox->isChecked();
 }
 
+bool  PreferencesDialog::enableHighlightStep()
+{
+  return ui.highlightStepBox->isChecked();
+}
+
 bool PreferencesDialog::enableDocumentLogo()
 {
   return ui.publishLogoBox->isChecked();
+}
+
+bool PreferencesDialog::fadeStepUseColour()
+{
+    return ui.fadeStepUseColourBox->isChecked();
 }
 
 bool PreferencesDialog::enableLDViewSingleCall()
@@ -481,6 +515,11 @@ bool  PreferencesDialog::generateCoverPages()
 bool  PreferencesDialog::printDocumentTOC()
 {
   return ui.publishTOC_Chk->isChecked();
+}
+
+bool  PreferencesDialog::doNotShowPageProcessDlg()
+{
+  return ui.doNotShowPageProcessDlgChk->isChecked();
 }
 
 QString const PreferencesDialog::defaultURL()
@@ -526,6 +565,11 @@ int PreferencesDialog::checkUpdateFrequency()
 int PreferencesDialog::rendererTimeout()
 {
   return ui.rendererTimeout->value();
+}
+
+int PreferencesDialog::pageDisplayPause()
+{
+  return ui.pageDisplayPauseSpin->value();
 }
 
 bool PreferencesDialog::includeLogLevel()
@@ -687,7 +731,7 @@ void PreferencesDialog::accept(){
         bool povRayExists = fileInfo.exists();
         if (povRayExists) {
             Preferences::povrayExe = ui.povrayPath->text();
-            ui.preferredRenderer->addItem("POVRay");
+            ui.preferredRenderer->addItem(RENDERER_POVRAY);
         } else {
             emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
@@ -697,7 +741,7 @@ void PreferencesDialog::accept(){
         bool ldgliteExists = fileInfo.exists();
         if (ldgliteExists) {
             Preferences::ldgliteExe = ui.ldglitePath->text();
-            ui.preferredRenderer->addItem("LDGLite");
+            ui.preferredRenderer->addItem(RENDERER_LDGLITE);
         } else {
             emit gui->messageSig(false,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
@@ -707,14 +751,14 @@ void PreferencesDialog::accept(){
 #ifndef Q_OS_LINUX
         fileInfo.setFile(ldviewPath);
 #else
-        // force use command line-only "ldview" (not "LDView") if not using Windows
+        // force use command line-only "ldview" (not RENDERER_LDVIEW) if not using Windows
         QFileInfo info(ldviewPath);
         fileInfo.setFile(QString("%1/%2").arg(info.absolutePath()).arg(info.fileName().toLower()));
 #endif
         bool ldviewExists = fileInfo.exists();
         if (ldviewExists) {
             Preferences::ldviewExe = ldviewPath;
-            ui.preferredRenderer->addItem("LDView");
+            ui.preferredRenderer->addItem(RENDERER_LDVIEW);
         } else {
             emit gui->messageSig(false,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
@@ -826,4 +870,41 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
       ui.altLDConfigBox->setChecked(false);
     }
   }
+}
+
+void PreferencesDialog::on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName)
+{
+  QColor newFadeColor = LDrawColor::color(colorName);
+  ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
+  ui.fadeStepColorLabel->setAutoFillBackground(true);
+}
+
+void PreferencesDialog::on_highlightStepBtn_clicked()
+{
+  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
+  if( highlightColour.isValid()) {
+    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
+  }
+}
+
+void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
+{
+  ui.fadeStepUseColourBox->setEnabled(checked);
+  ui.fadeStepColorsCombo->setEnabled(checked);
+  ui.fadeStepOpacityBox->setEnabled(checked);
+  ui.fadeStepOpacitySlider->setEnabled(checked);
+}
+
+void PreferencesDialog::on_fadeStepUseColourBox_clicked(bool checked)
+{
+  ui.fadeStepColorsCombo->setEnabled(checked);
+}
+
+void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
+{
+  ui.highlightStepBtn->setEnabled(checked);
+  ui.highlightStepLabel->setEnabled(checked);
+  //disabled for future use
+  ui.highlightStepLineWidthSpin->setEnabled(false);
 }

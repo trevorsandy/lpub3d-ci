@@ -29,6 +29,7 @@
 #include <QCloseEvent>
 #include <QUndoStack>
 #include <QTextStream>
+#include <QStringList>
 #include <JlCompress.h>
 
 #include "QPushButton"
@@ -155,9 +156,9 @@ void Gui::insertFinalModel(){
   // get line to insert final model
   int modelStatus = mi.okToInsertFinalModel();
 
-  if (Preferences::enableFadeStep && modelStatus != modelExist){
+  if ((Preferences::enableFadeStep || Preferences::enableHighlightStep) && modelStatus != modelExist){
       mi.insertFinalModel(modelStatus);
-    } else if (! Preferences::enableFadeStep && modelStatus == modelExist){
+    } else if ((! Preferences::enableFadeStep && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
       mi.deleteFinalModel();
     }
 }
@@ -251,7 +252,7 @@ void Gui::nextPage()
   }
 }
 
-void Gui::prevPage()
+void Gui::previousPage()
 {
   if (displayPageNum > 1) {
     displayPageNum--;
@@ -264,7 +265,7 @@ void Gui::prevPage()
 void Gui::nextPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+)\\s+.*$");
+  QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
       bool ok;
       int inputPageNum;
@@ -295,10 +296,69 @@ void Gui::nextPage()
     }
 }
 
-void Gui::prevPage()
+void Gui::nextPageContinuous()
+{
+  // This effectively acts like a toggle. If true, it sets false and vice versa.
+  nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
+
+  QMessageBox box;
+  box.setTextFormat (Qt::RichText);
+  box.setIcon (QMessageBox::Information);
+  box.setWindowTitle(tr ("Next page continuous processing"));
+  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  QString title = "<b>       Next page continuous processing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+  QString message = QString("Next page continuous processing is running.\n");
+
+  // Request to terminate Next page process while it is still running
+  if (!nextPageContinuousIsRunning) {
+      box.setIcon (QMessageBox::Warning);
+      title = "<b> Stop next page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+      message = QString("Next page continuous processing has not completed.\n"
+                        "Do you want to terminate this process ?");
+      box.setText (title);
+      box.setInformativeText (message);
+
+      // Yes, let's terminate
+      if (box.exec() == QMessageBox::Yes){
+          return;
+        }
+      // Oops, do not want to terminate
+      else {
+          nextPageContinuousIsRunning = true;
+        }
+
+    }
+  // If user clicks Next page process while Previous page process is still running
+  else if (previousPageContinuousIsRunning && nextPageContinuousIsRunning) {
+      box.setIcon (QMessageBox::Warning);
+      title = "<b>       Stop Previous page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+      message = QString("Previous page continuous processing is running.\n"
+                        "Do you want to stop this process and start Next page processing ?");
+
+      box.setText (title);
+      box.setInformativeText (message);
+
+    // User wants to stop Previous page process
+    if (box.exec() == QMessageBox::Yes){
+        previousPageContinuousIsRunning = false;
+        continuousPageDialog(PAGE_NEXT);
+      }
+    // User wants to continue running Previous page process
+    else {
+        nextPageContinuousIsRunning = false;
+        return;
+      }
+  // No conflicts, everything looks good, let's go
+  } else {
+      continuousPageDialog(PAGE_NEXT);
+  }
+}
+
+void Gui::previousPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+)\\s+.*$");
+  QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
       bool ok;
       int inputPageNum;
@@ -318,13 +378,73 @@ void Gui::prevPage()
           setPageLineEdit->setText(string);
           return;
         } else {						// numbers are same so goto previous page
-                        if (displayPageNum > 1) {
-                                displayPageNum--;
-                                displayPage();
-                        } else {
+          if (displayPageNum > 1) {
+              displayPageNum--;
+              displayPage();
+            } else {
               statusBarMsg("You are on the first page");
             }
         }
+    }
+}
+
+void Gui::previousPageContinuous()
+{
+  // This effectively acts like a toggle. If true, it sets false and vice versa.
+  previousPageContinuousIsRunning = !previousPageContinuousIsRunning;
+
+  QMessageBox box;
+  box.setTextFormat (Qt::RichText);
+  box.setIcon (QMessageBox::Information);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  box.setWindowTitle(tr ("Previous page continuous processing"));
+  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  QString title = "<b> Previous page continuous processing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+  QString message = QString("Previous page continuous processing is running.\n");
+
+  // Request to terminate Previous page process while it is still running
+  if (!previousPageContinuousIsRunning) {
+      box.setIcon (QMessageBox::Warning);
+      title = "<b> Stop previous page continuous processing ?;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+      message = QString("Previous page continuous processing has not completed.\n"
+                        "Do you want to terminate this process ?");
+
+      box.setText (title);
+      box.setInformativeText (message);
+
+      // Yes, let's terminate
+      if (box.exec() == QMessageBox::Yes){
+          return;
+        }
+      // Oops, do not want to terminate
+      else {
+          previousPageContinuousIsRunning = true;
+        }
+
+    }
+  // If user clicks Previous page process while Next page process is still running
+  else if (nextPageContinuousIsRunning  && previousPageContinuousIsRunning) {
+      box.setIcon (QMessageBox::Warning);
+      title = "<b> Stop Next page continuous processing ?;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
+      message = QString("Next page continuous processing is running.         \n"
+                        "Do you want to terminate this process and start over ?");
+
+      box.setText (title);
+      box.setInformativeText (message);
+
+    // User wants to stop Next page process
+    if (box.exec() == QMessageBox::Yes){
+        nextPageContinuousIsRunning = false;
+        continuousPageDialog(PAGE_PREVIOUS);
+      }
+    // User wants to continue running Next page process
+    else {
+        previousPageContinuousIsRunning = false;
+        return;
+      }
+    // No conflicts, everything looks good, let's go
+    } else {
+      continuousPageDialog(PAGE_PREVIOUS);
     }
 }
 
@@ -344,7 +464,7 @@ void Gui::lastPage()
 void Gui::setPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+)\\s+.*$");
+  QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
     bool ok;
     int inputPage;
@@ -376,7 +496,6 @@ void Gui::setGoToPage(int index)
           displayPage();
         }
     }
-
   QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
   setPageLineEdit->setText(string);
 }
@@ -384,6 +503,265 @@ void Gui::setGoToPage(int index)
 void Gui::fitWidth()
 {
   fitWidth(pageview());
+}
+
+// Compare two variants - less than.
+bool lt(const int &v1, const int &v2){ return v1 < v2; }
+// Compare two variants - greater than.
+bool gt(const int &v1, const int &v2){ return v1 > v2; }
+// Sleeper
+class secSleeper : public QThread
+{
+public:
+    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
+};
+
+bool Gui::continuousPageDialog(Direction d)
+{
+  pageDirection = d;
+  int pageCount = 0;
+  int _maxPages    = 0;
+  bool terminateProcess = false;
+
+  QString direction = d == PAGE_NEXT ? "Next" : "Previous";
+
+  exportType = PAGE_PROCESS;
+
+  if (Preferences::modeGUI) {
+      if (Preferences::doNotShowPageProcessDlg) {
+          if (!processPageRange(setPageLineEdit->displayText())) {
+              if (d == PAGE_NEXT)
+                nextPageContinuousIsRunning = false;
+              else
+                previousPageContinuousIsRunning = false;
+              return false;
+            }
+        }
+      else
+        {
+            DialogExportPages *dialog = new DialogExportPages();
+
+            if (dialog->exec() == QDialog::Accepted) {
+
+               if(dialog->allPages()){
+                 processOption = EXPORT_ALL_PAGES;
+               }
+               else
+               if(dialog->pageRange()){
+                  processOption  = EXPORT_PAGE_RANGE;
+                  pageRangeText = dialog->pageRangeText();
+                }
+
+              resetCache = dialog->resetCache();
+
+              QSettings Settings;
+              if (Preferences::doNotShowPageProcessDlg != dialog->doNotShowPageProcessDlg()) {
+                 Preferences::doNotShowPageProcessDlg = dialog->doNotShowPageProcessDlg();
+                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),Preferences::doNotShowPageProcessDlg);
+              }
+
+            } else {
+               if (d == PAGE_NEXT)
+                 nextPageContinuousIsRunning = false;
+               else
+                 previousPageContinuousIsRunning = false;
+               return false;
+            }
+        }
+    }
+  else { // command line mode
+      // This effectively acts like a toggle. If true, it sets false and vice versa.
+      nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
+    }
+
+  if (processOption == EXPORT_PAGE_RANGE){
+      if (! validatePageRange()){
+          if (d == PAGE_NEXT)
+            nextPageContinuousIsRunning = false;
+          else
+            previousPageContinuousIsRunning = false;
+          return false;
+        }
+    }
+
+  if (d == PAGE_NEXT) {
+      nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
+      nextPageContinuousAct->setStatusTip("Stop continuous next page processing");
+      nextPageContinuousAct->setText("Stop Continuous Next Page");
+    } else {
+      previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuousstop.png"));
+      previousPageContinuousAct->setStatusTip("Stop continuous previous page processing");
+      previousPageContinuousAct->setText("Stop Continuous Previous Page");
+    }
+
+  if(resetCache){
+      clearCustomPartCache(true);
+      clearAndRedrawPage();
+    }
+
+  // store current display page number
+  logStatus() << QString("Continuous %1 page processing start...").arg(direction);
+
+  if (processOption == EXPORT_ALL_PAGES){
+
+      _maxPages = maxPages;
+
+      QApplication::setOverrideCursor(Qt::BusyCursor);
+
+      for (displayPageNum = 1; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
+
+          if (d == PAGE_NEXT) {
+              terminateProcess =  !nextPageContinuousIsRunning;
+            } else {
+              terminateProcess =  !previousPageContinuousIsRunning;
+            }
+
+          if (terminateProcess) {
+              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+                              .arg(direction)
+                              .arg(displayPageNum - 1)
+                              .arg(maxPages));
+              if (d == PAGE_NEXT) {
+                  nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+                  nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+                  nextPageContinuousAct->setText("Continuous Next Page");
+                  nextPageContinuousIsRunning = false;
+                } else {
+                  previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+                  previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+                  previousPageContinuousAct->setText("Continuous Previous Page");
+                  previousPageContinuousIsRunning = false;
+                }
+              QApplication::restoreOverrideCursor();
+              return false;
+            }
+
+          pageCount = displayPageNum;
+
+          displayPage();
+
+          emit messageSig(true,QString("Processed page %1 of %2").arg(displayPageNum).arg(maxPages));
+
+          qApp->processEvents();
+
+          secSleeper::secSleep(Preferences::pageDisplayPause);
+        }
+
+      QApplication::restoreOverrideCursor();
+
+    } else if (processOption == EXPORT_PAGE_RANGE) {
+
+      QStringList pageRanges = pageRangeText.split(",");
+      QList<int> printPages;
+      foreach(QString ranges,pageRanges){
+          if (ranges.contains("-")){
+              QStringList range = ranges.split("-");
+              int minPage = range[0].toInt();
+              int maxPage = range[1].toInt();
+              for(int i = minPage; i <= maxPage; i++){
+                  printPages.append(i);
+                }
+            } else {
+              printPages.append(ranges.toInt());
+            }
+        }
+
+      if (d == PAGE_NEXT)
+        std::sort(printPages.begin(),printPages.end(),lt);    // Next - small to large
+      else
+        std::sort(printPages.begin(),printPages.end(),gt);    // Previous - large to small
+
+      displayPageNum = printPages.first();
+
+      _maxPages = printPages.count();
+
+      QApplication::setOverrideCursor(Qt::BusyCursor);
+
+      foreach(int printPage,printPages){
+
+          displayPageNum = printPage;
+
+          if (d == PAGE_NEXT) {
+              terminateProcess = !nextPageContinuousIsRunning;
+            } else {
+              terminateProcess = !previousPageContinuousIsRunning;
+            }
+
+          if (terminateProcess) {
+              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+                              .arg(direction)
+                              .arg(pageCount)
+                              .arg(_maxPages));
+              if (d == PAGE_NEXT) {
+                  nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+                  nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+                  nextPageContinuousAct->setText("Continuous Next Page");
+                  nextPageContinuousIsRunning = false;
+                } else {
+                  previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+                  previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+                  previousPageContinuousAct->setText("Continuous Previous Page");
+                  previousPageContinuousIsRunning = false;
+                }
+              QApplication::restoreOverrideCursor();
+              return false;
+            }
+
+          pageCount++;
+
+          displayPage();
+
+          emit messageSig(true,QString("Processed page %1, %2 of %3 for page range %4")
+                          .arg(displayPageNum)
+                          .arg(pageCount)
+                          .arg(_maxPages)
+                          .arg(pageRanges.join(" ")));
+
+          qApp->processEvents();
+
+          secSleeper::secSleep(Preferences::pageDisplayPause);
+        }
+
+      QApplication::restoreOverrideCursor();
+    }
+
+  if (d == PAGE_NEXT) {
+      nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+      nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+      nextPageContinuousAct->setText("Continuous Next Page");
+      nextPageContinuousIsRunning = false;
+    } else {
+      previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+      previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+      previousPageContinuousAct->setText("Continuous Previous Page");
+      previousPageContinuousIsRunning = false;
+    }
+
+  emit messageSig(true,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
+
+  return true;
+}
+
+bool Gui::processPageRange(const QString &range)
+{
+  if (!range.isEmpty()){
+      QString lineAllPages = QString("1-%1").arg(gui->maxPages);
+      QString linePageRange = QString(range)
+          .replace("of","-")
+          .replace("to","-")
+          .replace(" ","");
+      if (lineAllPages == linePageRange) {
+          processOption = EXPORT_ALL_PAGES;
+        } else {
+          processOption = EXPORT_PAGE_RANGE;
+          pageRangeText = linePageRange;
+        }
+      return true;
+    } else {
+      processOption = EXPORT_ALL_PAGES;
+      return true;
+    }
+  return false;
 }
 
 void Gui::fitWidth(
@@ -651,81 +1029,83 @@ void Gui::mpdComboChanged(int index)
 void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to reset its caches - no action taken.");
+        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
         return;
     }
 
-       clearPLICache();
-       clearCSICache();
-       clearTempCache();
+    if (Preferences::enableFadeStep || Preferences::enableHighlightStep) {
+       ldrawFile.clearPrevStepPositions();
 
-       //reload current model file
-       int savePage = displayPageNum;
-       openFile(curFile);
-       displayPageNum = savePage;
-       displayPage();
-       enableActions();
+    }
 
-       statusBarMsg("All content reset and file reloaded");
+     clearPLICache();
+     clearCSICache();
+     clearTempCache();
+
+     //reload current model file
+     int savePage = displayPageNum;
+     openFile(curFile);
+     displayPageNum = savePage;
+     displayPage();
+     enableActions();
+
+     emit messageSig(true,"All caches reset and model file reloaded.");
 }
 
 void Gui::clearAndRedrawPage()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to reset its caches - no action taken.");
+        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
         return;
     }
 
-       clearPLICache();
-       clearCSICache();
-       clearTempCache();
-
-       if (Preferences::enableFadeStep)
-         ldrawFile.clearFadePositions();
-
-       displayPage();
-
-       QObject *obj = sender();
-       if (obj == editWindow)
-         statusBarMsg("Page regenerated.");
-       else if (obj == clearAllCachesAct)
-         statusBarMsg("Assembly, Parts and 3D content caches reset.");
-       else
-         statusBarMsg("All content reset.");
+     clearAllCaches();
 }
 
-void Gui::clearFadeCache()
+void Gui::clearCustomPartCache(bool silent)
 {
   QMessageBox::StandardButton ret;
-  ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-                             tr("All fade files will be deleted. \nFade files are automatically generated.\n"
-                                "Do you want to delete the current fade files?"),
-                             QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
-  if (ret == QMessageBox::Ok) {
+  QString message = QString("All existing custom part files will be deleted and regenerated.\n"
+                            "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
+                            .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
+  if (silent) {
+      emit messageSig(silent,message);
+  } else {
+      ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+                                 tr("%1\nDo you want to delete the custom file cache?").arg(message),
+                                 QMessageBox::Yes | QMessageBox::Discard | QMessageBox::Cancel);
+  }
 
-      QString dirName = QDir::toNativeSeparators(QString("%1/fade").arg(Preferences::lpubDataPath));
+  if (ret == QMessageBox::Yes || silent) {
+
+      QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
 
       int count = 0;
       if (removeDir(count, dirName)){
-          statusBarMsg(QString("Fade parts content cache cleaned.  %1 items removed.").arg(count));
-        } else {
-          QMessageBox::critical(NULL,
-                                tr("LPub3D"),
-                                tr("Unable to remeove fade cache directory \n%1")
-                                .arg(dirName));
-          return;
-        }
+          emit messageSig(silent,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
+                               .arg(count)
+                               .arg(count == 1 ? "item": "items"));
+      } else {
+          emit messageSig(silent,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
+        return;
+      }
+
+      // regenerate custom parts
+      if (! getCurFile().isEmpty()) {
+        bool overwriteCustomParts = true;
+        processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
+        processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
+      }
 
     } else if (ret == QMessageBox::Cancel) {
       return;
     }
-
 }
 
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to clean its parts cache - no action taken.");
+        emit messageSig(true,"A model must be open to clean its parts cache - no action taken.");
         return;
     }
 
@@ -749,13 +1129,13 @@ void Gui::clearPLICache()
           count++;
       }
 
-    statusBarMsg(QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(true,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSICache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to clean its assembly cache - no action taken.");
+        emit messageSig(true,"A model must be open to clean its assembly cache - no action taken.");
         return;
     }
 
@@ -779,13 +1159,13 @@ void Gui::clearCSICache()
           count++;
       }
 
-    statusBarMsg(QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(true,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to clean its 3D cache - no action taken.");
+        emit messageSig(true,"A model must be open to clean its 3D cache - no action taken.");
         return;
     }
 
@@ -831,7 +1211,7 @@ void Gui::clearTempCache()
           count2++;
     }
 
-    statusBarMsg(QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
+    emit messageSig(true,QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -883,7 +1263,7 @@ void Gui::clearStepCSICache(QString &pngName) {
                             .arg(ldrName));
     }
   if (Preferences::enableFadeStep) {
-      clearFadePositions();
+      clearPrevStepPositions();
     }
   displayPage();
 }
@@ -912,7 +1292,7 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
           } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
       }
       if (Preferences::enableFadeStep) {
-          clearFadePositions();
+          clearPrevStepPositions();
       }
       displayPage();
    }
@@ -1022,6 +1402,11 @@ void Gui::fadeStepSetup()
   GlobalFadeStepDialog::getFadeStepGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
+void Gui::highlightStepSetup()
+{
+  GlobalHighlightStepDialog::getHighlightStepGlobals(ldrawFile.topLevelFile(),page.meta);
+}
+
 void Gui::editTitleAnnotations()
 {
     displayParmsFile(Preferences::titleAnnotationsFile);
@@ -1036,10 +1421,10 @@ void Gui::editFreeFormAnnitations()
     parmsWindow->show();
 }
 
-void Gui::editFadeColourParts()
+void Gui::editLDrawColourParts()
 {
-    displayParmsFile(Preferences::fadeStepColorPartsFile);
-    parmsWindow->setWindowTitle(tr("Fade Colour Parts","Edit/add static coulour parts for fade"));
+    displayParmsFile(Preferences::ldrawColourPartsFile);
+    parmsWindow->setWindowTitle(tr("LDraw Colour Parts","Edit/add LDraw static coulour parts"));
     parmsWindow->show();
 }
 
@@ -1110,57 +1495,127 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    bool useLDViewSCall       = renderer->useLDViewSCall();
-    bool displayAllAttributes = Preferences::displayAllAttributes;
-    bool generateCoverPages   = Preferences::generateCoverPages;
-    QString ldrawPathCompare  = Preferences::ldrawPath;
-    QString lgeoPathCompare   = Preferences::lgeoPath;
+    bool useLDViewSCallCompare          = Preferences::useLDViewSingleCall;
+    bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
+    bool generateCoverPagesCompare      = Preferences::generateCoverPages;
+    bool enableFadeStepCompare          = Preferences::enableFadeStep;
+    bool fadeStepUseColourCompare       = Preferences::fadeStepUseColour;
+    int fadeStepOpacityCompare          = Preferences::fadeStepOpacity;
+    bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
+    int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
+    bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
+    int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
+    QString fadeStepColourCompare       = Preferences::fadeStepColour;
+    QString highlightStepColourCompare  = Preferences::highlightStepColour;
+    QString ldrawPathCompare            = Preferences::ldrawPath;
+    QString lgeoPathCompare             = Preferences::lgeoPath;
+    QString preferredRendererCompare    = Preferences::preferredRenderer;
 
     if (Preferences::getPreferences()) {
 
         Meta meta;
         page.meta = meta;
 
-        QString currentRenderer = Render::getRenderer();
-        Render::setRenderer(Preferences::preferredRenderer);
-        bool rendererChanged           = Render::getRenderer() != currentRenderer;
-        bool fadeStepColorChanged      = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
-        bool useLDViewSCallChanged     = useLDViewSCall != renderer->useLDViewSCall();
-        bool displayAttributesChanged  = Preferences::displayAllAttributes != displayAllAttributes;
-        bool generateCoverPagesChanged = Preferences::generateCoverPages   != generateCoverPages;
-        bool ldrawPathChanged          = Preferences::ldrawPath            != ldrawPathCompare;
-        bool lgeoPathChanged           = Preferences::lgeoPath             != lgeoPathCompare;
+        bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
+        bool enableFadeStepChanged         = Preferences::enableFadeStep                         != enableFadeStepCompare;
+        bool fadeStepUseColourChanged      = Preferences::fadeStepUseColour                      != fadeStepUseColourCompare;
+        bool fadeStepColorChanged          = QString(Preferences::fadeStepColour).toLower()      != fadeStepColourCompare.toLower();
+        bool fadeStepOpacityChanged        = Preferences::fadeStepOpacity                        != fadeStepOpacityCompare;
+        bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
+        bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
+        bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
+        bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall                 != useLDViewSCallCompare;
+        bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
+        bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
+        bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
+        bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
 
-        if (Preferences::fadeStepSettingChanged){
-            logInfo() << (Preferences::enableFadeStep ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
-            processFadePartsArchive();
-        }
-        if (fadeStepColorChanged)
-            logInfo() << QString("Fade Step Colour preference changed to %1").arg(Preferences::fadeStepColor);
+        bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
+        bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
+
+        if (enableFadeStepChanged)
+            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeStep ? "ON" : "OFF");
+
+        if (fadeStepUseColourChanged && Preferences::enableFadeStep)
+            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepUseColour ? "ON" : "OFF");
+
+        if (fadeStepOpacityChanged && Preferences::enableFadeStep)
+            logInfo() << QString("Fade Step Transparency changed from %1 to %2 percent")
+                                 .arg(fadeStepOpacityCompare)
+                                 .arg(Preferences::fadeStepOpacity);
+
+        if (fadeStepColorChanged && Preferences::enableFadeStep && Preferences::fadeStepUseColour)
+            logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
+                                 .arg(fadeStepColourCompare.replace("_"," "))
+                                 .arg(QString(Preferences::fadeStepColour).replace("_"," "));
+
+        if (enableHighlightStepChanged)
+            logInfo() << QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
+
+        if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
+            logInfo() << QString("Highlight Step line width changed from %1 to %2")
+                                 .arg(highlightStepLineWidthCompare)
+                                 .arg(Preferences::highlightStepLineWidth);
+
+        if (highlightStepColorChanged && Preferences::enableHighlightStep)
+            logInfo() << QString("Highlight Step Colour preference changed from %1 to %2")
+                                 .arg(highlightStepColourCompare)
+                                 .arg(Preferences::highlightStepColour);
+
+        if (ldrawPathChanged)
+            logInfo() << QString("LDraw path preference changed from %1 to %1")
+                                 .arg(ldrawPathCompare)
+                                 .arg(Preferences::ldrawPath);
+
+        if (lgeoPathChanged && !ldrawPathChanged)
+            logInfo() << QString("LGEO path preference changed from %1 to %1")
+                                 .arg(lgeoPathCompare)
+                                 .arg(Preferences::lgeoPath);
+
+        if (generateCoverPagesChanged)
+            logInfo() << QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF");
+
+
+        if (pageDisplayPauseChanged)
+            logInfo() << QString("Continuous process page display pause changed from %1 to %2")
+                              .arg(highlightStepLineWidthCompare)
+                              .arg(Preferences::pageDisplayPause);
+
+        if (doNotShowPageProcessDlgChanged)
+            logInfo() << QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF");
+
+        if ((((fadeStepColorChanged && Preferences::fadeStepUseColour) ||
+            fadeStepUseColourChanged || fadeStepOpacityChanged) &&
+            Preferences::enableFadeStep && !enableFadeStepChanged) ||
+           ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
+            Preferences::enableHighlightStep && !enableHighlightStepChanged))
+           clearCustomPartCache(true);    // true = clear and regenerate custom part files
 
         if (rendererChanged) {
-            logInfo() << QString("Renderer preference changed to %1").arg(Render::getRenderer());
-            if (Preferences::preferredRenderer == "LDGLite")
+            logInfo() << QString("Renderer preference changed from %1 to %2")
+                                 .arg(preferredRendererCompare)
+                                 .arg(Preferences::preferredRenderer);
+            Render::setRenderer(Preferences::preferredRenderer);
+            if (Preferences::preferredRenderer == RENDERER_LDGLITE)
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
 
-        if (ldrawPathChanged)
-            logInfo() << QString("LDraw path preference changed to %1").arg(Preferences::ldrawPath);
-
-        if (lgeoPathChanged && !ldrawPathChanged)
-            logInfo() << QString("LGEO path preference changed to %1").arg(Preferences::lgeoPath);
-
         if (!getCurFile().isEmpty()) {
-            if (Preferences::fadeStepSettingChanged)
-                clearAllCaches();
-            if (rendererChanged           ||
-                fadeStepColorChanged      ||
-                useLDViewSCallChanged     ||
-                displayAttributesChanged  ||
+            if (enableFadeStepChanged         ||
+                fadeStepColorChanged          ||
+                fadeStepUseColourChanged      ||
+                fadeStepOpacityChanged        ||
+                enableHighlightStepChanged    ||
+                highlightStepColorChanged     ||
+                highlightStepLineWidthChanged ||
+                rendererChanged               ||
+                useLDViewSCallChanged         ||
+                displayAttributesChanged      ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
         }
+
         // set logging options
         using namespace QsLogging;
         Logger& logger = Logger::instance();
@@ -1242,12 +1697,14 @@ Gui::Gui()
 
     displayPageNum = 1;
 
-    exportOption  = EXPORT_ALL_PAGES;
-    exportType    = EXPORT_PDF;
-    pageRangeText = displayPageNum;
-    m_previewDialog    = false;
-    m_exportingContent = false;
-
+    processOption                   = EXPORT_ALL_PAGES;
+    exportType                      = EXPORT_PDF;
+    pageRangeText                   = "1";
+    resetCache                      = false;
+    m_previewDialog                 = false;
+    m_exportingContent              = false;
+    nextPageContinuousIsRunning     = false;
+    previousPageContinuousIsRunning = false;
 
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
@@ -1392,6 +1849,7 @@ void Gui::initialize()
   emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
   connect(this,       SIGNAL(loadFileSig(QString)),      this,        SLOT(loadFile(QString)));
+  connect(this,       SIGNAL(processCommandLineSig()),   this,        SLOT(processCommandLine()));
   connect(this,       SIGNAL(setExportingSig(bool)),     this,        SLOT(deployExportBanner(bool)));
   connect(this,       SIGNAL(setExportingSig(bool)),     gMainWindow, SLOT(Halt3DViewer(bool)));
   connect(this,       SIGNAL(enable3DActionsSig()),      gMainWindow, SLOT(Enable3DActions()));
@@ -1399,7 +1857,7 @@ void Gui::initialize()
   connect(this,       SIGNAL(updateAllViewsSig()),       gMainWindow, SLOT(UpdateAllViews()));
   connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
 
-  if (Preferences::preferredRenderer == "LDGLite")
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
@@ -1418,7 +1876,7 @@ void Gui::initialize()
 
 }
 
-void Gui::generateFadeColourPartsList()
+void Gui::generateCustomColourPartsList()
 {
     QMessageBox::StandardButton ret;
     ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
@@ -1431,7 +1889,7 @@ void Gui::generateFadeColourPartsList()
         colourPartListWorker  = new ColourPartListWorker();
         colourPartListWorker->moveToThread(listThread);
 
-        connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateFadeColourPartsList()));
+        connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateCustomColourPartsList()));
         connect(listThread,           SIGNAL(finished()),                              listThread, SLOT(deleteLater()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),             listThread, SLOT(quit()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
@@ -1453,54 +1911,68 @@ void Gui::generateFadeColourPartsList()
     }
 }
 
-void Gui::processFadeColourParts()
+void Gui::processFadeColourParts(bool overwriteCustomParts)
 {
-  bool doFadeStep = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
 
-  if (doFadeStep) {
+      QThread *partThread    = new QThread();
+      partWorkerCustomColour = new PartWorker();
+      partWorkerCustomColour->moveToThread(partThread);
 
-      QThread *partThread  = new QThread();
-      partWorkerFadeColour = new PartWorker();
-      partWorkerFadeColour->moveToThread(partThread);
+      connect(this,                   SIGNAL(operateFadeParts(bool)),    partWorkerCustomColour, SLOT(processFadeColourParts(bool)));
+      connect(partThread,             SIGNAL(finished()),                            partThread, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),             partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()), partWorkerCustomColour, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),                    partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),        partWorkerCustomColour, SLOT(deleteLater()));
+      connect(this,                   SIGNAL(requestEndThreadNowSig()),  partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadeColourParts()));
-      connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
-      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
-      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
-      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
-      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
-      connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
 
-      connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
-
-      connect(partWorkerFadeColour, SIGNAL(progressBarInitSig()),                     this, SLOT(progressBarInit()));
-      connect(partWorkerFadeColour, SIGNAL(progressMessageSig(QString)),              this, SLOT(progressBarSetText(QString)));
-      connect(partWorkerFadeColour, SIGNAL(progressRangeSig(int,int)),                this, SLOT(progressBarSetRange(int,int)));
-      connect(partWorkerFadeColour, SIGNAL(progressSetValueSig(int)),                 this, SLOT(progressBarSetValue(int)));
-      connect(partWorkerFadeColour, SIGNAL(progressResetSig()),                       this, SLOT(progressBarReset()));
-      connect(partWorkerFadeColour, SIGNAL(removeProgressStatusSig()),                this, SLOT(removeProgressStatus()));
+      connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
+      connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
+      connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
+      connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),                   this, SLOT(progressBarSetValue(int)));
+      connect(partWorkerCustomColour, SIGNAL(progressResetSig()),                         this, SLOT(progressBarReset()));
+      connect(partWorkerCustomColour, SIGNAL(removeProgressStatusSig()),                  this, SLOT(removeProgressStatus()));
 
       partThread->start();
+
+      //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+      emit operateFadeParts(overwriteCustomParts);
     }
 }
 
-void Gui::processFadePartsArchive()
+void Gui::processHighlightColourParts(bool overwriteCustomParts)
 {
-  QThread *partThread  = new QThread();
-  partWorkerFadeColour = new PartWorker();
-  partWorkerFadeColour->moveToThread(partThread);
+  if (gui->page.meta.LPub.highlightStep.highlightStep.value()) {
 
-  connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadePartsArchive()));
-  connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
-  connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
-  connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
-  connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
-  connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
-  connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
+      QThread *partThread    = new QThread();
+      partWorkerCustomColour = new PartWorker();
+      partWorkerCustomColour->moveToThread(partThread);
 
-  connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
+      connect(this,                   SIGNAL(operateHighlightParts(bool)), partWorkerCustomColour, SLOT(processHighlightColourParts(bool)));
+      connect(partThread,             SIGNAL(finished()),                              partThread, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),               partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),   partWorkerCustomColour, SLOT(deleteLater()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),                      partThread, SLOT(quit()));
+      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),          partWorkerCustomColour, SLOT(deleteLater()));
+      connect(this,                   SIGNAL(requestEndThreadNowSig()),    partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-  partThread->start();
+      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
+
+      connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
+      connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
+      connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
+      connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),                   this, SLOT(progressBarSetValue(int)));
+      connect(partWorkerCustomColour, SIGNAL(progressResetSig()),                         this, SLOT(progressBarReset()));
+      connect(partWorkerCustomColour, SIGNAL(removeProgressStatusSig()),                  this, SLOT(removeProgressStatus()));
+
+      partThread->start();
+
+      //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+      emit operateHighlightParts(overwriteCustomParts);
+    }
 }
 
 // left side progress bar
@@ -1658,6 +2130,7 @@ void Gui::meta()
 {
   Meta meta;
   QStringList doc;
+  static const QString fmtDateTime("MM-dd-yyyy hh:mm:ss");
 
   QString fileName = QFileDialog::getSaveFileName(
     this,
@@ -1682,9 +2155,23 @@ void Gui::meta()
 
   QTextStream out(&file);
 
+  doc.prepend(QString());
+  doc.prepend(QString("%1 %2 - Generated on %3")
+                       .arg(VER_PRODUCTNAME_STR)
+                       .arg(QFileInfo(fileName).baseName())
+                       .arg(QDateTime::currentDateTime().toString(fmtDateTime)));
+  doc.append(QString());
+  doc.append(QString("End of file."));
+  int n = 0;
   for (int i = 0; i < doc.size(); i++) {
-    out << doc[i] << endl;
+    QString number;
+    if (QString(doc[i]).startsWith('0'))
+        number = QString("%1. ").arg(++n,3,10,QChar('0'));
+    else
+        number = QString();
+    out << number << doc[i] << endl;
   }
+
   file.close();
 }
 
@@ -1714,7 +2201,7 @@ void Gui::createActions()
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
     printToFileAct = new QAction(QIcon(":/resources/file_print.png"), tr("&Print..."), this);
-    printToFileAct->setShortcut(tr("Ctrl+T"));
+    printToFileAct->setShortcut(tr(""));
     printToFileAct->setStatusTip(tr("Print the current document"));
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
@@ -1761,6 +2248,9 @@ void Gui::createActions()
                                  SLOT(openRecentFile()));
     }
 
+    clearRecentAct = new QAction(tr("Clear Files"),this);
+    clearRecentAct->setStatusTip(tr("Clear recent files"));
+    connect(clearRecentAct, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
     // undo/redo
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
@@ -1884,7 +2374,30 @@ void Gui::createActions()
     previousPageAct->setShortcut(tr("Ctrl+E"));
     previousPageAct->setStatusTip(tr("Go to previous page of document"));
     previousPageAct->setEnabled(false);
-    connect(previousPageAct, SIGNAL(triggered()), this, SLOT(prevPage()));
+    connect(previousPageAct, SIGNAL(triggered()), this, SLOT(previousPage()));
+
+    // nextContinuousPage,previousContinuousPage
+    nextPageComboAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
+    nextPageComboAct->setStatusTip(tr("Go to next page of document"));
+    nextPageComboAct->setEnabled(false);
+    connect(nextPageComboAct, SIGNAL(triggered()), this, SLOT(nextPage()));
+
+    previousPageComboAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
+    previousPageComboAct->setStatusTip(tr("Go to previous page of document"));
+    previousPageComboAct->setEnabled(false);
+    connect(previousPageComboAct, SIGNAL(triggered()), this, SLOT(previousPage()));
+
+    nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
+    nextPageContinuousAct->setShortcut(tr("Ctrl+Shift+N"));
+    nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+    nextPageContinuousAct->setEnabled(false);
+    connect(nextPageContinuousAct, SIGNAL(triggered()), this, SLOT(nextPageContinuous()));
+
+    previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
+    previousPageContinuousAct->setShortcut(tr("Ctrl+Shift+E"));
+    previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+    previousPageContinuousAct->setEnabled(false);
+    connect(previousPageContinuousAct, SIGNAL(triggered()), this, SLOT(previousPageContinuous()));
 
     QString pageString = "";
     setPageLineEdit = new QLineEdit(pageString,this);
@@ -1908,13 +2421,13 @@ void Gui::createActions()
     clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
-    clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset All Caches"), this);
-    clearAllCachesAct->setStatusTip(tr("Reset temp file, image and model caches"));
+    clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Model Caches"), this);
+    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches"));
     connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
-    clearFadeCacheAct = new QAction(QIcon(":/resources/clearfadecache.png"),tr("Reset Fade Files Cache"), this);
-    clearFadeCacheAct->setStatusTip(tr("Reset the fade part files cache"));
-    connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearFadeCache()));
+    clearFadeCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Reset Custom Files Cache"), this);
+    clearFadeCacheAct->setStatusTip(tr("Reset fade and highlight part files cache"));
+    connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file"));
@@ -1963,8 +2476,13 @@ void Gui::createActions()
 
     fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup"), this);
     fadeStepSetupAct->setEnabled(false);
-    fadeStepSetupAct->setStatusTip(tr("Fade all parts not in the current step"));
+    fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
+
+    highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup"), this);
+    highlightStepSetupAct->setEnabled(false);
+    highlightStepSetupAct->setStatusTip(tr("Highlight parts in current step"));
+    connect(highlightStepSetupAct, SIGNAL(triggered()), this, SLOT(highlightStepSetup()));
 
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
     preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
@@ -1978,9 +2496,9 @@ void Gui::createActions()
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editFadeColourPartsAct = new QAction(QIcon(":/resources/editfadeparts.png"),tr("Edit Fade Colour Parts List"), this);
-    editFadeColourPartsAct->setStatusTip(tr("Add/Edit the list of static colour parts used to fade parts"));
-    connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
+    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Colour Parts List"), this);
+    editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static colour parts used to process fade and highlight steps"));
+    connect(editLDrawColourPartsAct, SIGNAL(triggered()), this, SLOT(editLDrawColourParts()));
 
     editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts List"), this);
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
@@ -2014,9 +2532,9 @@ void Gui::createActions()
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
-    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generate Fade Colour Parts List"), this);
-    generateFadeColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
-    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generateFadeColourPartsList()));
+    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Colour Parts List"), this);
+    generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
+    connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
 
     // Help
 
@@ -2091,13 +2609,14 @@ void Gui::enableActions()
   multiStepSetupAct->setEnabled(true);
   projectSetupAct->setEnabled(true);
   fadeStepSetupAct->setEnabled(true);
+  highlightStepSetupAct->setEnabled(true);
 
   addPictureAct->setEnabled(true);
   removeLPubFormattingAct->setEnabled(true);
 
   editTitleAnnotationsAct->setEnabled(true);
   editFreeFormAnnitationsAct->setEnabled(true);
-  editFadeColourPartsAct->setEnabled(true);
+  editLDrawColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
   editLdgliteIniAct->setEnabled(true);
@@ -2112,6 +2631,10 @@ void Gui::enableActions()
   lastPageAct->setEnabled(true);
   nextPageAct->setEnabled(true);
   previousPageAct->setEnabled(true);
+  nextPageComboAct->setEnabled(true);
+  previousPageComboAct->setEnabled(true);
+  nextPageContinuousAct->setEnabled(true);
+  previousPageContinuousAct->setEnabled(true);
 
   fitWidthAct->setEnabled(true);
   fitVisibleAct->setEnabled(true);
@@ -2146,13 +2669,14 @@ void Gui::disableActions()
   multiStepSetupAct->setEnabled(false);
   projectSetupAct->setEnabled(false);
   fadeStepSetupAct->setEnabled(false);
+  highlightStepSetupAct->setEnabled(false);
 
   addPictureAct->setEnabled(false);
   removeLPubFormattingAct->setEnabled(false);
 
   editTitleAnnotationsAct->setEnabled(false);
   editFreeFormAnnitationsAct->setEnabled(false);
-  editFadeColourPartsAct->setEnabled(false);
+  editLDrawColourPartsAct->setEnabled(false);
   editPliBomSubstitutePartsAct->setEnabled(false);
   editExcludedPartsAct->setEnabled(false);
   editLdgliteIniAct->setEnabled(false);
@@ -2167,6 +2691,10 @@ void Gui::disableActions()
   lastPageAct->setEnabled(false);
   nextPageAct->setEnabled(false);
   previousPageAct->setEnabled(false);
+  nextPageComboAct->setEnabled(false);
+  previousPageComboAct->setEnabled(false);
+  nextPageContinuousAct->setEnabled(false);
+  previousPageContinuousAct->setEnabled(false);
 
   fitWidthAct->setEnabled(false);
   fitVisibleAct->setEnabled(false);
@@ -2233,11 +2761,16 @@ void Gui::createMenus()
     //fileMenu->addAction(printToFileAct);
     fileMenu->addAction(exportAsPdfPreviewAct);
     fileMenu->addAction(exportAsPdfAct);
+    fileMenu->addSeparator();
 
-    separatorAct = fileMenu->addSeparator();
+    recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));
+    recentFileMenu->setIcon(QIcon(":/resources/recentfiles.png"));
     for (int i = 0; i < MaxRecentFiles; i++) {
-      fileMenu->addAction(recentFilesActs[i]);
+      recentFileMenu->addAction(recentFilesActs[i]);
     }
+    separatorAct = recentFileMenu->addSeparator();
+    recentFileMenu->addAction(clearRecentAct);
+
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
@@ -2275,8 +2808,13 @@ void Gui::createMenus()
 
     toolsMenu = menuBar()->addMenu(tr("&Tools"));
     toolsMenu->addAction(firstPageAct);
-    toolsMenu->addAction(previousPageAct);
+
     toolsMenu->addAction(nextPageAct);
+    toolsMenu->addAction(nextPageContinuousAct);
+
+    toolsMenu->addAction(previousPageAct);
+    toolsMenu->addAction(previousPageContinuousAct);
+
     toolsMenu->addAction(lastPageAct);
 
     toolsMenu->addSeparator();
@@ -2301,10 +2839,11 @@ void Gui::createMenus()
     configMenu->addAction(multiStepSetupAct);
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
+    configMenu->addAction(highlightStepSetupAct);
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
-    editorMenu->addAction(editFadeColourPartsAct);
+    editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
     editorMenu->addAction(editPliBomSubstitutePartsAct);
@@ -2318,7 +2857,7 @@ void Gui::createMenus()
     editorMenu->addAction(editLdviewPovIniAct);
     editorMenu->addAction(editPovrayIniAct);
     editorMenu->addAction(editPovrayConfAct);
-    configMenu->addAction(generateFadeColourPartsAct);
+    configMenu->addAction(generateCustomColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
 
@@ -2396,9 +2935,15 @@ void Gui::createToolBars()
     navigationToolBar = addToolBar(tr("Navigation"));
     navigationToolBar->setObjectName("NavigationToolbar");
     navigationToolBar->addAction(firstPageAct);
-    navigationToolBar->addAction(previousPageAct);
+    previousPageContinuousMenu = new QMenu(tr("Continuous Page Previous"), this);
+    previousPageContinuousMenu->addAction(previousPageContinuousAct);
+    previousPageComboAct->setMenu(previousPageContinuousMenu);
+    navigationToolBar->addAction(previousPageComboAct);
     navigationToolBar->addWidget(setPageLineEdit);
-    navigationToolBar->addAction(nextPageAct);
+    nextPageContinuousMenu = new QMenu(tr("Continuous Page Next"), this);
+    nextPageContinuousMenu->addAction(nextPageContinuousAct);
+    nextPageComboAct->setMenu(nextPageContinuousMenu);
+    navigationToolBar->addAction(nextPageComboAct);
     navigationToolBar->addAction(lastPageAct);
     navigationToolBar->addWidget(setGoToPageCombo);
 

@@ -48,6 +48,7 @@
 #include "paths.h"
 //**3D
 #include "lc_mainwindow.h"
+#include "lc_file.h"
 //**
 
 #ifdef Q_OS_WIN
@@ -79,19 +80,24 @@ static int rendererTimeout(){
 
 QString fixupDirname(const QString &dirNameIn) {
 #ifdef Q_OS_WIN
-	long     length = 0;
-    TCHAR*   buffer = NULL;
+    long     length = 0;
+    TCHAR*   buffer = nullptr;
 //  30/11/2014 Generating "invalid conversion from const ushort to const wchar" compile error:
 //  LPCWSTR dirNameWin = dirNameIn.utf16();
-    LPCWSTR dirNameWin = (const wchar_t*)dirNameIn.utf16();
+    LPCWSTR dirNameWin = reinterpret_cast<LPCWSTR>(dirNameIn.utf16());
 
 // First obtain the size needed by passing NULL and 0.
 
-    length = GetShortPathName(dirNameWin, NULL, 0);
+    length = GetShortPathName(dirNameWin, nullptr, 0);
     if (length == 0){
-		qDebug() << "Couldn't get length of short path name, trying long path name\n";
-		return dirNameIn;
-	}
+                QString message = QString("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
+#ifdef QT_DEBUG_MODE
+                qDebug() << message << "\n";
+#else
+                emit gui->statusMessage(true, message);
+#endif
+                return dirNameIn;
+     }
 // Dynamically allocate the correct size
 // (terminating null char was included in length)
 
@@ -101,7 +107,12 @@ QString fixupDirname(const QString &dirNameIn) {
 
     length = GetShortPathName(dirNameWin, buffer, length);
     if (length == 0){
-		qDebug() << "Couldn't get short path name, trying long path name\n";
+                QString message = QString("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
+#ifdef QT_DEBUG_MODE
+                qDebug() << message << "\n";
+#else
+                emit gui->statusMessage(true, message);
+#endif
 		return dirNameIn;
 	}
 
@@ -117,19 +128,19 @@ QString fixupDirname(const QString &dirNameIn) {
 QString const Render::getRenderer()
 {
   if (renderer == &ldglite) {
-    return "LDGLite";
+    return RENDERER_LDGLITE;
   } else if (renderer == &ldview){
-    return "LDView";
+    return RENDERER_LDVIEW;
   } else {
-    return "POVRay";
+    return RENDERER_POVRAY;
   }
 }
 
 void Render::setRenderer(QString const &name)
 {
-  if (name == "LDGLite") {
+  if (name == RENDERER_LDGLITE) {
     renderer = &ldglite;
-  } else if (name == "LDView") {
+  } else if (name == RENDERER_LDVIEW) {
     renderer = &ldview;
   } else {
     renderer = &povray;
@@ -292,7 +303,7 @@ int POVRay::renderCsi(
     Meta              &meta)
 {
   /* Create the CSI DAT file */
-  QString ldrName;
+  QString ldrName,message;
   int rc;
   ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
@@ -357,7 +368,12 @@ int POVRay::renderCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
-  qDebug() << qPrintable(Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  message = QString("POVRay (POV Generate) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -377,7 +393,7 @@ int POVRay::renderCsi(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
@@ -427,7 +443,12 @@ int POVRay::renderCsi(
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
-  qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+  message = QString("POVRay CSI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   povray.start(Preferences::povrayExe,povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
@@ -454,6 +475,7 @@ int POVRay::renderPli(
 {
   QString povName = ldrName + ".pov";
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+  QString message;
 
   /* determine camera distance */
   int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
@@ -516,7 +538,12 @@ int POVRay::renderPli(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
-  qDebug() << qPrintable(Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  message = QString("POVRay (POV Generate) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished()) {
@@ -536,7 +563,7 @@ int POVRay::renderPli(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
@@ -586,7 +613,12 @@ int POVRay::renderPli(
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
-  qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+  message = QString("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   povray.start(Preferences::povrayExe,povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
@@ -624,13 +656,15 @@ int LDGLite::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-	/* Create the CSI DAT file */
-	QString ldrName;
-	int rc;
-	ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-	if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-	   return rc;
-	}
+  /* Create the CSI DAT file */
+  QString ldrPath, ldrName, ldrFile;
+  int rc;
+  ldrName = "csi.ldr";
+  ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
+  ldrFile = ldrPath + "/" + ldrName;
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile)) < 0) {
+     return rc;
+  }
 
   /* determine camera distance */
 
@@ -644,7 +678,13 @@ int LDGLite::renderCsi(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
 
-  int lineThickness = resolution()/150+0.5;
+  // int lineThickness = resolution()/150+0.5;
+  int hlwidth;
+  if (Preferences::enableHighlightStep)
+    hlwidth = Preferences::highlightStepLineWidth/2;
+  else
+    hlwidth = 0.5;
+  int lineThickness = resolution()/150.0+hlwidth;
   if (lineThickness == 0) {
     lineThickness = 1;
   }
@@ -677,12 +717,16 @@ int LDGLite::renderCsi(
       }
   }
 
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "=" + Preferences::altLDConfigPath;
+  // if fade step, add custom colour file
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
+    arguments << "-ldcF" + ldrPath + "/colours_" + ldrName;
+    logDebug() << qPrintable("-ldcF" + ldrPath + "/colours_" + ldrName);
+  } else if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
   arguments << mf;                  // .png file name
-  arguments << ldrName;             // csi.ldr (input file)
+  arguments << ldrFile;             // csi.ldr (input file)
 
   emit gui->messageSig(true, "Execute command: LDGLite render CSI.");
 
@@ -703,7 +747,12 @@ int LDGLite::renderCsi(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDGLite CSI Arguments: %1 %2").arg(Preferences::ldgliteExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(rendererTimeout())) {
@@ -717,7 +766,7 @@ int LDGLite::renderCsi(
       return -1;
     }
   }
-  //QFile::remove(ldrName);
+  //QFile::remove(ldrFile);
   return 0;
 }
 
@@ -730,6 +779,13 @@ int LDGLite::renderPli(
 {
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
+
+  int hlwidth;
+  if (Preferences::enableHighlightStep)
+    hlwidth = Preferences::highlightStepLineWidth/2;
+  else
+    hlwidth = 0.5;
+  int lineThickness = resolution()/72.0+hlwidth;
 
   /* determine camera distance */
 
@@ -746,7 +802,7 @@ int LDGLite::renderPli(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
                                     // ldglite always deals in 72 DPI
-  QString w  = QString("-W%1")      .arg(int(resolution()/72.0+0.5));
+  QString w  = QString("-W%1")      .arg(int(resolution()/lineThickness));
 
   QStringList arguments;
   arguments << CA;                  // camera FOV angle in degrees
@@ -796,7 +852,12 @@ int LDGLite::renderPli(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDGLite PLI Arguments: %1 %2").arg(Preferences::ldgliteExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if (! ldglite.waitForFinished()) {
@@ -869,6 +930,13 @@ int LDView::renderCsi(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
@@ -878,6 +946,7 @@ int LDView::renderCsi(
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -888,6 +957,7 @@ int LDView::renderCsi(
   arguments << f;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -916,7 +986,12 @@ int LDView::renderCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Native) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -949,6 +1024,13 @@ int LDView::renderPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   //qDebug() << "LDView (Native) Camera Distance: " << cd;
@@ -962,6 +1044,7 @@ int LDView::renderPli(
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -972,6 +1055,7 @@ int LDView::renderPli(
   arguments << f;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -1000,7 +1084,12 @@ int LDView::renderPli(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Native) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Native) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished()) {
@@ -1027,6 +1116,13 @@ int Render::renderLDViewSCallCsi(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
@@ -1051,6 +1147,7 @@ int Render::renderLDViewSCallCsi(
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -1062,6 +1159,7 @@ int Render::renderLDViewSCallCsi(
   arguments << t;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -1089,7 +1187,12 @@ int Render::renderLDViewSCallCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Single Call) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -1140,6 +1243,13 @@ int Render::renderLDViewSCallPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
@@ -1167,6 +1277,7 @@ int Render::renderLDViewSCallPli(
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -1178,6 +1289,7 @@ int Render::renderLDViewSCallPli(
   arguments << t;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -1205,7 +1317,12 @@ int Render::renderLDViewSCallPli(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Single Call) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -1262,8 +1379,10 @@ int Render::render3DCsi(
     QStringList argv;
     bool        alreadyInserted;
     int         rc;
-    bool    doFadeStep  = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(gui->page.meta.LPub.fadeStep.fadeColor.value());
+    bool    doFadeStep = gui->page.meta.LPub.fadeStep.fadeStep.value();
+    bool    doHighlightStep = gui->page.meta.LPub.highlightStep.highlightStep.value();
+
+    QString nameMod = doHighlightStep ? "-highlight" : "-fade";
 
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
 
@@ -1277,14 +1396,15 @@ int Render::render3DCsi(
                 QString csiLine = csiParts[index];
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
-                    /* process subfiles in csiParts */
+
                     QString type = argv[argv.size()-1];
 
-                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    /* process subfiles in csiParts */
+                    bool isConfiguredItem = (type.contains(nameMod + "."));
                     bool isFadedSubModelOrUnofficialPart = false;
-                    if (isFadedItem) {
+                    if (isConfiguredItem) {
                         QString fadedType = type;
-                        fadedType = fadedType.replace("-fade.",".");
+                        fadedType = fadedType.replace(nameMod,"");
                         isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
                       }
 
@@ -1292,7 +1412,7 @@ int Render::render3DCsi(
 //                                << " \nCsi3D Part Type:                 " << type
 //                                << " \nIsSubmodel:                      " << gui->isSubmodel(type)
 //                                << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-//                                << " \nIsFadedItem:                     " << isFadedItem
+//                                << " \nisConfiguredItem:                     " << isConfiguredItem
 //                                << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                   ;
 
@@ -1311,7 +1431,7 @@ int Render::render3DCsi(
 //                                    << " \nCsi3D Part Type:                 " << type
 //                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
 //                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-//                                    << " \nIsFadedItem:                     " << isFadedItem
+//                                    << " \nisConfiguredItem:                " << isConfiguredItem
 //                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                    << " \nAlready Inserted:                " << alreadyInserted
 //                                       ;
@@ -1328,7 +1448,7 @@ int Render::render3DCsi(
 
             /* process extracted submodels and unofficial files */
             if (csiSubModels.size() > 0){
-                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, fadeColor, doFadeStep);
+                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
                 if (rc != 0){
                     QMessageBox::warning(NULL,
                                          QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -1350,7 +1470,7 @@ int Render::render3DCsi(
             }
 
             /* add sub model content to csi3D file */
-            if (! csiSubModelParts.empty())
+            if (! csiSubModelParts.isEmpty())
             {
                 /* append subModel content to csi3D file */
                 QFile csi3DFile(csi3DName);
@@ -1383,8 +1503,8 @@ int Render::render3DCsi(
 
 int Render::render3DCsiSubModels(QStringList &subModels,
                                  QStringList &subModelParts,
-                                 QString &fadeColor,
-                                 bool doFadeStep)
+                                 bool doFadeStep,
+                                 bool doHighlightStep)
 {
     QStringList csiSubModels        = subModels;
     QStringList csiSubModelParts    = subModelParts;
@@ -1394,6 +1514,8 @@ int Render::render3DCsiSubModels(QStringList &subModels,
     int         rc;
 
     if (csiSubModels.size() > 0) {
+
+        QString nameMod = doHighlightStep ? "-highlight" : "-fade";
 
         /* read in all detected sub model file content */
         for (int index = 0; index < csiSubModels.size(); index++) {
@@ -1424,11 +1546,11 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                     /* check and process any subfiles in csiParts */
                     QString type = argv[argv.size()-1];
 
-                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    bool isConfiguredItem = (type.contains(nameMod + "."));
                     bool isFadedSubModelOrUnofficialPart = false;
-                    if (isFadedItem) {
+                    if (isConfiguredItem) {
                         QString fadedType = type;
-                        fadedType = fadedType.replace("-fade.",".");
+                        fadedType = fadedType.replace(nameMod,"");
                         isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
                       }
 
@@ -1447,7 +1569,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 //                                    << " \nCsi3D Part Type:                 " << type
 //                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
 //                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-//                                    << " \nIsFadedItem:                     " << isFadedItem
+//                                    << " \nisConfiguredItem:                     " << isConfiguredItem
 //                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                    << " \nAlready Inserted:                " << alreadyInserted
 //                                       ;
@@ -1465,7 +1587,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
+            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
             if (rc != 0){
                 QMessageBox::warning(NULL,
                                      QMessageBox::tr(VER_PRODUCTNAME_STR),

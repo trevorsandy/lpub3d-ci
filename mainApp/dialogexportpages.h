@@ -34,6 +34,7 @@ public:
   bool pageRange();
   bool resetCache();
   bool ignoreMixedPageSizesMsg();
+  bool doNotShowPageProcessDlg();
   QString const pageRangeText();
 
 private slots:
@@ -41,6 +42,7 @@ private slots:
 
 private:
   Ui::DialogExportPages *ui;
+  QString linePageRange;
 };
 
 #endif // DIALOGEXPORTPAGES_H
