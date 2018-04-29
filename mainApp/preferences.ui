@@ -204,7 +204,7 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QGroupBox" name="fadeStepUseColourBox">
+       <widget class="QGroupBox" name="fadeStepsUseColourBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -258,7 +258,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QGroupBox" name="fadeStepOpacityBox">
+       <widget class="QGroupBox" name="fadeStepsOpacityBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -282,7 +282,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QSlider" name="fadeStepOpacitySlider">
+        <widget class="QSlider" name="fadeStepsOpacitySlider">
          <property name="enabled">
           <bool>false</bool>
          </property>

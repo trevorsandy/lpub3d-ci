@@ -71,7 +71,7 @@ QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepColour              = FADE_COLOUR_DEFAULT;
+QString Preferences::fadeStepsColour              = FADE_COLOUR_DEFAULT;
 QString Preferences::highlightStepColour         = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::ldrawColourPartsFile;
@@ -147,11 +147,11 @@ bool    Preferences::povrayDisplay              = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
 
-bool    Preferences::enableFadeStep             = false;
-bool    Preferences::fadeStepUseColour          = false;
+bool    Preferences::enableFadeSteps             = false;
+bool    Preferences::fadeStepsUseColour          = false;
 bool    Preferences::enableHighlightStep        = false;
 
-int     Preferences::fadeStepOpacity            = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
+int     Preferences::fadeStepsOpacity            = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
 int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
 int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
@@ -1835,36 +1835,36 @@ void Preferences::annotationPreferences()
 void Preferences::fadestepPreferences()
 {
     QSettings Settings;
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"enableFadeSteps"))) {
         QVariant eValue(false);
-        enableFadeStep = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),eValue);
+        enableFadeSteps = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"enableFadeSteps"),eValue);
     } else {
-        enableFadeStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeStep")).toBool();
+        enableFadeSteps = Settings.value(QString("%1/%2").arg(SETTINGS,"enableFadeSteps")).toBool();
     }
 
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepUseColour"))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour"))) {
         QVariant eValue(false);
-        fadeStepUseColour = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepUseColour"),eValue);
+        fadeStepsUseColour = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour"),eValue);
     } else {
-        fadeStepUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepUseColour")).toBool();
+        fadeStepsUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour")).toBool();
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepColor"))) {
         QVariant cValue(FADE_COLOUR_DEFAULT);
-        fadeStepColour = FADE_COLOUR_DEFAULT;
+        fadeStepsColour = FADE_COLOUR_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),cValue);
     } else {
-        fadeStepColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
+        fadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
     }
 
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepOpacity"))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity"))) {
         QVariant cValue(FADE_OPACITY_DEFAULT);
-        fadeStepOpacity = FADE_OPACITY_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepOpacity"),cValue);
+        fadeStepsOpacity = FADE_OPACITY_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity"),cValue);
     } else {
-        fadeStepOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepOpacity")).toInt();
+        fadeStepsOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity")).toInt();
     }
 
     ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
@@ -2204,28 +2204,28 @@ bool Preferences::getPreferences()
             }
         }
 
-        if (enableFadeStep != dialog->enableFadeStep())
+        if (enableFadeSteps != dialog->enableFadeSteps())
         {
-            enableFadeStep = dialog->enableFadeStep();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),enableFadeStep);
+            enableFadeSteps = dialog->enableFadeSteps();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"enableFadeSteps"),enableFadeSteps);
         }
 
-        if (fadeStepOpacity != dialog->fadeStepOpacity())
+        if (fadeStepsOpacity != dialog->fadeStepsOpacity())
         {
-            fadeStepOpacity = dialog->fadeStepOpacity();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepOpacity"),fadeStepOpacity);
+            fadeStepsOpacity = dialog->fadeStepsOpacity();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity"),fadeStepsOpacity);
         }
 
-        if (fadeStepUseColour != dialog->fadeStepUseColour())
+        if (fadeStepsUseColour != dialog->fadeStepsUseColour())
         {
-            fadeStepUseColour = dialog->fadeStepUseColour();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepUseColour"),fadeStepUseColour);
+            fadeStepsUseColour = dialog->fadeStepsUseColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour"),fadeStepsUseColour);
         }
 
-        if (fadeStepColour != dialog->fadeStepColour())
+        if (fadeStepsColour != dialog->fadeStepsColour())
         {
-            fadeStepColour = dialog->fadeStepColour();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepColour);
+            fadeStepsColour = dialog->fadeStepsColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepsColour);
         }
 
         if (highlightStepColour != dialog->highlightStepColour())

@@ -147,6 +147,7 @@ bool Application::modeGUI()
 
 void Application::initialize()
 {
+
   // process arguments
   bool headerPrinted = false;
   QStringList ListArgs, Arguments = arguments();
@@ -195,7 +196,12 @@ void Application::initialize()
       fprintf(stdout, "  [options]:\n");
       fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format..\n");
       fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
-      fprintf(stdout, "  -x, --clear-cache: Turn of reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
+      fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
+      fprintf(stdout, "  -fc, --fade-steps-colour <LDraw colour code>: Set the global fade colour. Overidden by fade opacity (if opacity not 100%). colour code optional. Default is %s\n", FADE_COLOUR_DEFAULT);
+      fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade colour (if opacity not 100%). Default is %s percent\n", FADE_OPACITY_DEFAULT);
+      fprintf(stdout, "  -hs, --highlight-step <Hex colour code>: Turn on highlight current step. Default is off.\n");
+      fprintf(stdout, "  -hc, --highlight-step-colour <Hex colour code>: Set the step highlight colour. Colour code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
+      fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
       fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
       fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
       fprintf(stdout, "  -f, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");

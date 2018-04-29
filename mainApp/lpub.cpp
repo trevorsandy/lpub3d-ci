@@ -156,9 +156,9 @@ void Gui::insertFinalModel(){
   // get line to insert final model
   int modelStatus = mi.okToInsertFinalModel();
 
-  if ((Preferences::enableFadeStep || Preferences::enableHighlightStep) && modelStatus != modelExist){
+  if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep) && modelStatus != modelExist){
       mi.insertFinalModel(modelStatus);
-    } else if ((! Preferences::enableFadeStep && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
+    } else if ((! Preferences::enableFadeSteps && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
       mi.deleteFinalModel();
     }
 }
@@ -1033,7 +1033,7 @@ void Gui::clearAllCaches()
         return;
     }
 
-    if (Preferences::enableFadeStep || Preferences::enableHighlightStep) {
+    if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
        ldrawFile.clearPrevStepPositions();
 
     }
@@ -1262,7 +1262,7 @@ void Gui::clearStepCSICache(QString &pngName) {
                             QMessageBox::tr("Unable to remeove %1")
                             .arg(ldrName));
     }
-  if (Preferences::enableFadeStep) {
+  if (Preferences::enableFadeSteps) {
       clearPrevStepPositions();
     }
   displayPage();
@@ -1291,7 +1291,7 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
               } // for each step within divided group...=>list[AbstractRangeElement]->StepType
           } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
       }
-      if (Preferences::enableFadeStep) {
+      if (Preferences::enableFadeSteps) {
           clearPrevStepPositions();
       }
       displayPage();
@@ -1498,14 +1498,14 @@ void Gui::preferences()
     bool useLDViewSCallCompare          = Preferences::useLDViewSingleCall;
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
     bool generateCoverPagesCompare      = Preferences::generateCoverPages;
-    bool enableFadeStepCompare          = Preferences::enableFadeStep;
-    bool fadeStepUseColourCompare       = Preferences::fadeStepUseColour;
-    int fadeStepOpacityCompare          = Preferences::fadeStepOpacity;
+    bool enableFadeStepsCompare         = Preferences::enableFadeSteps;
+    bool fadeStepsUseColourCompare      = Preferences::fadeStepsUseColour;
+    int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
     bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
-    QString fadeStepColourCompare       = Preferences::fadeStepColour;
+    QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
@@ -1517,10 +1517,10 @@ void Gui::preferences()
         page.meta = meta;
 
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
-        bool enableFadeStepChanged         = Preferences::enableFadeStep                         != enableFadeStepCompare;
-        bool fadeStepUseColourChanged      = Preferences::fadeStepUseColour                      != fadeStepUseColourCompare;
-        bool fadeStepColorChanged          = QString(Preferences::fadeStepColour).toLower()      != fadeStepColourCompare.toLower();
-        bool fadeStepOpacityChanged        = Preferences::fadeStepOpacity                        != fadeStepOpacityCompare;
+        bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
+        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                      != fadeStepsUseColourCompare;
+        bool fadeStepColorChanged          = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
+        bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
@@ -1533,21 +1533,21 @@ void Gui::preferences()
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
 
-        if (enableFadeStepChanged)
-            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeStep ? "ON" : "OFF");
+        if (enableFadeStepsChanged)
+            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
 
-        if (fadeStepUseColourChanged && Preferences::enableFadeStep)
-            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepUseColour ? "ON" : "OFF");
+        if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
+            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");
 
-        if (fadeStepOpacityChanged && Preferences::enableFadeStep)
+        if (fadeStepsOpacityChanged && Preferences::enableFadeSteps)
             logInfo() << QString("Fade Step Transparency changed from %1 to %2 percent")
-                                 .arg(fadeStepOpacityCompare)
-                                 .arg(Preferences::fadeStepOpacity);
+                                 .arg(fadeStepsOpacityCompare)
+                                 .arg(Preferences::fadeStepsOpacity);
 
-        if (fadeStepColorChanged && Preferences::enableFadeStep && Preferences::fadeStepUseColour)
+        if (fadeStepColorChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
             logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
-                                 .arg(fadeStepColourCompare.replace("_"," "))
-                                 .arg(QString(Preferences::fadeStepColour).replace("_"," "));
+                                 .arg(fadeStepsColourCompare.replace("_"," "))
+                                 .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
 
         if (enableHighlightStepChanged)
             logInfo() << QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
@@ -1584,9 +1584,9 @@ void Gui::preferences()
         if (doNotShowPageProcessDlgChanged)
             logInfo() << QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF");
 
-        if ((((fadeStepColorChanged && Preferences::fadeStepUseColour) ||
-            fadeStepUseColourChanged || fadeStepOpacityChanged) &&
-            Preferences::enableFadeStep && !enableFadeStepChanged) ||
+        if ((((fadeStepColorChanged && Preferences::fadeStepsUseColour) ||
+            fadeStepsUseColourChanged || fadeStepsOpacityChanged) &&
+            Preferences::enableFadeSteps && !enableFadeStepsChanged) ||
            ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
             Preferences::enableHighlightStep && !enableHighlightStepChanged))
            clearCustomPartCache(true);    // true = clear and regenerate custom part files
@@ -1601,10 +1601,10 @@ void Gui::preferences()
         }
 
         if (!getCurFile().isEmpty()) {
-            if (enableFadeStepChanged         ||
+            if (enableFadeStepsChanged        ||
                 fadeStepColorChanged          ||
-                fadeStepUseColourChanged      ||
-                fadeStepOpacityChanged        ||
+                fadeStepsUseColourChanged      ||
+                fadeStepsOpacityChanged        ||
                 enableHighlightStepChanged    ||
                 highlightStepColorChanged     ||
                 highlightStepLineWidthChanged ||

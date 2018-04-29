@@ -54,7 +54,7 @@ class PreferencesDialog : public QDialog
     QString const documentLogoFile();
     QString const publishDescription();
     QString const logLevelCombo();
-    QString const fadeStepColour();
+    QString const fadeStepsColour();
     QString const highlightStepColour();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
@@ -62,8 +62,8 @@ class PreferencesDialog : public QDialog
     bool          printDocumentTOC();
     bool          doNotShowPageProcessDlg();
     bool          centimeters();
-    bool          enableFadeStep();
-    bool          fadeStepUseColour();
+    bool          enableFadeSteps();
+    bool          fadeStepsUseColour();
     bool          enableHighlightStep();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
@@ -75,7 +75,7 @@ class PreferencesDialog : public QDialog
     int           checkUpdateFrequency();
     int           rendererTimeout();
     int           pageDisplayPause();
-    int           fadeStepOpacity();
+    int           fadeStepsOpacity();
     int           highlightStepLineWidth();
     bool          includeLogLevel();
     bool          includeTimestamp();
@@ -123,7 +123,7 @@ class PreferencesDialog : public QDialog
 
     void on_highlightStepBox_clicked(bool checked);
     void on_fadeStepBox_clicked(bool checked);
-    void on_fadeStepUseColourBox_clicked(bool checked);
+    void on_fadeStepsUseColourBox_clicked(bool checked);
 
     void on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName);
 

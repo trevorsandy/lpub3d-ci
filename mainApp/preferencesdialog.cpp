@@ -106,17 +106,17 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.logLevelGrpBox->setChecked(                 Preferences::logLevel);
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
-  ui.fadeStepBox->setChecked(                    Preferences::enableFadeStep);
-  ui.fadeStepUseColourBox->setEnabled(           Preferences::enableFadeStep);
-  ui.fadeStepUseColourBox->setChecked(           Preferences::fadeStepUseColour);
-  ui.fadeStepColorsCombo->setEnabled(            Preferences::enableFadeStep && Preferences::fadeStepUseColour);
-  ui.fadeStepOpacityBox->setEnabled(             Preferences::enableFadeStep);
-  ui.fadeStepOpacitySlider->setEnabled(          Preferences::enableFadeStep);
-  ui.fadeStepOpacitySlider->setValue(            Preferences::fadeStepOpacity);
+  ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourBox->setEnabled(           Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourBox->setChecked(           Preferences::fadeStepsUseColour);
+  ui.fadeStepColorsCombo->setEnabled(            Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
+  ui.fadeStepsOpacityBox->setEnabled(             Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setEnabled(          Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setValue(            Preferences::fadeStepsOpacity);
 
   ui.fadeStepColorsCombo->addItems(LDrawColor::names());
-  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColour)));
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
+  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepsColour)));
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
   if(fadeColor.isValid() ) {
     ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
     ui.fadeStepColorLabel->setAutoFillBackground(true);
@@ -352,7 +352,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
   if (box.exec() == QMessageBox::Yes) {
 
       // get enable fade step setting
-      Preferences::enableFadeStep = ui.fadeStepBox->isChecked();
+      Preferences::enableFadeSteps = ui.fadeStepBox->isChecked();
       // get enable highlight step setting
       Preferences::enableHighlightStep = ui.highlightStepBox->isChecked();
       partWorkerLDSearchDirs.resetSearchDirSettings();
@@ -444,7 +444,7 @@ bool PreferencesDialog::povrayDisplay()
     return ui.povrayDisplay_Chk->isChecked();
 }
 
-QString const PreferencesDialog::fadeStepColour()
+QString const PreferencesDialog::fadeStepsColour()
 {
     return ui.fadeStepColorsCombo->currentText();
 }
@@ -462,9 +462,9 @@ QString const PreferencesDialog::documentLogoFile()
     return "";
 }
 
-int PreferencesDialog::fadeStepOpacity()
+int PreferencesDialog::fadeStepsOpacity()
 {
-  return ui.fadeStepOpacitySlider->value();
+  return ui.fadeStepsOpacitySlider->value();
 }
 
 int PreferencesDialog::highlightStepLineWidth()
@@ -477,7 +477,7 @@ bool PreferencesDialog::centimeters()
   return ui.Centimeters->isChecked();
 }
 
-bool  PreferencesDialog::enableFadeStep()
+bool  PreferencesDialog::enableFadeSteps()
 {
   return ui.fadeStepBox->isChecked();
 }
@@ -492,9 +492,9 @@ bool PreferencesDialog::enableDocumentLogo()
   return ui.publishLogoBox->isChecked();
 }
 
-bool PreferencesDialog::fadeStepUseColour()
+bool PreferencesDialog::fadeStepsUseColour()
 {
-    return ui.fadeStepUseColourBox->isChecked();
+    return ui.fadeStepsUseColourBox->isChecked();
 }
 
 bool PreferencesDialog::enableLDViewSingleCall()
@@ -890,13 +890,13 @@ void PreferencesDialog::on_highlightStepBtn_clicked()
 
 void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
 {
-  ui.fadeStepUseColourBox->setEnabled(checked);
+  ui.fadeStepsUseColourBox->setEnabled(checked);
   ui.fadeStepColorsCombo->setEnabled(checked);
-  ui.fadeStepOpacityBox->setEnabled(checked);
-  ui.fadeStepOpacitySlider->setEnabled(checked);
+  ui.fadeStepsOpacityBox->setEnabled(checked);
+  ui.fadeStepsOpacitySlider->setEnabled(checked);
 }
 
-void PreferencesDialog::on_fadeStepUseColourBox_clicked(bool checked)
+void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
 {
   ui.fadeStepColorsCombo->setEnabled(checked);
 }

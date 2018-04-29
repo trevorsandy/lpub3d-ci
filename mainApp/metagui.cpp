@@ -1484,7 +1484,7 @@ FadeStepGui::FadeStepGui(
     colorCombo = new QComboBox(parent);
     colorCombo->addItems(LDrawColor::names());
     colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
-    if (! Preferences::enableFadeStep)
+    if (! Preferences::enableFadeSteps)
         colorCombo->setDisabled(true);
     connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
                    this, SLOT(colorChange(        QString const &)));
