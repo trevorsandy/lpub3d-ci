@@ -246,6 +246,7 @@ int Gui::drawPage(
     bool            bfxStore2,
     QStringList    &bfxParts,
     QStringList    &ldrStepFiles,
+    QStringList    &csiKeys,
     bool            supressRotateIcon,
     bool            calledOut)
 {
@@ -495,6 +496,7 @@ int Gui::drawPage(
                         bfxStore2,
                         bfxParts,
                         ldrStepFiles,
+                        csiKeys,
                         supressRotateIcon,
                         true);
 
@@ -956,7 +958,7 @@ int Gui::drawPage(
                       QElapsedTimer timer;
                       timer.start();
 
-                      int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, steps->meta);
+                      int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, csiKeys, steps->meta);
                       if (rc != 0) {
                           QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                                 QMessageBox::tr("Render CSI images failed."));
@@ -1015,7 +1017,9 @@ int Gui::drawPage(
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       ldrStepFiles << step->ldrName;
+                      csiKeys << step->csiKey;
                       //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
+                      //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
@@ -1097,7 +1101,9 @@ int Gui::drawPage(
 
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                           ldrStepFiles << step->ldrName;
+                          csiKeys << step->csiKey;
                           //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
+                          //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                         }
 
                     } else {
@@ -1166,7 +1172,8 @@ int Gui::drawPage(
                           QElapsedTimer timer;
                           timer.start();
 
-                          int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, steps->meta);
+                          int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, csiKeys, steps->meta);
+
                           if (rc != 0) {
                               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                                     QMessageBox::tr("Render CSI images failed."));
@@ -1263,6 +1270,7 @@ int Gui::findPage(
   QStringList bfxParts;
   QStringList saveBfxParts;
   QStringList ldrStepFiles;
+  QStringList csiKeys;
   int  partsAdded = 0;
   int  stepNumber = 1;
   Rc   rc;
@@ -1477,7 +1485,8 @@ int Gui::findPage(
                                       printing,
                                       stepGroupBfxStore2,
                                       saveBfxParts,
-                                      ldrStepFiles);
+                                      ldrStepFiles,
+                                      csiKeys);
 
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
@@ -1575,7 +1584,8 @@ int Gui::findPage(
                                           printing,
                                           bfxStore2,
                                           saveBfxParts,
-                                          ldrStepFiles);
+                                          ldrStepFiles,
+                                          csiKeys);
 
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
@@ -1789,7 +1799,8 @@ int Gui::findPage(
                           printing,
                           bfxStore2,
                           saveBfxParts,
-                          ldrStepFiles);
+                          ldrStepFiles,
+                          csiKeys);
         }
       if (exporting()) {
           // clear page size

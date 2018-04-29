@@ -864,6 +864,7 @@ private:
     bool           bfxStore2,
     QStringList   &bfxParts,
     QStringList   &ldrStepFiles,
+    QStringList   &csiKeys,
     bool           supressRotateIcon = false,
     bool           calledOut = false);
 
