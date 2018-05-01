@@ -109,17 +109,17 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
   ui.fadeStepsUseColourBox->setEnabled(           Preferences::enableFadeSteps);
   ui.fadeStepsUseColourBox->setChecked(           Preferences::fadeStepsUseColour);
-  ui.fadeStepColorsCombo->setEnabled(            Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
+  ui.fadeStepsColoursCombo->setEnabled(            Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
   ui.fadeStepsOpacityBox->setEnabled(             Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setEnabled(          Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(            Preferences::fadeStepsOpacity);
 
-  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
-  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepsColour)));
+  ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
+  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
   if(fadeColor.isValid() ) {
-    ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
-    ui.fadeStepColorLabel->setAutoFillBackground(true);
+    ui.fadeStepsColourLabel->setPalette(QPalette(fadeColor));
+    ui.fadeStepsColourLabel->setAutoFillBackground(true);
   }
 
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
@@ -446,7 +446,7 @@ bool PreferencesDialog::povrayDisplay()
 
 QString const PreferencesDialog::fadeStepsColour()
 {
-    return ui.fadeStepColorsCombo->currentText();
+    return ui.fadeStepsColoursCombo->currentText();
 }
 
 QString const PreferencesDialog::highlightStepColour()
@@ -872,11 +872,11 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
   }
 }
 
-void PreferencesDialog::on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName)
+void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
 {
   QColor newFadeColor = LDrawColor::color(colorName);
-  ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
-  ui.fadeStepColorLabel->setAutoFillBackground(true);
+  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
+  ui.fadeStepsColourLabel->setAutoFillBackground(true);
 }
 
 void PreferencesDialog::on_highlightStepBtn_clicked()
@@ -891,14 +891,14 @@ void PreferencesDialog::on_highlightStepBtn_clicked()
 void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
 {
   ui.fadeStepsUseColourBox->setEnabled(checked);
-  ui.fadeStepColorsCombo->setEnabled(checked);
+  ui.fadeStepsColoursCombo->setEnabled(checked);
   ui.fadeStepsOpacityBox->setEnabled(checked);
   ui.fadeStepsOpacitySlider->setEnabled(checked);
 }
 
 void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
 {
-  ui.fadeStepColorsCombo->setEnabled(checked);
+  ui.fadeStepsColoursCombo->setEnabled(checked);
 }
 
 void PreferencesDialog::on_highlightStepBox_clicked(bool checked)

@@ -1519,7 +1519,7 @@ void Gui::preferences()
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                      != fadeStepsUseColourCompare;
-        bool fadeStepColorChanged          = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
+        bool fadeStepsColourChanged        = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
         bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
@@ -1544,7 +1544,7 @@ void Gui::preferences()
                                  .arg(fadeStepsOpacityCompare)
                                  .arg(Preferences::fadeStepsOpacity);
 
-        if (fadeStepColorChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
+        if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
             logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
                                  .arg(fadeStepsColourCompare.replace("_"," "))
                                  .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
@@ -1584,7 +1584,7 @@ void Gui::preferences()
         if (doNotShowPageProcessDlgChanged)
             logInfo() << QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF");
 
-        if ((((fadeStepColorChanged && Preferences::fadeStepsUseColour) ||
+        if ((((fadeStepsColourChanged && Preferences::fadeStepsUseColour) ||
             fadeStepsUseColourChanged || fadeStepsOpacityChanged) &&
             Preferences::enableFadeSteps && !enableFadeStepsChanged) ||
            ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
@@ -1602,7 +1602,7 @@ void Gui::preferences()
 
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged        ||
-                fadeStepColorChanged          ||
+                fadeStepsColourChanged          ||
                 fadeStepsUseColourChanged      ||
                 fadeStepsOpacityChanged        ||
                 enableHighlightStepChanged    ||

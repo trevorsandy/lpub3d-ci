@@ -342,6 +342,9 @@ int POVRay::renderCsi(
   arguments << o;
   arguments << v;
 
+  if (Preferences::enableFadeSteps)
+    arguments <<  QString("-SaveZMap=1");
+
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
@@ -463,9 +466,11 @@ int POVRay::renderCsi(
     }
 
   // image matting stub
-  QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
-  if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-      logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
   }
 
   clipImage(pngName);
@@ -776,10 +781,13 @@ int LDGLite::renderCsi(
   }
 
   // image matting stub
-  QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
-  if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-      logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
   }
+
 
   return 0;
 }
@@ -975,6 +983,9 @@ int LDView::renderCsi(
   arguments << e;
   arguments << v;
 
+  if (Preferences::enableFadeSteps)
+    arguments <<  QString("-SaveZMap=1");
+
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
@@ -1020,10 +1031,13 @@ int LDView::renderCsi(
   }
 
   // image matting stub
-  QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
-  if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-      logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
   }
+
   return 0;
 }
 
@@ -1183,6 +1197,9 @@ int Render::renderLDViewSCallCsi(
   arguments << e;
   arguments << v;
 
+  if (Preferences::enableFadeSteps)
+    arguments <<  QString("-SaveZMap=1");
+
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
@@ -1252,7 +1269,7 @@ int Render::renderLDViewSCallCsi(
   for (int i = 0; i < csiKeys.size(); i++) {
       QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys[i]);
       if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-          logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
       }
   }
 

@@ -81,7 +81,7 @@ int Gui::processCommandLine()
         fadeSteps = true;
       else
       if (Param == QLatin1String("-fo") || Param == QLatin1String("--fade-step-opacity"))
-        ParseInteger(fadeStepsOpacity, false);
+        ParseInteger(fadeStepsOpacity);
       else
       if (Param == QLatin1String("-fc") || Param == QLatin1String("--fade-steps-colour"))
         ParseString(fadeStepsColour, false);
@@ -145,16 +145,18 @@ int Gui::processCommandLine()
       }
     }
 
-  if (Preferences::enableFadeSteps != fadeSteps) {
-      Preferences::enableFadeSteps = fadeSteps;
-      QString message = QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
-      emit messageSig(true,message);
-      logInfo() << message;
+  if ((fadeStepsOpacity != FADE_OPACITY_DEFAULT) || !fadeStepsColour.isEmpty()) {
+      if (Preferences::enableFadeSteps != fadeSteps) {
+          Preferences::enableFadeSteps = fadeSteps;
+          QString message = QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
+          emit messageSig(true,message);
+          logInfo() << message;
+        }
     }
 
   if (fadeSteps && (fadeStepsOpacity != FADE_OPACITY_DEFAULT)) {
       if (Preferences::fadeStepsOpacity != fadeStepsOpacity) {
-          QString previousOpacity = Preferences::fadeStepsOpacity;
+          int previousOpacity = Preferences::fadeStepsOpacity;
           Preferences::fadeStepsOpacity = fadeStepsOpacity;
           QString message = QString("Fade Step Transparency changed from %1 to %2 percent")
               .arg(previousOpacity)

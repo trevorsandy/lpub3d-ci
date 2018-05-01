@@ -125,7 +125,7 @@ class PreferencesDialog : public QDialog
     void on_fadeStepBox_clicked(bool checked);
     void on_fadeStepsUseColourBox_clicked(bool checked);
 
-    void on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName);
+    void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
 
     void pushButtonReset_SetState();
     void updateChangelog (QString url);

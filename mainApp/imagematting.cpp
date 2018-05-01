@@ -48,8 +48,8 @@ QString ImageMatting::previousStepCSIImage(QString csiKey)
       return QString();
 
     if (sequence > 1) {
-      logNotice() << qPrintable(QString("Request: sequence %2, cisKey %1, return sequence %3").arg(csiKey).arg(csikey2sequence[csiKey]).arg(sequence));
-      logNotice() << qPrintable(QString("Return : sequence %2, csiFile %1").arg(csisequence2csifile[sequence]).arg(sequence));
+      //logNotice() << qPrintable(QString("Request: sequence %2, cisKey %1, return sequence %3").arg(csiKey).arg(csikey2sequence[csiKey]).arg(sequence));
+      //logNotice() << qPrintable(QString("Return : sequence %2, csiFile %1").arg(csisequence2csifile[sequence]).arg(sequence));
       return csisequence2csifile[sequence];
     }
 
