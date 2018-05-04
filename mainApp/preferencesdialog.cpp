@@ -363,7 +363,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
       box.setText( tr("Search directories have been reset with %1 entries.").arg(Preferences::ldSearchDirs.size()));
-      emit gui->messageSig(true,box.text());
+      emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
     }
 }
@@ -733,7 +733,7 @@ void PreferencesDialog::accept(){
             Preferences::povrayExe = ui.povrayPath->text();
             ui.preferredRenderer->addItem(RENDERER_POVRAY);
         } else {
-            emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
+            emit gui->messageSig(LOG_ERROR,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
     }
     if (!ui.ldglitePath->text().isEmpty() && (ui.ldglitePath->text() != Preferences::ldgliteExe)) {
@@ -743,7 +743,7 @@ void PreferencesDialog::accept(){
             Preferences::ldgliteExe = ui.ldglitePath->text();
             ui.preferredRenderer->addItem(RENDERER_LDGLITE);
         } else {
-            emit gui->messageSig(false,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
+            emit gui->messageSig(LOG_ERROR,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
     }
     if (!ui.ldviewPath->text().isEmpty() && (ui.ldviewPath->text() != Preferences::ldviewExe)) {
@@ -760,7 +760,7 @@ void PreferencesDialog::accept(){
             Preferences::ldviewExe = ldviewPath;
             ui.preferredRenderer->addItem(RENDERER_LDVIEW);
         } else {
-            emit gui->messageSig(false,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
+            emit gui->messageSig(LOG_ERROR,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
     }
     if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
@@ -821,7 +821,7 @@ void PreferencesDialog::on_ldviewBox_clicked(bool checked)
       box.setWindowTitle(tr ("LDView Settings?"));
       box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
                       "Changes will be reset at next application start? "));
-      emit gui->messageSig(true,box.text());
+      emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
     }
 }
@@ -835,7 +835,7 @@ void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
         box.setWindowTitle(tr ("LDGLite Settings?"));
         box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
                         "Changes will be reset at next application start? "));
-        emit gui->messageSig(true,box.text());
+        emit gui->messageSig(LOG_STATUS,box.text());
         box.exec();
     }
 }
@@ -849,7 +849,7 @@ void PreferencesDialog::on_POVRayBox_clicked(bool checked)
       box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
       box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
                       "Changes will be reset at next application start? "));
-      emit gui->messageSig(true,box.text());
+      emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
   }
 }
@@ -864,7 +864,7 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
     box.setText (tr("This action will remove %1 from your settings.\n"
                     "Are you sure you want to continue? ")
                     .arg(ui.altLDConfigPath->text()));
-    emit gui->messageSig(true,box.text());
+    emit gui->messageSig(LOG_STATUS,box.text());
     if (box.exec() == QMessageBox::Yes) {
       ui.altLDConfigPath->clear();
       ui.altLDConfigBox->setChecked(false);

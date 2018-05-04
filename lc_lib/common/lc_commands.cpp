@@ -525,7 +525,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Transform"),
 		QT_TRANSLATE_NOOP("Menu", "Transform"),
-		QT_TRANSLATE_NOOP("Status", "Apply transform to selected objects"),
+		QT_TRANSLATE_NOOP("Status", "Apply transform to selected objects and ROTSTEP meta"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
@@ -658,8 +658,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	 // LC_EDIT_ACTION_ROTATESTEP
 	{
 		"Edit.Tool.RotateStep",
-		QT_TRANSLATE_NOOP("Menu", "Insert ROTSTEP"),
-		QT_TRANSLATE_NOOP("Status", "Insert or update LPub ROTSTEP meta"),
+		QT_TRANSLATE_NOOP("Menu", "ROTSTEP"),
+		QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION

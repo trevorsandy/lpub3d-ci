@@ -227,7 +227,7 @@ void Gui::removeLPubFormatting()
 
 void Gui::displayPage()
 {
-  emit messageSig(true, "Processing page display...");
+  emit messageSig(LOG_STATUS, "Processing page display...");
 
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);
@@ -237,7 +237,7 @@ void Gui::displayPage()
       enableActions2();
       emit enable3DActionsSig();
     }
-  emit messageSig(true,"Page display ready.");
+  emit messageSig(LOG_STATUS,"Page display ready.");
 }
 
 /*
@@ -617,7 +617,7 @@ bool Gui::continuousPageDialog(Direction d)
             }
 
           if (terminateProcess) {
-              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+              emit messageSig(LOG_STATUS,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
                               .arg(direction)
                               .arg(displayPageNum - 1)
                               .arg(maxPages));
@@ -640,7 +640,7 @@ bool Gui::continuousPageDialog(Direction d)
 
           displayPage();
 
-          emit messageSig(true,QString("Processed page %1 of %2").arg(displayPageNum).arg(maxPages));
+          emit messageSig(LOG_STATUS,QString("Processed page %1 of %2").arg(displayPageNum).arg(maxPages));
 
           qApp->processEvents();
 
@@ -688,7 +688,7 @@ bool Gui::continuousPageDialog(Direction d)
             }
 
           if (terminateProcess) {
-              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+              emit messageSig(LOG_STATUS,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
                               .arg(direction)
                               .arg(pageCount)
                               .arg(_maxPages));
@@ -711,7 +711,7 @@ bool Gui::continuousPageDialog(Direction d)
 
           displayPage();
 
-          emit messageSig(true,QString("Processed page %1, %2 of %3 for page range %4")
+          emit messageSig(LOG_STATUS,QString("Processed page %1, %2 of %3 for page range %4")
                           .arg(displayPageNum)
                           .arg(pageCount)
                           .arg(_maxPages)
@@ -737,7 +737,7 @@ bool Gui::continuousPageDialog(Direction d)
       previousPageContinuousIsRunning = false;
     }
 
-  emit messageSig(true,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
+  emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
 
   return true;
 }
@@ -872,17 +872,53 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
-void Gui::UpdateStepRotation()
+void Gui::SetStepRotation(QString &value, bool propagate)
 {
-    mModelStepRotation = lcVector3(mRotStepAngleX, mRotStepAngleY, mRotStepAngleZ);
+    if (propagate && getCurFile() != "") {
 
-    QString rotLabel("Step Rotation %1 %2 %3");
-    rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
-                            QString::number(mModelStepRotation[1], 'f', 2),
-                            QString::number(mModelStepRotation[2], 'f', 2));
-    statusBarMsg(rotLabel);
+        mStepRotation[0] = mRotStepAngleX;
+        mStepRotation[1] = mRotStepAngleY;
+        mStepRotation[2] = mRotStepAngleZ;
+
+        QString rotationValue = QString("%1 %2 %3 %4 %5")
+                                        .arg(gMainWindow->viewerCsiName)
+                                        .arg(QString::number(mStepRotation[0], 'f', 2))
+                                        .arg(QString::number(mStepRotation[1], 'f', 2))
+                                        .arg(QString::number(mStepRotation[2], 'f', 2))
+                                        .arg(value);
+
+        MetaItem mi;
+        mi.writeRotateStep(rotationValue);
+
+    } else {
+
+        QStringList argv = value.split(QRegExp("\\s"));
+
+        bool ok[3];
+        float x = argv[0].toFloat(&ok[0]);
+        float y = argv[1].toFloat(&ok[1]);
+        float z = argv[2].toFloat(&ok[2]);
+
+        if (ok[0] && ok[1] && ok[2]){
+            mStepRotation[0] = x;
+            mStepRotation[1] = y;
+            mStepRotation[2] = z;
+        } else {
+            emit messageSig(LOG_ERROR, QString("Invalid ROTSTEP entry %1.")
+                            .arg(value));
+        }
+    }
+    UpdateStepRotationStatus();
 }
 
+void Gui::UpdateStepRotationStatus()
+{
+    QString rotLabel("Step Rotation %1 %2 %3");
+    rotLabel = rotLabel.arg(QString::number(mRotStepAngleX, 'f', 2),
+                            QString::number(mRotStepAngleY, 'f', 2),
+                            QString::number(mRotStepAngleZ, 'f', 2));
+    statusBarMsg(rotLabel);
+}
 
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
@@ -982,11 +1018,9 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 
     QFile ldrFile(printFile);
     if ( ! ldrFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
-        QMessageBox::warning(NULL,
-                             tr("LPub3D"),
-                             tr("Cannot open Export Banner file %1 for writing:\n%2")
-                             .arg(printFile)
-                             .arg(ldrFile.errorString()));
+        emit gui->messageSig(LOG_ERROR,tr("Cannot open Export Banner file %1 for writing:\n%2")
+                        .arg(printFile)
+                        .arg(ldrFile.errorString()));
         return false;
     }
     QTextStream out(&ldrFile);
@@ -996,10 +1030,15 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     }
     ldrFile.close();
 
-    //load CSI 3D file into viewer
-    if (gMainWindow->OpenProject(ldrFile.fileName())){
+    Meta    meta;
+
+    QVector<lcVector3>  viewMatrix = renderer->cameraSettings(meta.LPub.assem);
+
+    if (gMainWindow->LoadViewerBanner(ldrFile.fileName(), viewMatrix)){
         return true;
-    } else {return false;}
+      } else {
+        return false;
+      }
 
     return true;
 }
@@ -1029,7 +1068,7 @@ void Gui::mpdComboChanged(int index)
 void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
         return;
     }
 
@@ -1049,17 +1088,7 @@ void Gui::clearAllCaches()
      displayPage();
      enableActions();
 
-     emit messageSig(true,"All caches reset and model file reloaded.");
-}
-
-void Gui::clearAndRedrawPage()
-{
-    if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
-        return;
-    }
-
-     clearAllCaches();
+     emit messageSig(LOG_STATUS,"All caches reset and model file reloaded.");
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -1069,7 +1098,7 @@ void Gui::clearCustomPartCache(bool silent)
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
   if (silent) {
-      emit messageSig(silent,message);
+      emit messageSig(LOG_STATUS,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
                                  tr("%1\nDo you want to delete the custom file cache?").arg(message),
@@ -1082,11 +1111,11 @@ void Gui::clearCustomPartCache(bool silent)
 
       int count = 0;
       if (removeDir(count, dirName)){
-          emit messageSig(silent,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
+          emit messageSig(LOG_STATUS,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
                                .arg(count)
                                .arg(count == 1 ? "item": "items"));
       } else {
-          emit messageSig(silent,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
+          emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
         return;
       }
 
@@ -1105,7 +1134,7 @@ void Gui::clearCustomPartCache(bool silent)
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to clean its parts cache - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to clean its parts cache - no action taken.");
         return;
     }
 
@@ -1129,13 +1158,13 @@ void Gui::clearPLICache()
           count++;
       }
 
-    emit messageSig(true,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSICache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to clean its assembly cache - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to clean its assembly cache - no action taken.");
         return;
     }
 
@@ -1159,13 +1188,13 @@ void Gui::clearCSICache()
           count++;
       }
 
-    emit messageSig(true,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to clean its 3D cache - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to clean its 3D cache - no action taken.");
         return;
     }
 
@@ -1191,27 +1220,28 @@ void Gui::clearTempCache()
 
     ldrawFile.tempCacheCleared();
 
-    QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
-    QDir viewDir(viewDirName);
+// TODO - REMOVE
+//    QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
+//    QDir viewDir(viewDirName);
 
-    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+//    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
-    QFileInfoList viewDirList = viewDir.entryInfoList();
-    int count2 = 0;
-    for (int i = 0; i < viewDirList.size(); i++) {
-        QFileInfo fileInfo = viewDirList.at(i);
-        QFile     file(viewDirName + "/" + fileInfo.fileName());
-        if (!file.remove()) {
-            QMessageBox::critical(NULL,
-                                  tr("LPub3D"),
-                                  tr("Unable to remeove %1")
-                                  .arg(viewDirName + "/" + fileInfo.fileName()));
-            count2--;
-          } else
-          count2++;
-    }
+//    QFileInfoList viewDirList = viewDir.entryInfoList();
+//    int count2 = 0;
+//    for (int i = 0; i < viewDirList.size(); i++) {
+//        QFileInfo fileInfo = viewDirList.at(i);
+//        QFile     file(viewDirName + "/" + fileInfo.fileName());
+//        if (!file.remove()) {
+//            QMessageBox::critical(NULL,
+//                                  tr("LPub3D"),
+//                                  tr("Unable to remeove %1")
+//                                  .arg(viewDirName + "/" + fileInfo.fileName()));
+//            count2--;
+//          } else
+//          count2++;
+//    }
 
-    emit messageSig(true,QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
+    emit messageSig(LOG_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -1244,9 +1274,7 @@ void Gui::clearStepCSICache(QString &pngName) {
   QFileInfo fileInfo(pngName);
   QFile file(assemDirName + "/" + fileInfo.fileName());
   if (!file.remove()) {
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Unable to remove %1")
+      emit messageSig(LOG_ERROR, QMessageBox::tr("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
     }
   QString ldrName;
@@ -1257,9 +1285,7 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
   file.setFileName(ldrName);
   if (!file.remove()) {
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Unable to remeove %1")
+      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
                             .arg(ldrName));
     }
   if (Preferences::enableFadeSteps) {
@@ -1313,27 +1339,21 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
   QFileInfo fileInfo(step->pngName);
   QFile file(assemDirName + "/" + fileInfo.fileName());
   if (!file.remove()) {
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Unable to remove %1")
+      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
   }
   if (renderer->useLDViewSCall()){
       ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-          QMessageBox::critical(NULL,
-                                QMessageBox::tr("LPub3D"),
-                                QMessageBox::tr("Unable to remeove %1")
+         emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
                                 .arg(ldrName));
       }
   } else if (! itemsCleared){
       ldrName = tmpDirName + "/csi.ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-          QMessageBox::critical(NULL,
-                                QMessageBox::tr("LPub3D"),
-                                QMessageBox::tr("Unable to remeove %1")
+          emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
                                 .arg(ldrName));
       }
       itemsCleared = true;
@@ -1636,10 +1656,9 @@ void Gui::preferences()
                 bool ok;
                 Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
                 if (!ok)
-                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                        QMessageBox::tr("Failed to set log level %1.\n"
-                                                        "Logging is off - level set to OffLevel")
-                                        .arg(Preferences::loggingLevel));
+                  emit messageSig(LOG_ERROR,QMessageBox::tr("Failed to set log level %1.\n"
+                                                                 "Logging is off - level set to OffLevel")
+                                                                 .arg(Preferences::loggingLevel));
                 logger.setLoggingLevel(logLevel);
               }
 
@@ -1746,8 +1765,9 @@ Gui::Gui()
     progressBarPerm = new QProgressBar();
     progressBarPerm->setMaximumWidth(300);
 
-    mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
-    mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
+// TODO - REMOVE
+//    mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
+    mStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
     undoStack = new QUndoStack();
     macroNesting = 0;
@@ -1777,7 +1797,7 @@ Gui::Gui()
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 
-    connect(this, SIGNAL(messageSig(bool,QString)),           this, SLOT(statusMessage(bool,QString)));
+    connect(this, SIGNAL(messageSig(LogType,QString)),        this, SLOT(statusMessage(LogType,QString)));
 
     connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
@@ -1848,14 +1868,22 @@ void Gui::initialize()
 
   emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
-  connect(this,       SIGNAL(loadFileSig(QString)),      this,        SLOT(loadFile(QString)));
-  connect(this,       SIGNAL(processCommandLineSig()),   this,        SLOT(processCommandLine()));
-  connect(this,       SIGNAL(setExportingSig(bool)),     this,        SLOT(deployExportBanner(bool)));
-  connect(this,       SIGNAL(setExportingSig(bool)),     gMainWindow, SLOT(Halt3DViewer(bool)));
-  connect(this,       SIGNAL(enable3DActionsSig()),      gMainWindow, SLOT(Enable3DActions()));
-  connect(this,       SIGNAL(disable3DActionsSig()),     gMainWindow, SLOT(Disable3DActions()));
-  connect(this,       SIGNAL(updateAllViewsSig()),       gMainWindow, SLOT(UpdateAllViews()));
-  connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
+  connect(this,        SIGNAL(loadFileSig(QString)),           this,        SLOT(loadFile(QString)));
+  connect(this,        SIGNAL(processCommandLineSig()),        this,        SLOT(processCommandLine()));
+  connect(this,        SIGNAL(setExportingSig(bool)),          this,        SLOT(deployExportBanner(bool)));
+
+  connect(this,        SIGNAL(setExportingSig(bool)),          gMainWindow, SLOT(Halt3DViewer(bool)));
+  connect(this,        SIGNAL(enable3DActionsSig()),           gMainWindow, SLOT(Enable3DActions()));
+  connect(this,        SIGNAL(disable3DActionsSig()),          gMainWindow, SLOT(Disable3DActions()));
+  connect(this,        SIGNAL(updateAllViewsSig()),            gMainWindow, SLOT(UpdateAllViews()));
+  connect(this,        SIGNAL(clearViewerWindowSig()),         gMainWindow, SLOT(NewProject()));
+
+  connect(gMainWindow, SIGNAL(SetStepRotation(QString&,bool)), this,        SLOT(SetStepRotation(QString&,bool)));
+  connect(gMainWindow, SIGNAL(ResetStepRotation()),            this,        SLOT(ResetStepRotation()));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float)),        this,        SLOT(SetRotStepAngleX(float)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float)),        this,        SLOT(SetRotStepAngleY(float)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
+  connect(gMainWindow, SIGNAL(GetStepRotation()),              this,        SLOT(GetStepRotation()));
 
   if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
@@ -1895,7 +1923,7 @@ void Gui::generateCustomColourPartsList()
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),      colourPartListWorker, SLOT(requestEndThreadNow()));
 
-        connect(colourPartListWorker, SIGNAL(messageSig(bool,QString)),                      this, SLOT(statusMessage(bool,QString)));
+        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),                          this, SLOT(progressBarInit()));
         connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),                   this, SLOT(progressBarSetText(QString)));
@@ -1927,7 +1955,7 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
       connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),        partWorkerCustomColour, SLOT(deleteLater()));
       connect(this,                   SIGNAL(requestEndThreadNowSig()),  partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                 this, SLOT(statusMessage(LogType,QString)));
 
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
@@ -1959,7 +1987,7 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),          partWorkerCustomColour, SLOT(deleteLater()));
       connect(this,                   SIGNAL(requestEndThreadNowSig()),    partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
 
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
@@ -2045,7 +2073,7 @@ bool Gui::aboutDialog()
 void Gui::refreshLDrawUnoffParts(){
 
     // Download unofficial archive
-    emit messageSig(true,"Refresh LDraw Unofficial Library archive...");
+    emit messageSig(LOG_STATUS,"Refresh LDraw Unofficial Library archive...");
     UpdateCheck *libraryDownload;
     QEventLoop *wait = new QEventLoop();
     QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
@@ -2054,29 +2082,22 @@ void Gui::refreshLDrawUnoffParts(){
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
     wait->exec();
 
-    // Extract archive
+    // Automatically extract unofficial archive
     QString archive = tr("%1/%2").arg(archivePath).arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
     QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
-#ifdef Q_OS_WIN
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
-        emit messageSig(false,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
+        emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
     } else {
         QString message = tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
-        emit messageSig(true,message);
+        emit messageSig(LOG_STATUS,message);
     }
-#else
-    QMessageBox::information(NULL,
-    QMessageBox::tr(VER_PRODUCTNAME_STR),
-    QMessageBox::tr("It is recommended to extract the updated unofficial archive library "
-                    "%1 to your LDraw library %2").arg(archive).arg(destination));
-#endif
 }
 
 void Gui::refreshLDrawOfficialParts(){
 
     // Download official archive
-    emit messageSig(true,"Refresh LDraw Official Library archive...");
+    emit messageSig(LOG_STATUS,"Refresh LDraw Official Library archive...");
     UpdateCheck *libraryDownload;
     QEventLoop *wait = new QEventLoop();
     QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
@@ -2085,26 +2106,18 @@ void Gui::refreshLDrawOfficialParts(){
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
     wait->exec();
 
-    // Extract archive
+    // Automatically extract official archive
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
     QString destination = Preferences::ldrawPath;
     destination = destination.remove(destination.size() - 6,6);
-#ifdef Q_OS_WIN
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
-        emit messageSig(false,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
+        emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
     } else {
         QString message = tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
-        emit messageSig(true,message);
+        emit messageSig(LOG_STATUS,message);
     }
-#else
-    QMessageBox::information(NULL,
-    QMessageBox::tr(VER_PRODUCTNAME_STR),
-    QMessageBox::tr("It is recommended to extract the updated Official archive library "
-                    "%1 to your LDraw library %2/ldraw").arg(archive).arg(destination));
-#endif
 }
-
 
 void Gui::updateCheck()
 {
@@ -2145,11 +2158,9 @@ void Gui::meta()
 
   QFile file(fileName);
   if (!file.open(QFile::WriteOnly | QFile::Text)) {
-    QMessageBox::warning(NULL,
-    QMessageBox::tr(VER_PRODUCTNAME_STR),
-    QMessageBox::tr("Cannot write file %1:\n%2.")
-    .arg(fileName)
-    .arg(file.errorString()));
+    emit messageSig(LOG_ERROR, QMessageBox::tr("Cannot write file %1:\n%2.")
+                    .arg(fileName)
+                    .arg(file.errorString()));
     return;
   }
 
@@ -2539,7 +2550,7 @@ void Gui::createActions()
     // Help
 
     aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
+    aboutAct->setStatusTip(tr("Display version, system and build information"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
     // Begin Jaco's code
@@ -2642,8 +2653,10 @@ void Gui::enableActions()
   zoomInAct->setEnabled(true);
   zoomOutAct->setEnabled(true);
 
+  setupMenu->setEnabled(true);
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
+
   ExportMenuViewer->setEnabled(true);
 
 }
@@ -2702,6 +2715,7 @@ void Gui::disableActions()
   zoomInAct->setEnabled(false);
   zoomOutAct->setEnabled(false);
 
+  setupMenu->setEnabled(false);
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
@@ -2831,15 +2845,32 @@ void Gui::createMenus()
     cacheMenu->setDisabled(true);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
-    configMenu->addAction(pageSetupAct);
-    configMenu->addAction(assemSetupAct);
-    configMenu->addAction(pliSetupAct);
-    configMenu->addAction(bomSetupAct);
-    configMenu->addAction(calloutSetupAct);
-    configMenu->addAction(multiStepSetupAct);
-    configMenu->addAction(projectSetupAct);
-    configMenu->addAction(fadeStepSetupAct);
-    configMenu->addAction(highlightStepSetupAct);
+    // TODO - insert Render Preferences Action Here...
+
+    setupMenu = configMenu->addMenu("Build &Instructions Setup...");
+    setupMenu->setIcon(QIcon(":/resources/instructionsetup.png"));
+    setupMenu->addAction(pageSetupAct);
+    setupMenu->addAction(assemSetupAct);
+    setupMenu->addAction(pliSetupAct);
+    setupMenu->addAction(bomSetupAct);
+    setupMenu->addAction(calloutSetupAct);
+    setupMenu->addAction(multiStepSetupAct);
+    setupMenu->addAction(projectSetupAct);
+    setupMenu->addAction(fadeStepSetupAct);
+    setupMenu->addAction(highlightStepSetupAct);
+    setupMenu->setDisabled(true);
+
+// TODO - REMOVE
+//    configMenu->addAction(pageSetupAct);
+//    configMenu->addAction(assemSetupAct);
+//    configMenu->addAction(pliSetupAct);
+//    configMenu->addAction(bomSetupAct);
+//    configMenu->addAction(calloutSetupAct);
+//    configMenu->addAction(multiStepSetupAct);
+//    configMenu->addAction(projectSetupAct);
+//    configMenu->addAction(fadeStepSetupAct);
+//    configMenu->addAction(highlightStepSetupAct);
+
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
@@ -2976,14 +3007,13 @@ void Gui::createStatusBar()
 
 void Gui::showLCStatusMessage(){
 
-    if(!modelDockWindow->isFloating())
+    if(!viewerDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
 }
 
 void Gui::createDockWindows()
 {
     fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 File Editor")), this);
-    modelDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer - by LeoCAD\u00A9")), this);
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -2991,29 +3021,54 @@ void Gui::createDockWindows()
     fileEditDockWindow->setWidget(editWindow);
     addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
     viewMenu->addAction(fileEditDockWindow->toggleViewAction());
-//** 3DViewer Window
-    modelDockWindow->setObjectName("ModelDockWindow");
-    modelDockWindow->setAllowedAreas(
+
+    //3D Viewer
+
+    viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer - by LeoCAD\u00A9")), this);
+    viewerDockWindow->setObjectName("ModelDockWindow");
+    viewerDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    modelDockWindow->setWidget(gMainWindow);
-    addDockWidget(Qt::RightDockWidgetArea, modelDockWindow);
-    viewMenu->addAction(modelDockWindow->toggleViewAction());
-//**
-    tabifyDockWidget(modelDockWindow, fileEditDockWindow);
+    viewerDockWindow->setWidget(gMainWindow);
+    addDockWidget(Qt::RightDockWidgetArea, viewerDockWindow);
+    viewMenu->addAction(viewerDockWindow->toggleViewAction());
+
+    tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
+
+    //timeline
+    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8(wCharToUtf8("Timeline - by LeoCAD\u00A9")));
+    gMainWindow->mTimelineToolBar->setObjectName("TimelineToolbar");
+    gMainWindow->mTimelineToolBar->setAllowedAreas(
+         Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    gMainWindow->mTimelineToolBar->setAcceptDrops(true);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mTimelineToolBar);
+    viewMenu->addAction(gMainWindow->mTimelineToolBar->toggleViewAction());
+
+    tabifyDockWidget(viewerDockWindow, gMainWindow->mTimelineToolBar);
+
+    //Properties
+    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8(wCharToUtf8("Properties - by LeoCAD\u00A9")));
+    gMainWindow->mPropertiesToolBar->setObjectName("PropertiesToolbar");
+    gMainWindow->mPropertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
+    viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
+
+    tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
+
 #ifdef Q_OS_MAC
     // modelDock window Hack is not stable on macOS so start with fileEdit Window until I figure out what's wrong.
     fileEditDockWindow->raise();
 #else
-    modelDockWindow->raise();
+    viewerDockWindow->raise();
 #endif
 
-    connect(modelDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
+    connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
+    //**
 }
 
 void Gui::toggleLCStatusBar(){
 
-    if(modelDockWindow->isFloating())
+    if(viewerDockWindow->isFloating())
         gMainWindow->statusBar()->show();
     else
         gMainWindow->statusBar()->hide();

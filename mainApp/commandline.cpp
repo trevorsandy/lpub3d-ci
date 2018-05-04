@@ -29,7 +29,7 @@ int Gui::processCommandLine()
           commandlineFile, preferredRenderer,
           fadeStepsColour, highlightStepColour;
 
-  #// Process parameters
+  // Process parameters
   QStringList Arguments = Application::instance()->arguments();
 
   const int NumArguments = Arguments.size();
@@ -110,7 +110,7 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
         ParseString(pageRange, false);
       else
-        emit messageSig(true,QString("Unknown commandline parameter: '%1'").arg(Param));
+        emit messageSig(LOG_STATUS,QString("Unknown commandline parameter: '%1'").arg(Param));
     }
 
   if (!preferredRenderer.isEmpty()){
@@ -133,14 +133,14 @@ int Gui::processCommandLine()
           renderer = RENDERER_POVRAY;
       }
       else {
-          emit messageSig(true,QString("Invalid renderer specified: '%1'").arg(renderer));
+          emit messageSig(LOG_STATUS,QString("Invalid renderer specified: '%1'").arg(renderer));
           return 1;
       }
       if (Preferences::preferredRenderer != renderer) {
           Preferences::preferredRenderer = renderer;
           Render::setRenderer(Preferences::preferredRenderer);
           QString message = QString("Renderer is %1 %2").arg(renderer).arg(Preferences::useLDViewSingleCall ? "(Single Call)" : "");
-          emit messageSig(true,message);
+          emit messageSig(LOG_STATUS,message);
           logInfo() << message;
       }
     }
@@ -149,7 +149,7 @@ int Gui::processCommandLine()
       if (Preferences::enableFadeSteps != fadeSteps) {
           Preferences::enableFadeSteps = fadeSteps;
           QString message = QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
-          emit messageSig(true,message);
+          emit messageSig(LOG_STATUS,message);
           logInfo() << message;
         }
     }
@@ -161,7 +161,7 @@ int Gui::processCommandLine()
           QString message = QString("Fade Step Transparency changed from %1 to %2 percent")
               .arg(previousOpacity)
               .arg(Preferences::fadeStepsOpacity);
-          emit messageSig(true,message);
+          emit messageSig(LOG_STATUS,message);
           logInfo() << message;
         }
     }
@@ -170,7 +170,7 @@ int Gui::processCommandLine()
       if (!Preferences::fadeStepsUseColour){
           Preferences::fadeStepsUseColour = true;
           QString message = QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");
-          emit messageSig(true,message);
+          emit messageSig(LOG_STATUS,message);
           logInfo() << message;
         }
       if (Preferences::fadeStepsColour != LDrawColor::name(fadeStepsColour)) {
@@ -179,7 +179,7 @@ int Gui::processCommandLine()
           QString message = QString("Fade Step Colour preference changed from %1 to %2")
               .arg(previousColour.replace("_"," "))
               .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
-          emit messageSig(true,message);
+          emit messageSig(LOG_STATUS,message);
           logInfo() << message;
         }
     }
@@ -187,7 +187,7 @@ int Gui::processCommandLine()
   if (Preferences::enableHighlightStep != highlightStep) {
       Preferences::enableHighlightStep = highlightStep;
       QString message = QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
-      emit messageSig(true,message);
+      emit messageSig(LOG_STATUS,message);
       logInfo() << message;
     }
 
@@ -198,7 +198,7 @@ int Gui::processCommandLine()
           QString message = QString("Highlight Step Colour preference changed from %1 to %2")
               .arg(previousColour)
               .arg(Preferences::highlightStepColour);
-          emit messageSig(true,message);
+          emit messageSig(LOG_STATUS,message);
           logInfo() << message;
         }
     }

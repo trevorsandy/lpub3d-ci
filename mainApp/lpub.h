@@ -345,6 +345,7 @@
 #include <QProgressBar>
 #include <QElapsedTimer>
 #include <QPdfWriter>
+
 #include "color.h"
 #include "ranges.h"
 #include "ldrawfiles.h"
@@ -356,13 +357,13 @@
 #include "plisubstituteparts.h"
 #include "dialogexportpages.h"
 #include "numberitem.h"
+#include "progress_dialog.h"
+#include "QsLog.h"
 
-//** 3D
+//3D Viewer
 #include "lc_math.h"
 #include "lc_library.h"
 #include "lc_mainwindow.h"
-#include "progress_dialog.h"
-#include "QsLog.h"
 
 #ifndef WATCHER
 #define WATCHER
@@ -535,6 +536,47 @@ public:
   {
       return ldrawFile;
   }
+
+  void insertViewerStep(const QString     &fileName,
+                        const QStringList &contents,
+                        const QString     &filePath,
+                        bool               multiStep,
+                        bool               calledOut)
+  {
+      ldrawFile.insertViewerStep(fileName,  contents, filePath,
+                                 multiStep, calledOut);
+  }
+
+  void updateStep(const QString     &fileName,
+                  const QStringList &contents)
+  {
+      ldrawFile.updateStep(fileName, contents);
+  }
+
+  QStringList getViewerStepContents(const QString &fileName)
+  {
+      return ldrawFile.getViewerStepContents(fileName);
+  }
+
+  QString getViewerStepFilePath(const QString &fileName)
+  {
+      return ldrawFile.getViewerStepFilePath(fileName);
+  }
+
+  bool isViewerStepMultiStep(const QString &fileName)
+  {
+      return ldrawFile.isViewerStepMultiStep(fileName);
+  }
+
+  bool isViewerStepCalledOut(const QString &fileName)
+  {
+      return ldrawFile.isViewerStepCalledOut(fileName);
+  }
+
+  void clearSteps(){
+      ldrawFile.clearSteps();
+  }
+
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
@@ -559,55 +601,60 @@ public:
   {
     return KpageView;
   }
-  //**3D  
-  void UpdateStepRotation();
-
-  lcVector3 GetStepRotationStatus() const
-  {
-      return mModelStepRotation;
-  }
-
-  lcVector3 GetExistingRotStep() const
-  {
-      return mExistingRotStep;
-  }
-
-  void ResetStepRotation()
-  {
-      mRotStepAngleX = mExistingRotStep[0];
-      mRotStepAngleY = mExistingRotStep[1];
-      mRotStepAngleZ = mExistingRotStep[2];
-      UpdateStepRotation();
-  }
-
-  void SetExistingRotStep(lcVector3 rotStep)
-  {
-      mExistingRotStep = rotStep;
-  }
-
-  void SetRotStepAngleX(float AngleX)
-  {
-      mRotStepAngleX = AngleX;
-  }
-
-  void SetRotStepAngleY(float AngleY)
-  {
-      mRotStepAngleY = AngleY;
-  }
-
-  void SetRotStepAngleZ(float AngleZ)
-  {
-      mRotStepAngleZ = AngleZ;
-  }
 
   QString getCurFile()
   {
       return curFile;
   }
 
-  //**
-
 public slots:
+  //**3D Viewer Manage Step Rotation
+
+// TODO - REMOVE
+//  void SetExistingRotStep(lcVector3 rotStep)
+//  {
+//      mExistingRotStep = rotStep;
+//  }
+
+// TODO - REMOVE
+//  lcVector3 GetExistingRotStep() const
+//  {
+//      return mExistingRotStep;
+//  }
+
+  void UpdateStepRotationStatus();
+
+  void SetStepRotation(QString &value, bool propagate = false);
+  lcVector3 GetStepRotation() const
+  {
+      return mStepRotation;
+  }
+
+  void ResetStepRotation()
+  {
+      mRotStepAngleX = mStepRotation[0];
+      mRotStepAngleY = mStepRotation[1];
+      mRotStepAngleZ = mStepRotation[2];
+      UpdateStepRotationStatus();
+  }
+  void SetRotStepAngleX(float AngleX)
+  {
+      mRotStepAngleX = AngleX;
+      UpdateStepRotationStatus();
+  }
+
+  void SetRotStepAngleY(float AngleY)
+  {
+      mRotStepAngleY = AngleY;
+      UpdateStepRotationStatus();
+  }
+
+  void SetRotStepAngleZ(float AngleZ)
+  {
+      mRotStepAngleZ = AngleZ;
+      UpdateStepRotationStatus();
+  }
+  //**
 
   /* The undoStack needs access to these */
 
@@ -629,23 +676,38 @@ public slots:
     }
   }
 
-  void statusMessage(bool status, QString message){
-      if (status){
+  void statusMessage(LogType logType, QString message){
+      /* logTypes
+       * LOG_STATUS:   - same as INFO but writes to log file also
+       * LOG_INFO:
+       * LOG_TRACE:
+       * LOG_DEBUG:
+       * LOG_NOTICE:
+       * LOG_ERROR:
+       * LOG_FATAL:
+       * LOG_QWARNING: - visible in Qt debug mode
+       * LOG_QDEBUG:   - visible in Qt debug mode
+       */
+      if (logType == LOG_STATUS ){
+
+          logStatus() << message;
+
           if (Preferences::modeGUI) {
              statusBarMsg(message);
           } else {
-             fprintf(stdout,"%s",message.append("\n").toLatin1().constData());
+             fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
              fflush(stdout);
           }
-          logStatus() << message;
       } else {
+
+          logError() << message;
+
           if (Preferences::modeGUI) {
               QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
           } else {
-              fprintf(stdout,"%s",message.append("\n").toLatin1().constData());
+              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
               fflush(stdout);
-          }
-          logNotice() << message;
+          }       
       }
   }
 
@@ -724,10 +786,13 @@ public slots:
   void clearTempCache();
   void clearAllCaches();
   void clearCustomPartCache(bool silent = false);
-  void clearAndRedrawPage();
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
   void clearPageCSIGraphicsItems(Step *step);
+  void clearAndRedrawPage()
+  {
+      clearAllCaches();
+  }
   bool removeDir(int &count,const QString &dirName);
 
   void fileChanged(const QString &path);
@@ -772,7 +837,7 @@ signals:
   void progressPermResetSig();
   void removeProgressPermStatusSig();
 
-  void messageSig(bool  status, QString message);
+  void messageSig(LogType logType, QString message);
 
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
@@ -793,8 +858,9 @@ public:
 
 protected:
   // capture camera rotation from LeoCad module
-  lcVector3 mExistingRotStep;
-  lcVector3 mModelStepRotation;
+// TODO - REMOVE
+//  lcVector3 mExistingRotStep;
+  lcVector3 mStepRotation;
   float mRotStepAngleX;
   float mRotStepAngleY;
   float mRotStepAngleZ;
@@ -1071,7 +1137,7 @@ private:
 
   QDockWidget       *fileEditDockWindow; 
 //** 3D
-  QDockWidget       *modelDockWindow;
+  QDockWidget       *viewerDockWindow;
 //**
 
   // Menus
@@ -1087,6 +1153,7 @@ private:
   QMenu    *cacheMenu;
   QMenu    *exportMenu;
   QMenu    *recentMenu;
+  QMenu    *setupMenu;
 
   QMenu    *nextPageContinuousMenu;
   QMenu    *previousPageContinuousMenu;

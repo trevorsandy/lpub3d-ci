@@ -75,6 +75,7 @@
         <file alias="ignoresubmodel.png">images/ignoresubmodel.png</file>
         <file alias="insertcoverpage.png">images/insertcoverpage.png</file>
         <file alias="insertpage.png">images/insertpage.png</file>
+		<file alias="instructionsetup.png">images/instructionsetup.png</file>
         <file alias="lpub3d.png">images/lpub3d.png</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
         <file alias="ldraw_document.icns">ldraw_document.icns</file>

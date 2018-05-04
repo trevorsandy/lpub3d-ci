@@ -34,6 +34,7 @@
 #include <QString>
 #include <QStringList>
 #include <QHash>
+
 #include "range_element.h"
 #include "pli.h"
 #include "meta.h"
@@ -70,7 +71,8 @@ class Step : public AbstractRangeElement
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
-    QString               csi3DName;
+    QString               viewerCsiName;
+    QVector<lcVector3>    viewMatrix;
     PlacementHeader       pageHeader;
     PlacementFooter       pageFooter;
 
@@ -106,7 +108,8 @@ class Step : public AbstractRangeElement
            QPixmap            *pixmap,
            Meta               &meta);
 
-    int Load3DCsi(QString &csi3DName);
+// TODO - REMOVE
+//    int Load3DCsi(QString &viewerCsiName);
 
     int  sizeit(int  rows[],
                 int  cols[],

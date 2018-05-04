@@ -336,8 +336,34 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 			switch (Selection[ObjectIdx]->GetType())
 			{
 			case LC_OBJECT_PIECE:
+/*** LPub3D Mod - set the focus on the first piece ***/
 				if (Mode == LC_PROPERTY_WIDGET_EMPTY)
+				{
 					Mode = LC_PROPERTY_WIDGET_PIECE;
+					bool FirstPiece = true;
+					for (int ObjectIdx = 0; ObjectIdx < Selection.GetSize(); ObjectIdx++)
+					{
+						lcObject* Object = Selection[ObjectIdx];
+
+						if (Object->GetType() != LC_OBJECT_PIECE)
+							continue;
+
+						lcPiece* SelectedPiece = (lcPiece*)Object;
+
+						SelectedPiece->SetFocused(0,true);
+
+						if (FirstPiece)
+						{
+						    FirstPiece = false;
+						    Focus = (lcObject*)SelectedPiece;
+						}
+						else
+						{
+						    break;
+						}
+					}
+				}
+/*** LPub3D Mod end ***/
 				else if (Mode != LC_PROPERTY_WIDGET_PIECE)
 				{
 					Mode = LC_PROPERTY_WIDGET_MULTIPLE;
@@ -814,15 +840,17 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	{
 		SetEmpty();
 
-		partPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
-		partPositionX = addProperty(partPosition, tr("X"), PropertyFloat);
-		partPositionY = addProperty(partPosition, tr("Y"), PropertyFloat);
-		partPositionZ = addProperty(partPosition, tr("Z"), PropertyFloat);
-
+/*** LPub3D Mod - Switch Rotation and Position attributes ***/
 		partRotation = addProperty(nullptr, tr("Rotation"), PropertyGroup);
 		partRotationX = addProperty(partRotation, tr("X"), PropertyFloat);
 		partRotationY = addProperty(partRotation, tr("Y"), PropertyFloat);
 		partRotationZ = addProperty(partRotation, tr("Z"), PropertyFloat);
+
+		partPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
+		partPositionX = addProperty(partPosition, tr("X"), PropertyFloat);
+		partPositionY = addProperty(partPosition, tr("Y"), PropertyFloat);
+		partPositionZ = addProperty(partPosition, tr("Z"), PropertyFloat);
+/*** LPub3D Mod end ***/
 
 		partVisibility = addProperty(nullptr, tr("Visibility"), PropertyGroup);
 		partShow = addProperty(partVisibility, tr("Show"), PropertyInt);
@@ -843,11 +871,11 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	lcMatrix33 RelativeRotation;
 	Model->GetMoveRotateTransform(Position, RelativeRotation);
 	partPositionX->setText(1, lcFormatValueLocalized(Position[0]));
-	partPositionX->setData(0, PropertyValueRole, Position[0]);
-	partPositionY->setText(1, lcFormatValueLocalized(Position[1]));
-	partPositionY->setData(0, PropertyValueRole, Position[1]);
-	partPositionZ->setText(1, lcFormatValueLocalized(Position[2]));
-	partPositionZ->setData(0, PropertyValueRole, Position[2]);
+	partPositionX->setData(0, PropertyValueRole, Position[0]);	
+	partPositionY->setText(1, lcFormatValueLocalized(Position[2]));
+	partPositionY->setData(0, PropertyValueRole, Position[2]);
+	partPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
+	partPositionZ->setData(0, PropertyValueRole, Position[1]);
 
 	lcVector3 Rotation;
 	if (Piece)

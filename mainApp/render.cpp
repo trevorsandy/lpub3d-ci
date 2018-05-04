@@ -26,12 +26,7 @@
  *
  ***************************************************************************/
 
-#include "lpub.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include <QString>
 #include <QStringList>
 #include <QPixmap>
@@ -39,6 +34,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
+#include "lpub.h"
 #include "render.h"
 #include "resolution.h"
 #include "meta.h"
@@ -94,7 +90,7 @@ QString fixupDirname(const QString &dirNameIn) {
 #ifdef QT_DEBUG_MODE
                 qDebug() << message << "\n";
 #else
-                emit gui->statusMessage(true, message);
+                emit gui->messageSig(LOG_STATUS, message);
 #endif
                 return dirNameIn;
      }
@@ -111,7 +107,7 @@ QString fixupDirname(const QString &dirNameIn) {
 #ifdef QT_DEBUG_MODE
                 qDebug() << message << "\n";
 #else
-                emit gui->statusMessage(true, message);
+                emit gui->messageSig(LOG_STATUS, message);
 #endif
 		return dirNameIn;
 	}
@@ -299,8 +295,8 @@ float POVRay::cameraDistance(
 int POVRay::renderCsi(
     const QString     &addLine,
     const QStringList &csiParts,
+    const QStringList &csiKeys,
     const QString     &pngName,
-    const QString     &csiKey,
     Meta              &meta)
 {
   /* Create the CSI DAT file */
@@ -364,7 +360,7 @@ int POVRay::renderCsi(
 
   arguments << ldrName;
 
-  emit gui->messageSig(true, "POVRay render CSI...");
+  emit gui->messageSig(LOG_STATUS, "POVRay render CSI...");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
@@ -376,7 +372,7 @@ int POVRay::renderCsi(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   ldview.start(Preferences::ldviewExe,arguments);
@@ -385,7 +381,7 @@ int POVRay::renderCsi(
           QByteArray status = ldview.readAll();
           QString str;
           str.append(status);
-          emit gui->messageSig(false,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
           return -1;
         }
     }
@@ -438,7 +434,7 @@ int POVRay::renderCsi(
 //  povArguments << "/EXIT";
 //#endif
 
-  emit gui->statusMessage(true, "Execute command: POVRay render CSI.");
+  emit gui->messageSig(LOG_STATUS, "Execute command: POVRay render CSI.");
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
@@ -451,7 +447,7 @@ int POVRay::renderCsi(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   povray.start(Preferences::povrayExe,povArguments);
@@ -460,14 +456,14 @@ int POVRay::renderCsi(
           QByteArray status = povray.readAll();
           QString str;
           str.append(status);
-          emit gui->messageSig(false,QMessageBox::tr("POVRay CSI render failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("POVRay CSI render failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
           return -1;
         }
     }
 
   // image matting stub
   if (Preferences::enableFadeSteps) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
       if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
           //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
       }
@@ -480,12 +476,12 @@ int POVRay::renderCsi(
 }
 
 int POVRay::renderPli(
-    const QString &ldrName,
-    const QString &pngName,
-    Meta    	  &meta,
-    bool     	  bom)
+    const QStringList &ldrNames ,
+    const QString     &pngName,
+    Meta    	      &meta,
+    bool     	      bom)
 {
-  QString povName = ldrName + ".pov";
+  QString povName = ldrNames.first() +".pov";
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
   QString message;
 
@@ -540,9 +536,9 @@ int POVRay::renderPli(
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
 
-  arguments << ldrName;
+  arguments << ldrNames.first();
 
-  emit gui->messageSig(true, "POVRay render PLI...");
+  emit gui->messageSig(LOG_STATUS, "POVRay render PLI...");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
@@ -554,7 +550,7 @@ int POVRay::renderPli(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   ldview.start(Preferences::ldviewExe,arguments);
@@ -563,7 +559,7 @@ int POVRay::renderPli(
           QByteArray status = ldview.readAll();
           QString str;
           str.append(status);
-          emit gui->messageSig(false,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
           return -1;
         }
     }
@@ -616,7 +612,7 @@ int POVRay::renderPli(
 //  povArguments << "/EXIT";
 //#endif
 
-  emit gui->statusMessage(true, "Execute command: POVRay render PLI.");
+  emit gui->messageSig(LOG_STATUS, "Execute command: POVRay render PLI.");
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
@@ -629,7 +625,7 @@ int POVRay::renderPli(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   povray.start(Preferences::povrayExe,povArguments);
@@ -638,7 +634,7 @@ int POVRay::renderPli(
           QByteArray status = povray.readAll();
           QString str;
           str.append(status);
-          emit gui->messageSig(false,QMessageBox::tr("POVRay PLI render failed with code %1\n%2") .arg(povray.exitCode()) .arg(str));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("POVRay PLI render failed with code %1\n%2") .arg(povray.exitCode()) .arg(str));
           return -1;
         }
     }
@@ -665,8 +661,8 @@ float LDGLite::cameraDistance(
 int LDGLite::renderCsi(
   const QString     &addLine,
   const QStringList &csiParts,
+  const QStringList &csiKeys,
   const QString     &pngName,
-  const QString     &csiKey,
         Meta        &meta)
 {
   /* Create the CSI DAT file */
@@ -704,7 +700,10 @@ int LDGLite::renderCsi(
                                     // ldglite always deals in 72 DPI
   QString w  = QString("-W%1")      .arg(lineThickness);
 
-  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
+                                      .arg(meta.LPub.assem.angle.value(1))
+                                      .arg(cd);
 
   QStringList arguments;
   arguments << CA;                  // camera FOV angle in degrees
@@ -741,7 +740,7 @@ int LDGLite::renderCsi(
   arguments << mf;                  // .png file name
   arguments << ldrFile;             // csi.ldr (input file)
 
-  emit gui->messageSig(true, "Execute command: LDGLite render CSI.");
+  emit gui->messageSig(LOG_STATUS, "Execute command: LDGLite render CSI.");
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
@@ -764,7 +763,7 @@ int LDGLite::renderCsi(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
@@ -773,31 +772,28 @@ int LDGLite::renderCsi(
       QByteArray status = ldglite.readAll();
       QString str;
       str.append(status);
-      QMessageBox::warning(NULL,
-                           QMessageBox::tr(VER_PRODUCTNAME_STR),
-                           QMessageBox::tr("LDGlite failed\n%1") .arg(str));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
   }
 
   // image matting stub
   if (Preferences::enableFadeSteps) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
       if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
           //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
       }
   }
-
 
   return 0;
 }
 
 
 int LDGLite::renderPli(
-  const QString &ldrName,
-  const QString &pngName,
-  Meta    &meta,
-  bool     bom)
+  const QStringList &ldrNames,
+  const QString     &pngName,
+  Meta              &meta,
+  bool               bom)
 {
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
@@ -855,9 +851,9 @@ int LDGLite::renderPli(
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
   arguments << mf;
-  arguments << ldrName;
+  arguments << ldrNames.first();
 
-  emit gui->messageSig(true, "Execute command: LDGLite render PLI.");
+  emit gui->messageSig(LOG_STATUS, "Execute command: LDGLite render PLI.");
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
@@ -878,7 +874,7 @@ int LDGLite::renderPli(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
@@ -887,9 +883,7 @@ int LDGLite::renderPli(
       QByteArray status = ldglite.readAll();
       QString str;
       str.append(status);
-      QMessageBox::warning(NULL,
-                           QMessageBox::tr(VER_PRODUCTNAME_STR),
-                           QMessageBox::tr("LDGlite failed\n%1") .arg(str));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
   }
@@ -936,18 +930,10 @@ float LDView::cameraDistance(
 int LDView::renderCsi(
   const QString     &addLine,
   const QStringList &csiParts,
+  const QStringList &csiKeys,
   const QString     &pngName,
-  const QString     &csiKey,
         Meta        &meta)
 {
-  /* Create the CSI DAT file */
-  QString ldrName;
-  int rc;
-  ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-      return rc;
-    }
-
   /* determine camera distance */
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
   int width  = gui->pageSize(meta.LPub.page, 0);
@@ -962,11 +948,50 @@ int LDView::renderCsi(
 
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
-  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  /* Create the CSI DAT file(s) */
+  QString f;
+  QStringList ldrNames;
+  if (useLDViewSCall()) {
+      ldrNames = csiParts;
+      QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+      QFile snapShotListFile(snapShotList);
+      if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI Snapshots list creation failed!"));
+          return -1;
+      }
+      QTextStream out(&snapShotListFile);
+      for (int i = 0; i < ldrNames.size(); i++) {
+          QString smLine = ldrNames[i];
+          out << smLine << endl;
+          //logInfo() << qPrintable(QString("CSI Snapshots line: %1").arg(smLine));
+      }
+      snapShotListFile.close();
+      f  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
+  } else {
+      f  = QString("-SaveSnapShot=%1") .arg(pngName);
+      int rc;
+     ldrNames << QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+      if ((rc = rotateParts(addLine, meta.rotStep,csiParts,ldrNames.first())) < 0) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
+          return rc;
+      }
+  }
+
+// TODO - REMOVE
+//  int rc;
+//  ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+//  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName)) < 0) {
+//      return rc;
+//    }
+
+  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
+                                      .arg(meta.LPub.assem.angle.value(1))
+                                      .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
+//  QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
   QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
@@ -1002,9 +1027,9 @@ int LDView::renderCsi(
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
-  arguments << ldrName;
+  arguments << ldrNames.first();
 
-  emit gui->messageSig(true, "Execute command: LDView render CSI.");
+  emit gui->messageSig(LOG_STATUS, "Execute command: LDView render CSI.");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
@@ -1016,7 +1041,7 @@ int LDView::renderCsi(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   ldview.start(Preferences::ldviewExe,arguments);
@@ -1025,16 +1050,62 @@ int LDView::renderCsi(
       QByteArray status = ldview.readAll();
       QString str;
       str.append(status);
-      emit gui->messageSig(false,QMessageBox::tr("LDView CSI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
       return -1;
     }
   }
 
-  // image matting stub
-  if (Preferences::enableFadeSteps) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
-      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+  // move generated CSI images
+  if (useLDViewSCall()){
+    QString ldrName;
+    QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+    foreach(ldrName, ldrNames){
+        QFileInfo pngFileInfo(ldrName.replace(".ldr",".png"));
+        QString pngFilePath = QDir::currentPath() + "/" +
+            Paths::assemDir + "/" + pngFileInfo.fileName();
+        if (! dir.rename(pngFileInfo.absoluteFilePath(), pngFilePath)){
+            QFile pngFile(pngFilePath);
+            if (! pngFile.exists()){ // file not found failure
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI image file move failed for\n%1")
+                                     .arg(pngFilePath));
+                return -1;
+              } else {                // file exist failure
+                //file exist so delete and retry
+                QFile pngFile(pngFilePath);
+                if (pngFile.remove()) {
+                    //retry
+                    if (! dir.rename(pngFileInfo.absoluteFilePath(), pngFilePath)){
+                        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI image file move failed after old file removal for\n%1")
+                                             .arg(pngFilePath));
+                        return -1;
+                      }
+                  } else {
+                    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView could not remove old CSI image file \n%1")
+                                         .arg(pngFilePath));
+                    return -1;
+                  }
+              }
+          }
+      }
+
+    // image mapping stub
+    if (Preferences::enableFadeSteps) {
+          for (int i = 0; i < csiKeys.size(); i++) {
+              QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys[i]);
+              if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+                  //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+              }
+          }
+      }
+  }
+  else
+  {
+      // image matting stub
+      if (Preferences::enableFadeSteps) {
+          QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
+          if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+              //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+          }
       }
   }
 
@@ -1042,15 +1113,17 @@ int LDView::renderCsi(
 }
 
 int LDView::renderPli(
-  const QString &ldrName,
-  const QString &pngName,
-  Meta          &meta,
-  bool          bom)
+  const QStringList &ldrNames,
+  const QString     &pngName,
+  Meta              &meta,
+  bool              bom)
 {
-  QFileInfo fileInfo(ldrName);
+  QFileInfo fileInfo(ldrNames.first());
   if ( ! fileInfo.exists()) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("File ldrNames does not exist!"));
     return -1;
   }
+
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
 
   /* determine camera distance */
@@ -1069,13 +1142,34 @@ int LDView::renderPli(
 
   //qDebug() << "LDView (Native) Camera Distance: " << cd;
 
+  /* Create the CSI DAT file(s) */
+  QString f;
+  if (useLDViewSCall()) {
+      QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
+      QFile snapShotListFile(snapShotList);
+      if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) PLI Snapshots list creation failed!"));
+          return -1;
+      }
+      QTextStream out(&snapShotListFile);
+      for (int i = 0; i < ldrNames.size(); i++) {
+          QString smLine = ldrNames[i];
+          out << smLine << endl;
+          //logInfo() << qPrintable(QString("PLI Snapshots line: %1").arg(smLine));
+      }
+      snapShotListFile.close();
+      f  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
+  } else {
+      f  = QString("-SaveSnapShot=%1") .arg(pngName);
+  }
+
   QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
                                       .arg(pliMeta.angle.value(1))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
+//  QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
   QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
@@ -1108,9 +1202,9 @@ int LDView::renderPli(
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
-  arguments << ldrName;
+  arguments << ldrNames.first();
 
-  emit gui->messageSig(true, "Execute command: LDView render PLI.");
+  emit gui->messageSig(LOG_STATUS, "Execute command: LDView render PLI.");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
@@ -1122,7 +1216,7 @@ int LDView::renderPli(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->statusMessage(true, message);
+  emit gui->messageSig(LOG_STATUS, message);
 #endif
 
   ldview.start(Preferences::ldviewExe,arguments);
@@ -1131,329 +1225,368 @@ int LDView::renderPli(
       QByteArray status = ldview.readAll();
       QString str;
       str.append(status);
-      emit gui->messageSig(false,QMessageBox::tr("LDView PLI render failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
-      return -1;
-    }
-  }
-
-  return 0;
-}
-
-int Render::renderLDViewSCallCsi(
-    const QStringList &ldrNames,
-    const QStringList &csiKeys,
-          Meta        &meta)
-{
-  //logInfo() << "LDView SC CSI Renderer Timeout:" << rendererTimeout();
-
-  /* determine camera distance */
-  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
-
-  /* edge thickness if highlight step is on */
-  int edgeThickness;
-  if (Preferences::enableHighlightStep)
-    edgeThickness = Preferences::highlightStepLineWidth;
-  else
-    edgeThickness = 1;
-
-  bool hasLDViewIni = Preferences::ldviewIni != "";
-
-  QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-  QFile snapShotListFile(snapShotList);
-  if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
-      emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI Snapshots list creation failed"));
-      return -1;
-  }
-  QTextStream out(&snapShotListFile);
-  for (int i = 0; i < ldrNames.size(); i++) {
-      QString smLine = ldrNames[i];
-      out << smLine << endl;
-      //logInfo() << qPrintable(QString("CSI Snapshots line: %1").arg(smLine));
-  }
-  snapShotListFile.close();
-  //logInfo() << qPrintable(QString("CSI Snapshots list: -SaveSnapshotsList=%1").arg(snapShotList));
-
-  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-  QString w  = QString("-SaveWidth=%1") .arg(width);
-  QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
-  QString t  = QString("-SnapshotSuffix=.png");
-  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
-  QString o  = QString("-HaveStdOut=1");
-  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
-  QString v  = QString("-vv");
-
-  QStringList arguments;
-  arguments << CA;
-  arguments << cg;
-  arguments << w;
-  arguments << h;
-  arguments << s;
-  arguments << t;
-  arguments << l;
-  arguments << o;
-  arguments << e;
-  arguments << v;
-
-  if (Preferences::enableFadeSteps)
-    arguments <<  QString("-SaveZMap=1");
-
-  QStringList list;
-  list = meta.LPub.assem.ldviewParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-      //logInfo() << qPrintable("-PARM META: " + list[i]);
-    }
-  }
-  if(hasLDViewIni){
-      QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
-      arguments << ini;
-  }
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-  }
-
-  emit gui->messageSig(true, "Execute command: LDView (Single Call) render CSI.");
-
-  QProcess    ldview;
-  ldview.setEnvironment(QProcess::systemEnvironment());
-  ldview.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::tmpDir);
-  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
-
-  QString message = QString("LDView (Single Call) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
-#else
-  emit gui->statusMessage(true, message);
-#endif
-
-  ldview.start(Preferences::ldviewExe,arguments);
-  if ( ! ldview.waitForFinished(rendererTimeout())) {
-    if (ldview.exitCode() != 0 || 1) {
-      QByteArray status = ldview.readAll();
-      QString str;
-      str.append(status);
-      emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView PLI render failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
       return -1;
     }
   }
 
   // move generated CSI images
-  QString ldrName;
-  QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
-  foreach(ldrName, ldrNames){
-      QFileInfo imageFileInfo(ldrName.replace(".ldr",".png"));
-      QString pngFilePath = QDir::currentPath() + "/" +
-          Paths::assemDir + "/" + imageFileInfo.fileName();
-      QFileInfo pngFileInfo(pngFilePath);
-      // delete old file
-      if (pngFileInfo.exists()) {
-          QFile pngFile(pngFileInfo.absoluteFilePath());
-          pngFile.remove();     // delete old file if exist
-       }
-      // move new file
-      if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
-          if (! pngFileInfo.exists()){
-              emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI image file move failed for\n%1")
-                                   .arg(pngFileInfo.absoluteFilePath()));
-              return -1;
-            }
-        }
-    }
-  // image mapping stub
-  for (int i = 0; i < csiKeys.size(); i++) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys[i]);
-      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+  if (useLDViewSCall()){
+    QString ldrName;
+    QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+    foreach(ldrName, ldrNames){
+        QFileInfo fInfo(ldrName.replace(".ldr",".png"));
+        QString imageFilePath = QDir::currentPath() + "/" +
+            Paths::partsDir + "/" + fInfo.fileName();
+        if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
+            //in case failure because file exist
+            QFile pngFile(imageFilePath);
+            if (! pngFile.exists()){
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView PLI image file move failed for\n%1")
+                           .arg(imageFilePath));
+                return -1;
+              }else {
+                //file exist so delete and retry
+                QFile pngFile(imageFilePath);
+                if (pngFile.remove()) {
+                    //retry
+                    if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
+                        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView PLI image file move failed after old file removal for\n%1")
+                                             .arg(imageFilePath));
+                        return -1;
+                      }
+                  } else {
+                    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView could not remove old PLI image file \n%1")
+                                         .arg(imageFilePath));
+                    return -1;
+                  }
+              }
+          }
       }
   }
 
   return 0;
 }
 
-int Render::renderLDViewSCallPli(
-  const QStringList &ldrNames,
-  Meta    &meta,
-  bool     bom)
-{
-  //logInfo() << "LDView SC PLI Renderer Timeout:" << rendererTimeout();
+// TODO - REMOVE
+//int Render::renderLDViewSCallCsi(
+//    const QStringList &ldrNames,
+//    const QStringList &csiKeys,
+//          Meta        &meta)
+//{
+//  //logInfo() << "LDView SC CSI Renderer Timeout:" << rendererTimeout();
 
-  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+//  /* determine camera distance */
+//  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+//  int width  = gui->pageSize(meta.LPub.page, 0);
+//  int height = gui->pageSize(meta.LPub.page, 1);
 
-  /* determine camera distance */
-  int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+//  /* edge thickness if highlight step is on */
+//  int edgeThickness;
+//  if (Preferences::enableHighlightStep)
+//    edgeThickness = Preferences::highlightStepLineWidth;
+//  else
+//    edgeThickness = 1;
 
-  /* edge thickness if highlight step is on */
-  int edgeThickness;
-  if (Preferences::enableHighlightStep)
-    edgeThickness = Preferences::highlightStepLineWidth;
-  else
-    edgeThickness = 1;
+//  bool hasLDViewIni = Preferences::ldviewIni != "";
 
-  bool hasLDViewIni = Preferences::ldviewIni != "";
+//  QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+//  QFile snapShotListFile(snapShotList);
+//  if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
+//      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI Snapshots list creation failed"));
+//      return -1;
+//  }
+//  QTextStream out(&snapShotListFile);
+//  for (int i = 0; i < ldrNames.size(); i++) {
+//      QString smLine = ldrNames[i];
+//      out << smLine << endl;
+//      //logInfo() << qPrintable(QString("CSI Snapshots line: %1").arg(smLine));
+//  }
+//  snapShotListFile.close();
+//  //logInfo() << qPrintable(QString("CSI Snapshots list: -SaveSnapshotsList=%1").arg(snapShotList));
 
-  QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
-  QFile snapShotListFile(snapShotList);
-  if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
-      emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) PLI Snapshots list creation failed!"));
-      return -1;
-  }
-  QTextStream out(&snapShotListFile);
-  for (int i = 0; i < ldrNames.size(); i++) {
-      QString smLine = ldrNames[i];
-      out << smLine << endl;
-      //logInfo() << qPrintable(QString("PLI Snapshots line: %1").arg(smLine));
-  }
-  snapShotListFile.close();
-  //logInfo() << qPrintable(QString("PLI Snapshots list: -SaveSnapshotsList=%1").arg(snapShotList));
+//  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+//  QString w  = QString("-SaveWidth=%1") .arg(width);
+//  QString h  = QString("-SaveHeight=%1") .arg(height);
+//  QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
+//  QString t  = QString("-SnapshotSuffix=.png");
+//  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+//  QString o  = QString("-HaveStdOut=1");
+//  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
+//  QString v  = QString("-vv");
 
-  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
-                                      .arg(pliMeta.angle.value(1))
-                                      .arg(cd);
+//  QStringList arguments;
+//  arguments << CA;
+//  arguments << cg;
+//  arguments << w;
+//  arguments << h;
+//  arguments << s;
+//  arguments << t;
+//  arguments << l;
+//  arguments << o;
+//  arguments << e;
+//  arguments << v;
 
-  QString w  = QString("-SaveWidth=%1")  .arg(width);
-  QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
-  QString t  = QString("-SnapshotSuffix=.png");
-  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
-  QString o  = QString("-HaveStdOut=1");
-  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
-  QString v  = QString("-vv");
+//  if (Preferences::enableFadeSteps)
+//    arguments <<  QString("-SaveZMap=1");
 
-  QStringList arguments;
-  arguments << CA;
-  arguments << cg;
-  arguments << w;
-  arguments << h;
-  arguments << s;
-  arguments << t;
-  arguments << l;
-  arguments << o;
-  arguments << e;
-  arguments << v;
+//  QStringList list;
+//  list = meta.LPub.assem.ldviewParms.value().split(' ');
+//  for (int i = 0; i < list.size(); i++) {
+//    if (list[i] != "" && list[i] != " ") {
+//      arguments << list[i];
+//      //logInfo() << qPrintable("-PARM META: " + list[i]);
+//    }
+//  }
+//  if(hasLDViewIni){
+//      QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
+//      arguments << ini;
+//  }
+//  if (!Preferences::altLDConfigPath.isEmpty()) {
+//    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+//    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+//  }
 
-  QStringList list;
-  list = meta.LPub.pli.ldviewParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-      //logInfo() << qPrintable("-PARM META: " + list[i]);
-    }
-  }
-  if(hasLDViewIni){
-      QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
-      arguments << ini;
-  }
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-  }
+//  emit gui->messageSig(LOG_STATUS, "Execute command: LDView (Single Call) render CSI.");
 
-  emit gui->messageSig(true, "Execute command: LDView (Single Call) render PLI.");
+//  QProcess    ldview;
+//  ldview.setEnvironment(QProcess::systemEnvironment());
+//  ldview.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::tmpDir);
+//  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
+//  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  QProcess    ldview;
-  ldview.setEnvironment(QProcess::systemEnvironment());
-  ldview.setWorkingDirectory(QDir::currentPath());
-  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
+//  QString message = QString("LDView (Single Call) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+//#ifdef QT_DEBUG_MODE
+//  qDebug() << qPrintable(message);
+//#else
+//  emit gui->messageSig(LOG_STATUS, message);
+//#endif
 
-  QString message = QString("LDView (Single Call) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
-#else
-  emit gui->statusMessage(true, message);
-#endif
+//  ldview.start(Preferences::ldviewExe,arguments);
+//  if ( ! ldview.waitForFinished(rendererTimeout())) {
+//    if (ldview.exitCode() != 0 || 1) {
+//      QByteArray status = ldview.readAll();
+//      QString str;
+//      str.append(status);
+//      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
+//      return -1;
+//    }
+//  }
 
-  ldview.start(Preferences::ldviewExe,arguments);
-  if ( ! ldview.waitForFinished(rendererTimeout())) {
-      if (ldview.exitCode() != 0) {
-          QByteArray status = ldview.readAll();
-          QString str;
-          str.append(status);
-          emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) PLI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
-          return -1;
-        }
-    }
+//  // move generated CSI images
+//  QString ldrName;
+//  QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+//  foreach(ldrName, ldrNames){
+//      QFileInfo imageFileInfo(ldrName.replace(".ldr",".png"));
+//      QString pngFilePath = QDir::currentPath() + "/" +
+//          Paths::assemDir + "/" + imageFileInfo.fileName();
+//      QFileInfo pngFileInfo(pngFilePath);
+//      // delete old file
+//      if (pngFileInfo.exists()) {
+//          QFile pngFile(pngFileInfo.absoluteFilePath());
+//          pngFile.remove();     // delete old file if exist
+//       }
+//      // move new file
+//      if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
+//          if (! pngFileInfo.exists()){
+//              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI image file move failed for\n%1")
+//                                   .arg(pngFileInfo.absoluteFilePath()));
+//              return -1;
+//            }
+//        }
+//    }
 
-  // move generated PLIimages
-  QString ldrName;
-  QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
-  foreach(ldrName, ldrNames){
-      QFileInfo imageFileInfo(ldrName.replace(".ldr",".png"));
-      QString pngFilePath = QDir::currentPath() + "/" +
-          Paths::partsDir + "/" + imageFileInfo.fileName();
-      QFileInfo pngFileInfo(pngFilePath);
-      if (pngFileInfo.exists()) {
-          QFile pngFile(pngFileInfo.absoluteFilePath());
-          pngFile.remove();     // delete old file if exist
-       }
-      if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
-          if (! pngFileInfo.exists()){
-              emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) PLI image file move failed for\n%1")
-                                   .arg(pngFileInfo.absoluteFilePath()));
-              return -1;
-            }
-        }
-    }
+//  // image mapping stub
+//  for (int i = 0; i < csiKeys.size(); i++) {
+//      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys[i]);
+//      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+//          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+//      }
+//  }
 
-  return 0;
-}
+//  return 0;
+//}
 
+// TODO - REMOVE
+//int Render::renderLDViewSCallPli(
+//  const QStringList &ldrNames,
+//  Meta    &meta,
+//  bool     bom)
+//{
+//  //logInfo() << "LDView SC PLI Renderer Timeout:" << rendererTimeout();
+
+//  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+
+//  /* determine camera distance */
+//  int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
+//  int width  = gui->pageSize(meta.LPub.page, 0);
+//  int height = gui->pageSize(meta.LPub.page, 1);
+
+//  /* edge thickness if highlight step is on */
+//  int edgeThickness;
+//  if (Preferences::enableHighlightStep)
+//    edgeThickness = Preferences::highlightStepLineWidth;
+//  else
+//    edgeThickness = 1;
+
+//  bool hasLDViewIni = Preferences::ldviewIni != "";
+
+//  QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
+//  QFile snapShotListFile(snapShotList);
+//  if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
+//      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) PLI Snapshots list creation failed!"));
+//      return -1;
+//  }
+//  QTextStream out(&snapShotListFile);
+//  for (int i = 0; i < ldrNames.size(); i++) {
+//      QString smLine = ldrNames[i];
+//      out << smLine << endl;
+//      //logInfo() << qPrintable(QString("PLI Snapshots line: %1").arg(smLine));
+//  }
+//  snapShotListFile.close();
+//  //logInfo() << qPrintable(QString("PLI Snapshots list: -SaveSnapshotsList=%1").arg(snapShotList));
+
+//  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
+//                                      .arg(pliMeta.angle.value(1))
+//                                      .arg(cd);
+
+//  QString w  = QString("-SaveWidth=%1")  .arg(width);
+//  QString h  = QString("-SaveHeight=%1") .arg(height);
+//  QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
+//  QString t  = QString("-SnapshotSuffix=.png");
+//  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+//  QString o  = QString("-HaveStdOut=1");
+//  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
+//  QString v  = QString("-vv");
+
+//  QStringList arguments;
+//  arguments << CA;
+//  arguments << cg;
+//  arguments << w;
+//  arguments << h;
+//  arguments << s;
+//  arguments << t;
+//  arguments << l;
+//  arguments << o;
+//  arguments << e;
+//  arguments << v;
+
+//  QStringList list;
+//  list = meta.LPub.pli.ldviewParms.value().split(' ');
+//  for (int i = 0; i < list.size(); i++) {
+//    if (list[i] != "" && list[i] != " ") {
+//      arguments << list[i];
+//      //logInfo() << qPrintable("-PARM META: " + list[i]);
+//    }
+//  }
+//  if(hasLDViewIni){
+//      QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
+//      arguments << ini;
+//  }
+//  if (!Preferences::altLDConfigPath.isEmpty()) {
+//    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+//    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+//  }
+
+//  emit gui->messageSig(LOG_STATUS, "Execute command: LDView (Single Call) render PLI.");
+
+//  QProcess    ldview;
+//  ldview.setEnvironment(QProcess::systemEnvironment());
+//  ldview.setWorkingDirectory(QDir::currentPath());
+//  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
+//  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
+
+//  QString message = QString("LDView (Single Call) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+//#ifdef QT_DEBUG_MODE
+//  qDebug() << qPrintable(message);
+//#else
+//  emit gui->messageSig(LOG_STATUS, message);
+//#endif
+
+//  ldview.start(Preferences::ldviewExe,arguments);
+//  if ( ! ldview.waitForFinished(rendererTimeout())) {
+//      if (ldview.exitCode() != 0) {
+//          QByteArray status = ldview.readAll();
+//          QString str;
+//          str.append(status);
+//          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) PLI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
+//          return -1;
+//        }
+//    }
+
+//  // move generated PLIimages
+//  QString ldrName;
+//  QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+//  foreach(ldrName, ldrNames){
+//      QFileInfo imageFileInfo(ldrName.replace(".ldr",".png"));
+//      QString pngFilePath = QDir::currentPath() + "/" +
+//          Paths::partsDir + "/" + imageFileInfo.fileName();
+//      QFileInfo pngFileInfo(pngFilePath);
+//      if (pngFileInfo.exists()) {
+//          QFile pngFile(pngFileInfo.absoluteFilePath());
+//          pngFile.remove();     // delete old file if exist
+//       }
+//      if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
+//          if (! pngFileInfo.exists()){
+//              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) PLI image file move failed for\n%1")
+//                                   .arg(pngFileInfo.absoluteFilePath()));
+//              return -1;
+//            }
+//        }
+//    }
+
+//  return 0;
+//}
+
+// TODO - REMOVE
 //**3D
 // create 3D Viewer version of the csi file
 // basically integrating subfile content into the csifile because 3DViewer is not smart.
 
-int Render::render3DCsi(
-  const QString     &nameKeys,
-  const QString     &addLine,
-  const QStringList &csiParts,
-        Meta        &meta,
-        bool        csiExists,
-        bool        outOfDate)
-{
-    QStringList csiSubModels;
-    QStringList csiSubModelParts;
+//int Render::render3DCsi(
+//  const QString     &nameKeys,
+//  const QString     &addLine,
+//  const QStringList &csiParts,
+//        Meta        &meta,
+//        bool        csiExists,
+//        bool        outOfDate)
+//{
+//    QStringList csiSubModels;
+//    QStringList csiSubModelParts;
 
-    QStringList csi3DParts;
-    QString     csi3DName;
-    QStringList argv;
-    bool        alreadyInserted;
-    int         rc;
-    bool    doFadeStep = gui->page.meta.LPub.fadeStep.fadeStep.value();
-    bool    doHighlightStep = gui->page.meta.LPub.highlightStep.highlightStep.value();
+//    QStringList csi3DParts;
+//    QString     viewerCsiName;
+//    QStringList argv;
+//    bool        alreadyInserted;
+//    int         rc;
+//    bool    doFadeStep = gui->page.meta.LPub.fadeStep.fadeStep.value();
+//    bool    doHighlightStep = gui->page.meta.LPub.highlightStep.highlightStep.value();
 
-    QString nameMod = doHighlightStep ? "-highlight" : "-fade";
+//    QString nameMod = doHighlightStep ? "-highlight" : "-fade";
 
-    csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
+//    viewerCsiName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
 
-    if ( ! csiExists || outOfDate) {
-        if (csiParts.size() > 0) {
-            csi3DParts << "0 FILE " + nameKeys + "\n"
-                          "0 !LEOCAD MODEL NAME " + nameKeys;
-            for (int index = 0; index < csiParts.size(); index++) {
+//    if ( ! csiExists || outOfDate) {
+//        if (csiParts.size() > 0) {
+//            csi3DParts << "0 FILE " + nameKeys + "\n"
+//                          "0 !LEOCAD MODEL NAME " + nameKeys;
+//            for (int index = 0; index < csiParts.size(); index++) {
 
-                alreadyInserted = false;
-                QString csiLine = csiParts[index];
-                split(csiLine, argv);
-                if (argv.size() == 15 && argv[0] == "1") {
+//                alreadyInserted = false;
+//                QString csiLine = csiParts[index];
+//                split(csiLine, argv);
+//                if (argv.size() == 15 && argv[0] == "1") {
 
-                    QString type = argv[argv.size()-1];
+//                    QString type = argv[argv.size()-1];
 
-                    /* process subfiles in csiParts */
-                    bool isConfiguredItem = (type.contains(nameMod + "."));
-                    bool isFadedSubModelOrUnofficialPart = false;
-                    if (isConfiguredItem) {
-                        QString fadedType = type;
-                        fadedType = fadedType.replace(nameMod,"");
-                        isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
-                      }
+//                    /* process subfiles in csiParts */
+//                    bool isConfiguredItem = (type.contains(nameMod + "."));
+//                    bool isFadedSubModelOrUnofficialPart = false;
+//                    if (isConfiguredItem) {
+//                        QString fadedType = type;
+//                        fadedType = fadedType.replace(nameMod,"");
+//                        isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
+//                      }
 
 //                    logNotice() << " \nROOT - FIRST LEVEL:  "
 //                                << " \nCsi3D Part Type:                 " << type
@@ -1463,16 +1596,16 @@ int Render::render3DCsi(
 //                                << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                   ;
 
-                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isFadedSubModelOrUnofficialPart) {
-                        /* capture all subfiles (full string) to be processed when finished */
-                        foreach (QString csiSubModel, csiSubModels) {
-                            if (csiSubModel == type) {
-                                alreadyInserted = true;
-                                break;
-                              } else {
-                                alreadyInserted = false;
-                              }
-                          }
+//                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isFadedSubModelOrUnofficialPart) {
+//                        /* capture all subfiles (full string) to be processed when finished */
+//                        foreach (QString csiSubModel, csiSubModels) {
+//                            if (csiSubModel == type) {
+//                                alreadyInserted = true;
+//                                break;
+//                              } else {
+//                                alreadyInserted = false;
+//                              }
+//                          }
 
 //                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
 //                                    << " \nCsi3D Part Type:                 " << type
@@ -1483,134 +1616,135 @@ int Render::render3DCsi(
 //                                    << " \nAlready Inserted:                " << alreadyInserted
 //                                       ;
 
-                        if (! alreadyInserted){
-                            alreadyInserted = false;
-                            csiSubModels << type.toLower();
-                          }
-                      }
-                  }
-                csiLine = argv.join(" ");
-                csi3DParts << csiLine;
-            } //end for
+//                        if (! alreadyInserted){
+//                            alreadyInserted = false;
+//                            csiSubModels << type.toLower();
+//                          }
+//                      }
+//                  }
+//                csiLine = argv.join(" ");
+//                csi3DParts << csiLine;
+//            } //end for
 
-            /* process extracted submodels and unofficial files */
-            if (csiSubModels.size() > 0){
-                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
-                if (rc != 0){
-                    QMessageBox::warning(NULL,
-                                         QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                         QMessageBox::tr("3D-render process extracted submodels failed."));
-                    return rc;
-                  }
-              } else {
-                csi3DParts.append("0 NOFILE");
-              }
+//            /* process extracted submodels and unofficial files */
+//            if (csiSubModels.size() > 0){
+//                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
+//                if (rc != 0){
+//                    QMessageBox::warning(NULL,
+//                                         QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                         QMessageBox::tr("3D-render process extracted submodels failed."));
+//                    return rc;
+//                  }
+//              } else {
+//                csi3DParts.append("0 NOFILE");
+//              }
 
-            /* Set the CSI 3D ldr ROTSTEP on top-level content */
-            bool viewer = true;
-            if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName, viewer)) < 0) {
-                QMessageBox::warning(NULL,
-                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                     QMessageBox::tr("3D-render rotate parts failed for: %1.")
-                                     .arg(csi3DName));
-                return rc;
-            }
+//            /* Set the CSI 3D ldr ROTSTEP on top-level content */
+//            bool viewer = true;
+//            if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, viewerCsiName, viewer)) < 0) {
+//                QMessageBox::warning(NULL,
+//                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                     QMessageBox::tr("3D-render rotate parts failed for: %1.")
+//                                     .arg(viewerCsiName));
+//                return rc;
+//            }
 
-            /* add sub model content to csi3D file */
-            if (! csiSubModelParts.isEmpty())
-            {
-                /* append subModel content to csi3D file */
-                QFile csi3DFile(csi3DName);
-                if ( ! csi3DFile.open(QFile::Append | QFile::Text)) {
-                    QMessageBox::warning(NULL,
-                                         QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                         QMessageBox::tr("Cannot open subModel file %1 for writing:\n%2")
-                                         .arg(csi3DName)
-                                         .arg(csi3DFile.errorString()));
-                    return -1;
-                }
-                QTextStream out(&csi3DFile);
-                for (int i = 0; i < csiSubModelParts.size(); i++) {
-                    QString smLine = csiSubModelParts[i];
-                    out << smLine << endl;
-                }
-                out << "0 NOFILE" << endl;
-                csi3DFile.close();
-            }
-        }
-    }
+//            /* add sub model content to csi3D file */
+//            if (! csiSubModelParts.isEmpty())
+//            {
+//                /* append subModel content to csi3D file */
+//                QFile csi3DFile(viewerCsiName);
+//                if ( ! csi3DFile.open(QFile::Append | QFile::Text)) {
+//                    QMessageBox::warning(NULL,
+//                                         QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                         QMessageBox::tr("Cannot open subModel file %1 for writing:\n%2")
+//                                         .arg(viewerCsiName)
+//                                         .arg(csi3DFile.errorString()));
+//                    return -1;
+//                }
+//                QTextStream out(&csi3DFile);
+//                for (int i = 0; i < csiSubModelParts.size(); i++) {
+//                    QString smLine = csiSubModelParts[i];
+//                    out << smLine << endl;
+//                }
+//                out << "0 NOFILE" << endl;
+//                csi3DFile.close();
+//            }
+//        }
+//    }
 
-    rc = load3DCsiImage(csi3DName);
-    if (rc != 0)
-      return rc;
+//    rc = load3DCsiImage(viewerCsiName);
+//    if (rc != 0)
+//      return rc;
 
-    return 0;
+//    return 0;
 
-}
+//}
 
-int Render::render3DCsiSubModels(QStringList &subModels,
-                                 QStringList &subModelParts,
-                                 bool doFadeStep,
-                                 bool doHighlightStep)
-{
-    QStringList csiSubModels        = subModels;
-    QStringList csiSubModelParts    = subModelParts;
-    QStringList newSubModels;
-    QStringList argv;
-    bool        alreadyInserted;
-    int         rc;
+// TODO - REMOVE
+//int Render::render3DCsiSubModels(QStringList &subModels,
+//                                 QStringList &subModelParts,
+//                                 bool doFadeStep,
+//                                 bool doHighlightStep)
+//{
+//    QStringList csiSubModels        = subModels;
+//    QStringList csiSubModelParts    = subModelParts;
+//    QStringList newSubModels;
+//    QStringList argv;
+//    bool        alreadyInserted;
+//    int         rc;
 
-    if (csiSubModels.size() > 0) {
+//    if (csiSubModels.size() > 0) {
 
-        QString nameMod = doHighlightStep ? "-highlight" : "-fade";
+//        QString nameMod = doHighlightStep ? "-highlight" : "-fade";
 
-        /* read in all detected sub model file content */
-        for (int index = 0; index < csiSubModels.size(); index++) {
+//        /* read in all detected sub model file content */
+//        for (int index = 0; index < csiSubModels.size(); index++) {
 
-            alreadyInserted     = false;
-            QString ldrName(QDir::currentPath() + "/" +
-                            Paths::tmpDir + "/" +
-                            csiSubModels[index]);
-            /* initialize the working submodel file - define header. */
-            csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index] + "\n"
-                                    "0 !LEOCAD MODEL NAME " + csiSubModels[index]);
-            /* read the actual submodel file */
-            QFile ldrfile(ldrName);
-            if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
-                QMessageBox::warning(NULL,
-                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                     QMessageBox::tr("3D CSI render cannot read subModel file %1:\n%2.")
-                                     .arg(ldrName)
-                                     .arg(ldrfile.errorString()));
-                return -1;
-            }
-            /* populate file contents into working submodel csi parts */
-            QTextStream in(&ldrfile);
-            while ( ! in.atEnd()) {
-                QString csiLine = in.readLine(0);
-                split(csiLine, argv);
-                if (argv.size() == 15 && argv[0] == "1") {
-                    /* check and process any subfiles in csiParts */
-                    QString type = argv[argv.size()-1];
+//            alreadyInserted     = false;
+//            QString ldrName(QDir::currentPath() + "/" +
+//                            Paths::tmpDir + "/" +
+//                            csiSubModels[index]);
+//            /* initialize the working submodel file - define header. */
+//            csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index] + "\n"
+//                                    "0 !LEOCAD MODEL NAME " + csiSubModels[index]);
+//            /* read the actual submodel file */
+//            QFile ldrfile(ldrName);
+//            if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
+//                QMessageBox::warning(NULL,
+//                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                     QMessageBox::tr("3D CSI render cannot read subModel file %1:\n%2.")
+//                                     .arg(ldrName)
+//                                     .arg(ldrfile.errorString()));
+//                return -1;
+//            }
+//            /* populate file contents into working submodel csi parts */
+//            QTextStream in(&ldrfile);
+//            while ( ! in.atEnd()) {
+//                QString csiLine = in.readLine(0);
+//                split(csiLine, argv);
+//                if (argv.size() == 15 && argv[0] == "1") {
+//                    /* check and process any subfiles in csiParts */
+//                    QString type = argv[argv.size()-1];
 
-                    bool isConfiguredItem = (type.contains(nameMod + "."));
-                    bool isFadedSubModelOrUnofficialPart = false;
-                    if (isConfiguredItem) {
-                        QString fadedType = type;
-                        fadedType = fadedType.replace(nameMod,"");
-                        isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
-                      }
+//                    bool isConfiguredItem = (type.contains(nameMod + "."));
+//                    bool isFadedSubModelOrUnofficialPart = false;
+//                    if (isConfiguredItem) {
+//                        QString fadedType = type;
+//                        fadedType = fadedType.replace(nameMod,"");
+//                        isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
+//                      }
 
-                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isFadedSubModelOrUnofficialPart) {
-                        /* capture all subfiles (full string) to be processed when finished */
-                        foreach (QString newSubModel, newSubModels) {
-                            if (newSubModel == type) {
-                                alreadyInserted = true;
-                                break;
-                              } else {
-                                alreadyInserted = false;
-                              }
-                          }
+//                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isFadedSubModelOrUnofficialPart) {
+//                        /* capture all subfiles (full string) to be processed when finished */
+//                        foreach (QString newSubModel, newSubModels) {
+//                            if (newSubModel == type) {
+//                                alreadyInserted = true;
+//                                break;
+//                              } else {
+//                                alreadyInserted = false;
+//                              }
+//                          }
 
 //                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
 //                                    << " \nCsi3D Part Type:                 " << type
@@ -1621,42 +1755,42 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 //                                    << " \nAlready Inserted:                " << alreadyInserted
 //                                       ;
 
-                        if (! alreadyInserted){
-                            alreadyInserted = false;
-                            newSubModels << type;
-                          }
-                      }
-                  }
-                csiLine = argv.join(" ");
-                csiSubModelParts << csiLine;
-            }
-        }
+//                        if (! alreadyInserted){
+//                            alreadyInserted = false;
+//                            newSubModels << type;
+//                          }
+//                      }
+//                  }
+//                csiLine = argv.join(" ");
+//                csiSubModelParts << csiLine;
+//            }
+//        }
 
-        /* recurse and process any identified submodel files */
-        if (newSubModels.size() > 0){
-            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
-            if (rc != 0){
-                QMessageBox::warning(NULL,
-                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                     QMessageBox::tr("3D-render recurse submodel file failed."));
-                return rc;
-              }
-          }
-        subModelParts = csiSubModelParts;
-    }
-    return 0;
-}
+//        /* recurse and process any identified submodel files */
+//        if (newSubModels.size() > 0){
+//            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
+//            if (rc != 0){
+//                QMessageBox::warning(NULL,
+//                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                     QMessageBox::tr("3D-render recurse submodel file failed."));
+//                return rc;
+//              }
+//          }
+//        subModelParts = csiSubModelParts;
+//    }
+//    return 0;
+//}
 
-int Render::load3DCsiImage(QString &csi3DName)
-{
-  //load CSI 3D file into viewer
-  QFile csi3DFile(csi3DName);
-  if (csi3DFile.exists()){
-      if (! gMainWindow->OpenProject(csi3DFile.fileName()))
-        return -1;
-    } else {
-      return -1;
-    }
+//int Render::load3DCsiImage(QString &viewerCsiName)
+//{
+//  //load CSI 3D file into viewer
+//  QFile csi3DFile(viewerCsiName);
+//  if (csi3DFile.exists()){
+//      if (! gMainWindow->OpenProject(csi3DFile.fileName()))
+//        return -1;
+//    } else {
+//      return -1;
+//    }
 
-  return 0;
-}
+//  return 0;
+//}

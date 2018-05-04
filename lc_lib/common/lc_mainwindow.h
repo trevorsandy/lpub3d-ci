@@ -6,6 +6,7 @@
 #include "lc_model.h"
 
 /*** LPub3D Mod - status and logging ***/
+#include <QToolBar>
 #include <QStatusBar>
 #include "QsLog.h"
 /*** LPub3D Mod end ***/
@@ -139,7 +140,7 @@ public:
 		return mTransformType;
 	}
 
-/*** LPub3D Mod - Rotate Step ***/
+/*** LPub3D Mod - Rotate Step [deprecated] ***/
 	QString GetRotateStep() const
 	{
 	    //only for status bar
@@ -288,6 +289,8 @@ public:
 	void SetTransformType(lcTransformType TransformType);
 /*** LPub3D Mod - rotate view ***/
 	void SetRotateStepType(lcRotateStepType RotateStepType);
+	bool ViewStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix);
+	bool LoadViewerBanner(const QString& FileName, const QVector<lcVector3> &viewMatrix);
 /*** LPub3D Mod end ***/
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -344,27 +347,60 @@ public:
 	void UpdateShortcuts();
 
 	lcVector3 GetTransformAmount();
-/*** LPub3D Mod - rotate step amount ***/
-	lcVector3 GetRotateStepAmount();
-/*** LPub3D Mod end ***/
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
 	QAction* mActions[LC_NUM_COMMANDS];
+
+/*** LPub3D Mod - relocate toolbar ***/
+	QToolBar* mToolsToolBar;       //moved from protected:
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - status bar ***/
-	QToolBar* mToolsToolBar;
 	QStatusBar* mLCStatusBar;
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Rotate Step veriables ***/
+        QString   viewerCsiName;
+        lcVector3 viewerCameraPosition;
+        lcVector3 viewerTargetPosition;
+        lcVector3 viewerUpVector;
+        float     viewerFovY;
+        float     viewerZNear;
+        float     viewerZFar;
+/*** LPub3D Mod end ***/
+
+// TODO - REMOVE
+/*** LPub3D Mod - rotate step amount ***
+	lcVector3 GetRotateStepAmount();
+*** LPub3D Mod end ***/
+
 public slots:
 	void ProjectFileChanged(const QString& Path);
-/*** LPub3D Mod - halt viewer ***/
-	void NewProject();               // move from public to public slots
-	void UpdateAllViews();           // move from public to public slots
-	void Halt3DViewer(bool b);
+/*** LPub3D Mod - relocate update and new project ***/
+	void NewProject();               // move from public:
+	void UpdateAllViews();           // moved from public:
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - halt, disable, enable viewer ***/
+	void Halt3DViewer(bool b);
         void Enable3DActions();
         void Disable3DActions();
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - rotate step objects ***/
+        void RotateStepSelectedObjects(bool update = false);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - roate step signals ***/
+signals:
+        lcVector3 GetStepRotation();
+        void SetStepRotation(QString&, bool);
+        void ResetStepRotation();
+
+        void SetRotStepAngleX(float);
+        void SetRotStepAngleY(float);
+        void SetRotStepAngleZ(float);
 /*** LPub3D Mod end ***/
 
 protected slots:
@@ -412,7 +448,7 @@ protected:
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
-/*** LPub3D Mod - rotate step ***/
+/*** LPub3D Mod - rotate step [deprecated] ***/
 	lcRotateStepType mRotateStepType;
 /*** LPub3D Mod end ***/
 	bool mMoveSnapEnabled;
@@ -430,7 +466,7 @@ protected:
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
 /*** LPub3D Mod - move toolbar ***/
-	//QToolBar* mToolsToolBar;      //move from protected to public:
+	//QToolBar* mToolsToolBar;      //move to public:
 /*** LPub3D Mod end ***/
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
@@ -459,6 +495,8 @@ protected:
 	QMenu* mProjectionMenu;
 	QMenu* mShadingMenu;
 	QMenu* mSelectionModeMenu;
+
+	friend class Gui;
 };
 
 extern class lcMainWindow* gMainWindow;

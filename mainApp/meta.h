@@ -2114,6 +2114,11 @@ public:
   MarginsMeta   margin;
   PlacementMeta placement;
   FloatMeta     modelScale;
+  FloatPairMeta angle;
+  IntMeta       distance;
+  FloatMeta     fov;
+  FloatMeta     znear;
+  FloatMeta     zfar;
   StringMeta    ldviewParms;
   StringMeta    ldgliteParms;
   StringMeta    povrayParms;
@@ -2450,7 +2455,7 @@ public:
 private:
 };
 
-const QString RcNames[56] =
+const QString RcNames[42] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",

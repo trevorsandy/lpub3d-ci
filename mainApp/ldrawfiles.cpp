@@ -75,10 +75,23 @@ LDrawSubFile::LDrawSubFile(
   _startPageNumber = 0;
 }
 
+/* initialize viewer step*/
+ViewerStep::ViewerStep(const QStringList &contents,
+                       const QString     &filePath,
+                       bool               multiStep,
+                       bool               calledOut){
+    _contents << contents;
+    _filePath  = filePath;
+    _modified  = false;
+    _multiStep = multiStep;
+    _calledOut = calledOut;
+}
+
 void LDrawFile::empty()
 {
   _subFiles.clear();
   _subFileOrder.clear();
+  _viewerSteps.clear();
   _mpd = false;
   _pieces = 0;
 }
@@ -441,9 +454,7 @@ void LDrawFile::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -466,10 +477,12 @@ void LDrawFile::loadFile(const QString &fileName)
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(sof)) {
+            logStatus() << QString("Loading MPD %1").arg(line.remove("0 "));
             mpd = true;
             break;
         }
         if (line.contains(part)) {
+            logStatus() << QString("Loading LDR %1").arg(line.remove("0 "));
             mpd = false;
             break;
         }
@@ -478,8 +491,8 @@ void LDrawFile::loadFile(const QString &fileName)
     file.close();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    
     QFileInfo fileInfo(fileName);
+
     if (mpd) {
       QDateTime datetime = QFileInfo(fileName).lastModified();
       loadMPDFile(fileName,datetime);
@@ -491,7 +504,7 @@ void LDrawFile::loadFile(const QString &fileName)
 
     countParts(topLevelFile());
 
-    emit gui->messageSig(true, QString("%1 model file %2 loaded. Count %3 parts")
+    emit gui->messageSig(LOG_STATUS, QString("%1 model file %2 loaded. Count %3 parts")
                                        .arg(mpd ? "MPD" : "LDR")
                                        .arg(fileInfo.fileName())
                                        .arg(_pieces));
@@ -511,9 +524,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 {    
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -549,7 +560,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, stageContents.size());
     emit gui->progressPermMessageSig("Processing model file...");
-    emit gui->messageSig(true, "Loading MPD model file " + fileInfo.fileName() + "...");
+    emit gui->messageSig(LOG_STATUS, "Loading MPD model file " + fileInfo.fileName() + "...");
 
     for (int i = 0; i < stageContents.size(); i++) {
 
@@ -610,7 +621,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (! mpdName.isEmpty() && ! alreadyInserted) {
 //                logTrace() << "Inserted Subfile: " << mpdName;
-                emit gui->messageSig(true, QString("MPD submodel '" + mpdName + "' loaded."));
+                emit gui->messageSig(LOG_STATUS, QString("MPD submodel '" + mpdName + "' loaded."));
                 insert(mpdName,contents,datetime,unofficialPart);
                 unofficialPart = false;
             }
@@ -622,7 +633,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
-                emit gui->messageSig(true, "Loading MPD submodel '" + mpdName + "'...");
+                emit gui->messageSig(LOG_STATUS, "Loading MPD submodel '" + mpdName + "'...");
             } else {
                 mpdName.clear();
             }
@@ -658,9 +669,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
 
       QFile file(fullName);
       if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fullName)
                              .arg(file.errorString()));
         return;
@@ -696,7 +705,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
       emit gui->progressBarPermInitSig();
       emit gui->progressPermRangeSig(1, contents.size());
       emit gui->progressPermMessageSig("Processing model file...");
-      emit gui->messageSig(true, "Loading LDR " + fileType + " file '" + fileName + "'...");
+      emit gui->messageSig(LOG_STATUS, "Loading LDR " + fileType + " file '" + fileName + "'...");
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
@@ -755,7 +764,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
 
       emit gui->progressPermSetValueSig(contents.size());
       emit gui->removeProgressPermStatusSig();
-      emit gui->messageSig(true, QString("LDR model file '" + fileName + "' loaded."));
+      emit gui->messageSig(LOG_STATUS, QString("LDR model file '" + fileName + "' loaded."));
     }
 }
 
@@ -933,9 +942,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot write file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return false;
@@ -1015,8 +1022,8 @@ void LDrawFile::countParts(const QString &fileName){
                     } else {
                       logNotice() << QString("Item [%1] not found in LPub3D archives. %2 %3")
                           .arg(tokens[14])
-                          .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LPUB3D_UNOFFICIAL_ARCHIVE))
-                          .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE));
+                          .arg(QString("Official archive library .../%1").arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE))
+                          .arg(QString("Unofficial archive library .../%1").arg(VER_LDRAW_OFFICIAL_ARCHIVE));
                     }
                 }
             }
@@ -1042,11 +1049,9 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
       if (f != _subFiles.end() && ! f.value()._generated) {
         if (f.value()._modified) {
           if (!file.open(QFile::WriteOnly | QFile::Text)) {
-            QMessageBox::warning(NULL, 
-              QMessageBox::tr(VER_PRODUCTNAME_STR),
-              QMessageBox::tr("Cannot write file %1:\n%2.")
-              .arg(writeFileName)
-              .arg(file.errorString()));
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot write file %1:\n%2.")
+                                 .arg(writeFileName)
+                                 .arg(file.errorString()));
             return false;
           }
           QTextStream out(&file);
@@ -1081,6 +1086,96 @@ void LDrawFile::tempCacheCleared()
   }
 }
 
+/* Add a new Viewer Step */
+
+void LDrawFile::insertViewerStep(const QString     &fileName,
+                                 const QStringList &contents,
+                                 const QString     &filePath,
+                                 bool               multiStep,
+                                 bool               calledOut)
+{
+  QString    mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+
+  if (i != _viewerSteps.end()) {
+    _viewerSteps.erase(i);
+  }
+  ViewerStep viewerStep(contents,filePath,multiStep,calledOut);
+  _viewerSteps.insert(mfileName,viewerStep);
+}
+
+/* Update Viewer Step */
+
+void LDrawFile::updateStep(const QString &fileName,
+                           const QStringList &contents)
+{
+  QString    mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+
+  if (i != _viewerSteps.end()) {
+    i.value()._contents = contents;
+    i.value()._modified = true;
+  }
+}
+
+/* return viewer step contents */
+
+QStringList LDrawFile::getViewerStepContents(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._contents;
+  }
+  return _emptyList;
+}
+
+/* return viewer step file path */
+
+QString LDrawFile::getViewerStepFilePath(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._filePath;
+  }
+  return _emptyString;
+}
+
+/* return viewer step is multiStep */
+
+bool LDrawFile::isViewerStepMultiStep(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._multiStep;
+  } else {
+    return false;
+  }
+}
+
+/* return viewer step is calledOut */
+
+bool LDrawFile::isViewerStepCalledOut(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._calledOut;
+  } else {
+    return false;
+  }
+}
+
+/* Clear ViewerSteps */
+
+void LDrawFile::clearSteps()
+{
+  _viewerSteps.clear();
+}
+
+// -- -- Utility Functions -- -- //
 
 int split(const QString &line, QStringList &argv)
 {

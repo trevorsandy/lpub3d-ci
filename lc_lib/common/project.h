@@ -93,6 +93,9 @@ public:
 	void ShowModelListDialog();
 
 	bool Load(const QString& FileName);
+/*** LPub3D Mod - load lpub3d step ***/
+	bool LoadViewer(const QString &CsiName);
+/*** LPub3D Mod end ***/
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
 	void Merge(Project* Other);

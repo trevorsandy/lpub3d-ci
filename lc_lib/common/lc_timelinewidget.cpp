@@ -44,14 +44,16 @@ void lcTimelineWidget::CustomMenuRequested(QPoint Pos)
 			Menu->addSeparator();
 		}
 	}
-
+/*** LPub3D Mod - suppress context menu items ***/
+/***
 	Menu->addAction(gMainWindow->mActions[LC_TIMELINE_SET_CURRENT]);
 	Menu->addAction(gMainWindow->mActions[LC_TIMELINE_INSERT]);
 	Menu->addAction(gMainWindow->mActions[LC_TIMELINE_DELETE]);
 	Menu->addAction(gMainWindow->mActions[LC_TIMELINE_MOVE_SELECTION]);
 
 	Menu->addSeparator();
-
+***/
+/*** LPub3D Mod end ***/
 	Menu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
 	Menu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
 	Menu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);

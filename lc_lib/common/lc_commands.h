@@ -100,7 +100,7 @@ enum lcCommandId
 	LC_EDIT_ACTION_ROTATE_VIEW,
 	LC_EDIT_ACTION_ROLL,
 	LC_EDIT_ACTION_ZOOM_REGION,
-	LC_EDIT_ACTION_ROTATESTEP,                         /*** LPub3D Mod - Rotate Step Menu ***/
+	LC_EDIT_ACTION_ROTATESTEP,                         /*** LPub3D Mod - Rotate Step Menu [deprecated] ***/
 	LC_EDIT_ACTION_LAST = LC_EDIT_ACTION_ROTATESTEP,
 	LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION,
 	LC_EDIT_ROTATESTEP_RELATIVE_ROTATION,              /*** LPub3D Mod end ***/

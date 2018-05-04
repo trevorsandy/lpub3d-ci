@@ -519,7 +519,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - parse rotstep line ***/
 			if (Token == QLatin1String("//"))
 			 {
-				 ParseExsitingRotStepLine(LineStream);
+				 ParseAndSetRotStep(LineStream);
 			 }
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process colour entry ***/
@@ -2729,71 +2729,80 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 	}
 }
 
-/*** LPub3D Mod - rotate objects  and parse rotstep line***/
-void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
+// TODO - REMOVE
+//void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
+//{
+//    lcVector3 rotateStep = RotateStep;
+
+//    QString   rotationType;
+//    switch (RotateStepType)
+//    {
+//    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+//        rotationType = "ABS";
+//        break;
+//    case LC_ROTATESTEP_RELATIVE_ROTATION:
+//        rotationType = "REL";
+//        break;
+//    }
+
+//    QString modelNameParts  = mProperties.mName;                    // Model Name Format = csiName_sn_ln.ldr
+//            modelNameParts  = modelNameParts.section("_",-1,-1);    // First split to get 'ln.ldr'
+//    QString lineNumber      = modelNameParts.section(".",0,-2);     // Second split to get 'ln'
+
+//    QString rotationValue("%1 %2 %3 %4 %5");
+//    rotationValue = rotationValue.arg(lineNumber,
+//                  QString::number(rotateStep[0], 'f', 2),
+//                  QString::number(rotateStep[1], 'f', 2),
+//                  QString::number(rotateStep[2], 'f', 2),
+//                  rotationType);
+
+//    MetaItem mi;
+
+//    if (gui->getCurFile() != "") {
+
+//        mi.writeRotateStep(rotationValue);
+//        gui->clearAndRedrawPage();
+//        gui->SetExistingRotStep(rotateStep);
+//        gui->UpdateStepRotation();
+
+//    }
+
+//    gMainWindow->UpdateAllViews();
+//}
+
+/*** LPub3D Mod - parse and set rotstep line on model file load ***/
+void lcModel::ParseAndSetRotStep(QTextStream& LineStream)
 {
-    lcVector3 rotateStep = RotateStep;
+  while (!LineStream.atEnd())
+  {
+      lcVector3 rotStep;
+      QString Token;
+      LineStream >> Token;
 
-    QString   rotationType;
-    switch (RotateStepType)
-    {
-    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
-        rotationType = "ABS";
-        break;
-    case LC_ROTATESTEP_RELATIVE_ROTATION:
-        rotationType = "REL";
-        break;
-    }
+      if (Token == QLatin1String("ROTSTEP")) {
 
-    QString modelNameParts  = mProperties.mName;                    // Model Name Format = csiName_sn_ln.ldr
-            modelNameParts  = modelNameParts.section("_",-1,-1);    // First split to get 'ln.ldr'
-    QString lineNumber      = modelNameParts.section(".",0,-2);     // Second split to get 'ln'
+          LineStream >> Token;
 
-    QString rotationValue("%1 %2 %3 %4 %5");
-    rotationValue = rotationValue.arg(lineNumber,
-                  QString::number(rotateStep[0], 'f', 2),
-                  QString::number(rotateStep[1], 'f', 2),
-                  QString::number(rotateStep[2], 'f', 2),
-                  rotationType);
+          if(Token == QLatin1String("REL"))
+              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+          else
+          if(Token == QLatin1String("ABS"))
+              gMainWindow->SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
+          else
+              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
 
-    MetaItem mi;
+          LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
 
-    if (gui->getCurFile() != "") {
-
-        mi.writeRotateStep(rotationValue);
-        gui->clearAndRedrawPage();
-        gui->SetExistingRotStep(rotateStep);
-        gui->UpdateStepRotation();
-
-    }
-
-    gMainWindow->UpdateAllViews();
-}
-
-void lcModel::ParseExsitingRotStepLine(QTextStream& LineStream)
-{
-    while (!LineStream.atEnd())
-    {
-        lcVector3 rotStep;
-        QString Token;
-        LineStream >> Token;
-
-        if (Token == QLatin1String("ROTSTEP")) {
-
-            LineStream >> Token;
-
-            if(Token == QLatin1String("REL"))
-                gMainWindow->SetRotateStepType(LC_ROTATESTEP_RELATIVE_ROTATION);
-            else if(Token == QLatin1String("ABS"))
-                gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
-
-            LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
-
-            gui->SetExistingRotStep(rotStep);
-
-            continue;
-        }
-    }
+          QString rotationArgs("%1 %2 %3 %4");
+          rotationArgs = rotationArgs.arg(
+                        QString::number(rotStep[0], 'f', 2),
+                        QString::number(rotStep[1], 'f', 2),
+                        QString::number(rotStep[2], 'f', 2),
+                        Token);
+          emit gMainWindow->SetStepRotation(rotationArgs, false);
+          break;
+      }
+   }
 }
 /*** LPub3D Mod end ***/
 
@@ -3929,7 +3938,9 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
-	case LC_TOOL_ROTATESTEP:                       /*** LPub3D Mod - set tool rotatestep ***/
+/*** LPub3D Mod - set tool rotatestep ***/
+	case LC_TOOL_ROTATESTEP:
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_NUM_TOOLS:

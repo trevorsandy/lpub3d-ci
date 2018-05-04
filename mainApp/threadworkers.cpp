@@ -452,7 +452,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       // check if part has children color part(s)
       if (!processColourParts(colourPartList, partType)) {
           QString error = QString("Process %1 colour parts failed!.").arg(nameMod);
-          emit messageSig(false,error);
+          emit messageSig(LOG_ERROR,error);
           logError() << error;
           emit removeProgressStatusSig();
           emit customColourFinishedSig();
@@ -508,7 +508,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       QString comment = QString("colour %1").arg(nameMod);
       if (!processPartsArchive(customPartsDirs, comment, overwriteCustomParts)){
           QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
-          emit messageSig(false,error);
+          emit messageSig(LOG_ERROR,error);
           logError() << error;
           emit removeProgressStatusSig();
           emit customColourFinishedSig();
@@ -539,7 +539,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
 
   emit removeProgressStatusSig();
   emit customColourFinishedSig();
-  emit messageSig(true,fileStatus);
+  emit messageSig(LOG_STATUS,fileStatus);
 
   logInfo() << fileStatus;
 }
@@ -563,7 +563,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         unofficialLib = QString("%1/%2").arg(archiveFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE);
     } else {
         fileStatus = QString("Archive file does not exist: %1. The process will terminate.").arg(archiveFileInfo.absoluteFilePath());
-        emit messageSig(true, fileStatus);
+        emit messageSig(LOG_STATUS, fileStatus);
         logError() << fileStatus;
         return false;
     }
@@ -692,7 +692,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         }
         if (!partFound) {
             fileStatus = QString("Part file %1 not found in %2.").arg(libPartName).arg(unOffLib ? "Unofficial Library" : "Official Library");
-            emit messageSig(false, fileStatus);
+            emit messageSig(LOG_ERROR, fileStatus);
             logError() << fileStatus;
         }
 
@@ -712,7 +712,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     QString message = QString("%1 Colour %2 content processed.")
         .arg(partsProcessed)
         .arg(partsProcessed > 1 ? "parts" : "part");
-    emit messageSig(true,message);
+    emit messageSig(LOG_STATUS,message);
     logInfo() << message;
 
     return true;
@@ -846,7 +846,7 @@ bool PartWorker::saveCustomFile(
     QFile file(fileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
         QString message = QString("Failed to open %1 for writing: %2").arg(fileName).arg(file.errorString());
-        emit messageSig(true,message);
+        emit messageSig(LOG_STATUS,message);
         logError() << message;
         return false;
 
@@ -988,7 +988,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                  overwriteCustomParts))
       {
           if (okToEmitToProgressBar())
-              emit messageSig(false,returnMessage);
+              emit messageSig(LOG_ERROR,returnMessage);
           else
               logNotice() << returnMessage;
           continue;
@@ -1013,7 +1013,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       if (!gApplication->mLibrary->ReloadUnoffLib()){
           returnMessage = tr("Failed to reload unofficial parts library into memory.");
           if (okToEmitToProgressBar()) {
-              emit messageSig(false,returnMessage);
+              emit messageSig(LOG_ERROR,returnMessage);
           } else {
               logError() << returnMessage;
           }
@@ -1022,7 +1022,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           partsLabel = archivedPartCount == 1 ? "part" : "parts";
           returnMessage = tr("Reloaded unofficial library into memory with %1 new %2.").arg(archivedPartCount).arg(partsLabel);
           if (okToEmitToProgressBar()) {
-              emit messageSig(true,returnMessage);
+              emit messageSig(LOG_STATUS,returnMessage);
           } else {
               logInfo() << returnMessage;
           }
@@ -1038,7 +1038,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
   logInfo() << returnMessage;
   if (okToEmitToProgressBar()) {
-      emit messageSig(true, returnMessage);
+      emit messageSig(LOG_STATUS, returnMessage);
   } else {
       emit Application::instance()->splashMsgSig(tr("70% - Finished archiving %1 parts.").arg(comment));
   }
@@ -1111,7 +1111,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     foreach (QString archiveFile, archiveFiles) {
        if(!processArchiveParts(archiveFile)){
            QString error = QString("Process colour parts list failed!.");
-           emit messageSig(false,error);
+           emit messageSig(LOG_ERROR,error);
            logError() << error;
            emit removeProgressStatusSig();
            emit colourPartListFinishedSig();
@@ -1140,7 +1140,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
     emit removeProgressStatusSig();
     emit colourPartListFinishedSig();
-    emit messageSig(true, fileStatus);
+    emit messageSig(LOG_STATUS, fileStatus);
 
     logInfo() << fileStatus;
 }
@@ -1268,7 +1268,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
                 //logInfo() << " File contents VERIFY: " << line << " COLOUR: " << colour;
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
-                    emit messageSig(false,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
+                    emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
                                                   "You may want to update the part content and costom colour parts list.")
                                     .arg(fileName).arg(libFileName));
                 }
@@ -1360,7 +1360,7 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
         QFile file(colourFileList.absoluteFilePath());
         if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
            logError() << QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString());
-            emit messageSig(false,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
+            emit messageSig(LOG_ERROR,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
         QTextStream out(&file);

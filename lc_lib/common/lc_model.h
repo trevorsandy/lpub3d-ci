@@ -329,9 +329,10 @@ public:
 	}
 
 	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
-/*** LPub3D Mod - rotate step ***/
-	void ParseExsitingRotStepLine(QTextStream& LineStream);
-	void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
+/*** LPub3D Mod - parse and set rotstep line on model file load ***/
+        void ParseAndSetRotStep(QTextStream& LineStream);
+// TODO - REMOVE
+//        void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
 /*** LPub3D Mod end ***/
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);

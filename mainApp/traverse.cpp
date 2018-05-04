@@ -297,7 +297,7 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  emit messageSig(true, "Processing draw page for " + current.modelName + "...");
+  emit messageSig(LOG_STATUS, "Processing draw page for " + current.modelName + "...");
 
   /*
    * do until end of page
@@ -524,7 +524,7 @@ int Gui::drawPage(
               /* remind user what file we're working on */
 
 //              statusBar()->showMessage("Processing " + current.modelName);
-              emit messageSig(true, "Processing " + current.modelName + "...");
+              emit messageSig(LOG_STATUS, "Processing " + current.modelName + "...");
             }
 
         } else if (tokens.size() > 0 &&
@@ -952,16 +952,16 @@ int Gui::drawPage(
                       page->instances = instances;
                     }
 
-                  emit messageSig(true, "Add graphics for multi-step page " + current.modelName);
+                  emit messageSig(LOG_STATUS, "Add graphics for multi-step page " + current.modelName);
 
                   if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
                       QElapsedTimer timer;
                       timer.start();
 
-                      int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, csiKeys, steps->meta);
+                      QString empty("");
+                      int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                       if (rc != 0) {
-                          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                QMessageBox::tr("Render CSI images failed."));
+                          emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                           return rc;
                         }
 
@@ -1007,7 +1007,7 @@ int Gui::drawPage(
                       range->append(step);
                     }
 
-                  emit messageSig(true, "Processing bfx model (CSI) for " + topOfStep.modelName + "...");
+                  emit messageSig(LOG_STATUS, "Processing bfx model (CSI) for " + topOfStep.modelName + "...");
                   csiName = step->csiName();
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1085,7 +1085,7 @@ int Gui::drawPage(
                           step->placeRotateIcon = true;
                         }
 
-                      emit messageSig(true, "Processing model (CSI) for " + topOfStep.modelName + "...");
+                      emit messageSig(LOG_STATUS, "Processing model (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1165,18 +1165,16 @@ int Gui::drawPage(
                             }
                         }
 
-                      emit messageSig(true, "Add graphics for single-step page...");
+                      emit messageSig(LOG_STATUS, "Add graphics for single-step page...");
 
                       if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 
                           QElapsedTimer timer;
                           timer.start();
-
-                          int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, csiKeys, steps->meta);
-
+                          QString empty("");
+                          int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                           if (rc != 0) {
-                              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                    QMessageBox::tr("Render CSI images failed."));
+                              emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                               return rc;
                             }
 
@@ -1302,7 +1300,7 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  emit messageSig(true, "Processing find page for " + current.modelName + "...");
+  emit messageSig(LOG_STATUS, "Processing find page for " + current.modelName + "...");
 
   for ( ;
         current.lineNumber < numLines;
@@ -2461,7 +2459,7 @@ void Gui::writeToTmp()
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
       emit progressPermMessageSig("Processing submodels...");
     }
-  emit messageSig(true, "Writing submodels to temp directory...");
+  emit messageSig(LOG_STATUS, "Writing submodels to temp directory...");
 
   bool upToDate = true;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
@@ -2483,7 +2481,7 @@ void Gui::writeToTmp()
           // write normal submodels...
           upToDate = false;
           writeToTmp(fileName,content);
-          emit messageSig(true, "Writing submodel to temp directory: " + fileName);
+          emit messageSig(LOG_STATUS, "Writing submodel to temp directory: " + fileName);
 
           // capture file name extensions
           QString extension = QFileInfo(fileName).suffix().toLower();
@@ -2504,7 +2502,7 @@ void Gui::writeToTmp()
             /* Faded version of submodels */
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
             writeToTmp(fadeFileName,configuredContent);
-            emit messageSig(true, "Writing fade submodels to temp directory: " + fadeFileName);
+            emit messageSig(LOG_STATUS, "Writing fade submodels to temp directory: " + fadeFileName);
           }
           // write configured (Highlight) submodels
           if (doHighlightStep) {
@@ -2519,7 +2517,7 @@ void Gui::writeToTmp()
             /* Highlighted version of submodels */
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
             writeToTmp(highlightFileName,configuredContent);
-            emit messageSig(true, "Writing highlight submodel to temp directory: " + highlightFileName);
+            emit messageSig(LOG_STATUS, "Writing highlight submodel to temp directory: " + highlightFileName);
           }
       }
   }
@@ -2527,7 +2525,7 @@ void Gui::writeToTmp()
       emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
       emit removeProgressPermStatusSig();
     }
-  emit messageSig(true, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
+  emit messageSig(LOG_STATUS, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
 }
 
 /*
@@ -2650,7 +2648,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
               // check if is colour part
               is_colour_part = ldrawColourParts.isLDrawColourPart(fileNameStr);
 
-              emit messageSig(true, "Configuring custom parts for " + fileNameStr);
+              emit messageSig(LOG_STATUS, "Configuring custom parts for " + fileNameStr);
           }
 
           // check if is submodel

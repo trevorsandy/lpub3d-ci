@@ -70,11 +70,15 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 /*** LPub3D Mod end ***/
 	memset(mActions, 0, sizeof(mActions));
 
-	mTransformType = LC_TRANSFORM_RELATIVE_TRANSLATION;
-/*** LPub3D Mod - rotate step ***/
+/*** LPub3D Mod - set relative rotation ***/
+	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - rotate step [deprecated] ***/
 	mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 /*** LPub3D Mod end ***/
-	mColorIndex = lcGetColorIndex(4);
+
+	mColorIndex = lcGetColorIndex(71); //Light Bluish Grey
 	mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
@@ -86,10 +90,21 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mCurrentPieceInfo = nullptr;
 	mSelectionMode = lcSelectionMode::SINGLE;
 
-	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
+/*** LPub3D Mod - initialize viewer variables ***/
+       viewerCameraPosition = lcVector3(0, 0, 0);
+       viewerTargetPosition = lcVector3(375.0f,  -375.0f,   187.5);
+       viewerUpVector       = lcVector3(0.2357f, -0.2357f, 0.94281f);
+       viewerFovY           = 30.0f;
+       viewerZNear          = 25.0f;
+       viewerZFar           = 12500.0f;
+/*** LPub3D Mod end ***/
 
+        memset(&mSearchOptions, 0, sizeof(mSearchOptions));
+
+//TODO - Disable this
 	for (int FileIdx = 0; FileIdx < LC_MAX_RECENT_FILES; FileIdx++)
 		mRecentFiles[FileIdx] = lcGetProfileString((LC_PROFILE_KEY)(LC_PROFILE_RECENT_FILE1 + FileIdx));
+
 /*** LPub3D Mod - status bar ***/
 	mLCStatusBar = new QStatusBar(this);
 /*** LPub3D Mod end ***/
@@ -106,6 +121,7 @@ lcMainWindow::~lcMainWindow()
 		mCurrentPieceInfo = nullptr;
 	}
 
+//TODO - Disable this
 	for (int FileIdx = 0; FileIdx < LC_MAX_RECENT_FILES; FileIdx++)
 		lcSetProfileString((LC_PROFILE_KEY)(LC_PROFILE_RECENT_FILE1 + FileIdx), mRecentFiles[FileIdx]);
 
@@ -322,6 +338,13 @@ void lcMainWindow::CreateActions()
 	mActions[LC_VIEW_VIEWPOINT_HOME]->setIcon(ViewViewPointHomeIcon);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - add edit rotstep icon ***/
+	QIcon EditActionRotstepIcon;
+	EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_relative_rotation.png");
+	EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_relative_rotation_16.png");
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(EditActionRotstepIcon);
+/*** LPub3D Mod end ***/
+
 	mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setIcon(QIcon(":/resources/action_rotate_view.png"));
 	mActions[LC_EDIT_ACTION_ROLL]->setIcon(QIcon(":/resources/action_roll.png"));
@@ -427,13 +450,13 @@ void lcMainWindow::CreateActions()
 		ModelGroup->addAction(mActions[ActionIdx]);
 	}
 
-/*** LPub3D Mod - rotate step menu management (sets submenu checkable) ***/
-        QActionGroup *RotateStepTypeGroup = new QActionGroup(this);
-        for (int ActionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; ActionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; ActionIdx++)
-          {
-            mActions[ActionIdx]->setCheckable(true);
-            RotateStepTypeGroup->addAction(mActions[ActionIdx]);
-          }
+/*** LPub3D Mod - rotate step menu management (sets submenu checkable) [deprecated] ***/
+//        QActionGroup *RotateStepTypeGroup = new QActionGroup(this);
+//        for (int ActionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; ActionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; ActionIdx++)
+//          {
+//            mActions[ActionIdx]->setCheckable(true);
+//            RotateStepTypeGroup->addAction(mActions[ActionIdx]);
+//          }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - macOS menu management ***/
@@ -450,8 +473,10 @@ void lcMainWindow::CreateActions()
 void lcMainWindow::CreateMenus()
 {
 	QMenu* TransformMenu = new QMenu(tr("Transform"), this);
-	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]);
-	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]);
+/*** LPub3D Mod - limit transfom to rotation ***/
+//	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]);
+//	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]);
+/*** LPub3D Mod end ***/
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]);
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]);
 	mActions[LC_EDIT_TRANSFORM]->setMenu(TransformMenu);
@@ -493,6 +518,11 @@ void lcMainWindow::CreateMenus()
 	mToolsMenu->addSeparator();
 ***/
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - toolstoolbar add rotate step ***/
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
+/*** LPub3D Mod end ***/
+
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 /*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
 /***
@@ -500,8 +530,9 @@ void lcMainWindow::CreateMenus()
 ***/
 /*** LPub3D Mod end ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
-/*** LPub3D Mod - view look at menu ***/
-	mToolsMenu->addAction(mActions[LC_VIEW_LOOK_AT]);
+
+/*** LPub3D Mod - toolstoolbar viewpoint home ***/
+	mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
 /***
@@ -699,12 +730,12 @@ void lcMainWindow::CreateToolBars()
 	AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
 	AngleAction->setMenu(SnapAngleMenu);
 
-/*** LPub3D Mod - toolbar rotate step menu ***/
-        QMenu* RotateStepMenu = new QMenu(tr("Step Rotation"), this);
-        RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
-        RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+/*** LPub3D Mod - toolbar rotate step menu [deprecated] ***/
+//        QMenu* RotateStepMenu = new QMenu(tr("Step Rotation"), this);
+//        RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+//        RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
 
-        mActions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(RotateStepMenu);
+//        mActions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(RotateStepMenu);
 /*** LPub3D Mod end ***/
 
 	mStandardToolBar = addToolBar(tr("Standard"));
@@ -743,12 +774,17 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-/*** LPub3D Mod - toolstoolbar rotatestep and snap angle ***/
+/*** LPub3D Mod - toolstoolbar snap angle ***/
         mToolsToolBar->addSeparator();
         mToolsToolBar->addAction(AngleAction);                       // Snap Rotations to Fixed Intervals menu item
-        mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - toolstoolbar rotate step toolbar [deprecatedXX] ***/
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
+/*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
+
 /*** LPub3D Mod - toolstoolbar viewpoint home ***/
 	mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 /*** LPub3D Mod end ***/
@@ -808,12 +844,21 @@ void lcMainWindow::CreateToolBars()
 	TransformButton->setPopupMode(QToolButton::InstantPopup);
 	TransformLayout->addWidget(TransformButton);
 
+/*** LPub3D Mod - Add transform X,Y,Z labels ***/
+	QLabel* mTransformLabel;
+	mTransformLabel = new QLabel("X:");
+	TransformLayout->addWidget(mTransformLabel);
 	mTransformXEdit = new lcTransformLineEdit();
 	TransformLayout->addWidget(mTransformXEdit);
+	mTransformLabel = new QLabel("Y:");
+	TransformLayout->addWidget(mTransformLabel);
 	mTransformYEdit = new lcTransformLineEdit();
 	TransformLayout->addWidget(mTransformYEdit);
+	mTransformLabel = new QLabel("Z:");
+	TransformLayout->addWidget(mTransformLabel);
 	mTransformZEdit = new lcTransformLineEdit();
 	TransformLayout->addWidget(mTransformZEdit);
+/*** LPub3D Mod end ***/
 
 	PropertiesLayout->addWidget(TransformWidget);
 
@@ -829,26 +874,27 @@ void lcMainWindow::CreateToolBars()
 	mTimelineToolBar->setAcceptDrops(true);
 
 	mTimelineWidget = new lcTimelineWidget(mTimelineToolBar);
-
 	mTimelineToolBar->setWidget(mTimelineWidget);
 	addDockWidget(Qt::RightDockWidgetArea, mTimelineToolBar);
 
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 
-/*** LPub3D Mod - partsbar management ***/
-	/*** management - suppress partsbar Raise() ***/
-	/*** mPartsToolBar->raise();               ***/
+/*** LPub3D Mod - suppress partsbar, enable timeline raise ***/
+	//mPartsToolBar->raise();
+	mTimelineToolBar->raise();
+/*** LPub3D Mod end ***/
 
-	/*** management - toolbars hide ***/
+/*** LPub3D Mod - toolbar hide ***/
 	mStandardToolBar->setVisible(false);
 	mTimeToolBar->setVisible(false);
 	mPartsToolBar->setVisible(false);
 	mColorsToolBar->setVisible(false);
-	mPropertiesToolBar->setVisible(false);
-	mTimelineToolBar->setVisible(false);
+// TODO - REMOVE
+//	mPropertiesToolBar->setVisible(false);
+//	mTimelineToolBar->setVisible(false);
 
-        /*** management - toolstoolbar remove actions ***/
+        // remove actions
         mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
         mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
         mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
@@ -866,7 +912,6 @@ void lcMainWindow::CreateToolBars()
             }
         }
 /*** LPub3D Mod end ***/
-
 }
 
 void lcMainWindow::CreateStatusBar()
@@ -943,8 +988,9 @@ QMenu* lcMainWindow::createPopupMenu()
 /*** LPub3D Mod - popup menu remove actions ***/
 	Menu->removeAction(mPartsToolBar->toggleViewAction());
 	Menu->removeAction(mColorsToolBar->toggleViewAction());
-	Menu->removeAction(mPropertiesToolBar->toggleViewAction());
-	Menu->removeAction(mTimelineToolBar->toggleViewAction());
+// TODO - REMOVE
+//	Menu->removeAction(mPropertiesToolBar->toggleViewAction());
+//	Menu->removeAction(mTimelineToolBar->toggleViewAction());
 	Menu->removeAction(mStandardToolBar->toggleViewAction());
 	Menu->removeAction(mTimeToolBar->toggleViewAction());
 /*** LPub3D Mod end ***/
@@ -1064,7 +1110,41 @@ void lcMainWindow::Halt3DViewer(bool b)
 }
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - SetRotateStepType and add Icons ***/
+/*** LPub3D Mod - rotate step objects ***/
+void lcMainWindow::RotateStepSelectedObjects(bool update)
+{
+
+  QString   rotationType;
+
+  if (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION)
+    rotationType = "ABS";
+  else
+  if (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION)
+    rotationType = "REL";
+  else
+    rotationType = "REL";
+
+  if (update){
+      bool ok[3];
+      float x = mTransformXEdit->text().toFloat(&ok[0]);
+      float y = mTransformYEdit->text().toFloat(&ok[1]);
+      float z = mTransformZEdit->text().toFloat(&ok[2]);
+
+      if (ok[0] && ok[1] && ok[2]){
+        SetRotStepAngleX(x);
+        //Switch Y and Z coordinates to match LDraw
+        SetRotStepAngleZ(y);
+        //LDraw Y axis is vertical, with negative value in the up direction
+        SetRotStepAngleY(-z);
+      }
+  }
+  emit SetStepRotation(rotationType, true);
+
+  UpdateAllViews();
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - SetRotateStepType and add Icons [deprecated] ***/
 void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
 {
       mRotateStepType = RotateStepType;
@@ -1085,15 +1165,14 @@ void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
 }
 /*** LPub3D Mod end ***/
 
+// TODO - REMOVE
 /*** LPub3D Mod - GetRotateStepAmount ***/
-lcVector3 lcMainWindow::GetRotateStepAmount()
-{
-       lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
-
-       rotateStep = gui->GetStepRotationStatus();
-
-       return rotateStep;
-}
+//lcVector3 lcMainWindow::GetRotateStepAmount()
+//{
+//       lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
+//       rotateStep = gui->GetStepRotationStatus();
+//       return rotateStep;
+//}
 /*** LPub3D Mod end ***/
 
 void lcMainWindow::ModelTabContextMenuRequested(const QPoint& Point)
@@ -1728,11 +1807,17 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		mModelTabWidget->setCurrentWidget(TabWidget);
 
 		NewView = new View(Model);
+/*** LPub3D Mod - camera settings ***/
+		NewView->mCamera->m_fovy     = viewerFovY;
+		NewView->mCamera->m_zNear    = viewerZNear;
+		NewView->mCamera->m_zFar     = viewerZFar;
+		NewView->mCamera->mWorldView = lcMatrix44LookAt(viewerCameraPosition, viewerTargetPosition, viewerUpVector);
+/*** LPub3D Mod end ***/
 		ViewWidget = (lcQGLWidget*)TabWidget->layout()->itemAt(0)->widget();
 		ViewWidget->widget = NewView;
-		NewView->mWidget = ViewWidget;
-		NewView->mWidth = ViewWidget->width();
-		NewView->mHeight = ViewWidget->height();
+		NewView->mWidget   = ViewWidget;
+		NewView->mWidth    = ViewWidget->width();
+		NewView->mHeight   = ViewWidget->height();
 		AddView(NewView);
 	}
 
@@ -2152,7 +2237,10 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 		}
 	}
 
-	mStatusBarLabel->setText(Message);
+/*** LPub3D Mod - replace mStatusBarLabel    ***/
+/***	mStatusBarLabel->setText(Message);   ***/
+	statusBar()->showMessage(Message);
+/*** LPub3D Mod end ***/
 	lcVector3 Position;
 	lcGetActiveModel()->GetFocusPosition(Position);
 
@@ -2463,6 +2551,70 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 
 	return false;
 }
+
+/*** LPub3D Mod - View content and Cmera settings ***/
+bool lcMainWindow::ViewStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix)
+{
+  Project* NewProject = new Project();
+  if (NewProject->LoadViewer(CsiName))
+    {
+
+      viewerCsiName = CsiName;
+//      logStatus() << "CsiName:            " << viewerCsiName;
+//      logStatus() << "Viewer LoadFileName:" << gui->getViewerStepFilePath(CsiName);
+
+      viewerCameraPosition = viewMatrix.at(0);
+      viewerTargetPosition = viewMatrix.at(1);
+      viewerUpVector       = viewMatrix.at(2);
+      viewerFovY           = viewMatrix.at(3).x;
+      viewerZNear          = viewMatrix.at(3).y;
+      viewerZFar           = viewMatrix.at(3).z;
+//      logStatus() << QString("Viewer Step Camera Settings = fx %1, fy %2, fz %3, tx %4, ty %5, tz %6, ux %7, uy %8, uz %9, fov %10, znear %11, zfar %12")
+//                     .arg(viewerCameraPosition.x,0,'f',4)
+//                     .arg(viewerCameraPosition.y,0,'f',4)
+//                     .arg(viewerCameraPosition.z,0,'f',4)
+//                     .arg(viewerTargetPosition.x,0,'f',4)
+//                     .arg(viewerTargetPosition.y,0,'f',4)
+//                     .arg(viewerTargetPosition.z,0,'f',4)
+//                     .arg(viewerUpVector.x,0,'f',4)
+//                     .arg(viewerUpVector.y,0,'f',4)
+//                     .arg(viewerUpVector.z,0,'f',4)
+//                     .arg(viewerFovY)
+//                     .arg(viewerZNear)
+//                     .arg(viewerZFar);
+      gApplication->SetProject(NewProject);
+      UpdateAllViews();
+
+      return true;
+    }
+  emit gui->messageSig(LOG_ERROR, tr("Could not load step '%1'.").arg(CsiName));
+  delete NewProject;
+  return false;
+}
+
+bool lcMainWindow::LoadViewerBanner(const QString& FileName, const QVector<lcVector3> &viewMatrix)
+{
+  QString LoadFileName = FileName;
+
+  Project* NewProject = new Project();
+  if (NewProject->Load(LoadFileName))
+    {
+      viewerCameraPosition = viewMatrix.at(0);
+      viewerTargetPosition = viewMatrix.at(1);
+      viewerUpVector       = viewMatrix.at(2);
+      viewerFovY           = viewMatrix.at(3).x;
+      viewerZNear          = viewMatrix.at(3).y;
+      viewerZFar           = viewMatrix.at(3).z;
+      gApplication->SetProject(NewProject);
+      UpdateAllViews();
+
+      return true;
+    }
+  emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(LoadFileName));
+  delete NewProject;
+  return false;
+}
+/*** LPub3D Mod end ***/
 
 void lcMainWindow::MergeProject()
 {
@@ -3184,11 +3336,15 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_HELP_HOMEPAGE:
-		QDesktopServices::openUrl(QUrl("https://trevorsandy.github.io/lpub3d/"));          /*** LPub3D Mod - site URL ***/
+/*** LPub3D Mod - site URL ***/
+		QDesktopServices::openUrl(QUrl("https://trevorsandy.github.io/lpub3d/"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_HELP_BUG_REPORT:
-		QDesktopServices::openUrl(QUrl("https://github.com/trevorsandy/lpub3d/issues"));   /*** LPub3D Mod - issues URL ***/
+/*** LPub3D Mod - issues URL ***/
+		QDesktopServices::openUrl(QUrl("https://github.com/trevorsandy/lpub3d/issues"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_HELP_UPDATES:
@@ -3256,6 +3412,9 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_TRANSFORM:
 		lcGetActiveModel()->TransformSelectedObjects(GetTransformType(), GetTransformAmount());
+/*** LPub3D Mod - rotate step objects ***/
+		RotateStepSelectedObjects(true);
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION:
@@ -3291,8 +3450,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(LC_TOOL_ROTATE);
-		gui->ResetStepRotation();
+/*** LPub3D Mod - rotate step ***/
+		emit ResetStepRotation();
 		lcGetActiveModel()->SelectAllPieces();
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_EDIT_ACTION_DELETE:
@@ -3323,14 +3484,18 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetTool(LC_TOOL_ROLL);
 		break;
 
+/*** LPub3D Mod - rotate step objects [deprecatedXX] ***/
 	case LC_EDIT_ACTION_ROTATESTEP:
 		SetTool(LC_TOOL_ROTATESTEP);
-		lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), GetRotateStepAmount());
+		RotateStepSelectedObjects(false);
+/*** LPub3D Mod end ***/
 		break;
 
+/*** LPub3D Mod - set rotate step type [deprecated] ***/
         case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:
         case LC_EDIT_ROTATESTEP_RELATIVE_ROTATION:
-                SetRotateStepType((lcRotateStepType)(CommandId - LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION));
+//                SetRotateStepType((lcRotateStepType)(CommandId - LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION));
+/*** LPub3D Mod end ***/
                 break;
 
 	case LC_EDIT_CANCEL:

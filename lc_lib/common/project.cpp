@@ -19,6 +19,9 @@
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
 #endif
+/*** LPub3D Mod - Include ***/
+#include "lpub.h"
+/*** LPub3D Mod end ***/
 
 lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 {
@@ -435,6 +438,89 @@ bool Project::Load(const QString& FileName)
 
 	return true;
 }
+
+/*** LPub3D Mod - load lpub3d step ***/
+bool Project::LoadViewer(const QString &CsiName){
+
+    QString FileName = gui->getViewerStepFilePath(CsiName);
+
+    if (FileName.isEmpty())
+    {
+             emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI path for %1.").arg(FileName));
+             return false;
+    }
+
+    QStringList CsiContent = gui->getViewerStepContents(CsiName);
+    if (CsiContent.isEmpty())
+    {
+             emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI content for %1.").arg(FileName));
+            return false;
+    }
+
+    QByteArray QBA;
+    foreach(QString line, CsiContent){
+        QBA.append(line);
+        QBA.append(QString("\n"));
+    }
+
+    mModels.DeleteAll();
+    SetFileName(FileName);
+    QFileInfo FileInfo(FileName);
+
+    QBuffer Buffer(&QBA);
+    Buffer.open(QIODevice::ReadOnly);
+
+    while (!Buffer.atEnd())
+    {
+            lcModel* Model = new lcModel(QString());
+            Model->SplitMPD(Buffer);
+
+	    if (mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
+	    {
+		    mModels.Add(Model);
+		    Model->CreatePieceInfo(this);
+	    }
+	    else
+		    delete Model;
+    }
+
+    Buffer.seek(0);
+
+    for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
+    {
+            lcModel* Model = mModels[ModelIdx];
+            Model->LoadLDraw(Buffer, this);
+            Model->SetSaved();
+    }
+
+    if (mModels.IsEmpty())
+            return false;
+
+    if (mModels.GetSize() == 1)
+    {
+            lcModel* Model = mModels[0];
+
+	    if (Model->GetProperties().mName.isEmpty())
+	    {
+		    Model->SetName(FileInfo.fileName());
+		    lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
+	    }
+    }
+
+    lcArray<lcModel*> UpdatedModels;
+    UpdatedModels.AllocGrow(mModels.GetSize());
+
+    for (lcModel* Model : mModels)
+    {
+            Model->UpdateMesh();
+            Model->UpdatePieceInfo(UpdatedModels);
+    }
+
+    mModified = false;
+
+    return true;
+}
+/*** LPub3D Mod end ***/
 
 bool Project::Save(const QString& FileName)
 {

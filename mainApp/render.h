@@ -35,7 +35,10 @@
 class QString;
 class QStringList;
 class Meta;
+class AssemMeta;
+class UnitsMeta;
 class RotStepMeta;
+class lcVector3;
 
 class Render
 {
@@ -47,44 +50,49 @@ public:
   bool                   useLDViewSCall(bool override = false);
   virtual int 		 renderCsi(const QString &,
                                    const QStringList &,
-                                   const QString &,
+                                   const QStringList &,
                                    const QString &,
                                    Meta &) = 0;
-  virtual int 		 renderPli(const QString &,
+  virtual int 		 renderPli(const QStringList &,
                                    const QString &,
                                    Meta &,
                                    bool bom) = 0;
   int                    rotateParts(const QString &addLine,
                                       RotStepMeta &rotStep,
                                       const QStringList &parts,
-                                      QString &ldrName,
-                                      bool viewer = false);
-  int                    renderLDViewSCallCsi(
-                                     const QStringList &,
-                                     const QStringList &,
-                                     Meta &);
-  int                    renderLDViewSCallPli(const QStringList &,
-                                         Meta &,
-                                         bool bom);
+                                      QString &ldrName);
+// TODO - REMOVE
+//  int                    renderLDViewSCallCsi(
+//                                     const QStringList &,
+//                                     const QStringList &,
+//                                     Meta &);
+// TODO - REMOVE
+//  int                    renderLDViewSCallPli(const QStringList &,
+//                                         Meta &,
+//                                         bool bom);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
-                                     QStringList &parts,
-                                     bool  defaultRot = true);
-  int                    render3DCsi(const QString &,
-                                    const QString &,
-                                    const QStringList &,
-                                    Meta &,
-                                    bool cisExists,
-                                    bool outOfDate);
-  int                    render3DCsiSubModels(QStringList &,
-                                             QStringList &,
-                                             bool doFadeStep = false,
-                                             bool doHighlightStep = false);
-  int                    load3DCsiImage(QString &);
+                                     QStringList &parts);
+  QVector<lcVector3>     cameraSettings(AssemMeta &assemMeta,
+                                        const float &cd = 0.0f);
+// TODO - REMOVE
+//  int                    render3DCsi(const QString &,
+//                                    const QString &,
+//                                    const QStringList &,
+//                                    Meta &,
+//                                    bool cisExists,
+//                                    bool outOfDate);
+// TODO - REMOVE
+//  int                    render3DCsiSubModels(QStringList &,
+//                                             QStringList &,
+//                                             bool doFadeStep = false,
+//                                             bool doHighlightStep = false);
+// TODO - REMOVE
+//  int                    load3DCsiImage(QString &);
 
   ImageMatting           imageMatting;
 protected:
-  virtual float          cameraDistance(Meta &meta, float) = 0;
+  virtual float          cameraDistance(Meta &meta, float) = 0;  // WATCH_THIS (move to public)
 };
 
 extern Render *renderer;
@@ -94,8 +102,8 @@ class POVRay : public Render
 public:
   POVRay() {}
   virtual ~POVRay() {}
-  virtual int renderCsi(const QString &,  const QStringList &, const QString &, const QString &, Meta &);
-  virtual int renderPli(                  const QString     &, const QString &, Meta &, bool bom);
+  virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -104,8 +112,8 @@ class LDGLite : public Render
 public:
   LDGLite() {}
   virtual ~LDGLite() {}
-  virtual int renderCsi(const QString &,  const QStringList &, const QString &,const QString &, Meta &);
-  virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
+  virtual int renderCsi(const QString &,  const QStringList &, const QStringList &,const QString &, Meta &);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -114,8 +122,8 @@ class LDView : public Render
 public:
   LDView() {}
   virtual ~LDView() {}
-  virtual int renderCsi(const QString &,  const QStringList &, const QString &, const QString &, Meta &);
-  virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
+  virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };
 

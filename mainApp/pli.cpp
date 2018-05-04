@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
+
 #include "pli.h"
 #include "step.h"
 #include "ranges.h"
@@ -437,7 +438,7 @@ int Pli::createPartImage(
     QString  &color,
     QPixmap  *pixmap)
 {
-  emit gui->messageSig(true, "Render PLI image...");
+  emit gui->messageSig(LOG_STATUS, "Render PLI image...");
 
   float modelScale = pliMeta.modelScale.value();
 
@@ -451,8 +452,11 @@ int Pli::createPartImage(
       .arg(pliMeta.angle.value(1));
   QString imageName = QDir::currentPath() + "/" +
       Paths::partsDir + "/" + key + ".png";
-  QString ldrName = QDir::currentPath() + "/" +
-      Paths::tmpDir + "/pli.ldr";
+  QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" +
+      Paths::tmpDir + "/pli.ldr");
+// TODO - REMOVE
+//  QString ldrName = QDir::currentPath() + "/" +
+//      Paths::tmpDir + "/pli.ldr";
   QFile part(imageName);
   
   if ( ! part.exists()) {
@@ -462,13 +466,12 @@ int Pli::createPartImage(
 
       // create a temporary DAT to feed the renderer
 
-      part.setFileName(ldrName);
+      part.setFileName(ldrNames.first());
 
       if ( ! part.open(QIODevice::WriteOnly)) {
-          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                QMessageBox::tr("Cannot open file for writing %1:\n%2.")
-                                .arg(ldrName)
-                                .arg(part.errorString()));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
+                               .arg(ldrNames.first())
+                               .arg(part.errorString()));
           return -1;
         }
 
@@ -478,11 +481,10 @@ int Pli::createPartImage(
       
       // feed DAT to renderer
 
-      int rc = renderer->renderPli(ldrName,imageName,*meta, bom);
+      int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
 
       if (rc != 0) {
-          QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                               QMessageBox::tr("Render failed for %1 %2\n")
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1 %2\n")
                                .arg(imageName)
                                .arg(Paths::tmpDir+"/part.dat"));
           return -1;
@@ -504,17 +506,16 @@ int Pli::createPartImage(
 // LDView performance improvement
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
 
-  emit gui->messageSig(true, "Render PLI images...");
+  emit gui->messageSig(LOG_STATUS, "Render PLI images...");
 
   if (! ldrNames.isEmpty()) {
 
       QElapsedTimer timer;
       timer.start();
       // feed DAT to renderer
-      int rc = renderer->renderLDViewSCallPli(ldrNames,*meta, bom);
+      int rc = renderer->renderPli(ldrNames,QString(),*meta,bom);
       if (rc != 0) {
-          QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                               QMessageBox::tr("Render failed for Pli images."));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
           return -1;
         }
       logTrace() << Render::getRenderer()
@@ -540,9 +541,8 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
         }
 
       if (! pixmap->load(part->imageName)) {
-              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                    QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
-                                    .arg(part->imageName));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
+                               .arg(part->imageName));
               return -1;
             }
 

@@ -76,9 +76,33 @@ class LDrawSubFile {
     }
 };
 
+class ViewerStep {
+  public:
+    QStringList _contents;
+    QString	_filePath;
+    bool        _modified;
+    bool        _multiStep;
+    bool        _calledOut;
+
+    ViewerStep()
+    {
+      _modified = false;
+    }
+    ViewerStep(
+      const QStringList &contents,
+      const QString     &filePath,
+      bool               multiStep,
+      bool               calledOut);
+    ~ViewerStep()
+    {
+      _contents.clear();
+    }
+};
+
 class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
+    QMap<QString, ViewerStep>   _viewerSteps;
     QStringList                 _emptyList;
     QString                     _emptyString;
     bool                        _mpd;
@@ -163,6 +187,20 @@ class LDrawFile {
     void countInstances(const QString &fileName, bool mirrored, const bool callout = false);
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
+
+    /* ViewerStep functions */
+    void insertViewerStep(const QString     &fileName,
+                          const QStringList &contents,
+                          const QString     &filePath,
+                          bool               multiStep,
+                          bool               calledOut);
+    void updateStep(const QString     &fileName,
+                    const QStringList &contents);
+    QStringList getViewerStepContents(const QString &fileName);
+    QString     getViewerStepFilePath(const QString &fileName);
+    bool        isViewerStepMultiStep(const QString &fileName);
+    bool        isViewerStepCalledOut(const QString &fileName);
+    void        clearSteps();
 };
 
 int split(const QString &line, QStringList &argv);

@@ -168,12 +168,17 @@ int Step::createCsi(
     QPixmap           *pixmap,
     Meta              &meta)
 {
+  int         sn         = stepNumber.number;
   qreal       modelScale = meta.LPub.assem.modelScale.value();
-  QString     mdStepNum = QString("%1_fm").arg(stepNumber.number);
-  QString     sn = QString("%1").arg(modelDisplayOnlyStep ? mdStepNum : QString::number(stepNumber.number));
-  bool        csiExist = false;
-  ldrName.clear();
+  QString     csi_Name   = modelDisplayOnlyStep ? csiName()+"_fm" : csiName();
+  bool        csiExist   = false;
 
+// TODO - REMOVE
+//  qreal       modelScale = meta.LPub.assem.modelScale.value();
+//  QString     mdStepNum = QString("%1_fm").arg(stepNumber.number);
+//  QString     sn = QString("%1").arg(modelDisplayOnlyStep ? mdStepNum : QString::number(stepNumber.number));
+//  bool        csiExist = false;
+  ldrName.clear();
 
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -186,8 +191,10 @@ int Step::createCsi(
         }
     }
 
+  QString csiFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
+
   QString key = QString("%1_%2_%3_%4_%5_%6")
-      .arg(csiName()+orient)
+      .arg(csi_Name+orient)
       .arg(sn)
       .arg(gui->pageSize(meta.LPub.page, 0))
       .arg(resolution())
@@ -224,15 +231,13 @@ int Step::createCsi(
       if (renderer->useLDViewSCall()) {
 
           // populate ldr file name
-          ldrName = QDir::currentPath() + "/" +
-              Paths::tmpDir + "/" + key + ".ldr";
+          ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
 
-          // generate and assign the CSI ldr file and rotate its parts
-          rc = renderer->rotateParts(addLine,meta.rotStep, csiParts, ldrName);
+          // create the CSI ldr file and rotate its parts
+          rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName);
           if (rc != 0) {
-              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                    QMessageBox::tr("Creation and rotation of CSI ldr file failed for:\n%1.")
-                                    .arg(ldrName));
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for:\n%1.")
+                                                    .arg(ldrName));
               return rc;
             }
 
@@ -242,15 +247,14 @@ int Step::createCsi(
           timer.start();
 
           // render the partially assembled model if single step and not called out
-          rc = renderer->renderCsi(addLine,csiParts, csiKey, pngName, meta);
+          QStringList csiKeys = (QStringList() << csiKey);
+          rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta);
           if (rc != 0) {
-              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                    QMessageBox::tr("Render CSI part failed for:\n%1.")
-                                    .arg(pngName));
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for:\n%1.")
+                                                    .arg(pngName));
               return rc;
             }
 
-//          qDebug() << Render::getRenderer()
           logTrace() << "\n" << Render::getRenderer()
                      << "CSI render call took "
                      << timer.elapsed() << "milliseconds"
@@ -267,41 +271,79 @@ int Step::createCsi(
       csiPlacement.size[1] = pixmap->height();
     }
 
-  // Create the 3DViewer file
+  // Populate the 3D Viewer
   if (! gui->exporting()) {
 
-      int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on
-      QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
-          .arg(csiName())                           // csi model name
-          .arg(sn)                                  // step number
-          .arg(ln)                                  // line number
-          .arg(".ldr");                             // extension
+      // Populate the viewerCsiName
+      QString viewerName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
+      viewerCsiName      = modelDisplayOnlyStep  ? viewerName+"_fm" : viewerName;
 
-      csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + file3DNamekey;
-      QFile csi3D(csi3DName);
-      int rc;
-      rc = renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
-      if (rc != 0) {
-          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                QMessageBox::tr("Render 3D CSI failed for:\n%1.")
-                                .arg(file3DNamekey));
-          return rc;
-        }
-    }
+      // Populate the csi file paths
+      QString csiFullFilePath;
+       if (renderer->useLDViewSCall()) {
+           csiFullFilePath = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
+       } else {
+           csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
+       }
+
+      // Populate the step content
+      QStringList rotatedParts = csiParts;
+      renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
+      QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
+                                    .arg(meta.rotStep.value().type)
+                                    .arg(meta.rotStep.value().rots[0])
+                                    .arg(meta.rotStep.value().rots[1])
+                                    .arg(meta.rotStep.value().rots[2]);
+      rotatedParts.prepend(rotsComment);
+      gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
+
+      // set camera settings
+      viewMatrix = renderer->cameraSettings(meta.LPub.assem);
+
+//      if (! calledOut) {
+          // set the step in viewer
+          if (! gMainWindow->ViewStepContent(viewerCsiName,viewMatrix)) {
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load failed for viewer csi_Name: %1")
+                                      .arg(viewerCsiName));
+              return -1;
+          }
+//      }
+  }
+
+// TODO - REMOVE
+//      int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on
+//      QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
+//          .arg(csiName())                           // csi model name
+//          .arg(sn)                                  // step number
+//          .arg(ln)                                  // line number
+//          .arg(".ldr");                             // extension
+
+//      viewerCsiName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + file3DNamekey;
+//      QFile csi3D(viewerCsiName);
+//      int rc;
+//      rc = renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
+//      if (rc != 0) {
+//          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                QMessageBox::tr("Render 3D CSI failed for:\n%1.")
+//                                .arg(file3DNamekey));
+//          return rc;
+//        }
+//    }
 
   return 0;
 }
 
-int Step::Load3DCsi(QString &csi3DName)
-{
-  if (! gui->exporting()) {
-      return renderer->load3DCsiImage(csi3DName);
-    } else {
-      qDebug() << "3DViewer halted - rendering not allowed.";
-      return -1;
-    }
-  return 0;
-}
+// TODO - REMOVE
+//int Step::Load3DCsi(QString &viewerCsiName)
+//{
+//  if (! gui->exporting()) {
+//      return renderer->load3DCsiImage(viewerCsiName);
+//    } else {
+//      qDebug() << "3DViewer halted - rendering not allowed.";
+//      return -1;
+//    }
+//  return 0;
+//}
 
 /*
  * LPub is able to pack steps together into multi-step pages or callouts.
