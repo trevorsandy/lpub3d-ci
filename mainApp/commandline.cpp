@@ -19,6 +19,14 @@
 
 int Gui::processCommandLine()
 {
+  // 3DViewer
+  int viewerJob = gApplication->Process3DViewerCommandLine();
+  if (viewerJob < 0)
+     return 1;
+  else
+  if (viewerJob > 0)
+    return 0;
+
   // Declarations
   int  fadeStepsOpacity = FADE_OPACITY_DEFAULT;
   bool processExport    = false;
@@ -92,6 +100,9 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-colour"))
         ParseString(highlightStepColour, false);
       else
+      if (Param == QLatin1String("-of") || Param == QLatin1String("--pdf-output-file"))
+        ParseString(saveFileName, false);
+      else
       if (Param == QLatin1String("-x") || Param == QLatin1String("--clear-cache"))
         resetCache = true;
       else
@@ -100,9 +111,6 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-o") || Param == QLatin1String("--export-option"))
         ParseString(exportOption, false);
-      else
-      if (Param == QLatin1String("-f") || Param == QLatin1String("--pdf-output-file"))
-        ParseString(saveFileName, false);
       else
       if (Param == QLatin1String("-d") || Param == QLatin1String("--image-output-directory"))
         ParseString(saveFileName, false);
@@ -230,5 +238,6 @@ int Gui::processCommandLine()
         }
     } else
        return 1;
+
   return 0;
 }

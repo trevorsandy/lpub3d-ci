@@ -197,172 +197,344 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
     return false;
 }
 
+/*** LPub3D Mod - process command line ***/
+int lcApplication::Process3DViewerCommandLine()
+{
+      bool SaveImage = false;
+      bool SaveWavefront = false;
+      bool Save3DS = false;
+      bool SaveCOLLADA = false;
+      bool SaveHTML = false;
+      bool SetCameraAngles = false;
+      bool Orthographic = false;
+      bool ImageHighlight = false;
+      int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
+      int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+      int ImageStart = 0;
+      int ImageEnd = 0;
+      int PartImagesWidth = -1;
+      int PartImagesHeight = -1;
+      float CameraLatitude, CameraLongitude;
+      QString ImageName;
+      QString ModelName;
+      QString CameraName;
+      QString ViewpointName;
+      QString ProjectName;
+      QString SaveWavefrontName;
+      QString Save3DSName;
+      QString SaveCOLLADAName;
+      QString SaveHTMLName;
+
+      QStringList Arguments = Application::instance()->arguments();
+
+      const int NumArguments = Arguments.size();
+      for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
+      {
+          const QString& Param = Arguments[ArgIdx];
+
+          if (Param[0] != '-')
+          {
+              ProjectName = Param;
+              continue;
+          }
+
+          auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
+          {
+              if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+              {
+                  ArgIdx++;
+                  Value = Arguments[ArgIdx];
+              }
+              else if (Required)
+                  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+          };
+
+          auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
+          {
+              if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+              {
+                  bool Ok = false;
+                  ArgIdx++;
+                  int NewValue = Arguments[ArgIdx].toInt(&Ok);
+
+                  if (Ok)
+                      Value = NewValue;
+                  else
+                      printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+              }
+              else
+                  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+          };
+
+          auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
+          {
+              if (ArgIdx < NumArguments - 2 && Arguments[ArgIdx + 1][0] != '-' && Arguments[ArgIdx + 2][0] != '-')
+              {
+                  bool Ok1 = false, Ok2 = false;
+
+                  ArgIdx++;
+                  float NewValue1 = Arguments[ArgIdx].toFloat(&Ok1);
+                  ArgIdx++;
+                  float NewValue2 = Arguments[ArgIdx].toFloat(&Ok2);
+
+                  if (Ok1 && Ok2)
+                  {
+                      Value1 = NewValue1;
+                      Value2 = NewValue2;
+                      return 1;
+                  }
+                  else
+                      printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 2].toLatin1().constData());
+              }
+              else
+                  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+
+              return -1;
+          };
+
+          if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
+          {
+              SaveImage = true;
+              ParseString(ImageName, false);
+          }
+          else if (Param == QLatin1String("-w") || Param == QLatin1String("--width"))
+              ParseInteger(ImageWidth);
+          else if (Param == QLatin1String("-h") || Param == QLatin1String("--height"))
+              ParseInteger(ImageHeight);
+          else if (Param == QLatin1String("-f") || Param == QLatin1String("--from"))
+              ParseInteger(ImageStart);
+          else if (Param == QLatin1String("-t") || Param == QLatin1String("--to"))
+              ParseInteger(ImageEnd);
+          else if (Param == QLatin1String("-s") || Param == QLatin1String("--submodel"))
+              ParseString(ModelName, true);
+          else if (Param == QLatin1String("-c") || Param == QLatin1String("--camera"))
+              ParseString(CameraName, true);
+          else if (Param == QLatin1String("--viewpoint"))
+              ParseString(ViewpointName, true);
+          else if (Param == QLatin1String("--camera-angles"))
+              SetCameraAngles = ParseVector2(CameraLatitude, CameraLongitude);
+          else if (Param == QLatin1String("--orthographic"))
+              Orthographic = true;
+          else if (Param == QLatin1String("--highlight"))
+              ImageHighlight = true;
+          else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
+          {
+              SaveWavefront = true;
+              ParseString(SaveWavefrontName, false);
+          }
+          else if (Param == QLatin1String("-3ds") || Param == QLatin1String("--export-3ds"))
+          {
+              Save3DS = true;
+              ParseString(Save3DSName, false);
+          }
+          else if (Param == QLatin1String("-dae") || Param == QLatin1String("--export-collada"))
+          {
+              SaveCOLLADA = true;
+              ParseString(SaveCOLLADAName, false);
+          }
+          else if (Param == QLatin1String("-html") || Param == QLatin1String("--export-html"))
+          {
+              SaveHTML = true;
+              ParseString(SaveHTMLName, false);
+          }
+          else if (Param == QLatin1String("--html-parts-width"))
+              ParseInteger(PartImagesWidth);
+          else if (Param == QLatin1String("--html-parts-height"))
+              ParseInteger(PartImagesHeight);
+      }
+
+      if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
+      {
+          if (!ModelName.isEmpty())
+              mProject->SetActiveModel(ModelName);
+
+          View* ActiveView = gMainWindow->GetActiveView();
+
+          if (!CameraName.isEmpty())
+          {
+              ActiveView->SetCamera(CameraName.toLatin1()); // todo: qstring
+
+              if (!ViewpointName.isEmpty())
+                  printf("Warning: --viewpoint is ignored when --camera is set.\n");
+
+              if (Orthographic)
+                  printf("Warning: --orthographic is ignored when --camera is set.\n");
+
+              if (SetCameraAngles)
+                  printf("Warning: --camera-angles is ignored when --camera is set.\n");
+          }
+          else
+          {
+              if (!ViewpointName.isEmpty())
+              {
+                  if (ViewpointName == QLatin1String("front"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_FRONT);
+                  else if (ViewpointName == QLatin1String("back"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_BACK);
+                  else if (ViewpointName == QLatin1String("top"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_TOP);
+                  else if (ViewpointName == QLatin1String("bottom"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_BOTTOM);
+                  else if (ViewpointName == QLatin1String("left"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_LEFT);
+                  else if (ViewpointName == QLatin1String("right"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_RIGHT);
+                  else if (ViewpointName == QLatin1String("home"))
+                      ActiveView->SetViewpoint(LC_VIEWPOINT_HOME);
+                  else
+                      printf("Unknown viewpoint: '%s'\n", ViewpointName.toLatin1().constData());
+
+                  if (SetCameraAngles)
+                      printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
+              }
+              else if (SetCameraAngles)
+                  ActiveView->SetCameraAngles(CameraLatitude, CameraLongitude);
+
+              ActiveView->SetProjection(Orthographic);
+          }
+
+          if (SaveImage)
+          {
+              if (ImageName.isEmpty())
+                  ImageName = mProject->GetImageFileName();
+
+              if (ImageEnd < ImageStart)
+                  ImageEnd = ImageStart;
+              else if (ImageStart > ImageEnd)
+                  ImageStart = ImageEnd;
+
+              if ((ImageStart == 0) && (ImageEnd == 0))
+                  ImageStart = ImageEnd = mProject->GetActiveModel()->GetCurrentStep();
+              else if ((ImageStart == 0) && (ImageEnd != 0))
+                  ImageStart = ImageEnd;
+              else if ((ImageStart != 0) && (ImageEnd == 0))
+                  ImageEnd = ImageStart;
+
+              if (ImageStart > 255)
+                  ImageStart = 255;
+
+              if (ImageEnd > 255)
+                  ImageEnd = 255;
+
+              QString Frame;
+
+              if (ImageStart != ImageEnd)
+              {
+                  QString Extension = QFileInfo(ImageName).suffix();
+                  Frame = ImageName.left(ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
+              }
+              else
+                  Frame = ImageName;
+
+              lcGetActiveModel()->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
+          }
+
+          if (SaveWavefront)
+          {
+              QString FileName;
+
+              if (!SaveWavefrontName.isEmpty())
+                  FileName = SaveWavefrontName;
+              else
+                  FileName = ProjectName;
+
+              QString Extension = QFileInfo(FileName).suffix().toLower();
+
+              if (Extension.isEmpty())
+              {
+                  FileName += ".obj";
+              }
+              else if (Extension != "obj")
+              {
+                  FileName = FileName.left(FileName.length() - Extension.length() - 1);
+                  FileName += ".obj";
+              }
+
+              mProject->ExportWavefront(FileName);
+          }
+
+          if (Save3DS)
+          {
+              QString FileName;
+
+              if (!Save3DSName.isEmpty())
+                  FileName = Save3DSName;
+              else
+                  FileName = ProjectName;
+
+              QString Extension = QFileInfo(FileName).suffix().toLower();
+
+              if (Extension.isEmpty())
+              {
+                  FileName += ".3ds";
+              }
+              else if (Extension != "3ds")
+              {
+                  FileName = FileName.left(FileName.length() - Extension.length() - 1);
+                  FileName += ".3ds";
+              }
+
+              mProject->Export3DStudio(FileName);
+          }
+
+          if (SaveCOLLADA)
+          {
+              QString FileName;
+
+              if (!SaveCOLLADAName.isEmpty())
+                  FileName = SaveCOLLADAName;
+              else
+                  FileName = ProjectName;
+
+              QString Extension = QFileInfo(FileName).suffix().toLower();
+
+              if (Extension.isEmpty())
+              {
+                  FileName += ".dae";
+              }
+              else if (Extension != "dae")
+              {
+                  FileName = FileName.left(FileName.length() - Extension.length() - 1);
+                  FileName += ".dae";
+              }
+
+              mProject->ExportCOLLADA(FileName);
+          }
+
+          if (SaveHTML)
+          {
+              lcHTMLExportOptions Options(mProject);
+
+              if (!SaveHTMLName.isEmpty())
+                  Options.PathName = SaveHTMLName;
+
+              if (PartImagesWidth > 0)
+                  Options.PartImagesWidth = PartImagesWidth;
+
+              if (PartImagesHeight > 0)
+                  Options.PartImagesHeight = PartImagesHeight;
+
+              mProject->ExportHTML(Options);
+          }
+      }
+
+      if (!SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML)
+        return 0;
+
+      return 1;
+}
+/*** LPub3D Mod end ***/
+
 bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent)
 {
 /*** LPub3D Mod - move ShowWindow from application ***/
-    bool ShowWindow = false;
+    bool ShowWindow = Application::instance()->modeGUI();
 /*** LPub3D Mod end ***/
     bool OnlyUseLibraryPaths = false;
-    bool SaveImage = false;
-    bool SaveWavefront = false;
-    bool Save3DS = false;
-    bool SaveCOLLADA = false;
-    bool SaveHTML = false;
-    bool SetCameraAngles = false;
-    bool Orthographic = false;
-    bool ImageHighlight = false;
-    int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
-    int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
-    int ImageStart = 0;
-    int ImageEnd = 0;
-    int PartImagesWidth = -1;
-    int PartImagesHeight = -1;
-    float CameraLatitude, CameraLongitude;
-    QString ImageName;
-    QString ModelName;
-    QString CameraName;
-    QString ViewpointName;
-    QString ProjectName;
-    QString SaveWavefrontName;
-    QString Save3DSName;
-    QString SaveCOLLADAName;
-    QString SaveHTMLName;
 
 /*** LPub3D Mod - Splash message 3D Viewer ***/
     emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
 /*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - Get arguments ***/
-    QStringList Arguments = Application::instance()->arguments();
-/*** LPub3D Mod end ***/
-    const int NumArguments = Arguments.size();
-    for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
-    {
-        const QString& Param = Arguments[ArgIdx];
-
-        if (Param[0] != '-')
-        {
-/*** LPub3D Mod - suppress 3DViewer file load ***/
-            //ProjectName = Param;
-/*** LPub3D Mod end ***/
-            continue;
-        }
-
-        auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
-        {
-            if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-            {
-                ArgIdx++;
-                Value = Arguments[ArgIdx];
-            }
-            else if (Required)
-                printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-        };
-
-        auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
-        {
-            if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-            {
-                bool Ok = false;
-                ArgIdx++;
-                int NewValue = Arguments[ArgIdx].toInt(&Ok);
-
-                if (Ok)
-                    Value = NewValue;
-                else
-                    printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
-            }
-            else
-                printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-        };
-
-        auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
-        {
-            if (ArgIdx < NumArguments - 2 && Arguments[ArgIdx + 1][0] != '-' && Arguments[ArgIdx + 2][0] != '-')
-            {
-                bool Ok1 = false, Ok2 = false;
-
-                ArgIdx++;
-                float NewValue1 = Arguments[ArgIdx].toFloat(&Ok1);
-                ArgIdx++;
-                float NewValue2 = Arguments[ArgIdx].toFloat(&Ok2);
-
-                if (Ok1 && Ok2)
-                {
-                    Value1 = NewValue1;
-                    Value2 = NewValue2;
-                    return true;
-                }
-                else
-                    printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 2].toLatin1().constData());
-            }
-            else
-                printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-
-            return false;
-        };
-
-        if (Param == QLatin1String("-l") || Param == QLatin1String("--libpath"))
-        {
-            QString LibPath;
-            ParseString(LibPath, true);
-            if (!LibPath.isEmpty())
-            {
-                LibraryPaths.clear();
-                LibraryPaths += qMakePair<QString, bool>(LibPath, false);
-                OnlyUseLibraryPaths = true;
-            }
-        }
-        else if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
-        {
-            SaveImage = true;
-            ParseString(ImageName, false);
-        }
-        else if (Param == QLatin1String("-w") || Param == QLatin1String("--width"))
-            ParseInteger(ImageWidth);
-        else if (Param == QLatin1String("-h") || Param == QLatin1String("--height"))
-            ParseInteger(ImageHeight);
-        else if (Param == QLatin1String("-f") || Param == QLatin1String("--from"))
-            ParseInteger(ImageStart);
-        else if (Param == QLatin1String("-t") || Param == QLatin1String("--to"))
-            ParseInteger(ImageEnd);
-        else if (Param == QLatin1String("-s") || Param == QLatin1String("--submodel"))
-            ParseString(ModelName, true);
-        else if (Param == QLatin1String("-c") || Param == QLatin1String("--camera"))
-            ParseString(CameraName, true);
-        else if (Param == QLatin1String("--viewpoint"))
-            ParseString(ViewpointName, true);
-        else if (Param == QLatin1String("--camera-angles"))
-            SetCameraAngles = ParseVector2(CameraLatitude, CameraLongitude);
-        else if (Param == QLatin1String("--orthographic"))
-            Orthographic = true;
-        else if (Param == QLatin1String("--highlight"))
-            ImageHighlight = true;
-        else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
-        {
-            SaveWavefront = true;
-            ParseString(SaveWavefrontName, false);
-        }
-        else if (Param == QLatin1String("-3ds") || Param == QLatin1String("--export-3ds"))
-        {
-            Save3DS = true;
-            ParseString(Save3DSName, false);
-        }
-        else if (Param == QLatin1String("-dae") || Param == QLatin1String("--export-collada"))
-        {
-            SaveCOLLADA = true;
-            ParseString(SaveCOLLADAName, false);
-        }
-        else if (Param == QLatin1String("-html") || Param == QLatin1String("--export-html"))
-        {
-            SaveHTML = true;
-            ParseString(SaveHTMLName, false);
-        }
-        else if (Param == QLatin1String("--html-parts-width"))
-            ParseInteger(PartImagesWidth);
-        else if (Param == QLatin1String("--html-parts-height"))
-            ParseInteger(PartImagesHeight);
-    }
 
 /*** LPub3D Mod - initialize mainwindow with LPub3D parent ***/
     gMainWindow = new lcMainWindow(parent);
@@ -372,7 +544,7 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
     lcLoadDefaultMouseShortcuts();
 
 /*** LPub3D Mod - add modeGUI to ShowWindow var ***/
-    ShowWindow = Application::instance()->modeGUI() && !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
+//    ShowWindow = Application::instance()->modeGUI() && !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
 /*** LPub3D Mod end ***/
 
     if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, ShowWindow))
@@ -401,181 +573,6 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 
     Project* NewProject = new Project();
     SetProject(NewProject);
-
-    if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
-    {
-        if (!ModelName.isEmpty())
-            mProject->SetActiveModel(ModelName);
-
-        View* ActiveView = gMainWindow->GetActiveView();
-
-        if (!CameraName.isEmpty())
-        {
-            ActiveView->SetCamera(CameraName.toLatin1()); // todo: qstring
-
-            if (!ViewpointName.isEmpty())
-                printf("Warning: --viewpoint is ignored when --camera is set.\n");
-
-            if (Orthographic)
-                printf("Warning: --orthographic is ignored when --camera is set.\n");
-
-            if (SetCameraAngles)
-                printf("Warning: --camera-angles is ignored when --camera is set.\n");
-        }
-        else
-        {
-            if (!ViewpointName.isEmpty())
-            {
-                if (ViewpointName == QLatin1String("front"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_FRONT);
-                else if (ViewpointName == QLatin1String("back"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_BACK);
-                else if (ViewpointName == QLatin1String("top"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_TOP);
-                else if (ViewpointName == QLatin1String("bottom"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_BOTTOM);
-                else if (ViewpointName == QLatin1String("left"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_LEFT);
-                else if (ViewpointName == QLatin1String("right"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_RIGHT);
-                else if (ViewpointName == QLatin1String("home"))
-                    ActiveView->SetViewpoint(LC_VIEWPOINT_HOME);
-                else
-                    printf("Unknown viewpoint: '%s'\n", ViewpointName.toLatin1().constData());
-
-                if (SetCameraAngles)
-                    printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
-            }
-            else if (SetCameraAngles)
-                ActiveView->SetCameraAngles(CameraLatitude, CameraLongitude);
-
-            ActiveView->SetProjection(Orthographic);
-        }
-
-        if (SaveImage)
-        {
-            if (ImageName.isEmpty())
-                ImageName = mProject->GetImageFileName();
-
-            if (ImageEnd < ImageStart)
-                ImageEnd = ImageStart;
-            else if (ImageStart > ImageEnd)
-                ImageStart = ImageEnd;
-
-            if ((ImageStart == 0) && (ImageEnd == 0))
-                ImageStart = ImageEnd = mProject->GetActiveModel()->GetCurrentStep();
-            else if ((ImageStart == 0) && (ImageEnd != 0))
-                ImageStart = ImageEnd;
-            else if ((ImageStart != 0) && (ImageEnd == 0))
-                ImageEnd = ImageStart;
-
-            if (ImageStart > 255)
-                ImageStart = 255;
-
-            if (ImageEnd > 255)
-                ImageEnd = 255;
-
-            QString Frame;
-
-            if (ImageStart != ImageEnd)
-            {
-                QString Extension = QFileInfo(ImageName).suffix();
-                Frame = ImageName.left(ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
-            }
-            else
-                Frame = ImageName;
-
-            lcGetActiveModel()->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
-        }
-
-        if (SaveWavefront)
-        {
-            QString FileName;
-
-            if (!SaveWavefrontName.isEmpty())
-                FileName = SaveWavefrontName;
-            else
-                FileName = ProjectName;
-
-            QString Extension = QFileInfo(FileName).suffix().toLower();
-
-            if (Extension.isEmpty())
-            {
-                FileName += ".obj";
-            }
-            else if (Extension != "obj")
-            {
-                FileName = FileName.left(FileName.length() - Extension.length() - 1);
-                FileName += ".obj";
-            }
-
-            mProject->ExportWavefront(FileName);
-        }
-
-        if (Save3DS)
-        {
-            QString FileName;
-
-            if (!Save3DSName.isEmpty())
-                FileName = Save3DSName;
-            else
-                FileName = ProjectName;
-
-            QString Extension = QFileInfo(FileName).suffix().toLower();
-
-            if (Extension.isEmpty())
-            {
-                FileName += ".3ds";
-            }
-            else if (Extension != "3ds")
-            {
-                FileName = FileName.left(FileName.length() - Extension.length() - 1);
-                FileName += ".3ds";
-            }
-
-            mProject->Export3DStudio(FileName);
-        }
-
-        if (SaveCOLLADA)
-        {
-            QString FileName;
-
-            if (!SaveCOLLADAName.isEmpty())
-                FileName = SaveCOLLADAName;
-            else
-                FileName = ProjectName;
-
-            QString Extension = QFileInfo(FileName).suffix().toLower();
-
-            if (Extension.isEmpty())
-            {
-                FileName += ".dae";
-            }
-            else if (Extension != "dae")
-            {
-                FileName = FileName.left(FileName.length() - Extension.length() - 1);
-                FileName += ".dae";
-            }
-
-            mProject->ExportCOLLADA(FileName);
-        }
-
-        if (SaveHTML)
-        {
-            lcHTMLExportOptions Options(mProject);
-
-            if (!SaveHTMLName.isEmpty())
-                Options.PathName = SaveHTMLName;
-
-            if (PartImagesWidth > 0)
-                Options.PartImagesWidth = PartImagesWidth;
-
-            if (PartImagesHeight > 0)
-                Options.PartImagesHeight = PartImagesHeight;
-
-            mProject->ExportHTML(Options);
-        }
-    }
 
     if (ShowWindow)
     {

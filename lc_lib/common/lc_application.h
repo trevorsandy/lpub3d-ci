@@ -50,6 +50,9 @@ public:
 /*** LPub3D Mod - add parent, remove ShowWindow ***/
 	bool Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - process command line ***/
+	int Process3DViewerCommandLine();
+/*** LPub3D Mod end ***/
 	void Shutdown();
 	void ShowPreferencesDialog();
 	void SaveTabLayout() const;
