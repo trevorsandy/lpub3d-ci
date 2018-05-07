@@ -2677,11 +2677,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                         // process subfiles naming
                         if (is_submodel_file) {
                                if (ldr) {
-                                 fileNameStr = fileNameStr.replace(".ldr", "-fade..ldr");
+                                 fileNameStr = fileNameStr.replace(".ldr", "-fade.ldr");
                                } else if (mpd) {
-                                 fileNameStr = fileNameStr.replace(".mpd", "-fade..mpd");
+                                 fileNameStr = fileNameStr.replace(".mpd", "-fade.mpd");
                                } else if (dat) {
-                                 fileNameStr = fileNameStr.replace(".dat", "-fade..dat");
+                                 fileNameStr = fileNameStr.replace(".dat", "-fade.dat");
                                }
                         }
                         // assign fade part name
