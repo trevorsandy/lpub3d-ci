@@ -1622,9 +1622,9 @@ void Gui::preferences()
 
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged        ||
-                fadeStepsColourChanged          ||
-                fadeStepsUseColourChanged      ||
-                fadeStepsOpacityChanged        ||
+                fadeStepsColourChanged        ||
+                fadeStepsUseColourChanged     ||
+                fadeStepsOpacityChanged       ||
                 enableHighlightStepChanged    ||
                 highlightStepColorChanged     ||
                 highlightStepLineWidthChanged ||

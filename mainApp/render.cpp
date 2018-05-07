@@ -56,6 +56,7 @@ Render *renderer;
 LDGLite ldglite;
 LDView  ldview;
 POVRay  povray;
+Native  native;
 
 
 //#define LduDistance 5729.57
@@ -123,23 +124,45 @@ QString fixupDirname(const QString &dirNameIn) {
 
 QString const Render::getRenderer()
 {
-  if (renderer == &ldglite) {
+  if (renderer == &ldglite)
+  {
     return RENDERER_LDGLITE;
-  } else if (renderer == &ldview){
+  }
+  else
+  if (renderer == &ldview)
+  {
     return RENDERER_LDVIEW;
-  } else {
+  }
+  else
+  if (renderer == &povray)
+  {
     return RENDERER_POVRAY;
+  }
+  else
+  {
+    return RENDERER_NATIVE;
   }
 }
 
 void Render::setRenderer(QString const &name)
 {
-  if (name == RENDERER_LDGLITE) {
+  if (name == RENDERER_LDGLITE)
+  {
     renderer = &ldglite;
-  } else if (name == RENDERER_LDVIEW) {
+  }
+  else
+  if (name == RENDERER_LDVIEW)
+  {
     renderer = &ldview;
-  } else {
+  }
+  else
+  if (name == RENDERER_POVRAY)
+  {
     renderer = &povray;
+  }
+  else
+  {
+    renderer = &native;
   }
 }
 
@@ -1264,6 +1287,165 @@ int LDView::renderPli(
           }
       }
   }
+
+  return 0;
+}
+
+/***************************************************************************
+ *
+ * Native renderer
+ *
+ **************************************************************************/
+
+float Native::cameraDistance(
+  Meta &meta,
+  float scale)
+{
+        return stdCameraDistance(meta,scale);
+}
+
+int Native::renderCsi(
+  const QString     &addLine,
+  const QStringList &csiParts,
+  const QStringList &csiKeys,
+  const QString     &pngName,
+        Meta        &meta)
+{
+  /* Create the CSI DAT file */
+  QString ldrPath, ldrName, ldrFile;
+  int rc;
+  ldrName = "csi.ldr";
+  ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
+  ldrFile = ldrPath + "/" + ldrName;
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile)) < 0) {
+     return rc;
+  }
+
+  /* determine camera distance */
+
+  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
+
+  QString v  = QString("-v%1,%2")   .arg(width)
+                                    .arg(height);
+  QString o  = QString("-o0,-%1")   .arg(height/6);
+  QString mf = QString("-mF%1")     .arg(pngName);
+
+  // int lineThickness = resolution()/150+0.5;
+  int hlwidth;
+  if (Preferences::enableHighlightStep)
+    hlwidth = Preferences::highlightStepLineWidth/2;
+  else
+    hlwidth = 0.5;
+  int lineThickness = resolution()/150.0+hlwidth;
+  if (lineThickness == 0) {
+    lineThickness = 1;
+  }
+                                    // native always deals in 72 DPI
+  QString w  = QString("-W%1")      .arg(lineThickness);
+
+  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
+                                      .arg(meta.LPub.assem.angle.value(1))
+                                      .arg(cd);
+
+  QStringList arguments;
+  arguments << CA;                  // camera FOV angle in degrees
+  arguments << cg;                  // camera globe - scale factor
+  arguments << v;                   // display in X wide by Y high window
+  arguments << o;                   // changes the center X across and Y down
+  arguments << w;                   // line thickness
+
+  // if fade step, add custom colour file
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
+    arguments << "-ldcF" + ldrPath + "/colours_" + ldrName;
+    logDebug() << qPrintable("-ldcF" + ldrPath + "/colours_" + ldrName);
+  } else if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-ldcF" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
+  }
+  arguments << mf;                  // .png file name
+  arguments << ldrFile;             // csi.ldr (input file)
+
+  emit gui->messageSig(LOG_STATUS, "Execute command: Native render CSI.");
+
+  QString message = QString("Native CSI Arguments: %1 %2").arg(RENDERER_NATIVE).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->messageSig(LOG_STATUS, message);
+#endif
+
+  // TODO - CALL NATIVE HERE
+  // native.start(Preferences::nativeExe,arguments);
+
+  // image matting stub
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
+  }
+
+  return 0;
+}
+
+
+int Native::renderPli(
+  const QStringList &ldrNames,
+  const QString     &pngName,
+  Meta              &meta,
+  bool               bom)
+{
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
+
+  int hlwidth;
+  if (Preferences::enableHighlightStep)
+    hlwidth = Preferences::highlightStepLineWidth/2;
+  else
+    hlwidth = 0.5;
+  int lineThickness = resolution()/72.0+hlwidth;
+
+  /* determine camera distance */
+
+  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+
+  int cd = cameraDistance(meta,pliMeta.modelScale.value());
+
+  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
+                                      .arg(pliMeta.angle.value(1))
+                                      .arg(cd);
+
+  QString v  = QString("-v%1,%2")   .arg(width)
+                                    .arg(height);
+  QString o  = QString("-o0,-%1")   .arg(height/6);
+  QString mf = QString("-mF%1")     .arg(pngName);
+
+  QString w  = QString("-W%1")      .arg(int(resolution()/lineThickness));
+
+  QStringList arguments;
+  arguments << CA;                  // camera FOV angle in degrees
+  arguments << cg;                  // camera globe - scale factor
+  arguments << v;                   // display in X wide by Y high window
+  arguments << o;                   // changes the center X across and Y down
+  arguments << w;                   // line thickness
+  arguments << mf;
+  arguments << ldrNames.first();
+
+  emit gui->messageSig(LOG_STATUS, "Execute command: Native render PLI.");
+
+  QString message = QString("Native PLI Arguments: %1 %2").arg(RENDERER_NATIVE).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->messageSig(LOG_STATUS, message);
+#endif
+
+  // TODO - CALL NATIVE HERE
+  // native.start(Preferences::nativeExe,arguments);
 
   return 0;
 }

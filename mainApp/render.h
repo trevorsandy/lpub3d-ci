@@ -127,5 +127,14 @@ public:
   virtual float cameraDistance(Meta &meta, float);
 };
 
+class Native : public Render
+{
+public:
+  Native() {}
+  virtual ~Native() {}
+  virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
+  virtual float cameraDistance(Meta &meta, float);
+};
 
 #endif

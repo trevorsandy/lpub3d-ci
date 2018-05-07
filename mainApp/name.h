@@ -59,6 +59,7 @@ Q_DECLARE_METATYPE(LogType);
 #define RENDERER_POVRAY                   "POVRay"
 #define RENDERER_LDGLITE                  "LDGLite"
 #define RENDERER_LDVIEW                   "LDView"
+#define RENDERER_NATIVE                   "3DViewer"
 
 #define RENDERER_TIMEOUT_DEFAULT          6    // measured in seconds
 

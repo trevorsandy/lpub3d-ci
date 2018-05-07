@@ -180,7 +180,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //end search dirs
 
   ui.preferredRenderer->setMaxCount(0);
-  ui.preferredRenderer->setMaxCount(3);
+  ui.preferredRenderer->setMaxCount(4);
 
   QFileInfo fileInfo(Preferences::povrayExe);
   int povRayIndex = ui.preferredRenderer->count();
@@ -204,6 +204,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->addItem(RENDERER_LDVIEW);
   }
 
+  ui.preferredRenderer->addItem(RENDERER_NATIVE);
+
   if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
@@ -213,16 +215,20 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
+  } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+      ui.preferredRenderer->setEnabled(true);
   } else {
     ui.preferredRenderer->setEnabled(false);
   }
 
-  if(!ldviewExists && !ldgliteExists && !povRayExists){
-      ui.tabWidget->setCurrentIndex(1);
-      ui.RenderMessage->setText("<font color='red'>Renderer not set!</font>");
-  } else {
-      ui.tabWidget->setCurrentIndex(0);
-  }
+  ui.tabWidget->setCurrentIndex(0);
+
+//  if(!ldviewExists && !ldgliteExists && !povRayExists){
+//      ui.tabWidget->setCurrentIndex(1);
+//      ui.RenderMessage->setText("<font color='red'>Renderer not set!</font>");
+//  } else {
+//      ui.tabWidget->setCurrentIndex(0);
+//  }
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
