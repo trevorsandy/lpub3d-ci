@@ -204,6 +204,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->addItem(RENDERER_LDVIEW);
   }
 
+  int nativeIndex = ui.preferredRenderer->count();
   ui.preferredRenderer->addItem(RENDERER_NATIVE);
 
   if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
@@ -213,10 +214,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
   }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
-      ui.preferredRenderer->setCurrentIndex(povRayIndex);
-      ui.preferredRenderer->setEnabled(true);
+    ui.preferredRenderer->setCurrentIndex(povRayIndex);
+    ui.preferredRenderer->setEnabled(true);
   } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-      ui.preferredRenderer->setEnabled(true);
+    ui.preferredRenderer->setCurrentIndex(nativeIndex);
+    ui.preferredRenderer->setEnabled(true);
   } else {
     ui.preferredRenderer->setEnabled(false);
   }

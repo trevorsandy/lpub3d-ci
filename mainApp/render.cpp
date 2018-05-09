@@ -34,6 +34,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
+
 #include "lpub.h"
 #include "render.h"
 #include "resolution.h"
@@ -42,9 +43,14 @@
 #include "lpub_preferences.h"
 
 #include "paths.h"
-//**3D
+
+//**3D Viewer
+#include "lc_global.h"
 #include "lc_mainwindow.h"
 #include "lc_file.h"
+#include "project.h"
+#include "pieceinf.h"
+#include "view.h"
 //**
 
 #ifdef Q_OS_WIN
@@ -166,6 +172,15 @@ void Render::setRenderer(QString const &name)
   }
 }
 
+const QString Render::getRotstepMeta(RotStepMeta &rotStep){
+  QString rotstepMeta = QString("0 // ROTSTEP %1 %2 %3 %4")
+                                .arg(rotStep.value().type)
+                                .arg(rotStep.value().rots[0])
+                                .arg(rotStep.value().rots[1])
+                                .arg(rotStep.value().rots[2]);
+  return rotstepMeta;
+}
+
 bool Render::useLDViewSCall(bool override){
   if (override)
     return override;
@@ -173,102 +188,149 @@ bool Render::useLDViewSCall(bool override){
     return Preferences::useLDViewSingleCall;
 }
 
-void clipImage(QString const &pngName){
-	//printf("\n");
-	QImage toClip(QDir::toNativeSeparators(pngName));
-	QRect clipBox = toClip.rect();
+//QRect getBoundsWithoutColor(QString const &pngName)
+void clipImage(QString const &pngName) {
 
-	//printf("clipping %s from %d x %d at (%d,%d)\n",qPrintable(QDir::toNativeSeparators(pngName)),clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+    QImage toClip(QDir::toNativeSeparators(pngName));
+    QColor exclusionColor = Qt::transparent;
+    QRect clipBox;
 
-	int x,y;
-	int initLeft = clipBox.left();
-	int initTop = clipBox.top();
-	int initRight = clipBox.right();
-	int initBottom = clipBox.bottom();
-	for(x = initLeft; x < initRight; x++){
-		for(y = initTop; y < initBottom; y++){
-			QRgb pixel = toClip.pixel(x, y);
-			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
-				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
-			}
-			if ( pixel != 0){
-				//printf("bumped into something at (%d,%d)\n",x,y);
-				break;
-			}
-		}
-		if (y != initBottom) {
-			clipBox.setLeft(x);
-			break;
-		}
-	}
+    int maxX = 0; int minX = toClip.width();
+    int maxY = 0; int minY = toClip.height();
 
-	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+//    logDebug() << qPrintable(QString("Clipping %1  Max(x:%2, y:%3), Min(x:%4, y:%5)")
+//                                     .arg(QDir::toNativeSeparators(pngName))
+//                                     .arg(maxX)
+//                                     .arg(maxY)
+//                                     .arg(minX)
+//                                     .arg(minY));
 
+    for(int x=0; x < toClip.width(); x++)
+        for(int y=0; y < toClip.height(); y++)
+            if (QColor::fromRgb(toClip.pixel(x, y)) != exclusionColor)
+            {
+                if(x < minX) minX = x;
+                if(x > maxX) maxX = x;
+                if(y < minY) minY = y;
+                if(y > maxY) maxY = y;
+            }
 
-	initLeft = clipBox.left();
-	for(x = initRight; x >= initLeft; x--){
-		for(y = initTop; y < initBottom; y++){
-			QRgb pixel = toClip.pixel(x, y);
-			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
-				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
-			}
-			if ( pixel != 0){
-				//printf("bumped into something at (%d,%d)\n",x,y);
-				break;
-			}
-		}
-		if (y != initBottom) {
-			clipBox.setRight(x);
-			break;
-		}
-	}
+    if (minX > maxX || minY > maxY) {
+        logDebug() << qPrintable(QString("Nothing to exclude in image %1").arg(QDir::toNativeSeparators(pngName)));
+        return;
+    } else {
+        clipBox.setCoords(minX, minY, maxX+1, maxY+1);
+    }
 
-	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+    //return clipBox;
+    QImage clipped = toClip.copy(clipBox);
+    QString clipMsg = QString("%1 (w:%2 x h:%3)")
+                              .arg(QDir::toNativeSeparators(pngName))
+                              .arg(clipped.width())
+                              .arg(clipped.height());
+    if (clipped.save(QDir::toNativeSeparators(pngName))) {
+        logDebug() << qPrintable("Clipped " + clipMsg);
+    } else {
+        logError() << qPrintable("Failed to save clip " + clipMsg);
+    }
+ }
 
-	initRight = clipBox.right();
-	for(y = initTop; y < initBottom; y++){
-		for(x = initLeft; x < initRight; x++){
-			QRgb pixel = toClip.pixel(x, y);
-			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
-				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
-			}
-			if ( pixel != 0){
-				//printf("bumped into something at (%d,%d)\n",x,y);
-				break;
-			}
-		}
-		if (x != initRight) {
-			clipBox.setTop(y);
-			break;
-		}
-	}
+//void clipImage(QString const &pngName){
+//	//printf("\n");
 
-	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+//	QImage toClip(QDir::toNativeSeparators(pngName));
+//	QRect clipBox = toClip.rect();
 
-	initTop = clipBox.top();
-	for(y = initBottom; y >= initTop; y--){
-		for(x = initLeft; x < initRight; x++){
-			QRgb pixel = toClip.pixel(x, y);
-			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
-				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
-			}
-			if ( pixel != 0){
-				//printf("bumped into something at (%d,%d)\n",x,y);
-				break;
-			}
-		}
-		if (x != initRight) {
-			clipBox.setBottom(y);
-			break;
-		}
-	}
+//	//printf("clipping %s from %d x %d at (%d,%d)\n",qPrintable(QDir::toNativeSeparators(pngName)),clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
 
-	//printf("clipped to %d x %d at (%d,%d)\n\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+//	int x,y;
+//	int initLeft = clipBox.left();
+//	int initTop = clipBox.top();
+//	int initRight = clipBox.right();
+//	int initBottom = clipBox.bottom();
+//	for(x = initLeft; x < initRight; x++){
+//		for(y = initTop; y < initBottom; y++){
+//			QRgb pixel = toClip.pixel(x, y);
+//			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
+//				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
+//			}
+//			if ( pixel != 0){
+//				//printf("bumped into something at (%d,%d)\n",x,y);
+//				break;
+//			}
+//		}
+//		if (y != initBottom) {
+//			clipBox.setLeft(x);
+//			break;
+//		}
+//	}
 
-	QImage clipped = toClip.copy(clipBox);
-	//toClip.save(QDir::toNativeSeparators(pngName+"-orig.png"));
-	clipped.save(QDir::toNativeSeparators(pngName));
-}
+//	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+
+//	initLeft = clipBox.left();
+//	for(x = initRight; x >= initLeft; x--){
+//		for(y = initTop; y < initBottom; y++){
+//			QRgb pixel = toClip.pixel(x, y);
+//			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
+//				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
+//			}
+//			if ( pixel != 0){
+//				//printf("bumped into something at (%d,%d)\n",x,y);
+//				break;
+//			}
+//		}
+//		if (y != initBottom) {
+//			clipBox.setRight(x);
+//			break;
+//		}
+//	}
+
+//	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+
+//	initRight = clipBox.right();
+//	for(y = initTop; y < initBottom; y++){
+//		for(x = initLeft; x < initRight; x++){
+//			QRgb pixel = toClip.pixel(x, y);
+//			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
+//				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
+//			}
+//			if ( pixel != 0){
+//				//printf("bumped into something at (%d,%d)\n",x,y);
+//				break;
+//			}
+//		}
+//		if (x != initRight) {
+//			clipBox.setTop(y);
+//			break;
+//		}
+//	}
+
+//	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+
+//	initTop = clipBox.top();
+//	for(y = initBottom; y >= initTop; y--){
+//		for(x = initLeft; x < initRight; x++){
+//			QRgb pixel = toClip.pixel(x, y);
+//			if(!toClip.valid(x,y) || !QColor::fromRgba(pixel).isValid()){
+//				//printf("something blew up when scanning at (%d,%d) - got %d %d\n",x,y,toClip.valid(x,y),QColor::fromRgba(pixel).isValid());
+//			}
+//			if ( pixel != 0){
+//				//printf("bumped into something at (%d,%d)\n",x,y);
+//				break;
+//			}
+//		}
+//		if (x != initRight) {
+//			clipBox.setBottom(y);
+//			break;
+//		}
+//	}
+
+//	//printf("clipped to %d x %d at (%d,%d)\n\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
+
+//	QImage clipped = toClip.copy(clipBox);
+//	//toClip.save(QDir::toNativeSeparators(pngName+"-orig.png"));
+//	clipped.save(QDir::toNativeSeparators(pngName));
+//}
 
 // Shared calculations
 float stdCameraDistance(Meta &meta, float scale) {
@@ -1298,10 +1360,10 @@ int LDView::renderPli(
  **************************************************************************/
 
 float Native::cameraDistance(
-  Meta &meta,
-  float scale)
+    Meta &meta,
+    float scale)
 {
-        return stdCameraDistance(meta,scale);
+  return stdCameraDistance(meta,scale);
 }
 
 int Native::renderCsi(
@@ -1311,85 +1373,131 @@ int Native::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-  /* Create the CSI DAT file */
-  QString ldrPath, ldrName, ldrFile;
-  int rc;
-  ldrName = "csi.ldr";
-  ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
-  ldrFile = ldrPath + "/" + ldrName;
-  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile)) < 0) {
-     return rc;
+  Q_UNUSED(csiKeys);
+  int rc = 0;
+
+  // Prepare csiParts
+  QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  if ((rc = rotateParts(addLine, meta.rotStep,csiParts,ldrName)) < 0) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI rotate parts failed!"));
+      return rc;
   }
 
-  /* determine camera distance */
 
-  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
-
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
-
-  QString v  = QString("-v%1,%2")   .arg(width)
-                                    .arg(height);
-  QString o  = QString("-o0,-%1")   .arg(height/6);
-  QString mf = QString("-mF%1")     .arg(pngName);
-
-  // int lineThickness = resolution()/150+0.5;
   int hlwidth;
   if (Preferences::enableHighlightStep)
     hlwidth = Preferences::highlightStepLineWidth/2;
   else
     hlwidth = 0.5;
-  int lineThickness = resolution()/150.0+hlwidth;
-  if (lineThickness == 0) {
-    lineThickness = 1;
-  }
-                                    // native always deals in 72 DPI
-  QString w  = QString("-W%1")      .arg(lineThickness);
+  int lineThickness = resolution()/72.0+hlwidth;
+  Q_UNUSED(lineThickness);
 
-  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
-                                      .arg(meta.LPub.assem.angle.value(1))
-                                      .arg(cd);
-
-  QStringList arguments;
-  arguments << CA;                  // camera FOV angle in degrees
-  arguments << cg;                  // camera globe - scale factor
-  arguments << v;                   // display in X wide by Y high window
-  arguments << o;                   // changes the center X across and Y down
-  arguments << w;                   // line thickness
-
-  // if fade step, add custom colour file
-  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
-    arguments << "-ldcF" + ldrPath + "/colours_" + ldrName;
-    logDebug() << qPrintable("-ldcF" + ldrPath + "/colours_" + ldrName);
-  } else if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-ldcF" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
-  }
-  arguments << mf;                  // .png file name
-  arguments << ldrFile;             // csi.ldr (input file)
-
-  emit gui->messageSig(LOG_STATUS, "Execute command: Native render CSI.");
-
-  QString message = QString("Native CSI Arguments: %1 %2").arg(RENDERER_NATIVE).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
-#else
-  emit gui->messageSig(LOG_STATUS, message);
-#endif
-
-  // TODO - CALL NATIVE HERE
-  // native.start(Preferences::nativeExe,arguments);
-
-  // image matting stub
-  if (Preferences::enableFadeSteps) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
-      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
-      }
+  // Set and load new project
+  Project* CsiImageProject = new Project();
+  if (!gMainWindow->OpenProject(ldrName))
+  {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native CSI image project."));
+    delete CsiImageProject;
+    return rc = 1;
   }
 
-  return 0;
+  lcHTMLExportOptions Options(lcGetActiveProject());
+  Options.PathName          = QDir::currentPath() + "/" + Paths::partsDir;
+  Options.HighlightNewParts = Preferences::enableHighlightStep;
+  Options.StepImagesWidth   = gui->pageSize(meta.LPub.page, 0);
+  Options.StepImagesHeight  = gui->pageSize(meta.LPub.page, 1);
+  Options.TransparentImages = true;
+  Options.CurrentOnly       = true;
+  Options.SaveDefaults();
+
+  int Width  = Options.StepImagesWidth;
+  int Height = Options.StepImagesHeight;
+
+  // Get the view
+  View* ActiveView = gMainWindow->GetActiveView();
+  ActiveView->MakeCurrent();
+  // Context
+  lcContext* Context = ActiveView->mContext;
+  // Step
+  lcStep CurrentStep = gApplication->mProject->GetActiveModel()->GetCurrentStep();
+//  // Camera distance
+//  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+//  // Get viewMatrix
+//  QVector<lcVector3> viewMatrix = nativeCameraSettings(meta.LPub,Height,cd,CSI);
+//  // Camera
+  lcCamera* Camera = ActiveView->mCamera;
+//  Camera->mWorldView = lcMatrix44LookAt(viewMatrix.at(0),viewMatrix.at(1),viewMatrix.at(2));
+//  Camera->m_fovy     = viewMatrix.at(3).x;
+//  Camera->m_zNear    = viewMatrix.at(3).y;
+//  Camera->m_zFar     = viewMatrix.at(3).z;
+
+  bool Zoom  = false;
+  if (Zoom)
+          CsiImageProject->GetActiveModel()->ZoomExtents(Camera, (float)Width / (float)Height);
+
+  // View
+  View View(ActiveView->mModel);
+  View.SetCamera(Camera,false);
+  View.SetContext(Context);
+  View.SetHighlight(Options.HighlightNewParts);
+
+  //TODO - Setup fadestep (use same scheme as highlight step)
+
+  logNotice() << QString("Native Renderer CSI Camera Settings: "
+                         "Position (fx %1, fy %2, fz %3), "
+                         "Target (tx %4, ty %5, tz %6), "
+                         "Up Vector (ux %7, uy %8, uz %9), "
+                         "FOV %10, ZNear %11, ZFar %12")
+                         .arg(Camera->mPosition.x,0,'f',4)
+                         .arg(Camera->mPosition.y,0,'f',4)
+                         .arg(Camera->mPosition.z,0,'f',4)
+                         .arg(Camera->mTargetPosition.x,0,'f',4)
+                         .arg(Camera->mTargetPosition.y,0,'f',4)
+                         .arg(Camera->mTargetPosition.z,0,'f',4)
+                         .arg(Camera->mUpVector.x,0,'f',4)
+                         .arg(Camera->mUpVector.y,0,'f',4)
+                         .arg(Camera->mUpVector.z,0,'f',4)
+                         .arg(Camera->m_fovy)
+                         .arg(Camera->m_zNear)
+                         .arg(Camera->m_zFar);
+
+  // Begin Rendering
+  if (!View.BeginRenderToImage(Width, Height))
+  {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to begin rendering Native CSI image."));
+    return rc = 1;
+  }
+  int Begin, End;
+  Begin = End = CurrentStep;
+
+  // Render image
+  for (lcStep Step = Begin; Step <= End; Step++)
+    {
+      ActiveView->mModel->SetTemporaryStep(Step);
+      View.OnDraw();
+
+      QImageWriter Writer(pngName);
+
+      if (Writer.format().isEmpty())
+        Writer.setFormat("png");
+
+      if (!Writer.write(View.GetRenderImage()))
+        {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native CSI file '%1':\n%2").arg(pngName, Writer.errorString()));
+          rc = 1;
+          break;
+        }
+    }
+
+  // End Rendering
+  View.EndRenderToImage();
+  Context->ClearResources();
+
+  ActiveView->mModel->SetTemporaryStep(CurrentStep);
+
+  emit gui->messageSig(LOG_STATUS,QMessageBox::tr("Execute command: Render Native CSI."));
+
+  return rc;
 }
 
 
@@ -1399,55 +1507,121 @@ int Native::renderPli(
   Meta              &meta,
   bool               bom)
 {
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+  int rc = 0;
 
-  int hlwidth;
-  if (Preferences::enableHighlightStep)
-    hlwidth = Preferences::highlightStepLineWidth/2;
-  else
-    hlwidth = 0.5;
-  int lineThickness = resolution()/72.0+hlwidth;
+  // Line Width
+  int lineThickness = (int(resolution()/lineThickness));
+  Q_UNUSED(lineThickness);
 
-  /* determine camera distance */
+  // Set and load new project
+  Project* PliImageProject = new Project();
+  if (!gMainWindow->OpenProject(ldrNames.first()))
+  {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native PLI image project."));
+    delete PliImageProject;
+    return rc = 1;
+  }
 
-  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+  lcHTMLExportOptions Options(lcGetActiveProject());
+  Options.PathName = QDir::currentPath() + "/" + Paths::partsDir;
+  Options.PartImagesWidth = gui->pageSize(meta.LPub.page, 0);
+  Options.PartImagesHeight = gui->pageSize(meta.LPub.page, 1);
+  Options.HighlightNewParts = false;
+  Options.TransparentImages = true;
+  Options.PartsListImages = true;
+  Options.CurrentOnly = true;
+  Options.SaveDefaults();
 
-  int cd = cameraDistance(meta,pliMeta.modelScale.value());
+//  int Width = Options.PartImagesWidth;
+//  int Height = Options.PartImagesHeight;
 
-  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
-                                      .arg(pliMeta.angle.value(1))
-                                      .arg(cd);
+  // Get the view
+  View* ActiveView = gMainWindow->GetActiveView();
+  ActiveView->MakeCurrent();
+  // Context
+//  lcContext* Context = ActiveView->mContext;
+  // Camera distance
+//  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
+//  int cd = cameraDistance(meta,metaType.modelScale.value());
+  // Get viewMatrix
+//  QVector<lcVector3> viewMatrix = nativeCameraSettings(meta.LPub,Height,cd,PLI);
+  // Camera
+//  lcCamera* Camera = ActiveView->mCamera;
+//  Camera->mWorldView = lcMatrix44LookAt(viewMatrix.at(0),viewMatrix.at(1),viewMatrix.at(2));
+//  Camera->m_fovy     = viewMatrix.at(3).x;
+//  Camera->m_zNear    = viewMatrix.at(3).y;
+//  Camera->m_zFar     = viewMatrix.at(3).z;
+//  View.SetCamera(Camera,false);
 
-  QString v  = QString("-v%1,%2")   .arg(width)
-                                    .arg(height);
-  QString o  = QString("-o0,-%1")   .arg(height/6);
-  QString mf = QString("-mF%1")     .arg(pngName);
+//  std::pair<lcFramebuffer, lcFramebuffer> RenderFramebuffer = Context->CreateRenderFramebuffer(Width, Height);
 
-  QString w  = QString("-W%1")      .arg(int(resolution()/lineThickness));
+//  if (!RenderFramebuffer.first.IsValid())
+//    {
+//      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native PLI image."));
+//      return rc = 1;
+//    }
 
-  QStringList arguments;
-  arguments << CA;                  // camera FOV angle in degrees
-  arguments << cg;                  // camera globe - scale factor
-  arguments << v;                   // display in X wide by Y high window
-  arguments << o;                   // changes the center X across and Y down
-  arguments << w;                   // line thickness
-  arguments << mf;
-  arguments << ldrNames.first();
+//  Context->BindFramebuffer(RenderFramebuffer.first);
 
-  emit gui->messageSig(LOG_STATUS, "Execute command: Native render PLI.");
+//  float AspectRatio = (float)Width / (float)Height;
+//  Context->SetViewport(0, 0, Width, Height);
 
-  QString message = QString("Native PLI Arguments: %1 %2").arg(RENDERER_NATIVE).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
-#else
-  emit gui->messageSig(LOG_STATUS, message);
-#endif
+  lcModel* Model = ActiveView->mModel;
 
-  // TODO - CALL NATIVE HERE
-  // native.start(Preferences::nativeExe,arguments);
+//  lcPartsList PartsList;
+//  Model->GetPartsList(gDefaultColor, false, PartsList); // get submodels [def=f]
 
-  return 0;
+  // Step
+  lcStep CurrentStep = Model->GetCurrentStep();
+
+  QImage Image = PliImageProject->CreatePartsListImage(Model, CurrentStep);
+  if (!Image.isNull())
+    Image.save(pngName);
+
+//  lcMatrix44 ProjectionMatrix, ViewMatrix;
+
+//  Context->SetDefaultState();
+
+//  for (const auto& PartIt : PartsList)
+//    {
+//      const PieceInfo* Info = PartIt.first;
+
+//      glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+//      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+//      Info->ZoomExtents(30.0f, AspectRatio, ProjectionMatrix, ViewMatrix);
+
+//      Context->SetProjectionMatrix(ProjectionMatrix);
+
+//      lcScene Scene;
+//      Scene.Begin(ViewMatrix);
+
+//      Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, false, false, false);
+
+//      Scene.End();
+
+//      Scene.Draw(Context);
+
+//      //QString FileName = QFileInfo(Dir, QLatin1String(Info->mFileName) + pngNameSection.toLatin1()).absoluteFilePath();
+//      QImage Image = Context->GetRenderFramebufferImage(RenderFramebuffer);
+
+//      QImageWriter Writer(pngName);
+
+//      if (!Writer.write(Image))
+//        {
+//          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native PLI file '%1':\n%2").arg(pngName, Writer.errorString()));
+//          rc = 1;
+//          break;
+//        }
+//    }
+
+//  Context->ClearFramebuffer();
+//  Context->DestroyRenderFramebuffer(RenderFramebuffer);
+//  Context->ClearResources();
+
+  emit gui->messageSig(LOG_STATUS, "Execute command: Render Native PLI.");
+
+  return rc;
 }
 
 // TODO - REMOVE

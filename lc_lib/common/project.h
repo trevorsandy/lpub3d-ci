@@ -82,7 +82,6 @@ public:
 	{
 		return mFileName;
 	}
-
 	QString GetImageFileName() const;
 
 	void SetActiveModel(int ModelIndex);

@@ -1641,6 +1641,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 	View* View = gMainWindow->GetActiveView();
 	View->MakeCurrent();
 	lcContext* Context = View->mContext;
+
 	const int ThumbnailWidth = 512;
 	const int ThumbnailHeight = 512;
 

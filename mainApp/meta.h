@@ -49,10 +49,9 @@
 #include "metatypes.h"
 #include "resolution.h"
 
-class QStringList;
-
 class Meta;
 class BranchMeta;
+class QStringList;
 
 enum Rc {
          InvalidLDrawLineRc = -3,
@@ -2114,15 +2113,23 @@ public:
   MarginsMeta   margin;
   PlacementMeta placement;
   FloatMeta     modelScale;
+  StringMeta    ldviewParms;
+  StringMeta    ldgliteParms;
+  StringMeta    povrayParms;
+  BoolMeta      showStepNumber;
+
+  // image generation
   FloatPairMeta angle;
   IntMeta       distance;
   FloatMeta     fov;
   FloatMeta     znear;
   FloatMeta     zfar;
-  StringMeta    ldviewParms;
-  StringMeta    ldgliteParms;
-  StringMeta    povrayParms;
-  BoolMeta      showStepNumber;
+  // display step
+  FloatPairMeta v_angle;
+  IntMeta       v_distance;
+  FloatMeta     v_fov;
+  FloatMeta     v_znear;
+  FloatMeta     v_zfar;
 
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
@@ -2147,7 +2154,6 @@ public:
   PlacementMeta     placement;
   ConstrainMeta     constrain;
   FloatMeta         modelScale;
-  FloatPairMeta     angle;
   PartMeta          part;
   PliBeginMeta      begin;
   RcMeta            end;
@@ -2163,6 +2169,12 @@ public:
   BoolMeta          sort;
   PliSortMeta       sortBy;
   PliAnnotationMeta annotation;
+
+  FloatPairMeta     angle;
+  IntMeta           distance;
+  FloatMeta         fov;
+  FloatMeta         znear;
+  FloatMeta         zfar;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)

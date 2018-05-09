@@ -298,7 +298,7 @@ int Step::createCsi(
       gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
 
       // set camera settings
-      viewMatrix = renderer->cameraSettings(meta.LPub.assem);
+      viewMatrix = renderer->viewerCameraSettings(meta.LPub.assem);
 
 //      if (! calledOut) {
           // set the step in viewer

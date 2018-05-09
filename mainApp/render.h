@@ -36,9 +36,12 @@ class QString;
 class QStringList;
 class Meta;
 class AssemMeta;
+class LPubMeta;
 class UnitsMeta;
 class RotStepMeta;
 class lcVector3;
+
+enum Mt { PLI, CSI };
 
 class Render
 {
@@ -47,6 +50,7 @@ public:
   virtual ~Render() {}
   static QString const   getRenderer();
   static void            setRenderer(QString const &name);
+  static QString const   getRotstepMeta(RotStepMeta &);
   bool                   useLDViewSCall(bool override = false);
   virtual int 		 renderCsi(const QString &,
                                    const QStringList &,
@@ -73,8 +77,12 @@ public:
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts);
-  QVector<lcVector3>     cameraSettings(AssemMeta &assemMeta,
+  QVector<lcVector3>     viewerCameraSettings(AssemMeta &assemMeta,
                                         const float &cd = 0.0f);
+  QVector<lcVector3>     nativeCameraSettings(LPubMeta &,
+                                        const int &height,
+                                        const float &cd = 0.0f,
+                                        const Mt &type = CSI);
 // TODO - REMOVE
 //  int                    render3DCsi(const QString &,
 //                                    const QString &,
@@ -92,7 +100,7 @@ public:
 
   ImageMatting           imageMatting;
 protected:
-  virtual float          cameraDistance(Meta &meta, float) = 0;  // WATCH_THIS (move to public)
+  virtual float          cameraDistance(Meta &meta, float) = 0;
 };
 
 extern Render *renderer;

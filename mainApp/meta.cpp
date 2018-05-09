@@ -2624,17 +2624,28 @@ AssemMeta::AssemMeta() : BranchMeta()
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"99999.9");
   modelScale.setValue(1.0);
-  angle.setRange(-360.0,360.0);
-  angle.setFormats(6,4,"#999.9");
-  angle.setValues(23,45);        // iusing L3P defaults
-  fov.setRange(0.0,360.0);
-  fov.setValue(30.0);            // using LeoCAD default 30.0f
-  znear.setValue(25.0);          // using LeoCAD default 25.0f
-  zfar.setValue(12500.0);        // using LeoCAD default 12500.0f
   ldgliteParms.setValue("-fh");  // change removed -w1 duplicate on 01-25-16 v1.3.3 r578
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   showStepNumber.setValue(true);
+
+  // image generation
+  angle.setFormats(6,4,"#999.9");
+  angle.setRange(-360.0,360.0);
+  angle.setValues(0.0,0.0);      // using LPub3D Default 0.01f
+  fov.setRange(0.0,360.0);
+  fov.setValue(0.01);            // using LPub3D Default 0.01f
+  znear.setValue(10.0);          // using LPub3D Default 10.0f
+  zfar.setValue(4000.0);         // using LPub3D Default 4000.0f
+
+  // display step
+  v_angle.setFormats(6,4,"#999.9");
+  v_angle.setRange(-360.0,360.0);
+  v_angle.setValues(23,45);      // using LeoCAD defaults
+  v_fov.setRange(0.0,360.0);
+  v_fov.setValue(30.0);          // using LPub3D Default 30.0f
+  v_znear.setValue(25.0);        // using LeoCAD default 25.0f
+  v_zfar.setValue(50000.0);      // using LeoCAD default 50000 (old 12500.0)
 }
 
 void AssemMeta::init(BranchMeta *parent, QString name)
@@ -2643,15 +2654,22 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   margin.init        (this,"MARGINS");
   placement.init     (this,"PLACEMENT");
   modelScale.init    (this,"MODEL_SCALE");
-  angle.init         (this,"VIEW_ANGLE");
-  distance.init      (this,"VIEW_DISTANCE");
-  fov.init           (this,"VIEW_FOV");
-  znear.init         (this,"VIEW_ZNEAR");
-  zfar.init          (this,"VIEW_ZFAR");
   ldviewParms.init   (this,"LDGLITE_PARMS");
   ldgliteParms.init  (this,"LDVIEW_PARMS");
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
+
+  angle.init         (this,"IMAGE_ANGLE");
+  distance.init      (this,"IMAGE_DISTANCE");
+  fov.init           (this,"IMAGE_FOV");
+  znear.init         (this,"IMAGE_ZNEAR");
+  zfar.init          (this,"IMAGE_ZFAR");
+
+  v_angle.init       (this,"VIEW_ANGLE");
+  v_distance.init    (this,"VIEW_DISTANCE");
+  v_fov.init         (this,"VIEW_FOV");
+  v_znear.init       (this,"VIEW_ZNEAR");
+  v_zfar.init        (this,"VIEW_ZFAR");
 }
 
 /* ------------------ */
@@ -2675,9 +2693,6 @@ PliMeta::PliMeta() : BranchMeta()
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"99999.9");
   modelScale.setValue(1.0);
-  angle.setValues(23,-45);
-  angle.setRange(-360.0,360.0);
-  angle.setFormats(6,4,"#999.9");
   show.setValue(true);
   ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
@@ -2698,6 +2713,14 @@ PliMeta::PliMeta() : BranchMeta()
   pack.setValue(true);
   sort.setValue(false);
   sortBy.setValue(SortOptionName[PartSize]);
+
+  angle.setFormats(6,4,"#999.9");
+  angle.setRange(-360.0,360.0);
+  angle.setValues(0.0,0.0);      // using LPub3D Default 0.01f (old 23,-45)
+  fov.setRange(0.0,360.0);
+  fov.setValue(0.01);            // using LPub3D Default 0.01f
+  znear.setValue(10.0);          // using LPub3D Default 10.0f
+  zfar.setValue(4000.0);         // using LPub3D Default 4000.0f
 }
 
 void PliMeta::init(BranchMeta *parent, QString name)
@@ -2711,7 +2734,6 @@ void PliMeta::init(BranchMeta *parent, QString name)
   instance        .init(this,"INSTANCE_COUNT");
   annotate        .init(this,"ANNOTATE");
   modelScale      .init(this,"MODEL_SCALE");
-  angle           .init(this,"VIEW_ANGLE");
   show            .init(this,"SHOW");
   ldviewParms     .init(this,"LDVIEW_PARMS");
   ldgliteParms    .init(this,"LDGLITE_PARMS");
@@ -2724,6 +2746,12 @@ void PliMeta::init(BranchMeta *parent, QString name)
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
+
+  angle.init         (this,"IMAGE_ANGLE");
+  distance.init      (this,"IMAGE_DISTANCE");
+  fov.init           (this,"IMAGE_FOV");
+  znear.init         (this,"IMAGE_ZNEAR");
+  zfar.init          (this,"IMAGE_ZFAR");
 }
 
 /* ------------------ */ 
@@ -2747,9 +2775,6 @@ BomMeta::BomMeta() : PliMeta()
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"99999.9");
   modelScale.setValue(1.0);
-  angle.setValues(23,-45);
-  angle.setRange(-360.0,360.0);
-  angle.setFormats(6,4,"#999.9");
   show.setValue(true);
   ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
@@ -2770,6 +2795,14 @@ BomMeta::BomMeta() : PliMeta()
   sort.setValue(true);
   sortBy.setValue("Part Size");
   sortBy.setValue(SortOptionName[PartColour]);
+
+  angle.setFormats(6,4,"#999.9");
+  angle.setRange(-360.0,360.0);
+  angle.setValues(23,-45);
+  fov.setRange(0.0,360.0);
+  fov.setValue(30.0);            // using LeoCAD default 30.0f
+  znear.setValue(25.0);          // using LeoCAD default 25.0f
+  zfar.setValue(50000.0);        // using LeoCAD default 12500.0f
 }
 
 void BomMeta::init(BranchMeta *parent, QString name)
@@ -2783,7 +2816,6 @@ void BomMeta::init(BranchMeta *parent, QString name)
   instance        .init(this,"INSTANCE_COUNT");
   annotate        .init(this,"ANNOTATE");
   modelScale      .init(this,"MODEL_SCALE");
-  angle           .init(this,"VIEW_ANGLE");
   show            .init(this,"SHOW");
   ldviewParms     .init(this,"LDVIEW_PARMS");
   ldgliteParms    .init(this,"LDGLITE_PARMS");
@@ -2797,6 +2829,12 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
+
+  angle.init         (this,"VIEW_ANGLE");
+  distance.init      (this,"VIEW_DISTANCE");
+  fov.init           (this,"VIEW_FOV");
+  znear.init         (this,"VIEW_ZNEAR");
+  zfar.init          (this,"VIEW_ZFAR");
 }
 
 /* ------------------ */ 
