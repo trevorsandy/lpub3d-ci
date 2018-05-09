@@ -439,7 +439,7 @@ bool Project::Load(const QString& FileName)
 	return true;
 }
 
-/*** LPub3D Mod - load lpub3d step ***/
+/*** LPub3D Mod - load viewer from Csi name ***/
 bool Project::LoadViewer(const QString &CsiName){
 
     QString FileName = gui->getViewerStepFilePath(CsiName);
@@ -450,6 +450,8 @@ bool Project::LoadViewer(const QString &CsiName){
              return false;
     }
 
+    SetFileName(FileName);
+
     QStringList CsiContent = gui->getViewerStepContents(CsiName);
     if (CsiContent.isEmpty())
     {
@@ -457,15 +459,28 @@ bool Project::LoadViewer(const QString &CsiName){
             return false;
     }
 
+    return ViewerLoad(CsiContent);
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - load viewer from Csi content ***/
+bool Project::ViewerLoad(const QStringList &Content){
+
     QByteArray QBA;
-    foreach(QString line, CsiContent){
+    foreach(QString line, Content){
         QBA.append(line);
         QBA.append(QString("\n"));
     }
 
     mModels.DeleteAll();
-    SetFileName(FileName);
-    QFileInfo FileInfo(FileName);
+
+    if (mFileName.isEmpty())
+    {
+         emit gui->messageSig(LOG_ERROR,tr("Viewer file name not set!"));
+         return false;
+    }
+
+    QFileInfo FileInfo(mFileName);
 
     QBuffer Buffer(&QBA);
     Buffer.open(QIODevice::ReadOnly);

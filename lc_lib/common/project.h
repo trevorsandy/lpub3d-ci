@@ -93,8 +93,10 @@ public:
 	void ShowModelListDialog();
 
 	bool Load(const QString& FileName);
-/*** LPub3D Mod - load lpub3d step ***/
+/*** LPub3D Mod - load viewer from CsiName ***/
 	bool LoadViewer(const QString &CsiName);
+/*** LPub3D Mod - load viewer from Csi content ***/
+	bool ViewerLoad(const QStringList &Content);
 /*** LPub3D Mod end ***/
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
@@ -129,6 +131,9 @@ protected:
 	lcModel* mActiveModel;
 
 	Q_DECLARE_TR_FUNCTIONS(Project);
+/*** LPub3D Mod - enable Native renderer ***/
+	friend class Native;
+/*** LPub3D Mod end ***/
 };
 
 inline lcModel* lcGetActiveModel()

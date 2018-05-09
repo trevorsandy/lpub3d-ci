@@ -287,10 +287,8 @@ public:
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-/*** LPub3D Mod - rotate view ***/
-	void SetRotateStepType(lcRotateStepType RotateStepType);
-	bool ViewStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix);
-	bool LoadViewerBanner(const QString& FileName, const QVector<lcVector3> &viewMatrix);
+// TODO - REMOVE
+//	void SetRotateStepType(lcRotateStepType RotateStepType);
 /*** LPub3D Mod end ***/
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -358,16 +356,6 @@ public:
 
 /*** LPub3D Mod - status bar ***/
 	QStatusBar* mLCStatusBar;
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - Rotate Step veriables ***/
-        QString   viewerCsiName;
-        lcVector3 viewerCameraPosition;
-        lcVector3 viewerTargetPosition;
-        lcVector3 viewerUpVector;
-        float     viewerFovY;
-        float     viewerZNear;
-        float     viewerZFar;
 /*** LPub3D Mod end ***/
 
 // TODO - REMOVE
@@ -448,6 +436,7 @@ protected:
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
+// TODO - REMOVE
 /*** LPub3D Mod - rotate step [deprecated] ***/
 	lcRotateStepType mRotateStepType;
 /*** LPub3D Mod end ***/

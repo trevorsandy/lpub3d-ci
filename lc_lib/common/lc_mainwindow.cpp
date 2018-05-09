@@ -90,15 +90,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mCurrentPieceInfo = nullptr;
 	mSelectionMode = lcSelectionMode::SINGLE;
 
-/*** LPub3D Mod - initialize viewer variables ***/
-       viewerCameraPosition = lcVector3(0, 0, 0);
-       viewerTargetPosition = lcVector3(375.0f,  -375.0f,   187.5);
-       viewerUpVector       = lcVector3(0.2357f, -0.2357f, 0.94281f);
-       viewerFovY           = 30.0f;
-       viewerZNear          = 25.0f;
-       viewerZFar           = 12500.0f;
-/*** LPub3D Mod end ***/
-
         memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
 //TODO - Disable this
@@ -1144,25 +1135,26 @@ void lcMainWindow::RotateStepSelectedObjects(bool update)
 }
 /*** LPub3D Mod end ***/
 
+// TODO - REMOVE
 /*** LPub3D Mod - SetRotateStepType and add Icons [deprecated] ***/
-void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
-{
-      mRotateStepType = RotateStepType;
+//void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
+//{
+//      mRotateStepType = RotateStepType;
 
-      const char* IconNames[] =
-      {
-           ":/resources/edit_rotatestep_absolute_rotation.png",
-           ":/resources/edit_rotatestep_relative_rotation.png"
-      };
+//      const char* IconNames[] =
+//      {
+//           ":/resources/edit_rotatestep_absolute_rotation.png",
+//           ":/resources/edit_rotatestep_relative_rotation.png"
+//      };
 
-      if (RotateStepType >= 0 && RotateStepType <= 1)
-      {
-           mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION + RotateStepType]->setChecked(true);
-           mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(QIcon(IconNames[RotateStepType]));
-      }
+//      if (RotateStepType >= 0 && RotateStepType <= 1)
+//      {
+//           mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION + RotateStepType]->setChecked(true);
+//           mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(QIcon(IconNames[RotateStepType]));
+//      }
 
-  UpdateSnap();
-}
+//  UpdateSnap();
+//}
 /*** LPub3D Mod end ***/
 
 // TODO - REMOVE
@@ -1807,12 +1799,6 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		mModelTabWidget->setCurrentWidget(TabWidget);
 
 		NewView = new View(Model);
-/*** LPub3D Mod - camera settings ***/
-		NewView->mCamera->m_fovy     = viewerFovY;
-		NewView->mCamera->m_zNear    = viewerZNear;
-		NewView->mCamera->m_zFar     = viewerZFar;
-		NewView->mCamera->mWorldView = lcMatrix44LookAt(viewerCameraPosition, viewerTargetPosition, viewerUpVector);
-/*** LPub3D Mod end ***/
 		ViewWidget = (lcQGLWidget*)TabWidget->layout()->itemAt(0)->widget();
 		ViewWidget->widget = NewView;
 		NewView->mWidget   = ViewWidget;
@@ -2551,70 +2537,6 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 
 	return false;
 }
-
-/*** LPub3D Mod - View content and Cmera settings ***/
-bool lcMainWindow::ViewStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix)
-{
-  Project* NewProject = new Project();
-  if (NewProject->LoadViewer(CsiName))
-    {
-
-      viewerCsiName = CsiName;
-//      logStatus() << "CsiName:            " << viewerCsiName;
-//      logStatus() << "Viewer LoadFileName:" << gui->getViewerStepFilePath(CsiName);
-
-      viewerCameraPosition = viewMatrix.at(0);
-      viewerTargetPosition = viewMatrix.at(1);
-      viewerUpVector       = viewMatrix.at(2);
-      viewerFovY           = viewMatrix.at(3).x;
-      viewerZNear          = viewMatrix.at(3).y;
-      viewerZFar           = viewMatrix.at(3).z;
-//      logStatus() << QString("Viewer Step Camera Settings = fx %1, fy %2, fz %3, tx %4, ty %5, tz %6, ux %7, uy %8, uz %9, fov %10, znear %11, zfar %12")
-//                     .arg(viewerCameraPosition.x,0,'f',4)
-//                     .arg(viewerCameraPosition.y,0,'f',4)
-//                     .arg(viewerCameraPosition.z,0,'f',4)
-//                     .arg(viewerTargetPosition.x,0,'f',4)
-//                     .arg(viewerTargetPosition.y,0,'f',4)
-//                     .arg(viewerTargetPosition.z,0,'f',4)
-//                     .arg(viewerUpVector.x,0,'f',4)
-//                     .arg(viewerUpVector.y,0,'f',4)
-//                     .arg(viewerUpVector.z,0,'f',4)
-//                     .arg(viewerFovY)
-//                     .arg(viewerZNear)
-//                     .arg(viewerZFar);
-      gApplication->SetProject(NewProject);
-      UpdateAllViews();
-
-      return true;
-    }
-  emit gui->messageSig(LOG_ERROR, tr("Could not load step '%1'.").arg(CsiName));
-  delete NewProject;
-  return false;
-}
-
-bool lcMainWindow::LoadViewerBanner(const QString& FileName, const QVector<lcVector3> &viewMatrix)
-{
-  QString LoadFileName = FileName;
-
-  Project* NewProject = new Project();
-  if (NewProject->Load(LoadFileName))
-    {
-      viewerCameraPosition = viewMatrix.at(0);
-      viewerTargetPosition = viewMatrix.at(1);
-      viewerUpVector       = viewMatrix.at(2);
-      viewerFovY           = viewMatrix.at(3).x;
-      viewerZNear          = viewMatrix.at(3).y;
-      viewerZFar           = viewMatrix.at(3).z;
-      gApplication->SetProject(NewProject);
-      UpdateAllViews();
-
-      return true;
-    }
-  emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(LoadFileName));
-  delete NewProject;
-  return false;
-}
-/*** LPub3D Mod end ***/
 
 void lcMainWindow::MergeProject()
 {

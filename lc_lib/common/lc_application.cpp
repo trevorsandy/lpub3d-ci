@@ -343,6 +343,9 @@ int lcApplication::Process3DViewerCommandLine()
               ParseInteger(PartImagesHeight);
       }
 
+      Project* NewProject = new Project();
+      SetProject(NewProject);
+
       if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
       {
           if (!ModelName.isEmpty())

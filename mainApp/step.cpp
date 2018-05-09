@@ -302,7 +302,7 @@ int Step::createCsi(
 
 //      if (! calledOut) {
           // set the step in viewer
-          if (! gMainWindow->ViewStepContent(viewerCsiName,viewMatrix)) {
+          if (! gui->LoadViewerStepContent(viewerCsiName,viewMatrix)) {
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load failed for viewer csi_Name: %1")
                                       .arg(viewerCsiName));
               return -1;

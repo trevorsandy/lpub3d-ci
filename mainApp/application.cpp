@@ -495,7 +495,7 @@ int Application::run()
   }
   catch(const std::exception& ex)
   {
-    logError() << QString("Run: %1\n%2").arg("LOG_ERROR").arg(ex.what());
+    logError() << QString("Run: Exception %2 has been thrown.").arg(ex.what());
   }
   catch(...)
   {

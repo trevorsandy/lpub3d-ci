@@ -622,9 +622,22 @@ public slots:
 //      return mExistingRotStep;
 //  }
 
+  bool LoadViewerStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix);
+
+  void setViewerCsiName(QString &csiName)
+  {
+      viewerCsiName = csiName;
+  }
+
+  QString getViewerCsiName()
+  {
+      return viewerCsiName;
+  }
+
   void UpdateStepRotationStatus();
 
   void SetStepRotation(QString &value, bool propagate = false);
+
   lcVector3 GetStepRotation() const
   {
       return mStepRotation;
@@ -864,6 +877,7 @@ protected:
   float mRotStepAngleX;
   float mRotStepAngleY;
   float mRotStepAngleZ;
+  QString   viewerCsiName;                   // currently loaded CSI in 3DViewer
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
 

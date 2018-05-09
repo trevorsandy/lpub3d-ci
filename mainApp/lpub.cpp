@@ -48,17 +48,21 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 #include "updatecheck.h"
-
 #include "step.h"
+
 //** 3D
 #include "camera.h"
+#include "project.h"
+#include "view.h"
 #include "piece.h"
 #include "lc_profile.h"
-
 #include "application.h"
+
 #include <ui_progress_dialog.h>
 
 //**
+
+
 
 #if _MSC_VER > 1310
 // Visual C++ 2005 and later require the source files in UTF-8, and all strings
@@ -872,6 +876,45 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
+bool Gui::LoadViewerStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix)
+{
+  Project* StepProject = new Project();
+  if (StepProject->LoadViewer(CsiName))
+    {
+
+//      logStatus() << "CsiName:            " << viewerCsiName;
+//      logStatus() << "Viewer LoadFileName:" << gui->getViewerStepFilePath(CsiName);
+
+      gMainWindow->GetActiveView()->mCamera->mWorldView = lcMatrix44LookAt(viewMatrix.at(0),viewMatrix.at(1),viewMatrix.at(2));
+      gMainWindow->GetActiveView()->mCamera->m_fovy     = viewMatrix.at(3).x;
+      gMainWindow->GetActiveView()->mCamera->m_zNear    = viewMatrix.at(3).y;
+      gMainWindow->GetActiveView()->mCamera->m_zFar     = viewMatrix.at(3).z;
+
+//      logStatus() << QString("Viewer Step Camera Settings = fx %1, fy %2, fz %3, tx %4, ty %5, tz %6, ux %7, uy %8, uz %9, fov %10, znear %11, zfar %12")
+//                     .arg(GetActiveView()->mCamera->mWorldView[0].x,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[0].y,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[0].z,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[1].x,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[1].y,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[1].z,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[2].x,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[2].y,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[2].z,0,'f',4)
+//                     .arg(GetActiveView()->mCamera->mWorldView[0].x)
+//                     .arg(GetActiveView()->mCamera->mWorldView[0].y)
+//                     .arg(GetActiveView()->mCamera->mWorldView[0].z);
+
+      gApplication->SetProject(StepProject);
+      gMainWindow->UpdateAllViews();
+
+      return true;
+    }
+  emit gui->messageSig(LOG_ERROR, tr("Could not load step '%1'.").arg(CsiName));
+  delete StepProject;
+
+  return false;
+}
+
 void Gui::SetStepRotation(QString &value, bool propagate)
 {
     if (propagate && getCurFile() != "") {
@@ -881,7 +924,7 @@ void Gui::SetStepRotation(QString &value, bool propagate)
         mStepRotation[2] = mRotStepAngleZ;
 
         QString rotationValue = QString("%1 %2 %3 %4 %5")
-                                        .arg(gMainWindow->viewerCsiName)
+                                        .arg(getViewerCsiName())
                                         .arg(QString::number(mStepRotation[0], 'f', 2))
                                         .arg(QString::number(mStepRotation[1], 'f', 2))
                                         .arg(QString::number(mStepRotation[2], 'f', 2))
@@ -965,80 +1008,79 @@ void Gui::deployExportBanner(bool b)
       installExportBanner(exportType, exportBanner,imageFile);
     }
 }
+
 /*-----------------------------------------------------------------------------*/
 
 bool Gui::installExportBanner(const int &type, const QString &printFile, const QString &imageFile){
 
-    QList<QString> ldrData;
-    ldrData << "0 FILE printbanner.ldr";
-    ldrData << "0 Name: printbanner.ldr";
-    ldrData << "0 Author: Trevor SANDY";
-    ldrData << "0 Unofficial Model";
-    ldrData << "0 !LEOCAD MODEL NAME Printbanner";
-    ldrData << "0 !LEOCAD MODEL AUTHOR Trevor SANDY";
-    ldrData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
-    ldrData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
-    ldrData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
-    ldrData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    ldrData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    ldrData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    ldrData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    ldrData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
-    ldrData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
-    ldrData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
-    ldrData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
-    ldrData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
+    QList<QString> bannerData;
+    bannerData << "0 FILE printbanner.ldr";
+    bannerData << "0 Name: printbanner.ldr";
+    bannerData << "0 Author: Trevor SANDY";
+    bannerData << "0 Unofficial Model";
+    bannerData << "0 !LEOCAD MODEL NAME Printbanner";
+    bannerData << "0 !LEOCAD MODEL AUTHOR Trevor SANDY";
+    bannerData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
+    bannerData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
+    bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
+    bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+    bannerData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+    bannerData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
+    bannerData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
+    bannerData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
+    bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
+    bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
     switch (type) {
       case EXPORT_PNG:
-        ldrData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        ldrData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
-        ldrData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+        bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
+        bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
         break;
       case EXPORT_JPG:
-        ldrData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
-        ldrData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        ldrData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+        bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+        bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
         break;
       case EXPORT_BMP:
-        ldrData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        ldrData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
-        ldrData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
         break;
       default:
-        ldrData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        ldrData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        ldrData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
+        bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
       }
-    ldrData << "0";
-    ldrData << "0 NOFILE";
+    bannerData << "0";
+    bannerData << "0 NOFILE";
 
-    QFile ldrFile(printFile);
-    if ( ! ldrFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
+    QFile bannerFile(printFile);
+    if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
         emit gui->messageSig(LOG_ERROR,tr("Cannot open Export Banner file %1 for writing:\n%2")
-                        .arg(printFile)
-                        .arg(ldrFile.errorString()));
+                             .arg(printFile)
+                             .arg(bannerFile.errorString()));
         return false;
     }
-    QTextStream out(&ldrFile);
-    for (int i = 0; i < ldrData.size(); i++) {
-        QString fileLine = ldrData[i];
+    QTextStream out(&bannerFile);
+    for (int i = 0; i < bannerData.size(); i++) {
+        QString fileLine = bannerData[i];
         out << fileLine << endl;
     }
-    ldrFile.close();
+    bannerFile.close();
 
-    Meta    meta;
-
-    QVector<lcVector3>  viewMatrix = renderer->cameraSettings(meta.LPub.assem);
-
-    if (gMainWindow->LoadViewerBanner(ldrFile.fileName(), viewMatrix)){
-        return true;
-      } else {
-        return false;
-      }
+    Project* BannerProject = new Project();
+    if (!gMainWindow->OpenProject(bannerFile.fileName()))
+    {
+      emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
+      delete BannerProject;
+      return false;
+    }
 
     return true;
 }

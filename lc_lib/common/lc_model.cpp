@@ -4420,8 +4420,9 @@ void lcModel::UpdateInterface()
 
 	gMainWindow->UpdateSelectedObjects(true);
 	gMainWindow->SetTransformType(gMainWindow->GetTransformType());
+// TODO - REMOVE
 /*** LPub3D Mod - set rotate step type***/
-	gMainWindow->SetRotateStepType(gMainWindow->GetRotateStepType());
+//	gMainWindow->SetRotateStepType(gMainWindow->GetRotateStepType());
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateLockSnap();
 	gMainWindow->UpdateSnap();
