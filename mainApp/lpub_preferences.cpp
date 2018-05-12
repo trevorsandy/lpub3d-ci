@@ -137,7 +137,7 @@ bool    Preferences::logLevel                   = false;
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
-bool    Preferences::preferCentimeters          = true;
+bool    Preferences::preferCentimeters          = false;   // default is false, to use DPI
 bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
@@ -1948,8 +1948,8 @@ void Preferences::unitsPreferences()
 {
     QSettings Settings;
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"Centimeters"))) {
-        QVariant uValue(true);
-        preferCentimeters = true;
+        QVariant uValue(false);
+        preferCentimeters = false;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),uValue);
     } else {
         preferCentimeters = Settings.value(QString("%1/%2").arg(SETTINGS,"Centimeters")).toBool();

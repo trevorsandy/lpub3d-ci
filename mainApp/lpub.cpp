@@ -876,45 +876,6 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
-bool Gui::LoadViewerStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix)
-{
-  Project* StepProject = new Project();
-  if (StepProject->LoadViewer(CsiName))
-    {
-
-//      logStatus() << "CsiName:            " << viewerCsiName;
-//      logStatus() << "Viewer LoadFileName:" << gui->getViewerStepFilePath(CsiName);
-
-      gMainWindow->GetActiveView()->mCamera->mWorldView = lcMatrix44LookAt(viewMatrix.at(0),viewMatrix.at(1),viewMatrix.at(2));
-      gMainWindow->GetActiveView()->mCamera->m_fovy     = viewMatrix.at(3).x;
-      gMainWindow->GetActiveView()->mCamera->m_zNear    = viewMatrix.at(3).y;
-      gMainWindow->GetActiveView()->mCamera->m_zFar     = viewMatrix.at(3).z;
-
-//      logStatus() << QString("Viewer Step Camera Settings = fx %1, fy %2, fz %3, tx %4, ty %5, tz %6, ux %7, uy %8, uz %9, fov %10, znear %11, zfar %12")
-//                     .arg(GetActiveView()->mCamera->mWorldView[0].x,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[0].y,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[0].z,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[1].x,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[1].y,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[1].z,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[2].x,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[2].y,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[2].z,0,'f',4)
-//                     .arg(GetActiveView()->mCamera->mWorldView[0].x)
-//                     .arg(GetActiveView()->mCamera->mWorldView[0].y)
-//                     .arg(GetActiveView()->mCamera->mWorldView[0].z);
-
-      gApplication->SetProject(StepProject);
-      gMainWindow->UpdateAllViews();
-
-      return true;
-    }
-  emit gui->messageSig(LOG_ERROR, tr("Could not load step '%1'.").arg(CsiName));
-  delete StepProject;
-
-  return false;
-}
-
 void Gui::SetStepRotation(QString &value, bool propagate)
 {
     if (propagate && getCurFile() != "") {

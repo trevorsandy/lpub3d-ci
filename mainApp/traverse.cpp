@@ -966,11 +966,11 @@ int Gui::drawPage(
                         }
 
                       logTrace() << Render::getRenderer()
-                                 << "CSI single call render took"
+                                 << "CSI (Single Call) render took"
                                  << timer.elapsed() << "milliseconds"
                                  << "to render " << ldrStepFiles.size()
-                                 << (ldrStepFiles.size() == 1 ? "image" : "images")
-                                 << (calledOut ? "for called out," : "for simple,")
+                                 << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
+                                 << (calledOut ? "called out," : "simple,")
                                  << "step group on page" << stepPageNum << ".";
                     }
 
@@ -1179,11 +1179,11 @@ int Gui::drawPage(
                             }
 
                           logTrace() << Render::getRenderer()
-                                     << "CSI single call render took"
+                                     << "CSI (Single Call) render took"
                                      << timer.elapsed() << "milliseconds"
-                                     << "to render " << ldrStepFiles.size()
-                                     << (ldrStepFiles.size() == 1 ? "image" : "images")
-                                     << (calledOut ? "for called out," : "for simple,")
+                                     << "to render" << ldrStepFiles.size()
+                                     << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
+                                     << (calledOut ? "called out," : "simple,")
                                      << "single step on page" << stepPageNum << ".";
                         }
 

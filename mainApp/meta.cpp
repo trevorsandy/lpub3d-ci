@@ -2632,7 +2632,7 @@ AssemMeta::AssemMeta() : BranchMeta()
   // image generation
   angle.setFormats(6,4,"#999.9");
   angle.setRange(-360.0,360.0);
-  angle.setValues(0.0,0.0);      // using LPub3D Default 0.01f
+  angle.setValues(23,45);        // using LPub3D Default 0.0,0.0f
   fov.setRange(0.0,360.0);
   fov.setValue(0.01);            // using LPub3D Default 0.01f
   znear.setValue(10.0);          // using LPub3D Default 10.0f
@@ -2716,7 +2716,7 @@ PliMeta::PliMeta() : BranchMeta()
 
   angle.setFormats(6,4,"#999.9");
   angle.setRange(-360.0,360.0);
-  angle.setValues(0.0,0.0);      // using LPub3D Default 0.01f (old 23,-45)
+  angle.setValues(23,-45);       // using LPub3D Default 0.0,0.0f (old 23,-45)
   fov.setRange(0.0,360.0);
   fov.setValue(0.01);            // using LPub3D Default 0.01f
   znear.setValue(10.0);          // using LPub3D Default 10.0f

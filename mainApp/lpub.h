@@ -599,7 +599,7 @@ public:
   
   LGraphicsView *pageview()
   {
-    return KpageView;
+      return KpageView;
   }
 
   QString getCurFile()
@@ -622,8 +622,8 @@ public slots:
 //      return mExistingRotStep;
 //  }
 
-  bool LoadViewerStepContent(const QString& CsiName, const QVector<lcVector3> &viewMatrix);
-
+  void UpdateStepRotationStatus();
+  void SetStepRotation(QString &value, bool propagate = false);
   void setViewerCsiName(QString &csiName)
   {
       viewerCsiName = csiName;
@@ -633,10 +633,6 @@ public slots:
   {
       return viewerCsiName;
   }
-
-  void UpdateStepRotationStatus();
-
-  void SetStepRotation(QString &value, bool propagate = false);
 
   lcVector3 GetStepRotation() const
   {
@@ -650,6 +646,7 @@ public slots:
       mRotStepAngleZ = mStepRotation[2];
       UpdateStepRotationStatus();
   }
+
   void SetRotStepAngleX(float AngleX)
   {
       mRotStepAngleX = AngleX;
@@ -873,11 +870,11 @@ protected:
   // capture camera rotation from LeoCad module
 // TODO - REMOVE
 //  lcVector3 mExistingRotStep;
-  lcVector3 mStepRotation;
-  float mRotStepAngleX;
-  float mRotStepAngleY;
-  float mRotStepAngleZ;
-  QString   viewerCsiName;                   // currently loaded CSI in 3DViewer
+  lcVector3              mStepRotation;
+  float                  mRotStepAngleX;
+  float                  mRotStepAngleY;
+  float                  mRotStepAngleZ;
+  QString                viewerCsiName;      // currently loaded CSI in 3DViewer
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
 

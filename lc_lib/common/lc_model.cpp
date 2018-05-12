@@ -1294,6 +1294,7 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 {
 	if (mProperties.mBackgroundType == LC_BACKGROUND_SOLID)
 	{
+		//glClearColor(255, 255, 255, 0);
 		glClearColor(mProperties.mBackgroundSolidColor[0], mProperties.mBackgroundSolidColor[1], mProperties.mBackgroundSolidColor[2], 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		return;
@@ -1424,6 +1425,102 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 	if (!mActive)
 		CalculateStep(LC_STEP_MAX);
 }
+
+/*** LPub3D Mod - create Native CSI image ***/
+void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
+{
+        View* ActiveView = gMainWindow->GetActiveView();
+        ActiveView->MakeCurrent();
+
+        lcContext* Context = ActiveView->mContext;
+
+        lcStep CurrentStep = mCurrentStep;
+
+        lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+
+        const int ImageWidth = Options.ImageWidth;
+        const int ImageHeight = Options.ImageHeight;
+
+        Camera->SetAngles(Options.Latitude,Options.Longitude);
+
+        Camera->SetOrtho(Options.Orthographic);
+
+        Zoom(Camera,Options.CameraDistance);
+
+        View View(this);
+        View.SetHighlight(Options.HighlightNewParts);
+        View.SetCamera(Camera, false);
+        View.SetContext(Context);
+
+        if (!View.BeginRenderToImage(ImageWidth, ImageHeight))
+        {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native CSI image."));
+                return;
+        }
+
+        SetTemporaryStep(CurrentStep);
+        View.OnDraw();
+
+        struct NativeImage
+        {
+                QImage RendererImage;
+                QRect Bounds;
+        };
+
+        NativeImage Image;
+        Image.RendererImage = View.GetRenderImage();
+
+        auto CalculateImageBounds = [](NativeImage& Image)
+        {
+                QImage& RendererImage = Image.RendererImage;
+                int Width = RendererImage.width();
+                int Height = RendererImage.height();
+
+                int MinX = Width;
+                int MinY = Height;
+                int MaxX = 0;
+                int MaxY = 0;
+
+                for (int x = 0; x < Width; x++)
+                {
+                        for (int y = 0; y < Height; y++)
+                        {
+                                if (qAlpha(RendererImage.pixel(x, y)))
+                                {
+                                        MinX = qMin(x, MinX);
+                                        MinY = qMin(y, MinY);
+                                        MaxX = qMax(x, MaxX);
+                                        MaxY = qMax(y, MaxY);
+                                }
+                        }
+                }
+
+                Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+        };
+
+        CalculateImageBounds(Image);
+
+        QImageWriter Writer(Options.ImageFileName);
+
+        if (Writer.format().isEmpty())
+                Writer.setFormat("png");
+
+        if (!Writer.write(QImage(Image.RendererImage.copy(Image.Bounds))))
+        {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native CSI image file '%1': %2.")
+                                     .arg(Options.ImageFileName, Writer.errorString()));
+                return;
+        }
+
+        View.EndRenderToImage();
+        Context->ClearResources();
+
+        SetTemporaryStep(CurrentStep);
+
+        if (!mActive)
+                CalculateStep(LC_STEP_MAX);
+}
+/*** LPub3D Mod end ***/
 
 void lcModel::UpdateBackgroundTexture()
 {

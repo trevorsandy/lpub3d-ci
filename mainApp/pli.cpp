@@ -484,15 +484,14 @@ int Pli::createPartImage(
       int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
 
       if (rc != 0) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1 %2\n")
-                               .arg(imageName)
-                               .arg(Paths::tmpDir+"/part.dat"));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1")
+                               .arg(imageName));
           return -1;
         }
 
       //  qDebug() << Render::getRenderer()
         logTrace() << "\n" << Render::getRenderer()
-                   << "PLI single call render took"
+                   << "PLI render took"
                    << timer.elapsed() << "milliseconds"
                    << "to render "<< imageName
                    << "for " << (bom ? "BOM part list" : "Step parts list.");
@@ -519,11 +518,11 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
           return -1;
         }
       logTrace() << Render::getRenderer()
-                 << "PLI single call render took"
+                 << "PLI (Single Call) render took"
                  << timer.elapsed() << "milliseconds"
-                 << "to render "<< ldrNames.size()
+                 << "to render " << ldrNames.size()
                  << (ldrNames.size() == 1 ? "image" : "images")
-                 << "for " << (bom ? "BOM part list" : "Step parts list.");
+                 << "for" << (bom ? "BOM part list" : "Step parts list.");
     }
 
   QString key;

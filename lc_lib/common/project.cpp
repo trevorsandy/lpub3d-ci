@@ -439,104 +439,6 @@ bool Project::Load(const QString& FileName)
 	return true;
 }
 
-/*** LPub3D Mod - load viewer from Csi name ***/
-bool Project::LoadViewer(const QString &CsiName){
-
-    QString FileName = gui->getViewerStepFilePath(CsiName);
-
-    if (FileName.isEmpty())
-    {
-             emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI path for %1.").arg(FileName));
-             return false;
-    }
-
-    SetFileName(FileName);
-
-    QStringList CsiContent = gui->getViewerStepContents(CsiName);
-    if (CsiContent.isEmpty())
-    {
-             emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI content for %1.").arg(FileName));
-            return false;
-    }
-
-    return ViewerLoad(CsiContent);
-}
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - load viewer from Csi content ***/
-bool Project::ViewerLoad(const QStringList &Content){
-
-    QByteArray QBA;
-    foreach(QString line, Content){
-        QBA.append(line);
-        QBA.append(QString("\n"));
-    }
-
-    mModels.DeleteAll();
-
-    if (mFileName.isEmpty())
-    {
-         emit gui->messageSig(LOG_ERROR,tr("Viewer file name not set!"));
-         return false;
-    }
-
-    QFileInfo FileInfo(mFileName);
-
-    QBuffer Buffer(&QBA);
-    Buffer.open(QIODevice::ReadOnly);
-
-    while (!Buffer.atEnd())
-    {
-            lcModel* Model = new lcModel(QString());
-            Model->SplitMPD(Buffer);
-
-	    if (mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
-	    {
-		    mModels.Add(Model);
-		    Model->CreatePieceInfo(this);
-	    }
-	    else
-		    delete Model;
-    }
-
-    Buffer.seek(0);
-
-    for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-    {
-            lcModel* Model = mModels[ModelIdx];
-            Model->LoadLDraw(Buffer, this);
-            Model->SetSaved();
-    }
-
-    if (mModels.IsEmpty())
-            return false;
-
-    if (mModels.GetSize() == 1)
-    {
-            lcModel* Model = mModels[0];
-
-	    if (Model->GetProperties().mName.isEmpty())
-	    {
-		    Model->SetName(FileInfo.fileName());
-		    lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
-	    }
-    }
-
-    lcArray<lcModel*> UpdatedModels;
-    UpdatedModels.AllocGrow(mModels.GetSize());
-
-    for (lcModel* Model : mModels)
-    {
-            Model->UpdateMesh();
-            Model->UpdatePieceInfo(UpdatedModels);
-    }
-
-    mModified = false;
-
-    return true;
-}
-/*** LPub3D Mod end ***/
-
 bool Project::Save(const QString& FileName)
 {
 	SetFileName(QString());
@@ -1789,6 +1691,141 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 
 	return Image;
 }
+
+/*** LPub3D Mod - create Native PLI image ***/
+void Project::CreateNativePliImage(const NativeOptions &Options)
+{
+        View* ActiveView = gMainWindow->GetActiveView();
+        ActiveView->MakeCurrent();
+
+        lcModel* Model = ActiveView->mModel;
+
+        lcStep CurrentStep = Model->GetCurrentStep();
+
+        lcPartsList PartsList;
+
+        Model->GetPartsListForStep(CurrentStep, gDefaultColor, PartsList);
+
+        if (PartsList.empty())
+        {
+                emit gui->messageSig(LOG_ERROR, QMessageBox::tr("No part detected for Native PLI image. Part list empty."));
+                return;
+        }
+
+        struct NativeImage
+        {
+                QImage RendererImage;
+                const PieceInfo* Info;
+                int ColorIndex;
+                QRect Bounds;
+                QPoint Position;
+        };
+
+        NativeImage Image;
+
+        for (const auto& PartIt : PartsList)
+        {
+                for (const auto& ColorIt : PartIt.second)
+                {
+                        NativeImage& _Image = Image;
+                        _Image.Info = PartIt.first;
+                        _Image.ColorIndex = ColorIt.first;
+                }
+        }
+
+        lcContext* Context = ActiveView->mContext;
+
+	const int ImageWidth = Options.ImageWidth;
+	const int ImageHeight = Options.ImageHeight;
+
+	std::pair<lcFramebuffer, lcFramebuffer> RenderFramebuffer = Context->CreateRenderFramebuffer(ImageWidth, ImageHeight);
+
+        if (!RenderFramebuffer.first.IsValid())
+        {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native PLI image."));
+                return;
+        }
+
+        Context->BindFramebuffer(RenderFramebuffer.first);
+
+        float AspectRatio = (float)ImageWidth / (float)ImageHeight;
+
+        float OrthoHeight = 200.0f;
+        float OrthoWidth = OrthoHeight * AspectRatio;
+
+        lcMatrix44 ProjectionMatrix = lcMatrix44Ortho(-OrthoWidth, OrthoWidth, -OrthoHeight, OrthoHeight, 1.0f, 50000.0f);
+
+        lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(-100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
+
+        Context->SetViewport(0, 0, ImageWidth, ImageHeight);
+        Context->SetDefaultState();
+        Context->SetProjectionMatrix(ProjectionMatrix);
+
+        if (Options.TransBackground)
+                glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+        else
+                glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        lcScene Scene;
+        Scene.Begin(ViewMatrix);
+
+        Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, false, false, false);
+
+        Scene.End();
+
+        Scene.Draw(Context);
+
+        Image.RendererImage = Context->GetRenderFramebufferImage(RenderFramebuffer);
+
+        Context->ClearFramebuffer();
+        Context->DestroyRenderFramebuffer(RenderFramebuffer);
+        Context->ClearResources();
+
+        auto CalculateImageBounds = [](NativeImage& Image)
+        {
+                QImage& RendererImage = Image.RendererImage;
+                int Width = RendererImage.width();
+                int Height = RendererImage.height();
+
+                int MinX = Width;
+                int MinY = Height;
+                int MaxX = 0;
+                int MaxY = 0;
+
+                for (int x = 0; x < Width; x++)
+                {
+                        for (int y = 0; y < Height; y++)
+                        {
+                                if (qAlpha(RendererImage.pixel(x, y)))
+                                {
+                                        MinX = qMin(x, MinX);
+                                        MinY = qMin(y, MinY);
+                                        MaxX = qMax(x, MaxX);
+                                        MaxY = qMax(y, MaxY);
+                                }
+                        }
+                }
+
+                Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+        };
+
+        CalculateImageBounds(Image);
+
+        QImageWriter Writer(Options.ImageFileName);
+
+        if (Writer.format().isEmpty())
+                Writer.setFormat("png");
+
+        if (!Writer.write(QImage(Image.RendererImage.copy(Image.Bounds))))
+        {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native PLI image file '%1': %2.")
+                                     .arg(Options.ImageFileName, Writer.errorString()));
+                return;
+        }
+}
+/*** LPub3D Mod end ***/
 
 void Project::CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images)
 {

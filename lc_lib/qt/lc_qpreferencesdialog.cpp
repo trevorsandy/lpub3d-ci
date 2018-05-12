@@ -121,7 +121,7 @@ void lcQPreferencesDialog::accept()
 	int gridLineSpacing = ui->gridLineSpacing->text().toInt();
 	if (gridLineSpacing < 1)
 	{
-/*** LPub3D Mod - set 3DViewer name ***/
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(this, "3DViewer", tr("Grid spacing must be greater than 0."));
 /*** LPub3D Mod end ***/
 		return;

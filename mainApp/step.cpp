@@ -250,15 +250,16 @@ int Step::createCsi(
           QStringList csiKeys = (QStringList() << csiKey);
           rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta);
           if (rc != 0) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for:\n%1.")
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
                                                     .arg(pngName));
               return rc;
             }
 
           logTrace() << "\n" << Render::getRenderer()
-                     << "CSI render call took "
+                     << "CSI render call took"
                      << timer.elapsed() << "milliseconds"
-                     << "to render image for " << (calledOut ? "called out," : "simple,")
+                     << "to render" << pngName << "for"
+                     << (calledOut ? "called out," : "simple,")
                      << (multiStep ? "step group" : "single step") << sn
                      << "on page " << gui->stepPageNum << ".";
         }
@@ -276,7 +277,7 @@ int Step::createCsi(
 
       // Populate the viewerCsiName
       QString viewerName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
-      viewerCsiName      = modelDisplayOnlyStep  ? viewerName+"_fm" : viewerName;
+      QString viewerCsiName      = modelDisplayOnlyStep  ? viewerName+"_fm" : viewerName;
 
       // Populate the csi file paths
       QString csiFullFilePath;
@@ -286,7 +287,7 @@ int Step::createCsi(
            csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
        }
 
-      // Populate the step content
+      // Populate the viewer step content
       QStringList rotatedParts = csiParts;
       renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
       QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
@@ -297,17 +298,17 @@ int Step::createCsi(
       rotatedParts.prepend(rotsComment);
       gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
 
-      // set camera settings
-      viewMatrix = renderer->viewerCameraSettings(meta.LPub.assem);
+      // set camera options
+      viewerOptions.ViewerCsiName  = viewerCsiName;
+      viewerOptions.Latitude       = meta.LPub.assem.angle.value(0);
+      viewerOptions.Longitude      = meta.LPub.assem.angle.value(1);
+      viewerOptions.CameraDistance = renderer->cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
-//      if (! calledOut) {
-          // set the step in viewer
-          if (! gui->LoadViewerStepContent(viewerCsiName,viewMatrix)) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load failed for viewer csi_Name: %1")
-                                      .arg(viewerCsiName));
-              return -1;
-          }
-//      }
+      if (! renderer->LoadViewer(viewerOptions)) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load viewer failed for csi_Name: %1")
+                                  .arg(viewerCsiName));
+          return -1;
+      }
   }
 
 // TODO - REMOVE

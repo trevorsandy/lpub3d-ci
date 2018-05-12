@@ -86,6 +86,9 @@ lcApplication::~lcApplication()
 
 void lcApplication::SaveTabLayout() const
 {
+/*** LPub3D - Disable save tab layout ***/
+  return;
+/*** LPub3D Mod end ***/
     if (!mProject || mProject->GetFileName().isEmpty())
         return;
 

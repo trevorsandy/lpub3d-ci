@@ -71,8 +71,7 @@ class Step : public AbstractRangeElement
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
-    QString               viewerCsiName;
-    QVector<lcVector3>    viewMatrix;
+    ViewerOptions         viewerOptions;
     PlacementHeader       pageHeader;
     PlacementFooter       pageFooter;
 

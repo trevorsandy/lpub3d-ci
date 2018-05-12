@@ -30,6 +30,7 @@
 #define RENDER_H
 
 #include "imagematting.h"
+#include "project.h"
 #include "QsLog.h"
 
 class QString;
@@ -39,32 +40,44 @@ class AssemMeta;
 class LPubMeta;
 class UnitsMeta;
 class RotStepMeta;
+class NativeOptions;
+class ViewerOptions;
 class lcVector3;
-
-enum Mt { PLI, CSI };
 
 class Render
 {
 public:
   Render() {}
+  enum Mt { PLI, CSI };
   virtual ~Render() {}
   static QString const   getRenderer();
   static void            setRenderer(QString const &name);
   static QString const   getRotstepMeta(RotStepMeta &);
   bool                   useLDViewSCall(bool override = false);
-  virtual int 		 renderCsi(const QString &,
-                                   const QStringList &,
-                                   const QStringList &,
-                                   const QString &,
-                                   Meta &) = 0;
-  virtual int 		 renderPli(const QStringList &,
-                                   const QString &,
-                                   Meta &,
-                                   bool bom) = 0;
+  bool                   LoadViewer(const ViewerOptions &Options);
   int                    rotateParts(const QString &addLine,
-                                      RotStepMeta &rotStep,
-                                      const QStringList &parts,
-                                      QString &ldrName);
+                                     RotStepMeta &rotStep,
+                                     const QStringList &parts,
+                                     QString &ldrName);
+  static int             rotateParts(const QString &addLine,
+                                     RotStepMeta &rotStep,
+                                     QStringList &parts);
+  QVector<lcVector3>     viewSettings(AssemMeta &assemMeta,
+                                      const float &cd = 0.0f);
+  QVector<lcVector3>     nativeViewSettings(LPubMeta &,
+                                      const int &height,
+                                      const float &cd = 0.0f,
+                                      const Mt &type = CSI);
+  virtual int 		 renderCsi(const QString &,
+                                      const QStringList &,
+                                      const QStringList &,
+                                      const QString &,
+                                      Meta &) = 0;
+  virtual int 		 renderPli(const QStringList &,
+                                      const QString &,
+                                      Meta &,
+                                      bool bom) = 0;
+
 // TODO - REMOVE
 //  int                    renderLDViewSCallCsi(
 //                                     const QStringList &,
@@ -74,15 +87,6 @@ public:
 //  int                    renderLDViewSCallPli(const QStringList &,
 //                                         Meta &,
 //                                         bool bom);
-  static int             rotateParts(const QString &addLine,
-                                     RotStepMeta &rotStep,
-                                     QStringList &parts);
-  QVector<lcVector3>     viewerCameraSettings(AssemMeta &assemMeta,
-                                        const float &cd = 0.0f);
-  QVector<lcVector3>     nativeCameraSettings(LPubMeta &,
-                                        const int &height,
-                                        const float &cd = 0.0f,
-                                        const Mt &type = CSI);
 // TODO - REMOVE
 //  int                    render3DCsi(const QString &,
 //                                    const QString &,
@@ -101,6 +105,9 @@ public:
   ImageMatting           imageMatting;
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;
+
+  friend class Project;
+  friend class Step;
 };
 
 extern Render *renderer;
@@ -145,4 +152,41 @@ public:
   virtual float cameraDistance(Meta &meta, float);
 };
 
+class NativeOptions
+{
+public:
+  NativeOptions()
+  {
+    Orthographic      = true;
+    TransBackground   = true;
+    HighlightNewParts = false;
+    CameraDistance    = -260.0f;
+  }
+  QString ImageFileName;
+  Render::Mt ImageType;
+  int ImageWidth;
+  int ImageHeight;
+  float Latitude;
+  float Longitude;
+  float CameraDistance;
+  bool HighlightNewParts;
+  bool TransBackground;
+  bool Orthographic;
+};
+
+class ViewerOptions
+{
+public:
+  ViewerOptions()
+  {
+    Orthographic = true;
+    ImageType    = Render::CSI;
+  }
+  QString ViewerCsiName;
+  Render::Mt ImageType;
+  float CameraDistance;
+  float Latitude;
+  float Longitude;
+  bool Orthographic;
+};
 #endif

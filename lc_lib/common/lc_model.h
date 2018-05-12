@@ -23,7 +23,9 @@
 #define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x1000 // Can remove control points from focused piece
 
 class lcGLWidget;
-
+/*** LPub3D Mod - native renderer options ***/
+class NativeOptions;
+/*** LPub3D Mod end ***/
 enum class lcSelectionMode
 {
 	SINGLE,
@@ -333,6 +335,10 @@ public:
         void ParseAndSetRotStep(QTextStream& LineStream);
 // TODO - REMOVE
 //        void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - create Native CSI image ***/
+	void CreateNativeCsiImage(const NativeOptions &Options);
 /*** LPub3D Mod end ***/
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);

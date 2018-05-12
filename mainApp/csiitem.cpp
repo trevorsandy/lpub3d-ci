@@ -358,9 +358,9 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   position = pos();
   gui->showLine(step->topOfStep());
 
-  if (! gui->LoadViewerStepContent(step->viewerCsiName, step->viewMatrix)) {
-     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3D Viewer with file :\n%1.")
-                            .arg(step->viewerCsiName));
+  if (! renderer->LoadViewer(step->viewerOptions)) {
+     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3D Viewer with %1.")
+                            .arg(step->viewerOptions.ViewerCsiName));
 
 // TODO - REMOVE
 //  int  rc = step->Load3DCsi(step->viewerCsiName);

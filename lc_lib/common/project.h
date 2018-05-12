@@ -17,6 +17,10 @@
 #define LC_HTML_SUBMODELS     0x40
 #define LC_HTML_CURRENT_ONLY  0x80
 
+/*** LPub3D Mod - native renderer options ***/
+class NativeOptions;
+/*** LPub3D Mod end ***/
+
 class lcHTMLExportOptions
 {
 public:
@@ -86,17 +90,15 @@ public:
 
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& ModelName);
+/*** LPub3D Mod - create Native PLI image ***/
+	void CreateNativePliImage(const NativeOptions &Options);
+/*** LPub3D Mod end ***/
 
 	lcModel* CreateNewModel(bool ShowModel);
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
 	bool Load(const QString& FileName);
-/*** LPub3D Mod - load viewer from CsiName ***/
-	bool LoadViewer(const QString &CsiName);
-/*** LPub3D Mod - load viewer from Csi content ***/
-	bool ViewerLoad(const QStringList &Content);
-/*** LPub3D Mod end ***/
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
 	void Merge(Project* Other);
@@ -117,7 +119,7 @@ public:
 
 protected:
 	QString GetExportFileName(const QString& FileName, const QString& DefaultExtension, const QString& DialogTitle, const QString& DialogFilter) const;
-	void GetModelParts(lcArray<lcModelPartsEntry>& ModelParts);
+	void GetModelParts(lcArray<lcModelPartsEntry>& ModelParts);	
 	QImage CreatePartsListImage(lcModel* Model, lcStep Step);
 	void CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images);
 	void SetFileName(const QString& FileName);
@@ -130,8 +132,8 @@ protected:
 	lcModel* mActiveModel;
 
 	Q_DECLARE_TR_FUNCTIONS(Project);
-/*** LPub3D Mod - enable Native renderer ***/
-	friend class Native;
+/*** LPub3D Mod - create Native PLI image ***/
+	friend class Render;
 /*** LPub3D Mod end ***/
 };
 
