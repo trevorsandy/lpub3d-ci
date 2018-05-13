@@ -1557,7 +1557,10 @@ void Gui::preferences()
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
 
         if (enableFadeStepsChanged)
+        {
+            gApplication->mFadeParts = Preferences::enableFadeSteps;
             logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
+        }
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
             logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");

@@ -379,6 +379,8 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   QStringList contents;
   QStringList colourPartList;
   int existingCustomParts = 0;
+  bool FadeMetaAdded = false;
+  bool SilhouetteMetaAdded = false;
 
   emit progressBarInitSig();
   emit progressMessageSig("Parse Model File");
@@ -387,11 +389,13 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   ldrawFile = gui->getLDrawFile();
   // process top-level submodels
   emit progressRangeSig(1, ldrawFile._subFileOrder.size());
+
   for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
       QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
       contents = ldrawFile.contents(subfileNameStr);
       emit progressSetValueSig(i);
       logInfo() << "00 PROCESSING SUBFILE:" << subfileNameStr;
+
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
           QString line = contents[i];
           QStringList tokens;
@@ -777,6 +781,9 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
             customPartFile = customStepColourPartFileInfo.absoluteFilePath();
             //logTrace() << "A. PART CONTENT ABSOLUTE FILEPATH: " << customStepColourPartFileInfo.absoluteFilePath();
 
+            bool FadeMetaAdded = false;
+            bool SilhouetteMetaAdded = false;
+
             // process costom part contents
             for (int i = 0; i < cp.value()._contents.size() && endThreadNotRequested(); i++) {
                 QString line =  cp.value()._contents[i];
@@ -785,6 +792,16 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
                 split(line,tokens);
                 if (tokens.size() == 15 && tokens[0] == "1") {
+                    // Insert opening fade meta
+                    if (Preferences::enableFadeSteps && !FadeMetaAdded){
+                       customPartContent.prepend(QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+                       FadeMetaAdded = true;
+                    }
+                    // Insert opening silhouette meta
+                    if (Preferences::enableHighlightStep && !SilhouetteMetaAdded){
+                       customPartContent.prepend(QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+                       SilhouetteMetaAdded = true;
+                    }
                     fileNameStr = tokens[tokens.size()-1].toLower();
                     QString searchFileNameStr = fileNameStr;
                     // check if part at this line has a matching colour part in the colourPart list - if yes, rename with '-fade' or '-highlight'
@@ -814,6 +831,16 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                 }
                 line = tokens.join(" ");
                 customPartContent << line;
+
+                // Insert closing fade and siilhouette metas
+                if (i+1 == cp.value()._contents.size()){
+                    if (FadeMetaAdded){
+                       customPartContent.append(QString("0 !FADE").arg(Preferences::fadeStepsOpacity));
+                    }
+                    if (SilhouetteMetaAdded){
+                       customPartContent.append(QString("0 !SILHOUETTE").arg(Preferences::highlightStepLineWidth));
+                    }
+                }
             }
 
             // add the costom part colour list to the header of the costom part contents
@@ -837,8 +864,8 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
 
 /*
-     * Write custom part files to costom directory.
-     */
+ * Write custom part files to costom directory.
+ */
 bool PartWorker::saveCustomFile(
         const QString     &fileName,
         const QStringList &customPartContent) {

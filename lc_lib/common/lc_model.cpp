@@ -522,13 +522,35 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				 ParseAndSetRotStep(LineStream);
 			 }
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - process colour entry ***/
-			else if (Token == QLatin1String("!COLOUR"))
+/*** LPub3D Mod - process fade parts ***/
+			else if (Token == QLatin1String("!FADE"))
 			{
-				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
-					logError() << qPrintable(QString("Could not load colour entry %1.")
-								 .arg(OriginalLine));
+				gApplication->mFadeParts = true;
+
+				LineStream >> Token;
+
+				if (!Token.isEmpty())
+				{
+					bool ok;
+					Token.toFloat(&ok);
+					if (!ok || Token <0 || Token > 99) {
+						 gApplication->mFadeParts = false;
+						 emit gui->messageSig(LOG_ERROR, QString("Malformed FADE Opacity value (%1) encountered. Using preference value (%2).")
+								      .arg(Token)
+								      .arg(Preferences::fadeStepsOpacity));
+					}
+				} else {
+					gApplication->mFadeParts = false;
+				}
 			}
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - process colour entry ***/
+                        else if (Token == QLatin1String("!COLOUR"))
+                        {
+                                if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
+                                        logError() << qPrintable(QString("Could not load colour entry %1.")
+                                                                 .arg(OriginalLine));
+                        }
 /*** LPub3D Mod end ***/
 			else if (Token == QLatin1String("FILE"))
 			{
@@ -2889,7 +2911,6 @@ void lcModel::ParseAndSetRotStep(QTextStream& LineStream)
               gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
 
           LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
-
           QString rotationArgs("%1 %2 %3 %4");
           rotationArgs = rotationArgs.arg(
                         QString::number(rotStep[0], 'f', 2),

@@ -75,6 +75,10 @@ lcApplication::lcApplication()
     mLibrary = nullptr;
 
     mPreferences.LoadDefaults();
+
+/*** LPub3D Mod - initialize fade var ***/
+    mFadeParts = Preferences::enableFadeSteps;
+/*** LPub3D Mod end ***/
 }
 
 lcApplication::~lcApplication()

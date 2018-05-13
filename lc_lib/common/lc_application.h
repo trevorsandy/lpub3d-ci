@@ -66,6 +66,9 @@ public:
 	lcPiecesLibrary* mLibrary;
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
+/*** LPub3D Mod - process fade parts ***/
+	bool mFadeParts;
+/*** LPub3D Mod end ***/
 
 protected:
 	QString GetTabLayoutKey() const;
