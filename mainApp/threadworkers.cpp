@@ -842,27 +842,33 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
             // add the costom part colour list to the header of the costom part contents
             customPartColourList.toSet().toList(); // remove dupes
-            customPartContent.prepend("0");
-            for (int i = 0; i < customPartColourList.size(); ++i)
-              customPartContent.prepend(customPartColourList.at(i));
-            customPartContent.prepend("0 // LPub3D part custom colours");
-
-//            // add the costom part colour list to the header of the costom part contents
-//            int insertionPoint = 0;
-//            // scan past header...
-//            for (int i = 0; i < customPartContent.size(); ++i) {
-//                if (!isHeader(customPartColourList[i]) && !QString(customPartColourList[i]).isEmpty()) {
-//                    insertionPoint = ++i;
-//                    break;
-//                }
-//            }
-//            // insert colour entries after header
-//            customPartContent.insert(insertionPoint,"0 // LPub3D part custom colours");
-//            for (int i = 0; i < customPartColourList.size(); ++i) {
-//                insertionPoint++;
-//                customPartContent.insert(insertionPoint,customPartColourList.at(i));
-//            }
-//            customPartContent.insert(++insertionPoint,"0");
+            int insertionPoint = 0; // skip the first line (title)
+            QStringList words;
+            // scan past header...
+            for (int i = insertionPoint; i < customPartContent.size(); i++) {
+                insertionPoint = i;
+                // Upper case first title first letter
+                if (insertionPoint == 0){
+                   QString line = customPartContent[i];
+                   split(line, words);
+                   for (int j = 0; j < words.size(); j++){
+                      QString word = QString(words[j]);
+                      word[0]      = word[0].toUpper();
+                      words[j]     = word;
+                   }
+                   customPartContent[i] = words.join(" ");
+                }
+                else
+                if (!isHeader(customPartContent[i]) && !QString(customPartContent[i]).isEmpty())
+                  break;
+            }
+            // insert colour entries after header
+            customPartContent.insert(insertionPoint,"0 // LPub3D part custom colours");
+            for (int i = 0; i < customPartColourList.size(); i++) {
+                insertionPoint++;
+                customPartContent.insert(insertionPoint,customPartColourList.at(i));
+            }
+            customPartContent.insert(++insertionPoint,"0");
 
             //logTrace() << "04 SAVE CUSTGOM COLOUR PART: " << customPartFile;
             if(saveCustomFile(customPartFile, customPartContent))
