@@ -58,16 +58,18 @@ public:
   int                    rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
-                                     QString &ldrName);
+                                     QString &ldrName,
+                                     const QString &modelName);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts);
-  QVector<lcVector3>     viewSettings(AssemMeta &assemMeta,
-                                      const float &cd = 0.0f);
-  QVector<lcVector3>     nativeViewSettings(LPubMeta &,
-                                      const int &height,
-                                      const float &cd = 0.0f,
-                                      const Mt &type = CSI);
+// TODO - REMOVE
+//  QVector<lcVector3>     viewSettings(AssemMeta &assemMeta,
+//                                      const float &cd = 0.0f);
+//  QVector<lcVector3>     nativeViewSettings(LPubMeta &,
+//                                      const int &height,
+//                                      const float &cd = 0.0f,
+//                                      const Mt &type = CSI);
   virtual int 		 renderCsi(const QString &,
                                       const QStringList &,
                                       const QStringList &,
@@ -179,8 +181,9 @@ class ViewerOptions
 public:
   ViewerOptions()
   {
-    Orthographic = true;
-    ImageType    = Render::CSI;
+    Orthographic    = true;
+    ImageType       = Render::CSI;
+    CameraDistance  = -260.0f;
   }
   QString ViewerCsiName;
   Render::Mt ImageType;

@@ -1481,6 +1481,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         }
 
         SetTemporaryStep(CurrentStep);
+
         View.OnDraw();
 
         struct NativeImage
@@ -1525,7 +1526,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         QImageWriter Writer(Options.ImageFileName);
 
         if (Writer.format().isEmpty())
-                Writer.setFormat("png");
+                Writer.setFormat("PNG");
 
         if (!Writer.write(QImage(Image.RendererImage.copy(Image.Bounds))))
         {

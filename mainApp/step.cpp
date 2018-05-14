@@ -168,10 +168,12 @@ int Step::createCsi(
     QPixmap           *pixmap,
     Meta              &meta)
 {
-  int         sn         = stepNumber.number;
-  qreal       modelScale = meta.LPub.assem.modelScale.value();
-  QString     csi_Name   = modelDisplayOnlyStep ? csiName()+"_fm" : csiName();
-  bool        csiExist   = false;
+  int         sn             = stepNumber.number;
+  qreal       modelScale     = meta.LPub.assem.modelScale.value();
+  QString     csi_Name       = modelDisplayOnlyStep ? csiName()+"_fm" : csiName();
+  bool        csiExist       = false;
+  bool        nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
+  QString     viewerCsiName;
 
 // TODO - REMOVE
 //  qreal       modelScale = meta.LPub.assem.modelScale.value();
@@ -223,37 +225,121 @@ int Step::createCsi(
         }
     }
 
+  int rc;
+
+  // populate ldr file name
+  ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
+
+  // Populate the csi file paths
+  QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
+
+  // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
+  if (renderer->useLDViewSCall() || nativeRenderer) {
+
+      if (nativeRenderer)
+         ldrName = csiFullFilePath;
+
+      rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName);
+      if (rc != 0) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
+                                                .arg(ldrName));
+          return rc;
+      }
+  }
+
+  // Setup 3DViewer source if not using native renderer
+  //if (!Preferences::preferredRenderer == RENDERER_NATIVE) {
+
+  // set rotated parts
+  QStringList rotatedParts = csiParts;
+
+  // rotate parts for 3DViewer display
+  renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
+  QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
+      .arg(meta.rotStep.value().type)
+      .arg(meta.rotStep.value().rots[0])
+      .arg(meta.rotStep.value().rots[1])
+      .arg(meta.rotStep.value().rots[2]);
+  rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1.ldr").arg(top.modelName));
+  rotatedParts.prepend(QString("0 FILE %1.ldr").arg(top.modelName));
+  rotatedParts.append("0 NOFILE");
+  rotatedParts.prepend(rotsComment);
+
+  // Populate the viewerCsiName
+  viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
+  if (modelDisplayOnlyStep)
+      viewerCsiName = QString("%1_fm").arg(viewerCsiName);
+
+  gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
+
+ //}
+
   // generate CSI file as appropriate
 
   if ( ! csiExist || csiOutOfDate ) {
 
-      int rc;
-      if (renderer->useLDViewSCall()) {
+//     int rc;
 
-          // populate ldr file name
-          ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
+     QElapsedTimer timer;
+     timer.start();
 
-          // create the CSI ldr file and rotate its parts
-          rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName);
-          if (rc != 0) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for:\n%1.")
-                                                    .arg(ldrName));
-              return rc;
-            }
+//     // populate ldr file name
+//     ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
 
-        } else {
+//     // Populate the csi file paths
+//     QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
 
-          QElapsedTimer timer;
-          timer.start();
+//     // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
+//     if (renderer->useLDViewSCall() || nativeRenderer) {
 
-          // render the partially assembled model if single step and not called out
+//         if (nativeRenderer)
+//            ldrName = csiFullFilePath;
+
+//         rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName);
+//         if (rc != 0) {
+//             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
+//                                                   .arg(ldrName));
+//             return rc;
+//         }
+//     }
+
+//     // Setup 3DViewer source if not using native renderer
+//     if (!Preferences::preferredRenderer == RENDERER_NATIVE) {
+
+//     // set rotated parts
+//     QStringList rotatedParts = csiParts;
+
+//     // rotate parts for 3DViewer display
+//     renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
+//     QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
+//         .arg(meta.rotStep.value().type)
+//         .arg(meta.rotStep.value().rots[0])
+//         .arg(meta.rotStep.value().rots[1])
+//         .arg(meta.rotStep.value().rots[2]);
+//     rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1.ldr").arg(top.modelName));
+//     rotatedParts.prepend(QString("0 FILE %1.ldr").arg(top.modelName));
+//     rotatedParts.append("0 NOFILE");
+//     rotatedParts.prepend(rotsComment);
+
+//     // Populate the viewerCsiName
+//     viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
+//     if (modelDisplayOnlyStep)
+//       viewerCsiName = QString("%1_fm").arg(viewerCsiName);
+
+//     gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
+
+//    }
+
+     if (!renderer->useLDViewSCall()) {
+
+          // render the partially assembled model
           QStringList csiKeys = (QStringList() << csiKey);
           rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta);
           if (rc != 0) {
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
                                                     .arg(pngName));
               return rc;
-            }
+          }
 
           logTrace() << "\n" << Render::getRenderer()
                      << "CSI render call took"
@@ -262,47 +348,17 @@ int Step::createCsi(
                      << (calledOut ? "called out," : "simple,")
                      << (multiStep ? "step group" : "single step") << sn
                      << "on page " << gui->stepPageNum << ".";
-        }
-    }
+      }
+  }
 
-  // If not using LDView SCall, populate pixmap
-  if (! renderer->useLDViewSCall()) {
-      pixmap->load(pngName);
-      csiPlacement.size[0] = pixmap->width();
-      csiPlacement.size[1] = pixmap->height();
-    }
+  // Load the 3DViewer
+  if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
 
-  // Populate the 3D Viewer
-  if (! gui->exporting()) {
-
-      // Populate the viewerCsiName
-      QString viewerName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
-      QString viewerCsiName      = modelDisplayOnlyStep  ? viewerName+"_fm" : viewerName;
-
-      // Populate the csi file paths
-      QString csiFullFilePath;
-       if (renderer->useLDViewSCall()) {
-           csiFullFilePath = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
-       } else {
-           csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
-       }
-
-      // Populate the viewer step content
-      QStringList rotatedParts = csiParts;
-      renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
-      QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
-                                    .arg(meta.rotStep.value().type)
-                                    .arg(meta.rotStep.value().rots[0])
-                                    .arg(meta.rotStep.value().rots[1])
-                                    .arg(meta.rotStep.value().rots[2]);
-      rotatedParts.prepend(rotsComment);
-      gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
-
-      // set camera options
+      // set viewer camera options
       viewerOptions.ViewerCsiName  = viewerCsiName;
       viewerOptions.Latitude       = meta.LPub.assem.angle.value(0);
       viewerOptions.Longitude      = meta.LPub.assem.angle.value(1);
-      viewerOptions.CameraDistance = renderer->cameraDistance(meta,meta.LPub.assem.modelScale.value());
+      //viewerOptions.CameraDistance = renderer->cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
       if (! renderer->LoadViewer(viewerOptions)) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load viewer failed for csi_Name: %1")
@@ -310,6 +366,13 @@ int Step::createCsi(
           return -1;
       }
   }
+
+  // If not using LDView SCall, populate pixmap
+  if (! renderer->useLDViewSCall()) {
+      pixmap->load(pngName);
+      csiPlacement.size[0] = pixmap->width();
+      csiPlacement.size[1] = pixmap->height();
+    }
 
 // TODO - REMOVE
 //      int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on
@@ -601,7 +664,7 @@ int  y)// accumulate sub-col margin widths here
 {
 
   // size up each callout
-  
+
   int numCallouts = list.size();
 
   for (int i = 0; i < numCallouts; i++) {
@@ -630,7 +693,7 @@ int  y)// accumulate sub-col margin widths here
   /* Lets start with the absolutes (those relative to the CSI) */
 
   PlacementData pliPlacement = pli.placement.value();
-  
+
   // PLI relative to CSI
 
   if (pliPlacement.relativeTo == CsiType) {
@@ -661,7 +724,7 @@ int  y)// accumulate sub-col margin widths here
     }
 
   PlacementData stepNumberPlacement = stepNumber.placement.value();
-  
+
   // if Step Number relative to parts list, but no parts list,
   //    Step Number is relative to CSI (Assem)
 
@@ -739,23 +802,23 @@ int  y)// accumulate sub-col margin widths here
   maxMargin(rotateIcon.margin,rotateIcon.tbl,marginRows,marginCols);
 
   /* now place the callouts relative to the known (CSI, PLI, SN, RI) */
-  
+
   int calloutSize[2] = { 0, 0 };
   bool shared = false;
 
   int square[NumPlaces][NumPlaces];
-  
+
   for (int i = 0; i < NumPlaces; i++) {
       for (int j = 0; j < NumPlaces; j++) {
           square[i][j] = -1;
         }
     }
-  
+
   square[TblCsi][TblCsi] = CsiType;
   square[pli.tbl[XX]][pli.tbl[YY]] = PartsListType;
   square[stepNumber.tbl[XX]][stepNumber.tbl[YY]] = StepNumberType;
   square[rotateIcon.tbl[XX]][rotateIcon.tbl[YY]] = RotateIconType;
-  
+
   int pixmapSize[2] = { csiPixmap.width(), csiPixmap.height() };
   int max = pixmapSize[y];
 
@@ -824,7 +887,7 @@ int  y)// accumulate sub-col margin widths here
   /* Determine the biggest in each column and row */
   /*                                              */
   /************************************************/
-  
+
   if (pli.pliMeta.constrain.isDefault()) {
 
       int tsize = 0;
@@ -851,9 +914,9 @@ int  y)// accumulate sub-col margin widths here
           break;
         }
     }
-  
+
   // Allow PLI and CALLOUT to share one column
-  
+
   if (shared && pli.tbl[y] == TblCsi) {
       int wX = 0, wY = 0;
       if (x == XX) {
@@ -916,7 +979,7 @@ int  y)// accumulate sub-col margin widths here
   if (rows[stepNumber.tbl[YY]] < stepNumber.size[YY]) {
       rows[stepNumber.tbl[YY]] = stepNumber.size[YY];
     }
-  
+
   if (cols[TblCsi] < csiPlacement.size[XX]) {
       cols[TblCsi] = csiPlacement.size[XX];
     }
@@ -1155,7 +1218,7 @@ void Step::addGraphicsItems(
 {
   offsetX += loc[XX];
   offsetY += loc[YY];
-  
+
   // CSI
   csiItem = new CsiItem(this,
                         meta,
@@ -1174,7 +1237,7 @@ void Step::addGraphicsItems(
       pli.setPos(offsetX + pli.loc[XX],
                  offsetY + pli.loc[YY]);
     }
-  
+
   // Step Number
   if (stepNumber.number > 0 && ! onlyChild() && showStepNumber) {
       StepNumberItem *sn;

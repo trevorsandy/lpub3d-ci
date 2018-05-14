@@ -258,279 +258,106 @@ void lcScene::Draw(lcContext* Context) const
 
 		Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
 
-		if (gApplication->mFadeParts)
+		int UntexturedPrimitives = LC_MESH_TRIANGLES;
+
+		if (DrawLines)
 		{
-		       if (!mTranslucentMeshes.IsEmpty())
-		       {
-			       // 01 of 07 - Enable BFC
-			       glCullFace(GL_BACK);
-			       glEnable(GL_CULL_FACE);
+			UntexturedPrimitives |= LC_MESH_LINES;
 
-			       // 02 of 07 - Disable color writes and enable depth writes
-			       glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-			       glDepthMask(GL_TRUE);
+			if (DrawConditional)
+				UntexturedPrimitives |= LC_MESH_CONDITIONAL_LINES;
+		}
 
-			       // 03 of 07 - Draw translucent mesh triangles again to update the z buffer
-			       DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
+		DrawRenderMeshes(Context, UntexturedPrimitives, false, false, false);
 
-			       // 04 of 07 - Enable colour writes
-			       glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+		if (!mTranslucentMeshes.IsEmpty())
+		{
+			glEnable(GL_BLEND);
+			glDepthMask(GL_FALSE);
 
-			       // 05 of 07 - Draw translucent mesh triangles normally
-			       glEnable(GL_BLEND);
-			       glDepthMask(GL_FALSE);
+			DrawRenderMeshes(Context, LC_MESH_TRIANGLES, false, true, false);
 
-			       DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
+			glDepthMask(GL_TRUE);
+			glDisable(GL_BLEND);
+		}
 
-			       // 06 of 07 - Draw translucent mesh lines
-			       if (DrawLines)
-			       {
-					 int LinePrimitives = LC_MESH_LINES;
+		if (mHasTexture)
+		{
+			Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
 
-					 if (DrawConditional)
-						  LinePrimitives |= LC_MESH_CONDITIONAL_LINES;
+			if (DrawLines)
+				DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);
 
-					 Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
-					 DrawRenderMeshes(Context, LinePrimitives, false, false, false);
-			       }
+			DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, false, true);
 
-			       // 07 of 07 - Wrap up, Disable Blend and BFC
-			       glDisable(GL_BLEND);
-			       glDisable(GL_CULL_FACE);
-		       }
+			if (!mTranslucentMeshes.IsEmpty())
+			{
+				glEnable(GL_BLEND); // todo: remove GL calls
+				glDepthMask(GL_FALSE);
 
-		       if (mHasTexture)
-		       {
-			       Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
+				DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
 
-			       DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, false, true);
+				glDepthMask(GL_TRUE);
+				glDisable(GL_BLEND);
+			}
 
-                               if (!mTranslucentMeshes.IsEmpty())
-                               {
-                                       // 01 of 07 - Enable BFC
-                                       glCullFace(GL_BACK);
-                                       glEnable(GL_CULL_FACE);
-
-                                       // 02 of 07 - Disable color writes and enable depth writes
-                                       glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-                                       glDepthMask(GL_TRUE);
-
-                                       // 03 of 07 - Draw translucent mesh triangles again to update the z buffer
-                                       DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
-
-                                       // 04 of 07 - Enable colour writes
-                                       glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-
-                                       // 05 of 07 - Draw translucent mesh triangles normally
-                                       glEnable(GL_BLEND);
-                                       glDepthMask(GL_FALSE);
-
-                                       DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
-
-                                       // 06 of 07 - Draw translucent mesh lines
-                                       if (DrawLines)
-                                       {
-                                                   DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);
-                                       }
-
-                                       // 07 of 07 - Wrap up, Disable Blend and BFC
-                                       glDisable(GL_BLEND);
-                                       glDisable(GL_CULL_FACE);
-                               }
-                               Context->BindTexture2D(0);
-                        }
-                }
-                else
-                {
-                       int UntexturedPrimitives = LC_MESH_TRIANGLES;
-
-                       if (DrawLines)
-                       {
-                               UntexturedPrimitives |= LC_MESH_LINES;
-
-                               if (DrawConditional)
-                                       UntexturedPrimitives |= LC_MESH_CONDITIONAL_LINES;
-                       }
-
-                       DrawRenderMeshes(Context, UntexturedPrimitives, false, false, false);
-
-                       if (!mTranslucentMeshes.IsEmpty())
-                       {
-                                  glEnable(GL_BLEND);
-                                  glDepthMask(GL_FALSE);
-
-                                  DrawRenderMeshes(Context, LC_MESH_TRIANGLES, false, true, false);
-
-                                  glDepthMask(GL_TRUE);
-                                  glDisable(GL_BLEND);
-                       }
-
-                       if (mHasTexture)
-                       {
-                               Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-
-                               if (DrawLines)
-                                       DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);
-
-                               DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, false, true);
-
-                               if (!mTranslucentMeshes.IsEmpty())
-                               {
-                                       glEnable(GL_BLEND); // todo: remove GL calls
-                                       glDepthMask(GL_FALSE);
-
-                                       DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
-
-                                       glDepthMask(GL_TRUE);
-                                       glDisable(GL_BLEND);
-                               }
-
-                               Context->BindTexture2D(0);
-                       }
-                }
+			Context->BindTexture2D(0);
+		}
 	}
 	else
 	{
 		bool DrawLines = lcGetPreferences().mDrawEdgeLines;
 		Context->BindTexture2D(0);
 
-                if (gApplication->mFadeParts)
-                {
-                       Context->SetMaterial(LC_MATERIAL_FAKELIT_COLOR);
-                       DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, false, false);
+		if (DrawLines)
+		{
+			int LinePrimitives = LC_MESH_LINES;
 
-                       if (!mTranslucentMeshes.IsEmpty())
-                       {
-                               // 01 of 07 - Enable BFC
-                               glCullFace(GL_BACK);
-                               glEnable(GL_CULL_FACE);
+			if (DrawConditional)
+				LinePrimitives |= LC_MESH_CONDITIONAL_LINES;
 
-                               // 02 of 07 - Disable color writes and enable depth writes
-                               glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-                               glDepthMask(GL_TRUE);
+			Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+			DrawRenderMeshes(Context, LinePrimitives, false, false, false);
+		}
 
-                               // 03 of 07 - Draw translucent mesh triangles again to update the z buffer
-                               DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
+		Context->SetMaterial(LC_MATERIAL_FAKELIT_COLOR);
+		DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, false, false);
 
-                               // 04 of 07 - Enable colour writes
-                               glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+		if (!mTranslucentMeshes.IsEmpty())
+		{
+			glEnable(GL_BLEND);
+			glDepthMask(GL_FALSE);
 
-                               // 05 of 07 - Draw translucent mesh triangles normally
-                               glEnable(GL_BLEND);
-                               glDepthMask(GL_FALSE);
+			DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
 
-                               DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
+			glDepthMask(GL_TRUE);
+			glDisable(GL_BLEND);
+		}
 
-                               // 06 of 07 - Draw translucent mesh lines
-                               if (DrawLines)
-                               {
-                                         int LinePrimitives = LC_MESH_LINES;
+		if (mHasTexture)
+		{
+			if (DrawLines)
+			{
+				Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
+				DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true);
+			}
 
-                                         if (DrawConditional)
-                                                  LinePrimitives |= LC_MESH_CONDITIONAL_LINES;
+			Context->SetMaterial(LC_MATERIAL_FAKELIT_TEXTURE_DECAL);
+			DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, false, true);
 
-                                         Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
-                                         DrawRenderMeshes(Context, LinePrimitives, false, false, false);
-                               }
+			if (!mTranslucentMeshes.IsEmpty())
+			{
+				glEnable(GL_BLEND);
+				glDepthMask(GL_FALSE);
 
-                               // 07 of 07 - Wrap up, Disable Blend and BFC
-                               glDisable(GL_BLEND);
-                               glDisable(GL_CULL_FACE);
-                       }
+				DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
 
-                       if (mHasTexture)
-                       {
-                               Context->SetMaterial(LC_MATERIAL_FAKELIT_TEXTURE_DECAL);
-                               DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, false, true);
+				glDepthMask(GL_TRUE);
+				glDisable(GL_BLEND);
+			}
 
-                               if (!mTranslucentMeshes.IsEmpty())
-                               {
-                                       // 01 of 07 - Enable BFC
-                                       glCullFace(GL_BACK);
-                                       glEnable(GL_CULL_FACE);
-
-                                       // 02 of 07 - Disable color writes and enable depth writes
-                                       glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-                                       glDepthMask(GL_TRUE);
-
-                                       // 03 of 07 - Draw translucent mesh triangles again to update the z buffer
-                                       DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
-
-                                       // 04 of 07 - Enable colour writes
-                                       glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-
-                                       // 05 of 07 - Draw translucent mesh triangles normally
-                                       glEnable(GL_BLEND);
-                                       glDepthMask(GL_FALSE);
-
-                                       DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
-
-                                       // 06 of 07 - Draw translucent mesh lines
-                                       if (DrawLines)
-                                       {
-                                           Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-                                           DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true);
-                                       }
-
-                                       // 07 of 07 - Wrap up, Disable Blend and BFC
-                                       glDisable(GL_BLEND);
-                                       glDisable(GL_CULL_FACE);
-                               }
-
-                               Context->BindTexture2D(0);
-                       }
-
-                } else {
-                        if (DrawLines)
-                        {
-                                int LinePrimitives = LC_MESH_LINES;
-
-                                if (DrawConditional)
-                                        LinePrimitives |= LC_MESH_CONDITIONAL_LINES;
-
-                                Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
-                                DrawRenderMeshes(Context, LinePrimitives, false, false, false);
-                        }
-
-                        Context->SetMaterial(LC_MATERIAL_FAKELIT_COLOR);
-                        DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, false, false);
-
-                        if (!mTranslucentMeshes.IsEmpty())
-                        {
-                                glEnable(GL_BLEND);
-                                glDepthMask(GL_FALSE);
-
-                                DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
-
-                                glDepthMask(GL_TRUE);
-                                glDisable(GL_BLEND);
-                        }
-
-                        if (mHasTexture)
-                        {
-                                if (DrawLines)
-                                {
-                                        Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-                                        DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true);
-                                }
-
-                                Context->SetMaterial(LC_MATERIAL_FAKELIT_TEXTURE_DECAL);
-                                DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, false, true);
-
-                                if (!mTranslucentMeshes.IsEmpty())
-                                {
-                                        glEnable(GL_BLEND);
-                                        glDepthMask(GL_FALSE);
-
-                                        DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
-
-                                        glDepthMask(GL_TRUE);
-                                        glDisable(GL_BLEND);
-                                }
-
-                                Context->BindTexture2D(0);
-                        }
-                }
+			Context->BindTexture2D(0);
+		}
 	}
 }
 

@@ -125,8 +125,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
   ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
-  //disabled for future use
-  ui.highlightStepLineWidthSpin->setEnabled(     false);
+  // Only enabled for LDGLite
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+    ui.highlightStepLineWidthSpin->setEnabled(   Preferences::enableHighlightStep);
+  else
+    ui.highlightStepLineWidthSpin->setEnabled(false);
   ui.highlightStepLineWidthSpin->setValue(       Preferences::highlightStepLineWidth);
 
   QColor highlightColour = QColor(Preferences::highlightStepColour);
@@ -913,6 +916,9 @@ void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
 {
   ui.highlightStepBtn->setEnabled(checked);
   ui.highlightStepLabel->setEnabled(checked);
-  //disabled for future use
-  ui.highlightStepLineWidthSpin->setEnabled(false);
+  // Only enabled for LDGLite
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+    ui.highlightStepLineWidthSpin->setEnabled(checked);
+  else
+    ui.highlightStepLineWidthSpin->setEnabled(false);
 }

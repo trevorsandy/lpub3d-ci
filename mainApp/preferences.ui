@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -432,7 +432,7 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>[For future use] - Set the highlight line width</string>
+         <string>Set the highlight line width  [LDGLite only]</string>
         </property>
         <property name="minimum">
          <number>1</number>
@@ -451,7 +451,7 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>[For future use] - Set the highlight line width</string>
+         <string>Set the highlight line width [LDGLite only]</string>
         </property>
         <property name="text">
          <string>Highlight line width</string>

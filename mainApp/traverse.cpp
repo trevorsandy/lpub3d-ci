@@ -2399,12 +2399,16 @@ void Gui::writeToTmp(const QString &fileName,
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
-                  csiParts << line;
-                } else if (tokens.size() == 11 &&
-                           tokens[0] == "0"    &&
-                           tokens[1] == "!COLOUR") {
-                  csiParts << line;
-                } else {
+                 csiParts << line;
+              } else if (tokens.size() == 11 &&
+                          tokens[0] == "0"    &&
+                          tokens[1] == "!COLOUR") {
+                 csiParts << line;
+              } else if ((tokens.size() == 2 || tokens.size() == 3) &&
+                          tokens[0] == "0"    &&
+                         (tokens[1] == "!FADE" || tokens[1] == "!SILHOUETTE")) {
+                 csiParts << line;
+              } else {
                   Meta meta;
                   Rc   rc;
                   Where here(fileName,i);
@@ -2556,13 +2560,13 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           split(contentLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
               // Insert opening fade meta
-              if (Preferences::enableFadeSteps && !FadeMetaAdded){
-                 configuredContents.prepend(QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+              if (!FadeMetaAdded && Preferences::enableFadeSteps && partType == FADE_PART){
+                 configuredContents.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                  FadeMetaAdded = true;
               }
               // Insert opening silhouette meta
-              if (Preferences::enableHighlightStep && !SilhouetteMetaAdded){
-                 configuredContents.prepend(QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+              if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
+                 configuredContents.insert(index,QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
                  SilhouetteMetaAdded = true;
               }
               if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
@@ -2597,13 +2601,13 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           contentLine = argv.join(" ");
           configuredContents  << contentLine;
 
-          // Insert closing fade and siilhouette metas
+          // Insert closing fade and silhouette metas
           if (index+1 == contents.size()){
               if (FadeMetaAdded){
-                 configuredContents.append(QString("0 !FADE").arg(Preferences::fadeStepsOpacity));
+                 configuredContents.append(QString("0 !FADE"));
               }
               if (SilhouetteMetaAdded){
-                 configuredContents.append(QString("0 !SILHOUETTE").arg(Preferences::highlightStepLineWidth));
+                 configuredContents.append(QString("0 !SILHOUETTE"));
               }
           }
       }
@@ -2688,8 +2692,8 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           if (doFadeStep && (updatePosition <= prevStepPosition)) {
               if (type_1_5_line) {
                   // Insert opening fade meta
-                  if (Preferences::enableFadeSteps && !FadeMetaAdded){
-                     configuredCsiParts.prepend(QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+                  if (!FadeMetaAdded && Preferences::enableFadeSteps){
+                     configuredCsiParts.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                      FadeMetaAdded = true;
                   }
                   if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
@@ -2718,13 +2722,12 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   }
               }
           }
-
           // write highlight entries
           if (doHighlightStep && (updatePosition > prevStepPosition)) {
               if (type_1_5_line) {
                   // Insert opening silhouette meta
-                  if (Preferences::enableHighlightStep && !SilhouetteMetaAdded){
-                     configuredCsiParts.prepend(QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+                  if (!SilhouetteMetaAdded && Preferences::enableHighlightStep){
+                     configuredCsiParts.append(QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
                      SilhouetteMetaAdded = true;
                   }
                   if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
@@ -2741,11 +2744,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                         // process subfiles naming
                         if (is_submodel_file) {
                                if (ldr) {
-                                 fileNameStr = fileNameStr.replace(".ldr", "-highlight..ldr");
+                                 fileNameStr = fileNameStr.replace(".ldr", "-highlight.ldr");
                                } else if (mpd) {
-                                 fileNameStr = fileNameStr.replace(".mpd", "-highlight..mpd");
+                                 fileNameStr = fileNameStr.replace(".mpd", "-highlight.mpd");
                                } else if (dat) {
-                                 fileNameStr = fileNameStr.replace(".dat", "-highlight..dat");
+                                 fileNameStr = fileNameStr.replace(".dat", "-highlight.dat");
                                }
                         }
                         // assign fade part name
@@ -2760,13 +2763,16 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           // current step parts
           configuredCsiParts  << csiLine;
 
-          // Insert closing fade and siilhouette metas
-          if (index+1 == csiParts.size()){
+          // Insert closing fade meta
+          if (updatePosition == prevStepPosition) {
               if (FadeMetaAdded){
-                 configuredCsiParts.append(QString("0 !FADE").arg(Preferences::fadeStepsOpacity));
+                 configuredCsiParts.append(QString("0 !FADE"));
               }
+          }
+          // Insert closing silhouette meta
+          if (index+1 == csiParts.size()){
               if (SilhouetteMetaAdded){
-                 configuredCsiParts.append(QString("0 !SILHOUETTE").arg(Preferences::highlightStepLineWidth));
+                 configuredCsiParts.append(QString("0 !SILHOUETTE"));
               }
           }
         }

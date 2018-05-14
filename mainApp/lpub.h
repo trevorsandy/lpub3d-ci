@@ -537,6 +537,12 @@ public:
       return ldrawFile;
   }
 
+  void updateViewerStep(const QString     &fileName,
+                  const QStringList &contents)
+  {
+      ldrawFile.updateViewerStep(fileName, contents);
+  }
+
   void insertViewerStep(const QString     &fileName,
                         const QStringList &contents,
                         const QString     &filePath,
@@ -545,12 +551,6 @@ public:
   {
       ldrawFile.insertViewerStep(fileName,  contents, filePath,
                                  multiStep, calledOut);
-  }
-
-  void updateStep(const QString     &fileName,
-                  const QStringList &contents)
-  {
-      ldrawFile.updateStep(fileName, contents);
   }
 
   QStringList getViewerStepContents(const QString &fileName)
@@ -573,8 +573,13 @@ public:
       return ldrawFile.isViewerStepCalledOut(fileName);
   }
 
-  void clearSteps(){
-      ldrawFile.clearSteps();
+  bool viewerStepExist(const QString &fileName)
+  {
+      return ldrawFile.viewerStepExist(fileName);
+  }
+
+  void clearViewerSteps(){
+      ldrawFile.clearViewerSteps();
   }
 
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
@@ -592,8 +597,6 @@ public:
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &time);
-
-
 
   int             maxPages;
   

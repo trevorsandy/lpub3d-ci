@@ -194,13 +194,14 @@ class LDrawFile {
                           const QString     &filePath,
                           bool               multiStep,
                           bool               calledOut);
-    void updateStep(const QString     &fileName,
-                    const QStringList &contents);
+    void updateViewerStep(const QString     &fileName,
+                          const QStringList &contents);
     QStringList getViewerStepContents(const QString &fileName);
     QString     getViewerStepFilePath(const QString &fileName);
     bool        isViewerStepMultiStep(const QString &fileName);
     bool        isViewerStepCalledOut(const QString &fileName);
-    void        clearSteps();
+    bool        viewerStepExist(      const QString &fileName);
+    void        clearViewerSteps();
 };
 
 int split(const QString &line, QStringList &argv);

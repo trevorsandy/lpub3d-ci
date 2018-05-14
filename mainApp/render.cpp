@@ -287,7 +287,7 @@ int POVRay::renderCsi(
   int rc;
   ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
-  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName, QString())) < 0) {
       return rc;
     }
 
@@ -657,7 +657,7 @@ int LDGLite::renderCsi(
   ldrName = "csi.ldr";
   ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
   ldrFile = ldrPath + "/" + ldrName;
-  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile)) < 0) {
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile,QString())) < 0) {
      return rc;
   }
 
@@ -673,18 +673,12 @@ int LDGLite::renderCsi(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
 
-  // int lineThickness = resolution()/150+0.5;
-  int hlwidth;
-  if (Preferences::enableHighlightStep)
-    hlwidth = Preferences::highlightStepLineWidth/2;
-  else
-    hlwidth = 0.5;
-  int lineThickness = resolution()/150.0+hlwidth;
+  int lineThickness = resolution()/150+0.5;
   if (lineThickness == 0) {
     lineThickness = 1;
   }
-                                    // ldglite always deals in 72 DPI
-  QString w  = QString("-W%1")      .arg(lineThickness);
+
+  QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
   //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
   QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
@@ -715,14 +709,12 @@ int LDGLite::renderCsi(
       }
   }
 
-  // if fade step, add custom colour file
-  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
-    arguments << "-ldcF" + ldrPath + "/colours_" + ldrName;
-    logDebug() << qPrintable("-ldcF" + ldrPath + "/colours_" + ldrName);
-  } else if (!Preferences::altLDConfigPath.isEmpty()) {
+  // add custom colour file if exist
+  if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
+
   arguments << mf;                  // .png file name
   arguments << ldrFile;             // csi.ldr (input file)
 
@@ -784,12 +776,7 @@ int LDGLite::renderPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  int hlwidth;
-  if (Preferences::enableHighlightStep)
-    hlwidth = Preferences::highlightStepLineWidth/2;
-  else
-    hlwidth = 0.5;
-  int lineThickness = resolution()/72.0+hlwidth;
+  int lineThickness = resolution()/72.0+0.5;
 
   /* determine camera distance */
 
@@ -805,8 +792,8 @@ int LDGLite::renderPli(
                                     .arg(height);
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
-                                    // ldglite always deals in 72 DPI
-  QString w  = QString("-W%1")      .arg(int(resolution()/lineThickness));
+
+  QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
   QStringList arguments;
   arguments << CA;                  // camera FOV angle in degrees
@@ -832,10 +819,12 @@ int LDGLite::renderPli(
       }
   }
 
+  // add custom colour file if exist
   if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "=" + Preferences::altLDConfigPath;
+    arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
+
   arguments << mf;
   arguments << ldrNames.first();
 
@@ -922,15 +911,13 @@ int LDView::renderCsi(
 {
   /* determine camera distance */
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+
+  /* page size */
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  /* edge thickness if highlight step is on */
-  int edgeThickness;
-  if (Preferences::enableHighlightStep)
-    edgeThickness = Preferences::highlightStepLineWidth;
-  else
-    edgeThickness = 1;
+  /* edge thickness */
+  int edgeThickness = 1;
 
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
@@ -957,7 +944,7 @@ int LDView::renderCsi(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
       int rc;
      ldrNames << QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-      if ((rc = rotateParts(addLine, meta.rotStep,csiParts,ldrNames.first())) < 0) {
+      if ((rc = rotateParts(addLine, meta.rotStep,csiParts,ldrNames.first(),QString())) < 0) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
           return rc;
       }
@@ -1114,15 +1101,13 @@ int LDView::renderPli(
 
   /* determine camera distance */
   int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
+
+  /* page size */
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  /* edge thickness if highlight step is on */
-  int edgeThickness;
-  if (Preferences::enableHighlightStep)
-    edgeThickness = Preferences::highlightStepLineWidth;
-  else
-    edgeThickness = 1;
+  /* edge thickness */
+  int edgeThickness = 1;
 
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
@@ -1275,24 +1260,19 @@ int Native::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
+  Q_UNUSED(addLine);
+  Q_UNUSED(csiParts);
   Q_UNUSED(csiKeys);
 
-  // Line Width
-  int hlwidth;
-  if (Preferences::enableHighlightStep)
-    hlwidth = Preferences::highlightStepLineWidth/2;
-  else
-    hlwidth = 0.5;
-  int lineThickness = resolution()/72.0+hlwidth;
-  Q_UNUSED(lineThickness);
-
   // Prepare csiParts
-  int rc = 0;
+//  int rc = 0;
+//  QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+//  if ((rc = rotateParts(addLine,meta.rotStep,csiParts,ldrName)) < 0) {
+//      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI rotate parts failed!"));
+//      return rc;
+//  }
+
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-  if ((rc = rotateParts(addLine,meta.rotStep,csiParts,ldrName)) < 0) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI rotate parts failed!"));
-      return rc;
-  }
 
   // Renderer options
   NativeOptions Options;
@@ -1323,6 +1303,8 @@ int Native::renderCsi(
 
   // Image
   Model->CreateNativeCsiImage(Options);
+
+  delete CsiImageProject;
 
   return 0;
 }
@@ -1362,6 +1344,8 @@ int Native::renderPli(
   // Image
   PliImageProject->CreateNativePliImage(Options);
 
+  delete PliImageProject;
+
   return 0;
 }
 
@@ -1381,6 +1365,25 @@ bool Render::LoadViewer(const ViewerOptions &Options){
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI content for %1.").arg(FileName));
             return false;
     }
+
+#ifdef QT_DEBUG_MODE
+    QFileInfo outFileInfo(FileName);
+    QString outfileName = QString("%1/%2_%3.ldr")
+        .arg(outFileInfo.absolutePath())
+        .arg(outFileInfo.baseName().replace(".ldr",""))
+        .arg(QString(Options.ViewerCsiName).replace(";","_"));
+    QFile file(outfileName);
+    if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open viewer file %1 for writing: %2")
+                           .arg(outfileName) .arg(file.errorString()));
+    }
+    QTextStream out(&file);
+    for (int i = 0; i < CsiContent.size(); i++) {
+      QString line = CsiContent[i];
+      out << line << endl;
+    }
+    file.close();
+#endif
 
     Project* StepProject = new Project();
 
@@ -1457,21 +1460,22 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     StepProject->mModified = false;
 
+    // attempt to set proper projection
     gApplication->SetProject(StepProject);
+    gMainWindow->UpdateAllViews();
 
     View* ActiveView = gMainWindow->GetActiveView();
 
     ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
 
-    ActiveView->SetProjection(Options.Orthographic);
+// TODO - Sort this out
+//    ActiveView->SetProjection(Options.Orthographic);
 
-    lcModel* Model = ActiveView->mModel;
+//    lcModel* Model = ActiveView->mModel;
 
-    lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+//    lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
 
-    Model->Zoom(Camera,Options.CameraDistance);
-
-    gMainWindow->UpdateAllViews();
+//    Model->Zoom(Camera,Options.CameraDistance);
 
     return true;
 }

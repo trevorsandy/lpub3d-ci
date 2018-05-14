@@ -124,7 +124,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   boxGrid->addWidget(label,1,1);
 
   label = new QLabel();
-  label->setText("[For future use]");
+  label->setText("Set from Preferences dialog");
   label->setDisabled(true);
   boxGrid->addWidget(label,1,2);
 

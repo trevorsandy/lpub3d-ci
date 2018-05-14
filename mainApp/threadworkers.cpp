@@ -379,8 +379,6 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   QStringList contents;
   QStringList colourPartList;
   int existingCustomParts = 0;
-  bool FadeMetaAdded = false;
-  bool SilhouetteMetaAdded = false;
 
   emit progressBarInitSig();
   emit progressMessageSig("Parse Model File");
@@ -395,7 +393,6 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       contents = ldrawFile.contents(subfileNameStr);
       emit progressSetValueSig(i);
       logInfo() << "00 PROCESSING SUBFILE:" << subfileNameStr;
-
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
           QString line = contents[i];
           QStringList tokens;
@@ -793,13 +790,13 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                 split(line,tokens);
                 if (tokens.size() == 15 && tokens[0] == "1") {
                     // Insert opening fade meta
-                    if (Preferences::enableFadeSteps && !FadeMetaAdded){
-                       customPartContent.prepend(QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+                    if (!FadeMetaAdded && Preferences::enableFadeSteps && partType == FADE_PART){
+                       customPartContent.insert(i,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                        FadeMetaAdded = true;
                     }
                     // Insert opening silhouette meta
-                    if (Preferences::enableHighlightStep && !SilhouetteMetaAdded){
-                       customPartContent.prepend(QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+                    if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
+                       customPartContent.insert(i,QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
                        SilhouetteMetaAdded = true;
                     }
                     fileNameStr = tokens[tokens.size()-1].toLower();
@@ -821,7 +818,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
                     //QString oldColour(tokens[1]);          //logging only: show colour lines
                     // generate costom colour entry - if fadeStepsUseColour, set colour to material colour (16), without prefix
-                    QString colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
+                    QString colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];            
                     // add colour line to local list
                     if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
                         customPartColourList << gui->createColourEntry(colourCode,partType);
@@ -832,13 +829,13 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                 line = tokens.join(" ");
                 customPartContent << line;
 
-                // Insert closing fade and siilhouette metas
+                // Insert closing fade and silhouette metas
                 if (i+1 == cp.value()._contents.size()){
                     if (FadeMetaAdded){
-                       customPartContent.append(QString("0 !FADE").arg(Preferences::fadeStepsOpacity));
+                       customPartContent.append(QString("0 !FADE"));
                     }
                     if (SilhouetteMetaAdded){
-                       customPartContent.append(QString("0 !SILHOUETTE").arg(Preferences::highlightStepLineWidth));
+                       customPartContent.append(QString("0 !SILHOUETTE"));
                     }
                 }
             }
@@ -849,6 +846,23 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
             for (int i = 0; i < customPartColourList.size(); ++i)
               customPartContent.prepend(customPartColourList.at(i));
             customPartContent.prepend("0 // LPub3D part custom colours");
+
+//            // add the costom part colour list to the header of the costom part contents
+//            int insertionPoint = 0;
+//            // scan past header...
+//            for (int i = 0; i < customPartContent.size(); ++i) {
+//                if (!isHeader(customPartColourList[i]) && !QString(customPartColourList[i]).isEmpty()) {
+//                    insertionPoint = ++i;
+//                    break;
+//                }
+//            }
+//            // insert colour entries after header
+//            customPartContent.insert(insertionPoint,"0 // LPub3D part custom colours");
+//            for (int i = 0; i < customPartColourList.size(); ++i) {
+//                insertionPoint++;
+//                customPartContent.insert(insertionPoint,customPartColourList.at(i));
+//            }
+//            customPartContent.insert(++insertionPoint,"0");
 
             //logTrace() << "04 SAVE CUSTGOM COLOUR PART: " << customPartFile;
             if(saveCustomFile(customPartFile, customPartContent))
