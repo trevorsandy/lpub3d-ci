@@ -629,12 +629,37 @@ void lcApplication::ShowPreferencesDialog()
     Options.MouseShortcutsModified = false;
     Options.MouseShortcutsDefault = false;
 
+/*** LPub3D Mod - preference refresh ***/
+    if (Preferences::preferredRenderer == RENDERER_NATIVE)
+    {
+      Options.Preferences.mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+      Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+      Options.Preferences.mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+    }
+/*** LPub3D Mod end ***/
+
     lcQPreferencesDialog Dialog(gMainWindow, &Options);
     if (Dialog.exec() != QDialog::Accepted)
         return;
 
     bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
     bool AAChanged = CurrentAASamples != Options.AASamples;
+
+/*** LPub3D Mod - preference refresh ***/
+    if (Preferences::preferredRenderer == RENDERER_NATIVE)
+    {
+      bool shadingModeChanged = Options.Preferences.mShadingMode != lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+      bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+      bool lineWidthChanged = Options.Preferences.mLineWidth != lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+      if (AAChanged || shadingModeChanged || drawEdgeLinesChanged || lineWidthChanged)
+      {
+          bool silent = true;
+          clearCustomPartCache(silent);
+          clearAndRedrawPage();
+      }
+
+    }
+/*** LPub3D Mod end ***/
 
     mPreferences = Options.Preferences;
 

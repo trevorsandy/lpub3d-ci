@@ -520,5 +520,15 @@ int Application::run()
   return ExecReturn;
 }
 
+void clearCustomPartCache(bool silent)
+{
+  gui->clearCustomPartCache(silent);
+}
+
+void clearAndRedrawPage()
+{
+  gui->clearAndRedrawPage();
+}
+
 // Implements the main function here.
 ENTRY_POINT

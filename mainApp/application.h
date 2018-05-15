@@ -150,4 +150,7 @@ private:
         } \
         return app->run(); \
     }
+
+void clearCustomPartCache(bool silent = false);
+void clearAndRedrawPage();
 #endif // APPLICATION_H

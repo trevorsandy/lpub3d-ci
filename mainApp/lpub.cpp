@@ -102,12 +102,6 @@ void clearCsi3dCache()
 {
     gui->clearTempCache();
 }
-
-void clearAndRedrawPage()
-{
-    gui->clearAndRedrawPage();
-}
-
 /****************************************************************************
  * 
  * The Gui constructor and destructor are at the bottom of the file with
@@ -1077,7 +1071,6 @@ void Gui::clearAllCaches()
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
        ldrawFile.clearPrevStepPositions();
-
     }
 
      clearPLICache();
@@ -1100,7 +1093,7 @@ void Gui::clearCustomPartCache(bool silent)
   QString message = QString("All existing custom part files will be deleted and regenerated.\n"
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
-  if (silent) {
+  if (silent || !Preferences::modeGUI) {
       emit messageSig(LOG_STATUS,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
@@ -1108,30 +1101,26 @@ void Gui::clearCustomPartCache(bool silent)
                                  QMessageBox::Yes | QMessageBox::Discard | QMessageBox::Cancel);
   }
 
-  if (ret == QMessageBox::Yes || silent) {
-
-      QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
-
-      int count = 0;
-      if (removeDir(count, dirName)){
-          emit messageSig(LOG_STATUS,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
-                               .arg(count)
-                               .arg(count == 1 ? "item": "items"));
-      } else {
-          emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
-        return;
-      }
-
-      // regenerate custom parts
-      if (! getCurFile().isEmpty()) {
-        bool overwriteCustomParts = true;
-        processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
-        processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
-      }
-
-    } else if (ret == QMessageBox::Cancel) {
+  if (ret == QMessageBox::Cancel)
       return;
-    }
+
+  QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
+
+  int count = 0;
+  if (removeDir(count, dirName)){
+      emit messageSig(LOG_STATUS,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
+                           .arg(count)
+                           .arg(count == 1 ? "item": "items"));
+  } else {
+      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
+      return;
+  }
+
+  // regenerate custom parts
+  bool overwriteCustomParts = true;
+  processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
+  processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
+
 }
 
 void Gui::clearPLICache()
@@ -1615,7 +1604,7 @@ void Gui::preferences()
             Preferences::enableFadeSteps && !enableFadeStepsChanged) ||
            ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
             Preferences::enableHighlightStep && !enableHighlightStepChanged))
-           clearCustomPartCache(true);    // true = clear and regenerate custom part files
+           clearCustomPartCache(true);    // true = silent
 
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed from %1 to %2")
