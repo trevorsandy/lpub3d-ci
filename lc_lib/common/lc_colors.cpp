@@ -472,7 +472,10 @@ bool lcLoadColorEntry(const char* ColorEntry)
 			int Value = atoi(Token);
 			Color.Value[3] = (float)(Value & 0xff) / 255.0f;
 			if (Value != 255)
+			{
 				Color.Translucent = true;
+				Color.Edge[3] = (float)(Value & 0xff) / 255.0f;
+			}
 		}
 	}
 
@@ -506,6 +509,8 @@ bool lcLoadColorEntry(const char* ColorEntry)
 	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.Add(Colors.GetSize() - 1);
 
 	gNumUserColors = Colors.GetSize();
+
+	gEdgeColor = Colors.GetSize();
 
 //        qDebug() << qPrintable(QString("DEBUG Colours New Size %1, Old Size %2.")
 //                               .arg(Colors.GetSize()).arg(gNumColorBeforeAdd));
