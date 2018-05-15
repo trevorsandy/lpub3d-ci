@@ -1318,6 +1318,7 @@ LDrawFile::LDrawFile()
   {
     LDrawHeaderRegExp
         << QRegExp("^\\s*0\\s+AUTHOR[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+BFC[^\n]*",Qt::CaseInsensitive)
         << QRegExp("^\\s*0\\s+!CATEGORY[^\n]*",Qt::CaseInsensitive)
         << QRegExp("^\\s*0\\s+!CMDLINE[^\n]*",Qt::CaseInsensitive)
         << QRegExp("^\\s*0\\s+!COLOUR[^\n]*",Qt::CaseInsensitive)
@@ -1334,7 +1335,6 @@ LDrawFile::LDrawFile()
         << QRegExp("^\\s*0\\s+ORIGINAL LDRAW[^\n]*",Qt::CaseInsensitive)
         << QRegExp("^\\s*0\\s+~MOVED TO[^\n]*",Qt::CaseInsensitive)
         << QRegExp("^\\s*0\\s+ROTATION[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+BFC[^\n]*",Qt::CaseInsensitive)
            ;
   }
 
@@ -1369,6 +1369,7 @@ LDrawFile::LDrawFile()
 bool isHeader(QString &line)
 {
   int size = LDrawHeaderRegExp.size();
+
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawHeaderRegExp[i])) {
       return true;
@@ -1387,4 +1388,3 @@ bool isUnofficialFileType(QString &line)
   }
   return false;
 }
-

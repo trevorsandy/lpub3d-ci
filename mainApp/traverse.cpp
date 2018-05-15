@@ -2566,7 +2566,9 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
               }
               // Insert opening silhouette meta
               if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
-                 configuredContents.insert(index,QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+                 configuredContents.insert(index,QString("0 !SILHOUETTE %1 %2")
+                                                         .arg(Preferences::highlightStepLineWidth)
+                                                         .arg(Preferences::highlightStepColour));
                  SilhouetteMetaAdded = true;
               }
               if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
@@ -2727,7 +2729,9 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
               if (type_1_5_line) {
                   // Insert opening silhouette meta
                   if (!SilhouetteMetaAdded && Preferences::enableHighlightStep){
-                     configuredCsiParts.append(QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+                     configuredCsiParts.append(QString("0 !SILHOUETTE %1 %2")
+                                                       .arg(Preferences::highlightStepLineWidth)
+                                                       .arg(Preferences::highlightStepColour));
                      SilhouetteMetaAdded = true;
                   }
                   if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {

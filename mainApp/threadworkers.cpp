@@ -796,7 +796,9 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     }
                     // Insert opening silhouette meta
                     if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
-                       customPartContent.insert(i,QString("0 !SILHOUETTE %1").arg(Preferences::highlightStepLineWidth));
+                       customPartContent.insert(i,QString("0 !SILHOUETTE %1 %2")
+                                                          .arg(Preferences::highlightStepLineWidth)
+                                                          .arg(Preferences::highlightStepColour));
                        SilhouetteMetaAdded = true;
                     }
                     fileNameStr = tokens[tokens.size()-1].toLower();
@@ -842,6 +844,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
             // add the costom part colour list to the header of the costom part contents
             customPartColourList.toSet().toList(); // remove dupes
+
             int insertionPoint = 0; // skip the first line (title)
             QStringList words;
             // scan past header...
@@ -856,6 +859,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                       word[0]      = word[0].toUpper();
                       words[j]     = word;
                    }
+                   words << partType == FADE_PART ? "- Fade" : "- Highlight";
                    customPartContent[i] = words.join(" ");
                 }
                 else
