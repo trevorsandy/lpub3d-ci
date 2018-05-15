@@ -271,10 +271,10 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>Set the percent of fade, 0 is fully hidden, 100 is fully opaque.</string>
+         <string>Set the percent of fade, 0 is fully opaque, 100 is fully hidden.</string>
         </property>
         <property name="title">
-         <string>Fade Opacity</string>
+         <string>Fade Percent</string>
         </property>
         <property name="checkable">
          <bool>false</bool>
