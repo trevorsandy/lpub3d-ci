@@ -421,16 +421,17 @@ void Application::initialize()
 * initialize::toggleLCStatusBar                          (gui->initialize)
 */
 
-  emit splashMsgSig("20% - 3D Viewer window loading...");
 
-  gApplication = new lcApplication();
-
-  emit splashMsgSig(QString("30% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
+  emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
 
   // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
   gui->getRequireds();
+
+  emit splashMsgSig("30% - 3D Viewer window loading...");
+
+  gApplication = new lcApplication();
 
   emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 

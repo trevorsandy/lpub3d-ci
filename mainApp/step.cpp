@@ -260,8 +260,8 @@ int Step::createCsi(
       .arg(meta.rotStep.value().rots[0])
       .arg(meta.rotStep.value().rots[1])
       .arg(meta.rotStep.value().rots[2]);
-  rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1.ldr").arg(top.modelName));
-  rotatedParts.prepend(QString("0 FILE %1.ldr").arg(top.modelName));
+  rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(top.modelName));
+  rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
   rotatedParts.append("0 NOFILE");
   rotatedParts.prepend(rotsComment);
 

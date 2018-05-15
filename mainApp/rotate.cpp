@@ -178,7 +178,7 @@ int Render::rotateParts(
   out << rotsComment << endl;
 
   if (nativeRenderer)
-      out << "0 FILE " + modelName + ".ldr\n"
+      out << "0 FILE " + modelName + "\n"
              "0 !LEOCAD MODEL NAME " + modelName << endl;
 
   for (int i = 0; i < rotatedParts.size(); i++) {
