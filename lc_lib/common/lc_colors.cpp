@@ -510,8 +510,6 @@ bool lcLoadColorEntry(const char* ColorEntry)
 
 	gNumUserColors = Colors.GetSize();
 
-	gEdgeColor = Colors.GetSize();
-
 //        qDebug() << qPrintable(QString("DEBUG Colours New Size %1, Old Size %2.")
 //                               .arg(Colors.GetSize()).arg(gNumColorBeforeAdd));
 

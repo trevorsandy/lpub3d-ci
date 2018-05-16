@@ -2050,7 +2050,7 @@ FadeStepMeta::FadeStepMeta() : BranchMeta()
   fadeStep.setValue(Preferences::enableFadeSteps);                   // inherited from properties
   fadeColor.setValue(Preferences::fadeStepsColour);                  // inherited from properties
   fadeUseColor.setValue(Preferences::fadeStepsUseColour);            // inherited from properties
-  fadeOpacity.setValue(Preferences::fadeStepsOpacity);        // inherited from properties
+  fadeOpacity.setValue(Preferences::fadeStepsOpacity);               // inherited from properties
 }
 
 void FadeStepMeta::init(

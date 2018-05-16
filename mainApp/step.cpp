@@ -193,7 +193,9 @@ int Step::createCsi(
         }
     }
 
+  // Define csi file paths
   QString csiFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
+  QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
 
   QString key = QString("%1_%2_%3_%4_%5_%6")
       .arg(csi_Name+orient)
@@ -225,110 +227,83 @@ int Step::createCsi(
         }
     }
 
+
+
   int rc;
 
-  // populate ldr file name
-  ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
+//  // populate ldr file name
+//  ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
 
-  // Populate the csi file paths
-  QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
+//  // Populate the csi file paths
+//  QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
 
-  // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
-  if (renderer->useLDViewSCall() || nativeRenderer) {
+//  // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
+//  if (renderer->useLDViewSCall() || nativeRenderer) {
 
-      if (nativeRenderer)
-         ldrName = csiFullFilePath;
+//      if (nativeRenderer)
+//         ldrName = csiFullFilePath;
 
-      rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName);
-      if (rc != 0) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
-                                                .arg(ldrName));
-          return rc;
-      }
-  }
+//      rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName);
+//      if (rc != 0) {
+//          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
+//                                                .arg(ldrName));
+//          return rc;
+//      }
+//  }
 
-  // Setup 3DViewer source if not using native renderer
-  //if (!Preferences::preferredRenderer == RENDERER_NATIVE) {
+  // Setup 3DViewer source
 
-  // set rotated parts
-  QStringList rotatedParts = csiParts;
-
-  // rotate parts for 3DViewer display
-  renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
-  QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
-      .arg(meta.rotStep.value().type)
-      .arg(meta.rotStep.value().rots[0])
-      .arg(meta.rotStep.value().rots[1])
-      .arg(meta.rotStep.value().rots[2]);
-  rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(top.modelName));
-  rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
-  rotatedParts.append("0 NOFILE");
-  rotatedParts.prepend(rotsComment);
-
-  // Populate the viewerCsiName
+  // Populate viewerCsiName
   viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
   if (modelDisplayOnlyStep)
       viewerCsiName = QString("%1_fm").arg(viewerCsiName);
 
-  gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
+  if ( ! gui->viewerStepContentExist(viewerCsiName) || csiOutOfDate ) {
 
- //}
+      // set rotated parts
+      QStringList rotatedParts = csiParts;
 
+      // rotate parts for 3DViewer display
+      renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
+
+      // assemble ROTSTEP command
+      QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
+          .arg(meta.rotStep.value().type)
+          .arg(meta.rotStep.value().rots[0])
+          .arg(meta.rotStep.value().rots[1])
+          .arg(meta.rotStep.value().rots[2]);
+
+      // add ROTSTEP, header and closing meta
+      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(top.modelName));
+      rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
+      rotatedParts.append("0 NOFILE");
+      rotatedParts.prepend(rotsComment);
+
+      gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
+  }
   // generate CSI file as appropriate
 
   if ( ! csiExist || csiOutOfDate ) {
 
-//     int rc;
-
      QElapsedTimer timer;
      timer.start();
 
-//     // populate ldr file name
-//     ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
+     // populate ldr file name
+     ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
 
-//     // Populate the csi file paths
-//     QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
+     // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
+     if (renderer->useLDViewSCall() || nativeRenderer) {
 
-//     // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
-//     if (renderer->useLDViewSCall() || nativeRenderer) {
+         if (nativeRenderer)
+            ldrName = csiFullFilePath;
 
-//         if (nativeRenderer)
-//            ldrName = csiFullFilePath;
-
-//         rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName);
-//         if (rc != 0) {
-//             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
-//                                                   .arg(ldrName));
-//             return rc;
-//         }
-//     }
-
-//     // Setup 3DViewer source if not using native renderer
-//     if (!Preferences::preferredRenderer == RENDERER_NATIVE) {
-
-//     // set rotated parts
-//     QStringList rotatedParts = csiParts;
-
-//     // rotate parts for 3DViewer display
-//     renderer->rotateParts(addLine,meta.rotStep,rotatedParts);
-//     QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
-//         .arg(meta.rotStep.value().type)
-//         .arg(meta.rotStep.value().rots[0])
-//         .arg(meta.rotStep.value().rots[1])
-//         .arg(meta.rotStep.value().rots[2]);
-//     rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1.ldr").arg(top.modelName));
-//     rotatedParts.prepend(QString("0 FILE %1.ldr").arg(top.modelName));
-//     rotatedParts.append("0 NOFILE");
-//     rotatedParts.prepend(rotsComment);
-
-//     // Populate the viewerCsiName
-//     viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
-//     if (modelDisplayOnlyStep)
-//       viewerCsiName = QString("%1_fm").arg(viewerCsiName);
-
-//     gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
-
-//    }
+         rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName);
+         if (rc != 0) {
+             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
+                                                   .arg(ldrName));
+             return rc;
+         }
+     }
 
      if (!renderer->useLDViewSCall()) {
 

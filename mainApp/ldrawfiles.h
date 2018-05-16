@@ -200,7 +200,7 @@ class LDrawFile {
     QString     getViewerStepFilePath(const QString &fileName);
     bool        isViewerStepMultiStep(const QString &fileName);
     bool        isViewerStepCalledOut(const QString &fileName);
-    bool        viewerStepExist(      const QString &fileName);
+    bool        viewerStepContentExist(      const QString &fileName);
     void        clearViewerSteps();
 };
 

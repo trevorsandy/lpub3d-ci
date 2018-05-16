@@ -2405,8 +2405,12 @@ void Gui::writeToTmp(const QString &fileName,
                           tokens[1] == "!COLOUR") {
                  csiParts << line;
               } else if ((tokens.size() == 2 || tokens.size() == 3) &&
+                         tokens[0] == "0"    &&
+                        (tokens[1] == "!FADE")) {
+                csiParts << line;
+             } else if ((tokens.size() == 2 || tokens.size() == 4) &&
                           tokens[0] == "0"    &&
-                         (tokens[1] == "!FADE" || tokens[1] == "!SILHOUETTE")) {
+                         (tokens[1] == "!SILHOUETTE")) {
                  csiParts << line;
               } else {
                   Meta meta;
@@ -2571,7 +2575,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                                                          .arg(Preferences::highlightStepColour));
                  SilhouetteMetaAdded = true;
               }
-              if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
+              if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                  argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                   // generate fade colour entry
                   QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                   if (!colourEntryExist(subfileColourList,argv[1], partType))
@@ -2618,6 +2623,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
   // add the colour list to the header of the configuredContents
   subfileColourList.toSet().toList();  // remove dupes
+
   configuredContents.prepend("0");
   for (int i = 0; i < subfileColourList.size(); ++i)
     configuredContents.prepend(subfileColourList.at(i));
@@ -2698,7 +2704,8 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                      configuredCsiParts.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                      FadeMetaAdded = true;
                   }
-                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
+                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                      argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                       // generate fade colour entry
                       QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                       if (!colourEntryExist(stepColourList,argv[1], FADE_PART))
@@ -2734,7 +2741,8 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                                                        .arg(Preferences::highlightStepColour));
                      SilhouetteMetaAdded = true;
                   }
-                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
+                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                      argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                       // generate fade colour entry
                       QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                       if (!colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))

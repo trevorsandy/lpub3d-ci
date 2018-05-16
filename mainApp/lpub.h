@@ -573,9 +573,9 @@ public:
       return ldrawFile.isViewerStepCalledOut(fileName);
   }
 
-  bool viewerStepExist(const QString &fileName)
+  bool viewerStepContentExist(const QString &fileName)
   {
-      return ldrawFile.viewerStepExist(fileName);
+      return ldrawFile.viewerStepContentExist(fileName);
   }
 
   void clearViewerSteps(){

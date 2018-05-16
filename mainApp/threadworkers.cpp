@@ -859,7 +859,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                       word[0]      = word[0].toUpper();
                       words[j]     = word;
                    }
-                   words << partType == FADE_PART ? "- Fade" : "- Highlight";
+                   words << (partType == FADE_PART ? "- Fade" : "- Highlight");
                    customPartContent[i] = words.join(" ");
                 }
                 else

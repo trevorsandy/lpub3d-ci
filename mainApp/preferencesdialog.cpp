@@ -132,7 +132,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.highlightStepLineWidthSpin->setEnabled(false);
   ui.highlightStepLineWidthSpin->setValue(       Preferences::highlightStepLineWidth);
 
-  QColor highlightColour = QColor(Preferences::highlightStepColour);
+  QColor highlightColour = QColor(               Preferences::highlightStepColour);
   if(highlightColour.isValid() ) {
     ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
     ui.highlightStepColorLabel->setAutoFillBackground(true);

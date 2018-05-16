@@ -1119,7 +1119,7 @@ void LDrawFile::updateViewerStep(const QString &fileName, const QStringList &con
 
 /* Viewer Step Exist */
 
-bool LDrawFile::viewerStepExist(const QString &fileName)
+bool LDrawFile::viewerStepContentExist(const QString &fileName)
 {
   QString    mfileName = fileName.toLower();
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);

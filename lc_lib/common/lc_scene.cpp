@@ -300,7 +300,7 @@ void lcScene::Draw(lcContext* Context) const
 					     UntexturedLinePrimitives |= LC_MESH_CONDITIONAL_LINES;
 
 					  Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
-					  DrawRenderMeshes(Context, UntexturedLinePrimitives, false, false, false);
+					  DrawRenderMeshes(Context, UntexturedLinePrimitives, false, true, false);
 				  }
 
 				  glDepthMask(GL_TRUE);
@@ -348,7 +348,10 @@ void lcScene::Draw(lcContext* Context) const
 					  DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
 
 					  if (DrawLines)
-						  DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);
+					  {
+						  DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, true, false);    // translucent
+						  DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);   // opaque
+					  }
 
 					  glDepthMask(GL_TRUE);
 					  glDisable(GL_BLEND);
@@ -414,7 +417,7 @@ void lcScene::Draw(lcContext* Context) const
 				 // 05 of 07 - Draw translucent mesh triangles normally
 				 DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
 
-				 // 06 of 07 - Draw translucent mesh lines
+				 // 06 of 07 - Draw mesh lines
 				 if (DrawLines)
 				 {
 					  int LinePrimitives = LC_MESH_LINES;
@@ -423,7 +426,11 @@ void lcScene::Draw(lcContext* Context) const
 						  LinePrimitives |= LC_MESH_CONDITIONAL_LINES;
 
 					  Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+					  // Draw translucent mesh lines
+					  DrawRenderMeshes(Context, LinePrimitives, false, true, false);
+					  // Draw opaque mesh lines
 					  DrawRenderMeshes(Context, LinePrimitives, false, false, false);
+
 				 }
 
 				 // 07 of 07 - Wrap up, Disable Blend and BFC
@@ -476,7 +483,8 @@ void lcScene::Draw(lcContext* Context) const
 					 if (DrawLines)
 					 {
 						 Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-						 DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true);
+						 DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, true, true);  // translucent
+						 DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true); // opaque
 					 }
 
 					 glDepthMask(GL_TRUE);
