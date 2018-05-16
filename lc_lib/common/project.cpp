@@ -1750,12 +1750,12 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
 
         float AspectRatio = (float)ImageWidth / (float)ImageHeight;
 
-        float OrthoHeight = 200.0f;
+        float OrthoHeight = Options.CameraDistance; // default = 375.0f
         float OrthoWidth = OrthoHeight * AspectRatio;
 
         lcMatrix44 ProjectionMatrix = lcMatrix44Ortho(-OrthoWidth, OrthoWidth, -OrthoHeight, OrthoHeight, 1.0f, 50000.0f);
 
-        lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(-100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
+        lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
 
         Context->SetViewport(0, 0, ImageWidth, ImageHeight);
         Context->SetDefaultState();

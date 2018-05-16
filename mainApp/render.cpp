@@ -242,6 +242,15 @@ float stdCameraDistance(Meta &meta, float scale) {
 	onexone *= scale;
 	factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
 
+	logDebug() << qPrintable(QString("LduDistance                      : %1").arg(LduDistance));
+	logDebug() << qPrintable(QString("Page Size (width in pixels)      : %1").arg(gui->pageSize(meta.LPub.page, 0)));
+	logDebug() << qPrintable(QString("Resolution Ldu                   : %1").arg(QString::number(meta.LPub.resolution.ldu(), 'f' ,10)));
+	logDebug() << qPrintable(QString("Resolution pixel                 : %1").arg(meta.LPub.resolution.value()));
+	logDebug() << qPrintable(QString("Scale                            : %1").arg(scale));
+	logDebug() << qPrintable(QString("1x1 [20*res.ldu*res.pix*scale]   : %1").arg(QString::number(onexone, 'f' ,10)));
+	logDebug() << qPrintable(QString("Factor [Page size/OnexOne]       : %1").arg(QString::number(factor, 'f' ,10)));
+	logDebug() << qPrintable(QString("Cam Distance [Factor*LduDistance]: %1").arg(QString::number(factor*LduDistance, 'f' ,10)));
+
 	return factor*LduDistance;
 }
 
@@ -1283,7 +1292,10 @@ int Native::renderCsi(
   Options.Latitude          = meta.LPub.assem.angle.value(0);
   Options.Longitude         = meta.LPub.assem.angle.value(1);
   Options.HighlightNewParts = Preferences::enableHighlightStep;;
-  // Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());;
+  Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/11659;
+
+  float foo = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+  Q_UNUSED(foo);
 
   // Set and load new project
   Project* CsiImageProject = new Project();
@@ -1330,7 +1342,7 @@ int Native::renderPli(
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = metaType.angle.value(0);
   Options.Longitude         = metaType.angle.value(1);
-  //Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
+  Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value())/8084; //7578; //8667;
 
   // Set and load new project
   Project* PliImageProject = new Project();
