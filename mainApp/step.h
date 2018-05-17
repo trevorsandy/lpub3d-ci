@@ -110,6 +110,15 @@ class Step : public AbstractRangeElement
 // TODO - REMOVE
 //    int Load3DCsi(QString &viewerCsiName);
 
+    int viewerCSI(QStringList &csiParts,
+                  bool doFadeStep,
+                  bool doHighlightStep);
+
+    int viewerCSISubModels(QStringList &subModels,
+                           QStringList &subModelParts,
+                           bool doFadeStep,
+                           bool doHighlightStep);
+
     int  sizeit(int  rows[],
                 int  cols[],
                 int  rowsMargin[][2],
