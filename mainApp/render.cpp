@@ -1342,7 +1342,7 @@ int Native::renderPli(
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = metaType.angle.value(0);
   Options.Longitude         = metaType.angle.value(1);
-  Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value())/8084; //7578; //8667;
+  Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value())/8084; //8084 /3789
 
   // Set and load new project
   Project* PliImageProject = new Project();
@@ -1478,16 +1478,9 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     View* ActiveView = gMainWindow->GetActiveView();
 
-    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+    ActiveView->SetProjection(Options.Orthographic);
 
-// TODO - Sort this out
-//    ActiveView->SetProjection(Options.Orthographic);
-
-//    lcModel* Model = ActiveView->mModel;
-
-//    lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-
-//    Model->Zoom(Camera,Options.CameraDistance);
+//    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
 
     return true;
 }

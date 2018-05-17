@@ -1441,7 +1441,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         const int ImageWidth = Options.ImageWidth;
         const int ImageHeight = Options.ImageHeight;
 
-        Camera->SetAngles(Options.Latitude,Options.Longitude);
+        //Camera->SetAngles(Options.Latitude,Options.Longitude);
 
         Camera->SetOrtho(Options.Orthographic);
 
@@ -1464,18 +1464,18 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
 
         struct NativeImage
         {
-                QImage RendererImage;
+                QImage RenderedImage;
                 QRect Bounds;
         };
 
         NativeImage Image;
-        Image.RendererImage = View.GetRenderImage();
+        Image.RenderedImage = View.GetRenderImage();
 
         auto CalculateImageBounds = [](NativeImage& Image)
         {
-                QImage& RendererImage = Image.RendererImage;
-                int Width = RendererImage.width();
-                int Height = RendererImage.height();
+                QImage& RenderedImage = Image.RenderedImage;
+                int Width = RenderedImage.width();
+                int Height = RenderedImage.height();
 
                 int MinX = Width;
                 int MinY = Height;
@@ -1486,7 +1486,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
                 {
                         for (int y = 0; y < Height; y++)
                         {
-                                if (qAlpha(RendererImage.pixel(x, y)))
+                                if (qAlpha(RenderedImage.pixel(x, y)))
                                 {
                                         MinX = qMin(x, MinX);
                                         MinY = qMin(y, MinY);
@@ -1506,7 +1506,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         if (Writer.format().isEmpty())
                 Writer.setFormat("PNG");
 
-        if (!Writer.write(QImage(Image.RendererImage.copy(Image.Bounds))))
+        if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
         {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native CSI image file '%1': %2.")
                                      .arg(Options.ImageFileName, Writer.errorString()));

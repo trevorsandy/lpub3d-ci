@@ -1714,7 +1714,7 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
 
         struct NativeImage
         {
-                QImage RendererImage;
+                QImage RenderedImage;
                 const PieceInfo* Info;
                 int ColorIndex;
                 QRect Bounds;
@@ -1751,11 +1751,30 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
         float AspectRatio = (float)ImageWidth / (float)ImageHeight;
 
         float OrthoHeight = Options.CameraDistance; // default = 375.0f
-        float OrthoWidth = OrthoHeight * AspectRatio;
+        float OrthoWidth  = OrthoHeight * AspectRatio;
 
         lcMatrix44 ProjectionMatrix = lcMatrix44Ortho(-OrthoWidth, OrthoWidth, -OrthoHeight, OrthoHeight, 1.0f, 50000.0f);
+        lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(100.0f, -100.0f, 55.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
 
-        lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
+//        // Distance
+//        float Distance = Options.CameraDistance;
+
+//        // Angles
+//        lcVector3 _mPosition = lcVector3(1.0f, -1.0f, 0.75f);
+//        lcVector3 _mTargetPosition = lcVector3(0.0f, 0.0f, 0.0f);
+//        lcVector3 _mUpVector = lcVector3(0.0f, 0.0f, 1.0f);
+//        _mPosition *= Distance;
+
+//	  lcMatrix33 LongitudeMatrix = lcMatrix33RotationZ(LC_DTOR * Options.Longitude);
+//	  _mPosition = lcMul(_mPosition, LongitudeMatrix);
+
+//	  lcVector3 SideVector = lcMul(lcVector3(-1, 0, 0), LongitudeMatrix);
+//	  lcMatrix33 LatitudeMatrix = lcMatrix33FromAxisAngle(SideVector, LC_DTOR * -Options.Latitude);
+//	  _mPosition = lcMul(_mPosition, LatitudeMatrix);
+//	  _mUpVector = lcMul(_mUpVector, LatitudeMatrix);
+
+//	  lcMatrix44 ProjectionMatrix = lcMatrix44Perspective(30.0f, AspectRatio, 1.0f, 50000.0f);
+//	  lcMatrix44 ViewMatrix = lcMatrix44LookAt(_mPosition, _mTargetPosition, _mUpVector);
 
         Context->SetViewport(0, 0, ImageWidth, ImageHeight);
         Context->SetDefaultState();
@@ -1777,7 +1796,7 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
 
         Scene.Draw(Context);
 
-        Image.RendererImage = Context->GetRenderFramebufferImage(RenderFramebuffer);
+        Image.RenderedImage = Context->GetRenderFramebufferImage(RenderFramebuffer);
 
         Context->ClearFramebuffer();
         Context->DestroyRenderFramebuffer(RenderFramebuffer);
@@ -1785,9 +1804,9 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
 
         auto CalculateImageBounds = [](NativeImage& Image)
         {
-                QImage& RendererImage = Image.RendererImage;
-                int Width = RendererImage.width();
-                int Height = RendererImage.height();
+                QImage& RenderedImage = Image.RenderedImage;
+                int Width = RenderedImage.width();
+                int Height = RenderedImage.height();
 
                 int MinX = Width;
                 int MinY = Height;
@@ -1798,7 +1817,7 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
                 {
                         for (int y = 0; y < Height; y++)
                         {
-                                if (qAlpha(RendererImage.pixel(x, y)))
+                                if (qAlpha(RenderedImage.pixel(x, y)))
                                 {
                                         MinX = qMin(x, MinX);
                                         MinY = qMin(y, MinY);
@@ -1816,9 +1835,9 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
         QImageWriter Writer(Options.ImageFileName);
 
         if (Writer.format().isEmpty())
-                Writer.setFormat("png");
+                Writer.setFormat("PNG");
 
-        if (!Writer.write(QImage(Image.RendererImage.copy(Image.Bounds))))
+        if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
         {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native PLI image file '%1': %2.")
                                      .arg(Options.ImageFileName, Writer.errorString()));
