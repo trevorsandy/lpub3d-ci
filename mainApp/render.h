@@ -55,8 +55,6 @@ public:
   static QString const   getRotstepMeta(RotStepMeta &);
   bool                   useLDViewSCall(bool override = false);
   bool                   LoadViewer(const ViewerOptions &Options);
-  bool                   LoadStepProject(Project *StepProject,
-                                     QString const &CsiName);
   int                    rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
@@ -167,6 +165,7 @@ public:
     CameraDistance    = -260.0f;
   }
   QString ImageFileName;
+  QString PovFileName;
   Render::Mt ImageType;
   int ImageWidth;
   int ImageHeight;

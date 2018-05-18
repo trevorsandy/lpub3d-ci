@@ -277,11 +277,15 @@ float stdCameraDistance(Meta &meta, float scale) {
  * POVRay renderer
  *
  **************************************************************************/
+
 float POVRay::cameraDistance(
     Meta &meta,
     float scale)
 {
-  return stdCameraDistance(meta, scale)*0.455;
+  if (getRenderer() == RENDERER_LDVIEW)
+    return stdCameraDistance(meta, scale)*0.455;
+  else
+    return stdCameraDistance(meta,scale);
 }
 
 int POVRay::renderCsi(
@@ -291,17 +295,13 @@ int POVRay::renderCsi(
     const QString     &pngName,
     Meta              &meta)
 {
-  /* Create the CSI DAT file */
-  QString ldrName,message;
-  int rc;
-  ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-  QString povName = ldrName + ".pov";
-  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName, QString())) < 0) {
-      return rc;
-    }
 
-  /* determine camera distance */
-  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+  /* Create the CSI DAT file */
+  QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  QString povName = ldrName + ".pov";
+  QStringList list;
+  QString message;
+
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
@@ -309,76 +309,125 @@ int POVRay::renderCsi(
   bool hasLGEO      = Preferences::lgeoPath != "";
   bool hasPOVRayIni = Preferences::povrayIniPath != "";
   bool hasPOVRayInc = Preferences::povrayIncPath != "";
-  bool hasLDViewIni = Preferences::ldviewPOVIni != "";
 
-  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
-                                      .arg(meta.LPub.assem.angle.value(1))
-                                      .arg(cd);
+  // LDView block begin
+  if (Preferences::povGenRenderer == RENDERER_LDVIEW) {
+      int rc;
+      if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName, QString())) < 0) {
+          return rc;
+        }
 
-  QString w  = QString("-SaveWidth=%1") .arg(width);
-  QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
-  QString o  = QString("-HaveStdOut=1");
-  QString v  = QString("-vv");
+      /* determine camera distance */
+      int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
 
-  QStringList arguments;
-  arguments << CA;
-  arguments << cg;
-  arguments << w;
-  arguments << h;
-  arguments << f;
-  arguments << l;
-  arguments << o;
-  arguments << v;
+      bool hasLDViewIni = Preferences::ldviewPOVIni != "";
 
-  if (Preferences::enableFadeSteps)
-    arguments <<  QString("-SaveZMap=1");
+      //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+      QString cg = QString("-cg%1,%2,%3")
+          .arg(meta.LPub.assem.angle.value(0))
+          .arg(meta.LPub.assem.angle.value(1))
+          .arg(cd);
 
-  QStringList list;
-  list = meta.LPub.assem.ldviewParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          arguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
-      }
-  }
-  if(hasLDViewIni){
-      QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-      arguments << ini;
-  }
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-  }
+      QString w  = QString("-SaveWidth=%1") .arg(width);
+      QString h  = QString("-SaveHeight=%1") .arg(height);
+      QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+      QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+      QString o  = QString("-HaveStdOut=1");
+      QString v  = QString("-vv");
 
-  arguments << ldrName;
+      QStringList arguments;
+      arguments << CA;
+      arguments << cg;
+      arguments << w;
+      arguments << h;
+      arguments << f;
+      arguments << l;
+      arguments << o;
+      arguments << v;
 
-  emit gui->messageSig(LOG_STATUS, "POVRay render CSI...");
+      if (Preferences::enableFadeSteps)
+        arguments <<  QString("-SaveZMap=1");
 
-  QProcess    ldview;
-  ldview.setEnvironment(QProcess::systemEnvironment());
-  ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
-  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
+      list = meta.LPub.assem.ldviewParms.value().split(' ');
+      for (int i = 0; i < list.size(); i++) {
+          if (list[i] != "" && list[i] != " ") {
+              arguments << list[i];
+              //logInfo() << qPrintable("-PARM META: " + list[i]);
+            }
+        }
+      if(hasLDViewIni){
+          QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
+          arguments << ini;
+        }
+      if (!Preferences::altLDConfigPath.isEmpty()) {
+          arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+          //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+        }
 
-  message = QString("POVRay (POV Generate) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      arguments << ldrName;
+
+      emit gui->messageSig(LOG_STATUS, "POVRay render CSI...");
+
+      QProcess    ldview;
+      ldview.setEnvironment(QProcess::systemEnvironment());
+      ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
+      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
+      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
+
+      message = QString("LDView POV file generate CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
+      qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+      emit gui->messageSig(LOG_STATUS, message);
 #endif
 
-  ldview.start(Preferences::ldviewExe,arguments);
-  if ( ! ldview.waitForFinished(rendererTimeout())) {
-      if (ldview.exitCode() != 0 || 1) {
-          QByteArray status = ldview.readAll();
-          QString str;
-          str.append(status);
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
-          return -1;
+      ldview.start(Preferences::ldviewExe,arguments);
+      if ( ! ldview.waitForFinished(rendererTimeout())) {
+          if (ldview.exitCode() != 0 || 1) {
+              QByteArray status = ldview.readAll();
+              QString str;
+              str.append(status);
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generate failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+              return -1;
+            }
         }
+    }
+  else
+  // Native block begin
+  if (Preferences::povGenRenderer == RENDERER_NATIVE) {
+       // Renderer options
+       NativeOptions Options;
+       Options.ImageType         = CSI;
+       Options.PovFileName       = povName;
+       Options.ImageWidth        = width;
+       Options.ImageHeight       = height;
+       Options.Latitude          = meta.LPub.assem.angle.value(0);
+       Options.Longitude         = meta.LPub.assem.angle.value(1);
+       Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
+       Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/11659;
+
+       // Set and load new project
+       Project* PovGenCsiProject = new Project();
+
+       if (PovGenCsiProject->Load(ldrName))
+       {
+         gApplication->SetProject(PovGenCsiProject);
+         gMainWindow->UpdateAllViews();
+       }
+       else
+       {
+         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load Native POV CSI ldr file."));
+         delete PovGenCsiProject;
+         return -1;
+       }
+
+       // Generate pov file
+       if (!PovGenCsiProject->CreateNativePovFile(Options))
+       {
+         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV CSI file."));
+         delete PovGenCsiProject;
+         return -1;
+       }
     }
 
   QStringList povArguments;
@@ -387,6 +436,13 @@ int POVRay::renderCsi(
   } else {
       povArguments << QString("-d");
   }
+
+//  if (Preferences::povGenRenderer == RENDERER_NATIVE) {
+//    povArguments << QString("+Q11");
+//    povArguments << QString("+R3");
+//    povArguments << QString("+A0.1");
+//    povArguments << QString("+J0.5");
+//  }
 
   QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
@@ -476,12 +532,11 @@ int POVRay::renderPli(
     Meta    	      &meta,
     bool     	      bom)
 {
-  QString povName = ldrNames.first() +".pov";
-  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+  QString povName = ldrNames.first() +".pov";  
+  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
+  QStringList list;
   QString message;
 
-  /* determine camera distance */
-  int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
@@ -489,75 +544,117 @@ int POVRay::renderPli(
   bool hasLGEO      = Preferences::lgeoPath != "";
   bool hasPOVRayIni = Preferences::povrayIniPath != "";
   bool hasPOVRayInc = Preferences::povrayIncPath != "";
-  bool hasLDViewIni = Preferences::ldviewPOVIni != "";
 
-  //qDebug() << "LDView (Native) Camera Distance: " << cd;
+  // LDView block begin
+  if (Preferences::povGenRenderer == RENDERER_LDVIEW) {
+      /* determine camera distance */
+      int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
-  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
-                                      .arg(pliMeta.angle.value(1))
-                                      .arg(cd);
+      bool hasLDViewIni = Preferences::ldviewPOVIni != "";
 
-  QString w  = QString("-SaveWidth=%1")  .arg(width);
-  QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
-  QString o  = QString("-HaveStdOut=1");
-  QString v  = QString("-vv");
+      //qDebug() << "LDView (Native) Camera Distance: " << cd;
 
-  QStringList arguments;
-  arguments << CA;
-  arguments << cg;
-  arguments << w;
-  arguments << h;
-  arguments << f;
-  arguments << l;
-  arguments << o;
-  arguments << v;
+      QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
+          .arg(metaType.angle.value(1))
+          .arg(cd);
 
-  QStringList list;
-  list = meta.LPub.pli.ldviewParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          arguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
-      }
-  }
-  if(hasLDViewIni){
-      QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-      arguments << ini;
-  }
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-  }
+      QString w  = QString("-SaveWidth=%1")  .arg(width);
+      QString h  = QString("-SaveHeight=%1") .arg(height);
+      QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+      QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+      QString o  = QString("-HaveStdOut=1");
+      QString v  = QString("-vv");
 
-  arguments << ldrNames.first();
+      QStringList arguments;
+      arguments << CA;
+      arguments << cg;
+      arguments << w;
+      arguments << h;
+      arguments << f;
+      arguments << l;
+      arguments << o;
+      arguments << v;
 
-  emit gui->messageSig(LOG_STATUS, "POVRay render PLI...");
+      list = meta.LPub.pli.ldviewParms.value().split(' ');
+      for (int i = 0; i < list.size(); i++) {
+          if (list[i] != "" && list[i] != " ") {
+              arguments << list[i];
+              //logInfo() << qPrintable("-PARM META: " + list[i]);
+            }
+        }
+      if(hasLDViewIni){
+          QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
+          arguments << ini;
+        }
+      if (!Preferences::altLDConfigPath.isEmpty()) {
+          arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+          //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+        }
 
-  QProcess    ldview;
-  ldview.setEnvironment(QProcess::systemEnvironment());
-  ldview.setWorkingDirectory(QDir::currentPath());
-  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
+      arguments << ldrNames.first();
 
-  message = QString("POVRay (POV Generate) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      emit gui->messageSig(LOG_STATUS, "POVRay render PLI...");
+
+      QProcess    ldview;
+      ldview.setEnvironment(QProcess::systemEnvironment());
+      ldview.setWorkingDirectory(QDir::currentPath());
+      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
+      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
+
+      message = QString("POVRay (LDView POV file generate PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
+      qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+      emit gui->messageSig(LOG_STATUS, message);
 #endif
 
-  ldview.start(Preferences::ldviewExe,arguments);
-  if ( ! ldview.waitForFinished()) {
-      if (ldview.exitCode() != 0) {
-          QByteArray status = ldview.readAll();
-          QString str;
-          str.append(status);
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
-          return -1;
+      ldview.start(Preferences::ldviewExe,arguments);
+      if ( ! ldview.waitForFinished()) {
+          if (ldview.exitCode() != 0) {
+              QByteArray status = ldview.readAll();
+              QString str;
+              str.append(status);
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generate failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+              return -1;
+            }
         }
     }
+  else
+  // Native block begin
+  if (Preferences::povGenRenderer == RENDERER_NATIVE) {
+      // Renderer options
+      NativeOptions Options;
+      Options.ImageType         = PLI;
+      Options.PovFileName       = povName;
+      Options.ImageWidth        = width;
+      Options.ImageHeight       = height;
+      Options.Latitude          = metaType.angle.value(0);
+      Options.Longitude         = metaType.angle.value(1);
+      Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());//11659;//8084; //8084 /3789
+
+      // Set and load new project
+      Project* PovGenPliProject = new Project();
+
+      if (PovGenPliProject->Load(ldrNames.first()))
+      {
+        gApplication->SetProject(PovGenPliProject);
+        gMainWindow->UpdateAllViews();
+      }
+      else
+      {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native POV PLI file generate project."));
+        delete PovGenPliProject;
+        return -1;
+      }
+
+      // Generate pov file
+      if (!PovGenPliProject->CreateNativePovFile(Options))
+      {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV PLI file."));
+        delete PovGenPliProject;
+        return -1;
+      }
+  }
 
   QStringList povArguments;
   if (Preferences::povrayDisplay){
@@ -565,6 +662,13 @@ int POVRay::renderPli(
   } else {
       povArguments << QString("-d");
   }
+
+//  if (Preferences::povGenRenderer == RENDERER_NATIVE) {
+//    povArguments << QString("+Q11");
+//    povArguments << QString("+R3");
+//    povArguments << QString("+A0.1");
+//    povArguments << QString("+J0.5");
+//  }
 
   QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
@@ -789,12 +893,12 @@ int LDGLite::renderPli(
 
   /* determine camera distance */
 
-  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
 
-  int cd = cameraDistance(meta,pliMeta.modelScale.value());
+  int cd = cameraDistance(meta,metaType.modelScale.value());
 
-  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
-                                      .arg(pliMeta.angle.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
+                                      .arg(metaType.angle.value(1))
                                       .arg(cd);
 
   QString v  = QString("-v%1,%2")   .arg(width)
@@ -1106,10 +1210,10 @@ int LDView::renderPli(
     return -1;
   }
 
-  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
 
   /* determine camera distance */
-  int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
+  int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
   /* page size */
   int width  = gui->pageSize(meta.LPub.page, 0);
@@ -1143,8 +1247,8 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
-  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
-                                      .arg(pliMeta.angle.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
+                                      .arg(metaType.angle.value(1))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -1258,7 +1362,6 @@ float Native::cameraDistance(
     Meta &meta,
     float scale)
 {
-  //TODO - adjust for LeoCAD
   return stdCameraDistance(meta,scale);
 }
 
@@ -1299,11 +1402,24 @@ int Native::renderCsi(
 
   // Set and load new project
   Project* CsiImageProject = new Project();
-  if (!gMainWindow->OpenProject(ldrName))
+
+//  if (!gMainWindow->OpenProject(ldrName))
+//  {
+//      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native CSI image project."));
+//      delete CsiImageProject;
+//      return -1;
+//  }
+
+  if (CsiImageProject->Load(ldrName))
+  {
+    gApplication->SetProject(CsiImageProject);
+    gMainWindow->UpdateAllViews();
+  }
+  else
   {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native CSI image project."));
     delete CsiImageProject;
-    return 1;
+    return -1;
   }
 
   // Get the view
@@ -1315,8 +1431,6 @@ int Native::renderCsi(
 
   // Image
   Model->CreateNativeCsiImage(Options);
-
-  delete CsiImageProject;
 
   return 0;
 }
@@ -1346,155 +1460,58 @@ int Native::renderPli(
 
   // Set and load new project
   Project* PliImageProject = new Project();
-  if (!gMainWindow->OpenProject(ldrNames.first()))
+
+//  if (!gMainWindow->OpenProject(ldrNames.first()))
+//  {
+//    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native PLI image project."));
+//    delete PliImageProject;
+//    return -1;
+//  }
+
+  if (PliImageProject->Load(ldrNames.first()))
+  {
+    gApplication->SetProject(PliImageProject);
+    gMainWindow->UpdateAllViews();
+  }
+  else
   {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native PLI image project."));
     delete PliImageProject;
-    return 1;
+    return -1;
   }
 
   // Image
   PliImageProject->CreateNativePliImage(Options);
-
-  delete PliImageProject;
 
   return 0;
 }
 
 bool Render::LoadViewer(const ViewerOptions &Options){
 
+    QString viewerCsiName = Options.ViewerCsiName;
+
     Project* StepProject = new Project();
-    if (!LoadStepProject(StepProject,Options.ViewerCsiName)){
+    if (StepProject->LoadStepProject(viewerCsiName)){
+        gApplication->SetProject(StepProject);
+        gMainWindow->UpdateAllViews();
+    }
+    else
+    {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load step project for %1.")
                              .arg(Options.ViewerCsiName));
         delete StepProject;
         return false;
-      }
-    gApplication->SetProject(StepProject);
-    gMainWindow->UpdateAllViews();
+    }
 
-    QString viewerCsiName = Options.ViewerCsiName;
     gui->setViewerCsiName(viewerCsiName);
 
     View* ActiveView = gMainWindow->GetActiveView();
 
     ActiveView->SetProjection(Options.Orthographic);
 
-//    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+//--    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
 
     return true;
-}
-
-bool Render::LoadStepProject(Project *StepProject, QString const &viewerCsiName)
-{
-  QString FileName = gui->getViewerStepFilePath(viewerCsiName);
-
-  if (FileName.isEmpty())
-    {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI path for %1.").arg(FileName));
-      return false;
-    }
-
-  QStringList CsiContent = gui->getViewerStepContents(viewerCsiName);
-  if (CsiContent.isEmpty())
-    {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI content for %1.").arg(FileName));
-      return false;
-    }
-
-#ifdef QT_DEBUG_MODE
-  QFileInfo outFileInfo(FileName);
-  QString outfileName = QString("%1/%2_%3.ldr")
-      .arg(outFileInfo.absolutePath())
-      .arg(outFileInfo.baseName().replace(".ldr",""))
-      .arg(QString(viewerCsiName).replace(";","_"));
-  QFile file(outfileName);
-  if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open viewer file %1 for writing: %2")
-                           .arg(outfileName) .arg(file.errorString()));
-    }
-  QTextStream out(&file);
-  for (int i = 0; i < CsiContent.size(); i++) {
-      QString line = CsiContent[i];
-      out << line << endl;
-    }
-  file.close();
-#endif
-
-//  Project* StepProject = new Project();
-
-  StepProject->SetFileName(FileName);
-
-  QByteArray QBA;
-  foreach(QString line, CsiContent){
-      QBA.append(line);
-      QBA.append(QString("\n"));
-    }
-
-  StepProject->mModels.DeleteAll();
-
-  if (StepProject->mFileName.isEmpty())
-    {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
-      return false;
-    }
-
-  QFileInfo FileInfo(StepProject->mFileName);
-
-  QBuffer Buffer(&QBA);
-  Buffer.open(QIODevice::ReadOnly);
-
-  while (!Buffer.atEnd())
-    {
-      lcModel* Model = new lcModel(QString());
-      Model->SplitMPD(Buffer);
-
-      if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
-        {
-          StepProject->mModels.Add(Model);
-          Model->CreatePieceInfo(StepProject);
-        }
-      else
-        delete Model;
-    }
-
-  Buffer.seek(0);
-
-  for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
-    {
-      lcModel* Model = StepProject->mModels[ModelIdx];
-      Model->LoadLDraw(Buffer, StepProject);
-      Model->SetSaved();
-    }
-
-  if (StepProject->mModels.IsEmpty()) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Viewer model not set!"));
-      return false;
-    }
-
-  if (StepProject->mModels.GetSize() == 1)
-    {
-      lcModel* Model = StepProject->mModels[0];
-
-      if (Model->GetProperties().mName.isEmpty())
-        {
-          Model->SetName(FileInfo.fileName());
-          lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
-        }
-    }
-
-  lcArray<lcModel*> UpdatedModels;
-  UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
-
-  for (lcModel* Model : StepProject->mModels)
-    {
-      Model->UpdateMesh();
-      Model->UpdatePieceInfo(UpdatedModels);
-    }
-
-  StepProject->mModified = false;
-
-  return true;
 }
 
 // TODO - REMOVE

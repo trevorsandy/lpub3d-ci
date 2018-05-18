@@ -239,6 +239,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
 
+  bool nativePovGen = Preferences::povGenRenderer == RENDERER_NATIVE;
+  ui.povGenNativeRadio->setChecked(nativePovGen);
+  ui.povGenLDViewRadio->setChecked(!nativePovGen);
+
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
 
@@ -448,6 +452,14 @@ QString const PreferencesDialog::preferredRenderer()
     return ui.preferredRenderer->currentText();
   }
   return "";
+}
+
+QString const PreferencesDialog::povGenRenderer()
+{
+    if (ui.povGenLDViewRadio->isChecked())
+      return RENDERER_LDVIEW;
+    else
+      return RENDERER_NATIVE;
 }
 
 bool PreferencesDialog::povrayDisplay()

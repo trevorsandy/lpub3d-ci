@@ -89,6 +89,7 @@ QString Preferences::ldgliteSearchDirs;
 QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
+QString Preferences::povGenRenderer             = RENDERER_NATIVE;
 
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
@@ -1532,6 +1533,15 @@ void Preferences::rendererPreferences(bool updateExisting)
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
+    // povray generation renderer
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PovGenRenderer"))) {
+        QVariant cValue(RENDERER_NATIVE);
+        povGenRenderer = RENDERER_NATIVE;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovGenRenderer"),cValue);
+    } else {
+        povGenRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,"PovGenRenderer")).toString();
+    }
+
     // display povray image during rendering
     QString const povrayDisplayKey("PovRayDisplay");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
@@ -2274,6 +2284,12 @@ bool Preferences::getPreferences()
                 updateLDViewPOVIniFile(true);    //ldraw or lgeo paths changed
             }
             updatePOVRayConfFile(true);          //lgeo path changed
+        }
+
+        if (povGenRenderer != dialog->povGenRenderer())
+        {
+            povGenRenderer = dialog->povGenRenderer();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovGenRenderer"),povGenRenderer);
         }
 
         if (povrayDisplay != dialog->povrayDisplay())

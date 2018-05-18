@@ -1517,6 +1517,7 @@ void Gui::preferences()
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
+    QString povGenRendererCompare       = Preferences::povGenRenderer;
     QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
@@ -1541,6 +1542,7 @@ void Gui::preferences()
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
         bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
+        bool povGenRendererChanged         = Preferences::povGenRenderer                         != povGenRendererCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
@@ -1615,6 +1617,11 @@ void Gui::preferences()
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
 
+        if (povGenRendererChanged)
+            logInfo() << QString("POV file generation renderer changed from %1 to %2")
+                         .arg(povGenRendererCompare)
+                         .arg(Preferences::povGenRenderer);
+
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged        ||
                 fadeStepsColourChanged        ||
@@ -1626,6 +1633,7 @@ void Gui::preferences()
                 rendererChanged               ||
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
+                povGenRendererChanged         ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }

@@ -56,6 +56,7 @@ class PreferencesDialog : public QDialog
     QString const logLevelCombo();
     QString const fadeStepsColour();
     QString const highlightStepColour();
+    QString const povGenRenderer();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();
