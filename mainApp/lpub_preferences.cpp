@@ -1478,13 +1478,17 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     } else { // No Registry setting so set preferred renderer if installed...
 
-#ifdef Q_OS_MAC
-        if (!ldviewMissingLibs)
-          preferredRenderer = RENDERER_LDVIEW;
-#else
-        preferredRenderer = RENDERER_LDVIEW;
-#endif
+        preferredRenderer = RENDERER_NATIVE;
 
+// -- pervious setting default
+//#ifdef Q_OS_MAC
+//        if (!ldviewMissingLibs)
+//          preferredRenderer = RENDERER_LDVIEW;
+//#else
+//        preferredRenderer = RENDERER_LDVIEW;
+//#endif
+
+// -- old setting default
 //        if (ldgliteInstalled && povRayInstalled) {
 //            preferredRenderer = ldviewInstalled  ? RENDERER_LDVIEW : RENDERER_LDGLITE;
 //        } else if (povRayInstalled) {
