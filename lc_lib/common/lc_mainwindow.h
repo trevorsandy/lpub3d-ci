@@ -343,7 +343,12 @@ public:
 	void UpdateModified(bool Modified);
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
-
+/*** LPub3D Mod - Roate Angles ***/
+	void GetRotStepMetaAngles();
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - parse and set rotstep line on model file load ***/
+	void ParseAndSetRotStep(QTextStream& LineStream);
+/*** LPub3D Mod end ***/
 	lcVector3 GetTransformAmount();
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	int mColorIndex;
@@ -377,14 +382,15 @@ public slots:
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/
-        void RotateStepSelectedObjects(bool update = false);
+        void SetStepRotStepMeta(bool update = false);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - roate step signals ***/
 signals:
-        lcVector3 GetStepRotation();
-        void SetStepRotation(QString&, bool);
-        void ResetStepRotation();
+        lcVector3 GetRotStepMeta();
+        void SetRotStepMeta(QString&, bool);
+// TODO - REMOVE
+//        void ResetStepRotation();
 
         void SetRotStepAngleX(float);
         void SetRotStepAngleY(float);

@@ -168,12 +168,14 @@ int Step::createCsi(
     QPixmap           *pixmap,
     Meta              &meta)
 {
-  int     sn              = stepNumber.number;
+  bool    nativeRenderer  = (Preferences::preferredRenderer == RENDERER_NATIVE ||
+                            (Preferences::preferredRenderer == RENDERER_POVRAY &&
+                             Preferences::povGenRenderer == RENDERER_NATIVE));
   QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : csiName();
-  bool    nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
   qreal   modelScale      = meta.LPub.assem.modelScale.value();
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
-  bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value();
+  bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
+  int     sn              = stepNumber.number;
   bool    csiExist        = false;
   QString viewerCsiName;
 
@@ -290,7 +292,12 @@ int Step::createCsi(
      if (!renderer->useLDViewSCall()) {
 
           // render the partially assembled model
-          QStringList csiKeys = (QStringList() << csiKey);
+          QStringList csiKeys;
+          if (nativeRenderer)
+            csiKeys = (QStringList() << viewerCsiName);
+          else
+            csiKeys = (QStringList() << csiKey);
+
           if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
                                                     .arg(pngName));

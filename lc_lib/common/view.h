@@ -4,8 +4,9 @@
 #include "camera.h"
 #include "lc_scene.h"
 
+// TODO - REMOVE
 /*** LPub3D Mod - add logging ***/
-#include "QsLog.h"
+//#include "QsLog.h"
 /*** LPub3D Mod end ***/
 
 enum lcTrackButton
@@ -135,11 +136,21 @@ public:
 
 	bool BeginRenderToImage(int Width, int Height);
 	void EndRenderToImage();
+// TODO - REMOVE
+/*** LPub3D Mod - Roate Angles ***/
+//	void GetRotStepMetaAngles();
+/*** LPub3D Mod end ***/
 
 	QImage GetRenderImage() const
 	{
 		return mRenderImage;
 	}
+
+/*** LPub3D Mod - Moved from protected for roate angles ***/
+public:
+	lcTrackButton mTrackButton;
+	lcTrackTool mTrackTool;
+/*** LPub3D Mod end ***/
 
 protected:
 	static void CreateSelectMoveOverlayMesh(lcContext* Context);
@@ -152,9 +163,6 @@ protected:
 	void DrawAxes();
 	void DrawViewport();
 
-/*** LPub3D Mod - Rotate Step ***/
-	void GetRotateStepAngles();
-/*** LPub3D Mod end ***/
 	void UpdateTrackTool();
 	bool IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) const;
 	lcTool GetCurrentTool() const;
@@ -167,8 +175,7 @@ protected:
 
 	lcScene mScene;
 	lcDragState mDragState;
-	lcTrackButton mTrackButton;
-	lcTrackTool mTrackTool;
+
 	bool mTrackToolFromOverlay;
 	bool mTrackUpdated;
 	int mMouseDownX;

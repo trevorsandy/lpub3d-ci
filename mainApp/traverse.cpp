@@ -2471,7 +2471,7 @@ void Gui::writeToTmp()
 
   bool upToDate = true;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value();
+  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
 
   QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
@@ -2640,7 +2640,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
   QStringList configuredCsiParts, stepColourList;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value();
+  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
 
@@ -2827,7 +2827,7 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
 {
   // Fade Step Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
 
-  bool _doHighlight          = Preferences::enableHighlightStep && (partType == HIGHLIGHT_PART);
+  bool _doHighlight          = Preferences::enableHighlightStep && (partType == HIGHLIGHT_PART) && !suppressColourMeta();
   QString _colourPrefix      = _doHighlight ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : LPUB3D_COLOUR_FADE_PREFIX;            // highlight prefix 110, fade prefix 100
   QString _fadeColour        = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
   QString _colourCode        = _colourPrefix + (Preferences::fadeStepsUseColour ? _fadeColour : colourCode);

@@ -242,14 +242,14 @@ float stdCameraDistance(Meta &meta, float scale) {
 	onexone *= scale;
 	factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
 
-	logDebug() << qPrintable(QString("LduDistance                      : %1").arg(LduDistance));
-	logDebug() << qPrintable(QString("Page Size (width in pixels)      : %1").arg(gui->pageSize(meta.LPub.page, 0)));
-	logDebug() << qPrintable(QString("Resolution Ldu                   : %1").arg(QString::number(meta.LPub.resolution.ldu(), 'f' ,10)));
-	logDebug() << qPrintable(QString("Resolution pixel                 : %1").arg(meta.LPub.resolution.value()));
-	logDebug() << qPrintable(QString("Scale                            : %1").arg(scale));
-	logDebug() << qPrintable(QString("1x1 [20*res.ldu*res.pix*scale]   : %1").arg(QString::number(onexone, 'f' ,10)));
-	logDebug() << qPrintable(QString("Factor [Page size/OnexOne]       : %1").arg(QString::number(factor, 'f' ,10)));
-	logDebug() << qPrintable(QString("Cam Distance [Factor*LduDistance]: %1").arg(QString::number(factor*LduDistance, 'f' ,10)));
+//	logDebug() << qPrintable(QString("LduDistance                      : %1").arg(LduDistance));
+//	logDebug() << qPrintable(QString("Page Size (width in pixels)      : %1").arg(gui->pageSize(meta.LPub.page, 0)));
+//	logDebug() << qPrintable(QString("Resolution Ldu                   : %1").arg(QString::number(meta.LPub.resolution.ldu(), 'f' ,10)));
+//	logDebug() << qPrintable(QString("Resolution pixel                 : %1").arg(meta.LPub.resolution.value()));
+//	logDebug() << qPrintable(QString("Scale                            : %1").arg(scale));
+//	logDebug() << qPrintable(QString("1x1 [20*res.ldu*res.pix*scale]   : %1").arg(QString::number(onexone, 'f' ,10)));
+//	logDebug() << qPrintable(QString("Factor [Page size/OnexOne]       : %1").arg(QString::number(factor, 'f' ,10)));
+//	logDebug() << qPrintable(QString("Cam Distance [Factor*LduDistance]: %1").arg(QString::number(factor*LduDistance, 'f' ,10)));
 
 	return factor*LduDistance;
 }
@@ -1265,7 +1265,7 @@ float Native::cameraDistance(
 int Native::renderCsi(
   const QString     &addLine,
   const QStringList &csiParts,
-  const QStringList &csiKeys,
+  const QStringList &csiKeys,   // passes viewerCsiName when using Native renderer
   const QString     &pngName,
         Meta        &meta)
 {
@@ -1291,7 +1291,7 @@ int Native::renderCsi(
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = meta.LPub.assem.angle.value(0);
   Options.Longitude         = meta.LPub.assem.angle.value(1);
-  Options.HighlightNewParts = Preferences::enableHighlightStep;;
+  Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/11659;
 
   float foo = cameraDistance(meta,meta.LPub.assem.modelScale.value());
@@ -1363,118 +1363,18 @@ int Native::renderPli(
 
 bool Render::LoadViewer(const ViewerOptions &Options){
 
-    QString FileName = gui->getViewerStepFilePath(Options.ViewerCsiName);
-
-    if (FileName.isEmpty())
-    {
-             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI path for %1.").arg(FileName));
-             return false;
-    }
-
-    QStringList CsiContent = gui->getViewerStepContents(Options.ViewerCsiName);
-    if (CsiContent.isEmpty())
-    {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI content for %1.").arg(FileName));
-            return false;
-    }
-
-#ifdef QT_DEBUG_MODE
-    QFileInfo outFileInfo(FileName);
-    QString outfileName = QString("%1/%2_%3.ldr")
-        .arg(outFileInfo.absolutePath())
-        .arg(outFileInfo.baseName().replace(".ldr",""))
-        .arg(QString(Options.ViewerCsiName).replace(";","_"));
-    QFile file(outfileName);
-    if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open viewer file %1 for writing: %2")
-                           .arg(outfileName) .arg(file.errorString()));
-    }
-    QTextStream out(&file);
-    for (int i = 0; i < CsiContent.size(); i++) {
-      QString line = CsiContent[i];
-      out << line << endl;
-    }
-    file.close();
-#endif
-
     Project* StepProject = new Project();
-
-    StepProject->SetFileName(FileName);
-
-    QByteArray QBA;
-    foreach(QString line, CsiContent){
-        QBA.append(line);
-        QBA.append(QString("\n"));
-    }
-
-    StepProject->mModels.DeleteAll();
-
-    if (StepProject->mFileName.isEmpty())
-    {
-         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
-         delete StepProject;
-         return false;
-    }
-
-    QFileInfo FileInfo(StepProject->mFileName);
-
-    QBuffer Buffer(&QBA);
-    Buffer.open(QIODevice::ReadOnly);
-
-    while (!Buffer.atEnd())
-    {
-            lcModel* Model = new lcModel(QString());
-            Model->SplitMPD(Buffer);
-
-	    if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
-	    {
-		    StepProject->mModels.Add(Model);
-		    Model->CreatePieceInfo(StepProject);
-	    }
-	    else
-		    delete Model;
-    }
-
-    Buffer.seek(0);
-
-    for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
-    {
-            lcModel* Model = StepProject->mModels[ModelIdx];
-            Model->LoadLDraw(Buffer, StepProject);
-            Model->SetSaved();
-    }
-
-    if (StepProject->mModels.IsEmpty()) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Viewer model not set!"));
-            delete StepProject;
-            return false;
-     }
-
-    if (StepProject->mModels.GetSize() == 1)
-    {
-            lcModel* Model = StepProject->mModels[0];
-
-	    if (Model->GetProperties().mName.isEmpty())
-	    {
-		    Model->SetName(FileInfo.fileName());
-		    lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
-	    }
-    }
-
-    lcArray<lcModel*> UpdatedModels;
-    UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
-
-    for (lcModel* Model : StepProject->mModels)
-    {
-            Model->UpdateMesh();
-            Model->UpdatePieceInfo(UpdatedModels);
-    }
-
-    StepProject->mModified = false;
-
-    // attempt to set proper projection
+    if (!LoadStepProject(StepProject,Options.ViewerCsiName)){
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load step project for %1.")
+                             .arg(Options.ViewerCsiName));
+        delete StepProject;
+        return false;
+      }
     gApplication->SetProject(StepProject);
     gMainWindow->UpdateAllViews();
+
+    QString viewerCsiName = Options.ViewerCsiName;
+    gui->setViewerCsiName(viewerCsiName);
 
     View* ActiveView = gMainWindow->GetActiveView();
 
@@ -1483,6 +1383,118 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 //    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
 
     return true;
+}
+
+bool Render::LoadStepProject(Project *StepProject, QString const &viewerCsiName)
+{
+  QString FileName = gui->getViewerStepFilePath(viewerCsiName);
+
+  if (FileName.isEmpty())
+    {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI path for %1.").arg(FileName));
+      return false;
+    }
+
+  QStringList CsiContent = gui->getViewerStepContents(viewerCsiName);
+  if (CsiContent.isEmpty())
+    {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI content for %1.").arg(FileName));
+      return false;
+    }
+
+#ifdef QT_DEBUG_MODE
+  QFileInfo outFileInfo(FileName);
+  QString outfileName = QString("%1/%2_%3.ldr")
+      .arg(outFileInfo.absolutePath())
+      .arg(outFileInfo.baseName().replace(".ldr",""))
+      .arg(QString(viewerCsiName).replace(";","_"));
+  QFile file(outfileName);
+  if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open viewer file %1 for writing: %2")
+                           .arg(outfileName) .arg(file.errorString()));
+    }
+  QTextStream out(&file);
+  for (int i = 0; i < CsiContent.size(); i++) {
+      QString line = CsiContent[i];
+      out << line << endl;
+    }
+  file.close();
+#endif
+
+//  Project* StepProject = new Project();
+
+  StepProject->SetFileName(FileName);
+
+  QByteArray QBA;
+  foreach(QString line, CsiContent){
+      QBA.append(line);
+      QBA.append(QString("\n"));
+    }
+
+  StepProject->mModels.DeleteAll();
+
+  if (StepProject->mFileName.isEmpty())
+    {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
+      return false;
+    }
+
+  QFileInfo FileInfo(StepProject->mFileName);
+
+  QBuffer Buffer(&QBA);
+  Buffer.open(QIODevice::ReadOnly);
+
+  while (!Buffer.atEnd())
+    {
+      lcModel* Model = new lcModel(QString());
+      Model->SplitMPD(Buffer);
+
+      if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
+        {
+          StepProject->mModels.Add(Model);
+          Model->CreatePieceInfo(StepProject);
+        }
+      else
+        delete Model;
+    }
+
+  Buffer.seek(0);
+
+  for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
+    {
+      lcModel* Model = StepProject->mModels[ModelIdx];
+      Model->LoadLDraw(Buffer, StepProject);
+      Model->SetSaved();
+    }
+
+  if (StepProject->mModels.IsEmpty()) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Viewer model not set!"));
+      return false;
+    }
+
+  if (StepProject->mModels.GetSize() == 1)
+    {
+      lcModel* Model = StepProject->mModels[0];
+
+      if (Model->GetProperties().mName.isEmpty())
+        {
+          Model->SetName(FileInfo.fileName());
+          lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
+        }
+    }
+
+  lcArray<lcModel*> UpdatedModels;
+  UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
+
+  for (lcModel* Model : StepProject->mModels)
+    {
+      Model->UpdateMesh();
+      Model->UpdatePieceInfo(UpdatedModels);
+    }
+
+  StepProject->mModified = false;
+
+  return true;
 }
 
 // TODO - REMOVE

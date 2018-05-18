@@ -582,6 +582,11 @@ public:
       ldrawFile.clearViewerSteps();
   }
 
+  bool suppressColourMeta()
+  {
+    return false; //Preferences::preferredRenderer == RENDERER_NATIVE;
+  }
+
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
@@ -626,7 +631,7 @@ public slots:
 //  }
 
   void UpdateStepRotationStatus();
-  void SetStepRotation(QString &value, bool propagate = false);
+  void SetRotStepMeta(QString &value, bool propagate = false);
   void setViewerCsiName(QString &csiName)
   {
       viewerCsiName = csiName;
@@ -637,18 +642,19 @@ public slots:
       return viewerCsiName;
   }
 
-  lcVector3 GetStepRotation() const
+  lcVector3 GetRotStepMeta() const
   {
       return mStepRotation;
   }
 
-  void ResetStepRotation()
-  {
-      mRotStepAngleX = mStepRotation[0];
-      mRotStepAngleY = mStepRotation[1];
-      mRotStepAngleZ = mStepRotation[2];
-      UpdateStepRotationStatus();
-  }
+// TODO - REMOVE
+//  void ResetStepRotation()  [Deprecated]
+//  {
+//      mRotStepAngleX = mStepRotation[0];
+//      mRotStepAngleY = mStepRotation[1];
+//      mRotStepAngleZ = mStepRotation[2];
+//      UpdateStepRotationStatus();
+//  }
 
   void SetRotStepAngleX(float AngleX)
   {

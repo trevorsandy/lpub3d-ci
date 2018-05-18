@@ -807,7 +807,7 @@ void View::OnDraw()
 /*** LPub3D Mod - Rotate Step onDraw ***/
 		{
 			  DrawRotateOverlay();
-			  GetRotateStepAngles();
+			  gMainWindow->GetRotStepMetaAngles();
 		}
 /*** LPub3D Mod end ***/
 		else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton == LC_TRACKBUTTON_LEFT)
@@ -3117,39 +3117,40 @@ void View::OnMouseWheel(float Direction)
 	mModel->Zoom(mCamera, (int)(((mInputState.Modifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
 }
 
+// TODO - REMOVE
 /*** LPub3D Mod - Rotate Step get rotate step angles ***/
-void View::GetRotateStepAngles()
-{
-  lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
+//void View::GetRotStepMetaAngles()
+//{
+//  lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 
-  if (mTrackButton != LC_TRACKBUTTON_NONE)
-    {
-      float Angle;
-      lcVector3 ExistingRotStep = gMainWindow->GetStepRotation();
+//  if (mTrackButton != LC_TRACKBUTTON_NONE)
+//    {
+//      float Angle;
+//      lcVector3 ExistingRotStep = gMainWindow->GetRotStepMeta();
 
-      switch (mTrackTool)
-        {
-        case LC_TRACKTOOL_ROTATE_X:
-          Angle = MouseToolDistance[0] + ExistingRotStep[0];
-          emit gMainWindow->SetRotStepAngleX(Angle);
-          qDebug() << "Rotate X: " << Angle;
-          break;
-        case LC_TRACKTOOL_ROTATE_Y:
-          Angle = MouseToolDistance[1] + ExistingRotStep[2];
-          //Switch Y and Z coordinates to match LDraw
-          emit gMainWindow->SetRotStepAngleZ(Angle);
-          qDebug() << "Rotate Y(Z): " << Angle;
-          break;
-        case LC_TRACKTOOL_ROTATE_Z:
-          Angle = MouseToolDistance[2] + -ExistingRotStep[1];
-          //LDraw Y axis is vertical, with negative value in the up direction
-          emit gMainWindow->SetRotStepAngleY(-Angle);
-          qDebug() << "Rotate Z(Y): Angle: " << Angle << " (Neg) Angle: " << -Angle;
-          break;
-        default:
-          Angle = 0.0f;
-          break;
-        };
-    }
-}
+//      switch (mTrackTool)
+//        {
+//        case LC_TRACKTOOL_ROTATE_X:
+//          Angle = MouseToolDistance[0] + ExistingRotStep[0];
+//          emit gMainWindow->SetRotStepAngleX(Angle);
+//          qDebug() << "Rotate X: " << Angle;
+//          break;
+//        case LC_TRACKTOOL_ROTATE_Y:
+//          Angle = MouseToolDistance[1] + ExistingRotStep[2];
+//          //Switch Y and Z coordinates to match LDraw
+//          emit gMainWindow->SetRotStepAngleZ(Angle);
+//          qDebug() << "Rotate Y(Z): " << Angle;
+//          break;
+//        case LC_TRACKTOOL_ROTATE_Z:
+//          Angle = MouseToolDistance[2] + -ExistingRotStep[1];
+//          //LDraw Y axis is vertical, with negative value in the up direction
+//          emit gMainWindow->SetRotStepAngleY(-Angle);
+//          qDebug() << "Rotate Z(Y): Angle: " << Angle << " (Neg) Angle: " << -Angle;
+//          break;
+//        default:
+//          Angle = 0.0f;
+//          break;
+//        };
+//    }
+//}
 /*** LPub3D Mod end ***/

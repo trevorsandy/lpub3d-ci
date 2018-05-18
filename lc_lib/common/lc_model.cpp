@@ -519,7 +519,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - parse rotstep line ***/
 			if (Token == QLatin1String("//"))
 			 {
-				 ParseAndSetRotStep(LineStream);
+				 gMainWindow->ParseAndSetRotStep(LineStream);
 			 }
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process colour entry ***/
@@ -1432,20 +1432,18 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         View* ActiveView = gMainWindow->GetActiveView();
         ActiveView->MakeCurrent();
 
-        lcContext* Context = ActiveView->mContext;
-
         lcStep CurrentStep = mCurrentStep;
 
+        lcContext* Context = ActiveView->mContext;
+
         lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-
-        const int ImageWidth = Options.ImageWidth;
-        const int ImageHeight = Options.ImageHeight;
-
         //Camera->SetAngles(Options.Latitude,Options.Longitude);
-
         Camera->SetOrtho(Options.Orthographic);
 
         Zoom(Camera,Options.CameraDistance);
+
+        const int ImageWidth = Options.ImageWidth;
+        const int ImageHeight = Options.ImageHeight;
 
         View View(this);
         View.SetHighlight(Options.HighlightNewParts);
@@ -2828,7 +2826,7 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 }
 
 // TODO - REMOVE
-//void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
+//void lcModel::SetStepRotStepMeta(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
 //{
 //    lcVector3 rotateStep = RotateStep;
 
@@ -2868,39 +2866,40 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 //    gMainWindow->UpdateAllViews();
 //}
 
+// TODO - REMOVE
 /*** LPub3D Mod - parse and set rotstep line on model file load ***/
-void lcModel::ParseAndSetRotStep(QTextStream& LineStream)
-{
-  while (!LineStream.atEnd())
-  {
-      lcVector3 rotStep;
-      QString Token;
-      LineStream >> Token;
+//void lcModel::ParseAndSetRotStep(QTextStream& LineStream)
+//{
+//  while (!LineStream.atEnd())
+//  {
+//      lcVector3 rotStep;
+//      QString Token;
+//      LineStream >> Token;
 
-      if (Token == QLatin1String("ROTSTEP")) {
+//      if (Token == QLatin1String("ROTSTEP")) {
 
-          LineStream >> Token;
+//          LineStream >> Token;
 
-          if(Token == QLatin1String("REL"))
-              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
-          else
-          if(Token == QLatin1String("ABS"))
-              gMainWindow->SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
-          else
-              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+//          if(Token == QLatin1String("REL"))
+//              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+//          else
+//          if(Token == QLatin1String("ABS"))
+//              gMainWindow->SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
+//          else
+//              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
 
-          LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
-          QString rotationArgs("%1 %2 %3 %4");
-          rotationArgs = rotationArgs.arg(
-                        QString::number(rotStep[0], 'f', 2),
-                        QString::number(rotStep[1], 'f', 2),
-                        QString::number(rotStep[2], 'f', 2),
-                        Token);
-          emit gMainWindow->SetStepRotation(rotationArgs, false);
-          break;
-      }
-   }
-}
+//          LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
+//          QString rotationArgs("%1 %2 %3 %4");
+//          rotationArgs = rotationArgs.arg(
+//                        QString::number(rotStep[0], 'f', 2),
+//                        QString::number(rotStep[1], 'f', 2),
+//                        QString::number(rotStep[2], 'f', 2),
+//                        Token);
+//          emit gMainWindow->SetRotStepMeta(rotationArgs, false);
+//          break;
+//      }
+//   }
+//}
 /*** LPub3D Mod end ***/
 
 void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)

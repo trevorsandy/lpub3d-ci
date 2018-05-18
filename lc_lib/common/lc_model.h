@@ -331,10 +331,11 @@ public:
 	}
 
 	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
-/*** LPub3D Mod - parse and set rotstep line on model file load ***/
-        void ParseAndSetRotStep(QTextStream& LineStream);
 // TODO - REMOVE
-//        void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
+/*** LPub3D Mod - parse and set rotstep line on model file load ***/
+//        void ParseAndSetRotStep(QTextStream& LineStream);
+// TODO - REMOVE
+//        void SetStepRotStepMeta(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - create Native CSI image ***/

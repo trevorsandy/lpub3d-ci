@@ -29,7 +29,7 @@
 PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
   setDoFadeStep(Preferences::enableFadeSteps);
-  setDoHighlightStep(Preferences::enableHighlightStep);
+  setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
 
   _resetSearchDirSettings = false;
   _endThreadNowRequested  = false;
@@ -48,6 +48,9 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
  * LDraw search directories preferences.
  */
 void PartWorker::ldsearchDirPreferences(){
+
+  setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
+  setDoHighlightStep(gui->page.meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta());
 
   if (!_resetSearchDirSettings) {
       emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
@@ -87,8 +90,6 @@ void PartWorker::ldsearchDirPreferences(){
       logStatus() << QString("Unable to initialize Ldrawini. Using default search directories.");
     }
 
-  setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
-  setDoHighlightStep(gui->page.meta.LPub.highlightStep.highlightStep.value());
   if (!doFadeStep() && !doHighlightStep()) {
       _excludedSearchDirs << _customPartDir;
       _excludedSearchDirs << _customPrimDir;

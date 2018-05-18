@@ -1102,7 +1102,7 @@ void lcMainWindow::Halt3DViewer(bool b)
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/
-void lcMainWindow::RotateStepSelectedObjects(bool update)
+void lcMainWindow::SetStepRotStepMeta(bool update)
 {
 
   QString   rotationType;
@@ -1115,23 +1115,104 @@ void lcMainWindow::RotateStepSelectedObjects(bool update)
   else
     rotationType = "REL";
 
+  bool ok[3] = {false, false, false};
+
   if (update){
-      bool ok[3];
-      float x = mTransformXEdit->text().toFloat(&ok[0]);
-      float y = mTransformYEdit->text().toFloat(&ok[1]);
-      float z = mTransformZEdit->text().toFloat(&ok[2]);
+      float x = mTransformXEdit->text().isEmpty() ? QString("0").toFloat(&ok[0]) : mTransformXEdit->text().toFloat(&ok[0]);
+      float y = mTransformYEdit->text().isEmpty() ? QString("0").toFloat(&ok[1]) : mTransformYEdit->text().toFloat(&ok[1]);
+      float z = mTransformZEdit->text().isEmpty() ? QString("0").toFloat(&ok[2]) : mTransformZEdit->text().toFloat(&ok[2]);
 
       if (ok[0] && ok[1] && ok[2]){
-        SetRotStepAngleX(x);
+        emit SetRotStepAngleX(x);
         //Switch Y and Z coordinates to match LDraw
-        SetRotStepAngleZ(y);
+        emit SetRotStepAngleZ(y);
         //LDraw Y axis is vertical, with negative value in the up direction
-        SetRotStepAngleY(-z);
+        emit SetRotStepAngleY(-z);
       }
   }
-  emit SetStepRotation(rotationType, true);
+
+  bool propagate = (ok[0] && ok[1] && ok[2]);
+
+  emit SetRotStepMeta(rotationType, propagate);
+
 
   UpdateAllViews();
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Rotate Step get rotate step angles ***/
+void lcMainWindow::GetRotStepMetaAngles()
+{
+  lcModel* mModel = lcGetActiveModel();
+  View* mView = GetActiveView();
+
+  lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
+
+  if (mView->mTrackButton != LC_TRACKBUTTON_NONE)
+    {
+      lcVector3 ExistingRotStep = GetRotStepMeta();
+      float x,y,z;
+      switch (GetActiveView()->mTrackTool)
+        {
+        case LC_TRACKTOOL_ROTATE_X:
+          x = MouseToolDistance[0] + ExistingRotStep[0];
+          emit SetRotStepAngleX(x);
+          qDebug() << "Rotate X: " << x;
+          break;
+        case LC_TRACKTOOL_ROTATE_Y:
+          y = MouseToolDistance[1] + ExistingRotStep[2];
+          //Switch Y and Z coordinates to match LDraw
+          emit SetRotStepAngleZ(y);
+          qDebug() << "Rotate Y(Z): " << y;
+          break;
+        case LC_TRACKTOOL_ROTATE_Z:
+          z = MouseToolDistance[2] + -ExistingRotStep[1];
+          //LDraw Y axis is vertical, with negative value in the up direction
+          emit SetRotStepAngleY(-z);
+          qDebug() << "Rotate Z(Y): " << -z;
+          break;
+        default:
+          x = 0.0f;
+          y = 0.0f;
+          z = 0.0f;
+          break;
+        };
+    }
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - parse and set rotstep line on model file load ***/
+void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
+{
+  while (!LineStream.atEnd())
+  {
+      lcVector3 rotStep;
+      QString Token;
+      LineStream >> Token;
+
+      if (Token == QLatin1String("ROTSTEP")) {
+
+          LineStream >> Token;
+
+          if(Token == QLatin1String("REL"))
+              SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+          else
+          if(Token == QLatin1String("ABS"))
+              SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
+          else
+              SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+
+          LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
+          QString rotationArgs("%1 %2 %3 %4");
+          rotationArgs = rotationArgs.arg(
+                        QString::number(rotStep[0], 'f', 2),
+                        QString::number(rotStep[1], 'f', 2),
+                        QString::number(rotStep[2], 'f', 2),
+                        Token);
+          emit SetRotStepMeta(rotationArgs, false);
+          break;
+      }
+   }
 }
 /*** LPub3D Mod end ***/
 
@@ -3335,7 +3416,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_TRANSFORM:
 		lcGetActiveModel()->TransformSelectedObjects(GetTransformType(), GetTransformAmount());
 /*** LPub3D Mod - rotate step objects ***/
-		RotateStepSelectedObjects(true);
+		SetStepRotStepMeta(true);
 /*** LPub3D Mod end ***/
 		break;
 
@@ -3373,7 +3454,8 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(LC_TOOL_ROTATE);
 /*** LPub3D Mod - rotate step ***/
-		emit ResetStepRotation();
+		// TODO - REMOVE
+		//emit ResetStepRotation();
 		lcGetActiveModel()->SelectAllPieces();
 /*** LPub3D Mod end ***/
 		break;
@@ -3406,10 +3488,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetTool(LC_TOOL_ROLL);
 		break;
 
-/*** LPub3D Mod - rotate step objects [deprecatedXX] ***/
+/*** LPub3D Mod - rotate step objects ***/
 	case LC_EDIT_ACTION_ROTATESTEP:
 		SetTool(LC_TOOL_ROTATESTEP);
-		RotateStepSelectedObjects(false);
+		SetStepRotStepMeta(true);
 /*** LPub3D Mod end ***/
 		break;
 

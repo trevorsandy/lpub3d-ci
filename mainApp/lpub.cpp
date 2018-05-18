@@ -870,7 +870,7 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
-void Gui::SetStepRotation(QString &value, bool propagate)
+void Gui::SetRotStepMeta(QString &value, bool propagate)
 {
     if (propagate && getCurFile() != "") {
 
@@ -1530,7 +1530,7 @@ void Gui::preferences()
 
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
-        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                      != fadeStepsUseColourCompare;
+        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
         bool fadeStepsColourChanged        = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
         bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
@@ -1705,6 +1705,7 @@ Gui::Gui()
 
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(false);
+    Preferences::highlightstepPreferences();
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
@@ -1719,6 +1720,11 @@ Gui::Gui()
     m_exportingContent              = false;
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
+
+    mStepRotation  = lcVector3(0.0f, 0.0f, 0.0f);
+    mRotStepAngleX = 0.0f;
+    mRotStepAngleY = 0.0f;
+    mRotStepAngleZ = 0.0f;
 
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
@@ -1873,12 +1879,13 @@ void Gui::initialize()
   connect(this,        SIGNAL(updateAllViewsSig()),            gMainWindow, SLOT(UpdateAllViews()));
   connect(this,        SIGNAL(clearViewerWindowSig()),         gMainWindow, SLOT(NewProject()));
 
-  connect(gMainWindow, SIGNAL(SetStepRotation(QString&,bool)), this,        SLOT(SetStepRotation(QString&,bool)));
-  connect(gMainWindow, SIGNAL(ResetStepRotation()),            this,        SLOT(ResetStepRotation()));
+  connect(gMainWindow, SIGNAL(SetRotStepMeta(QString&,bool)), this,        SLOT(SetRotStepMeta(QString&,bool)));
+// TODO - REMOVE
+//  connect(gMainWindow, SIGNAL(ResetStepRotation()),            this,        SLOT(ResetStepRotation()));
   connect(gMainWindow, SIGNAL(SetRotStepAngleX(float)),        this,        SLOT(SetRotStepAngleX(float)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleY(float)),        this,        SLOT(SetRotStepAngleY(float)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
-  connect(gMainWindow, SIGNAL(GetStepRotation()),              this,        SLOT(GetStepRotation()));
+  connect(gMainWindow, SIGNAL(GetRotStepMeta()),              this,        SLOT(GetRotStepMeta()));
 
   if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();

@@ -353,12 +353,9 @@ void Application::initialize()
   emit splashMsgSig("15% - Preferences loading...");
 
   Preferences::lpub3dUpdatePreferences();
-
+  Preferences::fadestepPreferences();
   Preferences::unitsPreferences();
   Preferences::annotationPreferences();
-
-  Preferences::fadestepPreferences();
-  Preferences::highlightstepPreferences();
   Preferences::pliPreferences();
 
   // Resolution
@@ -420,7 +417,6 @@ void Application::initialize()
 * initialize::createDockWindows                          (gui->initialize)
 * initialize::toggleLCStatusBar                          (gui->initialize)
 */
-
 
   emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
