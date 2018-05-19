@@ -1713,7 +1713,6 @@ Gui::Gui()
 
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(false);
-    Preferences::highlightstepPreferences();
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
@@ -1776,7 +1775,6 @@ Gui::Gui()
 
 // TODO - REMOVE
 //    mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
-    mStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
     undoStack = new QUndoStack();
     macroNesting = 0;

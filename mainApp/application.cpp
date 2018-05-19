@@ -354,6 +354,7 @@ void Application::initialize()
 
   Preferences::lpub3dUpdatePreferences();
   Preferences::fadestepPreferences();
+  Preferences::highlightstepPreferences();
   Preferences::unitsPreferences();
   Preferences::annotationPreferences();
   Preferences::pliPreferences();
