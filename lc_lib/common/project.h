@@ -91,9 +91,8 @@ public:
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& ModelName);
 /*** LPub3D Mod - create Native PLI image ***/
-	void CreateNativePliImage(const NativeOptions &Options);
+	void CreateNativePliImage(const NativeOptions& Options);
 	bool CreateNativePovFile(const NativeOptions& Options);
-	bool LoadStepProject(const QString &viewerCsiName);
 /*** LPub3D Mod end ***/
 
 	lcModel* CreateNewModel(bool ShowModel);

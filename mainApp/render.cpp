@@ -1491,7 +1491,7 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     QString viewerCsiName = Options.ViewerCsiName;
 
     Project* StepProject = new Project();
-    if (StepProject->LoadStepProject(viewerCsiName)){
+    if (LoadStepProject(StepProject, viewerCsiName)){
         gApplication->SetProject(StepProject);
         gMainWindow->UpdateAllViews();
     }
@@ -1512,6 +1512,113 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 //--    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
 
     return true;
+}
+
+bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiName)
+{
+        QString FileName = gui->getViewerStepFilePath(viewerCsiName);
+
+        if (FileName.isEmpty())
+        {
+               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI path for %1.").arg(FileName));
+               return false;
+        }
+
+        QStringList CsiContent = gui->getViewerStepContents(viewerCsiName);
+        if (CsiContent.isEmpty())
+        {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
+                return false;
+        }
+
+#ifdef QT_DEBUG_MODE
+        QFileInfo outFileInfo(FileName);
+        QString outfileName = QString("%1/%2_%3.ldr")
+               .arg(outFileInfo.absolutePath())
+               .arg(outFileInfo.baseName().replace(".ldr",""))
+               .arg(QString(viewerCsiName).replace(";","_"));
+        QFile file(outfileName);
+        if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")
+                                 .arg(outfileName) .arg(file.errorString()));
+        }
+        QTextStream out(&file);
+        for (int i = 0; i < CsiContent.size(); i++) {
+                QString line = CsiContent[i];
+                out << line << endl;
+        }
+        file.close();
+#endif
+
+	StepProject->mModels.DeleteAll();
+	StepProject->SetFileName(FileName);
+
+	QByteArray QBA;
+	foreach(QString line, CsiContent){
+	       QBA.append(line);
+	       QBA.append(QString("\n"));
+	}
+
+	if (StepProject->mFileName.isEmpty())
+	{
+		emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
+		return false;
+	}
+	QFileInfo FileInfo(StepProject->mFileName);
+
+	QBuffer Buffer(&QBA);
+	Buffer.open(QIODevice::ReadOnly);
+
+        while (!Buffer.atEnd())
+        {
+                lcModel* Model = new lcModel(QString());
+                Model->SplitMPD(Buffer);
+
+                if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
+                {
+                        StepProject->mModels.Add(Model);
+                        Model->CreatePieceInfo(StepProject);
+                }
+                else
+                        delete Model;
+        }
+
+        Buffer.seek(0);
+
+        for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
+        {
+                lcModel* Model = StepProject->mModels[ModelIdx];
+                Model->LoadLDraw(Buffer, StepProject);
+                Model->SetSaved();
+        }
+
+
+	if (StepProject->mModels.IsEmpty())
+		return false;
+
+	if (StepProject->mModels.GetSize() == 1)
+	{
+		lcModel* Model = StepProject->mModels[0];
+
+		if (Model->GetProperties().mName.isEmpty())
+		{
+			Model->SetName(FileInfo.fileName());
+			lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
+		}
+	}
+
+	lcArray<lcModel*> UpdatedModels;
+	UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
+
+	for (lcModel* Model : StepProject->mModels)
+	{
+		Model->UpdateMesh();
+		Model->UpdatePieceInfo(UpdatedModels);
+	}
+
+	StepProject->mModified = false;
+
+	return true;
 }
 
 // TODO - REMOVE

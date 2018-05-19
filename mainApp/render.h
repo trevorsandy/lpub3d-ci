@@ -55,6 +55,8 @@ public:
   static QString const   getRotstepMeta(RotStepMeta &);
   bool                   useLDViewSCall(bool override = false);
   bool                   LoadViewer(const ViewerOptions &Options);
+  bool                   LoadStepProject(Project *StepProject,
+                                    const QString& viewerCsiName);
   int                    rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
