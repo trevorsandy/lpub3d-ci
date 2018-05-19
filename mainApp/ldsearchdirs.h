@@ -21,7 +21,9 @@
 #endif // __APPLE__
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#ifndef _MSC_VER
   #include <unistd.h>
+#endif
   #ifndef WIN32
   #include <sys/stat.h>
   #endif // !WIN32

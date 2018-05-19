@@ -28,6 +28,10 @@ quazipnobuild {
     INCLUDEPATH += ../quazip
 }
 
+win32-msvc* {
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+}
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HOST_VERSION = $$(PLATFORM_VER)
@@ -57,7 +61,9 @@ PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
 QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
 QMAKE_LFLAGS    += $(Q_LDFLAGS)
 QMAKE_CFLAGS    += $(Q_CFLAGS)
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
+}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,7 +73,10 @@ win32 {
     QMAKE_EXT_OBJ = .obj
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
-    LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32 -lz
+    LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32 
+    !win32-msvc* {
+        LIBS += -lz
+    }
 
     QMAKE_TARGET_COMPANY = "LPub3D Software"
     QMAKE_TARGET_DESCRIPTION = "LPub3D - An LDraw Building Instruction Editor."
@@ -408,10 +417,12 @@ DISTFILES += \
     ldraw_document.icns
 
 # Suppress warnings
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += -Wall -W \
     -Wno-deprecated-declarations \
     -Wno-unused-parameter \
     -Wno-sign-compare
+}
 macx {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-overloaded-virtual \
@@ -419,12 +430,14 @@ QMAKE_CFLAGS_WARN_ON += \
     -Wno-self-assign \
     -Wno-unused-result
 } else: win32 {
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
    -Wno-misleading-indentation
 QMAKE_CXXFLAGS_WARN_ON += \
    -Wno-maybe-uninitialized \
    -Wno-implicit-fallthrough \
    -Wno-unused-result
+}
 } else {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-strict-aliasing

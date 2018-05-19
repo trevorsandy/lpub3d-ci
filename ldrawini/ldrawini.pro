@@ -2,6 +2,7 @@ TEMPLATE = lib
 CONFIG += qt warn_on
 QT -= gui
 unix:!macx: CONFIG += staticlib
+win32-msvc*: CONFIG += staticlib
 
 # The ABI version.
 # Version format is year.month.day.patch
@@ -70,6 +71,8 @@ include(ldrawini.pri)
 include(../LPub3DPlatformSpecific.pri)
 
 # Suppress warnings
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += -Wall -W \
     -Wno-sign-compare
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
+}

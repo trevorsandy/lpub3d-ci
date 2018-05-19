@@ -86,6 +86,13 @@
 #define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
 #define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
 
+#ifdef _MSC_VER
+#define VER_COMPILED_ON             "Visual Studio"
+#define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
+#define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
+#define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (MSVC 2015, x32)"
+#endif
+
 #ifdef __GNUC__
   #ifdef __MINGW64__
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"

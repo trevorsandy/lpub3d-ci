@@ -2052,6 +2052,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 		return false;
 	}
 
+    QString FileName;
+
 	QString SaveFileName = GetExportFileName(FileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())

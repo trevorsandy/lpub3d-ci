@@ -37,13 +37,17 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
+!win32-msvc* {
     greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
+}
 
     QMAKE_TARGET_COMPANY = "Sergey A. Tachenov"
     QMAKE_TARGET_DESCRIPTION = "C++ wrapper over Gilles Vollant's ZIP/UNZIP"
     QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2005-2014 Sergey A. Tachenov"
     QMAKE_TARGET_PRODUCT = "QuaZIP ($$join(ARCH,,,bit))"
-
+win32-msvc* {
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+}
 }
 
 macx: LIBS += -lz
