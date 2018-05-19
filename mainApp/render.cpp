@@ -630,7 +630,7 @@ int POVRay::renderPli(
       Options.ImageHeight       = height;
       Options.Latitude          = metaType.angle.value(0);
       Options.Longitude         = metaType.angle.value(1);
-      Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());//11659;//8084; //8084 /3789
+      Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value())/11659;//8084; //8084 /3789
 
       // Set and load new project
       Project* PovGenPliProject = new Project();

@@ -2196,12 +2196,11 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 	}
 }
 
+/*** LPub3D Mod - create Native Pov file ***/
 bool Project::CreateNativePovFile(const NativeOptions& Options)
 {
-  //Q_UNUSED(Options);
-
   lcArray<lcModelPartsEntry> ModelParts;
-  lcPartsList PliParts;
+  lcPartsList Parts_List_foo;
 
   struct  NativePliPart
   {
@@ -2210,7 +2209,7 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
         int ColorIndex;
   };
 
-  lcArray<NativePliPart> PartsList;
+  lcArray<NativePliPart> PliParts;
 
   if (Options.ImageType == Render::PLI)
   {
@@ -2220,9 +2219,9 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
           lcModel* Model = ActiveView->mModel;
 
           lcStep CurrentStep = Model->GetCurrentStep();
-          Model->GetPartsListForStep(CurrentStep, gDefaultColor, PliParts);
+          Model->GetPartsListForStep(CurrentStep, gDefaultColor, Parts_List_foo);
 
-          if (PliParts.empty())
+          if (Parts_List_foo.empty())
           {
                   emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Nothing to export - PLI part list is empty."));
                   return false;
@@ -2232,11 +2231,11 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
           Camera->SetOrtho(Options.Orthographic);
           Camera->Zoom(Options.CameraDistance,mModels[0]->GetCurrentStep(),true);
 
-          for (const auto& PartIt : PliParts)
+          for (const auto& PartIt : Parts_List_foo)
           {
                   for (const auto& ColorIt : PartIt.second)
                   {
-                            NativePliPart& _PliPart = PartsList.Add();
+                            NativePliPart& _PliPart = PliParts.Add();
                             _PliPart.WorldMatrix = lcMatrix44LookAt(Camera->mPosition, Camera->mTargetPosition, Camera->mUpVector);
                             _PliPart.Info = const_cast<PieceInfo*>(PartIt.first);
                             _PliPart.ColorIndex = ColorIt.first;
@@ -2296,7 +2295,7 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
           LGEO_COLOR_GLITTER     = 0x40
   };
 
-  QString LGEOPath = Preferences::lgeoPath; // todo: load lgeo from registry and make sure it still works
+  QString LGEOPath;// = Preferences::lgeoPath; // todo: load lgeo from registry and make sure it still works
 
   if (!LGEOPath.isEmpty())
   {
@@ -2379,13 +2378,13 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
           if (Options.ImageType == Render::PLI)
           {
 
-                  for (int PartIdx = 0; PartIdx < PartsList.GetSize(); PartIdx++)
+                  for (int PartIdx = 0; PartIdx < PliParts.GetSize(); PartIdx++)
                   {
-                          PieceInfo* Info = PartsList[PartIdx].Info;
+                          PieceInfo* Info = PliParts[PartIdx].Info;
 
-                          for (int CheckIdx = 0; CheckIdx < PartsList.GetSize(); CheckIdx++)
+                          for (int CheckIdx = 0; CheckIdx < PliParts.GetSize(); CheckIdx++)
                           {
-                                  if (PartsList[CheckIdx].Info != Info)
+                                  if (PliParts[CheckIdx].Info != Info)
                                           continue;
 
                                   if (CheckIdx != PartIdx)
@@ -2471,9 +2470,9 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
 
   if (Options.ImageType == Render::PLI)
   {
-          for (int PartIdx = 0; PartIdx < PartsList.GetSize(); PartIdx++)
+          for (int PartIdx = 0; PartIdx < PliParts.GetSize(); PartIdx++)
           {
-                  PieceInfo* Info = PartsList[PartIdx].Info;
+                  PieceInfo* Info = PliParts[PartIdx].Info;
                   lcMesh* Mesh = Info->GetMesh();
                   std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
 
@@ -2548,9 +2547,9 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
   lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX);
   lcVector3 Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-  if (Options.ImageType == Render::PLI) //PartsList
+  if (Options.ImageType == Render::PLI) //PliParts
   {
-            for (const NativePliPart& PliPart : PartsList)
+            for (const NativePliPart& PliPart : PliParts)
             {
                     lcVector3 Points[8];
 
@@ -2599,15 +2598,15 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
 
   if (Options.ImageType == Render::PLI)
   {
-           for (int PartIdx = 0; PartIdx < PartsList.GetSize(); PartIdx++)
+           for (int PartIdx = 0; PartIdx < PliParts.GetSize(); PartIdx++)
            {
-                   std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[PartsList[PartIdx].Info];
+                   std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[PliParts[PartIdx].Info];
                    int Color;
 
-                   Color = PartsList[PartIdx].ColorIndex;
+                   Color = PliParts[PartIdx].ColorIndex;
                    const char* Suffix = lcIsColorTranslucent(Color) ? "_clear" : "";
 
-                   const float* f = PartsList[PartIdx].WorldMatrix;
+                   const float* f = PliParts[PartIdx].WorldMatrix;
 
                    if (Entry.second & LGEO_PIECE_SLOPE)
                    {
@@ -2661,8 +2660,8 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
 
   return true;
 }
+/*** LPub3D Mod end ***/
 
-// -- /// END
 
 bool Project::ExportPOVRay(const QString& FileName)
 {
@@ -2672,8 +2671,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (ModelParts.IsEmpty())
 	{
-/*** LPub3D Mod - set LPub3D message signal ***/
-		emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Nothing to export."));
+/*** LPub3D Mod - set 3DViewer label ***/
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -2687,8 +2686,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (!POVFile.Open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set LPub3D message signal ***/
-		emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not open file '%1' for writing.").arg(SaveFileName));
+/*** LPub3D Mod - set 3DViewer label ***/
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -2728,8 +2727,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!TableFile.Open(QIODevice::ReadOnly))
 		{
-/*** LPub3D Mod - set LPub3D message signal ***/
-			emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+/*** LPub3D Mod - set 3DViewer label ***/
+			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 /*** LPub3D Mod end ***/
 			return false;
 		}
@@ -2776,8 +2775,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!ColorFile.Open(QIODevice::ReadOnly))
 		{
-/*** LPub3D Mod - set LPub3D message signal ***/
-			emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+/*** LPub3D Mod - set 3DViewer label ***/
+			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 /*** LPub3D Mod end ***/
 			return false;
 		}
