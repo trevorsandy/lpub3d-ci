@@ -1426,6 +1426,7 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 		CalculateStep(LC_STEP_MAX);
 }
 
+// TODO - REMOVE
 /*** LPub3D Mod - create Native CSI image ***/
 void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
 {
@@ -1437,7 +1438,9 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         lcContext* Context = ActiveView->mContext;
 
         lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+
         //Camera->SetAngles(Options.Latitude,Options.Longitude);
+
         Camera->SetOrtho(Options.Orthographic);
 
         Zoom(Camera,Options.CameraDistance);

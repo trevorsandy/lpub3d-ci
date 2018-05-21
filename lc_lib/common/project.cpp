@@ -1692,6 +1692,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 	return Image;
 }
 
+// TODO - REMOVE
 /*** LPub3D Mod - create Native PLI image ***/
 void Project::CreateNativePliImage(const NativeOptions &Options)
 {
@@ -1843,6 +1844,310 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
                                      .arg(Options.ImageFileName, Writer.errorString()));
                 return;
         }
+}
+/*** LPub3D Mod end ***/
+
+// TODO - REMOVE
+/*** LPub3D Mod - create Native Pov file ***/
+bool Project::CreateNativePovFile(const NativeOptions& Options)
+{
+
+         lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+
+         Camera->SetOrtho(Options.Orthographic);
+         Camera->Zoom(Options.CameraDistance,mModels[0]->GetCurrentStep(),true);
+
+         lcArray<lcModelPartsEntry> ModelParts;
+
+         GetModelParts(ModelParts);
+
+         if (ModelParts.IsEmpty())
+         {
+                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Nothing to export - parts list is empty."));
+                 return false;
+         }
+
+        QString SaveFileName = GetExportFileName(Options.PovFileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
+
+	if (SaveFileName.isEmpty())
+		return false;
+
+	lcDiskFile POVFile(SaveFileName);
+
+	if (!POVFile.Open(QIODevice::WriteOnly))
+	{
+		emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		return false;
+	}
+
+	POVFile.WriteLine("#version 3.6;\n\n");
+
+	char Line[1024];
+
+	lcPiecesLibrary* Library = lcGetPiecesLibrary();
+	std::map<PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
+	int NumColors = gColorList.GetSize();
+	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
+
+	enum
+	{
+		LGEO_PIECE_LGEO  = 0x01,
+		LGEO_PIECE_AR    = 0x02,
+		LGEO_PIECE_SLOPE = 0x04
+	};
+
+	enum
+	{
+		LGEO_COLOR_SOLID       = 0x01,
+		LGEO_COLOR_TRANSPARENT = 0x02,
+		LGEO_COLOR_CHROME      = 0x04,
+		LGEO_COLOR_PEARL       = 0x08,
+		LGEO_COLOR_METALLIC    = 0x10,
+		LGEO_COLOR_RUBBER      = 0x20,
+		LGEO_COLOR_GLITTER     = 0x40
+	};
+
+	QString LGEOPath; // = Preferences::lgeoPath; // todo: load lgeo from registry and make sure it still works
+
+	if (LGEOPath.isEmpty())
+		POVFile.WriteLine("global_settings {\n  assumed_gamma 1.0\n}\n\n");
+
+	if (!LGEOPath.isEmpty())
+	{
+		lcDiskFile TableFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_elements.lst")).absoluteFilePath());
+
+		if (!TableFile.Open(QIODevice::ReadOnly))
+		{
+			emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+			return false;
+		}
+
+		while (TableFile.ReadLine(Line, sizeof(Line)))
+		{
+			char Src[1024], Dst[1024], Flags[1024];
+
+			if (*Line == ';')
+				continue;
+
+			if (sscanf(Line,"%s%s%s", Src, Dst, Flags) != 3)
+				continue;
+
+			strcat(Src, ".dat");
+
+			PieceInfo* Info = Library->FindPiece(Src, nullptr, false, false);
+			if (!Info)
+				continue;
+
+			if (strchr(Flags, 'L'))
+			{
+				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+				Entry.second |= LGEO_PIECE_LGEO;
+				sprintf(Entry.first, "lg_%s", Dst);
+			}
+
+			if (strchr(Flags, 'A'))
+			{
+				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+				Entry.second |= LGEO_PIECE_AR;
+				sprintf(Entry.first, "ar_%s", Dst);
+			}
+
+			if (strchr(Flags, 'S'))
+			{
+				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+				Entry.second |= LGEO_PIECE_SLOPE;
+				Entry.first[0] = 0;
+			}
+		}
+
+		lcDiskFile ColorFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_colors.lst")).absoluteFilePath());
+
+		if (!ColorFile.Open(QIODevice::ReadOnly))
+		{
+			emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+			return false;
+		}
+
+		while (ColorFile.ReadLine(Line, sizeof(Line)))
+		{
+			char Name[1024], Flags[1024];
+			int Code;
+
+			if (*Line == ';')
+				continue;
+
+			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
+				continue;
+
+			int Color = lcGetColorIndex(Code);
+			if (Color >= NumColors)
+				continue;
+
+			strcpy(ColorTable[Color].data(), Name);
+		}
+	}
+
+	if (!LGEOPath.isEmpty())
+	{
+		POVFile.WriteLine("#include \"lg_defs.inc\"\n#include \"lg_color.inc\"\n\n");
+
+		for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+		{
+			PieceInfo* Info = ModelParts[PartIdx].Info;
+
+			for (int CheckIdx = 0; CheckIdx < ModelParts.GetSize(); CheckIdx++)
+			{
+				if (ModelParts[CheckIdx].Info != Info)
+					continue;
+
+				if (CheckIdx != PartIdx)
+					break;
+
+				auto Search = PieceTable.find(Info);
+
+				if (Search != PieceTable.end())
+				{
+					const std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = Search->second;
+					if (Entry.first[0])
+					{
+						sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
+						POVFile.WriteLine(Line);
+					}
+				}
+
+				break;
+			}
+		}
+
+		POVFile.WriteLine("\n");
+	}
+
+	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+	{
+		lcColor* Color = &gColorList[ColorIdx];
+
+		if (lcIsColorTranslucent(ColorIdx))
+		{
+			sprintf(Line, "#declare lc_%s = texture { pigment { rgb <%f, %f, %f> filter 0.9 } finish { ambient 0.3 diffuse 0.2 reflection 0.25 phong 0.3 phong_size 60 } }\n",
+					Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
+		}
+		else
+		{
+			sprintf(Line, "#declare lc_%s = texture { pigment { rgb <%f, %f, %f> } finish { ambient 0.1 phong 0.2 phong_size 20 } }\n",
+					Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
+		}
+
+		POVFile.WriteLine(Line);
+
+		if (!ColorTable[ColorIdx][0])
+			sprintf(ColorTable[ColorIdx].data(), "lc_%s", Color->SafeName);
+	}
+
+	POVFile.WriteLine("\n");
+
+	lcArray<const char*> ColorTablePointer;
+	ColorTablePointer.SetSize(NumColors);
+	for (int ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
+		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
+
+	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	{
+		PieceInfo* Info = ModelParts[PartIdx].Info;
+		lcMesh* Mesh = Info->GetMesh();
+		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+
+		if (!Mesh || Entry.first[0])
+			continue;
+
+		char Name[LC_PIECE_NAME_LEN];
+		char* Ptr;
+
+		strcpy(Name, Info->mFileName);
+		while ((Ptr = strchr(Name, '-')))
+			*Ptr = '_';
+		while ((Ptr = strchr(Name, '.')))
+			*Ptr = '_';
+
+		sprintf(Entry.first, "lc_%s", Name);
+
+		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
+
+		sprintf(Line, "#declare lc_%s_clear = lc_%s\n\n", Name, Name);
+		POVFile.WriteLine(Line);
+	}
+
+        const lcVector3& Position = Camera->mPosition;
+        const lcVector3& Target = Camera->mTargetPosition;
+        const lcVector3& Up = Camera->mUpVector;
+        const lcModelProperties& Properties = mModels[0]->GetProperties();
+
+	sprintf(Line, "camera {\n  perspective\n  right x * image_width / image_height\n  sky<%1g,%1g,%1g>\n  location <%1g, %1g, %1g>\n  look_at <%1g, %1g, %1g>\n  angle %.0f * image_width / image_height\n}\n\n",
+			Up[1], Up[0], Up[2], Position[1] / 25.0f, Position[0] / 25.0f, Position[2] / 25.0f, Target[1] / 25.0f, Target[0] / 25.0f, Target[2] / 25.0f, Camera->m_fovy);
+	POVFile.WriteLine(Line);
+	sprintf(Line, "background { color rgb <%1g, %1g, %1g> }\n\n", Properties.mBackgroundSolidColor[0], Properties.mBackgroundSolidColor[1], Properties.mBackgroundSolidColor[2]);
+	POVFile.WriteLine(Line);
+
+	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX);
+	lcVector3 Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
+	{
+		lcVector3 Points[8];
+
+		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
+
+		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
+		{
+			lcVector3 Point = lcMul31(Points[PointIdx], ModelPart.WorldMatrix);
+
+			Min = lcMin(Point, Min);
+			Max = lcMax(Point, Max);
+		}
+	}
+
+	lcVector3 Center = (Min + Max) / 2.0f;
+	float Radius = (Max - Center).Length() / 25.0f;
+	Center = lcVector3(Center[1], Center[0], Center[2]) / 25.0f;
+
+	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.75\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 0.0f * Radius + Center.x, -1.5f * Radius + Center.y, -1.5f * Radius + Center.z);
+	POVFile.WriteLine(Line);
+	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.75\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 1.5f * Radius + Center.x, -1.0f * Radius + Center.y, 0.866026f * Radius + Center.z);
+	POVFile.WriteLine(Line);
+	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 0.0f * Radius + Center.x, -2.0f * Radius + Center.y, 0.0f * Radius + Center.z);
+	POVFile.WriteLine(Line);
+	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 2.0f * Radius + Center.x, 0.0f * Radius + Center.y, -2.0f * Radius + Center.z);
+	POVFile.WriteLine(Line);
+
+	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	{
+		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelParts[PartIdx].Info];
+		int Color;
+
+		Color = ModelParts[PartIdx].ColorIndex;
+		const char* Suffix = lcIsColorTranslucent(Color) ? "_clear" : "";
+
+		const float* f = ModelParts[PartIdx].WorldMatrix;
+
+		if (Entry.second & LGEO_PIECE_SLOPE)
+		{
+			sprintf(Line, "merge {\n object {\n  %s%s\n  texture { %s }\n }\n"
+					" object {\n  %s_slope\n  texture { %s normal { bumps 0.3 scale 0.02 } }\n }\n"
+					" matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
+					Entry.first, Suffix, ColorTable[Color].data(), Entry.first, ColorTable[Color].data(),
+					-f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+		}
+		else
+		{
+			sprintf(Line, "object {\n %s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
+					Entry.first, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+		}
+
+		POVFile.WriteLine(Line);
+	}
+
+	POVFile.Close();
+
+	return true;
 }
 /*** LPub3D Mod end ***/
 
@@ -2195,378 +2500,6 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">3DViewer</A></B></I><BR></HTML>\r\n");
 	}
 }
-
-/*** LPub3D Mod - create Native Pov file ***/
-bool Project::CreateNativePovFile(const NativeOptions& Options)
-{
-
-// TODO - consolidate function
-// change lcModelPartsEntry name to PovParts, declare globally
-// replace lcModelPartsEntry struct with NativePovPart
-// rename struct NativePliPart to NativePovPart and move to before lcArray declaration
-// move lcPartslist (PliPartsList) to PLI block
-// perform conversion of PartsList in PLI block
-// remove second lcArray<NativePliPart> declaration - use only one lcArray declaration
-// remove PLI/CSI blocks except initial blocs to populate parts
-  struct  NativePliPart
-  {
-        lcMatrix44 WorldMatrix;
-        PieceInfo* Info;
-        int ColorIndex;
-  };
-  
-  lcArray<lcModelPartsEntry> ModelParts;
-
-  if (Options.ImageType == Render::PLI)
-  {
-          lcPartsList PliPartsList;
-
-          View* ActiveView = gMainWindow->GetActiveView();
-          ActiveView->MakeCurrent();
-
-          lcModel* Model = ActiveView->mModel;
-
-          lcStep CurrentStep = Model->GetCurrentStep();
-          Model->GetPartsListForStep(CurrentStep, gDefaultColor, PliPartsList);
-
-          if (PliPartsList.empty())
-          {
-                  emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Nothing to export - PLI part list is empty."));
-                  return false;
-          }
-
-          lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-          Camera->SetOrtho(Options.Orthographic);
-          Camera->Zoom(Options.CameraDistance,mModels[0]->GetCurrentStep(),true);
-
-          for (const auto& PartIt : PliPartsList)
-          {
-                  for (const auto& ColorIt : PartIt.second)
-                  {
-                            lcModelPartsEntry& _PliPart = ModelParts.Add();
-                            _PliPart.WorldMatrix = lcMatrix44LookAt(Camera->mPosition, Camera->mTargetPosition, Camera->mUpVector);
-                            _PliPart.Info = const_cast<PieceInfo*>(PartIt.first);
-                            _PliPart.ColorIndex = ColorIt.first;
-                  }
-          }
-  }
-  else
-  if (Options.ImageType == Render::CSI)
-  {
-          GetModelParts(ModelParts);
-
-          if (ModelParts.IsEmpty())
-          {
-                  emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Nothing to export - CSI part list is empty."));
-                  return false;
-          }
-  }
-
-/*
-emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
-*/
-
-if (ModelParts.IsEmpty())
-	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
-		return false;
-	}
-
-	QString SaveFileName = GetExportFileName(FileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
-
-	if (SaveFileName.isEmpty())
-		return false;
-
-	lcDiskFile POVFile(SaveFileName);
-
-	if (!POVFile.Open(QIODevice::WriteOnly))
-	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
-/*** LPub3D Mod end ***/
-		return false;
-	}
-
-	POVFile.WriteLine("#version 3.7;\n\nglobal_settings {\n  assumed_gamma 1.0\n}\n\n");
-
-	char Line[1024];
-
-	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	std::map<PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
-	int NumColors = gColorList.GetSize();
-	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
-
-	enum
-	{
-		LGEO_PIECE_LGEO  = 0x01,
-		LGEO_PIECE_AR    = 0x02,
-		LGEO_PIECE_SLOPE = 0x04
-	};
-
-	enum
-	{
-		LGEO_COLOR_SOLID       = 0x01,
-		LGEO_COLOR_TRANSPARENT = 0x02,
-		LGEO_COLOR_CHROME      = 0x04,
-		LGEO_COLOR_PEARL       = 0x08,
-		LGEO_COLOR_METALLIC    = 0x10,
-		LGEO_COLOR_RUBBER      = 0x20,
-		LGEO_COLOR_GLITTER     = 0x40
-	};
-
-	QString LGEOPath; // todo: load lgeo from registry and make sure it still works
-
-	if (!LGEOPath.isEmpty())
-	{
-		lcDiskFile TableFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_elements.lst")).absoluteFilePath());
-
-		if (!TableFile.Open(QIODevice::ReadOnly))
-		{
-/*** LPub3D Mod - set 3DViewer label ***/
-			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
-/*** LPub3D Mod end ***/
-			return false;
-		}
-
-		while (TableFile.ReadLine(Line, sizeof(Line)))
-		{
-			char Src[1024], Dst[1024], Flags[1024];
-
-			if (*Line == ';')
-				continue;
-
-			if (sscanf(Line,"%s%s%s", Src, Dst, Flags) != 3)
-				continue;
-
-			strcat(Src, ".dat");
-
-			PieceInfo* Info = Library->FindPiece(Src, nullptr, false, false);
-			if (!Info)
-				continue;
-
-			if (strchr(Flags, 'L'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_LGEO;
-				sprintf(Entry.first, "lg_%s", Dst);
-			}
-
-			if (strchr(Flags, 'A'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_AR;
-				sprintf(Entry.first, "ar_%s", Dst);
-			}
-
-			if (strchr(Flags, 'S'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_SLOPE;
-				Entry.first[0] = 0;
-			}
-		}
-
-		lcDiskFile ColorFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_colors.lst")).absoluteFilePath());
-
-		if (!ColorFile.Open(QIODevice::ReadOnly))
-		{
-/*** LPub3D Mod - set 3DViewer label ***/
-			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
-/*** LPub3D Mod end ***/
-			return false;
-		}
-
-		while (ColorFile.ReadLine(Line, sizeof(Line)))
-		{
-			char Name[1024], Flags[1024];
-			int Code;
-
-			if (*Line == ';')
-				continue;
-
-			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
-				continue;
-
-			int Color = lcGetColorIndex(Code);
-			if (Color >= NumColors)
-				continue;
-
-			strcpy(ColorTable[Color].data(), Name);
-		}
-	}
-
-	if (!LGEOPath.isEmpty())
-	{
-		POVFile.WriteLine("#include \"lg_defs.inc\"\n#include \"lg_color.inc\"\n\n");
-
-		for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-		{
-			PieceInfo* Info = ModelParts[PartIdx].Info;
-
-			for (int CheckIdx = 0; CheckIdx < ModelParts.GetSize(); CheckIdx++)
-			{
-				if (ModelParts[CheckIdx].Info != Info)
-					continue;
-
-				if (CheckIdx != PartIdx)
-					break;
-
-				auto Search = PieceTable.find(Info);
-
-				if (Search != PieceTable.end())
-				{
-					const std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = Search->second;
-					if (Entry.first[0])
-					{
-						sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
-						POVFile.WriteLine(Line);
-					}
-				}
-
-				break;
-			}
-		}
-
-		POVFile.WriteLine("\n");
-	}
-
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
-	{
-		lcColor* Color = &gColorList[ColorIdx];
-
-		if (lcIsColorTranslucent(ColorIdx))
-		{
-			sprintf(Line, "#declare lc_%s = texture { pigment { rgb <%f, %f, %f> filter 0.9 } finish { ambient 0.3 diffuse 0.2 reflection 0.25 phong 0.3 phong_size 60 } }\n",
-					Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
-		}
-		else
-		{
-			sprintf(Line, "#declare lc_%s = texture { pigment { rgb <%f, %f, %f> } finish { ambient 0.1 phong 0.2 phong_size 20 } }\n",
-					Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
-		}
-
-		POVFile.WriteLine(Line);
-
-		if (!ColorTable[ColorIdx][0])
-			sprintf(ColorTable[ColorIdx].data(), "lc_%s", Color->SafeName);
-	}
-
-	POVFile.WriteLine("\n");
-
-	lcArray<const char*> ColorTablePointer;
-	ColorTablePointer.SetSize(NumColors);
-	for (int ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
-		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
-
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-	{
-		PieceInfo* Info = ModelParts[PartIdx].Info;
-		lcMesh* Mesh = Info->GetMesh();
-		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-
-		if (!Mesh || Entry.first[0])
-			continue;
-
-		char Name[LC_PIECE_NAME_LEN];
-		char* Ptr;
-
-		strcpy(Name, Info->mFileName);
-		while ((Ptr = strchr(Name, '-')))
-			*Ptr = '_';
-		while ((Ptr = strchr(Name, '.')))
-			*Ptr = '_';
-
-		sprintf(Entry.first, "lc_%s", Name);
-
-		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
-
-		sprintf(Line, "#declare lc_%s_clear = lc_%s\n\n", Name, Name);
-		POVFile.WriteLine(Line);
-	}
-
-	lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-  Camera->SetOrtho(Options.Orthographic);
-  Camera->Zoom(Options.CameraDistance,mModels[0]->GetCurrentStep(),true);
-
-  const lcVector3& Position = Camera->mPosition;
-  const lcVector3& Target = Camera->mTargetPosition;
-  const lcVector3& Up = Camera->mUpVector;
-  const lcModelProperties& Properties = mModels[0]->GetProperties();
-
-  //lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(100.0f, -100.0f, 55.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
-
-	sprintf(Line, "camera {\n  perspective\n  right x * image_width / image_height\n  sky<%1g,%1g,%1g>\n  location <%1g, %1g, %1g>\n  look_at <%1g, %1g, %1g>\n  angle %.0f * image_width / image_height\n}\n\n",
-			Up[1], Up[0], Up[2], Position[1] / 25.0f, Position[0] / 25.0f, Position[2] / 25.0f, Target[1] / 25.0f, Target[0] / 25.0f, Target[2] / 25.0f, Camera->m_fovy);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "background { color rgb <%1g, %1g, %1g> }\n\n", Properties.mBackgroundSolidColor[0], Properties.mBackgroundSolidColor[1], Properties.mBackgroundSolidColor[2]);
-	POVFile.WriteLine(Line);
-
-	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX);
-	lcVector3 Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
-	for (const lcModelPartsEntry& ModelPart : ModelParts)
-	{
-		lcVector3 Points[8];
-		
-		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
-
-		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
-		{
-			lcVector3 Point = lcMul31(Points[PointIdx], ModelPart.WorldMatrix);
-
-			Min = lcMin(Point, Min);
-			Max = lcMax(Point, Max);
-		}
-	}
-
-	lcVector3 Center = (Min + Max) / 2.0f;
-	float Radius = (Max - Center).Length() / 25.0f;
-	Center = lcVector3(Center[1], Center[0], Center[2]) / 25.0f;
-
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.75\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 0.0f * Radius + Center.x, -1.5f * Radius + Center.y, -1.5f * Radius + Center.z);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.75\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 1.5f * Radius + Center.x, -1.0f * Radius + Center.y, 0.866026f * Radius + Center.z);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 0.0f * Radius + Center.x, -2.0f * Radius + Center.y, 0.0f * Radius + Center.z);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 2.0f * Radius + Center.x, 0.0f * Radius + Center.y, -2.0f * Radius + Center.z);
-	POVFile.WriteLine(Line);
-
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-	{
-		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelParts[PartIdx].Info];
-		int Color;
-
-		Color = ModelParts[PartIdx].ColorIndex;
-		const char* Suffix = lcIsColorTranslucent(Color) ? "_clear" : "";
-
-		const float* f = ModelParts[PartIdx].WorldMatrix;
-
-		if (Entry.second & LGEO_PIECE_SLOPE)
-		{
-			sprintf(Line, "merge {\n object {\n  %s%s\n  texture { %s }\n }\n"
-					" object {\n  %s_slope\n  texture { %s normal { bumps 0.3 scale 0.02 } }\n }\n"
-					" matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-					Entry.first, Suffix, ColorTable[Color].data(), Entry.first, ColorTable[Color].data(),
-					-f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
-		}
-		else
-		{
-			sprintf(Line, "object {\n %s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-					Entry.first, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
-		}
-
-		POVFile.WriteLine(Line);
-	}
-
-	POVFile.Close();
-
-	return true;
-}
-/*** LPub3D Mod end ***/
-
 
 bool Project::ExportPOVRay(const QString& FileName)
 {

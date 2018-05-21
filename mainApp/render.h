@@ -51,12 +51,15 @@ public:
   enum Mt { PLI, CSI };
   virtual ~Render() {}
   static QString const   getRenderer();
-  static void            setRenderer(QString const &name);
+  static void            setRenderer(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &);
   bool                   useLDViewSCall(bool override = false);
-  bool                   LoadViewer(const ViewerOptions &Options);
-  bool                   LoadStepProject(Project *StepProject,
-                                    const QString& viewerCsiName);
+  void                   CreateNativeImage(const NativeOptions &);
+  bool                   CreateNativePovFile(Project *,
+                                       const NativeOptions &);
+  bool                   LoadViewer(const ViewerOptions &);
+  bool                   LoadStepProject(Project *,
+                                  const QString &);
   int                    rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
@@ -168,6 +171,7 @@ public:
   }
   QString ImageFileName;
   QString PovFileName;
+  QString PovGenCommand;
   Render::Mt ImageType;
   int ImageWidth;
   int ImageHeight;
@@ -184,8 +188,8 @@ class ViewerOptions
 public:
   ViewerOptions()
   {
-    Orthographic    = true;
     ImageType       = Render::CSI;
+    Orthographic    = true;
     CameraDistance  = -260.0f;
   }
   QString ViewerCsiName;

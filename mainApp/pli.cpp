@@ -476,7 +476,18 @@ int Pli::createPartImage(
         }
 
       QTextStream out(&part);
-      out << orient(color, type);
+      if ((Preferences::preferredRenderer == RENDERER_POVRAY &&
+          Preferences::povGenRenderer == RENDERER_NATIVE) ||
+          Preferences::preferredRenderer == RENDERER_NATIVE) {
+          out << QString("0 !LEOCAD MODEL NAME %1").arg(partialKey) << endl;
+          out << QString("0 FILE %1.ldr").arg(partialKey) << endl;
+          out << orient(color, type) << endl;
+          out << QString("0 NOFILE") << endl;
+      }
+      else
+      {
+          out << orient(color, type) << endl;
+      }
       part.close();
       
       // feed DAT to renderer

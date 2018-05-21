@@ -337,7 +337,7 @@ public:
 // TODO - REMOVE
 //        void SetStepRotStepMeta(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
 /*** LPub3D Mod end ***/
-
+// TODO - REMOVE
 /*** LPub3D Mod - create Native CSI image ***/
 	void CreateNativeCsiImage(const NativeOptions &Options);
 /*** LPub3D Mod end ***/
@@ -398,5 +398,8 @@ protected:
 	lcArray<lcModelHistoryEntry*> mRedoHistory;
 
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
+/*** LPub3D Mod - create Native PLI image ***/
+	friend class Render;
+/*** LPub3D Mod end ***/
 };
 

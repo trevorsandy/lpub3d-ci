@@ -248,18 +248,13 @@ int Step::createCsi(
       if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts)) != 0)
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to rotate viewer CSI parts"));
 
-      // assemble ROTSTEP command
-      QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
-          .arg(meta.rotStep.value().type)
-          .arg(meta.rotStep.value().rots[0])
-          .arg(meta.rotStep.value().rots[1])
-          .arg(meta.rotStep.value().rots[2]);
-
-      // add ROTSTEP, header and closing meta
+      // header and closing meta
       rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(top.modelName));
       rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
       rotatedParts.append("0 NOFILE");
-      rotatedParts.prepend(rotsComment);
+
+      // add ROTSTEP command
+      rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
       // consolidate subfiles and parts into single file
       viewerCSI(rotatedParts, doFadeStep, doHighlightStep);

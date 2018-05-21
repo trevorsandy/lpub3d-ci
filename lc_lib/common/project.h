@@ -17,6 +17,7 @@
 #define LC_HTML_SUBMODELS     0x40
 #define LC_HTML_CURRENT_ONLY  0x80
 
+// TODO - REMOVE
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
 /*** LPub3D Mod end ***/
@@ -90,8 +91,12 @@ public:
 
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& ModelName);
+// TODO - REMOVE
 /*** LPub3D Mod - create Native PLI image ***/
 	void CreateNativePliImage(const NativeOptions& Options);
+/*** LPub3D Mod end ***/
+// TODO - REMOVE
+/*** LPub3D Mod - create Native Pov file ***/
 	bool CreateNativePovFile(const NativeOptions& Options);
 /*** LPub3D Mod end ***/
 
