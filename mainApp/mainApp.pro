@@ -221,6 +221,7 @@ unix:!macx:include(linuxfiledistro.pri)
 
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
+include(../tinyxml/TinyXml.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
 
