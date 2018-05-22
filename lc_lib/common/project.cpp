@@ -1833,7 +1833,7 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
 
         CalculateImageBounds(Image);
 
-        QImageWriter Writer(Options.ImageFileName);
+        QImageWriter Writer(Options.OutputFileName);
 
         if (Writer.format().isEmpty())
                 Writer.setFormat("PNG");
@@ -1841,7 +1841,7 @@ void Project::CreateNativePliImage(const NativeOptions &Options)
         if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
         {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native PLI image file '%1': %2.")
-                                     .arg(Options.ImageFileName, Writer.errorString()));
+                                     .arg(Options.OutputFileName, Writer.errorString()));
                 return;
         }
 }
@@ -1867,7 +1867,7 @@ bool Project::CreateNativePovFile(const NativeOptions& Options)
                  return false;
          }
 
-        QString SaveFileName = GetExportFileName(Options.PovFileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
+        QString SaveFileName = GetExportFileName(Options.OutputFileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())
 		return false;

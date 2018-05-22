@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -42,6 +42,7 @@ class UnitsMeta;
 class RotStepMeta;
 class NativeOptions;
 class ViewerOptions;
+class NativePov;
 class lcVector3;
 
 class Render
@@ -55,8 +56,6 @@ public:
   static QString const   getRotstepMeta(RotStepMeta &);
   bool                   useLDViewSCall(bool override = false);
   void                   CreateNativeImage(const NativeOptions &);
-  bool                   CreateNativePovFile(Project *,
-                                       const NativeOptions &);
   bool                   LoadViewer(const ViewerOptions &);
   bool                   LoadStepProject(Project *,
                                   const QString &);
@@ -109,7 +108,8 @@ public:
 // TODO - REMOVE
 //  int                    load3DCsiImage(QString &);
 
-  ImageMatting           imageMatting;
+  ImageMatting            imageMatting;
+
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;
 
@@ -159,30 +159,6 @@ public:
   virtual float cameraDistance(Meta &meta, float);
 };
 
-class NativeOptions
-{
-public:
-  NativeOptions()
-  {
-    Orthographic      = true;
-    TransBackground   = true;
-    HighlightNewParts = false;
-    CameraDistance    = -260.0f;
-  }
-  QString ImageFileName;
-  QString PovFileName;
-  QString PovGenCommand;
-  Render::Mt ImageType;
-  int ImageWidth;
-  int ImageHeight;
-  float Latitude;
-  float Longitude;
-  float CameraDistance;
-  bool HighlightNewParts;
-  bool TransBackground;
-  bool Orthographic;
-};
-
 class ViewerOptions
 {
 public:
@@ -197,6 +173,31 @@ public:
   float CameraDistance;
   float Latitude;
   float Longitude;
+  bool Orthographic;
+};
+
+class NativeOptions
+{
+public:
+  NativeOptions()
+  {
+    ImageType         = Render::CSI;
+    Orthographic      = true;
+    TransBackground   = true;
+    HighlightNewParts = false;
+    CameraDistance    = -260.0f;
+  }
+  QString InputFileName;
+  QString OutputFileName;
+  QString PovGenCommand;
+  Render::Mt ImageType;
+  int ImageWidth;
+  int ImageHeight;
+  float Latitude;
+  float Longitude;
+  float CameraDistance;
+  bool HighlightNewParts;
+  bool TransBackground;
   bool Orthographic;
 };
 #endif

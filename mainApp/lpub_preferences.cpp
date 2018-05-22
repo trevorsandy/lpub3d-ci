@@ -71,7 +71,7 @@ QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepsColour              = FADE_COLOUR_DEFAULT;
+QString Preferences::fadeStepsColour             = FADE_COLOUR_DEFAULT;
 QString Preferences::highlightStepColour         = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::ldrawColourPartsFile;

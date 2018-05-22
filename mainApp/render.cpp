@@ -41,12 +41,10 @@
 #include "meta.h"
 #include "math.h"
 #include "lpub_preferences.h"
+#include "nativepov.h"
 
 #include "paths.h"
 
-//**3D Viewer
-#include "lc_global.h"
-#include "lc_mainwindow.h"
 #include "lc_file.h"
 #include "project.h"
 #include "pieceinf.h"
@@ -54,7 +52,6 @@
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
 #endif
-//**
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -313,11 +310,9 @@ int POVRay::renderCsi(
   }
 
   QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
-  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
 
-  povArguments << I;
   povArguments << O;
   povArguments << W;
   povArguments << H;
@@ -446,39 +441,30 @@ int POVRay::renderCsi(
   if (Preferences::povGenRenderer == RENDERER_NATIVE) {
        // Renderer options
        NativeOptions Options;
+       QStringList CommandArgs = povArguments;
+       CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
        Options.ImageType         = CSI;
-       Options.PovFileName       = povName;
+       Options.InputFileName     = ldrName;
+       Options.OutputFileName    = povName;
        Options.ImageWidth        = width;
        Options.ImageHeight       = height;
        Options.Latitude          = meta.LPub.assem.angle.value(0);
        Options.Longitude         = meta.LPub.assem.angle.value(1);
        Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
        Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/11659;
-       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));;
-
-       // Set and load new project
-       Project* PovGenCsiProject = new Project();
-
-       if (PovGenCsiProject->Load(ldrName))
-       {
-         gApplication->SetProject(PovGenCsiProject);
-         gMainWindow->UpdateAllViews();
-       }
-       else
-       {
-         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load Native POV CSI ldr file."));
-         delete PovGenCsiProject;
-         return -1;
-       }
+       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
 
        // Generate pov file
-       if (!CreateNativePovFile(PovGenCsiProject, Options))
+       NativePov* nativePov = new NativePov();
+       if (!nativePov->CreateNativePovFile(Options))
        {
          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV CSI file."));
-         delete PovGenCsiProject;
          return -1;
        }
     }
+
+  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
+  povArguments.insert(2,I);
 
   emit gui->messageSig(LOG_STATUS, "Executing POVRay render CSI - please wait...");
 
@@ -539,6 +525,52 @@ int POVRay::renderPli(
   bool hasLGEO      = Preferences::lgeoPath != "";
   bool hasPOVRayIni = Preferences::povrayIniPath != "";
   bool hasPOVRayInc = Preferences::povrayIncPath != "";
+
+  QStringList povArguments;
+  if (Preferences::povrayDisplay){
+      povArguments << QString("+d");
+  } else {
+      povArguments << QString("-d");
+  }
+
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
+  QString W = QString("+W%1").arg(width);
+  QString H = QString("+H%1").arg(height);
+
+  povArguments << O;
+  povArguments << W;
+  povArguments << H;
+  povArguments << USE_ALPHA;
+
+  list = meta.LPub.assem.povrayParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          povArguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
+  }
+  if(hasPOVRayInc){
+      QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
+      povArguments << povinc;
+  }
+  if(hasPOVRayIni){
+      QString povini = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
+      povArguments << povini;
+  }
+  if(hasLGEO){
+      QString lgeoLg = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
+      QString lgeoAr = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+      povArguments << lgeoLg;
+      povArguments << lgeoAr;
+      if (hasSTL){
+          QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
+          povArguments << lgeoStl;
+        }
+    }
+
+//#ifndef __APPLE__
+//  povArguments << "/EXIT";
+//#endif
 
   // LDView block begin
   if (Preferences::povGenRenderer == RENDERER_LDVIEW) {
@@ -619,85 +651,29 @@ int POVRay::renderPli(
   if (Preferences::povGenRenderer == RENDERER_NATIVE) {
       // Renderer options
       NativeOptions Options;
+      QStringList CommandArgs = povArguments;
+      CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
       Options.ImageType         = PLI;
-      Options.PovFileName       = povName;
+      Options.InputFileName     = ldrNames.first();
+      Options.OutputFileName    = povName;
       Options.ImageWidth        = width;
       Options.ImageHeight       = height;
       Options.Latitude          = metaType.angle.value(0);
       Options.Longitude         = -metaType.angle.value(1);                                   // switch from -45
       Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/11659;    // use assembly setting
-
-      // Set and load new project
-      Project* PovGenPliProject = new Project();
-
-      if (PovGenPliProject->Load(ldrNames.first()))
-      {
-        gApplication->SetProject(PovGenPliProject);
-        gMainWindow->UpdateAllViews();
-      }
-      else
-      {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native POV PLI file generate project."));
-        delete PovGenPliProject;
-        return -1;
-      }
+      Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
 
       // Generate pov file
-      if (!CreateNativePovFile(PovGenPliProject, Options))
+      NativePov* nativePov = new NativePov();
+      if (!nativePov->CreateNativePovFile(Options))
       {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV PLI file."));
-        delete PovGenPliProject;
         return -1;
       }
   }
 
-  QStringList povArguments;
-  if (Preferences::povrayDisplay){
-      povArguments << QString("+d");
-  } else {
-      povArguments << QString("-d");
-  }
-
-  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
-  QString W = QString("+W%1").arg(width);
-  QString H = QString("+H%1").arg(height);
-
-  povArguments << I;
-  povArguments << O;
-  povArguments << W;
-  povArguments << H;
-  povArguments << USE_ALPHA;
-
-  list = meta.LPub.assem.povrayParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
-      }
-  }
-  if(hasPOVRayInc){
-      QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
-      povArguments << povinc;
-  }
-  if(hasPOVRayIni){
-      QString povini = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
-      povArguments << povini;
-  }
-  if(hasLGEO){
-      QString lgeoLg = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
-      QString lgeoAr = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
-      povArguments << lgeoLg;
-      povArguments << lgeoAr;
-      if (hasSTL){
-          QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
-          povArguments << lgeoStl;
-        }
-    }
-
-//#ifndef __APPLE__
-//  povArguments << "/EXIT";
-//#endif
+  povArguments.insert(2,I);
 
   emit gui->messageSig(LOG_STATUS, "Executing POVRay render PLI - please wait...");
 
@@ -1369,7 +1345,7 @@ int Native::renderCsi(
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = CSI;
-  Options.ImageFileName     = pngName;
+  Options.OutputFileName     = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = meta.LPub.assem.angle.value(0);
@@ -1417,7 +1393,7 @@ int Native::renderPli(
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = PLI;
-  Options.ImageFileName     = pngName;
+  Options.OutputFileName     = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = metaType.angle.value(0);
@@ -1526,7 +1502,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
 
         CalculateImageBounds(Image);
 
-        QImageWriter Writer(Options.ImageFileName);
+        QImageWriter Writer(Options.OutputFileName);
 
         if (Writer.format().isEmpty())
                 Writer.setFormat("PNG");
@@ -1534,7 +1510,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
         {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native %1 image file '%2': %3.")
-                                     .arg(imageType).arg(Options.ImageFileName).arg(Writer.errorString()));
+                                     .arg(imageType).arg(Options.OutputFileName).arg(Writer.errorString()));
                 return;
         }
 
@@ -1547,405 +1523,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
                 Model->CalculateStep(LC_STEP_MAX);
 }
 
-bool Render::CreateNativePovFile(Project * PovGenProject, const NativeOptions& Options)
-{
 
-         QString Type = Options.ImageType == CSI ? "CSI" : "PLI";
-
-         lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-         Camera->SetOrtho(Options.Orthographic);
-         Camera->Zoom(Options.CameraDistance,PovGenProject->mModels[0]->GetCurrentStep(),true);
-
-         lcArray<lcModelPartsEntry> ModelParts;
-
-         PovGenProject->GetModelParts(ModelParts);
-
-         if (ModelParts.IsEmpty())
-         {
-                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Nothing to export - %1 parts list is empty.").arg(Type));
-                 return false;
-         }
-
-        QString SaveFileName = PovGenProject->GetExportFileName(Options.PovFileName, QLatin1String("pov"), QMessageBox::tr("Export POV-Ray"), QMessageBox::tr("POV-Ray Files (*.pov);;All Files (*.*)"));
-
-	if (SaveFileName.isEmpty())
-		return false;
-
-	lcDiskFile POVFile(SaveFileName);
-
-	if (!POVFile.Open(QIODevice::WriteOnly))
-	{
-		emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not open %1 pov file '%2' for writing.").arg(Type).arg(SaveFileName));
-		return false;
-	}
-
-	char Line[1024];
-
-	static const QString fmtDateTime("ddd MMM d hh:mm:ss yyyy");
-
-	POVFile.WriteLine("// Generated by: " VER_PRODUCTNAME_STR " Native Renderer (C) 2018 Trevor SANDY\n");
-	POVFile.WriteLine("// See: " VER_COMPANYDOMAIN_STR "\n");
-	sprintf(Line, "// Date: %s\n", QDateTime::currentDateTime().toString(fmtDateTime).toLatin1().constData());
-	POVFile.WriteLine(Line);
-	sprintf(Line, "// %s Command: %s\n\n", Type.toLatin1().constData(), Options.PovGenCommand.toLatin1().constData());
-	POVFile.WriteLine(Line);
-	POVFile.WriteLine("// This file was automatically generated from an LDraw file by " VER_PRODUCTNAME_STR "\n\n");
-
-	POVFile.WriteLine("#version 3.6;\n\n");
-
-        POVFile.WriteLine("#declare POVQual = 3;	// Quality (0 = Bounding Box; 1 = No Refraction; 2 = Normal; 3 = Stud Logos)\n");
-        POVFile.WriteLine("#declare POVStuds = 1;	// Show studs? (1 = YES; 0 = NO)\n");
-        POVFile.WriteLine("#declare POVRefls = 1;	// Reflections? (1 = YES; 0 = NO)\n");
-        POVFile.WriteLine("#declare POVShads = 1;	// Shadows? (1 = YES; 0 = NO)\n");
-        POVFile.WriteLine("#declare POVShads = 1;	// Shadows? (1 = YES; 0 = NO)\n\n");
-
-	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	std::map<PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
-	int NumColors = gColorList.GetSize();
-	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
-
-	enum
-	{
-		LGEO_PIECE_LGEO  = 0x01,
-		LGEO_PIECE_AR    = 0x02,
-		LGEO_PIECE_SLOPE = 0x04
-	};
-
-	enum
-	{
-		LGEO_COLOR_SOLID       = 0x01,
-		LGEO_COLOR_TRANSPARENT = 0x02,
-		LGEO_COLOR_CHROME      = 0x04,
-		LGEO_COLOR_PEARL       = 0x08,
-		LGEO_COLOR_METALLIC    = 0x10,
-		LGEO_COLOR_RUBBER      = 0x20,
-		LGEO_COLOR_GLITTER     = 0x40
-	};
-
-	QString LGEOPath = Preferences::lgeoPath;
-
-	if (LGEOPath.isEmpty())
-		POVFile.WriteLine("global_settings {\n  assumed_gamma 1.0\n}\n\n");
-
-	POVFile.WriteLine("#declare lg_quality = POVQual;\n#if (lg_quality = 3)\n#declare lg_quality = 4;\n#end\n\n");
-
-	POVFile.WriteLine("#declare lg_studs = POVStuds;\n\n");
-
-	if (!LGEOPath.isEmpty())
-	{
-		lcDiskFile TableFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_elements.lst")).absoluteFilePath());
-
-		if (!TableFile.Open(QIODevice::ReadOnly))
-		{
-			emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO lg_elements.lst file in folder '%1'.").arg(LGEOPath));
-			return false;
-		}
-
-		while (TableFile.ReadLine(Line, sizeof(Line)))
-		{
-			char Src[1024], Dst[1024], Flags[1024];
-
-			if (*Line == ';')
-				continue;
-
-			if (sscanf(Line,"%s%s%s", Src, Dst, Flags) != 3)
-				continue;
-
-			strcat(Src, ".dat");
-
-			PieceInfo* Info = Library->FindPiece(Src, nullptr, false, false);
-			if (!Info)
-				continue;
-
-			if (strchr(Flags, 'L'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_LGEO;
-				sprintf(Entry.first, "lg_%s", Dst);
-			}
-
-			if (strchr(Flags, 'A'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_AR;
-				sprintf(Entry.first, "ar_%s", Dst);
-			}
-
-			if (strchr(Flags, 'S'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_SLOPE;
-				Entry.first[0] = 0;
-			}
-		}
-
-		lcDiskFile ColorFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_colors.lst")).absoluteFilePath());
-
-		if (!ColorFile.Open(QIODevice::ReadOnly))
-		{
-			emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not find LGEO lg_colors.lst file in folder '%1'.").arg(LGEOPath));
-			return false;
-		}
-
-		while (ColorFile.ReadLine(Line, sizeof(Line)))
-		{
-			char Name[1024], Flags[1024];
-			int Code;
-
-			if (*Line == ';')
-				continue;
-
-			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
-				continue;
-
-			int Color = lcGetColorIndex(Code);
-			if (Color >= NumColors)
-				continue;
-
-			strcpy(ColorTable[Color].data(), Name);
-		}
-	}
-
-	if (!LGEOPath.isEmpty())
-	{
-		POVFile.WriteLine("#include \"lg_defs.inc\"\n#include \"lg_color.inc\"\n\n");
-
-		for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-		{
-			PieceInfo* Info = ModelParts[PartIdx].Info;
-
-			for (int CheckIdx = 0; CheckIdx < ModelParts.GetSize(); CheckIdx++)
-			{
-				if (ModelParts[CheckIdx].Info != Info)
-					continue;
-
-				if (CheckIdx != PartIdx)
-					break;
-
-				auto Search = PieceTable.find(Info);
-
-				if (Search != PieceTable.end())
-				{
-					const std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = Search->second;
-					if (Entry.first[0])
-					{
-						sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
-						POVFile.WriteLine(Line);
-					}
-				}
-
-				break;
-			}
-		}
-
-		POVFile.WriteLine("\n");
-	}
-
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
-	{
-		lcColor* Color = &gColorList[ColorIdx];
-
-		for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-		{
-			int PartColorIdx;
-			PartColorIdx = ModelParts[PartIdx].ColorIndex;
-
-			if (PartColorIdx == ColorIdx)
-			{
-				if (ColorTable[ColorIdx][0])
-				{
-					  sprintf(Line, "#ifndef (POVColor_%d) // %s\n"
-							"#declare POVColor_%d = #if (version >= 3.1) material { #end texture { %s } #if (version >= 3.1) } #end\n"
-							"#end\n",
-							ColorIdx, ColorTable[ColorIdx].data(), ColorIdx, ColorTable[ColorIdx].data());
-				}
-				else
-				if (lcIsColorTranslucent(ColorIdx))
-				{
-					  sprintf(Line, "#ifndef (POVColor_%d) // %s\n"
-							"#declare POVColor_%d = #if (version >= 3.1) material { #end texture { pigment { rgb <%f, %f, %f> filter 0.9 } finish { ambient 0.3 diffuse 0.2 reflection 0.25 phong 0.3 phong_size 60 } } #if (version >= 3.1) } #end\n"
-							"#end\n",
-							ColorIdx, Color->SafeName, ColorIdx, Color->Value[0], Color->Value[1], Color->Value[2]);
-				}
-				else
-				{
-					  sprintf(Line, "#ifndef (POVColor_%d) // %s\n"
-							"#declare POVColor_%d = #if (version >= 3.1) material { #end texture { pigment { rgb <%f, %f, %f> } finish { ambient 0.1 phong 0.2 phong_size 20 } } #if (version >= 3.1) } #end\n"
-							"#end\n",
-							ColorIdx, Color->SafeName, ColorIdx, Color->Value[0], Color->Value[1], Color->Value[2]);
-				}
-
-				POVFile.WriteLine(Line);
-			}
-		}
-
-		if (!ColorTable[ColorIdx][0])
-			sprintf(ColorTable[ColorIdx].data(), "lc_%s", Color->SafeName);
-	}
-
-	POVFile.WriteLine("\n");
-
-	lcArray<const char*> ColorTablePointer;
-	ColorTablePointer.SetSize(NumColors);
-	for (int ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
-		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
-
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-	{
-		PieceInfo* Info = ModelParts[PartIdx].Info;
-		lcMesh* Mesh = Info->GetMesh();
-		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-
-		if (!Mesh || Entry.first[0])
-			continue;
-
-		char Name[LC_PIECE_NAME_LEN];
-		char* Ptr;
-
-		strcpy(Name, Info->mFileName);
-		while ((Ptr = strchr(Name, '-')))
-			*Ptr = '_';
-		while ((Ptr = strchr(Name, '.')))
-			*Ptr = '_';
-
-		sprintf(Entry.first, "lc_%s", Name);
-
-		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
-
-		sprintf(Line, "#declare lc_%s_clear = lc_%s\n\n", Name, Name);
-		POVFile.WriteLine(Line);
-	}
-
-        const lcVector3& Position = Camera->mPosition;
-        const lcVector3& Target = Camera->mTargetPosition;
-        const lcVector3& Up = Camera->mUpVector;
-        const lcModelProperties& Properties = PovGenProject->mModels[0]->GetProperties();
-
-	POVFile.WriteLine("// Camera Settings\n");
-	sprintf(Line, "#declare POVCameraLoc = < %f,%f,%f >;\n", Position[1] / 25.0f, Position[0] / 25.0f, Position[2] / 25.0f);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVCameraLookAt =< %f,%f,%f >;\n", Target[1] / 25.0f, Target[0] / 25.0f, Target[2] / 25.0f);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVCameraSky = < %f,%f,%f >;\n", Up[1], Up[0], Up[2]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVCameraFov = %f;\n\n", Camera->m_fovy);
-	POVFile.WriteLine(Line);
-
-	POVFile.WriteLine("// Camera\n");
-	sprintf(Line, "#ifndef (POVSkipCamera)\n"
-		      "camera {\n"
-		      "  #declare POVCamAspect = image_width/image_height;\n"
-		      "  perspective\n"
-		      "  right x * image_width / image_height\n"
-		      "  location POVCameraLoc\n"
-		      "  sky POVCameraSky\n"
-		      "  look_at POVCameraLookAt\n"
-		      "  angle POVCameraFov * POVCamAspect\n"
-		      "}\n"
-		      "#end\n\n");
-	POVFile.WriteLine(Line);
-
-	sprintf(Line, "background { color rgb <%1g, %1g, %1g> }\n\n", Properties.mBackgroundSolidColor[0], Properties.mBackgroundSolidColor[1], Properties.mBackgroundSolidColor[2]);
-	POVFile.WriteLine(Line);
-
-	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX);
-	lcVector3 Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
-	for (const lcModelPartsEntry& ModelPart : ModelParts)
-	{
-		lcVector3 Points[8];
-
-		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
-
-		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
-		{
-			lcVector3 Point = lcMul31(Points[PointIdx], ModelPart.WorldMatrix);
-
-			Min = lcMin(Point, Min);
-			Max = lcMax(Point, Max);
-		}
-	}
-
-	lcVector3 Center = (Min + Max) / 2.0f;
-	float Radius = (Max - Center).Length() / 25.0f;
-	Center = lcVector3(Center[1], Center[0], Center[2]) / 25.0f;
-
-	POVFile.WriteLine("// Model bounds information\n");
-	sprintf(Line, "#declare POVMinX = %f;\n",Min[1]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVMinY = %f;\n",Min[0]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVMinZ = %f;\n",Min[2]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVMaxX = %f;\n",Max[1]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVMaxY = %f;\n",Max[0]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVMaxZ = %f;\n",Max[2]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVCenterX = %f;\n",Center[1]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVCenterY = %f;\n",Center[0]);
-	POVFile.WriteLine(Line);
-	sprintf(Line, "#declare POVCenterZ = %f;\n",Center[2]);
-	POVFile.WriteLine(Line);
-	POVFile.WriteLine("#declare POVCenter = <POVCenterX,POVCenterY,POVCenterZ>;\n");
-	sprintf(Line, "#declare POVRadius = %f;\n\n", Radius);
-	POVFile.WriteLine(Line);
-
-	POVFile.WriteLine("// Lights\n");
-	sprintf(Line, "#ifndef (POVSkipLight_1)\nlight_source {\n  <%f*POVRadius, %f*POVRadius, %f*POVRadius> + POVCenter\n  color rgb <1,1,1>\n}\n#end\n", 0.0f, -1.414214f, -1.414214f);
-	POVFile.WriteLine(Line); // Latitude,Longitude: 45,0,POVRadius*2
-	sprintf(Line, "#ifndef (POVSkipLight_2)\nlight_source {\n  <%f*POVRadius, %f*POVRadius, %f*POVRadius> + POVCenter\n  color rgb <1,1,1>\n}\n#end\n", 1.5f, -1.0f, 0.866026f);
-	POVFile.WriteLine(Line); // Latitude,Longitude: 30,120,POVRadius*2
-	sprintf(Line, "#ifndef (POVSkipLight_3)\nlight_source {\n  <%f*POVRadius, %f*POVRadius, %f*POVRadius> + POVCenter\n  color rgb <1,1,1>\n}\n#end\n", -0.866025f, -1.732051f, 0.5f);
-	POVFile.WriteLine(Line); // Latitude,Longitude: 60,-120,POVRadius*2
-	sprintf(Line, "#ifndef (POVSkipLight_4)\nlight_source {\n  <%f*POVRadius, %f*POVRadius, %f*POVRadius> + POVCenter\n  color rgb <1,1,1>\n}\n#end\n\n", -2.0f, 0.0f, -2.0f);
-	POVFile.WriteLine(Line);
-
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
-	{
-		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelParts[PartIdx].Info];
-		int ColorIdx;
-
-		ColorIdx = ModelParts[PartIdx].ColorIndex;
-		const char* Suffix = lcIsColorTranslucent(ColorIdx) ? "_clear" : "";
-
-		const float* f = ModelParts[PartIdx].WorldMatrix;
-
-		if (Entry.second & LGEO_PIECE_SLOPE)
-		{
-			sprintf(Line, "merge {\n"
-				      " object {\n"
-				      "   %s%s\n"
-				      "   #if (version >= 3.1) material #else texture #end { POVColor_%d }\n"
-				      " }\n"
-				      " object {\n"
-				      "   %s_slope\n"
-				      "   #if (version >= 3.1) material { #end\n"
-				      "     texture {\n"
-				      "         %s\n"
-				      "         #if (POVQual > 1) normal { bumps 0.3 scale 0.02 } #end\n"
-				      "    }\n"
-				      "   #if (version >= 3.1) } #end\n"
-				      " }\n"
-				      " matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-				      Entry.first, Suffix, ColorIdx, Entry.first, ColorTable[ColorIdx].data(),
-				      -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
-		}
-		else
-		{
-			sprintf(Line, "object {\n %s%s\n #if (version >= 3.1) material #else texture #end { POVColor_%d }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-				      Entry.first, Suffix, ColorIdx, -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
-		}
-
-		POVFile.WriteLine(Line);
-	}
-
-	POVFile.Close();
-
-	return true;
-}
 
 bool Render::LoadViewer(const ViewerOptions &Options){
 

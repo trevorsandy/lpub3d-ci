@@ -1502,7 +1502,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
 
         CalculateImageBounds(Image);
 
-        QImageWriter Writer(Options.ImageFileName);
+        QImageWriter Writer(Options.OutputFileName);
 
         if (Writer.format().isEmpty())
                 Writer.setFormat("PNG");
@@ -1510,7 +1510,7 @@ void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
         if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
         {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native CSI image file '%1': %2.")
-                                     .arg(Options.ImageFileName, Writer.errorString()));
+                                     .arg(Options.OutputFileName, Writer.errorString()));
                 return;
         }
 

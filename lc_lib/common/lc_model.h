@@ -398,7 +398,7 @@ protected:
 	lcArray<lcModelHistoryEntry*> mRedoHistory;
 
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
-/*** LPub3D Mod - create Native PLI image ***/
+/*** LPub3D Mod - create Native PLI image and Pov File ***/
 	friend class Render;
 /*** LPub3D Mod end ***/
 };

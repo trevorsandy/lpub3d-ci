@@ -261,6 +261,7 @@ HEADERS += \
     metaitem.h \
     metatypes.h \
     name.h \
+    nativepov.h \
     numberitem.h \
     pagebackgrounditem.h \
     pageattributetextitem.h \
@@ -339,6 +340,7 @@ SOURCES += \
     metagui.cpp \
     metaitem.cpp \
     multistepglobals.cpp \
+    nativepov.cpp \
     numberitem.cpp \
     openclose.cpp \
     pagebackgrounditem.cpp \

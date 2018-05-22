@@ -138,8 +138,9 @@ protected:
 	lcModel* mActiveModel;
 
 	Q_DECLARE_TR_FUNCTIONS(Project);
-/*** LPub3D Mod - create Native PLI image ***/
+/*** LPub3D Mod - create Native PLI image and Pov File ***/
 	friend class Render;
+	friend class NativePov;
 /*** LPub3D Mod end ***/
 };
 
