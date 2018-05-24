@@ -493,9 +493,8 @@ int POVRay::renderCsi(
         }
     }
 
-  // image matting stub
   if (Preferences::enableFadeSteps) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
+      QString previousPngFile = imageMatt.previousStepCSIImage(csiKeys.first());
       if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
           //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
       }
@@ -834,7 +833,7 @@ int LDGLite::renderCsi(
 
   // image matting stub
   if (Preferences::enableFadeSteps) {
-      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
+      QString previousPngFile = imageMatt.previousStepCSIImage(csiKeys.first());
       if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
           //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
       }
@@ -1141,9 +1140,11 @@ int LDView::renderCsi(
     // image mapping stub
     if (Preferences::enableFadeSteps) {
           for (int i = 0; i < csiKeys.size(); i++) {
-              QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys[i]);
-              if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-                  //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+              QString previousPngFile = imageMatt.previousStepCSIImage(csiKeys[i]);
+              QString currentPngFile = imageMatt.currentStepCSIImage(csiKeys[i]);
+               if (!previousPngFile.isEmpty() && !currentPngFile.isEmpty()) {  // first entry returns "" so check first
+                   imageMatt.processZMap(previousPngFile, currentPngFile);
+                   //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
               }
           }
       }
@@ -1152,9 +1153,12 @@ int LDView::renderCsi(
   {
       // image matting stub
       if (Preferences::enableFadeSteps) {
-          QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys.first());
-          if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
-              //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+          QString previousPngFile = imageMatt.previousStepCSIImage(csiKeys.first());
+          QString currentPngFile = imageMatt.currentStepCSIImage(csiKeys.first());
+          if (!previousPngFile.isEmpty() && !currentPngFile.isEmpty()) { // first entry returns "" so check first
+              imageMatt.processZMap(previousPngFile, currentPngFile);
+              logDebug() << qPrintable(QString("[DEBUG] Previous CSI pngFile: %1").arg(previousPngFile));
+              logDebug() << qPrintable(QString("[DEBUG] Current CSI pngFile: %1").arg(currentPngFile));
           }
       }
   }

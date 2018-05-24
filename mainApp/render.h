@@ -29,7 +29,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "imagematting.h"
+#include "imagematt.h"
 #include "project.h"
 #include "QsLog.h"
 
@@ -108,7 +108,7 @@ public:
 // TODO - REMOVE
 //  int                    load3DCsiImage(QString &);
 
-  ImageMatting            imageMatting;
+  ImageMatt                imageMatt;
 
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;

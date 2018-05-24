@@ -210,13 +210,12 @@ int Step::createCsi(
       .arg(modelScale);
 
   // populate png name
-  pngName = QDir::currentPath() + "/" +
-      Paths::assemDir + "/" + key + ".png";
+  pngName = QString("%1/%2/%3.png").arg(QDir::currentPath()).arg(Paths::assemDir).arg(key);
 
   // add pngName using csiKey
-  csiKey = csiName() + "_" + sn;
-  if (!renderer->imageMatting.stepCSIImageExist(csiKey))
-    renderer->imageMatting.insertStepCSIImage(csiKey, pngName);
+  csiKey = QString("%1_%2").arg(csiName()).arg(sn);
+  if (!renderer->imageMatt.stepCSIImageExist(csiKey))
+    renderer->imageMatt.insertStepCSIImage(csiKey, pngName);
 
   csiOutOfDate = false;
 

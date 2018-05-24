@@ -44,7 +44,7 @@
 class Meta;
 class Callout;
 class Range;
-class ImageMatting;
+class ImageMatt;
 enum PlacementType;
 
 class Step : public AbstractRangeElement

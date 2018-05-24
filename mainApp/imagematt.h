@@ -15,29 +15,36 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEMATTING_H
-#define IMAGEMATTING_H
+#ifndef IMAGEMATT_H
+#define IMAGEMATT_H
 
 #include <QHash>
 #include <QString>
 
+typedef unsigned char LP3DByte;
 /*
  * This class encapsulates image matting functions
  *
  */
 
-class ImageMatting {
+class ImageMatt {
 public:
   /*
    * This constructor clears the hash maps
    */
-  ImageMatting();
+  ImageMatt();
   /*
    * This function provides the translate from csiKey to csiFile
-   * and returns the absolute path csiFile value if it exist.
+   * and returns the absolute path csiFile for the previous step.
    * If there is no translation, an empty string is returned.
    */
   static QString previousStepCSIImage(QString csiKey);
+  /*
+   * This function provides the translate from csiKey to csiFile
+   * and returns the absolute path csiFile for the current step.
+   * If there is no translation, an empty string is returned.
+   */
+  static QString currentStepCSIImage(QString csiKey);
   /*
    * This function inserts an image file entry
    * Required attributes are a csiKey (csiName + stepNumber)
@@ -49,12 +56,20 @@ public:
    * and returns true if found or false if not found
    */
   bool stepCSIImageExist(QString csiKey);
+
+  bool processZMap(QString &previousFile, QString & currentFile);
+
 private:
+  bool zMapFileIsValid(FILE* zMapFile, bool current);
+  static QRgb blendPixel(const QRgb &currPxl, const QRgb &prevPxl);
+  static int roundUp(int value, int nearest);
+  bool isLittleEndian();
+
   static QHash<QString, int> csikey2sequence;       // csiKey, sequence
-  static QHash<int, QString> csisequence2csifile; // sequence, csiFile
+  static QHash<int, QString> csisequence2csifile;   // sequence, csiFile
 
 };
 
-#endif // IMAGEMATTING_H
+#endif // IMAGEMATT_H
 
 
