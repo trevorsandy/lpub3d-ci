@@ -69,6 +69,9 @@ Native  native;
 #define CA "-ca0.01"
 #define USE_ALPHA "+UA"
 
+//Native renderer scale factor
+#define SCALE_FACTOR_NATIVE 11658.9567325322
+
 static double pi = 4*atan(1.0);
 // the default camera distance for real size
 static float LduDistance = 10.0/tan(0.005*pi/180);
@@ -355,7 +358,7 @@ int POVRay::renderCsi(
 //#endif
 
   // LDView block begin
-  if (Preferences::povGenRenderer == RENDERER_LDVIEW) {
+  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
       int rc;
       if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName, QString())) < 0) {
           return rc;
@@ -438,7 +441,7 @@ int POVRay::renderCsi(
     }
   else
   // Native block begin
-  if (Preferences::povGenRenderer == RENDERER_NATIVE) {
+  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
        // Renderer options
        NativeOptions Options;
        QStringList CommandArgs = povArguments;
@@ -451,7 +454,7 @@ int POVRay::renderCsi(
        Options.Latitude          = meta.LPub.assem.angle.value(0);
        Options.Longitude         = meta.LPub.assem.angle.value(1);
        Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-       Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/11659;
+       Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
        Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
 
        // Generate pov file
@@ -572,7 +575,7 @@ int POVRay::renderPli(
 //#endif
 
   // LDView block begin
-  if (Preferences::povGenRenderer == RENDERER_LDVIEW) {
+  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
       /* determine camera distance */
       int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
@@ -647,7 +650,7 @@ int POVRay::renderPli(
     }
   else
   // Native block begin
-  if (Preferences::povGenRenderer == RENDERER_NATIVE) {
+  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
       // Renderer options
       NativeOptions Options;
       QStringList CommandArgs = povArguments;
@@ -659,7 +662,7 @@ int POVRay::renderPli(
       Options.ImageHeight       = height;
       Options.Latitude          = metaType.angle.value(0);
       Options.Longitude         = -metaType.angle.value(1);                                   // switch from -45
-      Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/11659;    // use assembly setting
+      Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;    // use assembly setting
       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
 
       // Generate pov file
@@ -1355,7 +1358,7 @@ int Native::renderCsi(
   Options.Latitude          = meta.LPub.assem.angle.value(0);
   Options.Longitude         = meta.LPub.assem.angle.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-  Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/11659;
+  Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
 
   // Set new project
   Project* CsiImageProject = new Project();
@@ -1397,12 +1400,12 @@ int Native::renderPli(
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = PLI;
-  Options.OutputFileName     = pngName;
+  Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = metaType.angle.value(0);
   Options.Longitude         = metaType.angle.value(1);
-  Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/11659;
+  Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;
 
   // Set and load new project
   Project* PliImageProject = new Project();
@@ -1440,11 +1443,8 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         lcContext* Context = ActiveView->mContext;
 
         lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-
-        //Camera->SetAngles(Options.Latitude,Options.Longitude);
-
-        Camera->SetOrtho(Options.Orthographic);
-
+        //Camera->SetOrtho(Options.Orthographic);
+        Camera->SetAngles(Options.Latitude,Options.Longitude);
         Camera->Zoom(Options.CameraDistance,CurrentStep,true);
 
         const int ImageWidth = Options.ImageWidth;
@@ -1527,8 +1527,6 @@ void Render::CreateNativeImage(const NativeOptions &Options)
                 Model->CalculateStep(LC_STEP_MAX);
 }
 
-
-
 bool Render::LoadViewer(const ViewerOptions &Options){
 
     QString viewerCsiName = Options.ViewerCsiName;
@@ -1552,7 +1550,7 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     ActiveView->SetProjection(Options.Orthographic);
 
-//--    ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+    //ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
 
     return true;
 }

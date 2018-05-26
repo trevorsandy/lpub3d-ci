@@ -454,9 +454,11 @@ int Pli::createPartImage(
       Paths::partsDir + "/" + key + ".png";
   QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" +
       Paths::tmpDir + "/pli.ldr");
+
 // TODO - REMOVE
 //  QString ldrName = QDir::currentPath() + "/" +
 //      Paths::tmpDir + "/pli.ldr";
+
   QFile part(imageName);
   
   if ( ! part.exists()) {
@@ -477,11 +479,17 @@ int Pli::createPartImage(
 
       QTextStream out(&part);
       if ((Preferences::preferredRenderer == RENDERER_POVRAY &&
-          Preferences::povGenRenderer == RENDERER_NATIVE) ||
+          Preferences::povFileGenerator == RENDERER_NATIVE) ||
           Preferences::preferredRenderer == RENDERER_NATIVE) {
-          out << QString("0 !LEOCAD MODEL NAME %1").arg(partialKey) << endl;
+          QString partLine;
+          if (Preferences::preferredRenderer == RENDERER_POVRAY)
+            partLine = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type); // For Native POV generation, we do not use pli.mpd orientation
+          else
+            partLine = orient(color, type);
+          out << renderer->getRotstepMeta(meta->rotStep) << endl;
           out << QString("0 FILE %1.ldr").arg(partialKey) << endl;
-          out << orient(color, type) << endl;
+          out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(partialKey) << endl;
+          out << partLine << endl;
           out << QString("0 NOFILE") << endl;
       }
       else
@@ -491,7 +499,6 @@ int Pli::createPartImage(
       part.close();
       
       // feed DAT to renderer
-
       int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
 
       if (rc != 0) {

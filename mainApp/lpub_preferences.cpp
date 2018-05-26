@@ -44,18 +44,18 @@
 Preferences preferences;
 QDate date = QDate::currentDate();
 
-QString Preferences::lpub3dAppName              = "";
-QString Preferences::ldrawPath                  = "";
-QString Preferences::altLDConfigPath            = "";
-QString Preferences::lpub3dLibFile              = "";
+QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
+QString Preferences::ldrawPath                  = EMPTY_STRING_DEFAULT;
+QString Preferences::altLDConfigPath            = EMPTY_STRING_DEFAULT;
+QString Preferences::lpub3dLibFile              = EMPTY_STRING_DEFAULT;
 QString Preferences::lgeoPath;
-QString Preferences::lpub3dPath                 = ".";
-QString Preferences::lpub3dExtrasResourcePath   = ".";
-QString Preferences::lpub3dDocsResourcePath     = ".";
-QString Preferences::lpub3d3rdPartyConfigDir    = ".";
-QString Preferences::lpub3d3rdPartyAppDir       = ".";
-QString Preferences::lpubDataPath               = ".";
-QString Preferences::lpubExtrasPath             = ".";
+QString Preferences::lpub3dPath                 = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dExtrasResourcePath   = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
+QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
+QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
+QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
+QString Preferences::lpubExtrasPath             = DOT_PATH_DEFAULT;
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
 QString Preferences::povrayConf;
@@ -89,7 +89,7 @@ QString Preferences::ldgliteSearchDirs;
 QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
-QString Preferences::povGenRenderer             = RENDERER_NATIVE;
+QString Preferences::povFileGenerator             = RENDERER_NATIVE;
 
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
@@ -157,7 +157,7 @@ bool    Preferences::ldviewMissingLibs          = true;
 bool    Preferences::povrayMissingLibs          = true;
 #endif
 
-int     Preferences::fadeStepsOpacity            = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
+int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
 int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
 int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
@@ -166,6 +166,44 @@ int     Preferences::pageHeight                 = PAGE_HEIGHT_DEFAULT;
 int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
 int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
+
+// Native Pov file generation settings
+QString Preferences::lights                     = LIGHTS_COMBO_DEFAULT;
+QString Preferences::xmlMapPath                 = XML_MAP_PATH_DEFAULT;
+QString Preferences::topInclude                 = TOP_INCLUDE_DEFAULT;
+QString Preferences::bottomInclude              = BOTTM_INCLUDE_DEFAULT;
+float   Preferences::seamWidth                  = SEAM_WIDTH_DEFAULT;
+float   Preferences::customAspectRatio          = CUSTOM_ASPECT_RATIO_DEFAULT;
+float   Preferences::ambient                    = AMBIENT_DEFAULT;
+float   Preferences::diffuse                    = DIFFUSE_DEFAULT;
+float   Preferences::refl                       = REFLECTION_DEFAULT;
+float   Preferences::phong                      = PHONG_DEFAULT;
+float   Preferences::phongSize                  = PHONG_SIZE_DEFAULT;
+float   Preferences::transRefl                  = TRANS_REFLECTION_DEFAULT;
+float   Preferences::transFilter                = TRANS_FILTER_DEFAULT;
+float   Preferences::transIoR                   = TRANS_IOR_DEFAULT;
+float   Preferences::rubberRefl                 = RUBBER_REFLECTION_DEFAULT;
+float   Preferences::rubberPhong                = RUBBER_PHONG_DEFAULT;
+float   Preferences::rubberPhongSize            = RUBBER_PHONG_SIZE_DEFAULT;
+float   Preferences::chromeRefl                 = CHROME_REFLECTION_DEFAULT;
+float   Preferences::chromeBril                 = CHROME_BRILLIANCE_DEFAULT;
+float   Preferences::chromeSpecular             = CHROME_SPECULAR_DEFAULT;
+float   Preferences::chromeRoughness            = CHROME_ROUGHNESS_DEFAULT;
+float   Preferences::edgeRadius                 = EDGE_RADIUS_DEFAULT;
+int     Preferences::fileVersion                = FILE_VERSION_DEFAULT;
+int     Preferences::quality                    = QUALITY_DEFAULT;
+int     Preferences::selectedAspectRatio        = SELECTED_ASPECT_RATIO_DEFAULT;
+bool    Preferences::seams                      = true;
+bool    Preferences::reflections                = true;
+bool    Preferences::shadows                    = true;
+bool    Preferences::inlinePov                  = true;
+bool    Preferences::smoothCurves               = true;
+bool    Preferences::unmirrorStuds              = true;
+bool    Preferences::xmlMap                     = false;
+bool    Preferences::hideStuds                  = false;
+bool    Preferences::findReplacements           = false;
+bool    Preferences::conditionalEdgeLines       = false;
+bool    Preferences::primitiveSubstitution      = false;
 
 Preferences::Preferences()
 {
@@ -1534,12 +1572,12 @@ void Preferences::rendererPreferences(bool updateExisting)
     }
 
     // povray generation renderer
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PovGenRenderer"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"povFileGenerator"))) {
         QVariant cValue(RENDERER_NATIVE);
-        povGenRenderer = RENDERER_NATIVE;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovGenRenderer"),cValue);
+        povFileGenerator = RENDERER_NATIVE;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"povFileGenerator"),cValue);
     } else {
-        povGenRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,"PovGenRenderer")).toString();
+        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"povFileGenerator")).toString();
     }
 
     // display povray image during rendering
@@ -1737,7 +1775,7 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
                 if (line.contains(QRegExp("^XmlMapPath=")))
                 {
                     line.clear();
-                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/LGEO.xml").arg(lgeoPath)));
+                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
                 }
             }
             logInfo() << QString("LDViewPOV.ini OUT: %1").arg(line);
@@ -2286,10 +2324,10 @@ bool Preferences::getPreferences()
             updatePOVRayConfFile(true);          //lgeo path changed
         }
 
-        if (povGenRenderer != dialog->povGenRenderer())
+        if (povFileGenerator != dialog->povFileGenerator())
         {
-            povGenRenderer = dialog->povGenRenderer();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovGenRenderer"),povGenRenderer);
+            povFileGenerator = dialog->povFileGenerator();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"povFileGenerator"),povFileGenerator);
         }
 
         if (povrayDisplay != dialog->povrayDisplay())
@@ -2840,4 +2878,286 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
             return false;
     }
     return true;
+}
+
+void Preferences::nativePovGenPreferences()
+{
+    QSettings Settings;
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"SeamWidth"))) {
+            seamWidth = SEAM_WIDTH_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"SeamWidth"),seamWidth);
+    } else {
+            seamWidth = Settings.value(QString("%1/%2").arg(POVRAY,"SeamWidth")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Quality"))) {
+            quality = QUALITY_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Quality"),quality);
+    } else {
+            quality = Settings.value(QString("%1/%2").arg(POVRAY,"Quality")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"SelectedAspectRatio"))) {
+            selectedAspectRatio = SELECTED_ASPECT_RATIO_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"SelectedAspectRatio"),selectedAspectRatio);
+    } else {
+            selectedAspectRatio = Settings.value(QString("%1/%2").arg(POVRAY,"SelectedAspectRatio")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"CustomAspectRatio"))) {
+            customAspectRatio = CUSTOM_ASPECT_RATIO_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"CustomAspectRatio"),customAspectRatio);
+    } else {
+            customAspectRatio = Settings.value(QString("%1/%2").arg(POVRAY,"CustomAspectRatio")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Ambient"))) {
+            ambient = AMBIENT_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Ambient"),ambient);
+    } else {
+            ambient = Settings.value(QString("%1/%2").arg(POVRAY,"Ambient")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Diffuse"))) {
+            diffuse = DIFFUSE_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Diffuse"),diffuse);
+    } else {
+            diffuse = Settings.value(QString("%1/%2").arg(POVRAY,"Diffuse")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Refl"))) {
+            refl = REFLECTION_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Refl"),refl);
+    } else {
+            refl = Settings.value(QString("%1/%2").arg(POVRAY,"Refl")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Phong"))) {
+            phong = PHONG_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Phong"),phong);
+    } else {
+            phong = Settings.value(QString("%1/%2").arg(POVRAY,"Phong")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"PhongSize"))) {
+            phongSize = PHONG_SIZE_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"PhongSize"),phongSize);
+    } else {
+            phongSize = Settings.value(QString("%1/%2").arg(POVRAY,"PhongSize")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"TransRefl"))) {
+            transRefl = TRANS_REFLECTION_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"TransRefl"),transRefl);
+    } else {
+            transRefl = Settings.value(QString("%1/%2").arg(POVRAY,"TransRefl")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"TransFilter"))) {
+            transFilter = TRANS_FILTER_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"TransFilter"),transFilter);
+    } else {
+            transFilter = Settings.value(QString("%1/%2").arg(POVRAY,"TransFilter")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"TransIoR"))) {
+            transIoR = TRANS_IOR_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"TransIoR"),transIoR);
+    } else {
+            transIoR = Settings.value(QString("%1/%2").arg(POVRAY,"TransIoR")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"RubberRefl"))) {
+            rubberRefl = RUBBER_REFLECTION_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberRefl"),rubberRefl);
+    } else {
+            rubberRefl = Settings.value(QString("%1/%2").arg(POVRAY,"RubberRefl")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"RubberPhong"))) {
+            rubberPhong = RUBBER_PHONG_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhong"),rubberPhong);
+    } else {
+            rubberPhong = Settings.value(QString("%1/%2").arg(POVRAY,"RubberPhong")).toFloat();
+    }
+
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"RubberPhongSize"))) {
+            rubberPhongSize = RUBBER_PHONG_SIZE_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhongSize"),rubberPhongSize);
+    } else {
+            rubberPhongSize = Settings.value(QString("%1/%2").arg(POVRAY,"RubberPhongSize")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"ChromeRefl"))) {
+            chromeRefl = CHROME_REFLECTION_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRefl"),rendererTimeout);
+    } else {
+            chromeRefl = Settings.value(QString("%1/%2").arg(POVRAY,"ChromeRefl")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"ChromeBril"))) {
+            chromeBril = CHROME_BRILLIANCE_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeBril"),chromeBril);
+    } else {
+            chromeBril = Settings.value(QString("%1/%2").arg(POVRAY,"ChromeBril")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"ChromeSpecular"))) {
+            chromeSpecular = CHROME_SPECULAR_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeSpecular"),rendererTimeout);
+    } else {
+            chromeSpecular = Settings.value(QString("%1/%2").arg(POVRAY,"ChromeSpecular")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"ChromeRoughness"))) {
+            chromeRoughness = CHROME_ROUGHNESS_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRoughness"),chromeRoughness);
+    } else {
+            chromeRoughness = Settings.value(QString("%1/%2").arg(POVRAY,"ChromeRoughness")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"FileVersion"))) {
+            fileVersion = FILE_VERSION_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"FileVersion"),fileVersion);
+    } else {
+            fileVersion = Settings.value(QString("%1/%2").arg(POVRAY,"FileVersion")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Seams"))) {
+            QVariant eValue(true);
+            seams = true;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Seams"),eValue);
+    } else {
+            seams = Settings.value(QString("%1/%2").arg(POVRAY,"Seams")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Reflections"))) {
+            QVariant eValue(true);
+            reflections = true;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Reflections"),eValue);
+    } else {
+            reflections = Settings.value(QString("%1/%2").arg(POVRAY,"Reflections")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Shadows"))) {
+            QVariant eValue(true);
+            shadows = true;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Shadows"),eValue);
+    } else {
+            shadows = Settings.value(QString("%1/%2").arg(POVRAY,"Shadows")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"XmlMap"))) {
+            QVariant eValue(true);
+            xmlMap = true;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMap"),eValue);
+    } else {
+            xmlMap = Settings.value(QString("%1/%2").arg(POVRAY,"XmlMap")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"InlinePov"))) {
+            QVariant eValue(true);
+            inlinePov = true;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"InlinePov"),eValue);
+    } else {
+            inlinePov = Settings.value(QString("%1/%2").arg(POVRAY,"InlinePov")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"SmoothCurves"))) {
+            QVariant eValue(true);
+            smoothCurves = true;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"SmoothCurves"),eValue);
+    } else {
+            smoothCurves = Settings.value(QString("%1/%2").arg(POVRAY,"SmoothCurves")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"HideStuds"))) {
+            QVariant eValue(false);
+            hideStuds = false;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"HideStuds"),eValue);
+    } else {
+            hideStuds = Settings.value(QString("%1/%2").arg(POVRAY,"HideStuds")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"FindReplacements"))) {
+            QVariant eValue(false);
+            findReplacements = false;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"FindReplacements"),eValue);
+    } else {
+            findReplacements = Settings.value(QString("%1/%2").arg(POVRAY,"FindReplacements")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"ConditionalEdgeLines"))) {
+            QVariant eValue(false);
+            conditionalEdgeLines = false;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"ConditionalEdgeLines"),eValue);
+    } else {
+            conditionalEdgeLines = Settings.value(QString("%1/%2").arg(POVRAY,"ConditionalEdgeLines")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"UnmirrorStuds"))) {
+            bool enable = Preferences::quality == 3; // 3=Include stud logo
+            QVariant eValue(enable);
+            unmirrorStuds = enable;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"UnmirrorStuds"),eValue);
+    } else {
+            unmirrorStuds = Settings.value(QString("%1/%2").arg(POVRAY,"UnmirrorStuds")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"XmlMapPath"))) {
+            QFileInfo resourceFile(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath, VER_LGEO_XML_FILE)));
+            if (resourceFile.exists()) {
+              xmlMapPath = resourceFile.absoluteFilePath();
+              QVariant cValue(xmlMapPath);
+              Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMapPath"),cValue);
+            } else {
+              xmlMapPath = XML_MAP_PATH_DEFAULT;
+              Settings.remove(QString("%1/%2").arg(POVRAY, "XmlMapPath"));
+            }
+            logInfo() << QString("LGEO.xml file    : %1").arg(xmlMapPath.isEmpty() ? "Not found" : xmlMapPath);
+    } else {
+            xmlMapPath = Settings.value(QString("%1/%2").arg(POVRAY,"XmlMapPath")).toString();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"TopInclude"))) {
+            QVariant cValue(TOP_INCLUDE_DEFAULT);
+            topInclude = TOP_INCLUDE_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"TopInclude"),cValue);
+    } else {
+            topInclude = Settings.value(QString("%1/%2").arg(POVRAY,"TopInclude")).toString();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"BottomInclude"))) {
+            QVariant cValue(BOTTM_INCLUDE_DEFAULT);
+            bottomInclude = BOTTM_INCLUDE_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"BottomInclude"),cValue);
+    } else {
+            bottomInclude = Settings.value(QString("%1/%2").arg(POVRAY,"BottomInclude")).toString();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"Lights"))) {
+            QVariant cValue(LIGHTS_COMBO_DEFAULT);
+            lights = LIGHTS_COMBO_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"Lights"),cValue);
+    } else {
+            lights = Settings.value(QString("%1/%2").arg(POVRAY,"Lights")).toString();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"EdgeRadius"))) {
+            edgeRadius = EDGE_RADIUS_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"EdgeRadius"),edgeRadius);
+    } else {
+            edgeRadius = Settings.value(QString("%1/%2").arg(POVRAY,"EdgeRadius")).toFloat();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"PrimitiveSubstitution"))) {
+            QVariant eValue(false);
+            primitiveSubstitution = false;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"PrimitiveSubstitution"),eValue);
+    } else {
+            primitiveSubstitution = Settings.value(QString("%1/%2").arg(POVRAY,"PrimitiveSubstitution")).toBool();
+    }
+
 }

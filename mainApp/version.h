@@ -53,6 +53,7 @@
 #define VER_LDGLITE_INI_FILE                "ldglite.ini"     // LDGLite renderer config settings
 #define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
 #define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
+#define VER_LGEO_XML_FILE                   "LGEO.xml"        // LGEO xml file
 
 // ~~~~~~ App Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 

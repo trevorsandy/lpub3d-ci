@@ -263,6 +263,7 @@ HEADERS += \
     metatypes.h \
     name.h \
     nativepov.h \
+    nativepovpreferences.h \
     numberitem.h \
     pagebackgrounditem.h \
     pageattributetextitem.h \
@@ -342,6 +343,7 @@ SOURCES += \
     metaitem.cpp \
     multistepglobals.cpp \
     nativepov.cpp \
+    nativepovpreferences.cpp \
     numberitem.cpp \
     openclose.cpp \
     pagebackgrounditem.cpp \
@@ -389,7 +391,8 @@ SOURCES += \
 FORMS += \
     preferences.ui \
     aboutdialog.ui \
-    dialogexportpages.ui
+    dialogexportpages.ui \
+    nativepovpreferences.ui
 
 OTHER_FILES += \
     Info.plist \

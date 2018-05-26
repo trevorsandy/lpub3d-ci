@@ -56,7 +56,7 @@ class PreferencesDialog : public QDialog
     QString const logLevelCombo();
     QString const fadeStepsColour();
     QString const highlightStepColour();
-    QString const povGenRenderer();
+    QString const povFileGenerator();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();
@@ -131,6 +131,11 @@ class PreferencesDialog : public QDialog
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
     void checkForUpdates();
+
+    void on_nativePoVFileGenBtn_clicked();
+    void on_preferredRenderer_currentIndexChanged(const QString &arg1);
+    void on_povGenNativeRadio_clicked(bool checked);
+    void on_povGenLDViewRadio_clicked(bool checked);
 
 private:
     Ui::PreferencesDialog ui;

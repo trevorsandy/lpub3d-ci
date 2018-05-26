@@ -35,6 +35,9 @@ Q_DECLARE_METATYPE(LogType);
 #define UPDATES      "Updates"
 #define LOGGING      "Logging"
 
+#define DOT_PATH_DEFAULT                     "."
+#define EMPTY_STRING_DEFAULT                 ""
+
 #define LOGGING_LEVEL_DEFAULT             "STATUS"
 
 #define UPDATE_CHECK_FREQUENCY_DEFAULT    0     //0=Never,1=Daily,2=Weekly,3=Monthly
@@ -79,5 +82,62 @@ Q_DECLARE_METATYPE(LogType);
 
 #define HIGHLIGHT_COLOUR_DEFAULT          "#FFFF00"      // Bright Yellow
 #define HIGHLIGHT_LINE_WIDTH_DEFAULT      1              // line width 1 - 5
+
+// Native pov file generation defaults
+#define SEAM_WIDTH_DEFAULT                   0.5
+#define QUALITY_DEFAULT                      3
+#define SELECTED_ASPECT_RATIO_DEFAULT        0
+#define CUSTOM_ASPECT_RATIO_DEFAULT          1.5f
+#define EDGE_RADIUS_DEFAULT                  0.15f
+#define AMBIENT_DEFAULT                      0.4f
+#define DIFFUSE_DEFAULT                      0.4f
+#define REFLECTION_DEFAULT                   0.08f
+#define PHONG_DEFAULT                        0.5f
+#define PHONG_SIZE_DEFAULT                   40.0f
+#define TRANS_REFLECTION_DEFAULT             0.2f
+#define TRANS_FILTER_DEFAULT                 0.85f
+#define TRANS_IOR_DEFAULT                    1.25f
+#define RUBBER_REFLECTION_DEFAULT            0.0f
+#define RUBBER_PHONG_DEFAULT                 0.1f
+#define RUBBER_PHONG_SIZE_DEFAULT            10.0f
+#define CHROME_REFLECTION_DEFAULT            0.85f
+#define CHROME_BRILLIANCE_DEFAULT            5.0f
+#define CHROME_SPECULAR_DEFAULT              0.8F
+#define CHROME_ROUGHNESS_DEFAULT             0.01f
+#define FILE_VERSION_DEFAULT                 0
+
+#define XML_MAP_PATH_DEFAULT                 EMPTY_STRING_DEFAULT
+#define TOP_INCLUDE_DEFAULT                  EMPTY_STRING_DEFAULT
+#define BOTTM_INCLUDE_DEFAULT                EMPTY_STRING_DEFAULT
+
+#define LIGHT_01                             "1. Latitude 45.0 Longitude 0.0"     // 0
+#define LIGHT_02                             "2. Latitude 30.0 Longitude 120.0"   // 1
+#define LIGHT_03                             "3. Latitude 60.0 Longitude -120.0"  // 2
+#define LIGHTS_COMBO_DEFAULT                 LIGHT_01 "," LIGHT_02 "," LIGHT_03
+
+#define QUALITY_01                          "1. Bounding boxes only"              // 0
+#define QUALITY_02                          "2. No refraction"                    // 1
+#define QUALITY_03                          "3. Normal"                           // 2
+#define QUALITY_04                          "4. Include stud logo"                // 3
+#define QUALITY_COMBO_DEFAULT                QUALITY_01 "," QUALITY_02 "," QUALITY_03 "," QUALITY_04
+
+#define POV_FILE_VER_01                     "3.6"                                 // 0
+#define POV_FILE_VER_02                     "3.7"                                 // 1
+#define POV_FILE_VER_03                     "3.8"                                 // 2
+#define POV_FILE_VERSION_COMBO_DEFAULT      POV_FILE_VER_01 "," POV_FILE_VER_02 "," POV_FILE_VER_03
+
+#define ASPECT_RATIO_01                     "Automatic"                           // 0
+#define ASPECT_RATIO_02                     "5:4"                                 // 1
+#define ASPECT_RATIO_03                     "4:3"                                 // 2
+#define ASPECT_RATIO_04                     "3:2"                                 // 3
+#define ASPECT_RATIO_05                     "5:3"                                 // 4
+#define ASPECT_RATIO_06                     "16:9"                                // 5
+#define ASPECT_RATIO_07                     "2.35:1"                              // 6
+#define ASPECT_RATIO_08                     "3DViewer Aspect Ratio"               // 7
+#define ASPECT_RATIO_09                     "Custom"                              // 8
+#define SELECTED_ASPECT_RATIO_COMBO_DEFAULT ASPECT_RATIO_01 "," ASPECT_RATIO_02 "," ASPECT_RATIO_03 "," \
+                                            ASPECT_RATIO_04 "," ASPECT_RATIO_05 "," ASPECT_RATIO_06 "," \
+                                            ASPECT_RATIO_07 "," ASPECT_RATIO_08 "," ASPECT_RATIO_09
+
 
 #endif

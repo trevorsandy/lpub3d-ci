@@ -36,6 +36,8 @@ NativePov nativePov;
 
 bool NativePov::CreateNativePovFile(const NativeOptions& Options)
 {
+          QString Type = Options.ImageType == Render::CSI ? "CSI" : "PLI";
+
           // Options
           m_InputFileName = Options.InputFileName;
           m_OutputFileName = Options.OutputFileName;
@@ -62,8 +64,6 @@ bool NativePov::CreateNativePovFile(const NativeOptions& Options)
             delete PovGenProject;
             return false;
           }
-
-         QString Type = Options.ImageType == Render::CSI ? "CSI" : "PLI";
 
          lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
          //Camera->SetOrtho(Options.Orthographic);

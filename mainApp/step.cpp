@@ -170,7 +170,7 @@ int Step::createCsi(
 {
   bool    nativeRenderer  = (Preferences::preferredRenderer == RENDERER_NATIVE ||
                             (Preferences::preferredRenderer == RENDERER_POVRAY &&
-                             Preferences::povGenRenderer == RENDERER_NATIVE));
+                             Preferences::povFileGenerator == RENDERER_NATIVE));
   QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : csiName();
   qreal   modelScale      = meta.LPub.assem.modelScale.value();
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();

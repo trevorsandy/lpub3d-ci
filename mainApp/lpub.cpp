@@ -1517,12 +1517,53 @@ void Gui::preferences()
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
-    QString povGenRendererCompare       = Preferences::povGenRenderer;
+    QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
+
+   // Native Pov file generation settings
+    int qualityCompare                  = Preferences::quality;
+    int fileVersionCompare              = Preferences::fileVersion;
+    int selectedAspectRatioCompare      = Preferences::selectedAspectRatio;
+
+    float customAspectRatioCompare      = Preferences::customAspectRatio;
+    float seamWidthCompare              = Preferences::seamWidth;
+    float ambientCompare                = Preferences::ambient;
+    float diffuseCompare                = Preferences::diffuse;
+    float reflCompare                   = Preferences::refl;
+    float phongCompare                  = Preferences::phong;
+    float phongSizeCompare              = Preferences::phongSize;
+    float transReflCompare              = Preferences::transRefl;
+    float transFilterCompare            = Preferences::transFilter;
+    float transIoRCompare               = Preferences::transIoR;
+    float rubberReflCompare             = Preferences::rubberRefl;
+    float rubberPhongCompare            = Preferences::rubberPhong;
+    float rubberPhongSizeCompare        = Preferences::rubberPhongSize;
+    float chromeReflCompare             = Preferences::chromeRefl;
+    float chromeBrilCompare             = Preferences::chromeBril;
+    float chromeSpecularCompare         = Preferences::chromeSpecular;
+    float chromeRoughnessCompare        = Preferences::chromeRoughness;
+    float edgeRadiusCompare             = Preferences::edgeRadius;
+
+    bool seamsCompare                   = Preferences::seams;
+    bool reflectionsCompare             = Preferences::reflections;
+    bool shadowsCompare                 = Preferences::shadows;
+    bool xmlMapCompare                  = Preferences::xmlMap;
+    bool inlinePovCompare               = Preferences::inlinePov;
+    bool smoothCurvesCompare            = Preferences::smoothCurves;
+    bool hideStudsCompare               = Preferences::hideStuds;
+    bool unmirrorStudsCompare           = Preferences::unmirrorStuds;
+    bool findReplacementsCompare        = Preferences::findReplacements;
+    bool conditionalEdgeLinesCompare    = Preferences::conditionalEdgeLines;
+    bool primitiveSubstitutionCompare   = Preferences::primitiveSubstitution;
+
+    QString xmlMapPathCompare           = Preferences::xmlMapPath;
+    QString topIncludeCompare           = Preferences::topInclude;
+    QString bottomIncludeCompare        = Preferences::bottomInclude;
+    QString lightsCompare               = Preferences::lights;
 
     if (Preferences::getPreferences()) {
 
@@ -1542,10 +1583,51 @@ void Gui::preferences()
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
         bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
-        bool povGenRendererChanged         = Preferences::povGenRenderer                         != povGenRendererCompare;
+        bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
+
+        // Native Pov file generation settings
+        bool seamWidthChanged              = Preferences::seamWidth                              != seamWidthCompare;
+        bool qualityChanged                = Preferences::quality                                != qualityCompare;
+        bool selectedAspectRatioChanged    = Preferences::selectedAspectRatio                    != selectedAspectRatioCompare;
+        bool customAspectRatioChanged      = Preferences::customAspectRatio                      != customAspectRatioCompare;
+        bool ambientChanged                = Preferences::ambient                                != ambientCompare;
+        bool diffuseChanged                = Preferences::diffuse                                != diffuseCompare;
+        bool reflChanged                   = Preferences::refl                                   != reflCompare;
+        bool phongChanged                  = Preferences::phong                                  != phongCompare;
+        bool phongSizeChanged              = Preferences::phongSize                              != phongSizeCompare;
+        bool transReflChanged              = Preferences::transRefl                              != transReflCompare;
+        bool transFilterChanged            = Preferences::transFilter                            != transFilterCompare;
+        bool transIoRChanged               = Preferences::transIoR                               != transIoRCompare;
+        bool rubberReflChanged             = Preferences::rubberRefl                             != rubberReflCompare;
+        bool rubberPhongChanged            = Preferences::rubberPhong                            != rubberPhongCompare;
+        bool rubberPhongSizeChanged        = Preferences::rubberPhongSize                        != rubberPhongSizeCompare;
+        bool chromeReflChanged             = Preferences::chromeRefl                             != chromeReflCompare;
+        bool chromeBrilChanged             = Preferences::chromeBril                             != chromeBrilCompare;
+        bool chromeSpecularChanged         = Preferences::chromeSpecular                         != chromeSpecularCompare;
+        bool chromeRoughnessChanged        = Preferences::chromeRoughness                        != chromeRoughnessCompare;
+        bool fileVersionChanged            = Preferences::fileVersion                            != fileVersionCompare;
+        bool seamsChanged                  = Preferences::seams                                  != seamsCompare;
+        bool reflectionsChanged            = Preferences::reflections                            != reflectionsCompare;
+        bool shadowsChanged                = Preferences::shadows                                != shadowsCompare;
+        bool xmlMapChanged                 = Preferences::xmlMap                                 != xmlMapCompare;
+        bool inlinePovChanged              = Preferences::inlinePov                              != inlinePovCompare;
+        bool smoothCurvesChanged           = Preferences::smoothCurves                           != smoothCurvesCompare;
+        bool hideStudsChanged              = Preferences::hideStuds                              != hideStudsCompare;
+        bool unmirrorStudsChanged          = Preferences::unmirrorStuds                          != unmirrorStudsCompare;
+        bool findReplacementsChanged       = Preferences::findReplacements                       != findReplacementsCompare;
+        bool conditionalEdgeLinesChanged   = Preferences::conditionalEdgeLines                   != conditionalEdgeLinesCompare;
+        bool primitiveSubstitutionChanged  = Preferences::primitiveSubstitution                  != primitiveSubstitutionCompare;
+        bool edgeRadiusChanged             = Preferences::edgeRadius                             != edgeRadiusCompare;
+
+        bool lightsChanged                 = QString(Preferences::lights).toLower()              != lightsCompare.toLower();
+        bool xmlMapPathChanged             = QString(Preferences::xmlMapPath).toLower()          != xmlMapPathCompare.toLower();
+        bool topIncludeChanged             = QString(Preferences::topInclude).toLower()          != topIncludeCompare.toLower();
+        bool bottomIncludeChanged          = QString(Preferences::bottomInclude).toLower()       != bottomIncludeCompare.toLower();
+
+        bool nativePovRendererConfig       = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
         if (enableFadeStepsChanged)
         {
@@ -1617,10 +1699,10 @@ void Gui::preferences()
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
 
-        if (povGenRendererChanged)
+        if (povFileGeneratorChanged)
             logInfo() << QString("POV file generation renderer changed from %1 to %2")
-                         .arg(povGenRendererCompare)
-                         .arg(Preferences::povGenRenderer);
+                         .arg(povFileGeneratorCompare)
+                         .arg(Preferences::povFileGenerator);
 
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged        ||
@@ -1633,7 +1715,7 @@ void Gui::preferences()
                 rendererChanged               ||
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
-                povGenRendererChanged         ||
+                povFileGeneratorChanged         ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -1696,6 +1778,165 @@ void Gui::preferences()
           } else {
             logger.setLoggingLevel(OffLevel);
           }
+
+        // Native Pov file generation settings
+        if (seamWidthChanged && nativePovRendererConfig)
+                logInfo() << QString("Seam width changed from %1 to %2.")
+                                                         .arg(seamWidthCompare)
+                                                         .arg(Preferences::seamWidth);
+
+        if (qualityChanged && nativePovRendererConfig)
+                logInfo() << QString("Quality changed from %1 to %2.")
+                                                         .arg(qualityCompare)
+                                                         .arg(Preferences::quality);
+
+        if (selectedAspectRatioChanged && nativePovRendererConfig)
+                logInfo() << QString("Selected aspect ratio changed from %1 to %2.")
+                                                         .arg(selectedAspectRatioCompare)
+                                                         .arg(Preferences::selectedAspectRatio);
+
+        if (customAspectRatioChanged && nativePovRendererConfig)
+                logInfo() << QString("Custom aspect ratio changed from %1 to %2.")
+                                                         .arg(customAspectRatioCompare)
+                                                         .arg(Preferences::customAspectRatio);
+
+        if (ambientChanged && nativePovRendererConfig)
+                logInfo() << QString("Ambient changed from %1 to %2.")
+                                                         .arg(ambientCompare)
+                                                         .arg(Preferences::ambient);
+
+        if (diffuseChanged && nativePovRendererConfig)
+                logInfo() << QString("Diffuse changed from %1 to %2.")
+                                                         .arg(diffuseCompare)
+                                                         .arg(Preferences::diffuse);
+
+        if (reflChanged && nativePovRendererConfig)
+                logInfo() << QString("Reflection changed from %1 to %2.")
+                                                         .arg(reflCompare)
+                                                         .arg(Preferences::refl);
+
+        if (phongChanged && nativePovRendererConfig)
+                logInfo() << QString("Phong changed from %1 to %2.")
+                                                         .arg(phongCompare)
+                                                         .arg(Preferences::phong);
+
+        if (phongSizeChanged && nativePovRendererConfig)
+                logInfo() << QString("Phong size changed from %1 to %2.")
+                                                         .arg(phongSizeCompare)
+                                                         .arg(Preferences::phongSize);
+
+        if (transReflChanged && nativePovRendererConfig)
+                logInfo() << QString("Trans reflection changed from %1 to %2.")
+                                                         .arg(transReflCompare)
+                                                         .arg(Preferences::transRefl);
+
+        if (transFilterChanged && nativePovRendererConfig)
+                logInfo() << QString("Trans filter changed from %1 to %2.")
+                                                         .arg(transFilterCompare)
+                                                         .arg(Preferences::transFilter);
+
+        if (transIoRChanged && nativePovRendererConfig)
+                logInfo() << QString("Trans IoR changed from %1 to %2.")
+                                                         .arg(transIoRCompare)
+                                                         .arg(Preferences::transIoR);
+
+        if (rubberReflChanged && nativePovRendererConfig)
+                logInfo() << QString("Rubber reflection changed from %1 to %2.")
+                                                         .arg(rubberReflCompare)
+                                                         .arg(Preferences::rubberRefl);
+
+        if (rubberPhongChanged && nativePovRendererConfig)
+                logInfo() << QString("Rubber phong changed from %1 to %2.")
+                                                         .arg(rubberPhongCompare)
+                                                         .arg(Preferences::rubberPhong);
+
+        if (rubberPhongSizeChanged && nativePovRendererConfig)
+                logInfo() << QString("Rubber phong size changed from %1 to %2.")
+                                                         .arg(rubberPhongSizeCompare)
+                                                         .arg(Preferences::rubberPhongSize);
+
+        if (chromeReflChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome reflection changed from %1 to %2.")
+                                                         .arg(chromeReflCompare)
+                                                         .arg(Preferences::chromeRefl);
+
+        if (chromeBrilChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome brilliance changed from %1 to %2.")
+                                                         .arg(chromeBrilCompare)
+                                                         .arg(Preferences::chromeBril);
+
+        if (chromeSpecularChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome specular changed from %1 to %2.")
+                                                         .arg(chromeSpecularCompare)
+                                                         .arg(Preferences::chromeSpecular);
+
+        if (chromeRoughnessChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome roughness changed from %1 to %2.")
+                                                         .arg(chromeRoughnessCompare)
+                                                         .arg(Preferences::chromeRoughness);
+
+        if (fileVersionChanged && nativePovRendererConfig)
+                logInfo() << QString("File version changed from %1 to %2.")
+                                                         .arg(fileVersionCompare)
+                                                         .arg(Preferences::fileVersion);
+
+	if (edgeRadiusChanged && nativePovRendererConfig)
+		logInfo() << QString("Edge radius changed from %1 to %2.")
+							 .arg(edgeRadiusCompare)
+							 .arg(Preferences::edgeRadius);
+
+        if (seamsChanged && nativePovRendererConfig)
+                logInfo() << QString("Seams is %1.").arg(Preferences::seams ? "ON" : "OFF");
+
+        if (reflectionsChanged && nativePovRendererConfig)
+                logInfo() << QString("Reflections is %1.").arg(Preferences::reflections ? "ON" : "OFF");
+
+        if (shadowsChanged && nativePovRendererConfig)
+                logInfo() << QString("Shadows is %1.").arg(Preferences::shadows ? "ON" : "OFF");
+
+        if (xmlMapChanged && nativePovRendererConfig)
+                logInfo() << QString("Xml map is %1.").arg(Preferences::xmlMap ? "ON" : "OFF");
+
+        if (inlinePovChanged && nativePovRendererConfig)
+                logInfo() << QString("Inline Pov is %1.").arg(Preferences::inlinePov ? "ON" : "OFF");
+
+        if (smoothCurvesChanged && nativePovRendererConfig)
+                logInfo() << QString("Smooth curves is %1.").arg(Preferences::smoothCurves ? "ON" : "OFF");
+
+        if (hideStudsChanged && nativePovRendererConfig)
+                logInfo() << QString("Hide studs is %1.").arg(Preferences::hideStuds ? "ON" : "OFF");
+
+        if (unmirrorStudsChanged && nativePovRendererConfig)
+                logInfo() << QString("Unmirror Studs is %1.").arg(Preferences::unmirrorStuds ? "ON" : "OFF");
+
+	if (findReplacementsChanged && nativePovRendererConfig)
+		logInfo() << QString("Find POV replacements is %1.").arg(Preferences::findReplacements ? "ON" : "OFF");
+
+	if (conditionalEdgeLinesChanged && nativePovRendererConfig)
+		logInfo() << QString("Conditional edge lines is %1.").arg(Preferences::conditionalEdgeLines ? "ON" : "OFF");
+
+	if (primitiveSubstitutionChanged && nativePovRendererConfig)
+		logInfo() << QString("Primitive Substitution is %1.").arg(Preferences::primitiveSubstitution ? "ON" : "OFF");
+
+        if (xmlMapPathChanged && nativePovRendererConfig)
+                logInfo() << QString("XmlMapPath changed from %1 to %2.")
+                                                         .arg(xmlMapPathCompare)
+                                                         .arg(Preferences::xmlMapPath);
+
+	if (topIncludeChanged && nativePovRendererConfig)
+		logInfo() << QString("Top Include changed from %1 to %2.")
+							 .arg(topIncludeCompare)
+							 .arg(Preferences::topInclude);
+
+	if (bottomIncludeChanged && nativePovRendererConfig)
+		logInfo() << QString("Bottom Include changed from %1 to %2.")
+							 .arg(bottomIncludeCompare)
+							 .arg(Preferences::bottomInclude);
+
+	if (lightsChanged && nativePovRendererConfig)
+		logInfo() << QString("Lights changed from %1 to %2.")
+							 .arg(lightsCompare)
+							 .arg(Preferences::lights);
     }
 }
 
@@ -1713,6 +1954,7 @@ Gui::Gui()
 
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(false);
+    Preferences::nativePovGenPreferences();
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();

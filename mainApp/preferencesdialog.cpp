@@ -26,6 +26,9 @@
 #include "lc_application.h"
 #include "updatecheck.h"
 
+#include "nativepovpreferences.h"
+#include "ui_nativepovpreferences.h"
+
 #include "color.h"
 #include "meta.h"
 #include "lpub.h"
@@ -239,9 +242,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
 
-  bool nativePovGen = Preferences::povGenRenderer == RENDERER_NATIVE;
-  ui.povGenNativeRadio->setChecked(nativePovGen);
-  ui.povGenLDViewRadio->setChecked(!nativePovGen);
+  bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
+  bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
+  ui.nativePoVFileGenBtn->setEnabled(renderPOVRay && nativePovFileGen);
+  ui.povGenNativeRadio->setChecked(nativePovFileGen);
+  ui.povGenLDViewRadio->setChecked(!nativePovFileGen);
 
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
@@ -388,6 +393,346 @@ void PreferencesDialog::on_checkForUpdates_btn_clicked()
     checkForUpdates();
 }
 
+void PreferencesDialog::on_includeAllLogAttribBox_clicked(bool checked)
+{
+  ui.includeLogLevelBox->setChecked(checked);
+  ui.includeTimestampBox->setChecked(checked);
+  ui.includeLineNumberBox->setChecked(checked);
+  ui.includeFileNameBox->setChecked(checked);
+  ui.includeFunctionBox->setChecked(checked);
+}
+
+void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
+{
+  ui.debugLevelBox->setChecked(checked);
+  ui.traceLevelBox->setChecked(checked);
+  ui.noticeLevelBox->setChecked(checked);
+  ui.infoLevelBox->setChecked(checked);
+  ui.statusLevelBox->setChecked(checked);
+  ui.errorLevelBox->setChecked(checked);
+  ui.fatalLevelBox->setChecked(checked);
+}
+
+void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
+{
+  ui.logValiationLbl->hide();
+  ui.statusLevelBox->setChecked(checked);
+  ui.logLevelGrpBox->setChecked(!checked);
+}
+void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
+{
+  ui.logValiationLbl->hide();
+  ui.logLevelsGrpBox->setChecked(!checked);
+}
+
+void PreferencesDialog::on_ldviewBox_clicked(bool checked)
+{
+  if (! checked) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setWindowTitle(tr ("LDView Settings?"));
+      box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
+                      "Changes will be reset at next application start? "));
+      emit gui->messageSig(LOG_STATUS,box.text());
+      box.exec();
+    }
+}
+
+void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
+{
+    if (! checked) {
+        QMessageBox box;
+        box.setIcon (QMessageBox::Information);
+        box.setStandardButtons (QMessageBox::Ok);
+        box.setWindowTitle(tr ("LDGLite Settings?"));
+        box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
+                        "Changes will be reset at next application start? "));
+        emit gui->messageSig(LOG_STATUS,box.text());
+        box.exec();
+    }
+}
+
+void PreferencesDialog::on_POVRayBox_clicked(bool checked)
+{
+  if (! checked) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
+      box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
+                      "Changes will be reset at next application start? "));
+      emit gui->messageSig(LOG_STATUS,box.text());
+      box.exec();
+  }
+}
+
+void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
+{
+  if (! checked && ! ui.altLDConfigPath->text().isEmpty()) {
+    QMessageBox box;
+    box.setIcon (QMessageBox::Warning);
+    box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
+    box.setWindowTitle(tr ("Alternate LDConfig File"));
+    box.setText (tr("This action will remove %1 from your settings.\n"
+                    "Are you sure you want to continue? ")
+                    .arg(ui.altLDConfigPath->text()));
+    emit gui->messageSig(LOG_STATUS,box.text());
+    if (box.exec() == QMessageBox::Yes) {
+      ui.altLDConfigPath->clear();
+      ui.altLDConfigBox->setChecked(false);
+    }
+  }
+}
+
+void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
+{
+  QColor newFadeColor = LDrawColor::color(colorName);
+  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
+  ui.fadeStepsColourLabel->setAutoFillBackground(true);
+}
+
+void PreferencesDialog::on_highlightStepBtn_clicked()
+{
+  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
+  if( highlightColour.isValid()) {
+    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
+  }
+}
+
+void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
+{
+  ui.fadeStepsUseColourBox->setEnabled(checked);
+  ui.fadeStepsColoursCombo->setEnabled(checked);
+  ui.fadeStepsOpacityBox->setEnabled(checked);
+  ui.fadeStepsOpacitySlider->setEnabled(checked);
+}
+
+void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
+{
+  ui.fadeStepsColoursCombo->setEnabled(checked);
+}
+
+void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
+{
+  ui.highlightStepBtn->setEnabled(checked);
+  ui.highlightStepLabel->setEnabled(checked);
+  // Only enabled for LDGLite
+  if (ui.preferredRenderer->currentText() == RENDERER_LDGLITE)
+    ui.highlightStepLineWidthSpin->setEnabled(checked);
+  else
+    ui.highlightStepLineWidthSpin->setEnabled(false);
+}
+
+void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
+{
+      bool enabled = (currentText == RENDERER_POVRAY && ui.povGenNativeRadio->isChecked());
+      ui.nativePoVFileGenBtn->setEnabled(enabled);
+}
+
+void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
+{
+    bool enabled = (ui.preferredRenderer->currentText() == RENDERER_POVRAY && checked);
+    ui.nativePoVFileGenBtn->setEnabled(enabled);
+}
+
+void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
+{
+    bool enabled = (ui.preferredRenderer->currentText() == RENDERER_POVRAY && !checked);
+    ui.nativePoVFileGenBtn->setEnabled(enabled);
+}
+
+void PreferencesDialog::on_nativePoVFileGenBtn_clicked()
+{
+    NativePovPreferencesDialog *dialog      = new NativePovPreferencesDialog();
+
+    QSettings Settings;
+
+    if (dialog->exec() == QDialog::Accepted) {
+
+        if (Preferences::seamWidth != dialog->seamWidth()) {
+                Preferences::seamWidth = dialog->seamWidth();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"SeamWidth"),Preferences::seamWidth);
+        }
+
+        if (Preferences::quality != dialog->quality()) {
+                Preferences::quality = dialog->quality();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Quality"),Preferences::quality);
+        }
+
+        if (Preferences::selectedAspectRatio != dialog->selectedAspectRatio()) {
+                Preferences::selectedAspectRatio = dialog->selectedAspectRatio();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"SelectedAspectRatio"),Preferences::selectedAspectRatio);
+        }
+
+        if (Preferences::customAspectRatio != dialog->customAspectRatio()) {
+                Preferences::customAspectRatio = dialog->customAspectRatio();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"CustomAspectRatio"),Preferences::customAspectRatio);
+        }
+
+        if (Preferences::ambient != dialog->ambient()) {
+                Preferences::ambient = dialog->ambient();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Ambient"),Preferences::ambient);
+        }
+
+        if (Preferences::diffuse != dialog->diffuse()) {
+                Preferences::diffuse = dialog->diffuse();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Diffuse"),Preferences::diffuse);
+        }
+
+        if (Preferences::refl != dialog->refl()) {
+                Preferences::refl = dialog->refl();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Refl"),Preferences::refl);
+        }
+
+        if (Preferences::phong != dialog->phong()) {
+                Preferences::phong = dialog->phong();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Phong"),Preferences::phong);
+        }
+
+        if (Preferences::phongSize != dialog->phongSize()) {
+                Preferences::phongSize = dialog->phongSize();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"PhongSize"),Preferences::phongSize);
+        }
+
+        if (Preferences::transRefl != dialog->transRefl()) {
+                Preferences::transRefl = dialog->transRefl();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransRefl"),Preferences::transRefl);
+        }
+
+        if (Preferences::transFilter != dialog->transFilter()) {
+                Preferences::transFilter = dialog->transFilter();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransFilter"),Preferences::transFilter);
+        }
+
+        if (Preferences::transIoR != dialog->transIoR()) {
+                Preferences::transIoR = dialog->transIoR();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransIoR"),Preferences::transIoR);
+        }
+
+        if (Preferences::rubberRefl != dialog->rubberRefl()) {
+                Preferences::rubberRefl = dialog->rubberRefl();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberRefl"),Preferences::rubberRefl);
+        }
+
+        if (Preferences::rubberPhong != dialog->rubberPhong()) {
+                Preferences::rubberPhong = dialog->rubberPhong();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhong"),Preferences::rubberPhong);
+        }
+
+        if (Preferences::rubberPhongSize != dialog->rubberPhongSize()) {
+                Preferences::rubberPhongSize = dialog->rubberPhongSize();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhongSize"),Preferences::rubberPhongSize);
+        }
+
+        if (Preferences::chromeRefl != dialog->chromeRefl()) {
+                Preferences::chromeRefl = dialog->chromeRefl();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRefl"),Preferences::chromeRefl);
+        }
+
+        if (Preferences::chromeBril != dialog->chromeBril()) {
+                Preferences::chromeBril = dialog->chromeBril();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeBril"),Preferences::chromeBril);
+        }
+
+        if (Preferences::chromeSpecular != dialog->chromeSpecular()) {
+                Preferences::chromeSpecular = dialog->chromeSpecular();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeSpecular"),Preferences::chromeSpecular);
+        }
+
+        if (Preferences::chromeRoughness != dialog->chromeRoughness()) {
+                Preferences::chromeRoughness = dialog->chromeRoughness();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRoughness"),Preferences::chromeRoughness);
+        }
+
+        if (Preferences::fileVersion != dialog->fileVersion()) {
+                Preferences::fileVersion = dialog->fileVersion();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"FileVersion"),Preferences::fileVersion);
+        }
+
+        if (Preferences::seams != dialog->seams()) {
+                Preferences::seams = dialog->seams();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Seams"),Preferences::seams);
+        }
+
+        if (Preferences::reflections != dialog->reflections()) {
+                Preferences::reflections = dialog->reflections();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Reflections"),Preferences::reflections);
+        }
+
+        if (Preferences::shadows != dialog->shadows()) {
+                Preferences::shadows = dialog->shadows();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Shadows"),Preferences::shadows);
+        }
+
+        if (Preferences::xmlMap != dialog->xmlMap()) {
+                Preferences::xmlMap = dialog->xmlMap();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMap"),Preferences::xmlMap);
+        }
+
+        if (Preferences::inlinePov != dialog->inlinePov()) {
+                Preferences::inlinePov = dialog->inlinePov();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"InlinePov"),Preferences::inlinePov);
+        }
+
+        if (Preferences::smoothCurves != dialog->smoothCurves()) {
+                Preferences::smoothCurves = dialog->smoothCurves();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"SmoothCurves"),Preferences::smoothCurves);
+        }
+
+        if (Preferences::hideStuds != dialog->hideStuds()) {
+                Preferences::hideStuds = dialog->hideStuds();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"HideStuds"),Preferences::hideStuds);
+        }
+
+        if (Preferences::unmirrorStuds != dialog->unmirrorStuds()) {
+                Preferences::unmirrorStuds = dialog->unmirrorStuds();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"UnmirrorStuds"),Preferences::unmirrorStuds);
+        }
+
+        if (Preferences::xmlMapPath != dialog->xmlMapPath()) {
+                Preferences::xmlMapPath = dialog->xmlMapPath();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMapPath"),Preferences::xmlMapPath);
+        }
+
+        if (Preferences::topInclude != dialog->topInclude()) {
+                Preferences::topInclude = dialog->topInclude();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"TopInclude"),Preferences::topInclude);
+        }
+
+        if (Preferences::bottomInclude != dialog->bottomInclude()) {
+                Preferences::bottomInclude = dialog->bottomInclude();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"BottomInclude"),Preferences::bottomInclude);
+        }
+
+        if (Preferences::lights != dialog->lights()) {
+                Preferences::lights = dialog->lights();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"Lights"),Preferences::lights);
+        }
+
+        if (Preferences::findReplacements != dialog->findReplacements()) {
+                Preferences::findReplacements = dialog->findReplacements();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"FindReplacements"),Preferences::findReplacements);
+        }
+
+        if (Preferences::conditionalEdgeLines != dialog->conditionalEdgeLines()) {
+                Preferences::conditionalEdgeLines = dialog->conditionalEdgeLines();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"ConditionalEdgeLines"),Preferences::conditionalEdgeLines);
+        }
+
+        if (Preferences::edgeRadius != dialog->edgeRadius()) {
+                Preferences::edgeRadius = dialog->edgeRadius();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"EdgeRadius"),Preferences::edgeRadius);
+        }
+
+        if (Preferences::primitiveSubstitution != dialog->primitiveSubstitution()) {
+                Preferences::primitiveSubstitution = dialog->primitiveSubstitution();
+                Settings.setValue(QString("%1/%2").arg(POVRAY,"PrimitiveSubstitution"),Preferences::primitiveSubstitution);
+        }
+    }
+}
+
 void PreferencesDialog::pushButtonReset_SetState()
 {
   ui.pushButtonReset->setEnabled(true);
@@ -454,7 +799,7 @@ QString const PreferencesDialog::preferredRenderer()
   return "";
 }
 
-QString const PreferencesDialog::povGenRenderer()
+QString const PreferencesDialog::povFileGenerator()
 {
     if (ui.povGenLDViewRadio->isChecked())
       return RENDERER_LDVIEW;
@@ -668,38 +1013,6 @@ bool PreferencesDialog::allLogLevels()
   return ui.allLogLevelsBox->isChecked();
 }
 
-void PreferencesDialog::on_includeAllLogAttribBox_clicked(bool checked)
-{
-  ui.includeLogLevelBox->setChecked(checked);
-  ui.includeTimestampBox->setChecked(checked);
-  ui.includeLineNumberBox->setChecked(checked);
-  ui.includeFileNameBox->setChecked(checked);
-  ui.includeFunctionBox->setChecked(checked);
-}
-
-void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
-{
-  ui.debugLevelBox->setChecked(checked);
-  ui.traceLevelBox->setChecked(checked);
-  ui.noticeLevelBox->setChecked(checked);
-  ui.infoLevelBox->setChecked(checked);
-  ui.statusLevelBox->setChecked(checked);
-  ui.errorLevelBox->setChecked(checked);
-  ui.fatalLevelBox->setChecked(checked);
-}
-
-void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
-{
-  ui.logValiationLbl->hide();
-  ui.statusLevelBox->setChecked(checked);
-  ui.logLevelGrpBox->setChecked(!checked);
-}
-void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
-{
-  ui.logValiationLbl->hide();
-  ui.logLevelsGrpBox->setChecked(!checked);
-}
-
 QStringList const PreferencesDialog::searchDirSettings()
 {
     QString textEditContents = ui.textEditSearchDirs->toPlainText();
@@ -832,105 +1145,4 @@ void PreferencesDialog::accept(){
 
 void PreferencesDialog::cancel(){
   QDialog::reject();
-}
-
-
-void PreferencesDialog::on_ldviewBox_clicked(bool checked)
-{
-  if (! checked) {
-      QMessageBox box;
-      box.setIcon (QMessageBox::Information);
-      box.setStandardButtons (QMessageBox::Ok);
-      box.setWindowTitle(tr ("LDView Settings?"));
-      box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
-                      "Changes will be reset at next application start? "));
-      emit gui->messageSig(LOG_STATUS,box.text());
-      box.exec();
-    }
-}
-
-void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
-{
-    if (! checked) {
-        QMessageBox box;
-        box.setIcon (QMessageBox::Information);
-        box.setStandardButtons (QMessageBox::Ok);
-        box.setWindowTitle(tr ("LDGLite Settings?"));
-        box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
-                        "Changes will be reset at next application start? "));
-        emit gui->messageSig(LOG_STATUS,box.text());
-        box.exec();
-    }
-}
-
-void PreferencesDialog::on_POVRayBox_clicked(bool checked)
-{
-  if (! checked) {
-      QMessageBox box;
-      box.setIcon (QMessageBox::Information);
-      box.setStandardButtons (QMessageBox::Ok);
-      box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
-      box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
-                      "Changes will be reset at next application start? "));
-      emit gui->messageSig(LOG_STATUS,box.text());
-      box.exec();
-  }
-}
-
-void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
-{
-  if (! checked && ! ui.altLDConfigPath->text().isEmpty()) {
-    QMessageBox box;
-    box.setIcon (QMessageBox::Warning);
-    box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
-    box.setWindowTitle(tr ("Alternate LDConfig File"));
-    box.setText (tr("This action will remove %1 from your settings.\n"
-                    "Are you sure you want to continue? ")
-                    .arg(ui.altLDConfigPath->text()));
-    emit gui->messageSig(LOG_STATUS,box.text());
-    if (box.exec() == QMessageBox::Yes) {
-      ui.altLDConfigPath->clear();
-      ui.altLDConfigBox->setChecked(false);
-    }
-  }
-}
-
-void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
-{
-  QColor newFadeColor = LDrawColor::color(colorName);
-  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
-  ui.fadeStepsColourLabel->setAutoFillBackground(true);
-}
-
-void PreferencesDialog::on_highlightStepBtn_clicked()
-{
-  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
-  if( highlightColour.isValid()) {
-    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
-    ui.highlightStepColorLabel->setAutoFillBackground(true);
-  }
-}
-
-void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
-{
-  ui.fadeStepsUseColourBox->setEnabled(checked);
-  ui.fadeStepsColoursCombo->setEnabled(checked);
-  ui.fadeStepsOpacityBox->setEnabled(checked);
-  ui.fadeStepsOpacitySlider->setEnabled(checked);
-}
-
-void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
-{
-  ui.fadeStepsColoursCombo->setEnabled(checked);
-}
-
-void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
-{
-  ui.highlightStepBtn->setEnabled(checked);
-  ui.highlightStepLabel->setEnabled(checked);
-  // Only enabled for LDGLite
-  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-    ui.highlightStepLineWidthSpin->setEnabled(checked);
-  else
-    ui.highlightStepLineWidthSpin->setEnabled(false);
 }
