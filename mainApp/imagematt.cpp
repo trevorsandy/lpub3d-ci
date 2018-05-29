@@ -191,8 +191,8 @@ bool ImageMatt::processZMap(QString &prevImagePath, QString &currImagePath)
         }
 
         // Note - debug only code to adjust one-pixel difference in current and previous image height.
-        if (prevImage.size() != currImage.size())
-            prevImage = QImage(prevImage.copy(QRect(0,0,currImage.width(),currImage.height())));
+//        if (prevImage.size() != currImage.size())
+//            prevImage = QImage(prevImage.copy(QRect(0,0,currImage.width(),currImage.height())));
 
         struct MappedImage
         {
@@ -258,14 +258,15 @@ bool ImageMatt::processZMap(QString &prevImagePath, QString &currImagePath)
 
         NewImage.Image = TempImage;
 
-        CalculateImageBounds(NewImage);
+        //CalculateImageBounds(NewImage);
 
         QImageWriter Writer(currImagePath);
 
         if (Writer.format().isEmpty())
                 Writer.setFormat("PNG");
 
-        if (!Writer.write(QImage(NewImage.Image.copy(NewImage.Bounds))))
+        //if (!Writer.write(QImage(NewImage.Image.copy(NewImage.Bounds))))
+       if (!Writer.write(NewImage.Image))
         {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Mapped CSI image file '%1': %2.")
                                      .arg(currImagePath, Writer.errorString()));

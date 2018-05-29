@@ -191,8 +191,8 @@ public:
   QString OutputFileName;
   QString PovGenCommand;
   Render::Mt ImageType;
-  int ImageWidth;
-  int ImageHeight;
+  float ImageWidth;
+  float ImageHeight;
   float Latitude;
   float Longitude;
   float CameraDistance;

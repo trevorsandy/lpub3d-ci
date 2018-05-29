@@ -70,7 +70,7 @@ Native  native;
 #define USE_ALPHA "+UA"
 
 //Native renderer scale factor
-#define SCALE_FACTOR_NATIVE 11658.9567325322
+#define SCALE_FACTOR_NATIVE 30313.2875045836 // 11658.9567325322
 
 static double pi = 4*atan(1.0);
 // the default camera distance for real size
@@ -285,7 +285,7 @@ float POVRay::cameraDistance(
   if (getRenderer() == RENDERER_LDVIEW)
     return stdCameraDistance(meta, scale)*0.455;
   else
-    return stdCameraDistance(meta,scale);
+    return stdCameraDistance(meta,scale)*0.775;
 }
 
 int POVRay::renderCsi(
@@ -454,8 +454,9 @@ int POVRay::renderCsi(
        Options.Latitude          = meta.LPub.assem.angle.value(0);
        Options.Longitude         = meta.LPub.assem.angle.value(1);
        Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-       Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
-       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
+       //Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
+       Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));
 
        // Generate pov file
        NativePov* nativePov = new NativePov();
@@ -662,7 +663,8 @@ int POVRay::renderPli(
       Options.ImageHeight       = height;
       Options.Latitude          = metaType.angle.value(0);
       Options.Longitude         = -metaType.angle.value(1);                                   // switch from -45
-      Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;    // use assembly setting
+      //Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;    // use assembly setting
+      Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
 
       // Generate pov file
