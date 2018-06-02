@@ -76,8 +76,10 @@ HEADERS += \
 SOURCES += \
 	$$PWD/Headerize.cpp
 
-QMAKE_CFLAGS_WARN_ON = \
-         -Wall -W \
-         -Wno-unknown-pragmas
+# suppress warnings
+QMAKE_CFLAGS_WARN_ON   = -Wall -W \
+                         -Wno-unknown-pragmas
+                         -Wno-implicit-fallthrough
+QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 
 

@@ -8,6 +8,7 @@ extras/pliSubstituteParts.lst \
 extras/povray.ini \
 extras/titleAnnotations.lst \
 extras/ldglite.ini \
+extras/nativePOV.ini \
 docs/COPYING_BRIEF \
 docs/CREDITS.txt \
 docs/lpub3d.1 \

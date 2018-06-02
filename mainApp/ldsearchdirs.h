@@ -37,38 +37,7 @@
 #endif // _QT
 
 
-// STRING UTILITIES
-#include <string.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <stdarg.h>
-
-#include <stack>
-
-char *copyString(const char *string, size_t pad = 0);
-char *cleanedUpPath(const char* path);
-void  replaceStringCharacter(char*, char, char, int = 1);
-void  stripTrailingPathSeparators(char*);
-char *directoryFromPath(const char*);
-char *componentsJoinedByString(char** array, int count,
-					const char* separator);
-char **componentsSeparatedByString(const char* string,
-					    const char* separator, int& count);
-char *stringByReplacingSubstring(const char* string,
-					      const char* oldSubstring,
-					      const char* newSubstring,
-					      bool repeat = true);
-template<class T> inline void deleteStringArray(T** array, int count)
-{
-	int i;
-
-	for (i = 0; i < count; i++)
-	{
-		delete array[i];
-	}
-	delete array;
-}
-// END STRING UTILITIES
+#include "lpub_strings.h"
 
 
 class PartWorker;

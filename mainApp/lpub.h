@@ -1048,6 +1048,7 @@ private slots:
     void editLdrawIniFile();
     void editExcludedParts();
     void editLdgliteIni();
+    void editNativePovIni();
     void editLdviewIni();
     void editLdviewPovIni();
     void editPovrayIni();
@@ -1273,6 +1274,7 @@ private:
   QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
   QAction *editLdgliteIniAct;
+  QAction *editNativePOVIniAct;
   QAction *editLdviewIniAct;
   QAction *editLdviewPovIniAct;
   QAction *editPovrayIniAct;

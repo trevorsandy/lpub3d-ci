@@ -64,7 +64,6 @@ LDView  ldview;
 POVRay  povray;
 Native  native;
 
-
 //#define LduDistance 5729.57
 #define CA "-ca0.01"
 #define USE_ALPHA "+UA"

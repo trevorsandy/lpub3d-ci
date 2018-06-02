@@ -31,8 +31,10 @@ else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.pa
 BUILD_ARCH = $$(TARGET_CPU)
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH  = 64
+    win32:LIBS += -L$$(LP3D_QT32_MINGW_LIB)
 } else {
     ARCH  = 32
+    win32:LIBS += -L$$(LP3D_QT64_MINGW_LIB)
 }
 
 # build type
@@ -80,7 +82,6 @@ merge_ini.depends = $$_PRO_FILE_PWD_/LDLib/LDViewMessages.ini $$_PRO_FILE_PWD_/L
 
 win32 {
 
-    QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     DEFINES += _TC_STATIC
     CONFIG       += windows
@@ -190,7 +191,8 @@ QMAKE_CFLAGS_WARN_ON =  -Wall -W \
                         -Wno-return-type \
                         -Wno-sign-compare \
                         -Wno-uninitialized \
-                        -Wno-unused-result
+                        -Wno-unused-result \
+                        -Wno-implicit-fallthrough
 macx {
 QMAKE_CFLAGS_WARN_ON += -Wno-implicit-function-declaration \
                         -Wno-incompatible-pointer-types-discards-qualifiers \

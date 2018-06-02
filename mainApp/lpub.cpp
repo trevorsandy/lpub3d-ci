@@ -1470,6 +1470,13 @@ void Gui::editLdgliteIni()
     parmsWindow->show();
 }
 
+void Gui::editNativePovIni()
+{
+    displayParmsFile(Preferences::nativePOVIni);
+    parmsWindow->setWindowTitle(tr("Edit Native POV file generation ini","Edit Native POV file generation ini "));
+    parmsWindow->show();
+}
+
 void Gui::editLdviewIni()
 {
     displayParmsFile(Preferences::ldviewIni);
@@ -1480,7 +1487,7 @@ void Gui::editLdviewIni()
 void Gui::editLdviewPovIni()
 {
     displayParmsFile(Preferences::ldviewPOVIni);
-    parmsWindow->setWindowTitle(tr("Edit LDView raytracer ini","Edit LDView raytracer ini"));
+    parmsWindow->setWindowTitle(tr("Edit LDView POV file generation ini","Edit LDView POV file generation ini"));
     parmsWindow->show();
 }
 
@@ -2777,12 +2784,16 @@ void Gui::createActions()
     editLdgliteIniAct->setStatusTip(tr("Edit LDGLite ini configuration file"));
     connect(editLdgliteIniAct, SIGNAL(triggered()), this, SLOT(editLdgliteIni()));
 
+    editNativePOVIniAct = new QAction(QIcon(":/resources/LPub32.png"),tr("Edit Native POV file generation configuration file"), this);
+    editNativePOVIniAct->setStatusTip(tr("Edit Native POV file generation configuration file"));
+    connect(editNativePOVIniAct, SIGNAL(triggered()), this, SLOT(editNativePovIni()));
+
     editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView ini configuration file"), this);
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
-    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV generation configuration file"), this);
-    editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV generation configuration file"));
+    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV file generation configuration file"), this);
+    editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV file generation configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
     editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) ini configuration file"), this);
@@ -2881,6 +2892,7 @@ void Gui::enableActions()
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
   editLdgliteIniAct->setEnabled(true);
+  editNativePOVIniAct->setEnabled(true);
   editLdviewIniAct->setEnabled(true);
   editLdviewPovIniAct->setEnabled(true);
   editPovrayIniAct->setEnabled(true);
@@ -2943,6 +2955,7 @@ void Gui::disableActions()
   editPliBomSubstitutePartsAct->setEnabled(false);
   editExcludedPartsAct->setEnabled(false);
   editLdgliteIniAct->setEnabled(false);
+  editNativePOVIniAct->setEnabled(false);
   editLdviewIniAct->setEnabled(false);
   editLdviewPovIniAct->setEnabled(false);
   editPovrayIniAct->setEnabled(false);
@@ -3133,6 +3146,7 @@ void Gui::createMenus()
       editorMenu->addAction(editLdrawIniFileAct);
     }
     editorMenu->addSeparator();
+    editorMenu->addAction(editNativePOVIniAct);
     editorMenu->addAction(editLdgliteIniAct);
     editorMenu->addAction(editLdviewIniAct);
     editorMenu->addAction(editLdviewPovIniAct);

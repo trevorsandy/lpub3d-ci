@@ -97,6 +97,9 @@ builds/windows/release/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*
+mainApp/LDViewMessages.h
+mainApp/StudLogo.h
+ldvlib/LDViewMessages.ini
 
 # Makefiles
 mainApp/Makefile

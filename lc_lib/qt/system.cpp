@@ -1,7 +1,11 @@
 #include "lc_global.h"
 
 #ifdef WIN32
-
+/*** LPub3D Mod - use TC instance of strcasestr() ***/
+#ifdef _TC_STATIC
+  #include "lpub_strings.h"
+#else
+/*** LPub3D Mod end ***/
 char* strcasestr(const char *s, const char *find)
 {
 	char c, sc;
@@ -23,7 +27,7 @@ char* strcasestr(const char *s, const char *find)
 	}
 	return ((char *)s);
 }
-
+#endif
 #else
 
 char* strupr(char *string)

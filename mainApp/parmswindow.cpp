@@ -221,7 +221,7 @@ void ParmsWindow::displayParmsFile(
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == VER_LDVIEW_POV_INI_FILE) {
-      title = "LDView Raytracer ini";
+      title = "LDView POV File Generation ini";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == VER_POVRAY_INI_FILE) {
@@ -234,6 +234,10 @@ void ParmsWindow::displayParmsFile(
     }
     else if (fileInfo.fileName() == VER_LDGLITE_INI_FILE) {
       title = "LDGLite ini";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == VER_NATIVE_POV_INI_FILE) {
+      title = "Native POV File Generation ini";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {

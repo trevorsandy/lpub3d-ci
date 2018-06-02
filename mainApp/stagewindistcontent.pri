@@ -81,6 +81,7 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/freeformAnnotations.lst \
         $$LPUB3D_STG_EXTRAS/LDConfig.ldr \
         $$LPUB3D_STG_EXTRAS/ldglite.ini \
+        $$LPUB3D_STG_EXTRAS/ldviewPOV.ini \
         $$LPUB3D_STG_EXTRAS/ldview.ini \
         $$LPUB3D_STG_EXTRAS/ldviewPOV.ini \
         $$LPUB3D_STG_EXTRAS/PDFPrint.jpg \

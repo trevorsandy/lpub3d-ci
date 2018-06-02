@@ -63,6 +63,7 @@ QString Preferences::povrayIni;
 QString Preferences::ldgliteIni;
 QString Preferences::ldviewIni;
 QString Preferences::ldviewPOVIni;
+QString Preferences::nativePOVIni;
 QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
@@ -1595,6 +1596,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     setLDGLiteIniParams();
+    updateNativePOVIniFile(updateExisting);
     updateLDViewIniFile(updateExisting);
     updateLDViewPOVIniFile(updateExisting);
     updatePOVRayConfFile(updateExisting);
@@ -1657,6 +1659,79 @@ void Preferences::setLDGLiteIniParams()
     if (resourceFile.exists())
         ldgliteIni = resourceFile.absoluteFilePath(); // populate ldglite ini file
     logInfo() << QString("LDGLite.ini file   : %1").arg(ldgliteIni.isEmpty() ? "Not found" : ldgliteIni);
+}
+
+void Preferences::updateNativePOVIniFile(bool updateExisting)
+{
+    QString inFileName;
+    QFileInfo resourceFile;
+    QFile confFileIn, confFileOut, oldFile;
+    QDateTime timeStamp = QDateTime::currentDateTime();
+
+    resourceFile.setFile(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
+    if (resourceFile.exists())
+    {
+        if (!updateExisting) {
+           nativePOVIni = resourceFile.absoluteFilePath(); // populate native pov ini file
+           logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni);
+           return;
+        }
+        logInfo() << QString("Updating %1...").arg(resourceFile.absoluteFilePath());
+        inFileName = QString("%1.%2").arg(resourceFile.absoluteFilePath(),timeStamp.toString("ddMMyyhhmmss"));
+        oldFile.setFileName(resourceFile.absoluteFilePath());
+        oldFile.rename(inFileName);
+                confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
+    } else {
+       logInfo() << QString("Initializing %1...").arg(resourceFile.absoluteFilePath());
+       if (!resourceFile.absoluteDir().exists())
+           resourceFile.absoluteDir().mkpath(".");
+       confFileIn.setFileName(dataLocation + resourceFile.fileName());
+    }
+    confFileOut.setFileName(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    {
+        QTextStream input(&confFileIn);
+        QTextStream output(&confFileOut);
+        while (!input.atEnd())
+        {
+            QString line = input.readLine();
+            // strip EdgeThickness because set in renderer parms
+            if (line.contains(QRegExp("^EdgeThickness="))){
+              continue;
+            }
+            //logDebug() << QString("Line INPUT: %1").arg(line);
+            // set ldraw dir
+            if (line.contains(QRegExp("^LDrawDir=")))
+            {
+                line.clear();
+                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
+            }
+            // set lgeo paths as required
+            if (lgeoPath != ""){
+                if (line.contains(QRegExp("^XmlMapPath=")))
+                {
+                    line.clear();
+                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
+                }
+            }
+            logInfo() << QString("NativePOV.ini OUT: %1").arg(line);
+            output << line << endl;
+        }
+        confFileIn.close();
+        confFileOut.close();
+    } else {
+        QString confFileError;
+        if (!confFileIn.errorString().isEmpty())
+            confFileError.append(QString(" confFileInError: %1\n").arg(confFileIn.errorString()));
+        if (!confFileOut.errorString().isEmpty())
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
+        logError() << QString("Could not open NativePOV.ini input or output file: %1").arg(qPrintable(confFileError));
+    }
+    if (resourceFile.exists())
+        nativePOVIni = resourceFile.absoluteFilePath(); // populate native pov ini file
+    if (oldFile.exists())
+        oldFile.remove();                               // delete old file
+    logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni.isEmpty() ? "Not found" : nativePOVIni);
 }
 
 void Preferences::updateLDViewIniFile(bool updateExisting)
@@ -2266,6 +2341,7 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawDir"),ldrawPath);
             }
             // update LDView ini files
+            updateNativePOVIniFile(true);
             updateLDViewIniFile(true);       //ldraw path changed
             updateLDViewPOVIniFile(true);    //ldraw or lgeo paths changed
             updateLDViewConfigFiles = true;  //set flag to true

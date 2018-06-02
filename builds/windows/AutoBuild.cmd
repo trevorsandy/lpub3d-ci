@@ -48,8 +48,14 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
+  SET LP3D_QT32_MINGW_INC=C:\Msys2\Msys64\mingw32\i686-w64-mingw32\include
+  SET LP3D_QT32_MINGW_LIB=C:\Msys2\Msys64\mingw32\i686-w64-mingw32\lib
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
+  SET LP3D_QT64_MINGW_INC=C:\Msys2\Msys64\mingw64\x86_64-w64-mingw32\include
+  SET LP3D_QT64_MINGW_LIB=C:\Msys2\Msys64\mingw64\x86_64-w64-mingw32\lib
+
 )
+
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32

@@ -45,6 +45,7 @@ class Preferences
     static bool getPreferences();
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
+    static void updateNativePOVIniFile(bool);
     static void updateLDViewIniFile(bool);
     static void updateLDViewPOVIniFile(bool);
     static void updatePOVRayConfFile(bool);
@@ -103,6 +104,7 @@ class Preferences
     static QString ldgliteIni;
     static QString ldviewIni;
     static QString ldviewPOVIni;
+    static QString nativePOVIni;
     static QString povrayIniPath;
     static QString povrayIncPath;
     static QString povrayScenePath;

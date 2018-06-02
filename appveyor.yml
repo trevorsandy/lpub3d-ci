@@ -56,7 +56,11 @@ environment:
   LP3D_DIST_DIR: lpub3d_windows_3rdparty
   LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
   LP3D_QT32_MSYS2: c:\msys64\MINGW32\bin
+  LP3D_QT32_MINGW_INC: c:\msys64\MINGW32\i686-w64-mingw32\include
+  LP3D_QT32_MINGW_LIB: c:\msys64\MINGW32\i686-w64-mingw32\lib
   LP3D_QT64_MSYS2: c:\msys64\MINGW64\bin
+  LP3D_QT64_MINGW_INC: c:\msys64\MINGW64\x86_64-w64-mingw32\include
+  LP3D_QT64_MINGW_LIB: c:\msys64\MINGW64\x86_64-w64-mingw32\lib
   LP3D_QT32_LIBS: mingw-w64-i686-qt5-5.9.2-2-any.pkg.tar.xz
   LP3D_QT64_LIBS: mingw-w64-x86_64-qt5-5.9.2-2-any.pkg.tar.xz
   lp3d_librepo: lpub3d_mingw-Qt5_libs

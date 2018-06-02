@@ -115,14 +115,17 @@ CONFIG(debug, debug|release) {
     macx {
         LDRAWINI_LIB = LDrawIni_debug
         QUAZIP_LIB = QuaZIP_debug
+        LDV_LIB = libLDV_debug
     }
     win32 {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd07
+        LDV_LIB = libLDVd43
     }
     unix:!macx {
         LDRAWINI_LIB = ldrawinid
         QUAZIP_LIB = quazipd
+        LDV_LIB = libldvd
     }
     # executable target name
     macx: TARGET = $$join(TARGET,,,_debug)
@@ -134,14 +137,17 @@ CONFIG(debug, debug|release) {
     macx {
         LDRAWINI_LIB = LDrawIni
         QUAZIP_LIB = QuaZIP
+        LDV_LIB = libLDV
     }
     win32 {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP07
+        LDV_LIB = libLDV43
     }
     unix:!macx {
         LDRAWINI_LIB = ldrawini
         QUAZIP_LIB = quazip
+        LDV_LIB = libldv
     }
     # executable target name
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
@@ -151,7 +157,7 @@ DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 # library target name
 LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
 !quazipnobuild: LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
-
+LIBS += -L$$OUT_PWD/../ldvlib/$$DESTDIR -l$$LDV_LIB
 
 MAN_PAGE = $$join(TARGET,,,.1)
 message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
@@ -221,9 +227,46 @@ unix:!macx:include(linuxfiledistro.pri)
 
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
-include(../tinyxml/TinyXml.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
+
+#~~ pre target dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+win32 {
+    MOV_CMD = MOVE
+    APP_EXT = .exe
+} else {
+    MOV_CMD = mv
+    APP_EXT =
+}
+
+!equals(PWD, $${OUT_PWD}) {
+    message("~~~ YESSIR!, shadow building libLDV ~~~")
+        LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) \
+                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini) && $$MOV_CMD LDViewMessages.h \
+                               $$system_path($$_PRO_FILE_PWD_/LDViewMessages.h)
+        LDVStudLogo_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) \
+                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png) && $$MOV_CMD StudLogo.h \
+                               $$system_path($$_PRO_FILE_PWD_/StudLogo.h)
+} else {
+    message("~~~ NOSIR! not shadow building ~~~")
+        LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini)
+        LDVStudLogo_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png)
+}
+
+LDVMessages.target = LDViewMessages.h
+LDVMessages.depends = $$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT} \
+                      $$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini
+LDVMessages.commands = $$LDVMessages_commands
+
+LDVStudLogo.target = StudLogo.h
+LDVStudLogo.depends = $$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT} \
+                      $$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png
+LDVStudLogo.commands = $$LDVStudLogo_commands
+
+QMAKE_EXTRA_TARGETS += LDVMessages LDVStudLogo
+PRE_TARGETDEPS += LDViewMessages.h StudLogo.h
+QMAKE_CLEAN += LDViewMessages.h StudLogo.h
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -302,7 +345,17 @@ HEADERS += \
     updatecheck.h \
     where.h \
     sizeandorientationdialog.h \
-    version.h
+    version.h \
+#   nativepovclasses.h \
+#   nativepovimage.h \
+#	nativepovbmpimageformat.h \
+#	nativepovjpegimageformat.h \
+#	nativepovpngimageformat.h \
+#   nativepovldlines.h \
+    lpub_messages.h \
+    lpub_strings.h \
+#   nativepovldpalette.h \
+#   nativepovdefines.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -386,7 +439,16 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
+#   nativepovclasses.cpp \
+#   nativepovimage.cpp \
+#	nativepovbmpimageformat.cpp \
+#	nativepovjpegimageformat.cpp \
+#	nativepovpngimageformat.cpp \
+#   nativepovldlines.cpp \
+    lpub_messages.cpp \
+    lpub_strings.cpp \
+#   nativepovldpalette.cpp
 
 FORMS += \
     preferences.ui \

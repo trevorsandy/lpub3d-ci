@@ -3,6 +3,8 @@ CONFIG += ordered # This tells Qt to compile the following SUBDIRS in order
 SUBDIRS += \
      $$PWD/quazip \
      $$PWD/ldrawini \
+     $$PWD/ldvlib \
+     $$PWD/ldvlib\Headerize \
      $$PWD/mainApp
 	 
 quazip.subdir = $$PWD/quazip
@@ -13,10 +15,20 @@ ldrawini.subdir = $$PWD/ldrawini
 ldrawini.target = sub-ldrawini
 ldrawini.depends =
 
+ldvlib.subdir = $$PWD/ldvlib
+ldvlib.target = sub-ldvlib
+ldvlib.depends =
+
+headerize.subdir = $$PWD/ldvlib/Headerize
+headerize.target = sub-headerize
+headerize.depends =
+
 mainApp.subdir = $$PWD/mainApp
 mainApp.target = sub-mainApp
 mainApp.depends = quazip
 mainApp.depends = ldrawini
+mainApp.depends = ldvlib
+mainApp.depends = headerize
 
 RESOURCES += \
     qsimpleupdater/res/qsu_resources.qrc \
