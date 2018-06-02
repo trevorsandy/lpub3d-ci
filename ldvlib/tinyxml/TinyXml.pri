@@ -1,6 +1,5 @@
 INCLUDEPATH += $$PWD
-
-DEFINES += TIXML_USE_STL
+DEPENDPATH += $$PWD
 
 SOURCES += \
     $$PWD/tinystr.cpp \
@@ -15,5 +14,5 @@ HEADERS += \
 		   
 OTHER_FILES += \
     $$PWD/readme.txt \
-	$$PWD/changes.txt
+    $$PWD/changes.txt
 		  
