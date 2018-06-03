@@ -106,12 +106,10 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-#ifdef Q_OS_WIN
-    RedirectIOToConsole();
-#endif
   m_instance = this;
   m_console_mode = false;
   m_print_output = false;
+  m_redirect_io_to_console = true;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
   m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
@@ -161,7 +159,8 @@ void Application::initialize()
       if (!m_console_mode && QFileInfo(Param).exists())
         m_commandline_file = Param;
     }
-    else if (! headerPrinted)
+    else
+    if (! headerPrinted)
     {
       m_console_mode = true;
       fprintf(stdout, "\n%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
@@ -170,6 +169,18 @@ void Application::initialize()
       fflush(stdout);
       headerPrinted = true;
     }
+    else
+    if (Param == QLatin1String("-icr") || Param == QLatin1String("--ignore-console-redirect"))
+    {
+#ifdef Q_OS_WIN
+      fprintf(stdout, "Redirect input and output to console will be ignored.");
+      m_redirect_io_to_console = false;
+#else
+      fprintf(stdout, "Command [-co, --console-output] detectd but is only supported on Windows. Command ignored.");
+#endif
+      fflush(stdout);
+    }
+
     if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
     {
       m_console_mode = true;
@@ -178,7 +189,8 @@ void Application::initialize()
       fprintf(stdout, "Compiled on " __DATE__ "\n");
       return;
     }
-    else if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
+    else
+    if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
     {
       m_console_mode = true;
       m_print_output = true;
@@ -186,7 +198,8 @@ void Application::initialize()
       fprintf(stdout, "Compiled " __DATE__ "\n");
       return;
     }
-    else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
+    else
+    if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
     {
       m_console_mode = true;
       m_print_output = true;
@@ -206,7 +219,7 @@ void Application::initialize()
       fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
       fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
       fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
-      fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer ldglite, ldview, ldview-sc or povray. Default is ldview.\n ");
+      fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc or povray. Default is native.\n ");
 //      fprintf(stdout, "  -l, --libpath <path>: Set the Parts Library location to path.\n");
       fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
       fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
@@ -232,6 +245,10 @@ void Application::initialize()
       return;
     }
   }
+#ifdef Q_OS_WIN
+  if (m_redirect_io_to_console)
+    RedirectIOToConsole();
+#endif
 
   // initialize directories
   Preferences::lpubPreferences();

@@ -46,10 +46,15 @@ int Gui::processCommandLine()
       const QString& Param = Arguments[ArgIdx];
 
       if (Param[0] != '-')
-        {
+      {
           commandlineFile = Param;
+      }
+
+      if (Param == QLatin1String("-icr") ||
+          Param == QLatin1String("--ignore-console-redirect"))
+      {
           continue;
-        }
+      }
 
       auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
       {
@@ -123,7 +128,11 @@ int Gui::processCommandLine()
 
   if (!preferredRenderer.isEmpty()){
       //QSettings Settings;
-      QString renderer = Preferences::preferredRenderer;
+      QString renderer;
+      if (preferredRenderer.toLower() == "native"){
+          renderer = RENDERER_NATIVE;
+      }
+      else
       if (preferredRenderer.toLower() == "ldview"){
           renderer = RENDERER_LDVIEW;
       }

@@ -38,7 +38,7 @@
 #else
   #define COMPANYNAME_STR                   "LPub3D Software"
 #endif
-#define VER_COMPANYNAME_STR                 COMPANYNAME_STR
+#define VER_COMPANYNAME_STR                 COMPANYNAME_STR                  // "LPub3D Software Maint"
 #define VER_BUILD_ARCH_STR                  VER_ARCH
 
 // ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //

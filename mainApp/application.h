@@ -104,6 +104,9 @@ private:
     /// Print details flag
     bool m_print_output;
 
+    /// Redirect input/output to console
+    bool m_redirect_io_to_console;
+
     /// File specified on via commandline
     QString m_commandline_file;
 

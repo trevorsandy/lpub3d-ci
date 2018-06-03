@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 28, 2018
+rem  Last Update: June 03, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -335,13 +335,13 @@ SET PKG_CHECK_FILE=%ABS_WD%\builds\check\ldraw_test.mpd
 rem SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%\%PACKAGE%%LP3D_APP_VER_SUFFIX%.exe
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 rem Checks
-SET PKG_CHECK_OPTIONS=--process-file
+SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file
 SET PKG_CHECK_FILE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --preferred-renderer ldglite
+SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-export --range 1-3 --clear-cache --preferred-renderer ldglite
 SET PKG_CHECK_EXPORT_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-SET PKG_CHECK_OPTIONS=--process-export --export-option jpg --preferred-renderer povray
+SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-export --export-option jpg --preferred-renderer povray
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 CALL :CHECK_LDRAW_DIR
@@ -361,7 +361,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   EXIT /b
 ) ELSE (
   ECHO -%PKG_TARGET% found.
-  IF EXIST "Check.out" DO DEL /Q "Check.out"
+  IF EXIST "Check.out" DEL /Q "Check.out"
   ECHO.
   ECHO   PKG_CHECK_FILE_COMMAND.....[%PKG_CHECK_FILE_COMMAND%]
   CALL %PKG_CHECK_FILE_COMMAND% > Check.out 2>&1
