@@ -353,7 +353,6 @@ ECHO   PKG_DISTRO_DIR.........[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR.........[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET.............[%PKG_TARGET%]
-ECHO   PKG_CHECK_COMMAND......[%PKG_CHECK_COMMAND%]
 ECHO.
 ECHO -Check for executable file...
 ECHO.
@@ -362,24 +361,49 @@ IF NOT EXIST "%PKG_TARGET%" (
   EXIT /b
 ) ELSE (
   ECHO -%PKG_TARGET% found.
+  IF EXIST "Check.out" DO DEL /Q "Check.out"
   ECHO.
-  CALL %PKG_CHECK_FILE_COMMAND%
+  ECHO   PKG_CHECK_FILE_COMMAND.....[%PKG_CHECK_FILE_COMMAND%]
+  CALL %PKG_CHECK_FILE_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_FILE Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_FILE failed.
+    )
+  )
   ECHO.
-  CALL %PKG_CHECK_EXPORT_COMMAND%
+  ECHO   PKG_CHECK_EXPORT_COMMAND...[%PKG_CHECK_EXPORT_COMMAND%]
+  CALL %PKG_CHECK_EXPORT_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_EXPORT Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_EXPORT failed.
+    )
+  )
   ECHO.
-  CALL %PKG_CHECK_RANGE_COMMAND%
-rem  CALL %PKG_CHECK_COMMAND% > Check.out 2>&1
-rem  FOR %%R IN (Check.out) DO (
-rem    IF NOT %%~zR LSS 1 (
-rem      TYPE "Check.out"
-rem      ECHO.
-rem      DEL /Q "Check.out"
-rem      ECHO -Build check successful!
-rem      ECHO.
-rem    ) ELSE (
-rem      ECHO. -ERROR - build check failed.
-rem    )
-rem  )
+  ECHO   PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
+  CALL %PKG_CHECK_RANGE_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_RANGE Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_RANGE failed.
+    )
+  )
 )
 EXIT /b
 
