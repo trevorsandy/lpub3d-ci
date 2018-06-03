@@ -53,7 +53,6 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
   SET LP3D_QT64_MINGW_INC=C:\Msys2\Msys64\mingw64\x86_64-w64-mingw32\include
   SET LP3D_QT64_MINGW_LIB=C:\Msys2\Msys64\mingw64\x86_64-w64-mingw32\lib
-
 )
 
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd

@@ -115,17 +115,17 @@ CONFIG(debug, debug|release) {
     macx {
         LDRAWINI_LIB = LDrawIni_debug
         QUAZIP_LIB = QuaZIP_debug
-        LDV_LIB = libLDV_debug
+        LDV_LIB = LDV_debug
     }
     win32 {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd07
-        LDV_LIB = libLDVd43
+        LDV_LIB = LDVd43
     }
     unix:!macx {
         LDRAWINI_LIB = ldrawinid
         QUAZIP_LIB = quazipd
-        LDV_LIB = libldvd
+        LDV_LIB = ldvd
     }
     # executable target name
     macx: TARGET = $$join(TARGET,,,_debug)
@@ -137,17 +137,17 @@ CONFIG(debug, debug|release) {
     macx {
         LDRAWINI_LIB = LDrawIni
         QUAZIP_LIB = QuaZIP
-        LDV_LIB = libLDV
+        LDV_LIB = LDV
     }
     win32 {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP07
-        LDV_LIB = libLDV43
+        LDV_LIB = LDV43
     }
     unix:!macx {
         LDRAWINI_LIB = ldrawini
         QUAZIP_LIB = quazip
-        LDV_LIB = libldv
+        LDV_LIB = ldv
     }
     # executable target name
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
@@ -241,7 +241,7 @@ win32 {
 }
 
 !equals(PWD, $${OUT_PWD}) {
-    message("~~~ YESSIR!, shadow building libLDV ~~~")
+    message("~~~ SHADOW BUILD HEADERIZE LDV MESSAGES AND STUDLOGO ~~~")
         LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) \
                                $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini) && $$MOV_CMD LDViewMessages.h \
                                $$system_path($$_PRO_FILE_PWD_/LDViewMessages.h)
@@ -249,9 +249,11 @@ win32 {
                                $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png) && $$MOV_CMD StudLogo.h \
                                $$system_path($$_PRO_FILE_PWD_/StudLogo.h)
 } else {
-    message("~~~ NOSIR! not shadow building ~~~")
-        LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini)
-        LDVStudLogo_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png)
+    message("~~~ HEADERIZE LDV MESSAGES AND STUDLOGO ~~~")
+        LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) \
+                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini)
+        LDVStudLogo_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/Headerize$${APP_EXT}) \
+                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png)
 }
 
 LDVMessages.target = LDViewMessages.h
