@@ -53,7 +53,7 @@ CONFIG(debug, debug|release) {
 }
 BUILD += BUILD ON $$upper($$HOST)
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += /usr/include /usr/local/include
 
 # USE GNU_SOURCE
 unix:!macx: DEFINES += _GNU_SOURCE
@@ -108,10 +108,10 @@ win32 {
 
     macx {                                                             # OSX
             INCLUDEPATH += /usr/X11/include
-            BLD_LIBS    += -framework CoreFoundation -framework CoreServices
-            BLD_LIBS    += -L/usr/X11/lib
+            LIBS        += -framework CoreFoundation -framework CoreServices
+            LIBS        += -L/usr/X11/lib
     }
-    BLD_LIBS  += -lGL -lGLU
+    LIBS  += -lGL -lGLU
 }
 
 QMAKE_EXTRA_TARGETS += merge_ini
@@ -151,7 +151,6 @@ RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
 unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h){
-    #Build libpng on Ubuntu Trusty - system version is libpng12 which is too old.
     if (contains(HOST, Ubuntu):contains(HOST, 14.04.5)) {
         message("~~~ $$HOST detected, building in libpng version 1.6.28... ~~~")
         include(libpng/libpng.pri)
