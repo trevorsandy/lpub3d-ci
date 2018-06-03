@@ -106,7 +106,12 @@ win32 {
                              $$_PRO_FILE_PWD_/LDExporter/LDExportMessages.ini > \
                              $$_PRO_FILE_PWD_/LDViewMessages.ini
 
-    LIBS  += -lGLU
+    macx {                                                             # OSX
+            INCLUDEPATH += /usr/X11/include
+            BLD_LIBS    += -framework CoreFoundation -framework CoreServices
+            BLD_LIBS    += -L/usr/X11/lib
+    }
+    BLD_LIBS  += -lGL -lGLU
 }
 
 QMAKE_EXTRA_TARGETS += merge_ini
@@ -148,35 +153,35 @@ UI_DIR          = $$DESTDIR/.ui
 unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h){
     #Build libpng on Ubuntu Trusty - system version is libpng12 which is too old.
     if (contains(HOST, Ubuntu):contains(HOST, 14.04.5)) {
-        message("~~~ $$HOST detected, integrating libpng version 1.6.28... ~~~")
+        message("~~~ $$HOST detected, building in libpng version 1.6.28... ~~~")
         include(libpng/libpng.pri)
     } else {
-        message("libpng found")
+        message("~~~ Library libpng found ~~~")
         BLD_LIBS += -lpng
     }
 } else {
-    !win32:message("~~~ ALERT: no libpng found, building it in... ~~~")
+    !win32:message("~~~ ALERT: library libpng not found, building it in... ~~~")
     include(libpng/libpng.pri)
 }
 unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h){
-    message("jpeglib found")
+    message("~~~ Library jpeglib found ~~~")
     BLD_LIBS += -ljpeg
 } else {
-    !win32:message("~~~ ALERT: no jpeglib found, building it in... ~~~")
+    !win32:message("~~~ ALERT: library jpeglib not found, building it in... ~~~")
     include(libjpeg/libjpeg.pri)
 }
 unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h){
-    message("gl2ps found")
+    message("~~~ Library gl2ps found ~~~")
     BLD_LIBS += -lgl2ps
 } else {
-    !win32:message("~~~ ALERT: no gl2ps found, building it in... ~~~")
+    !win32:message("~~~ ALERT: library gl2ps not found, building it in... ~~~")
     include(gl2ps/gl2ps.pri)
 }
 unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h){
-    message("tinyxml found")
+    message("~~~ Library tinyxml found ~~~")
     BLD_LIBS += -ltinyxml
 } else {
-    !win32:message("~~~ ALERT: no tinyxml found, building it in... ~~~")
+    !win32:message("~~~ ALERT: library tinyxml not found, building it in... ~~~")
     include(tinyxml/TinyXml.pri)
 }
 
