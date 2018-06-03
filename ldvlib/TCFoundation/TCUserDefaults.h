@@ -198,7 +198,7 @@ class TCExport TCUserDefaults: public TCObject
 		bool useIni;
 		bool flushRequested;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 		HKEY openAppDefaultsKey(void);
 		HKEY openSessionKey(void);
 		HKEY openKeyPathUnderKey(HKEY parentKey, const char* keyPath,
@@ -216,7 +216,7 @@ class TCExport TCUserDefaults: public TCObject
 		HKEY hAppDefaultsKey;
 		HKEY hSessionKey;
 
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef TCUD_INI_SUPPORT
 		struct IniKey;
 		typedef std::map<std::string, IniKey> IniKeyMap;

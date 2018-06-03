@@ -33,12 +33,14 @@ BUILD_ARCH   = $$(TARGET_CPU)
 else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH  = 64
-    win32:LIBS += -L$$system_path($$(LP3D_QT32_MINGW_LIB))
-    win32:HEADERS += $$system_path($$(LP3D_QT64_MINGW_INC)/winsock2.h)
+    win32:!isEmpty($$(LP3D_QT64_MINGW_LIB)):!isEmpty($$(LP3D_QT64_MINGW_INC)) {
+        LIBS += -L$$system_path($$(LP3D_QT64_MINGW_LIB))
+        HEADERS += $$system_path($$(LP3D_QT64_MINGW_INC)/winsock2.h)
+    }
 } else {
     ARCH  = 32
-    win32 {
-        LIBS += -L$$system_path($$(LP3D_QT64_MINGW_LIB))
+    win32:!isEmpty($$(LP3D_QT32_MINGW_LIB)):!isEmpty($$(LP3D_QT64_MINGW_INC)) {
+        LIBS += -L$$system_path($$(LP3D_QT32_MINGW_LIB))
         HEADERS += $$system_path($$(LP3D_QT32_MINGW_INC)/winsock2.h)
     }
 }
@@ -211,6 +213,7 @@ macx {
 QMAKE_CFLAGS_WARN_ON += -Wno-implicit-function-declaration \
                         -Wno-incompatible-pointer-types-discards-qualifiers \
                         -Wno-incompatible-pointer-types \
+                        -Wno-nullability-completeness \
                         -Wno-undefined-bool-conversion \
                         -Wno-invalid-source-encoding \
                         -Wno-mismatched-new-delete \

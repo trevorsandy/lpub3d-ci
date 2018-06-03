@@ -1415,7 +1415,7 @@ void consolePrintf(const wchar_t *format, ...)
 	va_end(argPtr);
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #pragma warning(disable : 4996) // suppress MS deprecated warning for vsnprintf
 #endif
 

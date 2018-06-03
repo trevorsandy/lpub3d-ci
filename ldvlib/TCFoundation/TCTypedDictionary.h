@@ -4,9 +4,9 @@
 #include <TCFoundation/TCDictionary.h>
 #include <TCFoundation/TCTypedObjectArray.h>
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #pragma warning ( disable: 4710 )
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 
 template <class Type> class TCTypedDictionary : public TCDictionary
 {

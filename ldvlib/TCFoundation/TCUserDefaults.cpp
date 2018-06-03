@@ -1,8 +1,8 @@
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #if _MSC_VER < 1400	// VC < VC 2005
 #pragma warning(disable: 4503) // Decorated name truncated
 #endif // VC < VC 2005
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #include "TCUserDefaults.h"
 #include "TCStringArray.h"
 #include "TCAlert.h"
@@ -65,10 +65,10 @@ TCUserDefaults::TCUserDefaults(void)
 	commandLine(NULL),
 	useIni(false),
 	flushRequested(false)
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	,hAppDefaultsKey(NULL),
 	hSessionKey(NULL)
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef TCUD_INI_SUPPORT
 	,iniChanges(false)
 #endif // TCUD_INI_SUPPORT
@@ -110,7 +110,7 @@ void TCUserDefaults::dealloc(void)
 		commandLine->release();
 		commandLine = NULL;
 	}
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	if (hSessionKey && hSessionKey != hAppDefaultsKey)
 	{
 		RegCloseKey(hSessionKey);
@@ -119,7 +119,7 @@ void TCUserDefaults::dealloc(void)
 	{
 		RegCloseKey(hAppDefaultsKey);
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 	TCObject::dealloc();
 }
 
@@ -629,7 +629,7 @@ void TCUserDefaults::defRemoveSession(const char *value)
 		[sessionDict removeAllObjects];
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	HKEY hSessionsKey = openKeyPathUnderKey(hAppDefaultsKey, "Sessions");
 
 	if (hSessionsKey)
@@ -644,7 +644,7 @@ void TCUserDefaults::defRemoveSession(const char *value)
 		}
 	}
 	RegCloseKey(hSessionsKey);
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 }
 
 void TCUserDefaults::defSetStringForKey(const char* value, const char* key,
@@ -688,10 +688,10 @@ void TCUserDefaults::defSetStringForKey(const char* value, const char* key,
 			forKey: nsKey];
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	defSetValueForKey((LPBYTE)value, (int)strlen(value) + 1, REG_SZ, key,
 		sessionSpecific);
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef TCUD_INI_SUPPORT
 	}
 #endif // TCUD_INI_SUPPORT
@@ -762,11 +762,11 @@ void TCUserDefaults::defSetStringForKey(CUCSTR value, const char* key,
 		delete[] ucValue;
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	defSetValueForKey((LPBYTE)value,
 		((int)ucstrlen(value) + 1) * sizeof(UCCHAR), REG_SZ, key,
 		sessionSpecific, true);
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef TCUD_INI_SUPPORT
 	}
 #endif // TCUD_INI_SUPPORT
@@ -1000,7 +1000,7 @@ UCSTR TCUserDefaults::defStringForKeyUC(const char* key, bool sessionSpecific,
 		return copyString(defaultValue);
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	DWORD size;
 	LPBYTE value = defValueForKey(size, REG_SZ, key, sessionSpecific, true);
 
@@ -1012,7 +1012,7 @@ UCSTR TCUserDefaults::defStringForKeyUC(const char* key, bool sessionSpecific,
 	{
 		return copyString(defaultValue);
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef _OSMESA
 	// _OSMESA requires INI handling, so hopefully we won't get here.
 	return copyString(defaultValue);
@@ -1094,7 +1094,7 @@ char* TCUserDefaults::defStringForKey(const char* key, bool sessionSpecific,
 		return copyString(defaultValue);
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	DWORD size;
 	LPBYTE value = defValueForKey(size, REG_SZ, key, sessionSpecific);
 
@@ -1106,7 +1106,7 @@ char* TCUserDefaults::defStringForKey(const char* key, bool sessionSpecific,
 	{
 		return copyString(defaultValue);
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef _OSMESA
 	// _OSMESA requires INI handling, so hopefully we won't get here.
 	return copyString(defaultValue);
@@ -1200,10 +1200,10 @@ void TCUserDefaults::defSetLongForKey(long value, const char* key,
 			nsKey];
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	defSetValueForKey((LPBYTE)&value, sizeof value, REG_DWORD, key,
 		sessionSpecific);
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef TCUD_INI_SUPPORT
 	}
 #endif // TCUD_INI_SUPPORT
@@ -1328,7 +1328,7 @@ long TCUserDefaults::defLongForKey(const char* key, bool sessionSpecific,
 		return defaultValue;
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	DWORD size;
 	LPBYTE value = defValueForKey(size, REG_DWORD, key, sessionSpecific);
 
@@ -1348,7 +1348,7 @@ long TCUserDefaults::defLongForKey(const char* key, bool sessionSpecific,
 	{
 		return defaultValue;
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef _OSMESA
 	// _OSMESA requires INI handling, so hopefully we won't get here.
 	return defaultValue;
@@ -1533,7 +1533,7 @@ void TCUserDefaults::defRemoveValue(const char* key, bool sessionSpecific)
 		[[NSUserDefaults standardUserDefaults] removeObjectForKey: nsKey];
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	HKEY hParentKey;
 
 	if (sessionSpecific)
@@ -1568,7 +1568,7 @@ void TCUserDefaults::defRemoveValue(const char* key, bool sessionSpecific)
 			RegCloseKey(hParentKey);
 		}
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 }
 
 void TCUserDefaults::defRemoveValueGroup(const char* key, bool sessionSpecific)
@@ -1607,7 +1607,7 @@ void TCUserDefaults::defRemoveValueGroup(const char* key, bool sessionSpecific)
 		}
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	HKEY hParentKey;
 	
 	if (sessionSpecific)
@@ -1624,7 +1624,7 @@ void TCUserDefaults::defRemoveValueGroup(const char* key, bool sessionSpecific)
 		deleteSubKeys(hDelKey);
 		RegCloseKey(hDelKey);
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 }
 
 void TCUserDefaults::defFlush(void)
@@ -1716,9 +1716,9 @@ TCStringArray* TCUserDefaults::defGetAllKeys(void)
 			cStringUsingEncoding: NSASCIIStringEncoding]);
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	defGetAllKeysUnderKey(hSessionKey, "", allKeys);
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 	return allKeys;
 }
 
@@ -1769,7 +1769,7 @@ TCStringArray* TCUserDefaults::defGetAllSessionNames(void)
 		}
 	}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 	HKEY hSessionsKey = openKeyPathUnderKey(hAppDefaultsKey, "Sessions");
 	if (hSessionsKey)
 	{
@@ -1795,7 +1795,7 @@ TCStringArray* TCUserDefaults::defGetAllSessionNames(void)
 		}
 		RegCloseKey(hSessionsKey);
 	}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 	return allSessionNames;
 }
 
@@ -2210,7 +2210,7 @@ void TCUserDefaults::defSetAppName(const char* value)
 		delete[] appName;
 		appName = copyString(value);
 		defSetSessionName(NULL, NULL, false);
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 		if (!useIni)
 		{
 			if (hAppDefaultsKey)
@@ -2220,7 +2220,7 @@ void TCUserDefaults::defSetAppName(const char* value)
 			hAppDefaultsKey = openAppDefaultsKey();
 			hSessionKey = hAppDefaultsKey;
 		}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef COCOA
 		initSessionDict();
 #endif // COCOA
@@ -2301,7 +2301,7 @@ void TCUserDefaults::defSetSessionName(const char* value, const char *saveKey,
 			initSessionDict();
 		}
 #endif // COCOA
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 		HKEY hOldSessionKey = hSessionKey;
 
 		delete[] sessionName;
@@ -2372,7 +2372,7 @@ void TCUserDefaults::defSetSessionName(const char* value, const char *saveKey,
 		{
 			RegCloseKey(hOldSessionKey);
 		}
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #ifdef TCUD_INI_SUPPORT
 		}
 #endif // TCUD_INI_SUPPORT
@@ -2387,7 +2387,7 @@ void TCUserDefaults::defSetSessionName(const char* value, const char *saveKey,
 	}
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 
 void TCUserDefaults::defSetValueForKey(const LPBYTE value, int length,
 									   DWORD type, const char* key,
@@ -2689,7 +2689,7 @@ void TCUserDefaults::deleteSubKeys(HKEY hKey)
 	}
 }
 
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 
 
 #ifdef _QT

@@ -1,7 +1,7 @@
 #ifndef __TCSTLINCLUDES_H__
 #define __TCSTLINCLUDES_H__
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 
 // In Windows, we have to disable a number of warnings in order to use any STL
 // classes without getting tons of warnings.  The following warning is shut off
@@ -17,7 +17,7 @@
 #ifndef _DEBUG
 #pragma warning(disable: 4710) // "Not inlined" warnings in release mode.
 #endif // _DEBUG
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 #include <string>
 #include <map>
 #include <vector>

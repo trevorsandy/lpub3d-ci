@@ -155,14 +155,14 @@ bool TCJpegImageFormat::load(TCImage *limage, FILE *file, TCByte *data, long len
 		// WARNING: Do NOT put any C++ objects that need destructors inside the
 		// following if statement.  Doing so will result in a memory leak if any
 		// error occurs.
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #pragma warning( push )
 #pragma warning( disable : 4611 )
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 		if (setjmp(jumpBuf))
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #pragma warning( pop )
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 		{
 			// If we get here, there was an error below.
 			// Note: jpeg_destroy_decompress is called automatically by the JPEG
@@ -283,14 +283,14 @@ bool TCJpegImageFormat::saveFile(TCImage *limage, FILE *file)
 		// WARNING: Do NOT put any C++ objects that need destructors inside the
 		// following if statement.  Doing so will result in a memory leak if any
 		// error occurs.
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #pragma warning( push )
 #pragma warning( disable : 4611 )
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 		if (setjmp(jumpBuf))
-#ifdef WIN32
+#if defined(WIN32) && !defined(_QT)
 #pragma warning( pop )
-#endif // WIN32
+#endif // WIN32 && NOT _QT
 		{
 			// If we get here, there was an error below.
 			// Note: jpeg_destroy_compress is called automatically by the JPEG
