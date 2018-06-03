@@ -28,13 +28,19 @@ win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.pa
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
 # platform switch
-BUILD_ARCH = $$(TARGET_CPU)
+BUILD_ARCH   = $$(TARGET_CPU)
+!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH  = 64
-    win32:LIBS += -L$$(LP3D_QT32_MINGW_LIB)
+    win32:LIBS += -L$$system_path($$(LP3D_QT32_MINGW_LIB))
+    win32:HEADERS += $$system_path($$(LP3D_QT64_MINGW_INC)/winsock2.h)
 } else {
     ARCH  = 32
-    win32:LIBS += -L$$(LP3D_QT64_MINGW_LIB)
+    win32 {
+        LIBS += -L$$system_path($$(LP3D_QT64_MINGW_LIB))
+        HEADERS += $$system_path($$(LP3D_QT32_MINGW_INC)/winsock2.h)
+    }
 }
 
 # build type
@@ -56,6 +62,7 @@ QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
 QMAKE_LFLAGS    += $(Q_LDFLAGS)
 QMAKE_CFLAGS    += $(Q_CFLAGS)
 
+# Library defines
 DEFINES += _QT
 DEFINES += TIXML_USE_STL
 DEFINES += USE_CPP11 _NO_BOOST
@@ -75,8 +82,7 @@ contains(DEFINES, USE_CPP11) {
     }
 }
 
-OBJECTS_DIR       = $$DESTDIR/.obj
-
+# Merge ini files
 merge_ini.target = LDViewMessages.ini
 merge_ini.depends = $$_PRO_FILE_PWD_/LDLib/LDViewMessages.ini $$_PRO_FILE_PWD_/LDExporter/LDExportMessages.ini
 
@@ -84,7 +90,7 @@ win32 {
 
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     DEFINES += _TC_STATIC
-    CONFIG       += windows
+    CONFIG  += windows
     QMAKE_EXT_OBJ = .obj
 
     merge_ini.commands = COPY /y /a /b \
@@ -95,7 +101,10 @@ win32 {
     LIBS += -ladvapi32 -lshell32 -lopengl32 -luser32
     LIBS += -lglu32 -lgdi32 -lws2_32
 } else {
-    merge_ini.commands = cat $$_PRO_FILE_PWD_/LDLib/LDViewMessages.ini $$_PRO_FILE_PWD_/LDExporter/LDExportMessages.ini > $$_PRO_FILE_PWD_/LDViewMessages.ini
+
+    merge_ini.commands = cat $$_PRO_FILE_PWD_/LDLib/LDViewMessages.ini \
+                             $$_PRO_FILE_PWD_/LDExporter/LDExportMessages.ini > \
+                             $$_PRO_FILE_PWD_/LDViewMessages.ini
 
     LIBS  += -lGLU
 }
@@ -105,6 +114,7 @@ PRE_TARGETDEPS += LDViewMessages.ini
 QMAKE_CLEAN += LDViewMessages.ini
 
 CONFIG += skip_target_version_ext
+
 unix: !macx: TARGET = ldv
 else:        TARGET = LDV
 
@@ -127,7 +137,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-message("~~~ libLDV $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
+message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj
@@ -137,8 +147,8 @@ UI_DIR          = $$DESTDIR/.ui
 
 unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h){
     #Build libpng on Ubuntu Trusty - system version is libpng12 which is too old.
-    if (!contains(HOST, Ubuntu):!contains(HOST, 14.04.5):!win32) {
-        !win32:message("~~~ ALERT: libpng found but is not compatible, building it in... ~~~")
+    if (contains(HOST, Ubuntu):contains(HOST, 14.04.5)) {
+        message("~~~ $$HOST detected, integrating libpng version 1.6.28... ~~~")
         include(libpng/libpng.pri)
     } else {
         message("libpng found")

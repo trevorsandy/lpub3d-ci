@@ -10,7 +10,7 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 
-message("~~~ Headerize Messages and StudLogo ~~~")
+message("~~~ BUILD HEADERIZE EXECUTABLE ~~~")
 
 V_MAJ = 4
 V_MIN = 3
@@ -38,6 +38,11 @@ CONFIG(debug, debug|release) {
 }
 
 DEP_DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+
+exists($$system_path(../$$DEP_DESTDIR/lib$${DEP_TARGET}.a)) {
+    message("~~~ HEADERIZE DEPENDENCY lib$${DEP_TARGET}.a FOUND ~~~")
+}
+
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
@@ -46,7 +51,6 @@ MOC_DIR         = $$DESTDIR/.moc
 RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
-message("~~~ Headerize Dependency: $$system_path(../$$DEP_DESTDIR/lib$${DEP_TARGET}.a) ~~~")
 
 INCLUDEPATH     += $$_PRO_FILE_PWD_/../
 
@@ -58,6 +62,7 @@ win32 {
     DEFINES      += _TC_STATIC
     QMAKE_EXT_OBJ = .obj
 }
+
 DEFINES        += _QT
 
 TARGET          = Headerize
@@ -72,13 +77,13 @@ PRE_TARGETDEPS += $${LDLIBS}
 
 HEADERS += \
     $$PWD/../TCFoundation/mystring.h
-	
+
 SOURCES += \
-	$$PWD/Headerize.cpp
+    $$PWD/Headerize.cpp
 
 # suppress warnings
 QMAKE_CFLAGS_WARN_ON   = -Wall -W \
-                         -Wno-unknown-pragmas
+                         -Wno-unknown-pragmas \
                          -Wno-implicit-fallthrough
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 
