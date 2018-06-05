@@ -30,7 +30,6 @@
 #define RENDER_H
 
 #include "imagematt.h"
-#include "project.h"
 #include "QsLog.h"
 
 class QString;
@@ -44,6 +43,7 @@ class NativeOptions;
 class ViewerOptions;
 class NativePov;
 class lcVector3;
+class Project;
 
 class Render
 {

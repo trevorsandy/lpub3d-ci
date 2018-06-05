@@ -17,16 +17,13 @@
 #ifndef NATIVEPOV_H
 #define NATIVEPOV_H
 
-#include "project.h"
-#include "render.h"
-
 #include <string.h>
 
+#include "render.h"
+
 class Meta;
-class lcVector3;
-class lcDiskFile;
-class lcModel;
 class NativeOptions;
+class lcDiskFile;
 
 class NativePov
 {
@@ -37,10 +34,7 @@ public:
 
 protected:
 
-  lcArray<lcModelPartsEntry> ModelParts;
-  lcModel*         m_pActiveModel;
   lcDiskFile*      m_pPOVFile;
-
   char             m_Line[1024];
 
   friend class Project;

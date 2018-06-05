@@ -27,12 +27,14 @@ HEADERS += \
     $$PWD/common/lc_math.h \
     $$PWD/common/lc_mesh.h \
     $$PWD/common/lc_model.h \
+    $$PWD/common/lc_partselectionwidget.h \
     $$PWD/common/lc_profile.h \
     $$PWD/common/lc_scene.h \
     $$PWD/common/lc_selectbycolordialog.h \
     $$PWD/common/lc_shortcuts.h \
     $$PWD/common/lc_synth.h \
     $$PWD/common/lc_texture.h \
+    $$PWD/common/lc_timelinewidget.h \
     $$PWD/common/lc_zipfile.h \
     $$PWD/common/image.h \
     $$PWD/common/group.h \
@@ -56,8 +58,6 @@ HEADERS += \
     $$PWD/qt/lc_qcolorlist.h \
     $$PWD/qt/lc_qfinddialog.h \
     $$PWD/qt/lc_qmodellistdialog.h \
-    $$PWD/common/lc_partselectionwidget.h \
-    $$PWD/common/lc_timelinewidget.h \
     $$PWD/qt/lc_renderdialog.h \
     $$PWD/qt/lc_setsdatabasedialog.h
 
@@ -82,12 +82,14 @@ SOURCES +=  \
     $$PWD/common/lc_mainwindow.cpp \
     $$PWD/common/lc_mesh.cpp \
     $$PWD/common/lc_model.cpp \
+    $$PWD/common/lc_partselectionwidget.cpp \
     $$PWD/common/lc_profile.cpp \
     $$PWD/common/lc_scene.cpp \
     $$PWD/common/lc_selectbycolordialog.cpp \
     $$PWD/common/lc_shortcuts.cpp \
     $$PWD/common/lc_synth.cpp \
     $$PWD/common/lc_texture.cpp \
+    $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/common/lc_zipfile.cpp \
     $$PWD/common/image.cpp \
     $$PWD/common/group.cpp \
@@ -112,8 +114,6 @@ SOURCES +=  \
     $$PWD/qt/lc_qcolorlist.cpp \
     $$PWD/qt/lc_qfinddialog.cpp \
     $$PWD/qt/lc_qmodellistdialog.cpp \
-    $$PWD/common/lc_partselectionwidget.cpp \
-    $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/qt/lc_renderdialog.cpp \
     $$PWD/qt/lc_setsdatabasedialog.cpp
 
@@ -134,3 +134,6 @@ FORMS += \
     $$PWD/qt/lc_qmodellistdialog.ui \
     $$PWD/qt/lc_renderdialog.ui \
     $$PWD/qt/lc_setsdatabasedialog.ui
+
+RESOURCES += \
+    $$PWD/resources/lclib.qrc

@@ -17,6 +17,7 @@
 
 #include <QString>
 #include <QStringList>
+class LPubMessages;
 
 class PliSubstituteParts
 {

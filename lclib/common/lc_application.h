@@ -1,5 +1,8 @@
 #pragma once
 
+/*** LPub3D Mod - libLC conversion ***/
+#include <QMainWindow>
+/*** LPub3D Mod end ***/
 #include "lc_array.h"
 
 class Project;

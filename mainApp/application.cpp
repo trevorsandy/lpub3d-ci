@@ -382,7 +382,7 @@ void Application::initialize()
 
   // Translator
   QTranslator Translator;
-  Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lc_lib/resources");
+  Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lclib/resources");
   m_application.installTranslator(&Translator);
 
   qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");

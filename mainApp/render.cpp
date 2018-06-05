@@ -34,6 +34,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
+#include <QtConcurrent>
 
 #include "lpub.h"
 #include "render.h"
@@ -49,9 +50,6 @@
 #include "project.h"
 #include "pieceinf.h"
 #include "view.h"
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QtConcurrent>
-#endif
 
 #ifdef Q_OS_WIN
 #include <windows.h>

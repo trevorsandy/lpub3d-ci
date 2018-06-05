@@ -1217,7 +1217,7 @@ void replaceStringCharacter(
 }
 
 char *stringByReplacingSubstring(const char* string, const char* oldSubstring,
-								 const char* newSubstring, bool repeat)
+				 const char* newSubstring, bool repeat)
 {
 	char *newString = NULL;
 

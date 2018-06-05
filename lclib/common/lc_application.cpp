@@ -9,6 +9,7 @@
 #include "lc_partselectionwidget.h"
 #include "lc_shortcuts.h"
 #include "view.h"
+
 /*** LPub3D Mod - includes ***/
 #include "application.h"
 #include "name.h"
@@ -632,9 +633,9 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod - preference refresh ***/
     if (Preferences::preferredRenderer == RENDERER_NATIVE)
     {
-      Options.Preferences.mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+      Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
       Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-      Options.Preferences.mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+      Options.Preferences.mLineWidth     = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
     }
 /*** LPub3D Mod end ***/
 
@@ -648,14 +649,67 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod - preference refresh ***/
     if (Preferences::preferredRenderer == RENDERER_NATIVE)
     {
-      bool shadingModeChanged = Options.Preferences.mShadingMode != lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+      bool shadingModeChanged = Options.Preferences.mShadingMode     != lcGetProfileInt(LC_PROFILE_SHADING_MODE);
       bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-      bool lineWidthChanged = Options.Preferences.mLineWidth != lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+      bool lineWidthChanged = Options.Preferences.mLineWidth         != lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
       if (AAChanged || shadingModeChanged || drawEdgeLinesChanged || lineWidthChanged)
       {
           bool silent = true;
           clearCustomPartCache(silent);
           clearAndRedrawPage();
+
+          QString oldShadingMode, newShadingMode;
+          switch (Options.Preferences.mShadingMode)
+          {
+           case LC_SHADING_FLAT:
+              oldShadingMode = "flat";
+              break;
+           case LC_SHADING_DEFAULT_LIGHTS:
+              oldShadingMode = "default lights";
+              break;
+            case LC_SHADING_FULL:
+               oldShadingMode = "full";
+               break;
+            case LC_SHADING_WIREFRAME:
+               oldShadingMode = "wire frame";
+               break;
+            default:
+               oldShadingMode = "unknown";
+          }
+
+          switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
+          {
+           case LC_SHADING_FLAT:
+              oldShadingMode = "flat";
+              break;
+           case LC_SHADING_DEFAULT_LIGHTS:
+              oldShadingMode = "default lights";
+              break;
+            case LC_SHADING_FULL:
+               oldShadingMode = "full";
+               break;
+            case LC_SHADING_WIREFRAME:
+               oldShadingMode = "wire frame";
+               break;
+            default:
+               oldShadingMode = "unknown";
+          }
+
+          if (shadingModeChanged)
+                  logInfo() << QString("Shading mode changed from %1 to %2.")
+                                        .arg(oldShadingMode)
+                                        .arg(newShadingMode);
+          if (AAChanged)
+                  logInfo() << QString("Anti Aliasing samples changed from %1 to %2.")
+                                        .arg(CurrentAASamples)
+                                        .arg(Options.AASamples);
+          if (lineWidthChanged)
+                  logInfo() << QString("Edge line width changed from %1 to %2.")
+                                        .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
+                                        .arg(Options.Preferences.mLineWidth);
+
+          if (drawEdgeLinesChanged)
+                  logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
       }
 
     }

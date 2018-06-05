@@ -12,6 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
+INCLUDEPATH += ../mainApp
 
 # fine-grained host identification
 win32:HOST = $$system(systeminfo | findstr /B /C:\"OS Name\")
@@ -39,23 +40,11 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     }
 } else {
     ARCH  = 32
-    win32:!isEmpty($$(LP3D_QT32_MINGW_LIB)):!isEmpty($$(LP3D_QT64_MINGW_INC)) {
+    win32:!isEmpty($$(LP3D_QT32_MINGW_LIB)):!isEmpty($$(LP3D_QT32_MINGW_INC)) {
         LIBS += -L$$system_path($$(LP3D_QT32_MINGW_LIB))
         HEADERS += $$system_path($$(LP3D_QT32_MINGW_INC)/winsock2.h)
     }
 }
-
-# build type
-CONFIG(debug, debug|release) {
-    BUILD = DEBUG
-    DESTDIR = $$join(ARCH,,,bit_debug)
-} else {
-    BUILD = RELEASE
-    DESTDIR = $$join(ARCH,,,bit_release)
-}
-BUILD += BUILD ON $$upper($$HOST)
-
-INCLUDEPATH += /usr/include /usr/local/include
 
 # USE GNU_SOURCE
 unix:!macx: DEFINES += _GNU_SOURCE
@@ -93,15 +82,17 @@ win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     DEFINES += _TC_STATIC
     CONFIG  += windows
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
     QMAKE_EXT_OBJ = .obj
 
     merge_ini.commands = COPY /y /a /b \
                         $$system_path($$_PRO_FILE_PWD_/LDLib/LDViewMessages.ini) + \
                         $$system_path($$_PRO_FILE_PWD_/LDExporter/LDExportMessages.ini) \
                         $$system_path($$_PRO_FILE_PWD_/LDViewMessages.ini)
-    
+
     LIBS += -ladvapi32 -lshell32 -lopengl32 -luser32
     LIBS += -lglu32 -lgdi32 -lws2_32
+
 } else {
 
     merge_ini.commands = cat $$_PRO_FILE_PWD_/LDLib/LDViewMessages.ini \
@@ -152,6 +143,8 @@ MOC_DIR         = $$DESTDIR/.moc
 RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
+unix:INCLUDEPATH += /usr/include /usr/local/include
+
 unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h){
     if (contains(HOST, Ubuntu):contains(HOST, 14.04.5)) {
         message("~~~ $$HOST detected, building in libpng version 1.6.28... ~~~")
@@ -186,7 +179,7 @@ unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h){
     include(tinyxml/TinyXml.pri)
 }
 
-BLD_LIBS += -lz
+!win32:BLD_LIBS += -lz
 
 LIBS  += $${BLD_LIBS}
 
@@ -198,30 +191,33 @@ include(TCFoundation/TCFoundation.pri)
 include(../LPub3DPlatformSpecific.pri)
 
 # suppress warnings
-QMAKE_CFLAGS_WARN_ON =  -Wall -W \
-                        -Wno-unknown-pragmas \
-                        -Wno-unused-parameter \
-                        -Wno-parentheses \
-                        -Wno-unused-variable \
-                        -Wno-deprecated-declarations \
-                        -Wno-return-type \
-                        -Wno-sign-compare \
-                        -Wno-uninitialized \
-                        -Wno-unused-result \
-                        -Wno-implicit-fallthrough
+QMAKE_CFLAGS_WARN_ON += \
+     -Wall -W \
+     -Wno-unknown-pragmas \
+     -Wno-unused-parameter \
+     -Wno-parentheses \
+     -Wno-unused-variable \
+     -Wno-deprecated-declarations \
+     -Wno-return-type \
+     -Wno-sign-compare \
+     -Wno-uninitialized \
+     -Wno-unused-result \
+     -Wno-implicit-fallthrough
 macx {
-QMAKE_CFLAGS_WARN_ON += -Wno-implicit-function-declaration \
-                        -Wno-incompatible-pointer-types-discards-qualifiers \
-                        -Wno-incompatible-pointer-types \
-                        -Wno-nullability-completeness \
-                        -Wno-undefined-bool-conversion \
-                        -Wno-invalid-source-encoding \
-                        -Wno-mismatched-new-delete \
-                        -Wno-for-loop-analysis \
-                        -Wno-int-conversion \
-                        -Wno-reorder
+QMAKE_CFLAGS_WARN_ON += \
+     -Wno-implicit-function-declaration \
+     -Wno-incompatible-pointer-types-discards-qualifiers \
+     -Wno-incompatible-pointer-types \
+     -Wno-nullability-completeness \
+     -Wno-undefined-bool-conversion \
+     -Wno-invalid-source-encoding \
+     -Wno-mismatched-new-delete \
+     -Wno-for-loop-analysis \
+     -Wno-int-conversion \
+     -Wno-reorder
 } else {
-QMAKE_CFLAGS_WARN_ON += -Wno-clobbered
+QMAKE_CFLAGS_WARN_ON += \
+     -Wno-clobbered
 }
-QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 

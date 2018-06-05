@@ -9,6 +9,10 @@
 #include "TCAlertManager.h"
 #include "mystring.h"
 
+#include "lpub_preferences.h"
+#include "version.h"
+#include "name.h"
+
 #ifdef COCOA
 #import <Foundation/Foundation.h>
 #endif // COCOA

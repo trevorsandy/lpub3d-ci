@@ -24,7 +24,13 @@
 #define LC_MAXPATH 1024
 
 #ifdef Q_OS_WIN
-char* strcasestr(const char *s, const char *find);
+/*** LPub3D Mod - Use LDVLib instance of strcasestr ***/
+#ifdef _TC_STATIC
+#include <TCFoundation/mystring.h>
+#else
+//char* strcasestr(const char *s, const char *find);
+#endif
+/*** LPub3D Mod end ***/
 #else
 char* strupr(char* string);
 char* strlwr(char* string);

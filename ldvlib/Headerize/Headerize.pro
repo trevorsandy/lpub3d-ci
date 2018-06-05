@@ -10,7 +10,7 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 
-message("~~~ BUILD HEADERIZE EXECUTABLE ~~~")
+message("~~~ HEADERIZE EXECUTABLE ~~~")
 
 V_MAJ = 4
 V_MIN = 3

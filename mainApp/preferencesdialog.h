@@ -18,10 +18,10 @@
 #define PREFERENCES_DIALOG_H
 
 #include <QDialog>
+#include <QTreeWidgetItem>
 
 #include "ui_preferences.h"
 #include "lc_qpreferencesdialog.h"
-#include "ui_lc_qpreferencesdialog.h"
 #include "qsimpleupdater.h"
 #include "threadworkers.h"
 #include "parmswindow.h"

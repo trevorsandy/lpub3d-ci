@@ -4,10 +4,6 @@
 #include "object.h"
 #include "lc_commands.h"
 
-/*** LPub3D Mod - logging ***/
-#include "QsLog.h"
-/*** LPub3D Mod end ***/
-
 #define LC_SEL_NO_PIECES                0x0001 // No pieces in model
 #define LC_SEL_PIECE                    0x0002 // At last 1 piece selected
 #define LC_SEL_SELECTED                 0x0004 // At last 1 object selected

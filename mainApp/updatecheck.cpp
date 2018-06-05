@@ -14,6 +14,7 @@
 
 #include <QSettings>
 #include <QApplication>
+#include <QDateTime>
 #include "updatecheck.h"
 #include "lpub_preferences.h"
 #include "version.h"

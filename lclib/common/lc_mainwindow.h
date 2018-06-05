@@ -8,7 +8,6 @@
 /*** LPub3D Mod - status and logging ***/
 #include <QToolBar>
 #include <QStatusBar>
-#include "QsLog.h"
 /*** LPub3D Mod end ***/
 
 class View;

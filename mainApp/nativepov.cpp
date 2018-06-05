@@ -15,20 +15,13 @@
 ****************************************************************************/
 
 #include <QtWidgets>
+#include <QtConcurrent>
 
 #include "nativepov.h"
 #include "lpub_preferences.h"
 #include "lpub_messages.h"
-#include "lpub_strings.h"
 #include "version.h"
 #include "paths.h"
-
-#include "lc_file.h"
-#include "pieceinf.h"
-#include "view.h"
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QtConcurrent>
-#endif
 
 NativePov nativePov;
 

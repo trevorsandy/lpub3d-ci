@@ -346,6 +346,12 @@
 #include <QElapsedTimer>
 #include <QPdfWriter>
 
+//3D Viewer
+#include "lc_global.h" // TODO - remove this; not necessary
+#include "lc_math.h"
+#include "lc_library.h"
+#include "lc_mainwindow.h"
+
 #include "color.h"
 #include "ranges.h"
 #include "ldrawfiles.h"
@@ -359,11 +365,6 @@
 #include "numberitem.h"
 #include "progress_dialog.h"
 #include "QsLog.h"
-
-//3D Viewer
-#include "lc_math.h"
-#include "lc_library.h"
-#include "lc_mainwindow.h"
 
 #ifndef WATCHER
 #define WATCHER

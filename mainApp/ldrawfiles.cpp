@@ -40,11 +40,10 @@
 #include <QRegExp>
 #include "paths.h"
 
+#include "lpub.h"
 #include "lc_application.h"
 #include "lc_library.h"
 #include "pieceinf.h"
-
-#include "lpub.h"
 
 QString LDrawFile::_file        = "";
 QString LDrawFile::_name        = "";

@@ -15,11 +15,7 @@
 **
 ****************************************************************************/
 #include "lpub.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QWidget>
-#else
 #include <QWidget>
-#endif
 #include <QDesktopWidget>
 #include <QSizePolicy>
 #include <QFileDialog>
@@ -2053,7 +2049,7 @@ Gui::Gui()
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 
-    connect(this, SIGNAL(messageSig(LogType,QString)),        this, SLOT(statusMessage(LogType,QString)));
+    connect(this,  SIGNAL(messageSig(LogType,QString)),        this, SLOT(statusMessage(LogType,QString)));
 
     connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
@@ -2140,7 +2136,7 @@ void Gui::initialize()
   connect(gMainWindow, SIGNAL(SetRotStepAngleX(float)),        this,        SLOT(SetRotStepAngleX(float)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleY(float)),        this,        SLOT(SetRotStepAngleY(float)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
-  connect(gMainWindow, SIGNAL(GetRotStepMeta()),              this,        SLOT(GetRotStepMeta()));
+  connect(gMainWindow, SIGNAL(GetRotStepMeta()),               this,        SLOT(GetRotStepMeta()));
 
   if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
