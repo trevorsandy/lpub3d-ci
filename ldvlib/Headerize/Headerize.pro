@@ -1,75 +1,38 @@
 TEMPLATE         = app
-QT              += core
-QT              -= gui
 CONFIG          += qt
-CONFIG          += warn_on
 win32: CONFIG   += console
-macx:  CONFIG   -= app_bundle
 
-TARGET +=
-DEPENDPATH += .
-INCLUDEPATH += .
+TARGET          = Headerize
 
-message("~~~ HEADERIZE EXECUTABLE ~~~")
+include(../ldvlib.pri)
 
-V_MAJ = 4
-V_MIN = 3
+message("~~~ HEADERIZE EXECUTABLE $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
-BUILD_ARCH = $$(TARGET_CPU)
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-    ARCH  = 64
-} else {
-    ARCH  = 32
-}
+H_VER_MAJ = 4
+H_VER_MIN = 3
 
-unix: !macx: DEP_TARGET = ldv
-else:        DEP_TARGET = Ldv
+
+unix: !macx: DEP_TARGET = tcfoundation
+else:        DEP_TARGET = TCFoundation
 
 CONFIG(debug, debug|release) {
-    BUILD += Debug Build
-    ARCH_BLD = bit_debug
     macx: DEP_TARGET = $$join(DEP_TARGET,,,_debug)
-    win32: DEP_TARGET = $$join(DEP_TARGET,,,d$${V_MAJ}$${V_MIN})
+    win32: DEP_TARGET = $$join(DEP_TARGET,,,d$${H_VER_MAJ}$${H_VER_MIN})
     unix:!macx: DEP_TARGET = $$join(DEP_TARGET,,,d)
 } else {
-    BUILD += Release Build
     ARCH_BLD = bit_release
-    win32: DEP_TARGET = $$join(DEP_TARGET,,,$${V_MAJ}$${V_MIN})
+    win32: DEP_TARGET = $$join(DEP_TARGET,,,$${H_VER_MAJ}$${H_VER_MIN})
 }
 
 DEP_DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
-exists($$system_path(../$$DEP_DESTDIR/lib$${DEP_TARGET}.a)) {
+exists($$system_path(../TCFoundation/$$DEP_DESTDIR/lib$${DEP_TARGET}.a)) {
     message("~~~ HEADERIZE DEPENDENCY lib$${DEP_TARGET}.a FOUND ~~~")
 }
 
-DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+LIBDIRS         = -L$$system_path(../TCFoundation/$$DEP_DESTDIR)
 
-PRECOMPILED_DIR = $$DESTDIR/.pch
-OBJECTS_DIR     = $$DESTDIR/.obj
-MOC_DIR         = $$DESTDIR/.moc
-RCC_DIR         = $$DESTDIR/.qrc
-UI_DIR          = $$DESTDIR/.ui
-
-
-INCLUDEPATH     += $$_PRO_FILE_PWD_/../
-
-QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
-QMAKE_LFLAGS    += $(Q_LDFLAGS)
-QMAKE_CFLAGS    += $(Q_CFLAGS)
-
-win32 {
-    DEFINES      += _TC_STATIC
-    QMAKE_EXT_OBJ = .obj
-}
-
-DEFINES        += _QT
-
-TARGET          = Headerize
-
-LIBDIRS         = -L$$system_path(../$$DEP_DESTDIR)
-
-LDLIBS          = $$system_path(../$$DEP_DESTDIR/lib$${DEP_TARGET}.a)
+LDLIBS          = $$system_path(../TCFoundation/$$DEP_DESTDIR/lib$${DEP_TARGET}.a)
 
 LIBS           += $${LIBDIRS} $${LDLIBS}
 

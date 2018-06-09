@@ -43,7 +43,7 @@ class TCExport TCUserDefaults: public TCObject
 {
 	public:
 		static void setStringForKey(const char* value,
-			const char* key, bool sessionSpecific = true);
+                                     const char* key, bool sessionSpecific = true);
 #ifndef TC_NO_UNICODE
 		static void setStringForKey(CUCSTR value, const char* key,
 			bool sessionSpecific = true);

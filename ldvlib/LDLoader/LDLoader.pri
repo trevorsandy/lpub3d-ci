@@ -25,7 +25,7 @@ HEADERS += \
     $$PWD/LDLUnknownLine.h \
     $$PWD/LDrawIni.h \
     $$PWD/LDrawInP.h
-		   
+
 SOURCES += \
     $$PWD/LDLActionLine.cpp \
     $$PWD/LDLAutoCamera.cpp \

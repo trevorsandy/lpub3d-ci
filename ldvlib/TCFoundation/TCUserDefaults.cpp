@@ -9,9 +9,11 @@
 #include "TCAlertManager.h"
 #include "mystring.h"
 
-#include "lpub_preferences.h"
-#include "version.h"
-#include "name.h"
+/*** LPub3D Mod - native renderer options ***/
+//#include "lpub_preferences.h"
+//#include "version.h"
+//#include "name.h"
+/*** LPub3D Mod end ***/
 
 #ifdef COCOA
 #import <Foundation/Foundation.h>
@@ -84,7 +86,8 @@ TCUserDefaults::TCUserDefaults(void)
 	strcpy(className, "TCUserDefaults");
 #endif
 #ifdef _QT
-	qSettings = new QSettings("LDView","LDView");
+	//qSettings = new QSettings("LDView","LDView");
+	qSettings = new QSettings();
 #endif // _QT
 #ifdef COCOA
 	appName = copyString([[[NSBundle mainBundle] bundleIdentifier]
@@ -387,7 +390,7 @@ const char* TCUserDefaults::getSessionName(void)
 }
 
 void TCUserDefaults::setStringForKey(const char* value, const char* key,
-									 bool sessionSpecific)
+				     bool sessionSpecific)
 {
 	getCurrentUserDefaults()->defSetStringForKey(value, key, sessionSpecific);
 }

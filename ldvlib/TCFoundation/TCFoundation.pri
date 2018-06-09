@@ -1,4 +1,4 @@
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD $$PWD/../libpng ../libjpeg
 DEPENDPATH += $$PWD
 
 include(../QT/QT.pri)
@@ -35,7 +35,7 @@ HEADERS += \
     $$PWD/TCTypedValueArray.h \
     $$PWD/TCUserDefaults.h \
     $$PWD/TCVector.h
-		   
+
 SOURCES += \
     $$PWD/ConvertUTF.c \
     $$PWD/mystring.cpp \

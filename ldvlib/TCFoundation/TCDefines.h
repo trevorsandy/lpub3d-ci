@@ -64,6 +64,9 @@
 
 #pragma warning( disable : 4514 4127 )
 
+/*** LPub3D Mod - suppress __declspec block - causes gcc linking to produce false undefined reference for static libraries ***/
+#define TCExport
+/*
 #ifdef _BUILDING_TCFOUNDATION
 #define TCExport __declspec(dllexport)
 #elif defined _BUILDING_TCFOUNDATION_LIB || defined _TC_STATIC
@@ -71,6 +74,8 @@
 #else
 #define TCExport __declspec(dllimport)
 #endif
+*/
+/*** LPub3D Mod end ***/
 
 #else // WIN32
 

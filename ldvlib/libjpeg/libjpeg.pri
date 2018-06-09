@@ -2,69 +2,69 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 HEADERS += \
-    $$PWD/jpeglib.h \
-    $$PWD/jerror.h \
-    $$PWD/jmorecfg.h \
-    $$PWD/jconfig.h \
-    $$PWD/cderror.h \
-    $$PWD/cdjpeg.h \
-    $$PWD/jdct.h \
-    $$PWD/jinclude.h \
-    $$PWD/jmemsys.h \
-    $$PWD/jpegint.h \
-    $$PWD/jversion.h \
-    $$PWD/transupp.h
+      $$PWD/jpeglib.h \
+      $$PWD/jerror.h \
+      $$PWD/jmorecfg.h \
+      $$PWD/jconfig.h \
+      $$PWD/cderror.h \
+      $$PWD/cdjpeg.h \
+      $$PWD/jdct.h \
+      $$PWD/jinclude.h \
+      $$PWD/jmemsys.h \
+      $$PWD/jpegint.h \
+      $$PWD/jversion.h \
+      $$PWD/transupp.h
 
 SOURCES += \
-    $$PWD/jaricom.c \
-    $$PWD/jcapimin.c \
-    $$PWD/jcapistd.c \
-    $$PWD/jcarith.c \
-    $$PWD/jccoefct.c \
-    $$PWD/jccolor.c \
-    $$PWD/jcdctmgr.c \
-    $$PWD/jchuff.c \
-    $$PWD/jcinit.c \
-    $$PWD/jcmainct.c \
-    $$PWD/jcmarker.c \
-    $$PWD/jcmaster.c \
-    $$PWD/jcomapi.c \
-    $$PWD/jcparam.c \
-    $$PWD/jcprepct.c \
-    $$PWD/jcsample.c \
-    $$PWD/jctrans.c \
-    $$PWD/jdapimin.c \
-    $$PWD/jdapistd.c \
-    $$PWD/jdarith.c \
-    $$PWD/jdatadst.c \
-    $$PWD/jdatasrc.c \
-    $$PWD/jdcoefct.c \
-    $$PWD/jdcolor.c \
-    $$PWD/jddctmgr.c \
-    $$PWD/jdhuff.c \
-    $$PWD/jdinput.c \
-    $$PWD/jdmainct.c \
-    $$PWD/jdmarker.c \
-    $$PWD/jdmaster.c \
-    $$PWD/jdmerge.c \
-    $$PWD/jdpostct.c \
-    $$PWD/jdsample.c \
-    $$PWD/jdtrans.c \
-    $$PWD/jerror.c \
-    $$PWD/jfdctflt.c \
-    $$PWD/jfdctfst.c \
-    $$PWD/jfdctint.c \
-    $$PWD/jidctflt.c \
-    $$PWD/jidctfst.c \
-    $$PWD/jidctint.c \
-    $$PWD/jquant1.c \
-    $$PWD/jquant2.c \
-    $$PWD/jutils.c \
-    $$PWD/jmemmgr.c
+      $$PWD/jaricom.c \
+      $$PWD/jcapimin.c \
+      $$PWD/jcapistd.c \
+      $$PWD/jcarith.c \
+      $$PWD/jccoefct.c \
+      $$PWD/jccolor.c \
+      $$PWD/jcdctmgr.c \
+      $$PWD/jchuff.c \
+      $$PWD/jcinit.c \
+      $$PWD/jcmainct.c \
+      $$PWD/jcmarker.c \
+      $$PWD/jcmaster.c \
+      $$PWD/jcomapi.c \
+      $$PWD/jcparam.c \
+      $$PWD/jcprepct.c \
+      $$PWD/jcsample.c \
+      $$PWD/jctrans.c \
+      $$PWD/jdapimin.c \
+      $$PWD/jdapistd.c \
+      $$PWD/jdarith.c \
+      $$PWD/jdatadst.c \
+      $$PWD/jdatasrc.c \
+      $$PWD/jdcoefct.c \
+      $$PWD/jdcolor.c \
+      $$PWD/jddctmgr.c \
+      $$PWD/jdhuff.c \
+      $$PWD/jdinput.c \
+      $$PWD/jdmainct.c \
+      $$PWD/jdmarker.c \
+      $$PWD/jdmaster.c \
+      $$PWD/jdmerge.c \
+      $$PWD/jdpostct.c \
+      $$PWD/jdsample.c \
+      $$PWD/jdtrans.c \
+      $$PWD/jerror.c \
+      $$PWD/jfdctflt.c \
+      $$PWD/jfdctfst.c \
+      $$PWD/jfdctint.c \
+      $$PWD/jidctflt.c \
+      $$PWD/jidctfst.c \
+      $$PWD/jidctint.c \
+      $$PWD/jquant1.c \
+      $$PWD/jquant2.c \
+      $$PWD/jutils.c \
+      $$PWD/jmemmgr.c
 
 # memory manager
 SOURCES += \
-    $$PWD/jmemnobs.c
+      $$PWD/jmemnobs.c
 
 #   Selecting a memory manager
 # --------------------------
@@ -120,3 +120,4 @@ SOURCES += \
 # other end of the spectrum, for MS-DOS machines you probably can't go much
 # above 300K to 400K.  (On MS-DOS the value refers to conventional memory only.
 # Extended/expanded memory is handled separately by jmemdos.c.)
+
