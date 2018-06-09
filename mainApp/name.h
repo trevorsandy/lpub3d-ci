@@ -85,8 +85,8 @@ Q_DECLARE_METATYPE(LogType);
 
 // Native pov file generation defaults
 #define SEAM_WIDTH_DEFAULT                   0.5
-#define QUALITY_DEFAULT                      3
-#define SELECTED_ASPECT_RATIO_DEFAULT        0
+#define QUALITY_EXPORT_DEFAULT               3
+#define SELECTED_ASPECT_RATIO_DEFAULT       -1           // ASPECT_RATIO_0 "Automatic"
 #define CUSTOM_ASPECT_RATIO_DEFAULT          1.5f
 #define EDGE_RADIUS_DEFAULT                  0.15f
 #define AMBIENT_DEFAULT                      0.4f
@@ -104,11 +104,11 @@ Q_DECLARE_METATYPE(LogType);
 #define CHROME_BRILLIANCE_DEFAULT            5.0f
 #define CHROME_SPECULAR_DEFAULT              0.8F
 #define CHROME_ROUGHNESS_DEFAULT             0.01f
-#define FILE_VERSION_DEFAULT                 0
+#define FILE_VERSION_DEFAULT                 3.6f
 
 #define XML_MAP_PATH_DEFAULT                 EMPTY_STRING_DEFAULT
 #define TOP_INCLUDE_DEFAULT                  EMPTY_STRING_DEFAULT
-#define BOTTM_INCLUDE_DEFAULT                EMPTY_STRING_DEFAULT
+#define BOTTOM_INCLUDE_DEFAULT               EMPTY_STRING_DEFAULT
 
 #define LIGHT_01                             "1. Latitude 45.0 Longitude 0.0"     // 0
 #define LIGHT_02                             "2. Latitude 30.0 Longitude 120.0"   // 1
@@ -126,18 +126,18 @@ Q_DECLARE_METATYPE(LogType);
 #define POV_FILE_VER_03                     "3.8"                                 // 2
 #define POV_FILE_VERSION_COMBO_DEFAULT      POV_FILE_VER_01 "," POV_FILE_VER_02 "," POV_FILE_VER_03
 
-#define ASPECT_RATIO_01                     "Automatic"                           // 0
-#define ASPECT_RATIO_02                     "5:4"                                 // 1
-#define ASPECT_RATIO_03                     "4:3"                                 // 2
-#define ASPECT_RATIO_04                     "3:2"                                 // 3
-#define ASPECT_RATIO_05                     "5:3"                                 // 4
-#define ASPECT_RATIO_06                     "16:9"                                // 5
-#define ASPECT_RATIO_07                     "2.35:1"                              // 6
-#define ASPECT_RATIO_08                     "3DViewer Aspect Ratio"               // 7
-#define ASPECT_RATIO_09                     "Custom"                              // 8
-#define SELECTED_ASPECT_RATIO_COMBO_DEFAULT ASPECT_RATIO_01 "," ASPECT_RATIO_02 "," ASPECT_RATIO_03 "," \
-                                            ASPECT_RATIO_04 "," ASPECT_RATIO_05 "," ASPECT_RATIO_06 "," \
-                                            ASPECT_RATIO_07 "," ASPECT_RATIO_08 "," ASPECT_RATIO_09
+#define ASPECT_RATIO_0                     "Automatic"                            // -1
+#define ASPECT_RATIO_1                     "5:4"                                  //  0
+#define ASPECT_RATIO_2                     "3:2"                                  //  2
+#define ASPECT_RATIO_3                     "5:3"                                  //  3
+#define ASPECT_RATIO_4                     "16:9"                                 //  4
+#define ASPECT_RATIO_5                     "2.35:1"                               //  5
+#define ASPECT_RATIO_6                     "3DViewer Aspect Ratio"                //  6
+#define ASPECT_RATIO_7                     "Custom"                               //  7
+#define ASPECT_RATIO_8                     "4:3"                                  //  8
+#define SELECTED_ASPECT_RATIO_COMBO_DEFAULT ASPECT_RATIO_0 "," ASPECT_RATIO_1 "," ASPECT_RATIO_2 "," \
+                                            ASPECT_RATIO_3 "," ASPECT_RATIO_4 "," ASPECT_RATIO_5 "," \
+                                            ASPECT_RATIO_6 "," ASPECT_RATIO_7 "," ASPECT_RATIO_8
 
 
 #endif

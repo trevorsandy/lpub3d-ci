@@ -23,10 +23,17 @@
 #include "version.h"
 #include "paths.h"
 
+#include <TCStringArray.h>
+#include <TCUserDefaults.h>
+#include <LDUserDefaultsKeys.h>
+#include <mystring.h>
+
 NativePov nativePov;
 
 bool NativePov::CreateNativePovFile(const NativeOptions& Options)
 {
+//          logDebug() << QString("HELL YEAH %1").arg(QString::number(TCUserDefaults::longForKey("Quality", QUALITY_EXPORT_DEFAULT)));
+
           QString Type = Options.ImageType == Render::CSI ? "CSI" : "PLI";
 
 //          loadPovSettings();

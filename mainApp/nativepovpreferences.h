@@ -18,6 +18,7 @@
 #define NATIVEPOVPREFERENCESDIALOG_H
 
 #include <QDialog>
+#include <TCUserDefaults.h>
 
 #include "ui_nativepovpreferences.h"
 
@@ -34,41 +35,45 @@ public:
   explicit NativePovPreferencesDialog(QWidget *parent = nullptr);
   ~NativePovPreferencesDialog();
 
-  int           quality();
-  int           selectedAspectRatio();
-  float         customAspectRatio();
-  float         seamWidth();
-  float         ambient();
-  float         diffuse();
-  float         refl();
-  float         phong();
-  float         phongSize();
-  float         transRefl();
-  float         transFilter();
-  float         transIoR();
-  float         rubberRefl();
-  float         rubberPhong();
-  float         rubberPhongSize();
-  float         chromeRefl();
-  float         chromeBril();
-  float         chromeSpecular();
-  float         chromeRoughness();
-  float         edgeRadius();
-  int           fileVersion();
-  bool          seams();
-  bool          reflections();
-  bool          shadows();
-  bool          xmlMap();
-  bool          inlinePov();
-  bool          smoothCurves();
-  bool          hideStuds();
-  bool          unmirrorStuds();
-  bool          findReplacements();
-  bool          conditionalEdgeLines();
-  bool          primitiveSubstitution();
-  QString const xmlMapPath();
-  QString const topInclude();
-  QString const bottomInclude();
+  int           getSelectedAspectRatio();
+  long          setSelectedAspectRatio();
+
+//  int           quality();
+//  int           selectedAspectRatio();
+//  float         customAspectRatio();
+//  float         seamWidth();
+//  float         ambient();
+//  float         diffuse();
+//  float         refl();
+//  float         phong();
+//  float         phongSize();
+//  float         transRefl();
+//  float         transFilter();
+//  float         transIoR();
+//  float         rubberRefl();
+//  float         rubberPhong();
+//  float         rubberPhongSize();
+//  float         chromeRefl();
+//  float         chromeBril();
+//  float         chromeSpecular();
+//  float         chromeRoughness();
+//  float         edgeRadius();
+//  int           fileVersion();
+//  bool          seams();
+//  bool          reflections();
+//  bool          shadows();
+//  bool          xmlMap();
+//  bool          inlinePov();
+//  bool          smoothCurves();
+//  bool          hideStuds();
+//  bool          unmirrorStuds();
+//  bool          findReplacements();
+//  bool          conditionalEdgeLines();
+//  bool          primitiveSubstitution();
+//  QString const xmlMapPath();
+//  QString const topInclude();
+//  QString const bottomInclude();
+
   QString const lights();
 
 signals:
@@ -99,6 +104,10 @@ private slots:
 private:
   Ui::NativePovPreferencesDialog ui;
   QWidget       *parent;
-};
 
+  // LDV SETTINGS
+  std::string    m_udPrefix;
+
+  friend class PreferencesDialog;
+};
 #endif // NATIVEPOVPREFERENCESDIALOG_H

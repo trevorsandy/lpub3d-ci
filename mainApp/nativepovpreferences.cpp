@@ -21,6 +21,11 @@
 
 #include "ui_nativepovpreferences.h"
 #include "nativepovpreferences.h"
+
+#include <TCUserDefaults.h>
+#include <LDUserDefaultsKeys.h>
+#include "nativepov.h"
+
 #include "lpub_preferences.h"
 #include "lc_application.h"
 #include "version.h"
@@ -32,48 +37,54 @@ NativePovPreferencesDialog::NativePovPreferencesDialog(QWidget *parent) :
     ui.setupUi(this);
 
     ui.povQualityCombo->addItems(                   QString(QUALITY_COMBO_DEFAULT).split(",", QString::SkipEmptyParts));
-    ui.povQualityCombo->setCurrentIndex(            Preferences::quality);
+    ui.povQualityCombo->setCurrentIndex(            TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT));
     ui.povSelectedAspectRatioCombo->addItems(       QString(SELECTED_ASPECT_RATIO_COMBO_DEFAULT).split(",", QString::SkipEmptyParts));
-    ui.povSelectedAspectRatioCombo->setCurrentIndex(Preferences::selectedAspectRatio);
-    ui.povCustomAspectRatioLnEdit->setEnabled(      Preferences::selectedAspectRatio == 8); // Custom
-    ui.povCustomAspectRatioLnEdit->setText(         QString::number(Preferences::customAspectRatio));
-    ui.povEdgeLineRadiusLnEdit->setText(            QString::number(Preferences::edgeRadius));
-    ui.povSeamWidthLnEdit->setText(                 QString::number(Preferences::seamWidth));
-    ui.povAmbientLnEdit->setText(                   QString::number(Preferences::ambient));
-    ui.povDiffuseLnEdit->setText(                   QString::number(Preferences::diffuse));
-    ui.povReflLnEdit->setText(                      QString::number(Preferences::refl));
-    ui.povPhongLnEdit->setText(                     QString::number(Preferences::phong));
-    ui.povPhongSizeLnEdit->setText(                 QString::number(Preferences::phongSize));
-    ui.povTransReflLnEdit->setText(                 QString::number(Preferences::transRefl));
-    ui.povTransFilterLnEdit->setText(               QString::number(Preferences::transFilter));
-    ui.povTransIoRLnEdit->setText(                  QString::number(Preferences::transIoR));
-    ui.povRubberReflLnEdit->setText(                QString::number(Preferences::rubberRefl));
-    ui.povRubberPhongLnEdit->setText(               QString::number(Preferences::rubberPhong));
-    ui.povRubberPhongSizeLnEdit->setText(           QString::number(Preferences::rubberPhongSize));
-    ui.povChromeReflLnEdit->setText(                QString::number(Preferences::chromeRefl));
-    ui.povChromeBrillianceLnEdit->setText(          QString::number(Preferences::chromeBril));
-    ui.povChromeSpecularLnEdit->setText(            QString::number(Preferences::chromeSpecular));
-    ui.povChromeRoughnessLnEdit->setText(           QString::number(Preferences::chromeRoughness));
+    ui.povSelectedAspectRatioCombo->setCurrentIndex(getSelectedAspectRatio());
+    ui.povCustomAspectRatioLnEdit->setEnabled(      TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT) == 7); // Custom
+    ui.povCustomAspectRatioLnEdit->setText(         QString::number(TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT)));
+    ui.povEdgeLineRadiusLnEdit->setText(            QString::number(TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)));
+    ui.povSeamWidthLnEdit->setText(                 QString::number(TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)));
+    ui.povAmbientLnEdit->setText(                   QString::number(TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)));
+    ui.povDiffuseLnEdit->setText(                   QString::number(TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)));
+    ui.povReflLnEdit->setText(                      QString::number(TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT)));
+    ui.povPhongLnEdit->setText(                     QString::number(TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)));
+    ui.povPhongSizeLnEdit->setText(                 QString::number(TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)));
+    ui.povTransReflLnEdit->setText(                 QString::number(TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)));
+    ui.povTransFilterLnEdit->setText(               QString::number(TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)));
+    ui.povTransIoRLnEdit->setText(                  QString::number(TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)));
+    ui.povRubberReflLnEdit->setText(                QString::number(TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)));
+    ui.povRubberPhongLnEdit->setText(               QString::number(TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)));
+    ui.povRubberPhongSizeLnEdit->setText(           QString::number(TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)));
+    ui.povChromeReflLnEdit->setText(                QString::number(TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)));
+    ui.povChromeBrillianceLnEdit->setText(          QString::number(TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)));
+    ui.povChromeSpecularLnEdit->setText(            QString::number(TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)));
+    ui.povChromeRoughnessLnEdit->setText(           QString::number(TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)));
     ui.povFileVersionCombo->addItems(               QString(POV_FILE_VERSION_COMBO_DEFAULT).split(",", QString::SkipEmptyParts));
-    ui.povFileVersionCombo->setCurrentIndex(        Preferences::fileVersion);
+    ui.povFileVersionCombo->setCurrentIndex(        int(ui.povFileVersionCombo->findText(
+                                                    QString::number(TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)))));
+    ui.povSeamsGrpBox->setChecked(                  TCUserDefaults::boolForKey(SEAMS_KEY, true));
+    ui.povReflectionsChkBox->setChecked(            TCUserDefaults::boolForKey(REFLECTIONS_KEY, true));
+    ui.povShadowsChkBox->setChecked(                TCUserDefaults::boolForKey(SHADOWS_KEY, true));
+    ui.povXmlMapGrpBox->setChecked(                 TCUserDefaults::boolForKey(XML_MAP_KEY, true));
+    ui.povInlinePovChkBox->setChecked(              TCUserDefaults::boolForKey(INLINE_POV_KEY, true));
+    ui.povSmoothCurvesChkBox->setChecked(           TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true));
+    ui.povHideStudsChkBox->setChecked(              TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false));
+    ui.povUnmirrorStudsChkBox->setEnabled(          TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT) == 3); // Include stud logo
+    ui.povUnmirrorStudsChkBox->setChecked(          TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true));
+    ui.povFindReplacementsChkBox->setChecked(       TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false));
+    ui.povConditionalEdgeLinesChkBox->setChecked(   TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false));
+    ui.povPrimitiveSubstitutionChkBox->setChecked(  TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true));
+    ui.povEdgeLinesGrpBox->setChecked(              gApplication->mPreferences.mDrawEdgeLines ||
+                                                    TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false));
 
-    ui.povSeamsGrpBox->setChecked(                  Preferences::seams);
-    ui.povReflectionsChkBox->setChecked(            Preferences::reflections);
-    ui.povShadowsChkBox->setChecked(                Preferences::shadows);
-    ui.povXmlMapGrpBox->setChecked(                 Preferences::xmlMap);
-    ui.povInlinePovChkBox->setChecked(              Preferences::inlinePov);
-    ui.povSmoothCurvesChkBox->setChecked(           Preferences::smoothCurves);
-    ui.povHideStudsChkBox->setChecked(              Preferences::hideStuds);
-    ui.povUnmirrorStudsChkBox->setEnabled(          Preferences::quality == 3); // Include stud logo
-    ui.povUnmirrorStudsChkBox->setChecked(          Preferences::unmirrorStuds);
-    ui.povFindReplacementsChkBox->setChecked(       Preferences::findReplacements);
-    ui.povConditionalEdgeLinesChkBox->setChecked(   Preferences::conditionalEdgeLines);
-    ui.povPrimitiveSubstitutionChkBox->setChecked(  Preferences::primitiveSubstitution);
-    ui.povEdgeLinesGrpBox->setChecked(              gApplication->mPreferences.mDrawEdgeLines);
-
-    ui.povXmlMapPathLnEdit->setText(                Preferences::xmlMapPath);
-    ui.povTopIncludeLnEdit->setText(                Preferences::topInclude);
-    ui.povBottomIncludeLnEdit->setText(             Preferences::bottomInclude);
+    ui.povXmlMapPathLnEdit->setText(                !QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY)).isEmpty() ?
+                                                     QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY)) :
+                                                    !Preferences::lgeoPath.isEmpty() ?
+                                                     QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lgeoPath).arg(VER_LGEO_XML_FILE)) : XML_MAP_PATH_DEFAULT);
+    ui.povTopIncludeLnEdit->setText(                !QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY)).isEmpty() ?
+                                                     QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY)) : TOP_INCLUDE_DEFAULT);
+    ui.povBottomIncludeLnEdit->setText(             !QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY)).isEmpty() ?
+                                                     QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY)) : BOTTOM_INCLUDE_DEFAULT);
 
     ui.povLightsCombo->addItems(                    Preferences::lights.split(",", QString::SkipEmptyParts));
     ui.povLightsCombo->setCurrentIndex(             ui.povLightsCombo->count() - 1);
@@ -91,6 +102,56 @@ NativePovPreferencesDialog::NativePovPreferencesDialog(QWidget *parent) :
 
 NativePovPreferencesDialog::~NativePovPreferencesDialog()
 {}
+
+int NativePovPreferencesDialog::getSelectedAspectRatio()
+{
+  switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
+  {
+  case -1:
+          return 0;
+  case 0:
+          return 1;
+  case 2:
+          return 2;
+  case 3:
+          return 3;
+  case 4:
+          return 4;
+  case 5:
+          return 5;
+  case 6:
+          return 6;
+  case 7:
+          return 7;
+  default:
+          return 8;
+  }
+}
+
+long NativePovPreferencesDialog::setSelectedAspectRatio()
+{
+  switch (ui.povSelectedAspectRatioCombo->currentIndex())
+  {
+  case 0:
+          return -1;
+  case 1:
+          return 0;
+  case 2:
+          return 2;
+  case 3:
+          return 3;
+  case 4:
+          return 4;
+  case 5:
+          return 5;
+  case 6:
+          return 6;
+  case 7:
+          return 7;
+  default:
+          return 8;
+  }
+}
 
 void NativePovPreferencesDialog::on_povLightsCombo_currentIndexChanged(int index)
 {
@@ -210,174 +271,21 @@ void NativePovPreferencesDialog::on_povQualityCombo_currentIndexChanged(int inde
     bool enabled = index == 3; // Include stud logo
     ui.povUnmirrorStudsChkBox->setEnabled(enabled);
     if (enabled)
-      ui.povUnmirrorStudsChkBox->setChecked(Preferences::unmirrorStuds);
+      ui.povUnmirrorStudsChkBox->setChecked(TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true));
 }
 
-QString const NativePovPreferencesDialog::lights()
-{
-  QStringList povLightsComboList;
-  for (int index = 0; index < ui.povLightsCombo->count(); index++)
-  {
-      if (index == 0)
-        povLightsComboList << ui.povLightsCombo->itemText(index);
-      else
-        povLightsComboList << "," << ui.povLightsCombo->itemText(index);
-  }
-  return povLightsComboList.join(",");
-}
-QString const NativePovPreferencesDialog::bottomInclude()
-{
-  return ui.povBottomIncludeLnEdit->displayText();
-}
-QString const NativePovPreferencesDialog::topInclude()
-{
-  return ui.povTopIncludeLnEdit->displayText();
-}
-QString const NativePovPreferencesDialog::xmlMapPath()
-{
-  return ui.povXmlMapPathLnEdit->displayText();
-}
-bool NativePovPreferencesDialog::findReplacements()
-{
-  return ui.povFindReplacementsChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::conditionalEdgeLines()
-{
-  return ui.povConditionalEdgeLinesChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::primitiveSubstitution()
-{
-  return ui.povPrimitiveSubstitutionChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::unmirrorStuds()
-{
-  return ui.povUnmirrorStudsChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::hideStuds()
-{
-  return ui.povHideStudsChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::smoothCurves()
-{
-  return ui.povSmoothCurvesChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::inlinePov()
-{
-  return ui.povInlinePovChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::xmlMap()
-{
-  return ui.povXmlMapGrpBox->isChecked();
-}
-bool NativePovPreferencesDialog::shadows()
-{
-  return ui.povShadowsChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::reflections()
-{
-  return ui.povReflectionsChkBox->isChecked();
-}
-bool NativePovPreferencesDialog::seams()
-{
-  return ui.povSeamsGrpBox->isChecked();
-}
-int NativePovPreferencesDialog::fileVersion()
-{
-  return ui.povFileVersionCombo->currentIndex();
-}
-float NativePovPreferencesDialog::chromeRoughness()
-{
-  return ui.povChromeRoughnessLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::chromeSpecular()
-{
-  return ui.povChromeSpecularLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::chromeBril()
-{
-  return ui.povChromeBrillianceLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::chromeRefl()
-{
-  return ui.povChromeReflLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::rubberPhongSize()
-{
-  return ui.povRubberPhongSizeLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::rubberPhong()
-{
-  return ui.povRubberPhongLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::rubberRefl()
-{
-  return ui.povRubberReflLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::transIoR()
-{
-  return ui.povTransIoRLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::transFilter()
-{
-  return ui.povTransFilterLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::transRefl()
-{
-  return ui.povTransReflLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::phongSize()
-{
-  return ui.povPhongSizeLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::phong()
-{
-  return ui.povPhongLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::refl()
-{
-  return ui.povReflLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::diffuse()
-{
-  return ui.povDiffuseLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::ambient()
-{
-  return ui.povAmbientLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::edgeRadius()
-{
-  return ui.povEdgeLineRadiusLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::customAspectRatio()
-{
-  return ui.povCustomAspectRatioLnEdit->displayText().toFloat();
-}
-float NativePovPreferencesDialog::seamWidth()
-{
-  return ui.povSeamWidthLnEdit->displayText().toFloat();
-}
-int NativePovPreferencesDialog::selectedAspectRatio()
-{
-  return ui.povSelectedAspectRatioCombo->currentIndex();
-}
-int NativePovPreferencesDialog::quality()
-{
-  return ui.povQualityCombo->currentIndex();
-}
-
-// reset buttons
+// RESET BUTTONS
 void NativePovPreferencesDialog::on_povGeneralGrpResetBtn_clicked()
 {
     ui.povFileVersionCombo->setCurrentIndex(        FILE_VERSION_DEFAULT);
-    ui.povQualityCombo->setCurrentIndex(            QUALITY_DEFAULT);
+    ui.povQualityCombo->setCurrentIndex(            QUALITY_EXPORT_DEFAULT);
     ui.povSelectedAspectRatioCombo->setCurrentIndex(SELECTED_ASPECT_RATIO_DEFAULT);
     ui.povCustomAspectRatioLnEdit->setText(         QString::number(CUSTOM_ASPECT_RATIO_DEFAULT));
     ui.povReflectionsChkBox->setChecked(            true);
     ui.povShadowsChkBox->setChecked(                true);
     ui.povUnmirrorStudsChkBox->setChecked(          true);
     ui.povTopIncludeLnEdit->setText(                TOP_INCLUDE_DEFAULT);
-    ui.povBottomIncludeLnEdit->setText(             BOTTM_INCLUDE_DEFAULT);
+    ui.povBottomIncludeLnEdit->setText(             BOTTOM_INCLUDE_DEFAULT);
 }
 
 void NativePovPreferencesDialog::on_povLDrawGeometryGrpResetBtn_clicked()
@@ -444,6 +352,163 @@ void NativePovPreferencesDialog::on_povChromeMaterialGrpResetBtn_clicked()
     ui.povChromeSpecularLnEdit->setText(            QString::number(CHROME_SPECULAR_DEFAULT));
     ui.povChromeRoughnessLnEdit->setText(           QString::number(CHROME_ROUGHNESS_DEFAULT));
 }
+
+// PASS TO PREFERENCES
+QString const NativePovPreferencesDialog::lights()
+{
+  QStringList povLightsComboList;
+  for (int index = 0; index < ui.povLightsCombo->count(); index++)
+  {
+      if (index == 0)
+        povLightsComboList << ui.povLightsCombo->itemText(index);
+      else
+        povLightsComboList << "," << ui.povLightsCombo->itemText(index);
+  }
+  return povLightsComboList.join(",");
+}
+
+
+//QString const NativePovPreferencesDialog::bottomInclude()
+//{
+//  return ui.povBottomIncludeLnEdit->displayText();
+//}
+//QString const NativePovPreferencesDialog::topInclude()
+//{
+//  return ui.povTopIncludeLnEdit->displayText();
+//}
+//QString const NativePovPreferencesDialog::xmlMapPath()
+//{
+//  return ui.povXmlMapPathLnEdit->displayText();
+//}
+//bool NativePovPreferencesDialog::findReplacements()
+//{
+//  return ui.povFindReplacementsChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::conditionalEdgeLines()
+//{
+//  return ui.povConditionalEdgeLinesChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::primitiveSubstitution()
+//{
+//  return ui.povPrimitiveSubstitutionChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::unmirrorStuds()
+//{
+//  return ui.povUnmirrorStudsChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::hideStuds()
+//{
+//  return ui.povHideStudsChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::smoothCurves()
+//{
+//  return ui.povSmoothCurvesChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::inlinePov()
+//{
+//  return ui.povInlinePovChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::xmlMap()
+//{
+//  return ui.povXmlMapGrpBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::shadows()
+//{
+//  return ui.povShadowsChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::reflections()
+//{
+//  return ui.povReflectionsChkBox->isChecked();
+//}
+//bool NativePovPreferencesDialog::seams()
+//{
+//  return ui.povSeamsGrpBox->isChecked();
+//}
+//int NativePovPreferencesDialog::fileVersion()
+//{
+//  return ui.povFileVersionCombo->currentIndex();
+//}
+//float NativePovPreferencesDialog::chromeRoughness()
+//{
+//  return ui.povChromeRoughnessLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::chromeSpecular()
+//{
+//  return ui.povChromeSpecularLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::chromeBril()
+//{
+//  return ui.povChromeBrillianceLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::chromeRefl()
+//{
+//  return ui.povChromeReflLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::rubberPhongSize()
+//{
+//  return ui.povRubberPhongSizeLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::rubberPhong()
+//{
+//  return ui.povRubberPhongLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::rubberRefl()
+//{
+//  return ui.povRubberReflLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::transIoR()
+//{
+//  return ui.povTransIoRLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::transFilter()
+//{
+//  return ui.povTransFilterLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::transRefl()
+//{
+//  return ui.povTransReflLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::phongSize()
+//{
+//  return ui.povPhongSizeLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::phong()
+//{
+//  return ui.povPhongLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::refl()
+//{
+//  return ui.povReflLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::diffuse()
+//{
+//  return ui.povDiffuseLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::ambient()
+//{
+//  return ui.povAmbientLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::edgeRadius()
+//{
+//  return ui.povEdgeLineRadiusLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::customAspectRatio()
+//{
+//  return ui.povCustomAspectRatioLnEdit->displayText().toFloat();
+//}
+//float NativePovPreferencesDialog::seamWidth()
+//{
+//  return ui.povSeamWidthLnEdit->displayText().toFloat();
+//}
+//int NativePovPreferencesDialog::selectedAspectRatio()
+//{
+//  return ui.povSelectedAspectRatioCombo->currentIndex();
+//}
+//int NativePovPreferencesDialog::quality()
+//{
+//  return ui.povQualityCombo->currentIndex();
+//}
+// END PASS TO PREFERENCES
 
 void NativePovPreferencesDialog::accept(){
   QDialog::accept();

@@ -28,6 +28,8 @@
 
 #include "nativepovpreferences.h"
 #include "ui_nativepovpreferences.h"
+#include <TCUserDefaults.h>
+#include <LDUserDefaultsKeys.h>
 
 #include "color.h"
 #include "meta.h"
@@ -110,12 +112,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
   ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourBox->setEnabled(           Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourBox->setChecked(           Preferences::fadeStepsUseColour);
-  ui.fadeStepsColoursCombo->setEnabled(            Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
-  ui.fadeStepsOpacityBox->setEnabled(             Preferences::enableFadeSteps);
-  ui.fadeStepsOpacitySlider->setEnabled(          Preferences::enableFadeSteps);
-  ui.fadeStepsOpacitySlider->setValue(            Preferences::fadeStepsOpacity);
+  ui.fadeStepsUseColourBox->setEnabled(          Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourBox->setChecked(          Preferences::fadeStepsUseColour);
+  ui.fadeStepsColoursCombo->setEnabled(          Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
+  ui.fadeStepsOpacityBox->setEnabled(            Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
@@ -545,191 +547,231 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 
 void PreferencesDialog::on_nativePoVFileGenBtn_clicked()
 {
+
     NativePovPreferencesDialog *dialog      = new NativePovPreferencesDialog();
 
-    QSettings Settings;
+//    QSettings Settings;
 
     if (dialog->exec() == QDialog::Accepted) {
 
-        if (Preferences::seamWidth != dialog->seamWidth()) {
-                Preferences::seamWidth = dialog->seamWidth();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"SeamWidth"),Preferences::seamWidth);
-        }
+        TCUserDefaults::setLongForKey(dialog->ui.povQualityCombo->currentIndex(), QUALITY_EXPORT_KEY);
+        TCUserDefaults::setLongForKey(dialog->setSelectedAspectRatio(), SELECTED_ASPECT_RATIO_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povCustomAspectRatioLnEdit->text().toFloat(), CUSTOM_ASPECT_RATIO_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povEdgeLineRadiusLnEdit->text().toFloat(), EDGE_RADIUS_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povSeamWidthLnEdit->text().toFloat(), SEAM_WIDTH_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povAmbientLnEdit->text().toFloat(), AMBIENT_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povDiffuseLnEdit->text().toFloat(), DIFFUSE_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povReflLnEdit->text().toFloat(), REFLECTION_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povPhongLnEdit->text().toFloat(), PHONG_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povPhongSizeLnEdit->text().toFloat(), PHONG_SIZE_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povTransReflLnEdit->text().toFloat(), TRANS_REFLECTION_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povTransFilterLnEdit->text().toFloat(), TRANS_FILTER_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povTransIoRLnEdit->text().toFloat(), TRANS_IOR_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povRubberReflLnEdit->text().toFloat(), RUBBER_REFLECTION_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povRubberPhongLnEdit->text().toFloat(), RUBBER_PHONG_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povRubberPhongSizeLnEdit->text().toFloat(), RUBBER_PHONG_SIZE_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povChromeReflLnEdit->text().toFloat(), CHROME_REFLECTION_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povChromeBrillianceLnEdit->text().toFloat(), CHROME_BRILLIANCE_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povChromeSpecularLnEdit->text().toFloat(), CHROME_SPECULAR_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povChromeRoughnessLnEdit->text().toFloat(), CHROME_ROUGHNESS_KEY);
+        TCUserDefaults::setFloatForKey(dialog->ui.povFileVersionCombo->currentIndex(), FILE_VERSION_KEY);
 
-        if (Preferences::quality != dialog->quality()) {
-                Preferences::quality = dialog->quality();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Quality"),Preferences::quality);
-        }
+        TCUserDefaults::setBoolForKey(dialog->ui.povSeamsGrpBox->isChecked(), SEAMS_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povReflectionsChkBox->isChecked(), REFLECTIONS_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povShadowsChkBox->isChecked(), SHADOWS_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povXmlMapGrpBox->isChecked(), XML_MAP_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povInlinePovChkBox->isChecked(), INLINE_POV_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povSmoothCurvesChkBox->isChecked(), SMOOTH_CURVES_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povHideStudsChkBox->isChecked(), HIDE_STUDS_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povUnmirrorStudsChkBox->isChecked(), UNMIRROR_STUDS_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povFindReplacementsChkBox->isChecked(), FIND_REPLACEMENTS_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povConditionalEdgeLinesChkBox->isChecked(), CONDITIONAL_EDGE_LINES_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povPrimitiveSubstitutionChkBox->isChecked(), PRIMITIVE_SUBSTITUTION_KEY);
+        TCUserDefaults::setBoolForKey(dialog->ui.povEdgeLinesGrpBox->isChecked(), DRAW_EDGES_KEY);
 
-        if (Preferences::selectedAspectRatio != dialog->selectedAspectRatio()) {
-                Preferences::selectedAspectRatio = dialog->selectedAspectRatio();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"SelectedAspectRatio"),Preferences::selectedAspectRatio);
-        }
+        TCUserDefaults::setPathForKey(dialog->ui.povXmlMapPathLnEdit->text().toStdString().c_str(), XML_MAP_PATH_KEY);
+        TCUserDefaults::setStringForKey(dialog->ui.povTopIncludeLnEdit->text().toStdString().c_str(), TOP_INCLUDE_KEY);
+        TCUserDefaults::setStringForKey(dialog->ui.povBottomIncludeLnEdit->text().toStdString().c_str(), BOTTOM_INCLUDE_KEY);
 
-        if (Preferences::customAspectRatio != dialog->customAspectRatio()) {
-                Preferences::customAspectRatio = dialog->customAspectRatio();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"CustomAspectRatio"),Preferences::customAspectRatio);
-        }
+//        if (Preferences::seamWidth != dialog->seamWidth()) {
+//                Preferences::seamWidth = dialog->seamWidth();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"SeamWidth"),Preferences::seamWidth);
+//        }
 
-        if (Preferences::ambient != dialog->ambient()) {
-                Preferences::ambient = dialog->ambient();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Ambient"),Preferences::ambient);
-        }
+//        if (Preferences::quality != dialog->quality()) {
+//                Preferences::quality = dialog->quality();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Quality"),Preferences::quality);
+//        }
 
-        if (Preferences::diffuse != dialog->diffuse()) {
-                Preferences::diffuse = dialog->diffuse();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Diffuse"),Preferences::diffuse);
-        }
+//        if (Preferences::selectedAspectRatio != dialog->selectedAspectRatio()) {
+//                Preferences::selectedAspectRatio = dialog->selectedAspectRatio();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"SelectedAspectRatio"),Preferences::selectedAspectRatio);
+//        }
 
-        if (Preferences::refl != dialog->refl()) {
-                Preferences::refl = dialog->refl();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Refl"),Preferences::refl);
-        }
+//        if (Preferences::customAspectRatio != dialog->customAspectRatio()) {
+//                Preferences::customAspectRatio = dialog->customAspectRatio();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"CustomAspectRatio"),Preferences::customAspectRatio);
+//        }
 
-        if (Preferences::phong != dialog->phong()) {
-                Preferences::phong = dialog->phong();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Phong"),Preferences::phong);
-        }
+//        if (Preferences::ambient != dialog->ambient()) {
+//                Preferences::ambient = dialog->ambient();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Ambient"),Preferences::ambient);
+//        }
 
-        if (Preferences::phongSize != dialog->phongSize()) {
-                Preferences::phongSize = dialog->phongSize();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"PhongSize"),Preferences::phongSize);
-        }
+//        if (Preferences::diffuse != dialog->diffuse()) {
+//                Preferences::diffuse = dialog->diffuse();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Diffuse"),Preferences::diffuse);
+//        }
 
-        if (Preferences::transRefl != dialog->transRefl()) {
-                Preferences::transRefl = dialog->transRefl();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransRefl"),Preferences::transRefl);
-        }
+//        if (Preferences::refl != dialog->refl()) {
+//                Preferences::refl = dialog->refl();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Refl"),Preferences::refl);
+//        }
 
-        if (Preferences::transFilter != dialog->transFilter()) {
-                Preferences::transFilter = dialog->transFilter();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransFilter"),Preferences::transFilter);
-        }
+//        if (Preferences::phong != dialog->phong()) {
+//                Preferences::phong = dialog->phong();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Phong"),Preferences::phong);
+//        }
 
-        if (Preferences::transIoR != dialog->transIoR()) {
-                Preferences::transIoR = dialog->transIoR();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransIoR"),Preferences::transIoR);
-        }
+//        if (Preferences::phongSize != dialog->phongSize()) {
+//                Preferences::phongSize = dialog->phongSize();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"PhongSize"),Preferences::phongSize);
+//        }
 
-        if (Preferences::rubberRefl != dialog->rubberRefl()) {
-                Preferences::rubberRefl = dialog->rubberRefl();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberRefl"),Preferences::rubberRefl);
-        }
+//        if (Preferences::transRefl != dialog->transRefl()) {
+//                Preferences::transRefl = dialog->transRefl();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransRefl"),Preferences::transRefl);
+//        }
 
-        if (Preferences::rubberPhong != dialog->rubberPhong()) {
-                Preferences::rubberPhong = dialog->rubberPhong();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhong"),Preferences::rubberPhong);
-        }
+//        if (Preferences::transFilter != dialog->transFilter()) {
+//                Preferences::transFilter = dialog->transFilter();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransFilter"),Preferences::transFilter);
+//        }
 
-        if (Preferences::rubberPhongSize != dialog->rubberPhongSize()) {
-                Preferences::rubberPhongSize = dialog->rubberPhongSize();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhongSize"),Preferences::rubberPhongSize);
-        }
+//        if (Preferences::transIoR != dialog->transIoR()) {
+//                Preferences::transIoR = dialog->transIoR();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"TransIoR"),Preferences::transIoR);
+//        }
 
-        if (Preferences::chromeRefl != dialog->chromeRefl()) {
-                Preferences::chromeRefl = dialog->chromeRefl();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRefl"),Preferences::chromeRefl);
-        }
+//        if (Preferences::rubberRefl != dialog->rubberRefl()) {
+//                Preferences::rubberRefl = dialog->rubberRefl();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberRefl"),Preferences::rubberRefl);
+//        }
 
-        if (Preferences::chromeBril != dialog->chromeBril()) {
-                Preferences::chromeBril = dialog->chromeBril();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeBril"),Preferences::chromeBril);
-        }
+//        if (Preferences::rubberPhong != dialog->rubberPhong()) {
+//                Preferences::rubberPhong = dialog->rubberPhong();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhong"),Preferences::rubberPhong);
+//        }
 
-        if (Preferences::chromeSpecular != dialog->chromeSpecular()) {
-                Preferences::chromeSpecular = dialog->chromeSpecular();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeSpecular"),Preferences::chromeSpecular);
-        }
+//        if (Preferences::rubberPhongSize != dialog->rubberPhongSize()) {
+//                Preferences::rubberPhongSize = dialog->rubberPhongSize();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"RubberPhongSize"),Preferences::rubberPhongSize);
+//        }
 
-        if (Preferences::chromeRoughness != dialog->chromeRoughness()) {
-                Preferences::chromeRoughness = dialog->chromeRoughness();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRoughness"),Preferences::chromeRoughness);
-        }
+//        if (Preferences::chromeRefl != dialog->chromeRefl()) {
+//                Preferences::chromeRefl = dialog->chromeRefl();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRefl"),Preferences::chromeRefl);
+//        }
 
-        if (Preferences::fileVersion != dialog->fileVersion()) {
-                Preferences::fileVersion = dialog->fileVersion();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"FileVersion"),Preferences::fileVersion);
-        }
+//        if (Preferences::chromeBril != dialog->chromeBril()) {
+//                Preferences::chromeBril = dialog->chromeBril();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeBril"),Preferences::chromeBril);
+//        }
 
-        if (Preferences::seams != dialog->seams()) {
-                Preferences::seams = dialog->seams();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Seams"),Preferences::seams);
-        }
+//        if (Preferences::chromeSpecular != dialog->chromeSpecular()) {
+//                Preferences::chromeSpecular = dialog->chromeSpecular();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeSpecular"),Preferences::chromeSpecular);
+//        }
 
-        if (Preferences::reflections != dialog->reflections()) {
-                Preferences::reflections = dialog->reflections();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Reflections"),Preferences::reflections);
-        }
+//        if (Preferences::chromeRoughness != dialog->chromeRoughness()) {
+//                Preferences::chromeRoughness = dialog->chromeRoughness();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"ChromeRoughness"),Preferences::chromeRoughness);
+//        }
 
-        if (Preferences::shadows != dialog->shadows()) {
-                Preferences::shadows = dialog->shadows();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Shadows"),Preferences::shadows);
-        }
+//        if (Preferences::fileVersion != dialog->fileVersion()) {
+//                Preferences::fileVersion = dialog->fileVersion();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"FileVersion"),Preferences::fileVersion);
+//        }
 
-        if (Preferences::xmlMap != dialog->xmlMap()) {
-                Preferences::xmlMap = dialog->xmlMap();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMap"),Preferences::xmlMap);
-        }
+//        if (Preferences::seams != dialog->seams()) {
+//                Preferences::seams = dialog->seams();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Seams"),Preferences::seams);
+//        }
 
-        if (Preferences::inlinePov != dialog->inlinePov()) {
-                Preferences::inlinePov = dialog->inlinePov();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"InlinePov"),Preferences::inlinePov);
-        }
+//        if (Preferences::reflections != dialog->reflections()) {
+//                Preferences::reflections = dialog->reflections();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Reflections"),Preferences::reflections);
+//        }
 
-        if (Preferences::smoothCurves != dialog->smoothCurves()) {
-                Preferences::smoothCurves = dialog->smoothCurves();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"SmoothCurves"),Preferences::smoothCurves);
-        }
+//        if (Preferences::shadows != dialog->shadows()) {
+//                Preferences::shadows = dialog->shadows();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Shadows"),Preferences::shadows);
+//        }
 
-        if (Preferences::hideStuds != dialog->hideStuds()) {
-                Preferences::hideStuds = dialog->hideStuds();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"HideStuds"),Preferences::hideStuds);
-        }
+//        if (Preferences::xmlMap != dialog->xmlMap()) {
+//                Preferences::xmlMap = dialog->xmlMap();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMap"),Preferences::xmlMap);
+//        }
 
-        if (Preferences::unmirrorStuds != dialog->unmirrorStuds()) {
-                Preferences::unmirrorStuds = dialog->unmirrorStuds();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"UnmirrorStuds"),Preferences::unmirrorStuds);
-        }
+//        if (Preferences::inlinePov != dialog->inlinePov()) {
+//                Preferences::inlinePov = dialog->inlinePov();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"InlinePov"),Preferences::inlinePov);
+//        }
 
-        if (Preferences::xmlMapPath != dialog->xmlMapPath()) {
-                Preferences::xmlMapPath = dialog->xmlMapPath();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMapPath"),Preferences::xmlMapPath);
-        }
+//        if (Preferences::smoothCurves != dialog->smoothCurves()) {
+//                Preferences::smoothCurves = dialog->smoothCurves();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"SmoothCurves"),Preferences::smoothCurves);
+//        }
 
-        if (Preferences::topInclude != dialog->topInclude()) {
-                Preferences::topInclude = dialog->topInclude();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"TopInclude"),Preferences::topInclude);
-        }
+//        if (Preferences::hideStuds != dialog->hideStuds()) {
+//                Preferences::hideStuds = dialog->hideStuds();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"HideStuds"),Preferences::hideStuds);
+//        }
 
-        if (Preferences::bottomInclude != dialog->bottomInclude()) {
-                Preferences::bottomInclude = dialog->bottomInclude();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"BottomInclude"),Preferences::bottomInclude);
-        }
+//        if (Preferences::unmirrorStuds != dialog->unmirrorStuds()) {
+//                Preferences::unmirrorStuds = dialog->unmirrorStuds();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"UnmirrorStuds"),Preferences::unmirrorStuds);
+//        }
 
-        if (Preferences::lights != dialog->lights()) {
-                Preferences::lights = dialog->lights();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"Lights"),Preferences::lights);
-        }
+//        if (Preferences::xmlMapPath != dialog->xmlMapPath()) {
+//                Preferences::xmlMapPath = dialog->xmlMapPath();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"XmlMapPath"),Preferences::xmlMapPath);
+//        }
 
-        if (Preferences::findReplacements != dialog->findReplacements()) {
-                Preferences::findReplacements = dialog->findReplacements();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"FindReplacements"),Preferences::findReplacements);
-        }
+//        if (Preferences::topInclude != dialog->topInclude()) {
+//                Preferences::topInclude = dialog->topInclude();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"TopInclude"),Preferences::topInclude);
+//        }
 
-        if (Preferences::conditionalEdgeLines != dialog->conditionalEdgeLines()) {
-                Preferences::conditionalEdgeLines = dialog->conditionalEdgeLines();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"ConditionalEdgeLines"),Preferences::conditionalEdgeLines);
-        }
+//        if (Preferences::bottomInclude != dialog->bottomInclude()) {
+//                Preferences::bottomInclude = dialog->bottomInclude();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"BottomInclude"),Preferences::bottomInclude);
+//        }
 
-        if (Preferences::edgeRadius != dialog->edgeRadius()) {
-                Preferences::edgeRadius = dialog->edgeRadius();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"EdgeRadius"),Preferences::edgeRadius);
-        }
+//        if (Preferences::lights != dialog->lights()) {
+//                Preferences::lights = dialog->lights();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"Lights"),Preferences::lights);
+//        }
 
-        if (Preferences::primitiveSubstitution != dialog->primitiveSubstitution()) {
-                Preferences::primitiveSubstitution = dialog->primitiveSubstitution();
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"PrimitiveSubstitution"),Preferences::primitiveSubstitution);
-        }
+//        if (Preferences::findReplacements != dialog->findReplacements()) {
+//                Preferences::findReplacements = dialog->findReplacements();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"FindReplacements"),Preferences::findReplacements);
+//        }
+
+//        if (Preferences::conditionalEdgeLines != dialog->conditionalEdgeLines()) {
+//                Preferences::conditionalEdgeLines = dialog->conditionalEdgeLines();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"ConditionalEdgeLines"),Preferences::conditionalEdgeLines);
+//        }
+
+//        if (Preferences::edgeRadius != dialog->edgeRadius()) {
+//                Preferences::edgeRadius = dialog->edgeRadius();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"EdgeRadius"),Preferences::edgeRadius);
+//        }
+
+//        if (Preferences::primitiveSubstitution != dialog->primitiveSubstitution()) {
+//                Preferences::primitiveSubstitution = dialog->primitiveSubstitution();
+//                Settings.setValue(QString("%1/%2").arg(POVRAY,"PrimitiveSubstitution"),Preferences::primitiveSubstitution);
+//        }
     }
 }
 

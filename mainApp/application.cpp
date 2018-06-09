@@ -16,6 +16,7 @@
 #include <QDir>
 #include <iostream>
 #include <QMessageBox>
+#include <TCUserDefaults.h>
 
 #include "lpub_preferences.h"
 #include "lpub.h"
