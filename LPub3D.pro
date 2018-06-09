@@ -125,11 +125,20 @@ if (BUILD_TINYXML) {
     ldexporter.depends = 3rdParty_tinyxml
 }
 
+SUBDIRS += ldlib
+ldlib.subdir   = $$PWD/ldvlib/LDLib
+ldlib.makefile = Makefile.ldlib
+ldlib.target   = sub-ldlib
+ldlib.depends  = ldexporter
+if (BUILD_GL2PS) {
+    ldlib.depends = 3rdParty_gl2ps
+}
+
 SUBDIRS += headerize
 headerize.subdir   = $$PWD/ldvlib/Headerize
 headerize.makefile = Makefile.headerize
 headerize.target   = sub-headerize
-ldexporter.depends = ldexporter
+ldexporter.depends = ldlib
 
 SUBDIRS += lclib
 lclib.subdir   = $$PWD/lclib

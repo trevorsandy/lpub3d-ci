@@ -129,6 +129,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP_debug
         LC_LIB = LC_debug
         TRE_LIB = TRE_debug
+        LDLIB_LIB = LDLib_debug
         LDLOADER_LIB = LDLoader_debug
         LDEXPORTER_LIB = LDExporter_debug
         TCFOUNDATION_LIB = TCFoundation_debug
@@ -142,6 +143,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIPd07
         LC_LIB = LCd18
         TRE_LIB = TREd43
+        LDLIB_LIB = LDLibd43
         LDLOADER_LIB = LDLoaderd43
         LDEXPORTER_LIB = LDExporterd43
         TCFOUNDATION_LIB = TCFoundationd43
@@ -155,6 +157,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazipd
         LC_LIB = lcd
         TRE_LIB = tred
+        LDLIB_LIB = ldlibd
         LDLOADER_LIB = ldloaderd
         LDEXPORTER_LIB = ldexporterd
         TCFOUNDATION_LIB = TCFoundationd
@@ -175,6 +178,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP
         LC_LIB = LC
         TRE_LIB = TRE
+        LDLIB_LIB = LDLib
         LDLOADER_LIB = LDLoader
         LDEXPORTER_LIB = LDExporter
         TCFOUNDATION_LIB = TCFoundation
@@ -188,6 +192,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP07
         LC_LIB = LC18
         TRE_LIB = TRE43
+        LDLIB_LIB = LDLib43
         LDLOADER_LIB = LDLoader43
         LDEXPORTER_LIB = LDExporter43
         TCFOUNDATION_LIB = TCFoundation43
@@ -201,6 +206,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazip
         LC_LIB = lc
         TRE_LIB = tre
+        LDLIB_LIB = ldlib
         LDLOADER_LIB = ldloader
         LDEXPORTER_LIB = ldexporter
         TCFOUNDATION_LIB = tcfoundation
@@ -233,12 +239,14 @@ LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
 #    $$OUT_PWD/../ldvlib/TCFoundation/$$DESTDIR/lib$${TCFOUNDATION_LIB}.a
 
 LIBS += \
+    -L$$OUT_PWD/../ldvlib/LDLib/$$DESTDIR \
     -L$$OUT_PWD/../ldvlib/LDExporter/$$DESTDIR  \
     -L$$OUT_PWD/../ldvlib/LDLoader/$$DESTDIR \
     -L$$OUT_PWD/../ldvlib/TRE/$$DESTDIR \
     -L$$OUT_PWD/../ldvlib/TCFoundation/$$DESTDIR
 
 LIBS += \
+    -l$$LDLIB_LIB \
     -l$$LDEXPORTER_LIB \
     -l$$LDLOADER_LIB \
     -l$$TRE_LIB \
