@@ -31,7 +31,7 @@ class LPubMessages : public QObject
 
 public:
   LPubMessages();
-  ~LPubMessages(){}
+  ~LPubMessages();
 public slots:
   void statusMessage(LogType logType, QString message);
 
@@ -39,6 +39,6 @@ signals:
   void messageSig(LogType logType, QString message);
 };
 
-extern class LPubMessages *alert;
+extern LPubMessages *alert;
 
 #endif // LPUBMESSAGES_H

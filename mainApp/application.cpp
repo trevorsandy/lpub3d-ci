@@ -11,12 +11,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "application.h"
 
 #include <QDir>
 #include <iostream>
 #include <QMessageBox>
-#include <TCUserDefaults.h>
+#include <TCFoundation/TCUserDefaults.h>
+#include <LDVQt/LDVWidget.h>
 
 #include "lpub_preferences.h"
 #include "lpub.h"
@@ -444,6 +446,11 @@ void Application::initialize()
   // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
   gui->getRequireds();
 
+  emit splashMsgSig("28% - Native POV file generation widget loading...");
+
+  ldvWidget = new LDVWidget();
+  ldvWidget->setAppArgs(Arguments);
+
   emit splashMsgSig("30% - 3D Viewer window loading...");
 
   gApplication = new lcApplication();
@@ -528,6 +535,9 @@ int Application::run()
 
     delete gui;
     gui = nullptr;
+
+    delete ldvWidget;
+    ldvWidget = nullptr;
   }
 
   logInfo() << QString("Run: Application terminated with return code %1.").arg(ExecReturn);

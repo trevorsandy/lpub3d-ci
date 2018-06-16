@@ -8,7 +8,7 @@
 #include <TCFoundation/TCProgressAlert.h>
 #include <TCFoundation/TCLocalStrings.h>
 #include <TCFoundation/TCUserDefaults.h>
-#include <TCFoundation/TCWebClient.h>
+//#include <TCFoundation/TCWebClient.h>
 #include <LDLoader/LDLMainModel.h>
 #include <LDLoader/LDLError.h>
 #include <LDLoader/LDLFindFileAlert.h>
@@ -17,7 +17,7 @@
 #include <LDLoader/LDLModelLine.h>
 #include <LDLoader/LDLConditionalLineLine.h>
 #include <LDExporter/LDPovExporter.h>
-#include <LDExporter/LDStlExporter.h>
+//#include <LDExporter/LDStlExporter.h>
 #ifdef EXPORT_3DS
 #include <LDExporter/LD3dsExporter.h>
 #endif // EXPORT_3DS
@@ -230,8 +230,8 @@ LDrawModelViewer::LDrawModelViewer(TCFloat width, TCFloat height)
 	flags.noUI = false;
 	flags.keepRightSideUp = false;
 	flags.texmaps = true;
-	TCAlertManager::registerHandler(LDLFindFileAlert::alertClass(), this,
-		(TCAlertCallback)&LDrawModelViewer::findFileAlertCallback);
+//	TCAlertManager::registerHandler(LDLFindFileAlert::alertClass(), this,
+//		(TCAlertCallback)&LDrawModelViewer::findFileAlertCallback);
 	// Set 4:4:4 as the default sub-sample pattern for JPEG images.
 	TCJpegOptions::setDefaultSubSampling(TCJpegOptions::SS444);
 #ifndef USE_STD_CHRONO
@@ -3904,196 +3904,196 @@ bool LDrawModelViewer::getCompiled(void) const
 	}
 }
 
-bool LDrawModelViewer::connectionFailure(TCWebClient *webClient)
-{
-	// I'm not sure if we should add more errors here or not.  Hopefully this is
-	// enough.  In reality, the hostname lookup will fail if the user doesn't
-	// have an internet connection.  If they have a mis-configured proxy, they
-	// should either get TCNCE_CONNECT or TCNCE_CONNECTION_REFUSED.
-	switch (webClient->getErrorNumber())
-	{
-	case TCNCE_HOSTNAME_LOOKUP:
-	case TCNCE_NO_PORT:
-	case TCNCE_CONNECT:
-	case TCNCE_CONNECTION_REFUSED:
-		return true;
-	default:
-		return false;
-	}
-}
+//bool LDrawModelViewer::connectionFailure(TCWebClient *webClient)
+//{
+//	// I'm not sure if we should add more errors here or not.  Hopefully this is
+//	// enough.  In reality, the hostname lookup will fail if the user doesn't
+//	// have an internet connection.  If they have a mis-configured proxy, they
+//	// should either get TCNCE_CONNECT or TCNCE_CONNECTION_REFUSED.
+//	switch (webClient->getErrorNumber())
+//	{
+//	case TCNCE_HOSTNAME_LOOKUP:
+//	case TCNCE_NO_PORT:
+//	case TCNCE_CONNECT:
+//	case TCNCE_CONNECTION_REFUSED:
+//		return true;
+//	default:
+//		return false;
+//	}
+//}
 
-void LDrawModelViewer::findFileAlertCallback(LDLFindFileAlert *alert)
-{
-	char *lfilename = copyString(alert->getFilename());
-	size_t len = strlen(lfilename);
-	char *url;
-	char *partOutputFilename = copyString(LDLModel::lDrawDir(), len + 32);
-	char *primitiveOutputFilename = copyString(LDLModel::lDrawDir(), len + 32);
-	bool primitive = false;
-	bool part = false;
-	//const char *partUrlBase = "http://media.peeron.com/tmp/";
-	const char *partUrlBase = "http://www.ldraw.org/library/unofficial/parts/";
-	const char *primitiveUrlBase = "http://www.ldraw.org/library/unofficial/p/";
-	bool found = false;
-	char *key = new char[strlen(lfilename) + 128];
+//void LDrawModelViewer::findFileAlertCallback(LDLFindFileAlert *alert)
+//{
+//	char *lfilename = copyString(alert->getFilename());
+//	size_t len = strlen(lfilename);
+//	char *url;
+//	char *partOutputFilename = copyString(LDLModel::lDrawDir(), len + 32);
+//	char *primitiveOutputFilename = copyString(LDLModel::lDrawDir(), len + 32);
+//	bool primitive = false;
+//	bool part = false;
+//	//const char *partUrlBase = "http://media.peeron.com/tmp/";
+//	const char *partUrlBase = "http://www.ldraw.org/library/unofficial/parts/";
+//	const char *primitiveUrlBase = "http://www.ldraw.org/library/unofficial/p/";
+//	bool found = false;
+//	char *key = new char[strlen(lfilename) + 128];
 
-	replaceStringCharacter(partOutputFilename, '\\', '/');
-	replaceStringCharacter(primitiveOutputFilename, '\\', '/');
-	strcat(partOutputFilename, "/Unofficial/parts/");
-	strcat(primitiveOutputFilename, "/Unofficial/p/");
-	convertStringToLower(lfilename);
-	replaceStringCharacter(lfilename, '\\', '/');
-	if (stringHasPrefix(lfilename, "48/"))
-	{
-		primitive = true;
-		url = copyString(primitiveUrlBase, len + 2);
-	}
-	else
-	{
-		if (stringHasPrefix(lfilename, "s/"))
-		{
-			// The only thing this is used for is to prevent it from checking
-			// for the file as a primitive if it's not found as a part.
-			part = true;
-		}
-		url = copyString(partUrlBase, len + 2);
-	}
-	strcat(partOutputFilename, lfilename);
-	strcat(primitiveOutputFilename, lfilename);
-	if (fileExists(partOutputFilename))
-	{
-		primitive = false;
-		found = true;
-		alert->setPartFlag(true);
-	}
-	else if (!part && fileExists(primitiveOutputFilename))
-	{
-		primitive = true;
-		found = true;
-		delete[] url;
-		url = copyString(primitiveUrlBase, len + 2);
-	}
-	if (canCheckForUnofficialPart(lfilename, found))
-	{
-		TCWebClient *webClient;
-		// FIX: dynamically allocate and use local string AND handle abort
-		UCCHAR message[1024];
-		bool abort;
-		UCSTR ucFilename = mbstoucstring(lfilename);
+//	replaceStringCharacter(partOutputFilename, '\\', '/');
+//	replaceStringCharacter(primitiveOutputFilename, '\\', '/');
+//	strcat(partOutputFilename, "/Unofficial/parts/");
+//	strcat(primitiveOutputFilename, "/Unofficial/p/");
+//	convertStringToLower(lfilename);
+//	replaceStringCharacter(lfilename, '\\', '/');
+//	if (stringHasPrefix(lfilename, "48/"))
+//	{
+//		primitive = true;
+//		url = copyString(primitiveUrlBase, len + 2);
+//	}
+//	else
+//	{
+//		if (stringHasPrefix(lfilename, "s/"))
+//		{
+//			// The only thing this is used for is to prevent it from checking
+//			// for the file as a primitive if it's not found as a part.
+//			part = true;
+//		}
+//		url = copyString(partUrlBase, len + 2);
+//	}
+//	strcat(partOutputFilename, lfilename);
+//	strcat(primitiveOutputFilename, lfilename);
+//	if (fileExists(partOutputFilename))
+//	{
+//		primitive = false;
+//		found = true;
+//		alert->setPartFlag(true);
+//	}
+//	else if (!part && fileExists(primitiveOutputFilename))
+//	{
+//		primitive = true;
+//		found = true;
+//		delete[] url;
+//		url = copyString(primitiveUrlBase, len + 2);
+//	}
+//	if (canCheckForUnofficialPart(lfilename, found))
+//	{
+//		TCWebClient *webClient;
+//		// FIX: dynamically allocate and use local string AND handle abort
+//		UCCHAR message[1024];
+//		bool abort;
+//		UCSTR ucFilename = mbstoucstring(lfilename);
 
-		sprintf(key, "UnofficialPartChecks/%s/LastModified", lfilename);
-		if (found)
-		{
-			sucprintf(message, COUNT_OF(message), ls(_UC("CheckingForUpdates")),
-				ucFilename);
-		}
-		else
-		{
-			sucprintf(message, COUNT_OF(message), ls(_UC("TryingToDownload")),
-				ucFilename);
-		}
-		delete[] ucFilename;
-		TCProgressAlert::send("LDrawModelViewer", message, -1.0f, &abort, this);
-		strcat(url, lfilename);
-		webClient = new TCWebClient(url);
-		if (found)
-		{
-			char *lastModified = TCUserDefaults::stringForKey(key, NULL, false);
+//		sprintf(key, "UnofficialPartChecks/%s/LastModified", lfilename);
+//		if (found)
+//		{
+//			sucprintf(message, COUNT_OF(message), ls(_UC("CheckingForUpdates")),
+//				ucFilename);
+//		}
+//		else
+//		{
+//			sucprintf(message, COUNT_OF(message), ls(_UC("TryingToDownload")),
+//				ucFilename);
+//		}
+//		delete[] ucFilename;
+//		TCProgressAlert::send("LDrawModelViewer", message, -1.0f, &abort, this);
+//		strcat(url, lfilename);
+//		webClient = new TCWebClient(url);
+//		if (found)
+//		{
+//			char *lastModified = TCUserDefaults::stringForKey(key, NULL, false);
 
-			if (lastModified)
-			{
-				webClient->setLastModifiedString(lastModified);
-				delete[] lastModified;
-			}
-		}
-		if (primitive)
-		{
-			*strrchr(primitiveOutputFilename, '/') = 0;
-			webClient->setOutputDirectory(primitiveOutputFilename);
-			primitiveOutputFilename[strlen(primitiveOutputFilename)] = '/';
-		}
-		else
-		{
-			*strrchr(partOutputFilename, '/') = 0;
-			webClient->setOutputDirectory(partOutputFilename);
-			partOutputFilename[strlen(partOutputFilename)] = '/';
-		}
-		if (webClient->fetchURL() ||
-			webClient->getErrorNumber() == WCE_NOT_MODIFIED)
-		{
-			found = true;
-			if (!primitive)
-			{
-				alert->setPartFlag(true);
-			}
-		}
-		else if (connectionFailure(webClient))
-		{
-			// If we had a connection failure, we probably don't have an
-			// internet connection, or our proxy is mis-configured.  Don't try
-			// to connect again for now, and let the user know that auto part
-			// updates have been disabled.
+//			if (lastModified)
+//			{
+//				webClient->setLastModifiedString(lastModified);
+//				delete[] lastModified;
+//			}
+//		}
+//		if (primitive)
+//		{
+//			*strrchr(primitiveOutputFilename, '/') = 0;
+//			webClient->setOutputDirectory(primitiveOutputFilename);
+//			primitiveOutputFilename[strlen(primitiveOutputFilename)] = '/';
+//		}
+//		else
+//		{
+//			*strrchr(partOutputFilename, '/') = 0;
+//			webClient->setOutputDirectory(partOutputFilename);
+//			partOutputFilename[strlen(partOutputFilename)] = '/';
+//		}
+//		if (webClient->fetchURL() ||
+//			webClient->getErrorNumber() == WCE_NOT_MODIFIED)
+//		{
+//			found = true;
+//			if (!primitive)
+//			{
+//				alert->setPartFlag(true);
+//			}
+//		}
+//		else if (connectionFailure(webClient))
+//		{
+//			// If we had a connection failure, we probably don't have an
+//			// internet connection, or our proxy is mis-configured.  Don't try
+//			// to connect again for now, and let the user know that auto part
+//			// updates have been disabled.
 
-			preferences->setCheckPartTracker(false, true);
-			flags.checkPartTracker = false;
-			TCAlertManager::sendAlert(alertClass(), this,
-				ls(_UC("PartCheckDisabled")));
-		}
-		else
-		{
-			if (!primitive && !part)
-			{
-				// We don't know if it's a primitive or a part.  The part
-				// download failed, so try as a primitive.
-				delete[] url;
-				url = copyString(primitiveUrlBase, len + 2);
-				strcat(url, lfilename);
-				webClient->release();
-				webClient = new TCWebClient(url);
-				*strrchr(primitiveOutputFilename, '/') = 0;
-				webClient->setOutputDirectory(primitiveOutputFilename);
-				primitiveOutputFilename[strlen(primitiveOutputFilename)] = '/';
-				if (webClient->fetchURL() ||
-					webClient->getErrorNumber() == WCE_NOT_MODIFIED)
-				{
-					primitive = true;
-					found = true;
-				}
-			}
-		}
-		if (webClient->getLastModifiedString())
-		{
-			TCUserDefaults::setStringForKey(
-				webClient->getLastModifiedString(), key, false);
-		}
-		webClient->release();
-		sprintf(key, "UnofficialPartChecks/%s/LastUpdateCheckTime",
-			lfilename);
-		TCUserDefaults::setLongForKey((long)time(NULL), key, false);
-		if (!found)
-		{
-			unofficialPartNotFound(lfilename);
-		}
-	}
-	if (found)
-	{
-		alert->setFileFound(true);
-		if (primitive)
-		{
-			alert->setFilename(primitiveOutputFilename);
-		}
-		else
-		{
-			alert->setFilename(partOutputFilename);
-		}
-		setUnofficialPartPrimitive(lfilename, primitive);
-	}
-	delete[] key;
-	delete[] lfilename;
-	delete[] url;
-	delete[] partOutputFilename;
-	delete[] primitiveOutputFilename;
-}
+//			preferences->setCheckPartTracker(false, true);
+//			flags.checkPartTracker = false;
+//			TCAlertManager::sendAlert(alertClass(), this,
+//				ls(_UC("PartCheckDisabled")));
+//		}
+//		else
+//		{
+//			if (!primitive && !part)
+//			{
+//				// We don't know if it's a primitive or a part.  The part
+//				// download failed, so try as a primitive.
+//				delete[] url;
+//				url = copyString(primitiveUrlBase, len + 2);
+//				strcat(url, lfilename);
+//				webClient->release();
+//				webClient = new TCWebClient(url);
+//				*strrchr(primitiveOutputFilename, '/') = 0;
+//				webClient->setOutputDirectory(primitiveOutputFilename);
+//				primitiveOutputFilename[strlen(primitiveOutputFilename)] = '/';
+//				if (webClient->fetchURL() ||
+//					webClient->getErrorNumber() == WCE_NOT_MODIFIED)
+//				{
+//					primitive = true;
+//					found = true;
+//				}
+//			}
+//		}
+//		if (webClient->getLastModifiedString())
+//		{
+//			TCUserDefaults::setStringForKey(
+//				webClient->getLastModifiedString(), key, false);
+//		}
+//		webClient->release();
+//		sprintf(key, "UnofficialPartChecks/%s/LastUpdateCheckTime",
+//			lfilename);
+//		TCUserDefaults::setLongForKey((long)time(NULL), key, false);
+//		if (!found)
+//		{
+//			unofficialPartNotFound(lfilename);
+//		}
+//	}
+//	if (found)
+//	{
+//		alert->setFileFound(true);
+//		if (primitive)
+//		{
+//			alert->setFilename(primitiveOutputFilename);
+//		}
+//		else
+//		{
+//			alert->setFilename(partOutputFilename);
+//		}
+//		setUnofficialPartPrimitive(lfilename, primitive);
+//	}
+//	delete[] key;
+//	delete[] lfilename;
+//	delete[] url;
+//	delete[] partOutputFilename;
+//	delete[] primitiveOutputFilename;
+//}
 
 LDPartsList *LDrawModelViewer::getPartsList(void)
 {
@@ -4930,9 +4930,9 @@ LDExporter *LDrawModelViewer::initExporter(void)
 			exporter = new LDLdrExporter;
 			break;
 #endif // EXPORT_LDR
-		case ETStl:
-			exporter = new LDStlExporter;
-			break;
+//		case ETStl:
+//			exporter = new LDStlExporter;
+//			break;
 #ifdef EXPORT_3DS
 		case ET3ds:
 			exporter = new LD3dsExporter;

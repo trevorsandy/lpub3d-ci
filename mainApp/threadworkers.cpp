@@ -173,6 +173,8 @@ void PartWorker::ldsearchDirPreferences(){
        logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
        logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
+       logError() << qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni));
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -496,6 +498,8 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                      logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
                      logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
+                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
+                     logError() << qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni));
                   updateLDGLiteSearchDirs = true;
               }
           }

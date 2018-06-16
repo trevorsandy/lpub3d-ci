@@ -68,6 +68,9 @@ QMAKE_LFLAGS         += $(Q_LDFLAGS)
 QMAKE_CFLAGS         += $(Q_CFLAGS)
 QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
 
+# Dr Memory - MinGW Memory Debugging - Windows
+QMAKE_LFLAGS_WINDOWS += -static-libgcc -static-libstdc++ -ggdb
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
@@ -275,10 +278,9 @@ if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)|BUILD_GL2PS
 if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) {
     LIBS += -ljpeg
 } else {
-    !win32:message("~~~ ALERT: library jpeglib not found, building it in... ~~~")
+    !win32:message("~~~ ALERT: library jpeg not found, building it... ~~~")
     LIBS += -L$$OUT_PWD/../ldvlib/libjpeg/$$DESTDIR -l$$JPEG_LIB
 }
-
 if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
     LIBS += -ltinyxml
 } else {
@@ -352,81 +354,36 @@ unix:!macx:include(linuxfiledistro.pri)
 
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-include(../ldvlib/LDLib/LDLib.pri)
 include(../qslog/QsLog.pri)
+include(../ldvlib/LDVQt/LDVQt.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
 
-#~~ Merge ldv ini files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~ Merge and move ldv ini files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-merge_ini.target = LDViewMessages.ini
-merge_ini.depends = $$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini \
-                    $$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini
-
+OUT_INI_FILE = LDViewMessages.ini
 win32 {
-    merge_ini.commands = \
-        COPY /y /a /b \
-        $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini) + \
-        $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini) \
-        $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini)
-
+    MERGE_CMD = COPY /y /a /b
+    PLUS_CMD  = +
 } else {
-    merge_ini.commands = \
-        cat \
-        $$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini \
-        $$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini > \
-        $$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini
+    MERGE_CMD = cat
+    PLUS_CMD  =
 }
+
+merge_ini_commands = \
+$$MERGE_CMD \
+$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini) $$PLUS_CMD \
+$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini) \
+$$system_path($$OUT_PWD/$$DESTDIR/$$OUT_INI_FILE)
+
+merge_ini.target   = LDViewMessages.ini
+merge_ini.depends  = $$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini \
+                     $$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini
+merge_ini.commands = $$merge_ini_commands
 
 QMAKE_EXTRA_TARGETS += merge_ini
 PRE_TARGETDEPS += LDViewMessages.ini
 QMAKE_CLEAN += LDViewMessages.ini
-
-#~~ ldv Headerize logo and ini messages~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32 {
-    MOV_CMD = MOVE
-    APP_EXT = .exe
-} else {
-    MOV_CMD = mv
-    APP_EXT =
-}
-
-HEADERIZE_EXE = Headerize
-CONFIG(debug, debug|release): \
-HEADERIZE_EXE = $$join(HEADERIZE_EXE,,,d$${APP_EXT})
-else:!isEmpty(APP_EXT): \
-HEADERIZE_EXE = $$join(HEADERIZE_EXE,,,$${APP_EXT})
-
-!equals(PWD, $${OUT_PWD}) {
-    message("~~~ SHADOW BUILD HEADERIZE LDV MESSAGES AND STUDLOGO ~~~")
-        LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/$${HEADERIZE_EXE}) \
-                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini) && $$MOV_CMD LDViewMessages.h \
-                               $$system_path($$_PRO_FILE_PWD_/LDViewMessages.h)
-        LDVStudLogo_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/$${HEADERIZE_EXE}) \
-                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png) && $$MOV_CMD StudLogo.h \
-                               $$system_path($$_PRO_FILE_PWD_/StudLogo.h)
-} else {
-    message("~~~ HEADERIZE LDV MESSAGES AND STUDLOGO ~~~")
-        LDVMessages_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/$${HEADERIZE_EXE}) \
-                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini)
-        LDVStudLogo_commands = $$system_path($$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/$${HEADERIZE_EXE}) \
-                               $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png)
-}
-
-LDVMessages.target = LDViewMessages.h
-LDVMessages.depends = $$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/$${HEADERIZE_EXE} \
-                      $$_PRO_FILE_PWD_/../ldvlib/LDViewMessages.ini
-LDVMessages.commands = $$LDVMessages_commands
-
-LDVStudLogo.target = StudLogo.h
-LDVStudLogo.depends = $$OUT_PWD/../ldvlib/Headerize/$$DESTDIR/$${HEADERIZE_EXE} \
-                      $$_PRO_FILE_PWD_/../ldvlib/LDLib/StudLogo.png
-LDVStudLogo.commands = $$LDVStudLogo_commands
-
-QMAKE_EXTRA_TARGETS += LDVMessages LDVStudLogo
-PRE_TARGETDEPS += LDViewMessages.h StudLogo.h
-QMAKE_CLEAN += LDViewMessages.h StudLogo.h
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -467,7 +424,6 @@ HEADERS += \
     metatypes.h \
     name.h \
     nativepov.h \
-    nativepovpreferences.h \
     numberitem.h \
     pagebackgrounditem.h \
     pageattributetextitem.h \
@@ -548,7 +504,6 @@ SOURCES += \
     metaitem.cpp \
     multistepglobals.cpp \
     nativepov.cpp \
-    nativepovpreferences.cpp \
     numberitem.cpp \
     openclose.cpp \
     pagebackgrounditem.cpp \
@@ -596,8 +551,7 @@ SOURCES += \
 FORMS += \
     preferences.ui \
     aboutdialog.ui \
-    dialogexportpages.ui \
-    nativepovpreferences.ui
+    dialogexportpages.ui
 
 OTHER_FILES += \
     Info.plist \
@@ -615,6 +569,7 @@ OTHER_FILES += \
 include(otherfiles.pri)
 
 RESOURCES += \
+    ../lclib/resources/lclib.qrc \
     lpub3d.qrc
 
 DISTFILES += \

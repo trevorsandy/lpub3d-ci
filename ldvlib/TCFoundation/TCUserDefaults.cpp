@@ -32,7 +32,7 @@
 #endif // WIN32
 
 #ifdef _QT
-#include "../QT/misc.h"
+#include "../LDVQt/misc.h"
 #include <QtCore/qstringlist.h>
 #endif // _QT
 
@@ -1027,7 +1027,7 @@ UCSTR TCUserDefaults::defStringForKeyUC(const char* key, bool sessionSpecific,
 }
 
 char* TCUserDefaults::defStringForKey(const char* key, bool sessionSpecific,
-									  const char* defaultValue)
+				      const char* defaultValue)
 {
 	char *commandLineValue = defCommandLineStringForKey(key);
 

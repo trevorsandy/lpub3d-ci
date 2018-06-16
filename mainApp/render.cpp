@@ -42,6 +42,8 @@
 #include "meta.h"
 #include "math.h"
 #include "lpub_preferences.h"
+#include "application.h"
+#include "ldvwidget.h"
 #include "nativepov.h"
 
 #include "paths.h"
@@ -439,29 +441,68 @@ int POVRay::renderCsi(
   else
   // Native block begin
   if (Preferences::povFileGenerator == RENDERER_NATIVE) {
-       // Renderer options
-       NativeOptions Options;
-       QStringList CommandArgs = povArguments;
-       CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
-       Options.ImageType         = CSI;
-       Options.InputFileName     = ldrName;
-       Options.OutputFileName    = povName;
-       Options.ImageWidth        = width;
-       Options.ImageHeight       = height;
-       Options.Latitude          = meta.LPub.assem.angle.value(0);
-       Options.Longitude         = meta.LPub.assem.angle.value(1);
-       Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-       //Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
-       Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));
 
-       // Generate pov file
-       NativePov* nativePov = new NativePov();
-       if (!nativePov->CreateNativePovFile(Options))
-       {
-         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV CSI file."));
-         return -1;
-       }
+         /* determine camera distance */
+         int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+
+             //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+         QString cg = QString("-cg%1,%2,%3")
+             .arg(meta.LPub.assem.angle.value(0))
+             .arg(meta.LPub.assem.angle.value(1))
+             .arg(cd);
+
+         QString w  = QString("-SaveWidth=%1") .arg(width);
+         QString h  = QString("-SaveHeight=%1") .arg(height);
+         QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+         QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+         QString o  = QString("-HaveStdOut=1");
+         QString v  = QString("-vv");
+
+         QStringList arguments;
+         arguments << CA;
+         arguments << cg;
+         arguments << w;
+         arguments << h;
+         arguments << f;
+         arguments << l;
+         arguments << o;
+         arguments << v;
+
+         if (!Preferences::altLDConfigPath.isEmpty()) {
+            arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+            //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+         }
+
+         arguments << ldrName;
+
+         emit gui->messageSig(LOG_STATUS, "POVRay render CSI...");
+
+         if (!ldvWidget->doCommand(arguments))
+           emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
+
+//       // Renderer options
+//       NativeOptions Options;
+//       QStringList CommandArgs = povArguments;
+//       CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
+//       Options.ImageType         = CSI;
+//       Options.InputFileName     = ldrName;
+//       Options.OutputFileName    = povName;
+//       Options.ImageWidth        = width;
+//       Options.ImageHeight       = height;
+//       Options.Latitude          = meta.LPub.assem.angle.value(0);
+//       Options.Longitude         = meta.LPub.assem.angle.value(1);
+//       Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
+//       //Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
+//       Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+//       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));
+
+//       // Generate pov file
+//       NativePov* nativePov = new NativePov();
+//       if (!nativePov->CreateNativePovFile(Options))
+//       {
+//         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV CSI file."));
+//         return -1;
+//       }
     }
 
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
@@ -574,6 +615,7 @@ int POVRay::renderPli(
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
       /* determine camera distance */
       int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
@@ -581,7 +623,8 @@ int POVRay::renderPli(
 
       //qDebug() << "LDView (Native) Camera Distance: " << cd;
 
-      QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
+      QString cg = QString("-cg%1,%2,%3")
+          .arg(metaType.angle.value(0))
           .arg(metaType.angle.value(1))
           .arg(cd);
 
@@ -649,28 +692,67 @@ int POVRay::renderPli(
   else
   // Native block begin
   if (Preferences::povFileGenerator == RENDERER_NATIVE) {
-      // Renderer options
-      NativeOptions Options;
-      QStringList CommandArgs = povArguments;
-      CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
-      Options.ImageType         = PLI;
-      Options.InputFileName     = ldrNames.first();
-      Options.OutputFileName    = povName;
-      Options.ImageWidth        = width;
-      Options.ImageHeight       = height;
-      Options.Latitude          = metaType.angle.value(0);
-      Options.Longitude         = -metaType.angle.value(1);                                   // switch from -45
-      //Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;    // use assembly setting
-      Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-      Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
 
-      // Generate pov file
-      NativePov* nativePov = new NativePov();
-      if (!nativePov->CreateNativePovFile(Options))
-      {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV PLI file."));
-        return -1;
+      /* determine camera distance */
+      int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
+
+      //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+      QString cg = QString("-cg%1,%2,%3")
+          .arg(metaType.angle.value(0))
+          .arg(metaType.angle.value(1))
+          .arg(cd);
+
+      QString w  = QString("-SaveWidth=%1")  .arg(width);
+      QString h  = QString("-SaveHeight=%1") .arg(height);
+      QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+      QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+      QString o  = QString("-HaveStdOut=1");
+      QString v  = QString("-vv");
+
+      QStringList arguments;
+      arguments << CA;
+      arguments << cg;
+      arguments << w;
+      arguments << h;
+      arguments << f;
+      arguments << l;
+      arguments << o;
+      arguments << v;
+
+      if (!Preferences::altLDConfigPath.isEmpty()) {
+         arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+         //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
       }
+
+      arguments << ldrNames.first();
+
+      emit gui->messageSig(LOG_STATUS, "POVRay render PLI...");
+
+      if (!ldvWidget->doCommand(arguments))
+        emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POVRay file for command: %1").arg(arguments.join(" ")));
+
+//      // Renderer options
+//      NativeOptions Options;
+//      QStringList CommandArgs = povArguments;
+//      CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
+//      Options.ImageType         = PLI;
+//      Options.InputFileName     = ldrNames.first();
+//      Options.OutputFileName    = povName;
+//      Options.ImageWidth        = width;
+//      Options.ImageHeight       = height;
+//      Options.Latitude          = metaType.angle.value(0);
+//      Options.Longitude         = -metaType.angle.value(1);                                   // switch from -45
+//      //Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;    // use assembly setting
+//      Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+//      Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
+
+//      // Generate pov file
+//      NativePov* nativePov = new NativePov();
+//      if (!nativePov->CreateNativePovFile(Options))
+//      {
+//        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV PLI file."));
+//        return -1;
+//      }
   }
 
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
@@ -1021,7 +1103,7 @@ int LDView::renderCsi(
   } else {
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
       int rc;
-     ldrNames << QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+      ldrNames << QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
       if ((rc = rotateParts(addLine, meta.rotStep,csiParts,ldrNames.first(),QString())) < 0) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
           return rc;

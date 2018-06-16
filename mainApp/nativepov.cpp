@@ -23,10 +23,10 @@
 #include "version.h"
 #include "paths.h"
 
-#include <TCStringArray.h>
-#include <TCUserDefaults.h>
-#include <LDUserDefaultsKeys.h>
-#include <mystring.h>
+#include <TCFoundation/mystring.h>
+#include <TCFoundation/TCStringArray.h>
+#include <TCFoundation/TCUserDefaults.h>
+#include <LDLib/LDUserDefaultsKeys.h>
 
 NativePov nativePov;
 

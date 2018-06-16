@@ -680,7 +680,7 @@
          <rect>
           <x>10</x>
           <y>82</y>
-          <width>200</width>
+          <width>171</width>
           <height>50</height>
          </rect>
         </property>
@@ -710,21 +710,21 @@
        <widget class="QGroupBox" name="povNativePropertiesBox">
         <property name="geometry">
          <rect>
-          <x>226</x>
+          <x>195</x>
           <y>82</y>
-          <width>200</width>
+          <width>231</width>
           <height>50</height>
          </rect>
         </property>
         <property name="title">
          <string>Native POV file generation</string>
         </property>
-        <widget class="QPushButton" name="nativePoVFileGenBtn">
+        <widget class="QPushButton" name="nativePoVFileGenOptBtn">
          <property name="geometry">
           <rect>
-           <x>37</x>
+           <x>10</x>
            <y>18</y>
-           <width>130</width>
+           <width>101</width>
            <height>23</height>
           </rect>
          </property>
@@ -732,7 +732,23 @@
           <string>Open Native POV options dialogue</string>
          </property>
          <property name="text">
-          <string>Native POV Options...</string>
+          <string>Gen Options...</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="nativePoVFileGenPrefBtn">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>18</y>
+           <width>101</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Open Native POV options dialogue</string>
+         </property>
+         <property name="text">
+          <string>All Preferences...</string>
          </property>
         </widget>
        </widget>

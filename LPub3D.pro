@@ -134,12 +134,6 @@ if (BUILD_GL2PS) {
     ldlib.depends = 3rdParty_gl2ps
 }
 
-SUBDIRS += headerize
-headerize.subdir   = $$PWD/ldvlib/Headerize
-headerize.makefile = Makefile.headerize
-headerize.target   = sub-headerize
-ldexporter.depends = ldlib
-
 SUBDIRS += lclib
 lclib.subdir   = $$PWD/lclib
 lclib.makefile = Makefile.lc
@@ -152,8 +146,8 @@ mainApp.makefile = Makefile.mainapp
 mainApp.target   = sub-mainApp
 mainApp.depends  = quazip
 mainApp.depends  = ldrawini
+mainApp.depends  = ldlib
 mainApp.depends  = lclib
-mainApp.depends  = headerize
 
 RESOURCES += \
     qsimpleupdater/res/qsu_resources.qrc \

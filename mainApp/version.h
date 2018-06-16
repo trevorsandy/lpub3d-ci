@@ -68,6 +68,7 @@
 #define VER_PLI_SUBSTITUTE_PARTS_FILE       "pliSubstituteParts.lst"
 #define VER_TITLE_ANNOTATIONS_FILE          "titleAnnotations.lst"
 #define VER_EXCLUDED_PARTS_FILE             "excludedParts.lst"
+#define VER_NATIVE_POV_MESSAGES_FILE        "LDViewMessages.ini"
 
 #define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"

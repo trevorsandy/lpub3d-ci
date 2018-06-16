@@ -22,6 +22,9 @@
 class Gui;
 extern Gui *gui;
 
+class LDVWidget;
+extern LDVWidget *ldvWidget;
+
 enum PartType { FADE_PART, HIGHLIGHT_PART };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 Q_DECLARE_METATYPE(LogType);
@@ -35,8 +38,10 @@ Q_DECLARE_METATYPE(LogType);
 #define UPDATES      "Updates"
 #define LOGGING      "Logging"
 
-#define DOT_PATH_DEFAULT                     "."
-#define EMPTY_STRING_DEFAULT                 ""
+#define MAX_NUM_POV_GEN_ARGS (128)
+
+#define DOT_PATH_DEFAULT                  "."
+#define EMPTY_STRING_DEFAULT              ""
 
 #define LOGGING_LEVEL_DEFAULT             "STATUS"
 

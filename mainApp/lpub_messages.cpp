@@ -23,6 +23,12 @@ LPubMessages::LPubMessages()
 {
   connect(this, SIGNAL(messageSig(LogType,QString)),
           this, SLOT(statusMessage(LogType,QString)));
+  alert = this;
+}
+
+LPubMessages::~LPubMessages()
+{
+  alert = nullptr;
 }
 
 void LPubMessages::statusMessage(LogType logType, QString message){

@@ -56,8 +56,8 @@
 
 #include <ui_progress_dialog.h>
 
-#include <TCUserDefaults.h>
-#include <LDUserDefaultsKeys.h>
+#include <TCFoundation/TCUserDefaults.h>
+#include <LDLib/LDUserDefaultsKeys.h>
 //**
 
 
@@ -2054,8 +2054,8 @@ Gui::Gui()
     KpageView     = new LGraphicsView(KpageScene);
     KpageView->pageBackgroundItem = NULL;
     KpageView->setRenderHints(QPainter::Antialiasing | 
-                             QPainter::TextAntialiasing |
-                             QPainter::SmoothPixmapTransform);
+                              QPainter::TextAntialiasing |
+                              QPainter::SmoothPixmapTransform);
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox(this);

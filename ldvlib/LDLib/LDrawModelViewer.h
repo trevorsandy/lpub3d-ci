@@ -117,7 +117,7 @@ class LDrawModelViewer: public TCAlertSender
 		virtual void perspectiveView(void);
 		virtual void perspectiveView(bool resetViewport);
 		void setLDConfig(const std::string& value) { m_ldConfig = value; }
-		const std::string& getLDConfig(void) const { return m_ldConfig; };
+		const std::string& getLDConfig(void) const { return m_ldConfig; }
 		void setQualityLighting(bool value) { flags.qualityLighting = value; }
 		bool getQualityLighting(void) const
 		{
@@ -544,7 +544,7 @@ class LDrawModelViewer: public TCAlertSender
 		void rightSideUp(bool shouldRequestRedraw = true);
 		virtual void setupFont(const char *fontFilename);
 		virtual void setupFont2x(const char *fontFilename);
-	    virtual void setRawFont2xData(const TCByte *data, long length);
+		virtual void setRawFont2xData(const TCByte *data, long length);
 		virtual void setFont2x(TCImage *image);
 		virtual int exportCurModel(const char *filename,
 			const char *version = NULL, const char *copyright = NULL,
@@ -637,11 +637,11 @@ class LDrawModelViewer: public TCAlertSender
 		virtual TCFloat getZDistance(void);
 		virtual bool haveLightDats(void) const;
 		virtual bool haveStandardLight(void);
-		void findFileAlertCallback(LDLFindFileAlert *alert);
+//		void findFileAlertCallback(LDLFindFileAlert *alert);
 		virtual bool canCheckForUnofficialPart(const char *filename,
 			bool exists);
 		virtual void unofficialPartNotFound(const char *filename);
-		virtual bool connectionFailure(TCWebClient *webClient);
+//		virtual bool connectionFailure(TCWebClient *webClient);
 		virtual void applyModelRotation(void);
 		virtual bool loadLDLModel(void);
 		virtual bool calcSize(void);

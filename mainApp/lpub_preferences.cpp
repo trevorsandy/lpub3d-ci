@@ -352,16 +352,11 @@ void Preferences::lpubPreferences()
                 box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
                 box.setDefaultButton   (QMessageBox::Yes);
 
-                if (box.exec() != QMessageBox::Yes) {   // user choose not to create user data direcory outside program folder, so create automatically
+                QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                lpubDataPath = dataPathList.first();
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                    lpubDataPath = dataPathList.first();
-#endif
-                } else {                                // capture user's choice for user data directory
+                if (box.exec() == QMessageBox::Yes) {   // capture user's choice for user data directory
 
-                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                    lpubDataPath = dataPathList.first();
                     QString result = QFileDialog::getExistingDirectory(NULL,
                                                                        QFileDialog::tr("Select Directory"),
                                                                        lpubDataPath,
@@ -2445,6 +2440,8 @@ bool Preferences::getPreferences()
                logError() << qPrintable(QString("Could not update %1").arg(ldviewIni));
             if (!setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
                logError() << qPrintable(QString("Could not update %1").arg(ldviewPOVIni));
+            if (!setLDViewExtraSearchDirs(Preferences::nativePOVIni))
+               logError() << qPrintable(QString("Could not update %1").arg(nativePOVIni));
         }
 
         if (rendererTimeout != dialog->rendererTimeout()) {
@@ -2963,8 +2960,10 @@ void Preferences::nativePovGenPreferences()
 
   emit Application::instance()->splashMsgSig("25% - NativePoV default settings...");
 
-  TCUserDefaults::setCommandLine(Application::instance()->arguments().join(" ").toStdString().c_str());
-  TCUserDefaults::setIniFile(nativePOVIni.toLatin1().constData());
+  ;
+  // Let's make our own comman
+//  TCUserDefaults::setCommandLine(Application::instance()->arguments().join(" ").toStdString().c_str());
+//  TCUserDefaults::setIniFile(nativePOVIni.toLatin1().constData());
 
   // TCUserDefaults::setAppName(Preferences::lpub3dAppName.toLatin1().constData()); // Don't think we need this
 

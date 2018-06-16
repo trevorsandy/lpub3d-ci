@@ -1,5 +1,6 @@
 TEMPLATE = lib
 QT      += core
+QT 	+= opengl
 CONFIG  += staticlib
 
 unix: !macx: TARGET = tcfoundation
@@ -14,6 +15,12 @@ win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.pa
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
 include(../ldvlib.pri)
+
+if (macx:|win32:) {
+DEFINES += HAVE_MINIZIP
+} else {
+DEFINES += UNZIP_CMD
+}
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 

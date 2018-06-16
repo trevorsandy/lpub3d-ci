@@ -23,8 +23,10 @@
 #pragma warning(push)
 #pragma warning(disable:4244 4512)
 #endif // WIN32
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#ifndef _NO_BOOST
+//#include <boost/thread.hpp>
+//#include <boost/thread/condition.hpp>
+#endif // _NO_BOOST
 #ifdef WIN32
 #pragma warning(pop)
 #endif // WIN32
@@ -558,11 +560,11 @@ protected:
 	std::condition_variable *m_sortCondition;
 	std::condition_variable *m_conditionalsCondition;
 #else
-	boost::thread_group *m_threadGroup;
-	boost::mutex *m_workerMutex;
-	boost::condition *m_workerCondition;
-	boost::condition *m_sortCondition;
-	boost::condition *m_conditionalsCondition;
+//	boost::thread_group *m_threadGroup;
+//	boost::mutex *m_workerMutex;
+//	boost::condition *m_workerCondition;
+//	boost::condition *m_sortCondition;
+//	boost::condition *m_conditionalsCondition;
 #endif
 	bool m_exiting;
 #endif // USE_CPP11 || !_NO_TRE_THREADS

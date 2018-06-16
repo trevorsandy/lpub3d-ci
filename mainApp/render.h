@@ -109,6 +109,7 @@ public:
 //  int                    load3DCsiImage(QString &);
 
   ImageMatt                imageMatt;
+  //LDVWidget               *ldvWidget;
 
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;

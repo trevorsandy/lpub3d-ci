@@ -6,8 +6,6 @@ HEADERS += \
     $$PWD/LDConsoleAlertHandler.h \
     $$PWD/LDHtmlInventory.h \
     $$PWD/LDInputHandler.h \
-    $$PWD/LDLibraryUpdateInfo.h \
-    $$PWD/LDLibraryUpdater.h \
     $$PWD/LDModelParser.h \
     $$PWD/LDModelTree.h \
     $$PWD/LDObiInfo.h \
@@ -23,8 +21,6 @@ SOURCES += \
     $$PWD/LDConsoleAlertHandler.cpp \
     $$PWD/LDHtmlInventory.cpp \
     $$PWD/LDInputHandler.cpp \
-    $$PWD/LDLibraryUpdateInfo.cpp \
-    $$PWD/LDLibraryUpdater.cpp \
     $$PWD/LDModelParser.cpp \
     $$PWD/LDModelTree.cpp \
     $$PWD/LDObiInfo.cpp \

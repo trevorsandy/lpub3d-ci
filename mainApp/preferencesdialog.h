@@ -132,7 +132,8 @@ class PreferencesDialog : public QDialog
     void updateChangelog (QString url);
     void checkForUpdates();
 
-    void on_nativePoVFileGenBtn_clicked();
+    void on_nativePoVFileGenOptBtn_clicked();
+    void on_nativePoVFileGenPrefBtn_clicked();
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);
     void on_povGenNativeRadio_clicked(bool checked);
     void on_povGenLDViewRadio_clicked(bool checked);
@@ -140,7 +141,7 @@ class PreferencesDialog : public QDialog
 private:
     Ui::PreferencesDialog ui;
 
-    PartWorker    partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
+    PartWorker     partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
     QWidget       *parent;
     ParmsWindow   *parmsWindow;             // the parametrer file editor
 

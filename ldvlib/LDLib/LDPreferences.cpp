@@ -3,7 +3,7 @@
 #include <TCFoundation/TCAlertManager.h>
 #include <TCFoundation/TCMacros.h>
 #include <TCFoundation/TCUserDefaults.h>
-#include <TCFoundation/TCWebClient.h>
+//#include <TCFoundation/TCWebClient.h>
 #include <LDLoader/LDLPalette.h>
 #include <LDLoader/LDLModel.h>
 
@@ -129,7 +129,7 @@ void LDPreferences::applySettings(void)
 	applyGeometrySettings();
 	applyEffectsSettings();
 	applyPrimitivesSettings();
-	applyUpdatesSettings();
+//	applyUpdatesSettings();
 	if (m_modelViewer != NULL)
 	{
 		m_modelViewer->setZoomMax(m_zoomMax);
@@ -292,62 +292,62 @@ void LDPreferences::applyPrimitivesSettings(void)
 	}
 }
 
-void LDPreferences::applyUpdatesSettings(void)
-{
-	if (m_modelViewer != NULL)
-	{
-		m_modelViewer->setCheckPartTracker(m_checkPartTracker);
-		m_modelViewer->setMissingPartWait(m_missingPartWait);
-		m_modelViewer->setUpdatedPartWait(m_updatedPartWait);
-		if (m_proxyType == 2)
-		{
-			TCWebClient::setProxyServer(m_proxyServer.c_str());
-			TCWebClient::setProxyPort(m_proxyPort);
-		}
-#ifdef WIN32
-		else if (m_proxyType == 1)
-		{
-			std::string appName = TCUserDefaults::getAppName();
+//void LDPreferences::applyUpdatesSettings(void)
+//{
+//	if (m_modelViewer != NULL)
+//	{
+//		m_modelViewer->setCheckPartTracker(m_checkPartTracker);
+//		m_modelViewer->setMissingPartWait(m_missingPartWait);
+//		m_modelViewer->setUpdatedPartWait(m_updatedPartWait);
+//		if (m_proxyType == 2)
+//		{
+//			TCWebClient::setProxyServer(m_proxyServer.c_str());
+//			TCWebClient::setProxyPort(m_proxyPort);
+//		}
+//#ifdef WIN32
+//		else if (m_proxyType == 1)
+//		{
+//			std::string appName = TCUserDefaults::getAppName();
 
-			// This is sort of cheating, but since I know exactly how TCUserDefaults
-			// works, I know that this will get the job done.  Note that if the
-			// actual type of the data in the registry doesn't match the requested
-			// type, TCUserDefaults treats the registry value as if it doesn't
-			// exist.
-			TCUserDefaults::setAppName(
-				"Microsoft/Windows/CurrentVersion/Internet Settings");
-			if (TCUserDefaults::longForKey("ProxyEnable", 0, false))
-			{
-				char *proxyServer = TCUserDefaults::stringForKey("ProxyServer",
-					NULL, false);
+//			// This is sort of cheating, but since I know exactly how TCUserDefaults
+//			// works, I know that this will get the job done.  Note that if the
+//			// actual type of the data in the registry doesn't match the requested
+//			// type, TCUserDefaults treats the registry value as if it doesn't
+//			// exist.
+//			TCUserDefaults::setAppName(
+//				"Microsoft/Windows/CurrentVersion/Internet Settings");
+//			if (TCUserDefaults::longForKey("ProxyEnable", 0, false))
+//			{
+//				char *proxyServer = TCUserDefaults::stringForKey("ProxyServer",
+//					NULL, false);
 
-				if (proxyServer)
-				{
-					char *colon = (char *)strchr(proxyServer, ':');
+//				if (proxyServer)
+//				{
+//					char *colon = (char *)strchr(proxyServer, ':');
 
-					if (colon)
-					{
-						int proxyPort;
+//					if (colon)
+//					{
+//						int proxyPort;
 
-						*colon = 0;
-						if (sscanf(&colon[1], "%d", &proxyPort) == 1)
-						{
-							TCWebClient::setProxyServer(proxyServer);
-							TCWebClient::setProxyPort(proxyPort);
-						}
-					}
-					delete[] proxyServer;
-				}
-			}
-			TCUserDefaults::setAppName(appName.c_str());
-		}
-#endif
-		else
-		{
-			TCWebClient::setProxyServer(NULL);
-		}
-	}
-}
+//						*colon = 0;
+//						if (sscanf(&colon[1], "%d", &proxyPort) == 1)
+//						{
+//							TCWebClient::setProxyServer(proxyServer);
+//							TCWebClient::setProxyPort(proxyPort);
+//						}
+//					}
+//					delete[] proxyServer;
+//				}
+//			}
+//			TCUserDefaults::setAppName(appName.c_str());
+//		}
+//#endif
+//		else
+//		{
+//			TCWebClient::setProxyServer(NULL);
+//		}
+//	}
+//}
 
 void LDPreferences::loadSettings(void)
 {

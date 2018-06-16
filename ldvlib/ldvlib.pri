@@ -61,11 +61,13 @@ unix:!freebsd:!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.6) {
         QMAKE_CXXFLAGS += -std=c++11
+        DEFINES += USE_CPP11
     } else {
         QMAKE_CXXFLAGS += -std=c++0x
     }
 } else {
     CONFIG += c++11
+    DEFINES += USE_CPP11
 }
 
 win32 {

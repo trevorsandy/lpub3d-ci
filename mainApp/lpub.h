@@ -419,6 +419,7 @@ void clearAndRedrawPage();
 
 class Gui : public QMainWindow
 {
+
   Q_OBJECT
 
 public:
@@ -455,7 +456,7 @@ public:
 
   HighlightStepMeta *highlightStepMeta; // propagate highlight step settings
 
-  FitMode          fitMode;          // how to fit the scene into the view
+  FitMode          fitMode;             // how to fit the scene into the view
 
   Where &topOfPage();
   Where &bottomOfPage();
