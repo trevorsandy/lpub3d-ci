@@ -620,18 +620,6 @@ public:
 public slots:
   //**3D Viewer Manage Step Rotation
 
-// TODO - REMOVE
-//  void SetExistingRotStep(lcVector3 rotStep)
-//  {
-//      mExistingRotStep = rotStep;
-//  }
-
-// TODO - REMOVE
-//  lcVector3 GetExistingRotStep() const
-//  {
-//      return mExistingRotStep;
-//  }
-
   void UpdateStepRotationStatus();
   void SetRotStepMeta(QString &value, bool propagate = false);
   void setViewerCsiName(QString &csiName)
@@ -648,15 +636,6 @@ public slots:
   {
       return mStepRotation;
   }
-
-// TODO - REMOVE
-//  void ResetStepRotation()  [Deprecated]
-//  {
-//      mRotStepAngleX = mStepRotation[0];
-//      mRotStepAngleY = mStepRotation[1];
-//      mRotStepAngleZ = mStepRotation[2];
-//      UpdateStepRotationStatus();
-//  }
 
   void SetRotStepAngleX(float AngleX)
   {
@@ -879,8 +858,6 @@ public:
 
 protected:
   // capture camera rotation from LeoCad module
-// TODO - REMOVE
-//  lcVector3 mExistingRotStep;
   lcVector3              mStepRotation;
   float                  mRotStepAngleX;
   float                  mRotStepAngleY;

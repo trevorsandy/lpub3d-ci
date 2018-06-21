@@ -74,10 +74,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - rotate step [deprecated] ***/
-	mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
-/*** LPub3D Mod end ***/
-
 	mColorIndex = lcGetColorIndex(71); //Light Bluish Grey
 	mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
@@ -441,15 +437,6 @@ void lcMainWindow::CreateActions()
 		ModelGroup->addAction(mActions[ActionIdx]);
 	}
 
-/*** LPub3D Mod - rotate step menu management (sets submenu checkable) [deprecated] ***/
-//        QActionGroup *RotateStepTypeGroup = new QActionGroup(this);
-//        for (int ActionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; ActionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; ActionIdx++)
-//          {
-//            mActions[ActionIdx]->setCheckable(true);
-//            RotateStepTypeGroup->addAction(mActions[ActionIdx]);
-//          }
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - macOS menu management ***/
 #ifdef Q_OS_MAC
   mActions[LC_FILE_EXIT]->setMenuRole(QAction::NoRole);
@@ -721,14 +708,6 @@ void lcMainWindow::CreateToolBars()
 	AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
 	AngleAction->setMenu(SnapAngleMenu);
 
-/*** LPub3D Mod - toolbar rotate step menu [deprecated] ***/
-//        QMenu* RotateStepMenu = new QMenu(tr("Step Rotation"), this);
-//        RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
-//        RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
-
-//        mActions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(RotateStepMenu);
-/*** LPub3D Mod end ***/
-
 	mStandardToolBar = addToolBar(tr("Standard"));
 	mStandardToolBar->setObjectName("StandardToolbar");
 	mStandardToolBar->addAction(mActions[LC_FILE_NEW]);
@@ -872,7 +851,6 @@ void lcMainWindow::CreateToolBars()
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 
 /*** LPub3D Mod - suppress partsbar, enable timeline raise ***/
-	//mPartsToolBar->raise();
 	mTimelineToolBar->raise();
 /*** LPub3D Mod end ***/
 
@@ -881,9 +859,6 @@ void lcMainWindow::CreateToolBars()
 	mTimeToolBar->setVisible(false);
 	mPartsToolBar->setVisible(false);
 	mColorsToolBar->setVisible(false);
-// TODO - REMOVE
-//	mPropertiesToolBar->setVisible(false);
-//	mTimelineToolBar->setVisible(false);
 
         // remove actions
         mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
@@ -979,9 +954,6 @@ QMenu* lcMainWindow::createPopupMenu()
 /*** LPub3D Mod - popup menu remove actions ***/
 	Menu->removeAction(mPartsToolBar->toggleViewAction());
 	Menu->removeAction(mColorsToolBar->toggleViewAction());
-// TODO - REMOVE
-//	Menu->removeAction(mPropertiesToolBar->toggleViewAction());
-//	Menu->removeAction(mTimelineToolBar->toggleViewAction());
 	Menu->removeAction(mStandardToolBar->toggleViewAction());
 	Menu->removeAction(mTimeToolBar->toggleViewAction());
 /*** LPub3D Mod end ***/
@@ -1214,38 +1186,6 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
       }
    }
 }
-/*** LPub3D Mod end ***/
-
-// TODO - REMOVE
-/*** LPub3D Mod - SetRotateStepType and add Icons [deprecated] ***/
-//void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
-//{
-//      mRotateStepType = RotateStepType;
-
-//      const char* IconNames[] =
-//      {
-//           ":/resources/edit_rotatestep_absolute_rotation.png",
-//           ":/resources/edit_rotatestep_relative_rotation.png"
-//      };
-
-//      if (RotateStepType >= 0 && RotateStepType <= 1)
-//      {
-//           mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION + RotateStepType]->setChecked(true);
-//           mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(QIcon(IconNames[RotateStepType]));
-//      }
-
-//  UpdateSnap();
-//}
-/*** LPub3D Mod end ***/
-
-// TODO - REMOVE
-/*** LPub3D Mod - GetRotateStepAmount ***/
-//lcVector3 lcMainWindow::GetRotateStepAmount()
-//{
-//       lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
-//       rotateStep = gui->GetStepRotationStatus();
-//       return rotateStep;
-//}
 /*** LPub3D Mod end ***/
 
 void lcMainWindow::ModelTabContextMenuRequested(const QPoint& Point)
@@ -2370,7 +2310,7 @@ void lcMainWindow::UpdateSnap()
 	mActions[LC_EDIT_SNAP_ANGLE0 + mAngleSnapIndex]->setChecked(true);
 	//mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText()));
 
-/*** LPub3D Mod - update snap status ***/
+/*** LPub3D Mod - update snap status [deprecated] ***/
 	mStatusSnapLabel->setText(QString(tr("Rot: %1 Snap: %2 ")).arg(GetRotateStep()).arg(GetAngleSnapText()));
 /*** LPub3D Mod end ***/
 }
@@ -3454,8 +3394,6 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(LC_TOOL_ROTATE);
 /*** LPub3D Mod - rotate step ***/
-		// TODO - REMOVE
-		//emit ResetStepRotation();
 		lcGetActiveModel()->SelectAllPieces();
 /*** LPub3D Mod end ***/
 		break;
@@ -3494,14 +3432,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetStepRotStepMeta(true);
 /*** LPub3D Mod end ***/
 		break;
-
 /*** LPub3D Mod - set rotate step type [deprecated] ***/
-        case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:
-        case LC_EDIT_ROTATESTEP_RELATIVE_ROTATION:
-//                SetRotateStepType((lcRotateStepType)(CommandId - LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION));
+		case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:
+		case LC_EDIT_ROTATESTEP_RELATIVE_ROTATION:
 /*** LPub3D Mod end ***/
-                break;
-
+		break;
 	case LC_EDIT_CANCEL:
 		if (ActiveView)
 			ActiveView->CancelTrackingOrClearSelection();

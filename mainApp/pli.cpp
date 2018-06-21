@@ -455,10 +455,6 @@ int Pli::createPartImage(
   QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" +
       Paths::tmpDir + "/pli.ldr");
 
-// TODO - REMOVE
-//  QString ldrName = QDir::currentPath() + "/" +
-//      Paths::tmpDir + "/pli.ldr";
-
   QFile part(imageName);
   
   if ( ! part.exists()) {

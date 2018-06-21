@@ -1210,27 +1210,6 @@ void Gui::clearTempCache()
 
     ldrawFile.tempCacheCleared();
 
-// TODO - REMOVE
-//    QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
-//    QDir viewDir(viewDirName);
-
-//    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-
-//    QFileInfoList viewDirList = viewDir.entryInfoList();
-//    int count2 = 0;
-//    for (int i = 0; i < viewDirList.size(); i++) {
-//        QFileInfo fileInfo = viewDirList.at(i);
-//        QFile     file(viewDirName + "/" + fileInfo.fileName());
-//        if (!file.remove()) {
-//            QMessageBox::critical(NULL,
-//                                  tr("LPub3D"),
-//                                  tr("Unable to remeove %1")
-//                                  .arg(viewDirName + "/" + fileInfo.fileName()));
-//            count2--;
-//          } else
-//          count2++;
-//    }
-
     emit messageSig(LOG_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
 }
 
@@ -2086,9 +2065,6 @@ Gui::Gui()
     progressBarPerm = new QProgressBar();
     progressBarPerm->setMaximumWidth(300);
 
-// TODO - REMOVE
-//    mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
-
     undoStack = new QUndoStack();
     macroNesting = 0;
 
@@ -2198,9 +2174,7 @@ void Gui::initialize()
   connect(this,        SIGNAL(updateAllViewsSig()),            gMainWindow, SLOT(UpdateAllViews()));
   connect(this,        SIGNAL(clearViewerWindowSig()),         gMainWindow, SLOT(NewProject()));
 
-  connect(gMainWindow, SIGNAL(SetRotStepMeta(QString&,bool)), this,        SLOT(SetRotStepMeta(QString&,bool)));
-// TODO - REMOVE
-//  connect(gMainWindow, SIGNAL(ResetStepRotation()),            this,        SLOT(ResetStepRotation()));
+  connect(gMainWindow, SIGNAL(SetRotStepMeta(QString&,bool)),  this,        SLOT(SetRotStepMeta(QString&,bool)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleX(float)),        this,        SLOT(SetRotStepAngleX(float)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleY(float)),        this,        SLOT(SetRotStepAngleY(float)));
   connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
@@ -3186,17 +3160,6 @@ void Gui::createMenus()
     setupMenu->addAction(fadeStepSetupAct);
     setupMenu->addAction(highlightStepSetupAct);
     setupMenu->setDisabled(true);
-
-// TODO - REMOVE
-//    configMenu->addAction(pageSetupAct);
-//    configMenu->addAction(assemSetupAct);
-//    configMenu->addAction(pliSetupAct);
-//    configMenu->addAction(bomSetupAct);
-//    configMenu->addAction(calloutSetupAct);
-//    configMenu->addAction(multiStepSetupAct);
-//    configMenu->addAction(projectSetupAct);
-//    configMenu->addAction(fadeStepSetupAct);
-//    configMenu->addAction(highlightStepSetupAct);
 
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");

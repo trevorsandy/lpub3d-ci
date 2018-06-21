@@ -140,28 +140,22 @@ public:
 	}
 
 /*** LPub3D Mod - Rotate Step [deprecated] ***/
-	QString GetRotateStep() const
-	{
-	    //only for status bar
-	    switch(mRotateStepType)
-	    {
-	    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
-		return tr("ABS");
-		break;
-	    case LC_ROTATESTEP_RELATIVE_ROTATION:
-		return tr("REL");
-		break;
-	    default:
-		return tr("N/A");
-		break;
-	    }
-	}
-
-        lcRotateStepType GetRotateStepType() const
+        QString GetRotateStep() const
         {
-            return mRotateStepType;
+            //only for status bar
+            switch(mRotateStepType)
+            {
+            case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+          return tr("ABS");
+          break;
+            case LC_ROTATESTEP_RELATIVE_ROTATION:
+          return tr("REL");
+          break;
+            default:
+          return tr("N/A");
+          break;
+            }
         }
-/*** LPub3D Mod end ***/
 
 	bool GetAddKeys() const
 	{
@@ -286,8 +280,6 @@ public:
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-// TODO - REMOVE
-//	void SetRotateStepType(lcRotateStepType RotateStepType);
 /*** LPub3D Mod end ***/
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -362,11 +354,6 @@ public:
 	QStatusBar* mLCStatusBar;
 /*** LPub3D Mod end ***/
 
-// TODO - REMOVE
-/*** LPub3D Mod - rotate step amount ***
-	lcVector3 GetRotateStepAmount();
-*** LPub3D Mod end ***/
-
 public slots:
 	void ProjectFileChanged(const QString& Path);
 /*** LPub3D Mod - relocate update and new project ***/
@@ -388,9 +375,6 @@ public slots:
 signals:
         lcVector3 GetRotStepMeta();
         void SetRotStepMeta(QString&, bool);
-// TODO - REMOVE
-//        void ResetStepRotation();
-
         void SetRotStepAngleX(float);
         void SetRotStepAngleY(float);
         void SetRotStepAngleZ(float);
@@ -441,10 +425,7 @@ protected:
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
-// TODO - REMOVE
-/*** LPub3D Mod - rotate step [deprecated] ***/
-	lcRotateStepType mRotateStepType;
-/*** LPub3D Mod end ***/
+
 	bool mMoveSnapEnabled;
 	bool mAngleSnapEnabled;
 	int mMoveXYSnapIndex;
@@ -459,6 +440,11 @@ protected:
 
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
+
+/*** LPub3D Mod - rotate step [deprecated] ***/
+	lcRotateStepType mRotateStepType;
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - move toolbar ***/
 	//QToolBar* mToolsToolBar;      //move to public:
 /*** LPub3D Mod end ***/

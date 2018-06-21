@@ -107,9 +107,6 @@ class Step : public AbstractRangeElement
            QPixmap            *pixmap,
            Meta               &meta);
 
-// TODO - REMOVE
-//    int Load3DCsi(QString &viewerCsiName);
-
     int viewerCSI(QStringList &csiParts,
                   bool doFadeStep,
                   bool doHighlightStep);

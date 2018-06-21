@@ -4,11 +4,6 @@
 #include "camera.h"
 #include "lc_scene.h"
 
-// TODO - REMOVE
-/*** LPub3D Mod - add logging ***/
-//#include "QsLog.h"
-/*** LPub3D Mod end ***/
-
 enum lcTrackButton
 {
 	LC_TRACKBUTTON_NONE,
@@ -136,10 +131,6 @@ public:
 
 	bool BeginRenderToImage(int Width, int Height);
 	void EndRenderToImage();
-// TODO - REMOVE
-/*** LPub3D Mod - Roate Angles ***/
-//	void GetRotStepMetaAngles();
-/*** LPub3D Mod end ***/
 
 	QImage GetRenderImage() const
 	{

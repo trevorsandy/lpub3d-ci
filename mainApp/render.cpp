@@ -282,11 +282,6 @@ float POVRay::cameraDistance(
     float scale)
 {
   return stdCameraDistance(meta, scale)*0.455;
-// TODO - REMOVE
-//  if (getRenderer() == RENDERER_LDVIEW)
-//    return stdCameraDistance(meta, scale)*0.455;
-//  else
-//    return stdCameraDistance(meta,scale)*0.775;
 }
 
 int POVRay::renderCsi(
@@ -1013,13 +1008,6 @@ int LDView::renderCsi(
           return rc;
       }
   }
-
-// TODO - REMOVE
-//  int rc;
-//  ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-//  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName)) < 0) {
-//      return rc;
-//    }
 
 //  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
   QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))

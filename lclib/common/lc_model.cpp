@@ -1426,104 +1426,6 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 		CalculateStep(LC_STEP_MAX);
 }
 
-// TODO - REMOVE
-/*** LPub3D Mod - create Native CSI image ***/
-void lcModel::CreateNativeCsiImage(const NativeOptions &Options)
-{
-        View* ActiveView = gMainWindow->GetActiveView();
-        ActiveView->MakeCurrent();
-
-        lcStep CurrentStep = mCurrentStep;
-
-        lcContext* Context = ActiveView->mContext;
-
-        lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-
-        //Camera->SetAngles(Options.Latitude,Options.Longitude);
-
-        Camera->SetOrtho(Options.Orthographic);
-
-        Zoom(Camera,Options.CameraDistance);
-
-        const int ImageWidth = Options.ImageWidth;
-        const int ImageHeight = Options.ImageHeight;
-
-        View View(this);
-        View.SetHighlight(Options.HighlightNewParts);
-        View.SetCamera(Camera, false);
-        View.SetContext(Context);
-
-        if (!View.BeginRenderToImage(ImageWidth, ImageHeight))
-        {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native CSI image."));
-                return;
-        }
-
-        SetTemporaryStep(CurrentStep);
-
-        View.OnDraw();
-
-        struct NativeImage
-        {
-                QImage RenderedImage;
-                QRect Bounds;
-        };
-
-        NativeImage Image;
-        Image.RenderedImage = View.GetRenderImage();
-
-        auto CalculateImageBounds = [](NativeImage& Image)
-        {
-                QImage& RenderedImage = Image.RenderedImage;
-                int Width = RenderedImage.width();
-                int Height = RenderedImage.height();
-
-                int MinX = Width;
-                int MinY = Height;
-                int MaxX = 0;
-                int MaxY = 0;
-
-                for (int x = 0; x < Width; x++)
-                {
-                        for (int y = 0; y < Height; y++)
-                        {
-                                if (qAlpha(RenderedImage.pixel(x, y)))
-                                {
-                                        MinX = qMin(x, MinX);
-                                        MinY = qMin(y, MinY);
-                                        MaxX = qMax(x, MaxX);
-                                        MaxY = qMax(y, MaxY);
-                                }
-                        }
-                }
-
-                Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
-        };
-
-        CalculateImageBounds(Image);
-
-        QImageWriter Writer(Options.OutputFileName);
-
-        if (Writer.format().isEmpty())
-                Writer.setFormat("PNG");
-
-        if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
-        {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native CSI image file '%1': %2.")
-                                     .arg(Options.OutputFileName, Writer.errorString()));
-                return;
-        }
-
-        View.EndRenderToImage();
-        Context->ClearResources();
-
-        SetTemporaryStep(CurrentStep);
-
-        if (!mActive)
-                CalculateStep(LC_STEP_MAX);
-}
-/*** LPub3D Mod end ***/
-
 void lcModel::UpdateBackgroundTexture()
 {
 	lcReleaseTexture(mBackgroundTexture);
@@ -2827,83 +2729,6 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 		break;
 	}
 }
-
-// TODO - REMOVE
-//void lcModel::SetStepRotStepMeta(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
-//{
-//    lcVector3 rotateStep = RotateStep;
-
-//    QString   rotationType;
-//    switch (RotateStepType)
-//    {
-//    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
-//        rotationType = "ABS";
-//        break;
-//    case LC_ROTATESTEP_RELATIVE_ROTATION:
-//        rotationType = "REL";
-//        break;
-//    }
-
-//    QString modelNameParts  = mProperties.mName;                    // Model Name Format = csiName_sn_ln.ldr
-//            modelNameParts  = modelNameParts.section("_",-1,-1);    // First split to get 'ln.ldr'
-//    QString lineNumber      = modelNameParts.section(".",0,-2);     // Second split to get 'ln'
-
-//    QString rotationValue("%1 %2 %3 %4 %5");
-//    rotationValue = rotationValue.arg(lineNumber,
-//                  QString::number(rotateStep[0], 'f', 2),
-//                  QString::number(rotateStep[1], 'f', 2),
-//                  QString::number(rotateStep[2], 'f', 2),
-//                  rotationType);
-
-//    MetaItem mi;
-
-//    if (gui->getCurFile() != "") {
-
-//        mi.writeRotateStep(rotationValue);
-//        gui->clearAndRedrawPage();
-//        gui->SetExistingRotStep(rotateStep);
-//        gui->UpdateStepRotation();
-
-//    }
-
-//    gMainWindow->UpdateAllViews();
-//}
-
-// TODO - REMOVE
-/*** LPub3D Mod - parse and set rotstep line on model file load ***/
-//void lcModel::ParseAndSetRotStep(QTextStream& LineStream)
-//{
-//  while (!LineStream.atEnd())
-//  {
-//      lcVector3 rotStep;
-//      QString Token;
-//      LineStream >> Token;
-
-//      if (Token == QLatin1String("ROTSTEP")) {
-
-//          LineStream >> Token;
-
-//          if(Token == QLatin1String("REL"))
-//              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
-//          else
-//          if(Token == QLatin1String("ABS"))
-//              gMainWindow->SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
-//          else
-//              gMainWindow->SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
-
-//          LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
-//          QString rotationArgs("%1 %2 %3 %4");
-//          rotationArgs = rotationArgs.arg(
-//                        QString::number(rotStep[0], 'f', 2),
-//                        QString::number(rotStep[1], 'f', 2),
-//                        QString::number(rotStep[2], 'f', 2),
-//                        Token);
-//          emit gMainWindow->SetRotStepMeta(rotationArgs, false);
-//          break;
-//      }
-//   }
-//}
-/*** LPub3D Mod end ***/
 
 void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 {
@@ -4519,10 +4344,6 @@ void lcModel::UpdateInterface()
 
 	gMainWindow->UpdateSelectedObjects(true);
 	gMainWindow->SetTransformType(gMainWindow->GetTransformType());
-// TODO - REMOVE
-/*** LPub3D Mod - set rotate step type***/
-//	gMainWindow->SetRotateStepType(gMainWindow->GetRotateStepType());
-/*** LPub3D Mod end ***/
 	gMainWindow->UpdateLockSnap();
 	gMainWindow->UpdateSnap();
 	gMainWindow->UpdateCameraMenu();

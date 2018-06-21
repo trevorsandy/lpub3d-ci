@@ -361,25 +361,6 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   if (! renderer->LoadViewer(step->viewerOptions)) {
      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3D Viewer with %1.")
                             .arg(step->viewerOptions.ViewerCsiName));
-
-// TODO - REMOVE
-//  int  rc = step->Load3DCsi(step->viewerCsiName);
-
-//  if (rc == -1){
-//      qDebug() << "\nCreating CsiItem 3D-render file: " << step->viewerCsiName;
-//      QStringList fileFilters;
-//      fileFilters << QString("%1_%2_*.ldr")
-//                     .arg(step->csiName())
-//                     .arg(step->stepNumber.number);
-//      QFileInfo renderFileInfo(step->viewerCsiName);
-//      QDir dir(renderFileInfo.absolutePath());
-//      QStringList dirs = dir.entryList(fileFilters);
-//      if (dirs.size() > 0) {
-//        dir.rename(dirs.at(0), renderFileInfo.fileName());
-//        rc = step->Load3DCsi(step->viewerCsiName);
-//        if (rc != 0)
-//          qDebug() << "\nCsiItem 3D-render failed to load: " << step->viewerCsiName;
-//      }
   }
 }
 

@@ -67,13 +67,6 @@ public:
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts);
-// TODO - REMOVE
-//  QVector<lcVector3>     viewSettings(AssemMeta &assemMeta,
-//                                      const float &cd = 0.0f);
-//  QVector<lcVector3>     nativeViewSettings(LPubMeta &,
-//                                      const int &height,
-//                                      const float &cd = 0.0f,
-//                                      const Mt &type = CSI);
   virtual int 		 renderCsi(const QString &,
                                       const QStringList &,
                                       const QStringList &,
@@ -84,32 +77,7 @@ public:
                                       Meta &,
                                       bool bom) = 0;
 
-// TODO - REMOVE
-//  int                    renderLDViewSCallCsi(
-//                                     const QStringList &,
-//                                     const QStringList &,
-//                                     Meta &);
-// TODO - REMOVE
-//  int                    renderLDViewSCallPli(const QStringList &,
-//                                         Meta &,
-//                                         bool bom);
-// TODO - REMOVE
-//  int                    render3DCsi(const QString &,
-//                                    const QString &,
-//                                    const QStringList &,
-//                                    Meta &,
-//                                    bool cisExists,
-//                                    bool outOfDate);
-// TODO - REMOVE
-//  int                    render3DCsiSubModels(QStringList &,
-//                                             QStringList &,
-//                                             bool doFadeStep = false,
-//                                             bool doHighlightStep = false);
-// TODO - REMOVE
-//  int                    load3DCsiImage(QString &);
-
   ImageMatt                imageMatt;
-  //LDVWidget               *ldvWidget;
 
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;

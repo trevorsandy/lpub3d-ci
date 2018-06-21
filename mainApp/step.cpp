@@ -179,11 +179,6 @@ int Step::createCsi(
   bool    csiExist        = false;
   QString viewerCsiName;
 
-// TODO - REMOVE
-//  qreal       modelScale = meta.LPub.assem.modelScale.value();
-//  QString     mdStepNum = QString("%1_fm").arg(stepNumber.number);
-//  QString     sn = QString("%1").arg(modelDisplayOnlyStep ? mdStepNum : QString::number(stepNumber.number));
-//  bool        csiExist = false;
   ldrName.clear();
 
   // 1 color x y z a b c d e f g h i foo.dat
@@ -330,26 +325,6 @@ int Step::createCsi(
       csiPlacement.size[0] = pixmap->width();
       csiPlacement.size[1] = pixmap->height();
     }
-
-// TODO - REMOVE
-//      int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on
-//      QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
-//          .arg(csiName())                           // csi model name
-//          .arg(sn)                                  // step number
-//          .arg(ln)                                  // line number
-//          .arg(".ldr");                             // extension
-
-//      viewerCsiName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + file3DNamekey;
-//      QFile csi3D(viewerCsiName);
-//      int rc;
-//      rc = renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
-//      if (rc != 0) {
-//          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-//                                QMessageBox::tr("Render 3D CSI failed for:\n%1.")
-//                                .arg(file3DNamekey));
-//          return rc;
-//        }
-//    }
 
   return 0;
 }
@@ -554,18 +529,6 @@ int Step::viewerCSISubModels(QStringList &subModels,
     }
   return 0;
 }
-
-// TODO - REMOVE
-//int Step::Load3DCsi(QString &viewerCsiName)
-//{
-//  if (! gui->exporting()) {
-//      return renderer->load3DCsiImage(viewerCsiName);
-//    } else {
-//      qDebug() << "3DViewer halted - rendering not allowed.";
-//      return -1;
-//    }
-//  return 0;
-//}
 
 /*
  * LPub is able to pack steps together into multi-step pages or callouts.

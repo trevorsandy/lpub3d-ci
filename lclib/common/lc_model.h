@@ -327,16 +327,6 @@ public:
 	}
 
 	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
-// TODO - REMOVE
-/*** LPub3D Mod - parse and set rotstep line on model file load ***/
-//        void ParseAndSetRotStep(QTextStream& LineStream);
-// TODO - REMOVE
-//        void SetStepRotStepMeta(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
-/*** LPub3D Mod end ***/
-// TODO - REMOVE
-/*** LPub3D Mod - create Native CSI image ***/
-	void CreateNativeCsiImage(const NativeOptions &Options);
-/*** LPub3D Mod end ***/
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
