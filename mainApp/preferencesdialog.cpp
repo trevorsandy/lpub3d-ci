@@ -249,10 +249,14 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
   bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
-  ui.nativePoVFileGenOptBtn->setEnabled(renderPOVRay && nativePovFileGen);
-  ui.nativePoVFileGenPrefBtn->setEnabled(renderPOVRay && nativePovFileGen);
+  ui.ldvPoVFileGenOptBtn->setEnabled(renderPOVRay);
+  ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
   ui.povGenNativeRadio->setChecked(nativePovFileGen);
   ui.povGenLDViewRadio->setChecked(!nativePovFileGen);
+  if (ui.povGenNativeRadio->isChecked())
+      ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+  else if (ui.povGenLDViewRadio->isChecked())
+      ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
@@ -533,32 +537,48 @@ void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
 
 void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
 {
-      bool enabled = (currentText == RENDERER_POVRAY && ui.povGenNativeRadio->isChecked());
-      ui.nativePoVFileGenOptBtn->setEnabled(enabled);
-      ui.nativePoVFileGenPrefBtn->setEnabled(enabled);
+      bool enabled = (currentText == RENDERER_POVRAY);
+      ui.ldvPoVFileGenOptBtn->setEnabled(enabled);
+      ui.ldvPoVFileGenPrefBtn->setEnabled(enabled);
+      if (ui.povGenNativeRadio->isChecked())
+          ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+      else if (ui.povGenLDViewRadio->isChecked())
+          ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 }
 
 void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
 {
-    bool enabled = (ui.preferredRenderer->currentText() == RENDERER_POVRAY && checked);
-    ui.nativePoVFileGenOptBtn->setEnabled(enabled);
-    ui.nativePoVFileGenPrefBtn->setEnabled(enabled);
+    if (checked)
+        ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
 }
 
 void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 {
-    bool enabled = (ui.preferredRenderer->currentText() == RENDERER_POVRAY && !checked);
-    ui.nativePoVFileGenOptBtn->setEnabled(enabled);
-    ui.nativePoVFileGenPrefBtn->setEnabled(enabled);
+    if (checked)
+        ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 }
 
-void PreferencesDialog::on_nativePoVFileGenOptBtn_clicked()
+void PreferencesDialog::on_ldvPreferencesBtn_clicked()
 {
+    ldvWidget->setIniFlag(LDViewIni);
+    ldvWidget->showLDVPreferences();
+}
+
+void PreferencesDialog::on_ldvPoVFileGenOptBtn_clicked()
+{
+     if (ui.povGenNativeRadio->isChecked())
+         ldvWidget->setIniFlag(NativePOVIni);
+     else if (ui.povGenLDViewRadio->isChecked())
+         ldvWidget->setIniFlag(LDViewPOVIni);
      ldvWidget->showLDVExportOptions();
 }
 
-void PreferencesDialog::on_nativePoVFileGenPrefBtn_clicked()
+void PreferencesDialog::on_ldvPoVFileGenPrefBtn_clicked()
 {
+     if (ui.povGenNativeRadio->isChecked())
+         ldvWidget->setIniFlag(NativePOVIni);
+     else if (ui.povGenLDViewRadio->isChecked())
+         ldvWidget->setIniFlag(LDViewPOVIni);
      ldvWidget->showLDVPreferences();
 }
 

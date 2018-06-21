@@ -43,7 +43,10 @@ public:
   ~LDVWidget(void);
 
   void setAppArgs(QStringList &argv);
-
+  void setIniFlag(IniFlag iniflag = NativePOVIni)
+  {
+      iniFlag = iniflag;
+  }
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
 
   static void setupLDVFormat(void);

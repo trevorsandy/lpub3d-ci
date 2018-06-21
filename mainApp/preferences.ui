@@ -576,9 +576,9 @@
        <widget class="QPushButton" name="browsePOVRAY">
         <property name="geometry">
          <rect>
-          <x>334</x>
-          <y>22</y>
-          <width>93</width>
+          <x>420</x>
+          <y>6</y>
+          <width>20</width>
           <height>20</height>
          </rect>
         </property>
@@ -707,7 +707,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="povNativePropertiesBox">
+       <widget class="QGroupBox" name="ldvPOVSettingsBox">
         <property name="geometry">
          <rect>
           <x>195</x>
@@ -717,9 +717,9 @@
          </rect>
         </property>
         <property name="title">
-         <string>Native POV file generation</string>
+         <string>POV file generation settings</string>
         </property>
-        <widget class="QPushButton" name="nativePoVFileGenOptBtn">
+        <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -735,7 +735,7 @@
           <string>Gen Options...</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="nativePoVFileGenPrefBtn">
+        <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
          <property name="geometry">
           <rect>
            <x>120</x>
@@ -757,9 +757,9 @@
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>164</y>
+         <y>174</y>
          <width>441</width>
-         <height>71</height>
+         <height>61</height>
         </rect>
        </property>
        <property name="title">
@@ -775,7 +775,7 @@
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>34</y>
+          <y>25</y>
           <width>412</width>
           <height>20</height>
          </rect>
@@ -784,9 +784,9 @@
        <widget class="QPushButton" name="browseLDGLite">
         <property name="geometry">
          <rect>
-          <x>334</x>
-          <y>8</y>
-          <width>93</width>
+          <x>419</x>
+          <y>6</y>
+          <width>20</width>
           <height>20</height>
          </rect>
         </property>
@@ -799,9 +799,9 @@
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>64</y>
+         <y>58</y>
          <width>441</width>
-         <height>91</height>
+         <height>110</height>
         </rect>
        </property>
        <property name="title">
@@ -817,7 +817,7 @@
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>56</y>
+          <y>73</y>
           <width>412</width>
           <height>20</height>
          </rect>
@@ -826,9 +826,9 @@
        <widget class="QPushButton" name="browseLDView">
         <property name="geometry">
          <rect>
-          <x>334</x>
-          <y>28</y>
-          <width>93</width>
+          <x>420</x>
+          <y>6</y>
+          <width>20</width>
           <height>20</height>
          </rect>
         </property>
@@ -840,9 +840,9 @@
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>30</y>
-          <width>256</width>
-          <height>20</height>
+          <y>26</y>
+          <width>211</width>
+          <height>31</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -852,8 +852,37 @@
          <string>Increase rendering speed with option to render multiple files using a single call to LDView.</string>
         </property>
         <property name="text">
-         <string>Use multiple files single call rendering</string>
+         <string>Use multiple file single call rendering</string>
         </property>
+       </widget>
+       <widget class="QGroupBox" name="ldvSettingsBox">
+        <property name="geometry">
+         <rect>
+          <x>225</x>
+          <y>14</y>
+          <width>201</width>
+          <height>50</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Renderer settings</string>
+        </property>
+        <widget class="QPushButton" name="ldvPreferencesBtn">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>18</y>
+           <width>101</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Open Native POV options dialogue</string>
+         </property>
+         <property name="text">
+          <string>Preferences...</string>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QLabel" name="RenderMessage">

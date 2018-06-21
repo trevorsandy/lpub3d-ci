@@ -132,11 +132,13 @@ class PreferencesDialog : public QDialog
     void updateChangelog (QString url);
     void checkForUpdates();
 
-    void on_nativePoVFileGenOptBtn_clicked();
-    void on_nativePoVFileGenPrefBtn_clicked();
+    void on_ldvPoVFileGenOptBtn_clicked();
+    void on_ldvPoVFileGenPrefBtn_clicked();
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);
     void on_povGenNativeRadio_clicked(bool checked);
     void on_povGenLDViewRadio_clicked(bool checked);
+
+    void on_ldvPreferencesBtn_clicked();
 
 private:
     Ui::PreferencesDialog ui;
