@@ -61,7 +61,7 @@ public:
 
 private:
   bool zMapFileIsValid(FILE* zMapFile, bool current);
-  static QRgb blendPixel(const QRgb &currPxl, const QRgb &prevPxl);
+  static QRgb blendPixel(const QRgb &_currPxl, const QRgb &_prevPxl);
   static int roundUp(int value, int nearest);
   bool isLittleEndian();
 

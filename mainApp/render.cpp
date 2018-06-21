@@ -281,10 +281,12 @@ float POVRay::cameraDistance(
     Meta &meta,
     float scale)
 {
-  if (getRenderer() == RENDERER_LDVIEW)
-    return stdCameraDistance(meta, scale)*0.455;
-  else
-    return stdCameraDistance(meta,scale)*0.775;
+  return stdCameraDistance(meta, scale)*0.455;
+// TODO - REMOVE
+//  if (getRenderer() == RENDERER_LDVIEW)
+//    return stdCameraDistance(meta, scale)*0.455;
+//  else
+//    return stdCameraDistance(meta,scale)*0.775;
 }
 
 int POVRay::renderCsi(
@@ -303,6 +305,108 @@ int POVRay::renderCsi(
 
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
+
+  int rc;
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName, QString())) < 0) {
+      return rc;
+   }
+
+  /* determine camera distance */
+  int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+
+      //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString cg = QString("-cg%1,%2,%3")
+      .arg(meta.LPub.assem.angle.value(0))
+      .arg(meta.LPub.assem.angle.value(1))
+      .arg(cd);
+
+  QString w  = QString("-SaveWidth=%1") .arg(width);
+  QString h  = QString("-SaveHeight=%1") .arg(height);
+  QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+  QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
+
+  QStringList arguments;
+  arguments << CA;
+  arguments << cg;
+  arguments << w;
+  arguments << h;
+  arguments << f;
+  arguments << l;
+  arguments << o;
+  arguments << v;
+
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
+
+  // LDView block begin
+  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
+      if (Preferences::enableFadeSteps)
+        arguments <<  QString("-SaveZMap=1");
+
+      list = meta.LPub.assem.ldviewParms.value().split(' ');
+      for (int i = 0; i < list.size(); i++) {
+          if (list[i] != "" && list[i] != " ") {
+              arguments << list[i];
+              //logInfo() << qPrintable("-PARM META: " + list[i]);
+            }
+        }
+
+      bool hasLDViewIni = Preferences::ldviewPOVIni != "";
+      if(hasLDViewIni){
+          QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
+          arguments << ini;
+        }
+      if (!Preferences::altLDConfigPath.isEmpty()) {
+          arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+          //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+        }
+
+      arguments << ldrName;
+
+      emit gui->messageSig(LOG_STATUS, "LDView POV CSI file generation...");
+
+      QProcess    ldview;
+      ldview.setEnvironment(QProcess::systemEnvironment());
+      ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
+      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
+      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
+
+      message = QString("LDView POV file generate CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message);
+#else
+      emit gui->messageSig(LOG_STATUS, message);
+#endif
+
+      ldview.start(Preferences::ldviewExe,arguments);
+      if ( ! ldview.waitForFinished(rendererTimeout())) {
+          if (ldview.exitCode() != 0 || 1) {
+              QByteArray status = ldview.readAll();
+              QString str;
+              str.append(status);
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+              return -1;
+          }
+      }
+  }
+  else
+  {
+      // Native block begin
+      if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+
+          arguments << ldrName;
+
+          emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
+
+          if (!ldvWidget->doCommand(arguments))
+              emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
+      }
+  }
 
   QStringList povArguments;
   if (Preferences::povrayDisplay){
@@ -349,164 +453,15 @@ int POVRay::renderCsi(
       if (hasSTL){
           QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
           povArguments << lgeoStl;
-        }
-    }
+      }
+  }
+
+  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
+  povArguments.insert(2,I);
 
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
 //#endif
-
-  // LDView block begin
-  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
-      int rc;
-      if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName, QString())) < 0) {
-          return rc;
-        }
-
-      /* determine camera distance */
-      int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-
-      bool hasLDViewIni = Preferences::ldviewPOVIni != "";
-
-      //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-      QString cg = QString("-cg%1,%2,%3")
-          .arg(meta.LPub.assem.angle.value(0))
-          .arg(meta.LPub.assem.angle.value(1))
-          .arg(cd);
-
-      QString w  = QString("-SaveWidth=%1") .arg(width);
-      QString h  = QString("-SaveHeight=%1") .arg(height);
-      QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-      QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
-      QString o  = QString("-HaveStdOut=1");
-      QString v  = QString("-vv");
-
-      QStringList arguments;
-      arguments << CA;
-      arguments << cg;
-      arguments << w;
-      arguments << h;
-      arguments << f;
-      arguments << l;
-      arguments << o;
-      arguments << v;
-
-      if (Preferences::enableFadeSteps)
-        arguments <<  QString("-SaveZMap=1");
-
-      list = meta.LPub.assem.ldviewParms.value().split(' ');
-      for (int i = 0; i < list.size(); i++) {
-          if (list[i] != "" && list[i] != " ") {
-              arguments << list[i];
-              //logInfo() << qPrintable("-PARM META: " + list[i]);
-            }
-        }
-      if(hasLDViewIni){
-          QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-          arguments << ini;
-        }
-      if (!Preferences::altLDConfigPath.isEmpty()) {
-          arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-          //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-        }
-
-      arguments << ldrName;
-
-      emit gui->messageSig(LOG_STATUS, "POVRay render CSI...");
-
-      QProcess    ldview;
-      ldview.setEnvironment(QProcess::systemEnvironment());
-      ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
-      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
-
-      message = QString("LDView POV file generate CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message);
-#else
-      emit gui->messageSig(LOG_STATUS, message);
-#endif
-
-      ldview.start(Preferences::ldviewExe,arguments);
-      if ( ! ldview.waitForFinished(rendererTimeout())) {
-          if (ldview.exitCode() != 0 || 1) {
-              QByteArray status = ldview.readAll();
-              QString str;
-              str.append(status);
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generate failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
-              return -1;
-            }
-        }
-    }
-  else
-  // Native block begin
-  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
-
-         /* determine camera distance */
-         int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-
-             //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-         QString cg = QString("-cg%1,%2,%3")
-             .arg(meta.LPub.assem.angle.value(0))
-             .arg(meta.LPub.assem.angle.value(1))
-             .arg(cd);
-
-         QString w  = QString("-SaveWidth=%1") .arg(width);
-         QString h  = QString("-SaveHeight=%1") .arg(height);
-         QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-         QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
-         QString o  = QString("-HaveStdOut=1");
-         QString v  = QString("-vv");
-
-         QStringList arguments;
-         arguments << CA;
-         arguments << cg;
-         arguments << w;
-         arguments << h;
-         arguments << f;
-         arguments << l;
-         arguments << o;
-         arguments << v;
-
-         if (!Preferences::altLDConfigPath.isEmpty()) {
-            arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-            //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-         }
-
-         arguments << ldrName;
-
-         emit gui->messageSig(LOG_STATUS, "POVRay render CSI...");
-
-         if (!ldvWidget->doCommand(arguments))
-           emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
-
-//       // Renderer options
-//       NativeOptions Options;
-//       QStringList CommandArgs = povArguments;
-//       CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
-//       Options.ImageType         = CSI;
-//       Options.InputFileName     = ldrName;
-//       Options.OutputFileName    = povName;
-//       Options.ImageWidth        = width;
-//       Options.ImageHeight       = height;
-//       Options.Latitude          = meta.LPub.assem.angle.value(0);
-//       Options.Longitude         = meta.LPub.assem.angle.value(1);
-//       Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-//       //Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
-//       Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-//       Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));
-
-//       // Generate pov file
-//       NativePov* nativePov = new NativePov();
-//       if (!nativePov->CreateNativePovFile(Options))
-//       {
-//         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV CSI file."));
-//         return -1;
-//       }
-    }
-
-  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
-  povArguments.insert(2,I);
 
   emit gui->messageSig(LOG_STATUS, "Executing POVRay render CSI - please wait...");
 
@@ -562,10 +517,95 @@ int POVRay::renderPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  bool hasSTL       = Preferences::lgeoStlLib;
-  bool hasLGEO      = Preferences::lgeoPath != "";
-  bool hasPOVRayIni = Preferences::povrayIniPath != "";
-  bool hasPOVRayInc = Preferences::povrayIncPath != "";
+  /* determine camera distance */
+  int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
+
+  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString cg = QString("-cg%1,%2,%3")
+      .arg(metaType.angle.value(0))
+      .arg(metaType.angle.value(1))
+      .arg(cd);
+
+  QString w  = QString("-SaveWidth=%1")  .arg(width);
+  QString h  = QString("-SaveHeight=%1") .arg(height);
+  QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+  QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
+
+  QStringList arguments;
+  arguments << CA;
+  arguments << cg;
+  arguments << w;
+  arguments << h;
+  arguments << f;
+  arguments << l;
+  arguments << o;
+  arguments << v;
+
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
+
+  // LDView block begin
+  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
+      list = meta.LPub.pli.ldviewParms.value().split(' ');
+      for (int i = 0; i < list.size(); i++) {
+          if (list[i] != "" && list[i] != " ") {
+              arguments << list[i];
+              //logInfo() << qPrintable("-PARM META: " + list[i]);
+            }
+        }
+
+      bool hasLDViewIni = Preferences::ldviewPOVIni != "";
+      if(hasLDViewIni){
+          QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
+          arguments << ini;
+        }
+
+      arguments << ldrNames.first();
+
+      emit gui->messageSig(LOG_STATUS, "LDView POV PLI file generation...");
+
+      QProcess    ldview;
+      ldview.setEnvironment(QProcess::systemEnvironment());
+      ldview.setWorkingDirectory(QDir::currentPath());
+      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
+      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
+
+      message = QString("POVRay (LDView POV file generate PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message);
+#else
+      emit gui->messageSig(LOG_STATUS, message);
+#endif
+
+      ldview.start(Preferences::ldviewExe,arguments);
+      if ( ! ldview.waitForFinished()) {
+          if (ldview.exitCode() != 0) {
+              QByteArray status = ldview.readAll();
+              QString str;
+              str.append(status);
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+              return -1;
+          }
+      }
+  }
+  else
+  {
+      // Native block begin
+      if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+
+          arguments << ldrNames.first();
+
+          emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
+
+          if (!ldvWidget->doCommand(arguments))
+              emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
+      }
+  }
 
   QStringList povArguments;
   if (Preferences::povrayDisplay){
@@ -590,6 +630,12 @@ int POVRay::renderPli(
           //logInfo() << qPrintable("-PARM META: " + list[i]);
       }
   }
+
+  bool hasSTL       = Preferences::lgeoStlLib;
+  bool hasLGEO      = Preferences::lgeoPath != "";
+  bool hasPOVRayIni = Preferences::povrayIniPath != "";
+  bool hasPOVRayInc = Preferences::povrayIncPath != "";
+
   if(hasPOVRayInc){
       QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
@@ -609,154 +655,12 @@ int POVRay::renderPli(
         }
     }
 
+  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
+  povArguments.insert(2,I);
+
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
 //#endif
-
-  // LDView block begin
-  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
-
-      /* determine camera distance */
-      int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
-
-      bool hasLDViewIni = Preferences::ldviewPOVIni != "";
-
-      //qDebug() << "LDView (Native) Camera Distance: " << cd;
-
-      QString cg = QString("-cg%1,%2,%3")
-          .arg(metaType.angle.value(0))
-          .arg(metaType.angle.value(1))
-          .arg(cd);
-
-      QString w  = QString("-SaveWidth=%1")  .arg(width);
-      QString h  = QString("-SaveHeight=%1") .arg(height);
-      QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-      QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
-      QString o  = QString("-HaveStdOut=1");
-      QString v  = QString("-vv");
-
-      QStringList arguments;
-      arguments << CA;
-      arguments << cg;
-      arguments << w;
-      arguments << h;
-      arguments << f;
-      arguments << l;
-      arguments << o;
-      arguments << v;
-
-      list = meta.LPub.pli.ldviewParms.value().split(' ');
-      for (int i = 0; i < list.size(); i++) {
-          if (list[i] != "" && list[i] != " ") {
-              arguments << list[i];
-              //logInfo() << qPrintable("-PARM META: " + list[i]);
-            }
-        }
-      if(hasLDViewIni){
-          QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-          arguments << ini;
-        }
-      if (!Preferences::altLDConfigPath.isEmpty()) {
-          arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-          //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-        }
-
-      arguments << ldrNames.first();
-
-      emit gui->messageSig(LOG_STATUS, "POVRay render PLI...");
-
-      QProcess    ldview;
-      ldview.setEnvironment(QProcess::systemEnvironment());
-      ldview.setWorkingDirectory(QDir::currentPath());
-      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
-
-      message = QString("POVRay (LDView POV file generate PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message);
-#else
-      emit gui->messageSig(LOG_STATUS, message);
-#endif
-
-      ldview.start(Preferences::ldviewExe,arguments);
-      if ( ! ldview.waitForFinished()) {
-          if (ldview.exitCode() != 0) {
-              QByteArray status = ldview.readAll();
-              QString str;
-              str.append(status);
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView POV file generate failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
-              return -1;
-            }
-        }
-    }
-  else
-  // Native block begin
-  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
-
-      /* determine camera distance */
-      int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
-
-      //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-      QString cg = QString("-cg%1,%2,%3")
-          .arg(metaType.angle.value(0))
-          .arg(metaType.angle.value(1))
-          .arg(cd);
-
-      QString w  = QString("-SaveWidth=%1")  .arg(width);
-      QString h  = QString("-SaveHeight=%1") .arg(height);
-      QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-      QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
-      QString o  = QString("-HaveStdOut=1");
-      QString v  = QString("-vv");
-
-      QStringList arguments;
-      arguments << CA;
-      arguments << cg;
-      arguments << w;
-      arguments << h;
-      arguments << f;
-      arguments << l;
-      arguments << o;
-      arguments << v;
-
-      if (!Preferences::altLDConfigPath.isEmpty()) {
-         arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-         //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
-      }
-
-      arguments << ldrNames.first();
-
-      emit gui->messageSig(LOG_STATUS, "POVRay render PLI...");
-
-      if (!ldvWidget->doCommand(arguments))
-        emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POVRay file for command: %1").arg(arguments.join(" ")));
-
-//      // Renderer options
-//      NativeOptions Options;
-//      QStringList CommandArgs = povArguments;
-//      CommandArgs.insert(2,QString("+I\"%1\"").arg(QDir::toNativeSeparators(povName)));
-//      Options.ImageType         = PLI;
-//      Options.InputFileName     = ldrNames.first();
-//      Options.OutputFileName    = povName;
-//      Options.ImageWidth        = width;
-//      Options.ImageHeight       = height;
-//      Options.Latitude          = metaType.angle.value(0);
-//      Options.Longitude         = -metaType.angle.value(1);                                   // switch from -45
-//      //Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;    // use assembly setting
-//      Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-//      Options.PovGenCommand     = QString("%1 %2").arg(Preferences::povrayExe).arg(CommandArgs.join(" "));;
-
-//      // Generate pov file
-//      NativePov* nativePov = new NativePov();
-//      if (!nativePov->CreateNativePovFile(Options))
-//      {
-//        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not export Native POV PLI file."));
-//        return -1;
-//      }
-  }
-
-  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
-  povArguments.insert(2,I);
 
   emit gui->messageSig(LOG_STATUS, "Executing POVRay render PLI - please wait...");
 
@@ -782,8 +686,8 @@ int POVRay::renderPli(
           str.append(status);
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("POVRay PLI render failed with code %1\n%2") .arg(povray.exitCode()) .arg(str));
           return -1;
-        }
-    }
+      }
+  }
 
   clipImage(pngName);
 

@@ -13,7 +13,7 @@
 
 // setCapacity NOTE:
 // We should never execute the setCapacity code. However, if things get out of
-// sync, and we DON'T execute that code, LDView will possibly crash, since it
+// sync, and we DON'T execute that code, NativePOVGen will possibly crash, since it
 // references memory that is beyond the array bounds. When I first added the
 // setCapacity calls, there was a bug that was causing the texture coords array
 // to be shorter than the others. I tracked that down and fixed it, so right now

@@ -12,7 +12,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>POV Export Options</string>
+   <string>Export Options</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../mainApp/lpub3d.qrc">

@@ -17,7 +17,6 @@
 #include "LDVWidget.h"
 
 #include <QPainter>
-#include <QPaintEvent>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QApplication>
@@ -52,6 +51,7 @@
 #include "lpub_messages.h"
 #include "lpub_preferences.h"
 #include "version.h"
+#include "paths.h"
 
 #define PNG_IMAGE_TYPE_INDEX 1
 #define BMP_IMAGE_TYPE_INDEX 2
@@ -60,34 +60,60 @@
 #define WIN_HEIGHT 480
 
 LDVWidget* ldvWidget;
+IniFlag LDVWidget::iniFlag;
 
-static QGLFormat defaultFormat;
+static QGLFormat ldvFormat;
 
-LDVWidget::LDVWidget(QWidget *parent)
-        :QGLWidget(parent),
-        lockCount(0),
-        painting(false), loading(false), saving(false),	printing(false),
+LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag)
+        :QGLWidget(QGLFormat(QGL::SampleBuffers),parent),
         modelViewer(new LDrawModelViewer(100, 100)),
-        viewMode(LDInputHandler::VMExamine),
         snapshotTaker(NULL),
         alertHandler(new AlertHandler(this)),
-        exportType(LDrawModelViewer::ETPov),
-        commandLineSnapshotSave(false)
+        exportType(LDrawModelViewer::ETPov)
 {
-  setupDefaultFormat();
 
+  setupLDVFormat();
+
+#ifdef WIN32
   runningWithConsole();
-
-  LDLModel::setFileCaseCallback(staticFileCaseCallback);
+#endif // WIN32
 
   QString appName = Preferences::lpub3dAppName;
-  QString iniFile = Preferences::nativePOVIni;
   QString extrasPath = QString("%1/extras").arg(Preferences::lpubDataPath);
 
+#ifndef _LDV_LOG
+#define _LDV_LOG
+#endif
+
+#ifdef _LDV_LOG
+  char *logFile = TCUserDefaults::pathForKey(LOGFILE_KEY);
+  if (logFile == NULL)
+  {
+         QString ldvLogFile = QDir::toNativeSeparators(QString("%1/ldv.log").arg(QDir::currentPath()));
+         TCUserDefaults::setPathForKey(ldvLogFile.toLatin1().constData(),LOGFILE_KEY);
+  }
+#endif
+
+  iniFlag = iniflag;
   if (!TCUserDefaults::isIniFileSet())
   {
-          if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
-                 fprintf(stdout, QString( QString("Could not set INI file: %1").arg(iniFile)).toLatin1().constData());
+         QString iniFile;
+         switch (iniFlag)
+         {
+              case NativePOVIni:
+                  iniFile = Preferences::nativePOVIni;
+                  break;
+              case LDViewPOVIni:
+                  iniFile = Preferences::ldviewPOVIni;
+                  break;
+              case LDViewIni:
+                  iniFile = Preferences::ldviewIni;
+                  break;
+              default:
+                  fprintf(stdout, "Ini file not specified!");
+         }
+         if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
+              fprintf(stdout, QString( QString("Could not set native POV INI file: %1").arg(iniFile)).toLatin1().constData());
   }
 
   TCUserDefaults::setAppName(appName.toLatin1().constData());
@@ -99,7 +125,7 @@ LDVWidget::LDVWidget(QWidget *parent)
   if (!file.exists())
   {
          fprintf(stdout, QString("First Messages File Check Failed: " + QDir::currentPath() + "/" + file.fileName()).toLatin1().constData());
-        QDir::setCurrent(QDir(extrasPath).absolutePath());
+         QDir::setCurrent(QDir(extrasPath).absolutePath());
   }
   if (!file.exists())
   {
@@ -142,9 +168,6 @@ LDVWidget::LDVWidget(QWidget *parent)
 
   ldvPreferences = new LDVPreferences(parent, this);
   ldvPreferences->doApply();
-//  setViewMode(LDVPreferences::getViewMode(),
-//              LDVPreferences::getLatLongMode(),
-//              LDVPreferences::getKeepRightSideUp());
 
   setFocusPolicy(Qt::StrongFocus);
 
@@ -185,12 +208,17 @@ void LDVWidget::showLDVPreferences()
   ldvPreferences->show();
 }
 
-void LDVWidget::setupDefaultFormat(void)
+void LDVWidget::setupLDVFormat(void)
 {
-    defaultFormat.setAlpha(true);
-    defaultFormat.setStencil(true);
-    defaultFormat.setSampleBuffers(false);
-    QGLFormat::setDefaultFormat(defaultFormat);
+    ldvFormat.setAlpha(true);
+    ldvFormat.setStencil(true);
+//    ldvFormat.setDepthBufferSize(24);
+//    ldvFormat.setRedBufferSize(8);
+//    ldvFormat.setGreenBufferSize(8);
+//    ldvFormat.setBlueBufferSize(8);
+//    ldvFormat.setAlphaBufferSize(8);
+//    ldvFormat.setStencilBufferSize(8);
+    QGLFormat::setDefaultFormat(ldvFormat);
 }
 
 bool LDVWidget::doCommand(QStringList &arguments)
@@ -198,8 +226,6 @@ bool LDVWidget::doCommand(QStringList &arguments)
     QString debugMessage = QString("Native command In: %1 %2")
                                    .arg(appArgs.at(0))
                                    .arg(arguments.join(" "));
-    // TEMP - REMOVE BEFORE FLIGHT
-    fprintf(stdout, debugMessage.toLatin1().constData());
 
     // Construct complete command line
     std::vector<std::string> commandLine;
@@ -227,7 +253,6 @@ bool LDVWidget::doCommand(QStringList &arguments)
 
 void LDVWidget::convertArguments(int Argc, char **Argv, char *argv[MAX_NUM_POV_GEN_ARGS]) {
     int argc = 0;
-    // Copy over the command line arguments (passed in)
     for (int i = 0; i < Argc; ++i) {
         if (Argv[i] != NULL) {
             if (argc >= MAX_NUM_POV_GEN_ARGS) {
@@ -242,269 +267,96 @@ void LDVWidget::convertArguments(int Argc, char **Argv, char *argv[MAX_NUM_POV_G
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 {
-	if (alert)
-	{
-		QMessageBox::warning(this,VER_PRODUCTNAME_STR,alert->getMessage(),
-			QMessageBox::Ok, QMessageBox::NoButton);
-	}
+    if (alert)
+    {
+        QMessageBox::warning(this,VER_PRODUCTNAME_STR,alert->getMessage(),
+            QMessageBox::Ok, QMessageBox::NoButton);
+    }
+}
+
+bool LDVWidget::getUseFBO()
+{
+    return snapshotTaker != NULL && snapshotTaker->getUseFBO();
 }
 
 void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
 {
-	if (alert->getSender() == snapshotTaker)
-	{
-		if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
-		{
-			makeCurrent();
-			//glEnable(GL_DEPTH_TEST);
-		}
-	}
-}
-
-void LDVWidget::lock(void)
-{
-    if (lockCount == 0)
+    if (strcmp(alert->getAlertClass(), "LDSnapshotTaker") == 0)
     {
-        //app->lock();
-    }
-    lockCount++;
-}
+        if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
+        {
+              makeCurrent();
+        }
 
-void LDVWidget::unlock(void)
-{
-    lockCount--;
-    if (lockCount == 0)
-    {
-        //app->unlock();
+        if (strcmp(alert->getMessage(), "PreFbo") == 0)
+        {
+            if (getUseFBO())
+            {
+                return;
+            }
+            else
+            {
+                makeCurrent();
+                TREGLExtensions::setup();
+                snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
+                if (TREGLExtensions::haveFramebufferObjectExtension())
+                {
+                    snapshotTaker->setUseFBO(true);
+                }
+                if (!snapshotTaker->getUseFBO())
+                {
+                    setupSnapshotBackBuffer(ldvPreferences->getWindowWidth(), ldvPreferences->getWindowHeight());
+                }
+            }
+        }
     }
 }
 
 void LDVWidget::initializeGL(void)
 {
-    lock();
+    makeCurrent();
     TREGLExtensions::setup();
     ldvPreferences->doCancel();
-    if (saving || printing)
-    {
-        modelViewer->setup();
-        modelViewer->openGlWillEnd();
-    }
-    unlock();
 }
 
-void LDVWidget::resizeGL(int width, int height)       // simulate mainWindow Size
+void LDVWidget::resizeGL(int width, int height)
 {
-    lock();
-    if (!loading && !saving && !printing)
-    {
-        width = ldvPreferences->getWindowWidth();
-        height = ldvPreferences->getWindowHeight();
-        resize(width, height);
+    width =  TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false) ?
+             TCUserDefaults::longForKey(WINDOW_WIDTH_KEY, WIN_WIDTH, false) :
+             TCUserDefaults::longForKey(SAVE_WIDTH_KEY, 1024, false);
+    height = TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false) ?
+             TCUserDefaults::longForKey(WINDOW_HEIGHT_KEY, WIN_HEIGHT, false) :
+             TCUserDefaults::longForKey(SAVE_HEIGHT_KEY, 768, false);
 
-        QSize surfaceWindowSize = size();
+    resize(width, height);
 
-        modelViewer->setWidth(mwidth=width);
-        modelViewer->setHeight(mheight=height);
-        glViewport(0, 0, width, height);
-        ldvPreferences->setWindowSize(surfaceWindowSize.width(),
-                                      surfaceWindowSize.height());
-    }
-    unlock();
-}
+    modelViewer->setWidth(width);
+    modelViewer->setHeight(height);
 
-void LDVWidget::swap_Buffers(void)
-{
-    glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_FASTEST);
-    glDisable(GL_MULTISAMPLE_ARB);
-    glDrawBuffer(GL_FRONT);
-    glDrawBuffer(GL_BACK);
-    glFlush();
-    glEnable(GL_MULTISAMPLE_ARB);
-    glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+    glViewport(0, 0, width, height);
+
+    QSize surfaceWindowSize = size();
+    ldvPreferences->setWindowSize(surfaceWindowSize.width(),
+                                  surfaceWindowSize.height());
 }
 
 void LDVWidget::paintGL(void)
 {
-    lock();
-    if (!painting && (saving || printing || !loading))
+    glEnable(GL_DEPTH_TEST);
+    makeCurrent();
+    if (!TREGLExtensions::haveFramebufferObjectExtension())
     {
-        painting = true;
-        glEnable(GL_DEPTH_TEST);
-        if (saving || printing)
-        {
-            if (!TREGLExtensions::haveFramebufferObjectExtension())
-            {
-                glDrawBuffer(GL_BACK);
-                glReadBuffer(GL_BACK);
-            }
-            if (saving) {
-                saveImageResult = snapshotTaker->saveImage(saveImageFilename,
-                    saveImageWidth, saveImageHeight, saveImageZoomToFit);
-            }
-            if (printing) {
-            }
-        }
-        else
-        {
-            makeCurrent();
-            redrawRequested = false;   // May not need - not used
-            modelViewer->update();
-// Not needed
-            if (!redrawRequested)
-            {
-//                killPaintTimer();
-//                fps = -1.0f;
-            }
-            else
-            {
-//                startPaintTimer();
-            }
-//            updateFPS();
-//            updateLatlong();
-              //swap_Buffers();
-
-        }
-        painting = false;
+         glDrawBuffer(GL_BACK);
+         glReadBuffer(GL_BACK);
     }
-    unlock();
+    modelViewer->update();
 }
 
-void LDVWidget::paintEvent(QPaintEvent *event)
+void LDVWidget::setupSnapshotBackBuffer(int width, int height)
 {
-    lock();
-    if (loading && !saving && !printing)
-    {
-        int r, g, b;
-
-        ldvPreferences->getBackgroundColor(r, g, b);
-
-        // former Qt bug 79310 caused problem with the next 2 lines
-        QPainter painter(this);
-        painter.fillRect(event->rect(), QColor(r, g, b));
-    }
-    else if (!saving && !printing)
-    {
-        QGLWidget::paintEvent(event);
-    }
-    unlock();
-}
-
-bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
-{
-	int i;
-	int len = strlen(filename);
-	QString wildcard;
-	QStringList files;
-
-	if (!dir.isReadable())
-	{
-		return false;
-	}
-	for (i = 0; i < len; i++)
-	{
-		QChar letter = filename[i];
-
-		if (letter.isLetter())
-		{
-			wildcard.append('[');
-			wildcard.append(letter.toLower());
-			wildcard.append(letter.toUpper());
-			wildcard.append(']');
-		}
-		else
-		{
-			wildcard.append(letter);
-		}
-	}
-	dir.setNameFilters(QStringList(wildcard));
-	files = dir.entryList();
-	if (files.count())
-	{
-		QString file = files[0];
-
-		if (file.length() == (int)strlen(filename))
-		{
-			// This should never be false, but just want to be sure.
-			strcpy(filename, file.toLatin1().constData());
-			return true;
-		}
-	}
-	return false;
-}
-
-bool LDVWidget::staticFileCaseCallback(char *filename)
-{
-	char *shortName;
-	QDir dir;
-	char *firstSlashSpot;
-
-	dir.setFilter(QDir::AllEntries | QDir::Readable | QDir::Hidden | QDir::System);
-	replaceStringCharacter(filename, '\\', '/');
-	firstSlashSpot = strchr(filename, '/');
-	if (firstSlashSpot)
-	{
-		char *lastSlashSpot = strrchr(filename, '/');
-		int dirLen;
-		char *dirName;
-
-		while (firstSlashSpot != lastSlashSpot)
-		{
-			char *nextSlashSpot = strchr(firstSlashSpot + 1, '/');
-
-			dirLen = firstSlashSpot - filename + 1;
-			dirName = new char[dirLen + 1];
-			*nextSlashSpot = 0;
-			strncpy(dirName, filename, dirLen);
-			dirName[dirLen] = 0;
-			if (dirLen)
-			{
-				dir.setPath(dirName);
-				delete dirName;
-				if (!staticFileCaseLevel(dir, firstSlashSpot + 1))
-				{
-					return false;
-				}
-			}
-			firstSlashSpot = nextSlashSpot;
-			*firstSlashSpot = '/';
-		}
-		dirLen = lastSlashSpot - filename;
-		dirName = new char[dirLen + 1];
-		strncpy(dirName, filename, dirLen);
-		dirName[dirLen] = 0;
-		dir.setPath(dirName);
-		shortName = lastSlashSpot + 1;
-		delete dirName;
-	}
-	else
-	{
-		shortName = filename;
-	}
-	return staticFileCaseLevel(dir, shortName);
-}
-
-void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
-bool examine, bool keep, bool /*saveSettings*/)
-{
-        viewMode = value;
-        if (viewMode == LDInputHandler::VMExamine)
-        {
-                LDrawModelViewer::ExamineMode examineMode = ( examine ?
-                                LDrawModelViewer::EMLatLong : LDrawModelViewer::EMFree );
-                inputHandler->setViewMode(LDInputHandler::VMExamine);
-                modelViewer->setConstrainZoom(true);
-                modelViewer->setExamineMode(examineMode);
-        }
-        else if (viewMode == LDInputHandler::VMFlyThrough)
-        {
-                inputHandler->setViewMode(LDInputHandler::VMFlyThrough);
-                modelViewer->setConstrainZoom(false);
-                modelViewer->setKeepRightSideUp(keep);
-        }
-        else if (viewMode == LDInputHandler::VMWalk)
-        {
-                inputHandler->setViewMode(LDInputHandler::VMWalk);
-                modelViewer->setKeepRightSideUp(true);
-        }
-        LDVPreferences::setViewMode(viewMode);
+    modelViewer->setSlowClear(true);
+    modelViewer->setWidth(width);
+    modelViewer->setHeight(height);
+    modelViewer->setup();
+    glReadBuffer(GL_BACK);
 }

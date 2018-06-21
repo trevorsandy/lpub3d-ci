@@ -18,6 +18,8 @@
 #include <assert.h>
 #include <stdarg.h>
 
+#include <QDebug>
+
 #define SMOOTH_THRESHOLD 0.906307787f
 #define SMOOTH_EPSILON 0.001f
 
@@ -133,8 +135,10 @@ LDPovExporter::LineKey::LineKey(const TCVector &point1, const TCVector &point2)
 	}
 	else
 	{
-		debugPrintf("point1: %s\npoint2: %s\n", point1.string(12).c_str(),
-			point2.string(12).c_str());
+		debugPrintf("point1: %s\npoint2: %s\n",
+			     point1.string(12).c_str(),
+			     point2.string(12).c_str());
+
 		throw "Line points cannot be equal.";
 	}
 }
@@ -194,10 +198,14 @@ void LDPovExporter::SmoothTriangle::setNormal(
 bool LDPovExporter::SmoothTriangle::initLineKeys(
 	const SizeTVectorMap &indexToVert)
 {
+
 	for (size_t i = 0; i < 3; i++)
 	{
+
 		size_t next = (i + 1) % 3;
 
+		lineKeys[i] = LineKey(indexToVert.find(vertexIndices[i])->second,
+			indexToVert.find(vertexIndices[next])->second);
 		try
 		{
 			lineKeys[i] = LineKey(indexToVert.find(vertexIndices[i])->second,
@@ -2321,8 +2329,7 @@ void LDPovExporter::writeMesh2(int colorNumber, const ShapeList &list)
 	endMesh();
 }
 
-//The parametric equations for a line passing through (x1 y1 z1), (x2 y2
-//z2) are
+//The parametric equations for a line passing through (x1 y1 z1), (x2 y2 z2) are
 //        x = x1 + (x2 - x1)*t
 //        y = y1 + (y2 - y1)*t
 //        z = z1 + (z2 - z1)*t
@@ -2361,18 +2368,19 @@ void LDPovExporter::smoothGeometry(
 
 		if (points.size() == 2)
 		{
-			if (points[0] < points[1])
-			{
-				edgesMap[LineKey(points[0], points[1])].
-					push_back(LinePair(points[0], points[1]));
-			}
-			else if (points[0] > points[1])
-			{
-				edgesMap[LineKey(points[0], points[1])].
-					push_back(LinePair(points[1], points[0]));
-			}
+		      if (points[0] < points[1])
+		      {
+			edgesMap[LineKey(points[0], points[1])].
+				push_back(LinePair(points[0], points[1]));
+		      }
+		      else if (points[0] > points[1])
+		      {
+			edgesMap[LineKey(points[0], points[1])].
+				push_back(LinePair(points[1], points[0]));
+		      }
 		}
 	}
+
 	for (it = list.begin(); it != list.end(); ++it)
 	{
 		const TCVectorVector &points = it->points;

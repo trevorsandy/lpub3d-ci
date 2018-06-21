@@ -1,6 +1,6 @@
 QT      -= gui
 CONFIG  += warn_on
-macx:  CONFIG   -= app_bundle
+macx: CONFIG -= app_bundle
 
 DEPENDPATH += .
 INCLUDEPATH += .
@@ -8,7 +8,7 @@ INCLUDEPATH += $$PWD/../mainApp
 
 DEFINES += _QT
 DEFINES += _NO_BOOST
-DEFINES += _TC_STATIC
+DEFINES += _TC_STATIC _LDV_LOG
 
 CONFIG += skip_target_version_ext
 

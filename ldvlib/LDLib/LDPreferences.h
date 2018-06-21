@@ -32,7 +32,7 @@ public:
 		DDMUnknown		= -1,
 		DDMModelDir		= 0,
 		DDMLastDir		= 1,
-		DDMSpecificDir	= 2,
+		DDMSpecificDir	        = 2,
 	};
 
 	enum SaveOp
@@ -65,7 +65,7 @@ public:
 	void applyGeometrySettings(void);
 	void applyEffectsSettings(void);
 	void applyPrimitivesSettings(void);
-//	void applyUpdatesSettings();
+	void applyUpdatesSettings();
 	void loadSettings(void);
 	void loadDefaultGeneralSettings(bool initializing = true);
 	void loadDefaultLDrawSettings(bool initializing = true);

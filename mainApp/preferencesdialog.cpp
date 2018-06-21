@@ -173,7 +173,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
       ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
   } else {
-      ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths");
+      ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths. Use a new line for each entry.");
       ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
       ui.lineEditIniFile->setText(tr("%1")
                                   .arg(Preferences::ldSearchDirs.size() == 0 ?

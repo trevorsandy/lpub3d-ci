@@ -56,7 +56,6 @@
 #endif // _DEBUG
 
 #include <winsock2.h>
-#include <windows.h>
 #include <crtdbg.h>
 
 #undef min

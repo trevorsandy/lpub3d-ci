@@ -1784,7 +1784,7 @@ void Gui::preferences()
                 rendererChanged               ||
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
-                povFileGeneratorChanged         ||
+                povFileGeneratorChanged       ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -1991,18 +1991,18 @@ void Gui::preferences()
 
         if (xmlMapPathChanged && nativePovRendererConfig)
                 logInfo() << QString("XmlMapPath changed from %1 to %2.")
-                                     .arg(xmlMapPathCompare)
-                                     .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
+                                 .arg(xmlMapPathCompare)
+                                 .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
 
-	    if (topIncludeChanged && nativePovRendererConfig)
-		    logInfo() << QString("Top Include changed from %1 to %2.")
-					 .arg(topIncludeCompare)
-					 .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
+	if (topIncludeChanged && nativePovRendererConfig)
+		logInfo() << QString("Top Include changed from %1 to %2.")
+				 .arg(topIncludeCompare)
+				 .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
 
-	    if (bottomIncludeChanged && nativePovRendererConfig)
-		    logInfo() << QString("Bottom Include changed from %1 to %2.")
-					 .arg(bottomIncludeCompare)
-					 .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
+	if (bottomIncludeChanged && nativePovRendererConfig)
+		logInfo() << QString("Bottom Include changed from %1 to %2.")
+				 .arg(bottomIncludeCompare)
+				 .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
 
 	if (lightsChanged && nativePovRendererConfig)
 		logInfo() << QString("Lights changed from %1 to %2.")

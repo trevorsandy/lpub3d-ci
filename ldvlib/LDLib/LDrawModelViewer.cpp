@@ -4998,8 +4998,8 @@ int LDrawModelViewer::exportCurModel(
 				exporter->setFov(fov);
 				exporter->setXPan(xPan);
 				exporter->setYPan(yPan);
-				exporter->setAppUrl("https://tcobbs.github.io/ldview/");
-				exporter->setAppName("LDView");
+				exporter->setAppUrl("https://trevorsandy.github.io/lpub3d/");
+				exporter->setAppName("LPub3D Native POV Generator by LDView");
 				if (version != NULL)
 				{
 					exporter->setAppVersion(version);

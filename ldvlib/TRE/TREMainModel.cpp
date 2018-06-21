@@ -593,7 +593,7 @@ void checkNormals(TREVertexStore *vertexStore)
 
 				if (!fEq(normal.lengthSquared(), 1.0))
 				{
-					MessageBox(NULL, "Bad Normal", "LDView", MB_OK);
+					MessageBox(NULL, "Bad Normal", "NativePOVGen", MB_OK);
 				}
 			}
 		}

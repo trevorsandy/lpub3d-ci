@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>733</height>
+    <width>481</width>
+    <height>641</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,7 +18,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Native POV Preferences</string>
+   <string>Preferences</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../mainApp/lpub3d.qrc">
@@ -1672,7 +1672,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleULOff.png</normaloff>:/resources/LightAngleULOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1689,7 +1689,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleUMOff.png</normaloff>:/resources/LightAngleUMOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1706,7 +1706,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleUROff.png</normaloff>:/resources/LightAngleUROff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1723,7 +1723,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleMLOff.png</normaloff>:/resources/LightAngleMLOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1740,7 +1740,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleMMOff.png</normaloff>:/resources/LightAngleMMOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1757,7 +1757,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleMROff.png</normaloff>:/resources/LightAngleMROff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1774,7 +1774,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleLLOff.png</normaloff>:/resources/LightAngleLLOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1791,7 +1791,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleLMOff.png</normaloff>:/resources/LightAngleLMOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1808,7 +1808,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/resources/LightAngleLROff.png</normaloff>:/resources/LightAngleLROff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -3927,7 +3927,9 @@ into effect until the next time a model is loaded.</string>
  </tabstops>
  <resources>
   <include location="../../mainApp/lpub3d.qrc"/>
+  <include location="resources.qrc"/>
   <include location="../../mainApp/lpub3d.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

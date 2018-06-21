@@ -41,9 +41,9 @@ ConsoleBuffer::~ConsoleBuffer()
 	if (m_buffer.size() > 0)
 	{
 #ifdef TC_NO_UNICODE
-		MessageBoxA(NULL, m_buffer.c_str(), "LDView console output", MB_OK);
+		MessageBoxA(NULL, m_buffer.c_str(), "NativePOVGen console output", MB_OK);
 #else // TC_NO_UNICODE
-		MessageBoxW(NULL, m_buffer.c_str(), L"LDView console output", MB_OK);
+		MessageBoxW(NULL, m_buffer.c_str(), L"NativePOVGen console output", MB_OK);
 #endif // TC_NO_UNICODE
 	}
 }

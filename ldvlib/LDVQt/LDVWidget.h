@@ -17,8 +17,7 @@
 #ifndef LDVWIDGET_H
 #define LDVWIDGET_H
 
-#include <QGL>
-#include <QGLWidget>
+#include <QtOpenGL>
 #include <QDateTime>
 #include <QFileDialog>
 
@@ -29,13 +28,10 @@
 #include <LDLib/LDSnapshotTaker.h>
 #include <LDVQt/LDVPreferences.h>
 
-#include <LDLib/LDInputHandler.h>   // May not need - linked to setViewMode
-
 #include "name.h"
 
 class LDrawModelViewer;
 class AlertHandler;
-class TCStringArray;               // May not need this
 
 class LDVWidget : public QGLWidget
 {
@@ -43,73 +39,42 @@ class LDVWidget : public QGLWidget
   Q_OBJECT
 
 public:
-  LDVWidget(QWidget *parent=NULL);
+  LDVWidget(QWidget *parent=NULL, IniFlag iniflag=NativePOVIni);
   ~LDVWidget(void);
 
   void setAppArgs(QStringList &argv);
-  // May not need this...
-  void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
-               bool keepRightSideUp, bool saveSettings=true);
-  // End may not need this...
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
 
-  static void setupDefaultFormat(void);
+  static void setupLDVFormat(void);
   static void convertArguments(int Argc, char **Argv, char *argv[MAX_NUM_POV_GEN_ARGS]);
 
   void modelViewerAlertCallback(TCAlert *alert);
   void snapshotTakerAlertCallback(TCAlert *alert);
-
-  // May not need these...
-  static bool staticFileCaseCallback(char *filename);
-  static bool staticFileCaseLevel(QDir &dir, char *filename);
-  // End may not need these...
 
   void showLDVExportOptions(void);
   void showLDVPreferences(void);
 
   bool doCommand(QStringList &arguments);
 
+  static IniFlag iniFlag;
+
 protected:
   // GL Widget overrides
   void initializeGL(void);
   void resizeGL(int width, int height);
-  void swap_Buffers(void);
   void paintGL(void);
 
-  // Events
-  void paintEvent(QPaintEvent *event);
+  bool getUseFBO();
+  void setupSnapshotBackBuffer(int width, int height);
 
-  void lock(void);
-  void unlock(void);
-
-  int lockCount;
-  bool painting, loading, saving, printing;
   LDrawModelViewer *modelViewer;
-  LDInputHandler::ViewMode viewMode;    // may not need this
   LDSnapshotTaker *snapshotTaker;
   AlertHandler *alertHandler;
-
   int exportType;
-  int mwidth, mheight;
-  bool redrawRequested;                  // don't need this
-  int saveImageWidth;
-  int saveImageHeight;
-  const char *saveImageFilename;
-  bool saveImageZoomToFit;
-  bool saveImageResult;
-  bool commandLineSnapshotSave;          // do not need this
-
 
   LDVPreferences *ldvPreferences;
   QStringList appArgs;
-
-  LDPreferences::SaveOp curSaveOp;       // do not need this
-  LDInputHandler *inputHandler;          // do not need this
-  int saveDigits;                        // do not need this
-  int saveImageType;                     // do not need this
-
-
 };
 
 extern LDVWidget* ldvWidget;

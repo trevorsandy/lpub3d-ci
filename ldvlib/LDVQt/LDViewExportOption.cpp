@@ -8,8 +8,8 @@
 #include "misc.h"
 #include "LDVPreferences.h"
 
-#include "LDVWidget.h"
 #include "LDViewExportOption.h"
+#include "LDVWidget.h"
 #include "ui_LDVExportOptionPanel.h"
 
 #include "lpub_preferences.h"
@@ -50,6 +50,23 @@ LDViewExportOption::LDViewExportOption(QWidget *parent,LDrawModelViewer *modelVi
     palette.setColor(QPalette::Base,Qt::lightGray);
     ui.povLightNumLnEdit->setPalette(palette);
     ui.povLightNumLnEdit->setReadOnly(true);
+
+    QString title;
+    switch (LDVWidget::iniFlag)
+    {
+        case NativePOVIni:
+            title = "Native POV";
+            break;
+        case LDViewPOVIni:
+            title = "LDView POV";
+            break;
+        case LDViewIni:
+            title = "LDView";
+            break;
+        default:
+            title = "Native POV";
+    }
+    this->setWindowTitle(title.append("Export Options"));
 }
 
 void LDViewExportOption::populate(void)

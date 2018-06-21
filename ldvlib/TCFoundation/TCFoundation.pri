@@ -34,11 +34,11 @@ HEADERS += \
 	$$PWD/TCTypedPointerArray.h \
 	$$PWD/TCTypedValueArray.h \
 	$$PWD/TCUserDefaults.h \
-        $$PWD/TCVector.h
+    $$PWD/TCVector.h
 
 SOURCES += \
 	$$PWD/ConvertUTF.c \
-        $$PWD/mystring.cpp \
+    $$PWD/mystring.cpp \
 	$$PWD/TCAlert.cpp \
 	$$PWD/TCAlertManager.cpp \
 	$$PWD/TCArray.cpp \
@@ -58,5 +58,5 @@ SOURCES += \
 	$$PWD/TCSortedStringArray.cpp \
 	$$PWD/TCStringArray.cpp \
 	$$PWD/TCUserDefaults.cpp \
-        $$PWD/TCVector.cpp
+    $$PWD/TCVector.cpp
 

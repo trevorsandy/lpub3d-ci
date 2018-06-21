@@ -258,7 +258,7 @@ bool ImageMatt::processZMap(QString &prevImagePath, QString &currImagePath)
 
         NewImage.Image = TempImage;
 
-        //CalculateImageBounds(NewImage);
+        CalculateImageBounds(NewImage);
 
         QImageWriter Writer(currImagePath);
 
@@ -324,15 +324,15 @@ int ImageMatt::roundUp(int value, int nearest)
 	return (value + nearest - 1) / nearest * nearest;
 }
 
-QRgb ImageMatt::blendPixel(const QRgb &currPxl, const QRgb &prevPxl)
+QRgb ImageMatt::blendPixel(const QRgb &_currPxl, const QRgb &_prevPxl)
 {
-	QColor pxlFg(currPxl);
-	QColor pxlBg(prevPxl);
+	QColor currPxl(_currPxl);
+	QColor prevPxl(_prevPxl);
 
-	int rOut = (pxlFg.red() * pxlFg.alpha() / 255) + (pxlBg.red() * pxlBg.alpha() * (255 - pxlFg.alpha()) / (255*255));
-	int gOut = (pxlBg.green() * pxlFg.alpha() / 255) + (pxlBg.green() * pxlBg.alpha() * (255 - pxlFg.alpha()) / (255*255));
-	int bOut = (pxlBg.blue() * pxlFg.alpha() / 255) + (pxlBg.blue() * pxlBg.alpha() * (255 - pxlFg.alpha()) / (255*255));
-	int aOut =  pxlFg.alpha() + (pxlBg.alpha() * (255 - pxlFg.alpha()) / 255);
+	int rOut = (currPxl.red() * currPxl.alpha() / 255) + (prevPxl.red() * prevPxl.alpha() * (255 - currPxl.alpha()) / (255*255));
+	int gOut = (prevPxl.green() * currPxl.alpha() / 255) + (prevPxl.green() * prevPxl.alpha() * (255 - currPxl.alpha()) / (255*255));
+	int bOut = (prevPxl.blue() * currPxl.alpha() / 255) + (prevPxl.blue() * prevPxl.alpha() * (255 - currPxl.alpha()) / (255*255));
+	int aOut =  currPxl.alpha() + (prevPxl.alpha() * (255 - currPxl.alpha()) / 255);
 
 	return qRgba(rOut,gOut,bOut,aOut);
 }

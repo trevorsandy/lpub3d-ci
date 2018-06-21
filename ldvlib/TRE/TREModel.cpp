@@ -3742,7 +3742,7 @@ void TREModel::printStlTriangle(
 
 void TREModel::saveSTL(FILE *file, float scale)
 {
-	fprintf(file, "solid MYSOLID created by LDView, original data in %s\n",
+	fprintf(file, "solid MYSOLID created by NativeSTLGen, original data in %s\n",
 		m_name);
 	saveSTL(file, TCVector::getIdentityMatrix(), scale);
 	fprintf(file, "endsolid MYSOLID\n");

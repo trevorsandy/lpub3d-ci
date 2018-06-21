@@ -10,6 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += concurrent
 }
 
+CONFIG += exceptions
+
 include(../gitversion.pri)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

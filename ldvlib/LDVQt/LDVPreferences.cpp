@@ -17,16 +17,16 @@
 #include <TCFoundation/TCLocalStrings.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDrawModelViewer.h>
+
 #include "LDVPreferences.h"
 #include "LDVWidget.h"
 
 #define DEFAULT_PREF_SET TCLocalStrings::get("DefaultPrefSet")
 
-LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget /* LDViewModelViewer *_modelViewer // old */)
+LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 	:QDialog(parent),LDVPreferencesPanel(),
 	modelWidget(modelWidget),
 	modelViewer(modelWidget->getModelViewer()),
-//	modelViewer(modelWidget),                             // old
 
 	ldPrefs(new LDPreferences(modelViewer)),
 	checkAbandon(true),
@@ -146,7 +146,7 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget /* LDView
 
 	portEdit->setValidator(proxyPortValidator);
 	modelViewer = modelWidget->getModelViewer();
-	resize(10, 10);
+	//resize(10, 10);
 	loadSettings();
 	ldPrefs->applySettings();
 	reflectSettings();
@@ -175,6 +175,41 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget /* LDView
 #endif
 		}
 	}
+	QString title;
+	switch (LDVWidget::iniFlag)
+	{
+	    case NativePOVIni:
+		title = "Native POV";
+		break;
+	    case LDViewPOVIni:
+		title = "LDView POV";
+		break;
+	    case LDViewIni:
+		title = "LDView";
+		break;
+	    default:
+		title = "Native POV";
+	}
+	this->setWindowTitle(title.append("Preferences"));
+
+	// Hide these
+	frameRateButton->hide();
+	showAxesButton->hide();
+	showErrorsButton->hide();
+
+	// Default Save Directories
+	defaultSnapshotDirLabel->hide();
+	snapshotSaveDirBox->hide();
+	snapshotSaveDirEdit->hide();
+	snapshotSaveDirButton->hide();
+
+	defaultPartlistDirLabel->hide();
+	partsListsSaveDirBox->hide();
+	partsListsSaveDirEdit->hide();
+	partsListsSaveDirButton->hide();
+
+	// Remove Updates Tab
+	tabs->removeTab(tabs->indexOf(updateTab));
 }
 
 LDVPreferences::~LDVPreferences(void)
@@ -184,9 +219,10 @@ LDVPreferences::~LDVPreferences(void)
 void LDVPreferences::show(void)
 {
 	applyButton->setEnabled(false);
-	QDialog::show();
-	raise();
-//	setActiveWindow();
+	exec();
+	//QDialog::show();
+	//raise();
+	//setActiveWindow();
 }
 
 void LDVPreferences::doPrefSetsApply(void)
@@ -726,10 +762,8 @@ void LDVPreferences::loadSettings(void)
 void LDVPreferences::loadOtherSettings(void)
 {
 	loadDefaultOtherSettings();
-	statusBar = TCUserDefaults::longForKey(STATUS_BAR_KEY, (long)statusBar,
-		false) != 0;
-	toolBar  = TCUserDefaults::longForKey(TOOLBAR_KEY, (long)toolBar,
-        false) != 0;
+	statusBar = TCUserDefaults::longForKey(STATUS_BAR_KEY, (long)statusBar,	false) != 0;
+	toolBar  = TCUserDefaults::longForKey(TOOLBAR_KEY, (long)toolBar, false) != 0;
 	windowWidth = TCUserDefaults::longForKey(WINDOW_WIDTH_KEY, 640, false);
 	windowHeight = TCUserDefaults::longForKey(WINDOW_HEIGHT_KEY, 480, false);
 }
@@ -1430,7 +1464,7 @@ void LDVPreferences::doTextureStuds(bool value)
 void LDVPreferences::doNewPreferenceSet()
 {
     bool ok;
-    QString name = QInputDialog::getText(this,QString("LDView New Preference Set"),
+    QString name = QInputDialog::getText(this,QString("Native POV New Preference Set"),
                    QString("Enter name of the new PreferenceSet"), QLineEdit::Normal,QString(),
                     &ok);
     if (ok && !name.isEmpty())

@@ -158,6 +158,8 @@ void lcApplication::ExportClipboard(const QByteArray& Clipboard)
 
 bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress)
 {
+    Q_UNUSED(LibraryPaths);
+
 /*** LPub3D Mod - run search directories ***/
     // load search directories
     PartWorker partWorkerLDSearchDirs;
