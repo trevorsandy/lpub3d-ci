@@ -108,7 +108,7 @@ void PartWorker::ldsearchDirPreferences(){
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
-      logStatus() << QString("ldraw.ini not found, load ldSearch directories from registry key");
+      logStatus() << QString("ldraw.ini not found, loading ldSearch directories from registry key...");
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
       foreach (QString searchDir, searchDirs){
@@ -160,9 +160,9 @@ void PartWorker::ldsearchDirPreferences(){
               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
           }
        }
-    } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load from disc file
+    } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load local paths
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-      logStatus() << QString("Ldraw.ini found or search directory reset selected, load ldSearch directories from ldrawini defined or default entries");
+      logStatus() << QString("Ldraw.ini found or search directory reset selected, loading ldSearch directories...");
     } else {
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
       logError() << QString("Unable to load search directories.");

@@ -81,14 +81,13 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/freeformAnnotations.lst \
         $$LPUB3D_STG_EXTRAS/LDConfig.ldr \
         $$LPUB3D_STG_EXTRAS/ldglite.ini \
-        $$LPUB3D_STG_EXTRAS/ldviewPOV.ini \
-        $$LPUB3D_STG_EXTRAS/ldview.ini \
-        $$LPUB3D_STG_EXTRAS/ldviewPOV.ini \
+        $$LPUB3D_STG_EXTRAS/nativePOV.ini \
         $$LPUB3D_STG_EXTRAS/PDFPrint.jpg \
         $$LPUB3D_STG_EXTRAS/pli.mpd \
         $$LPUB3D_STG_EXTRAS/pliSubstituteParts.lst \
         $$LPUB3D_STG_EXTRAS/povray.ini \
-        $$LPUB3D_STG_EXTRAS/titleAnnotations.lst
+        $$LPUB3D_STG_EXTRAS/titleAnnotations.lst \
+        $$LPUB3D_STG_EXTRAS/$$LDV_MESSAGES_INI
     lpub3d_extras.path = $$LPUB3D_STG_PATH/extras
 
     lpub3d_docs.files += \

@@ -474,19 +474,18 @@ int Pli::createPartImage(
         }
 
       QTextStream out(&part);
-      if ((Preferences::preferredRenderer == RENDERER_POVRAY &&
-          Preferences::povFileGenerator == RENDERER_NATIVE) ||
-          Preferences::preferredRenderer == RENDERER_NATIVE) {
-          QString partLine;
-          if (Preferences::preferredRenderer == RENDERER_POVRAY)
-            partLine = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type); // For Native POV generation, we do not use pli.mpd orientation
-          else
-            partLine = orient(color, type);
+      if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           out << renderer->getRotstepMeta(meta->rotStep) << endl;
           out << QString("0 FILE %1.ldr").arg(partialKey) << endl;
           out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(partialKey) << endl;
-          out << partLine << endl;
+          out << orient(color, type) << endl;
           out << QString("0 NOFILE") << endl;
+      }
+      else
+      // For POV generation, we do not use pli.mpd orientation
+      if (Preferences::preferredRenderer == RENDERER_POVRAY)
+      {
+          out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type) << endl;
       }
       else
       {

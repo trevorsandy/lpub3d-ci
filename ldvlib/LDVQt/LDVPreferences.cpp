@@ -27,7 +27,6 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 	:QDialog(parent),LDVPreferencesPanel(),
 	modelWidget(modelWidget),
 	modelViewer(modelWidget->getModelViewer()),
-
 	ldPrefs(new LDPreferences(modelViewer)),
 	checkAbandon(true),
 	proxyPortValidator(new QIntValidator(1,65535,this))
@@ -146,49 +145,41 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 
 	portEdit->setValidator(proxyPortValidator);
 	modelViewer = modelWidget->getModelViewer();
-	//resize(10, 10);
+
 	loadSettings();
 	ldPrefs->applySettings();
 	reflectSettings();
-#ifdef DEBUG
-	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 1, false));
-#else // DEBUG
-	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
-#endif // DEBUG
+
 	QStyle *style = defaultColorButton->style();
 	if (style != NULL)
 	{
-		QString styleName = style->metaObject()->className();
-		if (styleName == "QGtkStyle")
-		{
-			// QGtkStyle uses an image for the background, and doesn't show
-			// the background color at all, so update the color buttons to use
-			// the QWindowsStyle instead.
-			// In Qt5 no need for changing the style, background color can be
-			// set
-#if QT_VERSION < 0x50000
-			defaultColorButton->setStyle(&qlStyle);
-			backgroundColorButton->setStyle(&qlStyle);
-#else
-			defaultColorButton->setStyle(QStyleFactory::create("Windows"));
-			backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
-#endif
-		}
+	     QString styleName = style->metaObject()->className();
+	     if (styleName == "QGtkStyle")
+	     {
+		  // QGtkStyle uses an image for the background, and doesn't show
+		  // the background color at all, so update the color buttons to use
+		  // the QWindowsStyle instead.
+		  // In Qt5 no need for changing the style, background color can be
+		  // set
+		  defaultColorButton->setStyle(QStyleFactory::create("Windows"));
+		  backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
+	     }
 	}
+
 	QString title;
+	bool enableNativeSettings = false;
 	switch (LDVWidget::iniFlag)
 	{
+	    case LDViewIni:
+		title = "LDView ";
+		break;
 	    case NativePOVIni:
-		title = "Native POV";
+		title = "Native POV ";
+		enableNativeSettings = true;
 		break;
 	    case LDViewPOVIni:
-		title = "LDView POV";
+		title = "LDView POV ";
 		break;
-	    case LDViewIni:
-		title = "LDView";
-		break;
-	    default:
-		title = "Native POV";
 	}
 	this->setWindowTitle(title.append("Preferences"));
 
@@ -197,19 +188,30 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 	showAxesButton->hide();
 	showErrorsButton->hide();
 
-	// Default Save Directories
-	defaultSnapshotDirLabel->hide();
-	snapshotSaveDirBox->hide();
-	snapshotSaveDirEdit->hide();
-	snapshotSaveDirButton->hide();
+	if (enableNativeSettings)
+	{
+	      // Default Save Directories
+	      defaultSnapshotDirLabel->hide();
+	      snapshotSaveDirBox->hide();
+	      snapshotSaveDirEdit->hide();
+	      snapshotSaveDirButton->hide();
 
-	defaultPartlistDirLabel->hide();
-	partsListsSaveDirBox->hide();
-	partsListsSaveDirEdit->hide();
-	partsListsSaveDirButton->hide();
+	      defaultPartlistDirLabel->hide();
+	      partsListsSaveDirBox->hide();
+	      partsListsSaveDirEdit->hide();
+	      partsListsSaveDirButton->hide();
 
-	// Remove Updates Tab
-	tabs->removeTab(tabs->indexOf(updateTab));
+	      // Remove Updates Tab
+	      tabs->removeTab(tabs->indexOf(updateTab));
+	}
+
+	applyButton->setEnabled(false);
+
+#ifdef DEBUG
+	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 1, false));
+#else // DEBUG
+	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
+#endif // DEBUG
 }
 
 LDVPreferences::~LDVPreferences(void)
@@ -219,9 +221,8 @@ LDVPreferences::~LDVPreferences(void)
 void LDVPreferences::show(void)
 {
 	applyButton->setEnabled(false);
-	exec();
-	//QDialog::show();
-	//raise();
+	QDialog::show();
+	raise();
 	//setActiveWindow();
 }
 
@@ -618,17 +619,20 @@ void LDVPreferences::doUpdatesApply()
 
 void LDVPreferences::doBackgroundColor()
 {
-	int r,g,b;
+    int r,g,b;
 
-	ldPrefs->getBackgroundColor(r, g, b);
-	QColor color = QColorDialog::getColor(QColor(r,g,b));
-	if(color.isValid())
-	{
-		QPalette palette;
-		palette.setColor(QPalette::Button, color);
-		backgroundColorButton->setPalette(palette);
-		applyButton->setEnabled(true);
-	}
+    ldPrefs->getBackgroundColor(r, g, b);
+    QColor color = QColorDialog::getColor(QColor(r,g,b));
+    if(color.isValid())
+    {
+         QPalette palette = backgroundColorButton->palette();
+         palette.setColor(QPalette::Button, color);
+         backgroundColorButton->setFlat(true);
+         backgroundColorButton->setAutoFillBackground(true);
+         backgroundColorButton->setPalette(palette);
+         backgroundColorButton->update();
+         applyButton->setEnabled(true);
+    }
 }
 
 void LDVPreferences::doDefaultColor()
@@ -650,9 +654,12 @@ void LDVPreferences::doDefaultColor()
 	QColor color = QColorDialog::getColor(QColor(r,g,b));
 	if(color.isValid())
 	{
-		QPalette palette;
+		QPalette palette = defaultColorButton->palette();
 		palette.setColor(QPalette::Button, color);
+		defaultColorButton->setFlat(true);
+		defaultColorButton->setAutoFillBackground(true);
 		defaultColorButton->setPalette(palette);
+		defaultColorButton->update();
 		applyButton->setEnabled(true);
 	}
 	for (i = 0 ; i <16 ; i++)

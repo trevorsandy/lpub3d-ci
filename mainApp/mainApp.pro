@@ -70,9 +70,6 @@ QMAKE_LFLAGS         += $(Q_LDFLAGS)
 QMAKE_CFLAGS         += $(Q_CFLAGS)
 QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
 
-# Dr Memory - MinGW Memory Debugging - Windows
-QMAKE_LFLAGS_WINDOWS += -static-libgcc -static-libstdc++ -ggdb
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
@@ -237,12 +234,6 @@ message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
 
 LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
 
-#LIBS += \
-#    $$OUT_PWD/../ldvlib/LDExporter/$$DESTDIR/lib$${LDEXPORTER_LIB}.a  \
-#    $$OUT_PWD/../ldvlib/LDLoader/$$DESTDIR/lib$${LDLOADER_LIB}.a \
-#    $$OUT_PWD/../ldvlib/TRE/$$DESTDIR/lib$${TRE_LIB}.a \
-#    $$OUT_PWD/../ldvlib/TCFoundation/$$DESTDIR/lib$${TCFOUNDATION_LIB}.a
-
 LIBS += \
     -L$$OUT_PWD/../ldvlib/LDLib/$$DESTDIR \
     -L$$OUT_PWD/../ldvlib/LDExporter/$$DESTDIR  \
@@ -300,6 +291,38 @@ OBJECTS_DIR     = $$DESTDIR/.obj
 MOC_DIR         = $$DESTDIR/.moc
 RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
+
+#~~ Merge ldv ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+LDV_MESSAGES_INI = LDVMessages.ini
+
+win32 {
+    COPY_CMD     = COPY /y /a /b
+    PLUS_CMD     = +
+    REDIRECT_CMD =
+} else {
+    COPY_CMD     = cat
+    PLUS_CMD     =
+    REDIRECT_CMD = >
+}
+
+merge_ini_commands = \
+$$COPY_CMD \
+$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini) $$PLUS_CMD \
+$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini) $$REDIRECT_CMD \
+$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI) && $$COPY_CMD \
+$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI) $$REDIRECT_CMD \
+$$system_path($$OUT_PWD/$$DESTDIR/$$LDV_MESSAGES_INI)
+
+merge_ini.target   = $$LDV_MESSAGES_INI
+merge_ini.commands = $$merge_ini_commands
+merge_ini.depends  = $$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini \
+                     $$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini
+
+QMAKE_EXTRA_TARGETS += merge_ini
+PRE_TARGETDEPS      += $$LDV_MESSAGES_INI
+QMAKE_CLEAN         += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI \
+                       $$OUT_PWD/$$DESTDIR/$$LDV_MESSAGES_INI
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -361,32 +384,6 @@ include(../ldvlib/LDVQt/LDVQt.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
 
-#~~ Merge and move ldv ini files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-OUT_INI_FILE = LDViewMessages.ini
-win32 {
-    MERGE_CMD = COPY /y /a /b
-    PLUS_CMD  = +
-} else {
-    MERGE_CMD = cat
-    PLUS_CMD  =
-}
-
-merge_ini_commands = \
-$$MERGE_CMD \
-$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini) $$PLUS_CMD \
-$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini) \
-$$system_path($$OUT_PWD/$$DESTDIR/$$OUT_INI_FILE)
-
-merge_ini.target   = LDViewMessages.ini
-merge_ini.depends  = $$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini \
-                     $$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini
-merge_ini.commands = $$merge_ini_commands
-
-QMAKE_EXTRA_TARGETS += merge_ini
-PRE_TARGETDEPS += LDViewMessages.ini
-QMAKE_CLEAN += LDViewMessages.ini
-
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HEADERS += \
@@ -425,7 +422,6 @@ HEADERS += \
     metaitem.h \
     metatypes.h \
     name.h \
-    nativepov.h \
     numberitem.h \
     pagebackgrounditem.h \
     pageattributetextitem.h \
@@ -505,7 +501,6 @@ SOURCES += \
     metagui.cpp \
     metaitem.cpp \
     multistepglobals.cpp \
-    nativepov.cpp \
     numberitem.cpp \
     openclose.cpp \
     pagebackgrounditem.cpp \

@@ -26,7 +26,7 @@
 #include "application.h"
 #include "lc_application.h"
 #include "updatecheck.h"
-#include "ldvwidget.h"
+#include "LDVWidget.h"
 
 //#include "nativepovpreferences.h"
 //#include "ui_nativepovpreferences.h"
@@ -257,6 +257,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
   else if (ui.povGenLDViewRadio->isChecked())
       ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+
+  ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
@@ -537,9 +539,11 @@ void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
 
 void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
 {
-      bool enabled = (currentText == RENDERER_POVRAY);
-      ui.ldvPoVFileGenOptBtn->setEnabled(enabled);
-      ui.ldvPoVFileGenPrefBtn->setEnabled(enabled);
+      bool ldviewEnabled = (currentText == RENDERER_LDVIEW);
+      bool povrayEnabled = (currentText == RENDERER_POVRAY);
+      ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
+      ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
+      ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
       if (ui.povGenNativeRadio->isChecked())
           ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
       else if (ui.povGenLDViewRadio->isChecked())

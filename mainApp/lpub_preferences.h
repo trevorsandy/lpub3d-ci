@@ -164,42 +164,8 @@ class Preferences
     static bool    isAppImagePayload;
     static bool    modeGUI;
 
-    static QString lights;
+    static QString ldvLights;
     static QString xmlMapPath;
-//    static QString topInclude;
-//    static QString bottomInclude;
-//    static float   seamWidth;
-//    static int     quality;
-//    static int     selectedAspectRatio;
-//    static float   customAspectRatio;
-//    static float   ambient;
-//    static float   diffuse;
-//    static float   refl;
-//    static float   phong;
-//    static float   phongSize;
-//    static float   transRefl;
-//    static float   transFilter;
-//    static float   transIoR;
-//    static float   rubberRefl;
-//    static float   rubberPhong;
-//    static float   rubberPhongSize;
-//    static float   chromeRefl;
-//    static float   chromeBril;
-//    static float   chromeSpecular;
-//    static float   chromeRoughness;
-//    static float   edgeRadius;
-//    static int     fileVersion;
-//    static bool    seams;
-//    static bool    reflections;
-//    static bool    shadows;
-//    static bool    xmlMap;
-//    static bool    inlinePov;
-//    static bool    smoothCurves;
-//    static bool    hideStuds;
-//    static bool    unmirrorStuds;
-//    static bool    findReplacements;
-//    static bool    conditionalEdgeLines;
-//    static bool    primitiveSubstitution;
 
 #ifdef Q_OS_MAC
     static bool    ldviewMissingLibs;

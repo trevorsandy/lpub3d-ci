@@ -138,6 +138,10 @@ then
     lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
     echo "11-2. Build-check ${DISTRO_FILE}"
+    if [ ! -f "/usr/bin/update-desktop-database" ]; then
+            echo "      Program update-desktop-database not found. Installing..."
+            sudo apt-get install -y desktop-file-utils
+    fi
     # Install package - here we use the distro file name
     sudo dpkg -i ${DISTRO_FILE}
     # Check if exe exist - here we use the executable name
@@ -170,8 +174,10 @@ then
             LP3D_PLATFORM_NAME="zesty" ;;
         17.10)
             LP3D_PLATFORM_NAME="artful" ;;
+        18.04)
+            LP3D_PLATFORM_NAME="bionic" ;;
         *)
-            LP3D_PLATFORM_NAME="ununtu" ;;
+            LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
         ;;
     debian)

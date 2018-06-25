@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 03, 2018
+rem  Last Update: June 25, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -336,13 +336,16 @@ rem SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 rem Checks
 SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file
-SET PKG_CHECK_FILE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+SET PKG_CHECK_NATIVE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+
+SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer ldview
+SET PKG_CHECK_LDVIEW_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-export --range 1-3 --clear-cache --preferred-renderer ldglite
-SET PKG_CHECK_EXPORT_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
-
-SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-export --export-option jpg --preferred-renderer povray
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+
+SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer povray
+SET PKG_CHECK_POV_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 CALL :CHECK_LDRAW_DIR
 CALL :SET_LDRAW_LIBS
@@ -363,31 +366,31 @@ IF NOT EXIST "%PKG_TARGET%" (
   ECHO -%PKG_TARGET% found.
   IF EXIST "Check.out" DEL /Q "Check.out"
   ECHO.
-  ECHO   PKG_CHECK_FILE_COMMAND.....[%PKG_CHECK_FILE_COMMAND%]
-  CALL %PKG_CHECK_FILE_COMMAND% > Check.out 2>&1
+  ECHO   PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
+  CALL %PKG_CHECK_NATIVE_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_FILE Output...
+      ECHO -BUILD_CHECK_NATIVE Output...
       TYPE "Check.out"
       ECHO.
       DEL /Q "Check.out"
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_FILE failed.
+      ECHO. -ERROR - BUILD_CHECK_NATIVE failed.
     )
   )
   ECHO.
-  ECHO   PKG_CHECK_EXPORT_COMMAND...[%PKG_CHECK_EXPORT_COMMAND%]
-  CALL %PKG_CHECK_EXPORT_COMMAND% > Check.out 2>&1
+  ECHO   PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  CALL %PKG_CHECK_LDVIEW_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_EXPORT Output...
+      ECHO -BUILD_CHECK_LDVIEW Output...
       TYPE "Check.out"
       ECHO.
       DEL /Q "Check.out"
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_EXPORT failed.
+      ECHO. -ERROR - BUILD_CHECK_LDVIEW failed.
     )
   )
   ECHO.
@@ -402,6 +405,20 @@ IF NOT EXIST "%PKG_TARGET%" (
       ECHO.
     ) ELSE (
       ECHO. -ERROR - BUILD_CHECK_RANGE failed.
+    )
+  )
+  ECHO.
+  ECHO   PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
+  CALL %PKG_CHECK_POV_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_POV Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_POV failed.
     )
   )
 )

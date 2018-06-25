@@ -48,6 +48,7 @@ int Gui::processCommandLine()
       if (Param[0] != '-')
       {
           commandlineFile = Param;
+          continue;
       }
 
       if (Param == QLatin1String("-icr") ||

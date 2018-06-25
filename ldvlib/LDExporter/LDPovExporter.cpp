@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <stdarg.h>
 
+#include <lpub_preferences.h>
 #include <QDebug>
 
 #define SMOOTH_THRESHOLD 0.906307787f
@@ -347,6 +348,7 @@ void LDPovExporter::loadSettings(void)
 	{
 		m_bottomInclude = "";
 	}
+	m_lights = Preferences::ldvLights;
 }
 
 LDExporterSetting *LDPovExporter::addEdgesSettings(
@@ -1659,17 +1661,40 @@ void LDPovExporter::writeLight(TCFloat lat, TCFloat lon, int num)
 		"	<%s*LDXRadius,%s*LDXRadius,%s*LDXRadius> + LDXCenter\n"
 		"	color rgb <1,1,1>\n"
 		"}\n"
-		"#end\n", num, (const char *)ls("PovLatLon"), ftostr(lat).c_str(),
-		ftostr(lon).c_str(), ftostr(lightLoc[0]).c_str(),
-		ftostr(lightLoc[1]).c_str(), ftostr(lightLoc[2]).c_str());
+		"#end\n",
+		num,
+		(const char *)ls("PovLatLon"),
+		ftostr(lat).c_str(),
+		ftostr(lon).c_str(),
+		ftostr(lightLoc[0]).c_str(),
+		ftostr(lightLoc[1]).c_str(),
+		ftostr(lightLoc[2]).c_str());
 }
 
 bool LDPovExporter::writeLights(void)
 {
 	fprintf(m_pPovFile, "// Lights\n");
-	writeLight(45.0, 0.0, 1);
-	writeLight(30.0, 120.0, 2);
-	writeLight(60.0, -120.0, 3);
+	QStringList lights = m_lights.split(",", QString::SkipEmptyParts);
+	bool fieldOk[3];
+	for (QString light: lights){
+	       QStringList lightEntryFields = light.split(" ",QString::SkipEmptyParts);
+	       float latitude = QString("%1").arg(lightEntryFields.at(2)).toFloat(&fieldOk[0]);
+	       float longitude = QString("%1").arg(lightEntryFields.at(4)).toFloat(&fieldOk[1]);
+	       int lightNumber = QString("%1").arg(lightEntryFields.at(0)).replace(".","").toInt(&fieldOk[2]);
+
+               if (fieldOk[0] && fieldOk[1] && fieldOk[2])
+               {
+                      writeLight(latitude,longitude,lightNumber);
+               }
+               else
+               {
+                      fprintf(stdout, "Could not create light '%s'.\n",light.toLatin1().constData());
+                      return false;
+               }
+        }
+//	writeLight(45.0, 0.0, 1);
+//	writeLight(30.0, 120.0, 2);
+//	writeLight(60.0, -120.0, 3);
 	//writeLight(45.0, 0.0, m_radius * 2.0f);
 	//writeLight(30.0, 120.0, m_radius * 2.0f);
 	//writeLight(60.0, -120.0, m_radius * 2.0f);

@@ -865,7 +865,7 @@
          </rect>
         </property>
         <property name="title">
-         <string>Renderer settings</string>
+         <string>LDView Renderer settings</string>
         </property>
         <widget class="QPushButton" name="ldvPreferencesBtn">
          <property name="geometry">

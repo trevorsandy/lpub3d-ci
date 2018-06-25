@@ -368,6 +368,8 @@ protected:
 	StringSet m_macros;
 	bool m_primSubCheck;
 
+	QString m_lights;
+
 	static CharStringMap sm_replacementChars;
 };
 

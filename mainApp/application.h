@@ -130,7 +130,7 @@ private:
     WORD m_currentConsoleAttr;
 
     /// indicate if using allocated console
-    bool m_allocated_console;
+    WINBOOL m_allocated_console;
 #endif
 };
 
@@ -145,11 +145,11 @@ private:
         } \
         catch(const InitException &ex) \
         { \
-           qDebug() << QString("Could not initialize the application."); \
+           fprintf(stdout, "Could not initialize the application."); \
         } \
         catch(...) \
         { \
-           qDebug() << QString("A fatal error ocurred."); \
+           fprintf(stdout, "A fatal error ocurred."); \
         } \
         return app->run(); \
     }

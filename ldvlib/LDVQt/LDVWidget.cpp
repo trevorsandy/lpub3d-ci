@@ -64,78 +64,50 @@ IniFlag LDVWidget::iniFlag;
 
 static QGLFormat ldvFormat;
 
-LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag)
+LDVWidget::LDVWidget(QWidget *parent)
         :QGLWidget(QGLFormat(QGL::SampleBuffers),parent),
         modelViewer(new LDrawModelViewer(100, 100)),
         snapshotTaker(NULL),
         alertHandler(new AlertHandler(this)),
+        programPath(QCoreApplication::applicationFilePath()),
         exportType(LDrawModelViewer::ETPov)
 {
 
   setupLDVFormat();
 
-#ifdef WIN32
-  runningWithConsole();
-#endif // WIN32
-
   QString appName = Preferences::lpub3dAppName;
-  QString extrasPath = QString("%1/extras").arg(Preferences::lpubDataPath);
-
-#ifndef _LDV_LOG
-#define _LDV_LOG
-#endif
-
-#ifdef _LDV_LOG
-  char *logFile = TCUserDefaults::pathForKey(LOGFILE_KEY);
-  if (logFile == NULL)
-  {
-         QString ldvLogFile = QDir::toNativeSeparators(QString("%1/ldv.log").arg(QDir::currentPath()));
-         TCUserDefaults::setPathForKey(ldvLogFile.toLatin1().constData(),LOGFILE_KEY);
-  }
-#endif
-
-  iniFlag = iniflag;
-  if (!TCUserDefaults::isIniFileSet())
-  {
-         QString iniFile;
-         switch (iniFlag)
-         {
-              case NativePOVIni:
-                  iniFile = Preferences::nativePOVIni;
-                  break;
-              case LDViewPOVIni:
-                  iniFile = Preferences::ldviewPOVIni;
-                  break;
-              case LDViewIni:
-                  iniFile = Preferences::ldviewIni;
-                  break;
-              default:
-                  fprintf(stdout, "Ini file not specified!");
-         }
-         if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
-              fprintf(stdout, QString( QString("Could not set native POV INI file: %1").arg(iniFile)).toLatin1().constData());
-  }
-
   TCUserDefaults::setAppName(appName.toLatin1().constData());
+
+  modelViewer->setProgramPath(programPath.toLatin1().constData());
+
+  QFile file(VER_NATIVE_LDV_MESSAGES_FILE);
+  QDir::setCurrent(QDir(Preferences::dataLocation).absolutePath());
+  if (!file.exists())
+  {
+        QDir::setCurrent(QDir(QCoreApplication::applicationDirPath()).absolutePath());
+  }
+  QString messagesPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + file.fileName());
+  if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
+  {
+        fprintf(stdout, "Could not load LDVMessages.ini file %s.\n", messagesPath.toLatin1().constData());
+  }
+
+  // Needed to display preferences
+  char *sessionName;
+  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+  if (sessionName && sessionName[0])
+  {
+        TCUserDefaults::setSessionName(sessionName, NULL, false);
+  }
+  delete sessionName;
+
+  setIniFlag(NativePOVIni, BeforeInit);
+
+  ldvPreferences = new LDVPreferences(parent, this);
+  ldvPreferences->doApply();
 
   QImage studImage(":/resources/studlogo.png");
   TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
-
-  QFile file("LDViewMessages.ini");
-  if (!file.exists())
-  {
-         fprintf(stdout, QString("First Messages File Check Failed: " + QDir::currentPath() + "/" + file.fileName()).toLatin1().constData());
-         QDir::setCurrent(QDir(extrasPath).absolutePath());
-  }
-  if (!file.exists())
-  {
-         fprintf(stdout, QString("Second Messages File Check Failed: " + QDir::currentPath() + "/" + file.fileName()).toLatin1().constData());
-  }
-
-  if (!TCLocalStrings::loadStringTable(QString(QDir::currentPath() + "/" + file.fileName()).toLatin1().constData()))
-  {
-         fprintf(stdout, QString("Could not load LDViewMessages.ini file.").toLatin1().constData());
-  }
 
   QFile fontFile(":/resources/sansserif.fnt");
   if (fontFile.exists())
@@ -157,18 +129,6 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag)
   long len = fontImage2x.byteCount();
   modelViewer->setRawFont2xData(fontImage2x.bits(),len);
 
-  // Needed to display preferences
-  char *sessionName;
-  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
-  if (sessionName && sessionName[0])
-  {
-          TCUserDefaults::setSessionName(sessionName, NULL, false);
-  }
-  delete sessionName;
-
-  ldvPreferences = new LDVPreferences(parent, this);
-  ldvPreferences->doApply();
-
   setFocusPolicy(Qt::StrongFocus);
 
   ldvWidget = this;
@@ -187,10 +147,46 @@ LDVWidget::~LDVWidget(void)
 	ldvWidget = NULL;
 }
 
-void LDVWidget::setAppArgs(QStringList &argv)
+bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
 {
-    appArgs = argv;
-    modelViewer->setProgramPath(appArgs.at(0).toLatin1().constData());
+    iniFlag = iniflag;
+    if (!TCUserDefaults::isIniFileSet())
+    {
+           QString iniFile;
+           QString title;
+           switch (iniFlag)
+           {
+                case NativePOVIni:
+                    iniFile = Preferences::nativePOVIni;
+                    title = "Native POV";
+                    break;
+                case LDViewPOVIni:
+                    iniFile = Preferences::ldviewPOVIni;
+                    title = "LDView POV";
+                    break;
+                case LDViewIni:
+                    iniFile = Preferences::ldviewIni;
+                    title = "LDView";
+                    break;
+                default:
+                    fprintf(stdout, "Ini file not specified!\n");
+                    return false;
+           }
+           if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
+           {
+                fprintf(stdout, "Could not set %s INI file: %s\n",
+                        title.toLatin1().constData(),
+                        iniFile.toLatin1().constData());
+                return false;
+           }
+           else
+           if (iniStat == AfterInit)
+           {
+                ldvPreferences->doCancel();
+           }
+    }
+
+    return true;
 }
 
 void LDVWidget::showLDVExportOptions()
@@ -205,7 +201,12 @@ void LDVWidget::showLDVExportOptions()
 
 void LDVWidget::showLDVPreferences()
 {
-  ldvPreferences->show();
+  ldvPreferences = new LDVPreferences(this, this);
+
+  if (ldvPreferences->exec() == QDialog::Rejected)
+    ldvPreferences->doCancel();
+  else
+    ldvPreferences->doApply();
 }
 
 void LDVWidget::setupLDVFormat(void)
@@ -223,54 +224,24 @@ void LDVWidget::setupLDVFormat(void)
 
 bool LDVWidget::doCommand(QStringList &arguments)
 {	
-    QString debugMessage = QString("Native command In: %1 %2")
-                                   .arg(appArgs.at(0))
-                                   .arg(arguments.join(" "));
 
-    // Construct complete command line
-    std::vector<std::string> commandLine;
-    commandLine.push_back(QString(appArgs.at(0)).toStdString());
-    foreach(QString arg, arguments)
-        commandLine.push_back(arg.toStdString());
-    std::vector<char*> Argv;
-    for(const auto& arg : commandLine)
-        Argv.push_back((char*)arg.data());
-    Argv.push_back(nullptr);
+    std::string ldvArgs = arguments.join(" ").toStdString();
 
-    char *commandLineArgs[Argv.size()];
+    TCUserDefaults::setCommandLine(ldvArgs.c_str());
 
-    convertArguments((int)(Argv.size() - 1), reinterpret_cast<char**>(Argv.data()), commandLineArgs);
+    bool retValue = LDSnapshotTaker::doCommandLine(false, true);
+    if (!retValue)
+         fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
 
-    TCUserDefaults::setCommandLine(commandLineArgs);
-
-    // Perform an export
-    bool retValue;
-    if ((retValue = LDSnapshotTaker::doCommandLine(false, true)) != true)
-         fprintf(stdout, QString(QString("Failed to processs Native command: %1").arg(debugMessage)).toLatin1().constData());
     return retValue;
-
-}
-
-void LDVWidget::convertArguments(int Argc, char **Argv, char *argv[MAX_NUM_POV_GEN_ARGS]) {
-    int argc = 0;
-    for (int i = 0; i < Argc; ++i) {
-        if (Argv[i] != NULL) {
-            if (argc >= MAX_NUM_POV_GEN_ARGS) {
-                fprintf(stdout, "More than %d arguments have been specified - aborting\n", MAX_NUM_POV_GEN_ARGS);
-                return;
-            }
-            // printf("Arg %d: %s\n", argc, Argv[i]);
-            argv[argc++] = Argv[i];
-        }
-    }
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 {
     if (alert)
     {
-        QMessageBox::warning(this,VER_PRODUCTNAME_STR,alert->getMessage(),
-            QMessageBox::Ok, QMessageBox::NoButton);
+        fprintf(stdout, "%s\n", alert->getMessage());
+        fflush(stdout);
     }
 }
 

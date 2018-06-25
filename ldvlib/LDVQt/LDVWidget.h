@@ -39,18 +39,14 @@ class LDVWidget : public QGLWidget
   Q_OBJECT
 
 public:
-  LDVWidget(QWidget *parent=NULL, IniFlag iniflag=NativePOVIni);
+  LDVWidget(QWidget *parent=NULL);
   ~LDVWidget(void);
 
-  void setAppArgs(QStringList &argv);
-  void setIniFlag(IniFlag iniflag = NativePOVIni)
-  {
-      iniFlag = iniflag;
-  }
+  bool setIniFlag(IniFlag iniflag = NativePOVIni, IniStat iniStat = AfterInit);
+
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
 
   static void setupLDVFormat(void);
-  static void convertArguments(int Argc, char **Argv, char *argv[MAX_NUM_POV_GEN_ARGS]);
 
   void modelViewerAlertCallback(TCAlert *alert);
   void snapshotTakerAlertCallback(TCAlert *alert);
@@ -74,10 +70,10 @@ protected:
   LDrawModelViewer *modelViewer;
   LDSnapshotTaker *snapshotTaker;
   AlertHandler *alertHandler;
+  QString programPath;
   int exportType;
 
   LDVPreferences *ldvPreferences;
-  QStringList appArgs;
 };
 
 extern LDVWidget* ldvWidget;

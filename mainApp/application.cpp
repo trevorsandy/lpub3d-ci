@@ -113,6 +113,9 @@ Application::Application(int &argc, char **argv)
   m_console_mode = false;
   m_print_output = false;
   m_redirect_io_to_console = true;
+#ifdef Q_OS_WIN
+  m_allocated_console = false;
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
   m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
@@ -151,6 +154,9 @@ void Application::initialize()
 
   // process arguments
   bool headerPrinted = false;
+#ifdef Q_OS_WIN
+  bool consoleRedirectTreated = false;
+#endif
   QStringList ListArgs, Arguments = arguments();
   const int NumArguments = Arguments.size();
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
@@ -158,9 +164,26 @@ void Application::initialize()
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
   {
     const QString& Param = Arguments[ArgIdx];
+    if (Param == QLatin1String("-icr") || Param == QLatin1String("--ignore-console-redirect"))
+    {
+#ifdef Q_OS_WIN
+        consoleRedirectTreated = true;
+        continue;
+    }
+    else
+    if (!consoleRedirectTreated)
+    {
+        RedirectIOToConsole();
+        consoleRedirectTreated = true;
+#else
+         continue;
+#endif
+    }
+
     if (Param[0] != '-') {
-      if (!m_console_mode && QFileInfo(Param).exists())
+      if (m_commandline_file.isEmpty() && QFileInfo(Param).exists() && !m_console_mode)
         m_commandline_file = Param;
+      continue;
     }
     else
     if (! headerPrinted)
@@ -171,17 +194,6 @@ void Application::initialize()
       fprintf(stdout, "Arguments: %s\n",QString(ListArgs.join(" ")).toLatin1().constData());
       fflush(stdout);
       headerPrinted = true;
-    }
-    else
-    if (Param == QLatin1String("-icr") || Param == QLatin1String("--ignore-console-redirect"))
-    {
-#ifdef Q_OS_WIN
-      fprintf(stdout, "Redirect input and output to console will be ignored.");
-      m_redirect_io_to_console = false;
-#else
-      fprintf(stdout, "Command [-co, --console-output] detectd but is only supported on Windows. Command ignored.");
-#endif
-      fflush(stdout);
     }
 
     if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
@@ -248,10 +260,6 @@ void Application::initialize()
       return;
     }
   }
-#ifdef Q_OS_WIN
-  if (m_redirect_io_to_console)
-    RedirectIOToConsole();
-#endif
 
   // initialize directories
   Preferences::lpubPreferences();
@@ -449,7 +457,6 @@ void Application::initialize()
   emit splashMsgSig("28% - Native POV file generation widget loading...");
 
   ldvWidget = new LDVWidget();
-  ldvWidget->setAppArgs(Arguments);
 
   emit splashMsgSig("30% - 3D Viewer window loading...");
 
@@ -511,9 +518,9 @@ int Application::run()
 #ifdef Q_OS_WIN
       if (m_allocated_console)
         Sleep(2000);
-      SetConsoleTextAttribute (       //set the console to the original atrributes
-                  ConsoleOutput,
-                  m_currentConsoleAttr);
+      SetConsoleTextAttribute (       //return the console to the original atrributes
+        ConsoleOutput,
+        m_currentConsoleAttr);
 #endif
   }
   catch(const std::exception& ex)

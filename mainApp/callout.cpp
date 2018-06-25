@@ -310,25 +310,25 @@ void Callout::addGraphicsItems(
   loc[XX] = saveX;
   loc[YY] = saveY;
 
-  qDebug() << "\nCALLOUT PLACEMENT (addGraphicsItems) - "
-           << "\nPLACEMENT DATA -         "
-           << " \nPlacement:              "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-           << " \nJustification:          "   << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-           << " \nRelativeTo:             "   << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-           << " \nPreposition:            "   << PrepNames[placement.value().preposition]   << " (" << placement.value().preposition << ")"
-           << " \nRectPlacement:          "   << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-           << " \nOffset[0]:              "   << placement.value().offsets[0]
-           << " \nOffset[1]:              "   << placement.value().offsets[1]
-           << "\nOTHER DATA -             "
-           << " \nRelative Type:          "   << RelNames[relativeType]       << " (" << relativeType << ")"
-           << " \nParent Relative Type:   "   << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-           << " \nSize[XX]:               "   << size[XX]
-           << " \nSize[YY]:               "   << size[YY]
-           << " \nnewLoc[XX]:             "   << newLoc[XX]
-           << " \nnewLoc[YY]:             "   << newLoc[YY]
-           << " \nRelative To Size[0]:    "   << relativeToSize[0]
-           << " \nRelative To Size[1]:    "   << relativeToSize[1]
-              ;
+//  qDebug() << "\nCALLOUT PLACEMENT (addGraphicsItems) - "
+//           << "\nPLACEMENT DATA -         "
+//           << " \nPlacement:              "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+//           << " \nJustification:          "   << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+//           << " \nRelativeTo:             "   << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+//           << " \nPreposition:            "   << PrepNames[placement.value().preposition]   << " (" << placement.value().preposition << ")"
+//           << " \nRectPlacement:          "   << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+//           << " \nOffset[0]:              "   << placement.value().offsets[0]
+//           << " \nOffset[1]:              "   << placement.value().offsets[1]
+//           << "\nOTHER DATA -             "
+//           << " \nRelative Type:          "   << RelNames[relativeType]       << " (" << relativeType << ")"
+//           << " \nParent Relative Type:   "   << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+//           << " \nSize[XX]:               "   << size[XX]
+//           << " \nSize[YY]:               "   << size[YY]
+//           << " \nnewLoc[XX]:             "   << newLoc[XX]
+//           << " \nnewLoc[YY]:             "   << newLoc[YY]
+//           << " \nRelative To Size[0]:    "   << relativeToSize[0]
+//           << " \nRelative To Size[1]:    "   << relativeToSize[1]
+//              ;
 }
 
 void Callout::addGraphicsItems(

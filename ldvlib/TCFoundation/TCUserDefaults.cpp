@@ -9,12 +9,6 @@
 #include "TCAlertManager.h"
 #include "mystring.h"
 
-/*** LPub3D Mod - native renderer options ***/
-//#include "lpub_preferences.h"
-//#include "version.h"
-//#include "name.h"
-/*** LPub3D Mod end ***/
-
 #ifdef COCOA
 #import <Foundation/Foundation.h>
 #endif // COCOA

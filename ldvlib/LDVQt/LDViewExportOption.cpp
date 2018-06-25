@@ -37,36 +37,42 @@ LDViewExportOption::LDViewExportOption(QWidget *parent,LDrawModelViewer *modelVi
         populateExtraSearchDirs();
     }
 
-    QStringList myLigths = Preferences::lights.split(",", QString::SkipEmptyParts);
-    ui.povLightsCombo->addItems(                    myLigths);
-    ui.povLightsCombo->setCurrentIndex(             ui.povLightsCombo->count() - 1);
-
-    QStringList lightEntryFields = ui.povLightsCombo->currentText().split(" ",QString::SkipEmptyParts); // 1. Latitude 45.0 Longitude 0.0
-    ui.povLightNumLnEdit->setText(                 QString("%1").arg(lightEntryFields.at(0)).replace(".",""));
-    ui.povLightLatitudeLnEdit->setText(            lightEntryFields.at(2));
-    ui.povLightLongitudeLnEdit->setText(           lightEntryFields.at(4));
-
-    QPalette palette;
-    palette.setColor(QPalette::Base,Qt::lightGray);
-    ui.povLightNumLnEdit->setPalette(palette);
-    ui.povLightNumLnEdit->setReadOnly(true);
-
     QString title;
+    bool enableLightingBox = false;
     switch (LDVWidget::iniFlag)
     {
+        case LDViewIni:
+            break;
         case NativePOVIni:
-            title = "Native POV";
+            title = "Native POV ";
+            enableLightingBox = true;
             break;
         case LDViewPOVIni:
-            title = "LDView POV";
+            title = "LDView POV ";
             break;
-        case LDViewIni:
-            title = "LDView";
-            break;
-        default:
-            title = "Native POV";
     }
     this->setWindowTitle(title.append("Export Options"));
+
+    if (enableLightingBox)
+    {
+        QStringList myLigths = Preferences::ldvLights.split(",", QString::SkipEmptyParts);
+        ui.povLightsCombo->addItems(                    myLigths);
+        ui.povLightsCombo->setCurrentIndex(             ui.povLightsCombo->count() - 1);
+
+        QStringList lightEntryFields = ui.povLightsCombo->currentText().split(" ",QString::SkipEmptyParts); // 1. Latitude 45.0 Longitude 0.0
+        ui.povLightNumLnEdit->setText(                 QString("%1").arg(lightEntryFields.at(0)).replace(".",""));
+        ui.povLightLatitudeLnEdit->setText(            lightEntryFields.at(2));
+        ui.povLightLongitudeLnEdit->setText(           lightEntryFields.at(4));
+
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::lightGray);
+        ui.povLightNumLnEdit->setPalette(palette);
+        ui.povLightNumLnEdit->setReadOnly(true);
+    }
+    else
+    {
+        ui.povLightingGrpBox->hide();
+    }
 }
 
 void LDViewExportOption::populate(void)

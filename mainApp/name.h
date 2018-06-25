@@ -28,6 +28,8 @@ extern LDVWidget *ldvWidget;
 enum PartType { FADE_PART, HIGHLIGHT_PART };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni };
+enum IniStat { BeforeInit, AfterInit };
+
 Q_DECLARE_METATYPE(LogType);
 
 // registry sections

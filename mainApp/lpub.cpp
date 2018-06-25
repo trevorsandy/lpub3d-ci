@@ -1578,7 +1578,7 @@ void Gui::preferences()
     QString topIncludeCompare         = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
     QString bottomIncludeCompare      = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
 
-    QString lightsCompare             = Preferences::lights;
+    QString lightsCompare             = Preferences::ldvLights;
 
     if (Preferences::getPreferences()) {
 
@@ -1673,7 +1673,7 @@ void Gui::preferences()
 	bool topIncludeChanged            = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY))                            != topIncludeCompare;
 	bool bottomIncludeChanged         = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY))                         != bottomIncludeCompare;
 
-	bool lightsChanged                = QString(Preferences::lights).toLower()                                               != lightsCompare.toLower();
+	bool lightsChanged                = QString(Preferences::ldvLights).toLower()                                               != lightsCompare.toLower();
 
         bool nativePovRendererConfig       = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
@@ -1986,7 +1986,7 @@ void Gui::preferences()
 	if (lightsChanged && nativePovRendererConfig)
 		logInfo() << QString("Lights changed from %1 to %2.")
 							 .arg(lightsCompare)
-							 .arg(Preferences::lights);
+							 .arg(Preferences::ldvLights);
     }
 }
 

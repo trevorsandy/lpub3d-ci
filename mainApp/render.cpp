@@ -43,8 +43,7 @@
 #include "math.h"
 #include "lpub_preferences.h"
 #include "application.h"
-#include "ldvwidget.h"
-#include "nativepov.h"
+#include "LDVWidget.h"
 
 #include "paths.h"
 
@@ -69,7 +68,7 @@ Native  native;
 #define USE_ALPHA "+UA"
 
 //Native renderer scale factor
-#define SCALE_FACTOR_NATIVE 30313.2875045836 // 11658.9567325322
+#define SCALE_FACTOR_NATIVE 11658.9567325322
 
 static double pi = 4*atan(1.0);
 // the default camera distance for real size
@@ -390,18 +389,17 @@ int POVRay::renderCsi(
       }
   }
   else
-  {
-      // Native block begin
-      if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+  // Native block
+  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
 
-          arguments << ldrName;
+      arguments << ldrName;
 
-          emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
+      emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
 
-          if (!ldvWidget->doCommand(arguments))
-              emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
-      }
+      if (! ldvWidget->doCommand(arguments))
+          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
   }
+
 
   QStringList povArguments;
   if (Preferences::povrayDisplay){
@@ -570,7 +568,7 @@ int POVRay::renderPli(
       ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
       ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
-      message = QString("POVRay (LDView POV file generate PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      message = QString("LDView POV file generate PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
@@ -589,17 +587,15 @@ int POVRay::renderPli(
       }
   }
   else
-  {
-      // Native block begin
-      if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+  // Native block
+  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
 
-          arguments << ldrNames.first();
+      arguments << ldrNames.first();
 
-          emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
+      emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
-          if (!ldvWidget->doCommand(arguments))
-              emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
-      }
+      if (! ldvWidget->doCommand(arguments))
+          emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
   }
 
   QStringList povArguments;
@@ -1306,7 +1302,7 @@ float Native::cameraDistance(
     Meta &meta,
     float scale)
 {
-  return stdCameraDistance(meta,scale);
+  return -stdCameraDistance(meta,scale) / SCALE_FACTOR_NATIVE;
 }
 
 int Native::renderCsi(
@@ -1331,7 +1327,7 @@ int Native::renderCsi(
   Options.Latitude          = meta.LPub.assem.angle.value(0);
   Options.Longitude         = meta.LPub.assem.angle.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-  Options.CameraDistance    = -cameraDistance(meta,meta.LPub.assem.modelScale.value())/SCALE_FACTOR_NATIVE;
+  Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
   // Set new project
   Project* CsiImageProject = new Project();
@@ -1378,7 +1374,7 @@ int Native::renderPli(
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = metaType.angle.value(0);
   Options.Longitude         = metaType.angle.value(1);
-  Options.CameraDistance    = -cameraDistance(meta,metaType.modelScale.value())/SCALE_FACTOR_NATIVE;
+  Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
 
   // Set and load new project
   Project* PliImageProject = new Project();
