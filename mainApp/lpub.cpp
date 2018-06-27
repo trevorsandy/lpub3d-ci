@@ -2133,6 +2133,12 @@ Gui::~Gui()
     delete KpageView;
     delete editWindow;
     delete parmsWindow;
+    delete progressBar;
+
+    delete m_progressDialog;
+    delete progressLabelPerm;
+    delete progressBarPerm;
+    delete undoStack;
 
 }
 

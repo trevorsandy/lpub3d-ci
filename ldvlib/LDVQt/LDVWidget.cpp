@@ -69,8 +69,7 @@ LDVWidget::LDVWidget(QWidget *parent)
         modelViewer(new LDrawModelViewer(100, 100)),
         snapshotTaker(NULL),
         alertHandler(new AlertHandler(this)),
-        programPath(QCoreApplication::applicationFilePath()),
-        exportType(LDrawModelViewer::ETPov)
+        programPath(QCoreApplication::applicationFilePath())
 {
 
   setupLDVFormat();
@@ -122,6 +121,7 @@ LDVWidget::LDVWidget(QWidget *parent)
               stream.readRawData(buffer,len);
               modelViewer->setFontData((TCByte*)buffer,len);
           }
+          delete buffer;
       }
   }
 
@@ -182,7 +182,8 @@ bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
            else
            if (iniStat == AfterInit)
            {
-                ldvPreferences->doCancel();
+                //ldvPreferences->doCancel();
+                ldvPreferences->doApply();
            }
     }
 

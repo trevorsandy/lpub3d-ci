@@ -236,22 +236,22 @@ void Preferences::lpubPreferences()
             isAppImagePayload = true;
     }
 
-    QDir shareDir(QString("%1/../share").arg(cwd.absolutePath()));
+    QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
 
     // This is a shameless hack until I figure out a better way to get the application name folder
     QStringList fileFilters;
     fileFilters << "lpub3d*";
 
-    QDir contentsDir(shareDir.absolutePath() + "/");
-    QStringList contents = contentsDir.entryList(fileFilters);
+    QDir contentsDir(progDir.absolutePath() + "/");
+    QStringList shareContents = contentsDir.entryList(fileFilters);
 
-    if (contents.size() > 0)
+    if (shareContents.size() > 0)
     {
         // Because the QCoreApplication::applicationName() is not the same as the LPub3D
         // executable name in an AppImage and the executable name is not the same as the
         // application folder, we set 'lpub3dAppName' to the value of the lpub3d application folder.
         // The application folder value is set with the DIST_TARGET variable in mainApp.pro
-        lpub3dAppName = contents.at(0);
+        lpub3dAppName = shareContents.at(0);
         qDebug() << qPrintable(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName));
     } else {
         qDebug() << qPrintable(QString("ERROR - Application Folder Not Found."));
@@ -263,8 +263,8 @@ void Preferences::lpubPreferences()
 
 #else                                                                 // Elevated User Rights Install
 
-    lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(shareDir.absolutePath(),lpub3dAppName);
-    lpub3dExtrasResourcePath = QString("%1/%2").arg(shareDir.absolutePath(),lpub3dAppName);
+    lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(progDir.absolutePath(),lpub3dAppName);
+    lpub3dExtrasResourcePath = QString("%1/%2").arg(progDir.absolutePath(),lpub3dAppName);
 
 #endif
 

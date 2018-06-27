@@ -162,7 +162,7 @@ CONFIG(debug, debug|release) {
         LDLIB_LIB = ldlibd
         LDLOADER_LIB = ldloaderd
         LDEXPORTER_LIB = ldexporterd
-        TCFOUNDATION_LIB = TCFoundationd
+        TCFOUNDATION_LIB = tcfoundationd
         PNG_LIB = pngd
         JPEG_LIB = jpegd
         GL2PS_LIB = gl2psd

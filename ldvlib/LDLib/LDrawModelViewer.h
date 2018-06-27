@@ -877,7 +877,7 @@ class LDrawModelViewer: public TCAlertSender
 			bool texmaps:1;
 			bool texturesAfterTransparent:1;
 		} flags;
-		struct CameraData
+		/*struct CameraData
 		{
 			CameraData(void)
 				:direction(0.0f, 0.0f, -1.0f),
@@ -908,7 +908,7 @@ class LDrawModelViewer: public TCAlertSender
 			TCFloat verMin;
 			TCFloat verMax;
 			TCFloat fov;
-		} *cameraData;
+		} *cameraData;*/
 		static StandardSizeList standardSizes;
 };
 

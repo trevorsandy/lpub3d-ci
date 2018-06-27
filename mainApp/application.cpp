@@ -18,7 +18,6 @@
 #include <iostream>
 #include <QMessageBox>
 #include <TCFoundation/TCUserDefaults.h>
-#include <LDVQt/LDVWidget.h>
 
 #include "lpub_preferences.h"
 #include "lpub.h"
@@ -400,28 +399,6 @@ void Application::initialize()
 
   QList<QPair<QString, bool>> LibraryPaths;
 
-/* disable LibraryPaths - library paths managed by ldrawPreferences() in Gui
-#if defined(Q_OS_WIN)
-  lcSehInit();
-  if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
-    LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/extras/complete.zip"), true);
-  } else {
-    LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/data/complete.zip"), true);
-  }
-#endif
-#ifdef Q_OS_LINUX
-  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../share/lpub3d/complete.zip"), true);
-#endif
-
-#ifdef Q_OS_MAC
-  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../Contents/Resources/complete.zip"), true);
-#endif
-
-#ifdef LDRAW_LIBRARY_PATH
-  LibraryPaths += qMakePair(QString::fromLatin1(LDRAW_LIBRARY_PATH), false);
-#endif
-*/
-
   setlocale(LC_NUMERIC, "C");
 
 /* load sequence
@@ -454,10 +431,6 @@ void Application::initialize()
   // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
   gui->getRequireds();
 
-  emit splashMsgSig("28% - Native POV file generation widget loading...");
-
-  ldvWidget = new LDVWidget();
-
   emit splashMsgSig("30% - 3D Viewer window loading...");
 
   gApplication = new lcApplication();
@@ -481,7 +454,7 @@ void Application::mainApp()
 
   Preferences::setLPub3DLoaded();
 
-  GetAvailableVersions();
+  availableVersions = new AvailableVersions(this);
 
   if (modeGUI())
   {
@@ -543,7 +516,9 @@ int Application::run()
     delete gui;
     gui = nullptr;
 
-    delete ldvWidget;
+    delete availableVersions;
+    availableVersions = nullptr;
+
     ldvWidget = nullptr;
   }
 

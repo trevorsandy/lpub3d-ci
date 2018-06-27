@@ -232,7 +232,7 @@ protected:
 	int windowWidth;
 	int windowHeight;
 	QString snapshotDir, partsListDir, exportDir;
-	QIntValidator *proxyPortValidator;
+    //QIntValidator *proxyPortValidator;
 #if QT_VERSION < 0x50000
 	QWindowsStyle qlStyle;
 #endif

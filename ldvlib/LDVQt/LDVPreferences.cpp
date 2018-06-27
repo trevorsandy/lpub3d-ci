@@ -28,8 +28,7 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 	modelWidget(modelWidget),
 	modelViewer(modelWidget->getModelViewer()),
 	ldPrefs(new LDPreferences(modelViewer)),
-	checkAbandon(true),
-	proxyPortValidator(new QIntValidator(1,65535,this))
+        checkAbandon(true)
 {
         setupUi(this);
         connect( fsaaModeBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
@@ -143,7 +142,6 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
         connect( drawTransparentTexturesLastButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
         connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
 
-	portEdit->setValidator(proxyPortValidator);
 	modelViewer = modelWidget->getModelViewer();
 
 	loadSettings();

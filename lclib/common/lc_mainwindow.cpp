@@ -72,6 +72,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 
 /*** LPub3D Mod - set relative rotation ***/
 	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
+	mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 /*** LPub3D Mod end ***/
 
 	mColorIndex = lcGetColorIndex(71); //Light Bluish Grey

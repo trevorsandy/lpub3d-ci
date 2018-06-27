@@ -564,12 +564,14 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 
 void PreferencesDialog::on_ldvPreferencesBtn_clicked()
 {
+    ldvWidget = new LDVWidget(this);
     ldvWidget->setIniFlag(LDViewIni);
     ldvWidget->showLDVPreferences();
 }
 
 void PreferencesDialog::on_ldvPoVFileGenOptBtn_clicked()
 {
+     ldvWidget = new LDVWidget(this);
      if (ui.povGenNativeRadio->isChecked())
          ldvWidget->setIniFlag(NativePOVIni);
      else if (ui.povGenLDViewRadio->isChecked())
@@ -579,6 +581,7 @@ void PreferencesDialog::on_ldvPoVFileGenOptBtn_clicked()
 
 void PreferencesDialog::on_ldvPoVFileGenPrefBtn_clicked()
 {
+     ldvWidget = new LDVWidget(this);
      if (ui.povGenNativeRadio->isChecked())
          ldvWidget->setIniFlag(NativePOVIni);
      else if (ui.povGenLDViewRadio->isChecked())

@@ -17,7 +17,7 @@
 #ifndef LDVWIDGET_H
 #define LDVWIDGET_H
 
-#include <QtOpenGL>
+#include <QGLWidget>
 #include <QDateTime>
 #include <QFileDialog>
 
@@ -71,11 +71,9 @@ protected:
   LDSnapshotTaker *snapshotTaker;
   AlertHandler *alertHandler;
   QString programPath;
-  int exportType;
 
   LDVPreferences *ldvPreferences;
 };
-
 extern LDVWidget* ldvWidget;
 
 #endif // LDVWIDGET_H

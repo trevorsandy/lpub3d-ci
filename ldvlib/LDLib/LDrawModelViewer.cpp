@@ -151,8 +151,8 @@ LDrawModelViewer::LDrawModelViewer(TCFloat width, TCFloat height)
 	exportType(ETPov),
 	highlightR(160),
 	highlightG(224),
-	highlightB(255),
-	cameraData(NULL)
+    highlightB(255)/*,
+    cameraData(NULL)*/
 {
 #ifdef _LEAK_DEBUG
 	strcpy(className, "LDrawModelViewer");
@@ -285,8 +285,8 @@ void LDrawModelViewer::dealloc(void)
 	fontImage2x = NULL;
 	TCObject::release(extraSearchDirs);
 	extraSearchDirs = NULL;
-	delete cameraData;
-	cameraData = NULL;
+	/*delete cameraData;
+	cameraData = NULL;*/
 	TCObject::dealloc();
 }
 
