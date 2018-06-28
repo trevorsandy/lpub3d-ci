@@ -8,7 +8,8 @@ INCLUDEPATH += $$PWD/../mainApp
 
 DEFINES += _QT
 DEFINES += _NO_BOOST
-DEFINES += _TC_STATIC _LDV_LOG
+DEFINES += _TC_STATIC
+DEFINES += QT_THREAD_SUPPORT
 
 CONFIG += skip_target_version_ext
 

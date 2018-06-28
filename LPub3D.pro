@@ -134,6 +134,12 @@ if (BUILD_GL2PS) {
     ldlib.depends = 3rdParty_gl2ps
 }
 
+SUBDIRS += ldvqt
+ldvqt.subdir   = $$PWD/ldvlib/LDVQt
+ldvqt.makefile = Makefile.ldvqt
+ldvqt.target   = sub-ldvqt
+ldvqt.depends  = ldlib
+
 SUBDIRS += lclib
 lclib.subdir   = $$PWD/lclib
 lclib.makefile = Makefile.lc
@@ -147,7 +153,7 @@ mainApp.target   = sub-mainApp
 mainApp.depends  = quazip
 mainApp.depends  = ldrawini
 mainApp.depends  = ldlib
-mainApp.depends  = lclib
+mainApp.depends  = ldvqt
 
 RESOURCES += \
     qsimpleupdater/res/qsu_resources.qrc \

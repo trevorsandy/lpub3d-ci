@@ -20,7 +20,7 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../ldvlib
-INCLUDEPATH += ../ldvlib/TCFoundation ../ldvlib/TRE ../ldvlib/LDLoader ../ldvlib/LDExporter
+INCLUDEPATH += ../ldvlib/LDVQt ../ldvlib/TCFoundation ../ldvlib/TRE ../ldvlib/LDLoader ../ldvlib/LDExporter
 
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
@@ -135,6 +135,7 @@ CONFIG(debug, debug|release) {
         LDLOADER_LIB = LDLoader_debug
         LDEXPORTER_LIB = LDExporter_debug
         TCFOUNDATION_LIB = TCFoundation_debug
+        LDVQT_LIB = LDVQt_debug
         PNG_LIB = PNG_debug
         JPEG_LIB = JPEG_debug
         GL2PS_LIB = GL2PS_debug
@@ -149,6 +150,7 @@ CONFIG(debug, debug|release) {
         LDLOADER_LIB = LDLoaderd43
         LDEXPORTER_LIB = LDExporterd43
         TCFOUNDATION_LIB = TCFoundationd43
+        LDVQT_LIB = LDVQtd43
         PNG_LIB = PNGd16
         JPEG_LIB = JPEGd92
         GL2PS_LIB = GL2PSd13
@@ -163,6 +165,7 @@ CONFIG(debug, debug|release) {
         LDLOADER_LIB = ldloaderd
         LDEXPORTER_LIB = ldexporterd
         TCFOUNDATION_LIB = tcfoundationd
+        LDVQT_LIB = ldvqtd
         PNG_LIB = pngd
         JPEG_LIB = jpegd
         GL2PS_LIB = gl2psd
@@ -184,6 +187,7 @@ CONFIG(debug, debug|release) {
         LDLOADER_LIB = LDLoader
         LDEXPORTER_LIB = LDExporter
         TCFOUNDATION_LIB = TCFoundation
+        LDVQT_LIB = LDVQt
         PNG_LIB = PNG
         JPEG_LIB = JPEG
         GL2PS_LIB = GL2PS
@@ -198,6 +202,7 @@ CONFIG(debug, debug|release) {
         LDLOADER_LIB = LDLoader43
         LDEXPORTER_LIB = LDExporter43
         TCFOUNDATION_LIB = TCFoundation43
+        LDVQT_LIB = LDVQt43
         PNG_LIB = PNG16
         JPEG_LIB = JPEG92
         GL2PS_LIB = GL2PS13
@@ -212,6 +217,7 @@ CONFIG(debug, debug|release) {
         LDLOADER_LIB = ldloader
         LDEXPORTER_LIB = ldexporter
         TCFOUNDATION_LIB = tcfoundation
+        LDVQT_LIB = ldvqt
         PNG_LIB = png
         JPEG_LIB = jpeg
         GL2PS_LIB = gl2ps
@@ -232,9 +238,13 @@ message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
 
 #~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# needed to access ui header from LDVQt
+INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
+
 LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
 
 LIBS += \
+    -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR \
     -L$$OUT_PWD/../ldvlib/LDLib/$$DESTDIR \
     -L$$OUT_PWD/../ldvlib/LDExporter/$$DESTDIR  \
     -L$$OUT_PWD/../ldvlib/LDLoader/$$DESTDIR \
@@ -242,6 +252,7 @@ LIBS += \
     -L$$OUT_PWD/../ldvlib/TCFoundation/$$DESTDIR
 
 LIBS += \
+    -l$$LDVQT_LIB \
     -l$$LDLIB_LIB \
     -l$$LDEXPORTER_LIB \
     -l$$LDLOADER_LIB \
@@ -380,7 +391,6 @@ unix:!macx:include(linuxfiledistro.pri)
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 include(../qslog/QsLog.pri)
-include(../ldvlib/LDVQt/LDVQt.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
 
