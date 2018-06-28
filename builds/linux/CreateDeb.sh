@@ -143,13 +143,15 @@ then
             sudo apt-get install -y desktop-file-utils
     fi
     # Install package - here we use the distro file name
+    echo "      11-2. Build-check install ${LPUB3D}..."
     sudo dpkg -i ${DISTRO_FILE}
     # Check if exe exist - here we use the executable name
     LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
     if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
-        ${LPUB3D_EXE} -foo
-        echo "      Cleanup..."
-        # Cleanup - here we use the package name
+        # Check commands
+        source ${SOURCE_DIR}/builds/check/build_checks.sh
+       # Cleanup - here we use the package name
+        echo "      11-2. Build-check uninstall ${LPUB3D}..."
         sudo dpkg -r ${LPUB3D}
     else
         echo "11-2. Build-check failed - /usr/bin/${LPUB3D_EXE} not found."

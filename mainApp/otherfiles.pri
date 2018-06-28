@@ -13,6 +13,9 @@ docs/COPYING_BRIEF \
 docs/CREDITS.txt \
 docs/lpub3d.1 \
 docs/README.txt \
+../builds/check/build_checks.bat \
+../builds/check/build_checks.sh \
+../builds/check/build_checks.mpd \
 ../builds/linux/CreateDeb.sh \
 ../builds/linux/CreatePkg.sh \
 ../builds/linux/CreateRpm.sh \
