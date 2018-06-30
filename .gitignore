@@ -105,10 +105,14 @@ ldvlib/LDViewMessages.ini
 mainApp/Makefile
 ldrawini/Makefile
 quazip/Makefile
+.vs
+LPub3D.sln
 
 # Build artefacts
 builds/windows/release/*
 builds/windows/libs/*
+mainApp/lpub3dsd_plugin_import.cpp
+mainApp/uic_wrapper.bat
 
 # Windows setup archives
 builds/windows/archives/*

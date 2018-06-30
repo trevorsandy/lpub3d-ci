@@ -25,7 +25,10 @@
 #include <wchar.h>
 #endif // __APPLE__
 
-#include <unistd.h>
+#ifndef _MSC_VER
+  #include <unistd.h>
+#endif
+
 #ifndef WIN32
 #include <sys/stat.h>
 #else // !WIN32

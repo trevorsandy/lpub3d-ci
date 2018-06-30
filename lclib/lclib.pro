@@ -17,6 +17,9 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += qt common
 INCLUDEPATH += ../mainApp ../ldvlib ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
+win32-msvc* {
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+}
 
 # The ABI version.
 VER_MAJ = 1
@@ -39,7 +42,9 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
 QMAKE_LFLAGS    += $(Q_LDFLAGS)
 QMAKE_CFLAGS    += $(Q_CFLAGS)
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
+}
 
 DEFINES += LC_DISABLE_UPDATE_CHECK=1
 DEFINES += _TC_STATIC
@@ -62,12 +67,19 @@ PRECOMPILED_HEADER = common/lc_global.h
 win32 {
 
     DEFINES += _TC_STATIC
-    DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+    win32-msvc* {
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+        DEFINES += _WINSOCKAPI_
+    }
 
     PRECOMPILED_SOURCE = common/lc_global.cpp
     QMAKE_EXT_OBJ = .obj
 
-    LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32 -lz
+    LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
+
+    !win32-msvc* {
+        LIBS += -lz
+    }
 
 } else {
 
@@ -112,11 +124,12 @@ include(lclib.pri)
 include(../LPub3DPlatformSpecific.pri)
 
 # Suppress warnings
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \
     -Wno-unused-parameter \
     -Wno-sign-compare
-
+}
 macx {
 
 QMAKE_CFLAGS_WARN_ON += \
@@ -128,6 +141,7 @@ QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 
 } else: win32 {
 
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-attributes
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
@@ -140,9 +154,9 @@ QMAKE_CXXFLAGS_WARN_ON += \
    -Wno-strict-aliasing \
    -Wno-unused-result \
    -Wno-cpp
+}
 
 } else {
-
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-strict-aliasing
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}

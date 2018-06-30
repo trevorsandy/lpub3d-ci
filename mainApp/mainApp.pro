@@ -21,7 +21,9 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../ldvlib
 INCLUDEPATH += ../ldvlib/LDVQt ../ldvlib/TCFoundation ../ldvlib/TRE ../ldvlib/LDLoader ../ldvlib/LDExporter
-
+win32-msvc* {
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+}
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
 # Update the quazip header path if not installed at default location below
@@ -30,7 +32,6 @@ quazipnobuild {
 } else {
     INCLUDEPATH += ../quazip
 }
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HOST_VERSION = $$(PLATFORM_VER)
@@ -68,16 +69,24 @@ unix:!freebsd:!macx {
 QMAKE_CXXFLAGS       += $(Q_CXXFLAGS)
 QMAKE_LFLAGS         += $(Q_LDFLAGS)
 QMAKE_CFLAGS         += $(Q_CFLAGS)
+
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
+}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
 
     DEFINES += QT_NODLL
-    DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
+    win32-msvc* {
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+        DEFINES += _WINSOCKAPI_
+        DEFINES += _TC_STATIC
+        DEFINES += QUAZIP_STATIC
+    }
 
     QMAKE_TARGET_COMPANY = "LPub3D Software"
     QMAKE_TARGET_DESCRIPTION = "LPub3D - An LDraw Building Instruction Editor."
@@ -290,7 +299,9 @@ if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
 
 win32:LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
 else: LIBS += -lGL -lGLU
-LIBS += -lz
+!win32-msvc* {
+    LIBS += -lz
+}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -584,11 +595,12 @@ DISTFILES += \
 update_check: DEFINES += DISABLE_UPDATE_CHECK
 
 # Suppress warnings
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \
     -Wno-unused-parameter \
     -Wno-sign-compare
-
+}
 macx {
 
 QMAKE_CFLAGS_WARN_ON += \
@@ -600,6 +612,7 @@ QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 
 } else: win32 {
 
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-attributes
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
@@ -612,6 +625,7 @@ QMAKE_CXXFLAGS_WARN_ON += \
    -Wno-strict-aliasing \
    -Wno-unused-result \
    -Wno-cpp
+}
 
 } else {
 

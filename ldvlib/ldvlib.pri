@@ -1,8 +1,8 @@
-QT      -= gui
-CONFIG  += warn_on
+QT           -= gui
+CONFIG       += warn_on
 macx: CONFIG -= app_bundle
 
-DEPENDPATH += .
+DEPENDPATH  += .
 INCLUDEPATH += .
 INCLUDEPATH += $$PWD/../mainApp
 
@@ -47,7 +47,7 @@ MOC_DIR         = $$DESTDIR/.moc
 RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
-INCLUDEPATH    += $$PWD
+INCLUDEPATH    += $$PWD $$PWD/include
 unix:INCLUDEPATH += /usr/include /usr/local/include
 
 # USE GNU_SOURCE
@@ -74,5 +74,79 @@ unix:!freebsd:!macx {
 win32 {
     CONFIG       += windows
     QMAKE_EXT_OBJ = .obj
+    win32-msvc*: \
+    DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+    DEFINES += _WINSOCKAPI_
+    QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
 }
 
+# suppress warnings
+contains(LDV_WARNINGS, true) {
+    !win32-msvc* {
+    QMAKE_CFLAGS_WARN_ON += \
+         -Wall -W \
+         -Wno-unknown-pragmas \
+         -Wno-unused-parameter \
+         -Wno-parentheses \
+         -Wno-unused-variable \
+         -Wno-deprecated-declarations \
+         -Wno-return-type \
+         -Wno-sign-compare \
+         -Wno-uninitialized \
+         -Wno-unused-result \
+         -Wno-implicit-fallthrough
+    }
+    macx {
+    QMAKE_CFLAGS_WARN_ON += \
+         -Wno-implicit-function-declaration \
+         -Wno-incompatible-pointer-types-discards-qualifiers \
+         -Wno-incompatible-pointer-types \
+         -Wno-nullability-completeness \
+         -Wno-undefined-bool-conversion \
+         -Wno-invalid-source-encoding \
+         -Wno-mismatched-new-delete \
+         -Wno-for-loop-analysis \
+         -Wno-int-conversion \
+         -Wno-reorder
+    } else {
+    !win32-msvc* {
+    QMAKE_CFLAGS_WARN_ON += \
+         -Wno-clobbered
+    }
+    }
+    QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+}
+contains(LDVLIB_WARNINGS, true) {
+    !win32-msvc* {
+    QMAKE_CFLAGS_WARN_ON =  \
+          -Wno-unused-parameter \
+          -Wno-parentheses \
+          -Wno-unused-variable \
+          -Wno-deprecated-declarations \
+          -Wno-return-type \
+          -Wno-sign-compare \
+          -Wno-uninitialized \
+          -Wno-format \
+          -Wno-switch \
+          -Wno-comment \
+          -Wno-unused-result \
+          -Wno-unused-but-set-variable
+
+    QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
+
+    QMAKE_CFLAGS_WARN_ON +=  \
+          -Wno-implicit-function-declaration \
+          -Wno-incompatible-pointer-types
+    }
+
+    macx {
+    QMAKE_CFLAGS_WARN_ON += \
+          -Wno-incompatible-pointer-types-discards-qualifiers \
+          -Wno-undefined-bool-conversion \
+          -Wno-invalid-source-encoding \
+          -Wno-mismatched-new-delete \
+          -Wno-for-loop-analysis \
+          -Wno-int-conversion \
+          -Wno-reorder
+    }
+}

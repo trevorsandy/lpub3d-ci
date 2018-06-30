@@ -39,10 +39,15 @@
 #include <LDLib/LDConsoleAlertHandler.h>
 #include <LDLoader/LDLModel.h>
 #include <LDLib/LDrawModelViewer.h>
+
+#include <LDLib/LDSnapshotTaker.h>
+#include <LDVQt/LDVPreferences.h>
+
 #include <TRE/TREMainModel.h>
 //#include <TRE/TREGLExtensions.h>
 #include <LDViewExportOption.h>
 #include <LDVAlertHandler.h>
+
 #include <misc.h>
 #include <vector>
 #include <string>

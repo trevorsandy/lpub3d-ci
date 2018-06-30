@@ -1248,10 +1248,10 @@ void Preferences::rendererPreferences(bool updateExisting)
     lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite.exe").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
-#ifdef __i386__
+#if defined __i386__ || defined _M_IX86
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui32.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
-#elif defined __x86_64__
+#elif defined __x86_64__ || defined _M_X64
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView64.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui64.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #endif

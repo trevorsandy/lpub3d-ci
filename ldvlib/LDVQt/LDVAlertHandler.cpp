@@ -5,6 +5,9 @@
 //#include <TCFoundation/TCProgressAlert.h>
 //#include <LDLoader/LDLError.h>
 
+#include <LDLib/LDrawModelViewer.h>
+#include <LDLib/LDSnapshotTaker.h>
+
 AlertHandler::AlertHandler(LDVWidget *ldvw)
 	:m_ldvw(ldvw)
 {

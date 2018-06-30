@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 25, 2018
+rem  Last Update: June 30, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -47,14 +47,11 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_DOWNLOAD_DIR=%USERPROFILE%
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
-  SET LP3D_QT32_MINGW_INC=C:\Msys2\Msys64\mingw32\i686-w64-mingw32\include
-  SET LP3D_QT32_MINGW_LIB=C:\Msys2\Msys64\mingw32\i686-w64-mingw32\lib
-  SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
-  SET LP3D_QT64_MINGW_INC=C:\Msys2\Msys64\mingw64\x86_64-w64-mingw32\include
-  SET LP3D_QT64_MINGW_LIB=C:\Msys2\Msys64\mingw64\x86_64-w64-mingw32\lib
+  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.1\msvc2015\bin
+  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.1\msvc2015_64\bin
 )
 
+SET LP3D_VCVARSALL=C:\program files (x86)\Microsoft Visual Studio 14.0\VC
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
@@ -84,24 +81,24 @@ IF NOT [%1]==[] (
 
 rem Parse platform input flags
 IF [%1]==[] (
-  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
-  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="x86" (
-  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="x86_64" (
-  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86_64
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="-all" (
-  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
-  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
@@ -176,8 +173,8 @@ IF "%APPVEYOR%" EQU "True" (
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
-ECHO   LP3D_QT32_MSYS2................[%LP3D_QT32_MSYS2%]
-ECHO   LP3D_QT64_MSYS2................[%LP3D_QT64_MSYS2%]
+ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%]
+ECHO   LP3D_QT64_MSVC.................[%LP3D_QT64_MSVC%]
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
@@ -218,7 +215,7 @@ IF /I "%PLATFORM%"=="-all" (
 
 rem Configure buid arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
-
+CD /D "%ABS_WD%"
 ECHO.
 ECHO -Building %PLATFORM% platform, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
@@ -229,7 +226,7 @@ qmake -v & ECHO.
 rem Configure makefiles
 qmake %LPUB3D_CONFIG_ARGS%
 rem perform build
-mingw32-make
+nmake.exe
 rem Package 3rd party install content - this must come before check so check can use staged content for test
 IF %INSTALL%==1 CALL :STAGE_INSTALL
 rem Perform build check if specified
@@ -244,6 +241,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   SET PLATFORM=%%P
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
+  CD /D "%ABS_WD%"
   rem Build 3rd party build from source
   IF %BUILD_THIRD%==1 ECHO.
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
@@ -255,7 +253,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   qmake -v & ECHO.
   rem Configure makefiles and launch make
   SETLOCAL ENABLEDELAYEDEXPANSION
-  qmake !LPUB3D_CONFIG_ARGS! & mingw32-make !LPUB3D_MAKE_ARGS!
+  qmake !LPUB3D_CONFIG_ARGS! & nmake.exe !LPUB3D_MAKE_ARGS!
   ENDLOCAL
   rem Package 3rd party install content - this must come before check so check can use staged content for test
   IF %INSTALL%==1 CALL :STAGE_INSTALL
@@ -273,11 +271,20 @@ ECHO -Cleanup any previous LPub3D qmake config files...
 FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
+  "lclib\Makefile*"
   "ldrawini\Makefile*"
-  "quazip\Makefile*"
-  "quazip\object_script.*"
+  "ldvlib\gl2ps\Makefile*"
+  "ldvlib\LDExporter\Makefile*"
+  "ldvlib\LDLib\Makefile*"
+  "ldvlib\LDLoader\Makefile*"
+  "ldvlib\LDVQt\Makefile*"
+  "ldvlib\TCFoundation\Makefile*"
+  "ldvlib\TRE\Makefile*"
+  "ldvlib\libjpeg\Makefile*"
+  "ldvlib\libpng\Makefile*"
+  "ldvlib\tinyxml\Makefile*"
   "mainApp\Makefile*"
-  "mainApp\object_script.*"
+  "quazip\Makefile*"
 ) DO DEL /S /Q "%%~I" >nul 2>&1
 ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..........[%PLATFORM%]
@@ -299,13 +306,18 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 IF %PLATFORM% EQU x86 (
-  SET PATH=%LP3D_QT32_MSYS2%;%PATH%
+  ECHO.
+  CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
+  CALL "%LP3D_VCVARSALL%\vcvarsall.bat" %PLATFORM%
 ) ELSE (
-  SET PATH=%LP3D_QT64_MSYS2%;%PATH%
+  ECHO.
+  CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
+  CALL "%LP3D_VCVARSALL%\vcvarsall.bat" x64
 )
-SET LPUB3D_MAKE_ARGS=-f Makefile
+SET LPUB3D_MAKE_ARGS=-c -f Makefile
 SET PATH_PREPENDED=True
 
+ECHO.
 ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
 SETLOCAL ENABLEDELAYEDEXPANSION
 ECHO(  PATH_PREPEND...................[!PATH!]
@@ -336,7 +348,7 @@ ECHO.
 ECHO -Staging distribution files...
 ECHO.
 rem Perform build and stage package components
-mingw32-make %LPUB3D_MAKE_ARGS% install
+nmake.exe %LPUB3D_MAKE_ARGS% install
 EXIT /b
 
 :DOWNLOAD_LDRAW_LIBS

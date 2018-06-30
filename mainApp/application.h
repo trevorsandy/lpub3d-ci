@@ -130,7 +130,7 @@ private:
     WORD m_currentConsoleAttr;
 
     /// indicate if using allocated console
-    WINBOOL m_allocated_console;
+    BOOL m_allocated_console;
 #endif
 };
 

@@ -6,6 +6,8 @@
 class LDVWidget;
 // class LDLError;
 // class TCProgressAlert;
+class LDrawModelViewer;
+class LDSnapshotTaker;
 class TCAlert;
 
 class AlertHandler : public TCObject

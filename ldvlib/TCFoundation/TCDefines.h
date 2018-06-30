@@ -63,9 +63,12 @@
 
 #pragma warning( disable : 4514 4127 )
 
-/*** LPub3D Mod - suppress __declspec block - causes gcc linking to produce false undefined reference for static libraries ***/
-#define TCExport
-/*
+/*** LPub3D Mod -
+  This is automatically defined when building a static library. When
+  including library in project, _TC_STATIC should must be
+  explicitly defined to avoid troubles with unnecessary importing/exporting.
+/*** LPub3D Mod end ***/
+
 #ifdef _BUILDING_TCFOUNDATION
 #define TCExport __declspec(dllexport)
 #elif defined _BUILDING_TCFOUNDATION_LIB || defined _TC_STATIC
@@ -73,8 +76,6 @@
 #else
 #define TCExport __declspec(dllimport)
 #endif
-*/
-/*** LPub3D Mod end ***/
 
 #else // WIN32
 

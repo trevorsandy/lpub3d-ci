@@ -18,6 +18,10 @@
 #include "threadworkers.h"
 #include "lpub_preferences.h"
 
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+
 char *LDSearchDirs::sm_systemLDrawDir = NULL;
 char *LDSearchDirs::sm_defaultLDrawDir = NULL;
 LDrawIniS *LDSearchDirs::sm_lDrawIni = NULL;
