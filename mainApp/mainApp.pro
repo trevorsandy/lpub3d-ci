@@ -89,11 +89,8 @@ win32 {
 } else {
 
     INCLUDEPATH += /usr/include /usr/local/include
-    macx {
-        INCLUDEPATH += /usr/X11/include
-        LIBS        += -framework CoreFoundation -framework CoreServices
-        LIBS        += -L/usr/X11/lib
-    }
+    macx: \
+    LIBS        += -framework CoreFoundation -framework CoreServices
 }
 
 

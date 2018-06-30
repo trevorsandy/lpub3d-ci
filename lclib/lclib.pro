@@ -16,7 +16,7 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += qt common
-INCLUDEPATH += ../mainApp ../ldvlib ../qslog ../quazip ../qsimpleupdater/src/progress_bar
+INCLUDEPATH += ../mainApp ../ldvlib ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
 
 # The ABI version.
 VER_MAJ = 1

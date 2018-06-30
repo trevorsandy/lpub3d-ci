@@ -40,7 +40,7 @@
 #include <LDLoader/LDLModel.h>
 #include <LDLib/LDrawModelViewer.h>
 #include <TRE/TREMainModel.h>
-#include <TRE/TREGLExtensions.h>
+//#include <TRE/TREGLExtensions.h>
 #include <LDViewExportOption.h>
 #include <LDVAlertHandler.h>
 #include <misc.h>
@@ -269,12 +269,12 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             else
             {
                 makeCurrent();
-                TREGLExtensions::setup();
+//                TREGLExtensions::setup();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
-                if (TREGLExtensions::haveFramebufferObjectExtension())
-                {
+//                if (TREGLExtensions::haveFramebufferObjectExtension())
+//                {
                     snapshotTaker->setUseFBO(true);
-                }
+//                }
                 if (!snapshotTaker->getUseFBO())
                 {
                     setupSnapshotBackBuffer(ldvPreferences->getWindowWidth(), ldvPreferences->getWindowHeight());
@@ -287,7 +287,7 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
 void LDVWidget::initializeGL(void)
 {
     makeCurrent();
-    TREGLExtensions::setup();
+//    TREGLExtensions::setup();
     ldvPreferences->doCancel();
 }
 
@@ -316,11 +316,11 @@ void LDVWidget::paintGL(void)
 {
     glEnable(GL_DEPTH_TEST);
     makeCurrent();
-    if (!TREGLExtensions::haveFramebufferObjectExtension())
-    {
-         glDrawBuffer(GL_BACK);
-         glReadBuffer(GL_BACK);
-    }
+//    if (!TREGLExtensions::haveFramebufferObjectExtension())
+//    {
+//         glDrawBuffer(GL_BACK);
+//         glReadBuffer(GL_BACK);
+//    }
     modelViewer->update();
 }
 
