@@ -77,7 +77,7 @@ QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
 } else {
 QMAKE_CFLAGS_WARN_ON -= -W3
 QMAKE_CFLAGS_WARN_ON += -W0
-QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON -w34189 -w44996
+QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
