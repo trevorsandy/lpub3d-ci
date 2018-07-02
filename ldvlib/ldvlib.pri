@@ -82,10 +82,15 @@ unix:!freebsd:!macx {
 win32 {
     CONFIG       += windows
     QMAKE_EXT_OBJ = .obj
-    win32-msvc*: \
+    win32-msvc* {
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     DEFINES += _WINSOCKAPI_
     QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
+    QMAKE_CFLAGS_WARN_ON -= -W3
+    QMAKE_CFLAGS_WARN_ON += -W0
+    QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON -w34189 -w44996
+    }
+
 }
 
 # suppress warnings
