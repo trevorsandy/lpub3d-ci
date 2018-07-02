@@ -66,7 +66,7 @@
 /*** LPub3D Mod -
   This is automatically defined when building a static library. When
   including library in project, _TC_STATIC should must be
-  explicitly defined to avoid troubles with unnecessary importing/exporting.
+  explicitly defined to avoid troubles with unnecessary importing/exporting. ***/
 /*** LPub3D Mod end ***/
 
 #ifdef _BUILDING_TCFOUNDATION
