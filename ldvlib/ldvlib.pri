@@ -48,7 +48,15 @@ RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
 INCLUDEPATH    += $$PWD $$PWD/include
-unix:INCLUDEPATH += /usr/include /usr/local/include
+!contains(LDVQT_BUILD, true) {
+unix:INCLUDEPATH += /usr/include
+macx:INCLUDEPATH += /usr/local/include
+}
+
+macx:exists(/usr/X11/include){
+    message("~~~ X11 found ~~~")
+    INCLUDEPATH += /usr/X11/include
+}
 
 # USE GNU_SOURCE
 unix:!macx: DEFINES += _GNU_SOURCE

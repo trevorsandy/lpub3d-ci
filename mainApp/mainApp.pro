@@ -59,11 +59,13 @@ unix:!freebsd:!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.6) {
         QMAKE_CXXFLAGS += -std=c++11
+        DEFINES += USE_CPP11
     } else {
         QMAKE_CXXFLAGS += -std=c++0x
     }
 } else {
     CONFIG += c++11
+    DEFINES += USE_CPP11
 }
 
 QMAKE_CXXFLAGS       += $(Q_CXXFLAGS)
@@ -96,8 +98,6 @@ win32 {
     RC_ICONS = "lpub3d.ico"
 
 } else {
-
-    INCLUDEPATH += /usr/include /usr/local/include
     macx: \
     LIBS        += -framework CoreFoundation -framework CoreServices
 }
@@ -265,6 +265,14 @@ LIBS += \
     -l$$TRE_LIB \
     -l$$TCFOUNDATION_LIB
 
+macx{
+exists(/usr/X11/lib){
+message("~~~ X11 found ~~~")
+LIBS += -L/usr/X11/lib
+}
+LIBS += -L/usr/local/lib
+}
+
 quazipnobuild: \
 LIBS += -lquazip
 else: \
@@ -298,7 +306,7 @@ if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
 }
 
 win32:LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
-else: LIBS += -lGL -lGLU
+else: LIBS += -lX11 -lGL -lGLU
 !win32-msvc* {
     LIBS += -lz
 }
