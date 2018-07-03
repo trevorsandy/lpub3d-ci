@@ -52,7 +52,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -185,12 +185,6 @@
             <property name="spacing">
              <number>4</number>
             </property>
-            <item row="1" column="1">
-             <widget class="QPushButton" name="defaultColorButton"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="backgroundColorButton"/>
-            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="defaultColorLabel">
               <property name="text">
@@ -239,6 +233,12 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="0" column="1">
+             <widget class="QToolButton" name="backgroundColorButton"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QToolButton" name="defaultColorButton"/>
             </item>
            </layout>
           </item>

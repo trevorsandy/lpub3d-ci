@@ -223,6 +223,11 @@ protected:
 	LDrawModelViewer *modelViewer;
 	LDPreferences *ldPrefs;
 
+/*** LPub3D Mod - use button icon image ***/
+	QColor backgroundColor;
+	QColor defaultColor;
+/*** LPub3D Mod end ***/
+
 	bool checkAbandon;
 	int hotKeyIndex;
 
