@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 01, 2017
+# Last Update July 03, 2018
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -211,8 +211,16 @@ echo "- change library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
-echo "- build check..."
-LPub3D.app/Contents/MacOS/LPub3D -foo && echo "- build check completed." && echo
+echo "- build checks..."
+# Check if exe exist - here we use the executable name
+LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
+if [ -f "${LPUB3D_EXE}" ]; then
+    # Check commands
+    SOURCE_DIR=../../
+    source ${SOURCE_DIR}/builds/check/build_checks.sh
+else
+    echo "- build-check failed - ${LPUB3D_EXE} not found."
+fi
 
 echo "- setup dmg source dir $(realpath DMGSRC/)..."
 if [ -d DMGSRC ]
