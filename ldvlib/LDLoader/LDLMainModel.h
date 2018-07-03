@@ -32,7 +32,7 @@ public:
 	virtual void setMainModel(LDLMainModel *value) { m_mainModel = value; }
 
 	void setLDConfig(const std::string& value) { m_ldConfig = value; }
-	const std::string& getLDConfig(void) const { return m_ldConfig; }
+	const std::string& getLDConfig(void) const { return m_ldConfig; };
 	// Flags
 	void setLowResStuds(bool value) { m_mainFlags.lowResStuds = value; }
 	bool getLowResStuds(void) const { return m_mainFlags.lowResStuds; }

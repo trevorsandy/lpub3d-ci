@@ -1217,7 +1217,7 @@ void replaceStringCharacter(
 }
 
 char *stringByReplacingSubstring(const char* string, const char* oldSubstring,
-				 const char* newSubstring, bool repeat)
+								 const char* newSubstring, bool repeat)
 {
 	char *newString = NULL;
 
@@ -1415,7 +1415,7 @@ void consolePrintf(const wchar_t *format, ...)
 	va_end(argPtr);
 }
 
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning(disable : 4996) // suppress MS deprecated warning for vsnprintf
 #endif
 

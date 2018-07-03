@@ -110,10 +110,10 @@ LDVWidget::LDVWidget(QWidget *parent)
   ldvPreferences = new LDVPreferences(parent, this);
   ldvPreferences->doApply();
 
-  QImage studImage(":/resources/studlogo.png");
+  QImage studImage(":/resources/StudLogo.png");
   TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
 
-  QFile fontFile(":/resources/sansserif.fnt");
+  QFile fontFile(":/resources/SansSerif.fnt");
   if (fontFile.exists())
   {
       int len = fontFile.size();
@@ -130,7 +130,7 @@ LDVWidget::LDVWidget(QWidget *parent)
       }
   }
 
-  QImage fontImage2x(":/resources/sanserif@2x.png");
+  QImage fontImage2x(":/resources/SansSerif@2x.png");
   long len = fontImage2x.byteCount();
   modelViewer->setRawFont2xData(fontImage2x.bits(),len);
 

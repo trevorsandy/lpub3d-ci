@@ -1,8 +1,7 @@
 #ifndef __TCSTLINCLUDES_H__
 #define __TCSTLINCLUDES_H__
 
-#if defined(WIN32) && !defined(_QT)
-
+#ifdef WIN32
 // In Windows, we have to disable a number of warnings in order to use any STL
 // classes without getting tons of warnings.  The following warning is shut off
 // completely; it's just the warning that identifiers longer than 255 characters
@@ -17,7 +16,7 @@
 #ifndef _DEBUG
 #pragma warning(disable: 4710) // "Not inlined" warnings in release mode.
 #endif // _DEBUG
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 #include <string>
 #include <map>
 #include <vector>

@@ -38,7 +38,9 @@
 #ifndef _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
+#ifndef _CRT_NONSTDC_NO_DEPRECATE 
 #define _CRT_NONSTDC_NO_DEPRECATE
+#endif
 
 #ifdef _WIN32_WINDOWS
 #undef _WIN32_WINDOWS
@@ -68,7 +70,6 @@
   including library in project, _TC_STATIC should must be
   explicitly defined to avoid troubles with unnecessary importing/exporting. ***/
 /*** LPub3D Mod end ***/
-
 #ifdef _BUILDING_TCFOUNDATION
 #define TCExport __declspec(dllexport)
 #elif defined _BUILDING_TCFOUNDATION_LIB || defined _TC_STATIC

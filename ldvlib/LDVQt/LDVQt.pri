@@ -18,6 +18,3 @@ HEADERS += \
 FORMS += \
         $$PWD/LDVExportOptionPanel.ui \
         $$PWD/LDVPreferencesPanel.ui
-
-RESOURCES += \
-        $$PWD/resources.qrc

@@ -1,8 +1,8 @@
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #if _MSC_VER < 1400	// VC < VC 2005
 #pragma warning(disable: 4503) // Decorated name truncated
 #endif // VC < VC 2005
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 #include "TCUserDefaults.h"
 #include "TCStringArray.h"
 #include "TCAlert.h"
@@ -80,8 +80,10 @@ TCUserDefaults::TCUserDefaults(void)
 	strcpy(className, "TCUserDefaults");
 #endif
 #ifdef _QT
+/*** LPub3D Mod - disable new settings path ***/
 	//qSettings = new QSettings("LDView","LDView");
 	qSettings = new QSettings();
+/*** LPub3D Mod end ***/
 #endif // _QT
 #ifdef COCOA
 	appName = copyString([[[NSBundle mainBundle] bundleIdentifier]
@@ -384,7 +386,7 @@ const char* TCUserDefaults::getSessionName(void)
 }
 
 void TCUserDefaults::setStringForKey(const char* value, const char* key,
-				     bool sessionSpecific)
+									 bool sessionSpecific)
 {
 	getCurrentUserDefaults()->defSetStringForKey(value, key, sessionSpecific);
 }
@@ -1021,7 +1023,7 @@ UCSTR TCUserDefaults::defStringForKeyUC(const char* key, bool sessionSpecific,
 }
 
 char* TCUserDefaults::defStringForKey(const char* key, bool sessionSpecific,
-				      const char* defaultValue)
+									  const char* defaultValue)
 {
 	char *commandLineValue = defCommandLineStringForKey(key);
 

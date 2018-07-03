@@ -291,10 +291,12 @@ TCFloat TCVector::epRound(TCFloat value)
 	{
 		int whole = (int)value;
 		int frac = (int)((value - whole + sm_epsilon / 2.0f) * sm_invEpsilon);
-
+		
+/*** LPub3D Mod - Define TCFloat type before return ***/
 		TCFloat retVal = whole + frac / sm_invEpsilon;
 		return retVal;
 		//return whole + frac / sm_invEpsilon;
+/*** LPub3D Mod end ***/		
 		//return (int)((value + sm_epsilon / 2.0f) * sm_invEpsilon) /
 		//	sm_invEpsilon;
 	}
@@ -310,8 +312,8 @@ TCFloat TCVector::epRound(TCFloat value)
 int TCVector::operator==(const TCVector& right) const
 {
 	return fEq(epRound(vector[0]), epRound(right.vector[0])) &&
-	       fEq(epRound(vector[1]), epRound(right.vector[1])) &&
-	       fEq(epRound(vector[2]), epRound(right.vector[2]));
+		fEq(epRound(vector[1]), epRound(right.vector[1])) &&
+		fEq(epRound(vector[2]), epRound(right.vector[2]));
 	//if (sm_epsilon == 0.0)
 	//{
 	//	return fEq(vector[0], right.vector[0]) &&
@@ -441,45 +443,45 @@ bool TCVector::operator>=(const TCVector& right) const
 	return !(*this < right);
 }
 
-// TCVector::operator<(const TCVector&) -- Overloaded Operator
-// Expects:
-//		right	: The right hand side of the < test.
-// Returns:
-//		If the contents of "*this" < the contents of "right", then 1.
-//		Otherwise, 0.
+//// TCVector::operator<(const TCVector&) -- Overloaded Operator
+//// Expects:
+////		right	: The right hand side of the < test.
+//// Returns:
+////		If the contents of "*this" < the contents of "right", then 1.
+////		Otherwise, 0.
 //int TCVector::operator<(const TCVector& right) const
 //{
 //	return length() < right.length();
 //}
 //
-// TCVector::operator>(const TCVector&) -- Overloaded Operator
-// Expects:
-//		right	: The right hand side of the > test.
-// Returns:
-//		If the contents of "*this" > the contents of "right", then 1.
-//		Otherwise, 0.
+//// TCVector::operator>(const TCVector&) -- Overloaded Operator
+//// Expects:
+////		right	: The right hand side of the > test.
+//// Returns:
+////		If the contents of "*this" > the contents of "right", then 1.
+////		Otherwise, 0.
 //int TCVector::operator>(const TCVector& right) const
 //{
 //	return length() > right.length();
 //}
 //
-// TCVector::operator<=(const TCVector&) -- Overloaded Operator
-// Expects:
-//		right	: The right hand side of the <= test.
-// Returns:
-//		If the contents of "*this" <= the contents of "right", then 1.
-//		Otherwise, 0.
+//// TCVector::operator<=(const TCVector&) -- Overloaded Operator
+//// Expects:
+////		right	: The right hand side of the <= test.
+//// Returns:
+////		If the contents of "*this" <= the contents of "right", then 1.
+////		Otherwise, 0.
 //int TCVector::operator<=(const TCVector& right) const
 //{
 //	return length() <= right.length();
 //}
 //
-// TCVector::operator>=(const TCVector&) -- Overloaded Operator
-// Expects:
-//		right	: The right hand side of the >= test.
-// Returns:
-//		If the contents of "*this" >= the contents of "right", then 1.
-//		Otherwise, 0.
+//// TCVector::operator>=(const TCVector&) -- Overloaded Operator
+//// Expects:
+////		right	: The right hand side of the >= test.
+//// Returns:
+////		If the contents of "*this" >= the contents of "right", then 1.
+////		Otherwise, 0.
 //int TCVector::operator>=(const TCVector& right) const
 //{
 //	return length() >= right.length();

@@ -199,14 +199,10 @@ void LDPovExporter::SmoothTriangle::setNormal(
 bool LDPovExporter::SmoothTriangle::initLineKeys(
 	const SizeTVectorMap &indexToVert)
 {
-
 	for (size_t i = 0; i < 3; i++)
 	{
-
 		size_t next = (i + 1) % 3;
 
-		lineKeys[i] = LineKey(indexToVert.find(vertexIndices[i])->second,
-			indexToVert.find(vertexIndices[next])->second);
 		try
 		{
 			lineKeys[i] = LineKey(indexToVert.find(vertexIndices[i])->second,

@@ -140,9 +140,9 @@ TCExport void stripTrailingPathSeparators(wchar_t*);
 TCExport void replaceStringCharacter(char*, char, char, int = 1);
 TCExport void replaceStringCharacter(wchar_t*, wchar_t, wchar_t, int = 1);
 TCExport char *stringByReplacingSubstring(const char* string,
-					  const char* oldSubstring,
-					  const char* newSubstring,
-					  bool repeat = true);
+										  const char* oldSubstring,
+										  const char* newSubstring,
+										  bool repeat = true);
 TCExport int countStringLines(const char*);
 
 TCExport bool getCurrentDirectory(std::string &dir);

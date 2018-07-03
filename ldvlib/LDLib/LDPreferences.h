@@ -32,7 +32,7 @@ public:
 		DDMUnknown		= -1,
 		DDMModelDir		= 0,
 		DDMLastDir		= 1,
-		DDMSpecificDir	        = 2,
+		DDMSpecificDir	= 2,
 	};
 
 	enum SaveOp

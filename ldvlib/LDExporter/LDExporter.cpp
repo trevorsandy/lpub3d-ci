@@ -36,7 +36,7 @@ m_settingsInitialized(false)
 
 	m_appCopyright = "Copyright (C) ";
 	m_appCopyright += buildDate;
-	m_appCopyright += " Travis Cobbs, Peter Bartfai, Trevor Sandy";
+	m_appCopyright += " Travis Cobbs, Peter Bartfai & Trevor Sandy";
 	TCVector::initIdentityMatrix(flipMatrix);
 	// The following flips around to LDraw coordinate system
 	flipMatrix[5] = -1.0f;

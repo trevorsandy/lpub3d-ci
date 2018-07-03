@@ -67,14 +67,14 @@ bool TCPngImageFormat::setupProgressive(void)
 	{
 		return false;
 	}
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( push )
 #pragma warning( disable : 4611 )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 	if (setjmp(jumpBuf))
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( pop )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 	{
 		png_destroy_read_struct(&pngPtr, &infoPtr, NULL);
 		return false;
@@ -219,14 +219,14 @@ bool TCPngImageFormat::loadData(TCImage *limage, TCByte *data, long length)
 	if (setupProgressive())
 	{
 		image = limage;
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( push )
 #pragma warning( disable : 4611 )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 		if (setjmp(jumpBuf))
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( pop )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 		{
 			png_destroy_read_struct(&pngPtr, &infoPtr, NULL);
 			return false;
@@ -264,14 +264,14 @@ bool TCPngImageFormat::loadFile(TCImage *limage, FILE *file)
 		TCByte buf[1024];
 
 		image = limage;
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( push )
 #pragma warning( disable : 4611 )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 		if (setjmp(jumpBuf))
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( pop )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 		{
 			png_destroy_read_struct(&pngPtr, &infoPtr, NULL);
 			return false;
@@ -308,14 +308,14 @@ bool TCPngImageFormat::saveFile(TCImage *limage, FILE *file)
 
 		if (linfoPtr)
 		{
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( push )
 #pragma warning( disable : 4611 )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 			if (!setjmp(jumpBuf))
-#if defined(WIN32) && !defined(_QT)
+#ifdef WIN32
 #pragma warning( pop )
-#endif // WIN32 && NOT _QT
+#endif // WIN32
 			{
 				int i;
 				int rowSize = limage->getRowSize();

@@ -21,7 +21,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../mainApp/lpub3d.qrc">
+   <iconset resource="resources.qrc">
     <normaloff>:/resources/LPub32.png</normaloff>:/resources/LPub32.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -3926,9 +3926,6 @@ into effect until the next time a model is loaded.</string>
   <tabstop>applyButton</tabstop>
  </tabstops>
  <resources>
-  <include location="../../mainApp/lpub3d.qrc"/>
-  <include location="resources.qrc"/>
-  <include location="../../mainApp/lpub3d.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

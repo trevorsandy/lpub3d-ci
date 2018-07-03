@@ -24,7 +24,7 @@ public:
 		:m_normals(NULL),
 		m_normalIndex(-1),
 		m_smoother(NULL),
-		m_smootherIndex(-1) {}
+		m_smootherIndex(-1) {};
 
 	TREVertexArray *m_normals;
 	int m_normalIndex;

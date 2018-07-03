@@ -597,7 +597,8 @@ include(otherfiles.pri)
 
 RESOURCES += \
     ../lclib/resources/lclib.qrc \
-    lpub3d.qrc
+    ../ldvlib/LDVQt/resources.qrc \
+    lpub3d.qrc \
 
 DISTFILES += \
     ldraw_document.icns
