@@ -48,6 +48,8 @@ public:
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
 
+  static bool staticFileCaseCallback(char *filename);
+  static bool staticFileCaseLevel(QDir &dir, char *filename);
   static void setupLDVFormat(void);
 
   void modelViewerAlertCallback(TCAlert *alert);

@@ -47,6 +47,7 @@ struct LDrawSearchDirS
    char          *UnknownFlags; /* Any unknown flags <XXX>                   */
    char          *Dir;          /* The full path of a search dir             */
 };
+
 struct LDrawIniPrivateDataS;    /* Defined in LDrawInP.h                     */
 
 struct LDrawIniS
@@ -67,7 +68,7 @@ struct LDrawIniS
    /* The dir extracted from ModelPath in last LDrawIniComputeRealDirs call */
    char          *ModelDir;
 
-   /* Private date for the LDrawIni routines */
+   /* Private data for the LDrawIni routines */
    struct LDrawIniPrivateDataS *PrivateData;
 };
 

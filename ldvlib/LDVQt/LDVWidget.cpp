@@ -134,6 +134,8 @@ LDVWidget::LDVWidget(QWidget *parent)
   long len = fontImage2x.byteCount();
   modelViewer->setRawFont2xData(fontImage2x.bits(),len);
 
+  LDLModel::setFileCaseCallback(staticFileCaseCallback);
+
   setFocusPolicy(Qt::StrongFocus);
 
   ldvWidget = this;
@@ -230,15 +232,18 @@ void LDVWidget::setupLDVFormat(void)
 
 bool LDVWidget::doCommand(QStringList &arguments)
 {	
-
     std::string ldvArgs = arguments.join(" ").toStdString();
 
     TCUserDefaults::setCommandLine(ldvArgs.c_str());
 
+    LDLModel::setFileCaseCallback(staticFileCaseCallback);
+
     bool retValue = LDSnapshotTaker::doCommandLine(false, true);
     if (!retValue)
+    {
          fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
-
+         fflush(stdout);
+    }
     return retValue;
 }
 
@@ -287,6 +292,100 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             }
         }
     }
+}
+
+bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
+{
+	int i;
+	int len = strlen(filename);
+	QString wildcard;
+	QStringList files;
+
+	if (!dir.isReadable())
+	{
+		return false;
+	}
+	for (i = 0; i < len; i++)
+	{
+		QChar letter = filename[i];
+
+		if (letter.isLetter())
+		{
+			wildcard.append('[');
+			wildcard.append(letter.toLower());
+			wildcard.append(letter.toUpper());
+			wildcard.append(']');
+		}
+		else
+		{
+			wildcard.append(letter);
+		}
+	}
+	dir.setNameFilters(QStringList(wildcard));
+	files = dir.entryList();
+	if (files.count())
+	{
+		QString file = files[0];
+
+		if (file.length() == (int)strlen(filename))
+		{
+			// This should never be false, but just want to be sure.
+			strcpy(filename, file.toLatin1().constData());
+			return true;
+		}
+	}
+	return false;
+}
+
+bool LDVWidget::staticFileCaseCallback(char *filename)
+{
+	char *shortName;
+	QDir dir;
+	char *firstSlashSpot;
+
+	dir.setFilter(QDir::AllEntries | QDir::Readable | QDir::Hidden | QDir::System);
+	replaceStringCharacter(filename, '\\', '/');
+	firstSlashSpot = strchr(filename, '/');
+	if (firstSlashSpot)
+	{
+		char *lastSlashSpot = strrchr(filename, '/');
+		int dirLen;
+		char *dirName;
+
+		while (firstSlashSpot != lastSlashSpot)
+		{
+			char *nextSlashSpot = strchr(firstSlashSpot + 1, '/');
+
+			dirLen = firstSlashSpot - filename + 1;
+			dirName = new char[dirLen + 1];
+			*nextSlashSpot = 0;
+			strncpy(dirName, filename, dirLen);
+			dirName[dirLen] = 0;
+			if (dirLen)
+			{
+				dir.setPath(dirName);
+				delete dirName;
+				if (!staticFileCaseLevel(dir, firstSlashSpot + 1))
+				{
+					return false;
+				}
+			}
+			firstSlashSpot = nextSlashSpot;
+			*firstSlashSpot = '/';
+		}
+		dirLen = lastSlashSpot - filename;
+		dirName = new char[dirLen + 1];
+		strncpy(dirName, filename, dirLen);
+		dirName[dirLen] = 0;
+		dir.setPath(dirName);
+		shortName = lastSlashSpot + 1;
+		delete dirName;
+	}
+	else
+	{
+		shortName = filename;
+	}
+	return staticFileCaseLevel(dir, shortName);
 }
 
 void LDVWidget::initializeGL(void)

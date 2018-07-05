@@ -196,15 +196,15 @@ struct LDrawIniS *LDrawIniGet(const char *LDrawDir,
             /* Not found, see if default/typical locations has P and PARTS */
             if (TryTypicalLDrawDirs(Str, sizeof(Str)))
             {
-               LDrawIni->LDrawDir = strdup(Str);
-               LDrawIni->LDrawDirOrigin = strdup("Typical location on disk");
+              LDrawIni->LDrawDir = strdup(Str);
+              LDrawIni->LDrawDirOrigin = strdup("Typical location on disk");
             }
             else
             {
-               if (ErrorCode)
-                  *ErrorCode = LDRAWINI_ERROR_LDRAWDIR_NOT_SET;
-               free(LDrawIni);
-               return NULL;
+              if (ErrorCode)
+                *ErrorCode = LDRAWINI_ERROR_LDRAWDIR_NOT_SET;
+              free(LDrawIni);
+              return NULL;
             }
          }
       }
@@ -429,7 +429,8 @@ static const char *GetDefaultLDrawSearch(void)
    "|<DEFPART><LDRAWDIR>\\PARTS"
    "|<LDRAWDIR>\\MODELS"
    "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\Unofficial\\P"
-   "|<UNOFFIC><DEFPART><LDRAWDIR>\\Unofficial\\PARTS";
+   "|<UNOFFIC><DEFPART><LDRAWDIR>\\Unofficial\\PARTS"
+   "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\Unofficial";
 }
 
 /* Returns 1 if OK, 0 on error */
