@@ -19,7 +19,7 @@ include(../gitversion.pri)
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../ldvlib
+INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../ldvlib ../ldvlib/include
 INCLUDEPATH += ../ldvlib/LDVQt ../ldvlib/TCFoundation ../ldvlib/TRE ../ldvlib/LDLoader ../ldvlib/LDExporter
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
@@ -271,7 +271,7 @@ LIBS += \
 
 macx{
 exists(/usr/X11/lib){
-message("~~~ X11 found ~~~")
+#message("~~~ X11 found ~~~")
 LIBS += -L/usr/X11/lib
 }
 LIBS += -L/usr/local/lib

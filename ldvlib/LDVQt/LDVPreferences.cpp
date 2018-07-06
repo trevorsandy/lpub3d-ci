@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 Trevor SANDY. All rights reserved.
+**
+** This file may be used under the terms of the
+** GNU General Public Liceense (GPL) version 3.0
+** which accompanies this distribution, and is
+** available at http://www.gnu.org/licenses/gpl.html
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 // On the Mac, TREGL.h has to be included prior to anything else that might
 // include GL/gl.h, or the wrong version of glext.h gets used, and things don't
 // compile.  This is annoying, but it doesn't appear to hurt anything.

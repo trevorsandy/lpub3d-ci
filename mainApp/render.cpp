@@ -43,6 +43,7 @@
 #include "math.h"
 #include "lpub_preferences.h"
 #include "application.h"
+
 #include "LDVWidget.h"
 
 #include "paths.h"
@@ -189,7 +190,7 @@ bool Render::useLDViewSCall(bool override){
     return Preferences::useLDViewSingleCall;
 }
 
-void clipImage(QString const &pngName) {
+bool clipImage(QString const &pngName) {
 
     QImage toClip(QDir::toNativeSeparators(pngName));
     QRect clipBox;
@@ -209,7 +210,7 @@ void clipImage(QString const &pngName) {
 
     if (minX > maxX || minY > maxY) {
         emit gui->messageSig(LOG_STATUS, qPrintable("No opaque content in " + pngName));
-        return;
+        return false;
     } else {
         clipBox.setCoords(minX, minY, maxX, maxY);
     }
@@ -225,7 +226,9 @@ void clipImage(QString const &pngName) {
         emit gui->messageSig(LOG_STATUS, qPrintable("Clipped " + clipMsg));
     } else {
         emit gui->messageSig(LOG_ERROR, qPrintable("Failed to save clipped image " + clipMsg));
+        return false;
     }
+    return true;
  }
 
 // Shared calculations
@@ -389,15 +392,29 @@ int POVRay::renderCsi(
       }
   }
   else
-  // Native block
+  // Native POV Generator block
   if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+
+      QString workingDirectory = QDir::currentPath();
 
       arguments << ldrName;
 
       emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
 
-      if (! ldvWidget->doCommand(arguments))
-          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
+      bool retError = false;
+      ldvWidget = new LDVWidget();
+      ldvWidget->setIniFlag();
+      if (! ldvWidget->doCommand(arguments))  {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
+          retError = true;
+      }
+      // ldvWidget changes the Working directory so we must reset
+      if (! QDir::setCurrent(workingDirectory)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI POV working directory %1").arg(workingDirectory));
+          retError = true;
+      }
+      if (retError)
+          return -1;
   }
 
 
@@ -490,10 +507,10 @@ int POVRay::renderCsi(
       }
   }
 
-  clipImage(pngName);
-
-  return 0;
-
+  if (clipImage(pngName))
+    return 0;
+  else
+    return -1;
 }
 
 int POVRay::renderPli(
@@ -587,15 +604,29 @@ int POVRay::renderPli(
       }
   }
   else
-  // Native block
+  // Native POV Generator block
   if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+
+      QString workingDirectory = QDir::currentPath();
 
       arguments << ldrNames.first();
 
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
-      if (! ldvWidget->doCommand(arguments))
+      bool retError = false;
+      ldvWidget = new LDVWidget();
+      ldvWidget->setIniFlag();
+      if (! ldvWidget->doCommand(arguments)) {
           emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
+          retError = true;
+      }
+      // ldvWidget changes the Working directory so we must reset
+      if (! QDir::setCurrent(workingDirectory)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to restore PLI POV working directory %1").arg(workingDirectory));
+          retError = true;
+      }
+      if (retError)
+        return -1;
   }
 
   QStringList povArguments;
@@ -669,7 +700,7 @@ int POVRay::renderPli(
   emit gui->messageSig(LOG_STATUS, message);
 #endif
 
-  povray.start(Preferences::povrayExe,povArguments);
+  povray.start(Preferences::povrayExe, povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
       if (povray.exitCode() != 0) {
           QByteArray status = povray.readAll();
@@ -680,9 +711,10 @@ int POVRay::renderPli(
       }
   }
 
-  clipImage(pngName);
-
-  return 0;
+  if (clipImage(pngName))
+    return 0;
+  else
+    return -1;
 }
 
 

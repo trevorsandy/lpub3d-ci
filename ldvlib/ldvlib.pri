@@ -54,7 +54,7 @@ macx:INCLUDEPATH += /usr/local/include
 }
 
 macx:exists(/usr/X11/include){
-    message("~~~ X11 found ~~~")
+    #message("~~~ X11 found ~~~")
     INCLUDEPATH += /usr/X11/include
 }
 

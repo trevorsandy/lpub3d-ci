@@ -36,15 +36,19 @@
 #include <TCFoundation/TCStringArray.h>
 #include <TCFoundation/TCAlertManager.h>
 #include <LDLib/LDUserDefaultsKeys.h>
-#include <LDLib/LDConsoleAlertHandler.h>
+
 #include <LDLoader/LDLModel.h>
 #include <LDLib/LDrawModelViewer.h>
-
 #include <LDLib/LDSnapshotTaker.h>
-#include <LDVQt/LDVPreferences.h>
 
 #include <TRE/TREMainModel.h>
-//#include <TRE/TREGLExtensions.h>
+#ifndef __APPLE__
+#include <TRE/TREGLExtensions.h>
+#else
+#include <LDVSnapshotTaker.h>
+#endif
+
+#include <LDVQt/LDVPreferences.h>
 #include <LDViewExportOption.h>
 #include <LDVAlertHandler.h>
 
@@ -53,7 +57,7 @@
 #include <string>
 #include <assert.h>
 
-#include "lpub_messages.h"
+//#include "lpub_messages.h" // not used
 #include "lpub_preferences.h"
 #include "version.h"
 #include "paths.h"
@@ -73,7 +77,7 @@ LDVWidget::LDVWidget(QWidget *parent)
         :QGLWidget(QGLFormat(QGL::SampleBuffers),parent),
         modelViewer(new LDrawModelViewer(100, 100)),
         snapshotTaker(NULL),
-        alertHandler(new AlertHandler(this)),
+        ldvAlertHandler(new LDVAlertHandler(this)),
         programPath(QCoreApplication::applicationFilePath())
 {
 
@@ -96,23 +100,6 @@ LDVWidget::LDVWidget(QWidget *parent)
         fprintf(stdout, "Could not load LDVMessages.ini file %s.\n", messagesPath.toLatin1().constData());
   }
 
-  // Needed to display preferences
-  char *sessionName;
-  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
-  if (sessionName && sessionName[0])
-  {
-        TCUserDefaults::setSessionName(sessionName, NULL, false);
-  }
-  delete sessionName;
-
-  setIniFlag(NativePOVIni, BeforeInit);
-
-  ldvPreferences = new LDVPreferences(parent, this);
-  ldvPreferences->doApply();
-
-  QImage studImage(":/resources/StudLogo.png");
-  TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
-
   QFile fontFile(":/resources/SansSerif.fnt");
   if (fontFile.exists())
   {
@@ -134,6 +121,20 @@ LDVWidget::LDVWidget(QWidget *parent)
   long len = fontImage2x.byteCount();
   modelViewer->setRawFont2xData(fontImage2x.bits(),len);
 
+  // Needed to display preferences
+  char *sessionName;
+  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+  if (sessionName && sessionName[0])
+  {
+        TCUserDefaults::setSessionName(sessionName, NULL, false);
+  }
+  delete sessionName;
+
+  setIniFlag(NativePOVIni, BeforeInit);
+
+  ldvPreferences = new LDVPreferences(parent, this);
+  ldvPreferences->doApply();
+
   LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
   setFocusPolicy(Qt::StrongFocus);
@@ -148,8 +149,8 @@ LDVWidget::~LDVWidget(void)
 	TCObject::release(modelViewer);
 	delete ldvPreferences;
 
-	TCObject::release(alertHandler);
-	alertHandler = NULL;
+	TCObject::release(ldvAlertHandler);
+	ldvAlertHandler = NULL;
 
 	ldvWidget = NULL;
 }
@@ -189,12 +190,38 @@ bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
            else
            if (iniStat == AfterInit)
            {
-                //ldvPreferences->doCancel();
                 ldvPreferences->doApply();
            }
     }
 
     return true;
+}
+
+bool LDVWidget::doCommand(QStringList &arguments)
+{	
+    std::string ldvArgs = arguments.join(" ").toStdString();
+
+    QImage studImage(":/resources/StudLogo.png");
+    TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
+
+    TCUserDefaults::setCommandLine(ldvArgs.c_str());
+
+    LDLModel::setFileCaseCallback(staticFileCaseCallback);
+
+    bool retValue;
+#ifndef __APPLE__
+    retValue = LDSnapshotTaker::doCommandLine(false, true);
+#else
+    LDVSnapshotTaker *snapshotTaker = new LDVSnapshotTaker();
+    retValue = snapshotTaker->doCommandLine();
+            TCObject::release(snapshotTaker);
+#endif
+    if (!retValue)
+    {
+         fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
+         fflush(stdout);
+    }
+    return retValue;
 }
 
 void LDVWidget::showLDVExportOptions()
@@ -221,30 +248,7 @@ void LDVWidget::setupLDVFormat(void)
 {
     ldvFormat.setAlpha(true);
     ldvFormat.setStencil(true);
-//    ldvFormat.setDepthBufferSize(24);
-//    ldvFormat.setRedBufferSize(8);
-//    ldvFormat.setGreenBufferSize(8);
-//    ldvFormat.setBlueBufferSize(8);
-//    ldvFormat.setAlphaBufferSize(8);
-//    ldvFormat.setStencilBufferSize(8);
     QGLFormat::setDefaultFormat(ldvFormat);
-}
-
-bool LDVWidget::doCommand(QStringList &arguments)
-{	
-    std::string ldvArgs = arguments.join(" ").toStdString();
-
-    TCUserDefaults::setCommandLine(ldvArgs.c_str());
-
-    LDLModel::setFileCaseCallback(staticFileCaseCallback);
-
-    bool retValue = LDSnapshotTaker::doCommandLine(false, true);
-    if (!retValue)
-    {
-         fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
-         fflush(stdout);
-    }
-    return retValue;
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
@@ -270,6 +274,7 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
               makeCurrent();
         }
 
+#ifndef __APPLE__
         if (strcmp(alert->getMessage(), "PreFbo") == 0)
         {
             if (getUseFBO())
@@ -279,18 +284,19 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             else
             {
                 makeCurrent();
-//                TREGLExtensions::setup();
+                TREGLExtensions::setup();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
-//                if (TREGLExtensions::haveFramebufferObjectExtension())
-//                {
+                if (TREGLExtensions::haveFramebufferObjectExtension())
+                {
                     snapshotTaker->setUseFBO(true);
-//                }
+                }
                 if (!snapshotTaker->getUseFBO())
                 {
                     setupSnapshotBackBuffer(ldvPreferences->getWindowWidth(), ldvPreferences->getWindowHeight());
                 }
             }
         }
+#endif
     }
 }
 
@@ -391,8 +397,10 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 void LDVWidget::initializeGL(void)
 {
     makeCurrent();
-//    TREGLExtensions::setup();
+#ifndef __APPLE__
+    TREGLExtensions::setup();
     ldvPreferences->doCancel();
+#endif
 }
 
 void LDVWidget::resizeGL(int width, int height)
@@ -420,11 +428,13 @@ void LDVWidget::paintGL(void)
 {
     glEnable(GL_DEPTH_TEST);
     makeCurrent();
-//    if (!TREGLExtensions::haveFramebufferObjectExtension())
-//    {
-//         glDrawBuffer(GL_BACK);
-//         glReadBuffer(GL_BACK);
-//    }
+#ifndef __APPLE__
+    if (!TREGLExtensions::haveFramebufferObjectExtension())
+    {
+         glDrawBuffer(GL_BACK);
+         glReadBuffer(GL_BACK);
+    }
+#endif
     modelViewer->update();
 }
 

@@ -12,21 +12,35 @@
 **
 ****************************************************************************/
 
-#ifndef __MISC_H__
-#define __MISC_H__
+#ifndef __LDVSNAPSHOTTAKER_H__
+#define __LDVSNAPSHOTTAKER_H__
 
-#include <string.h>
-#ifdef _AIX
-#include <strings.h>
+#if defined(__APPLE__)
+
+#include <TCFoundation/TCObject.h>
+
+class TCAlert;
+class LDVSAlertHandler;
+class LDSnapshotTaker;
+
+class LDVSnapshotTaker: public TCObject
+{
+public:
+	LDVSnapshotTaker();
+	bool doCommandLine();
+
+	void snapshotTakerAlertCallback(TCAlert *alert);
+
+protected:
+	virtual ~LDVSnapshotTaker(void);
+	virtual void dealloc(void);
+	bool getUseFBO();
+	void cleanupContext();
+	
+	LDSnapshotTaker *ldSnapshotTaker;
+	LDVSAlertHandler *ldvSnapshotAlertHandler;
+};
+
 #endif
 
-#include <QtCore/qstring.h>
-#include <TCFoundation/mystring.h>
-
-void wcstoqstring(QString &dst, const wchar_t *src, int length = -1);
-QString wcstoqstring(const wchar_t *src, int length = -1);
-void wstringtoqstring(QString &dst, const std::wstring &src);
-void ucstringtoqstring(QString &dst, const ucstring &src);
-void qstringtoucstring(ucstring &dst, const QString &src);
-
-#endif
+#endif // __LDVSNAPSHOTTAKER_H__

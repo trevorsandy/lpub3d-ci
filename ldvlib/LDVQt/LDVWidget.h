@@ -21,19 +21,14 @@
 #include <QDateTime>
 #include <QFileDialog>
 
-//#include <TCFoundation/TCObject.h>
 #include <TCFoundation/TCAlertManager.h>
-
-//#include <LDLib/LDrawModelViewer.h>
-//#include <LDLib/LDSnapshotTaker.h>
-//#include <LDVQt/LDVPreferences.h>
 
 #include "name.h"
 
 class LDrawModelViewer;
-class LDSnapshotTaker;
-class AlertHandler;
+class LDVAlertHandler;
 class LDVPreferences;
+class LDSnapshotTaker;
 
 class LDVWidget : public QGLWidget
 {
@@ -73,7 +68,7 @@ protected:
 
   LDrawModelViewer *modelViewer;
   LDSnapshotTaker *snapshotTaker;
-  AlertHandler *alertHandler;
+  LDVAlertHandler *ldvAlertHandler;
   QString programPath;
 
   LDVPreferences *ldvPreferences;

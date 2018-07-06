@@ -6,6 +6,7 @@ SOURCES += \
         $$PWD/LDVPreferences.cpp \
         $$PWD/LDViewExportOption.cpp \
         $$PWD/LDVAlertHandler.cpp \
+		$$PWD/LDVSnapshotTaker.cpp \
         $$PWD/LDVWidget.cpp
 
 HEADERS += \
@@ -13,6 +14,7 @@ HEADERS += \
         $$PWD/LDVPreferences.h \
         $$PWD/LDViewExportOption.h \
         $$PWD/LDVAlertHandler.h \
+		$$PWD/LDVSnapshotTaker.h \
         $$PWD/LDVWidget.h
 
 FORMS += \
