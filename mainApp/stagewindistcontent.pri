@@ -35,7 +35,7 @@ win32: stagewindistcontent {
     lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
 
     lpub3d_plugin_styles.files += \
-        $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyled.dll
+        $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyle.dll
     lpub3d_plugin_styles.path = $$LPUB3D_STG_PATH/styles
 
     lpub3d_bins_qtlibs.files += \
