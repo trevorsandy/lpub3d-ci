@@ -502,12 +502,20 @@ int Pli::createPartImage(
           return -1;
         }
 
+      emit gui->messageSig(LOG_STATUS, qPrintable(
+                          QString("%1 PLI render took %2 milliseconds "
+                                  "to render %3 for %4.")
+                             .arg(Render::getRenderer())
+                             .arg(timer.elapsed())
+                             .arg(imageName)
+                             .arg(bom ? "BOM part list" : "Step parts list.")));
+
       //  qDebug() << Render::getRenderer()
-        logTrace() << "\n" << Render::getRenderer()
-                   << "PLI render took"
-                   << timer.elapsed() << "milliseconds"
-                   << "to render "<< imageName
-                   << "for " << (bom ? "BOM part list" : "Step parts list.");
+//        logTrace() << "\n" << Render::getRenderer()
+//                   << "PLI render took"
+//                   << timer.elapsed() << "milliseconds"
+//                   << "to render "<< imageName
+//                   << "for " << (bom ? "BOM part list" : "Step parts list.");
     }
 
   pixmap->load(imageName);
@@ -530,12 +538,22 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
           return -1;
         }
-      logTrace() << Render::getRenderer()
-                 << "PLI (Single Call) render took"
-                 << timer.elapsed() << "milliseconds"
-                 << "to render " << ldrNames.size()
-                 << (ldrNames.size() == 1 ? "image" : "images")
-                 << "for" << (bom ? "BOM part list" : "Step parts list.");
+
+      emit gui->messageSig(LOG_STATUS, qPrintable(
+                          QString("%1 PLI (Single Call) render took "
+                                  "%2 milliseconds to render %3 %4 for %5")
+                             .arg(Render::getRenderer())
+                             .arg(timer.elapsed())
+                             .arg(ldrNames.size())
+                             .arg(ldrNames.size() == 1 ? "image" : "images")
+                             .arg(bom ? "BOM part list" : "Step parts list.")));
+
+//      logTrace() << Render::getRenderer()
+//                 << "PLI (Single Call) render took"
+//                 << timer.elapsed() << "milliseconds"
+//                 << "to render " << ldrNames.size()
+//                 << (ldrNames.size() == 1 ? "image" : "images")
+//                 << "for" << (bom ? "BOM part list" : "Step parts list.");
     }
 
   QString key;
