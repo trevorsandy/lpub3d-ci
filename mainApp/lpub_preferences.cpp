@@ -195,10 +195,10 @@ void Preferences::lpubPreferences()
 
     //qDebug() << qPrintable(QString("macOS Binary Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
     qInfo() << qPrintable(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
-    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D   (app bundle executable)
-        cwd.cdUp();                   // Contents/      (app bundle contents)
-        cwd.cdUp();                   // LPub3D.app/    (app bundle)
-        cwd.cdUp();                   // Applications/  (app bundle installation path)
+    if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
+        cwd.cdUp();                   // Contents/      (app bundle contents folder)
+        cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
+        cwd.cdUp();                   // Applications/  (app bundle installation folder)
     }
     //qDebug() << qPrintable(QString("macOS Base Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
     qInfo() << qPrintable(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));

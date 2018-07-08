@@ -88,16 +88,15 @@ LDVWidget::LDVWidget(QWidget *parent)
 
   modelViewer->setProgramPath(programPath.toLatin1().constData());
 
-  QFile file(VER_NATIVE_LDV_MESSAGES_FILE);
-  QDir::setCurrent(QDir(Preferences::dataLocation).absolutePath());
-  if (!file.exists())
-  {
-        QDir::setCurrent(QDir(QCoreApplication::applicationDirPath()).absolutePath());
-  }
-  QString messagesPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + file.fileName());
+  QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
+                                                  .arg(Preferences::dataLocation)
+                                                  .arg(VER_NATIVE_LDV_MESSAGES_FILE));
+  //fprintf(stdout, "SETTING LDVMessages.ini file PATH TO %s.\n", messagesPath.toLatin1().constData());
+
   if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
   {
         fprintf(stdout, "Could not load LDVMessages.ini file %s.\n", messagesPath.toLatin1().constData());
+        fflush(stdout);
   }
 
   QFile fontFile(":/resources/SansSerif.fnt");
@@ -178,6 +177,7 @@ bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
                     break;
                 default:
                     fprintf(stdout, "Ini file not specified!\n");
+                    fflush(stdout);
                     return false;
            }
            if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
@@ -185,6 +185,7 @@ bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
                 fprintf(stdout, "Could not set %s INI file: %s\n",
                         title.toLatin1().constData(),
                         iniFile.toLatin1().constData());
+                fflush(stdout);
                 return false;
            }
            else

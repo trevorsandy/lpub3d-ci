@@ -341,9 +341,7 @@ merge_ini_commands = \
 $$COPY_CMD \
 $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini) $$PLUS_CMD \
 $$system_path($$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini) $$REDIRECT_CMD \
-$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI) && $$COPY_CMD \
-$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI) $$REDIRECT_CMD \
-$$system_path($$OUT_PWD/$$DESTDIR/$$LDV_MESSAGES_INI)
+$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI)
 
 merge_ini.target   = $$LDV_MESSAGES_INI
 merge_ini.commands = $$merge_ini_commands
