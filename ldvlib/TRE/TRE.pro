@@ -1,5 +1,6 @@
 TEMPLATE = lib
 QT      += core
+QT      += opengl
 CONFIG  += staticlib
 
 unix: !macx: TARGET = tre

@@ -18,9 +18,6 @@
 #include <TCFoundation/TCObject.h>
 
 class TCAlert;
-class LDrawModelViewer;
-class LDSnapshotTaker;
-
 class LDVWidget;
 class LDVAlertHandler : public TCObject
 {
@@ -35,23 +32,5 @@ protected:
 
 	LDVWidget *m_ldvw;
 };
-
-#if defined(__APPLE__)
-
-class LDVSnapshotTaker;
-class LDVSAlertHandler : public TCObject
-{
-public:
-	LDVSAlertHandler(LDVSnapshotTaker *ldvsw);
-protected:
-	~LDVSAlertHandler(void);
-	virtual void dealloc(void);
-
-	void snapshotTakerAlertCallback(TCAlert *alert);
-
-	LDVSnapshotTaker *m_ldvsw;
-};
-
-#endif
 
 #endif // __LDVALERTHANDLER_H__

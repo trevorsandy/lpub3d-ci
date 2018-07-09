@@ -23,6 +23,7 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QDesktopServices>
+
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
@@ -42,11 +43,7 @@
 #include <LDLib/LDSnapshotTaker.h>
 
 #include <TRE/TREMainModel.h>
-#ifndef __APPLE__
 #include <TRE/TREGLExtensions.h>
-#else
-#include <LDVSnapshotTaker.h>
-#endif
 
 #include <LDVQt/LDVPreferences.h>
 #include <LDViewExportOption.h>
@@ -62,19 +59,17 @@
 #include "version.h"
 #include "paths.h"
 
-#define PNG_IMAGE_TYPE_INDEX 1
-#define BMP_IMAGE_TYPE_INDEX 2
-#define JPG_IMAGE_TYPE_INDEX 3
 #define WIN_WIDTH 640
 #define WIN_HEIGHT 480
 
 LDVWidget* ldvWidget;
 IniFlag LDVWidget::iniFlag;
 
-static QGLFormat ldvFormat;
-
 LDVWidget::LDVWidget(QWidget *parent)
-        :QGLWidget(QGLFormat(QGL::SampleBuffers),parent),
+        :QOpenGLWidget(parent),
+        ldvFormat(NULL),
+        ldvWindow(NULL),
+        ldvContext(NULL),
         modelViewer(new LDrawModelViewer(100, 100)),
         snapshotTaker(NULL),
         ldvAlertHandler(new LDVAlertHandler(this)),
@@ -82,6 +77,10 @@ LDVWidget::LDVWidget(QWidget *parent)
 {
 
   setupLDVFormat();
+
+  setupLDVWindow();
+
+  setupLDVContext();
 
   QString appName = Preferences::lpub3dAppName;
   TCUserDefaults::setAppName(appName.toLatin1().constData());
@@ -144,14 +143,16 @@ LDVWidget::LDVWidget(QWidget *parent)
 
 LDVWidget::~LDVWidget(void)
 {
-	TCObject::release(snapshotTaker);
-	TCObject::release(modelViewer);
-	delete ldvPreferences;
+    ldvContext->makeCurrent(ldvWindow);
+    TCObject::release(snapshotTaker);
+    TCObject::release(modelViewer);
+    delete ldvPreferences;
 
-	TCObject::release(ldvAlertHandler);
-	ldvAlertHandler = NULL;
+    TCObject::release(ldvAlertHandler);
+    ldvAlertHandler = NULL;
 
-	ldvWidget = NULL;
+    doneCurrent();
+    ldvWidget = NULL;
 }
 
 bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
@@ -209,14 +210,7 @@ bool LDVWidget::doCommand(QStringList &arguments)
 
     LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
-    bool retValue;
-#ifndef __APPLE__
-    retValue = LDSnapshotTaker::doCommandLine(false, true);
-#else
-    LDVSnapshotTaker *snapshotTaker = new LDVSnapshotTaker();
-    retValue = snapshotTaker->doCommandLine();
-            TCObject::release(snapshotTaker);
-#endif
+    bool retValue = LDSnapshotTaker::doCommandLine(false, true);
     if (!retValue)
     {
          fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
@@ -247,9 +241,67 @@ void LDVWidget::showLDVPreferences()
 
 void LDVWidget::setupLDVFormat(void)
 {
-    ldvFormat.setAlpha(true);
-    ldvFormat.setStencil(true);
-    QGLFormat::setDefaultFormat(ldvFormat);
+    // Specify the format and create platform-specific surface
+    ldvFormat.setDepthBufferSize( 24 );
+    ldvFormat.setStencilBufferSize(8);
+    ldvFormat.setRedBufferSize(8);
+    ldvFormat.setGreenBufferSize(8);
+    ldvFormat.setBlueBufferSize(8);
+    ldvFormat.setAlphaBufferSize(8);
+
+    ldvFormat.setMajorVersion( 4 );
+    ldvFormat.setMinorVersion( 3 );
+    ldvFormat.setSamples( 16 );
+    ldvFormat.setProfile( QSurfaceFormat::CoreProfile );
+    QSurfaceFormat::setDefaultFormat(ldvFormat);
+}
+
+void LDVWidget::setupLDVWindow(void)
+{
+    ldvWindow = new QWindow();
+    ldvWindow->setSurfaceType(QWindow::OpenGLSurface);
+    ldvWindow->setFormat(ldvFormat);
+    createWindowContainer(ldvWindow, this);
+}
+
+void LDVWidget::setupLDVContext()
+{
+    bool needsInitialize = false;
+
+    if (!ldvContext) {
+        ldvContext = new QOpenGLContext(this);
+        ldvContext->setFormat(ldvFormat);
+        if (!ldvContext->create())
+            fprintf(stdout, "Cannot create an OpenGL context!\n");
+
+        needsInitialize = true;
+    }
+
+    ldvContext->makeCurrent(ldvWindow);
+
+    if (needsInitialize) {
+        initializeOpenGLFunctions();
+        //displayGLExtensions();
+    }
+}
+
+void LDVWidget::displayGLExtensions()
+{
+    // Query version
+    const GLubyte *Version = glGetString(GL_VERSION);
+    int VersionMajor = 0, VersionMinor = 0;
+    if (Version) {
+        sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
+        fprintf(stdout, "OpenGL version (%d.%d).\n", VersionMajor, VersionMinor);
+    }
+
+    // Query extensions
+    QList<QByteArray> extensions = ldvContext->extensions().toList();
+    std::sort( extensions.begin(), extensions.end() );
+    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
+    foreach ( const QByteArray &extension, extensions )
+        fprintf(stdout, "     %s\n", extension.constData());
+    fflush(stdout);
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
@@ -272,10 +324,9 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
     {
         if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
         {
-              makeCurrent();
+              ldvContext->makeCurrent(ldvWindow);
         }
 
-#ifndef __APPLE__
         if (strcmp(alert->getMessage(), "PreFbo") == 0)
         {
             if (getUseFBO())
@@ -284,7 +335,7 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             }
             else
             {
-                makeCurrent();
+                ldvContext->makeCurrent(ldvWindow);
                 TREGLExtensions::setup();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
                 if (TREGLExtensions::haveFramebufferObjectExtension())
@@ -297,7 +348,6 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
                 }
             }
         }
-#endif
     }
 }
 
@@ -397,11 +447,9 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 
 void LDVWidget::initializeGL(void)
 {
-    makeCurrent();
-#ifndef __APPLE__
+    ldvContext->makeCurrent(ldvWindow);
     TREGLExtensions::setup();
     ldvPreferences->doCancel();
-#endif
 }
 
 void LDVWidget::resizeGL(int width, int height)
@@ -428,14 +476,12 @@ void LDVWidget::resizeGL(int width, int height)
 void LDVWidget::paintGL(void)
 {
     glEnable(GL_DEPTH_TEST);
-    makeCurrent();
-#ifndef __APPLE__
+    ldvContext->makeCurrent(ldvWindow);
     if (!TREGLExtensions::haveFramebufferObjectExtension())
     {
          glDrawBuffer(GL_BACK);
          glReadBuffer(GL_BACK);
     }
-#endif
     modelViewer->update();
 }
 

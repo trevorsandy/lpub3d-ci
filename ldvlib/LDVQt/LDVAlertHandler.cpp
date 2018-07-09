@@ -14,9 +14,8 @@
 
 #include "LDVAlertHandler.h"
 #include "LDVWidget.h"
-#include "LDVSnapshotTaker.h"
-#include <TCFoundation/TCAlertManager.h>
 
+#include <TCFoundation/TCAlertManager.h>
 #include <LDLib/LDrawModelViewer.h>
 #include <LDLib/LDSnapshotTaker.h>
 
@@ -59,34 +58,3 @@ void LDVAlertHandler::snapshotTakerAlertCallback(TCAlert *alert)
 	}
 }
 
-#if defined(__APPLE__)
-
-LDVSAlertHandler::LDVSAlertHandler(LDVSnapshotTaker *ldvsw)
-	:m_ldvsw(ldvsw)
-{
-
-	TCAlertManager::registerHandler(LDSnapshotTaker::alertClass(), this,
-		(TCAlertCallback)&LDVSAlertHandler::snapshotTakerAlertCallback);
-		
-}
-
-LDVSAlertHandler::~LDVSAlertHandler(void)
-{
-}
-
-void LDVSAlertHandler::dealloc(void)
-{
-	TCAlertManager::unregisterHandler(LDrawModelViewer::alertClass(), this);
-
-	TCObject::dealloc();
-}
-
-void LDVSAlertHandler::snapshotTakerAlertCallback(TCAlert *alert)
-{
-	if (m_ldvsw)
-	{
-		m_ldvsw->snapshotTakerAlertCallback(alert);
-	}
-}
-
-#endif

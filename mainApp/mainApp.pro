@@ -269,14 +269,6 @@ LIBS += \
     -l$$TRE_LIB \
     -l$$TCFOUNDATION_LIB
 
-macx{
-exists(/usr/X11/lib){
-#message("~~~ X11 found ~~~")
-LIBS += -L/usr/X11/lib
-}
-LIBS += -L/usr/local/lib
-}
-
 quazipnobuild: \
 LIBS += -lquazip
 else: \
@@ -284,7 +276,8 @@ LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
 LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
 
 if (unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h)) {
-    LIBS += -lgl2ps
+    macx:LIBS += /usr/local/lib/libgl2ps.dylib
+    else:LIBS += -lgl2ps
 } else {
     LIBS += -L$$OUT_PWD/../ldvlib/gl2ps/$$DESTDIR -l$$GL2PS_LIB
 }
@@ -292,25 +285,28 @@ if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)|BUILD_GL2PS
     if (contains(HOST, Ubuntu):contains(HOST, 14.04.5)|BUILD_GL2PS) {
         LIBS += -L$$OUT_PWD/../ldvlib/libpng/$$DESTDIR -l$$PNG_LIB
     } else {
-        LIBS += -lpng
+        macx:LIBS += /usr/local/lib/libpng.dylib
+        else:LIBS += -lpng
     }
 } else {
     LIBS += -L$$OUT_PWD/../ldvlib/libpng/$$DESTDIR -l$$PNG_LIB
 }
 if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) {
-    LIBS += -ljpeg
+    macx:LIBS += /usr/local/lib/libjpeg.dylib
+    else:LIBS += -ljpeg
 } else {
     !win32:message("~~~ ALERT: library jpeg not found, building it... ~~~")
     LIBS += -L$$OUT_PWD/../ldvlib/libjpeg/$$DESTDIR -l$$JPEG_LIB
 }
 if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
-    LIBS += -ltinyxml
+    macx:LIBS += /usr/local/lib/libtinyxml.dylib
+    else:LIBS += -ltinyxml
 } else {
     LIBS += -L$$OUT_PWD/../ldvlib/tinyxml/$$DESTDIR -l$$TINYXML_LIB
 }
 
 win32:LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
-else: LIBS += -lX11 -lGL -lGLU
+else:!macx:LIBS += -lGL -lGLU
 !win32-msvc* {
     LIBS += -lz
 }
