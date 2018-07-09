@@ -1243,8 +1243,7 @@ int Pli::partSize()
 
               if (createPartImage(key,part->type,part->color,pixmap)) {
                   QString imageName = Paths::partsDir + "/" + key + ".png";
-                  QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                       QMessageBox::tr("Failed to create PLI part %1")
+                  emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part %1")
                                        .arg(imageName));
                   return -1;
                 }
@@ -1420,8 +1419,7 @@ int Pli::partSizeLDViewSCall() {
 
   // 2. Call create part images; send ldr file names
   if (createPartImagesLDViewSCall(ldrNames)) {
-      QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                           QMessageBox::tr("Failed to create PLI part images"));
+      emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images"));
       return -1;
     }
 

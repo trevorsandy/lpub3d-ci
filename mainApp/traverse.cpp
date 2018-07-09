@@ -1101,8 +1101,7 @@ int Gui::drawPage(
                             steps->meta);
 
                       if (rc) {
-                          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                QMessageBox::tr("Failed to create CSI."));
+                          emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
                           return rc;
                         }
 
