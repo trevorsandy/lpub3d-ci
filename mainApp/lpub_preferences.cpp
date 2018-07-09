@@ -203,7 +203,7 @@ void Preferences::lpubPreferences()
     //qDebug() << qPrintable(QString("macOS Base Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
     qInfo() << qPrintable(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
 
-    lpub3dExtrasResourcePath = QString("%1.app/Contents/Resources").arg(lpub3dAppName);
+    lpub3dExtrasResourcePath = QString("%1/%2.app/Contents/Resources").arg(cwd.absolutePath(),lpub3dAppName);
     lpub3dDocsResourcePath   = lpub3dExtrasResourcePath;
 
     if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
