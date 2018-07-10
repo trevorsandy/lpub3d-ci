@@ -64,6 +64,7 @@ unix:!macx: DEFINES += _GNU_SOURCE
 QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
 QMAKE_LFLAGS    += $(Q_LDFLAGS)
 QMAKE_CFLAGS    += $(Q_CFLAGS)
+# stdlib.h fix placeholder - do not remove
 
 # USE CPP 11
 unix:!freebsd:!macx {
