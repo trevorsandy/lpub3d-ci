@@ -1663,10 +1663,13 @@ void Preferences::updateNativePOVIniFile(bool updateExisting)
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
             }
             // set lgeo paths as required
-            if (lgeoPath != ""){
-                if (line.contains(QRegExp("^XmlMapPath=")))
+            if (line.contains(QRegExp("^XmlMapPath=")))
+            {
+                line.clear();
+                if (lgeoPath.isEmpty())
                 {
-                    line.clear();
+                    line = QString("XmlMapPath=");
+                } else {
                     line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
                 }
             }
@@ -1802,10 +1805,13 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
             }
             // set lgeo paths as required
-            if (lgeoPath != ""){
-                if (line.contains(QRegExp("^XmlMapPath=")))
+            if (line.contains(QRegExp("^XmlMapPath=")))
+            {
+                line.clear();
+                if (lgeoPath.isEmpty())
                 {
-                    line.clear();
+                    line = QString("XmlMapPath=");
+                } else {
                     line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
                 }
             }
