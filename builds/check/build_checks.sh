@@ -2,11 +2,11 @@
 # Trevor SANDY
 # Last Update July 10, 2018
 # LPub3D Unix checks
-# NOTE: this file must be sourced. with ${SOURCE_DIR} and ${PUB3D_EXE} predefined.
+# NOTE: this file must be sourced. with ${LPUB3D_EXE} and ${SOURCE_DIR} predefined.
 
 if [[ "${DOCKER}" = "true" && ${XMING} != "true" ]]; then
 echo && echo "- Using XVFB"
-LP3D_XVFB_CMD="xvfb-run --auto-servernum --server-num=1 -s \"-screen 0 1024x768x24\""
+LP3D_XVFB_CMD="xvfb-run --auto-servernum --server-num=1 --server-args=\"-screen 0 1024x768x24\""
 else
 LP3D_XVFB_CMD=""
 fi
