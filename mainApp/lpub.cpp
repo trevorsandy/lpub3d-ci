@@ -2963,7 +2963,7 @@ void Gui::enableActions()
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
 
-  ExportMenuViewer->setEnabled(true);
+  //ExportMenuViewer->setEnabled(true); // Hide 3DViewer step export functions
 
 }
 
@@ -3026,7 +3026,7 @@ void Gui::disableActions()
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
-  ExportMenuViewer->setEnabled(false);
+  // ExportMenuViewer->setEnabled(false); // Hide 3DViewer step export functions
 
 }
 
@@ -3211,6 +3211,7 @@ void Gui::createMenus()
     QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("3DViewer Too&lbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
 
+    /* // Hide 3DViewer step export functions
     FileMenuViewer = menuBar()->addMenu(tr("&Step"));
     FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
     FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
@@ -3225,6 +3226,7 @@ void Gui::createMenus()
     ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
     ExportMenuViewer->setDisabled(true);
     // 3D Viewer Menus End
+    */
 
     // Help Menus
 
