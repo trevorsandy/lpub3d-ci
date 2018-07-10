@@ -24,6 +24,7 @@ skip_commits:
    - mainApp\macosfiledistro.pri
    - builds\linux\
    - builds\macx\
+   - builds\check\build_check.sh
    - builds\utilities\mesa\
    - builds\utilities\ci\travis\
    - builds\utilities\dmg-utils\
