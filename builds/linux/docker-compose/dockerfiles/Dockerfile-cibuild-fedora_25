@@ -1,6 +1,7 @@
 FROM fedora:25
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN dnf install -y git wget unzip which rpmlint ccache dnf-plugins-core rpm-build > CreateDockerImage_fedora_25.log 2>&1
+RUN dnf install -y xorg-x11-server-Xvfb desktop-file-utils >> CreateDockerImage_fedora_25.log 2>&1
 RUN dnf install -y qt5-qtbase-devel qt5-qttools-devel >> CreateDockerImage_fedora_25.log 2>&1
 RUN dnf update -x kernel* -y >> CreateDockerImage_fedora_25.log 2>&1
 RUN dnf install -y sudo \
