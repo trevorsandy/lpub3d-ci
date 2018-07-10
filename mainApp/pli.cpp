@@ -481,12 +481,12 @@ int Pli::createPartImage(
           out << orient(color, type) << endl;
           out << QString("0 NOFILE") << endl;
       }
-      else
-      // For POV generation, we do not use pli.mpd orientation
-      if (Preferences::preferredRenderer == RENDERER_POVRAY)
-      {
-          out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type) << endl;
-      }
+//      else
+//      // For POV generation, do not use pli.mpd orientation
+//      if (Preferences::preferredRenderer == RENDERER_POVRAY)
+//      {
+//          out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type) << endl;
+//      }
       else
       {
           out << orient(color, type) << endl;
