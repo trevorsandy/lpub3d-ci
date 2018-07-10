@@ -12,9 +12,12 @@
 **
 ****************************************************************************/
 
-// On the Mac, TREGL.h has to be included prior to anything else that might
-// include GL/gl.h, or the wrong version of glext.h gets used, and things don't
-// compile.  This is annoying, but it doesn't appear to hurt anything.
+// On the Mac, when using Qt, glextmacosqt.h has to be included prior to anything
+// else that might include GL/gl.h, to override and force-load the needed extensions,
+// otherwise things don't compile. This is annoying, but it doesn't appear to hurt anything.
+#ifdef __APPLE__
+#include <GL/glextmacosqt.h>
+#endif // __APPLE__
 #include <TRE/TREGLExtensions.h>
 #include <LDLoader/LDLModel.h>
 #include <LDLoader/LDLPalette.h>
@@ -22,7 +25,7 @@
 #include <TCFoundation/mystring.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <TCFoundation/TCMacros.h>
-//#include <TCFoundation/TCWebClient.h>
+//#include <TCFoundation/TCWebClient.h>  // Not Used
 #include <QColor>
 #include <QInputDialog>
 #include <QFileDialog>

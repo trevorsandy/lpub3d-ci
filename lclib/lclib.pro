@@ -16,7 +16,8 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += qt common
-INCLUDEPATH += ../mainApp ../ldvlib ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
+INCLUDEPATH += ../mainApp ../ldvlib/LDVQt/include
+INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
@@ -42,16 +43,8 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
 QMAKE_LFLAGS    += $(Q_LDFLAGS)
 QMAKE_CFLAGS    += $(Q_CFLAGS)
-!win32-msvc* {
-QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
-} else {
-QMAKE_CFLAGS_WARN_ON -= -W3
-QMAKE_CFLAGS_WARN_ON += -W0
-QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-}
 
 DEFINES += LC_DISABLE_UPDATE_CHECK=1
-DEFINES += _TC_STATIC
 
 # USE CPP 11
 unix:!freebsd:!macx {
@@ -70,10 +63,27 @@ PRECOMPILED_HEADER = common/lc_global.h
 
 win32 {
 
-    DEFINES += _TC_STATIC
     win32-msvc* {
         DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         DEFINES += _WINSOCKAPI_
+        DEFINES += _TC_STATIC
+
+        QMAKE_CFLAGS_WARN_ON -= -W3
+        QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
+        CONFIG(debug, debug|release) {
+            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 -Gm $$QMAKE_ADDL_MSVC_FLAGS
+            QMAKE_CFLAGS_WARN_ON += -W4 -WX-
+            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        }
+        CONFIG(release, debug|release) {
+            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -Gm- -GF -Gy
+            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX-
+            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        }
+        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
     }
 
     PRECOMPILED_SOURCE = common/lc_global.cpp

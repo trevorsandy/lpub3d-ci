@@ -18,9 +18,9 @@
 #define LDVWIDGET_H
 
 #include <QWindow>
-#include <QOpenGLContext>
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QGLContext>
+#include <QGLWidget>
+#include <QGLFunctions>
 #include <QDateTime>
 #include <QFileDialog>
 
@@ -33,7 +33,7 @@ class LDVAlertHandler;
 class LDVPreferences;
 class LDSnapshotTaker;
 
-class LDVWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class LDVWidget : public QGLWidget, protected QGLFunctions
 {
 
   Q_OBJECT
@@ -61,7 +61,6 @@ public:
 
 protected:
   void setupLDVFormat(void);
-  void setupLDVWindow(void);
   void setupLDVContext(void);
   void displayGLExtensions(void);
 
@@ -73,9 +72,8 @@ protected:
   bool getUseFBO();
   void setupSnapshotBackBuffer(int width, int height);
 
-  QSurfaceFormat ldvFormat;
-  QWindow *ldvWindow;
-  QOpenGLContext *ldvContext;
+  QGLFormat ldvFormat;
+  QGLContext *ldvContext;
 
   LDrawModelViewer *modelViewer;
   LDSnapshotTaker *snapshotTaker;

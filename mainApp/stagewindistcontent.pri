@@ -69,7 +69,7 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/pliSubstituteParts.lst \
         $$LPUB3D_STG_EXTRAS/povray.ini \
         $$LPUB3D_STG_EXTRAS/titleAnnotations.lst \
-        $$LPUB3D_STG_EXTRAS/$$LDV_MESSAGES_INI
+        $$LPUB3D_STG_EXTRAS/$$LDVMESSAGESINI
     lpub3d_extras.path = $$LPUB3D_STG_PATH/extras
 
     lpub3d_docs.files += \

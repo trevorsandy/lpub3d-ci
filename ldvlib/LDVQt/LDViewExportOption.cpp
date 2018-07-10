@@ -17,13 +17,14 @@
 #include <TCFoundation/mystring.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <LDExporter/LDExporter.h>
+#include <LDVMisc.h>
 #include <QFileDialog>
 #include <QToolTip>
-#include "misc.h"
-#include "LDVPreferences.h"
 
+#include "LDVPreferences.h"
 #include "LDViewExportOption.h"
 #include "LDVWidget.h"
+
 #include "ui_LDVExportOptionPanel.h"
 
 #include "lpub_preferences.h"

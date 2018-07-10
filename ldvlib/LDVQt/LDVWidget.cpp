@@ -28,6 +28,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
 #include <ApplicationServices/ApplicationServices.h>
+// On the Mac, when using Qt, glextmacosqt.h has to be included prior to anything
+// else that might include GL/gl.h, to override and force-load the needed extensions,
+// otherwise things don't compile. This is annoying, but it doesn't appear to hurt anything.
+#include <GL/glextmacosqt.h>
 #endif // __APPLE__
 
 #include <TCFoundation/mystring.h>
@@ -45,11 +49,10 @@
 #include <TRE/TREMainModel.h>
 #include <TRE/TREGLExtensions.h>
 
-#include <LDVQt/LDVPreferences.h>
+#include <LDVPreferences.h>
 #include <LDViewExportOption.h>
 #include <LDVAlertHandler.h>
 
-#include <misc.h>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -66,19 +69,15 @@ LDVWidget* ldvWidget;
 IniFlag LDVWidget::iniFlag;
 
 LDVWidget::LDVWidget(QWidget *parent)
-        :QOpenGLWidget(parent),
+        : QGLWidget(parent),
         ldvFormat(NULL),
-        ldvWindow(NULL),
         ldvContext(NULL),
         modelViewer(new LDrawModelViewer(100, 100)),
         snapshotTaker(NULL),
         ldvAlertHandler(new LDVAlertHandler(this)),
         programPath(QCoreApplication::applicationFilePath())
 {
-
   setupLDVFormat();
-
-  setupLDVWindow();
 
   setupLDVContext();
 
@@ -89,12 +88,12 @@ LDVWidget::LDVWidget(QWidget *parent)
 
   QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
                                                   .arg(Preferences::dataLocation)
-                                                  .arg(VER_NATIVE_LDV_MESSAGES_FILE));
-  //fprintf(stdout, "SETTING LDVMessages.ini file PATH TO %s.\n", messagesPath.toLatin1().constData());
+                                                  .arg(VER_LDVMESSAGESINI_FILE));
+ fprintf(stdout, "SETTING %s file PATH TO %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
 
   if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
   {
-        fprintf(stdout, "Could not load LDVMessages.ini file %s.\n", messagesPath.toLatin1().constData());
+        fprintf(stdout, "Could not load  %s file %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
         fflush(stdout);
   }
 
@@ -143,7 +142,7 @@ LDVWidget::LDVWidget(QWidget *parent)
 
 LDVWidget::~LDVWidget(void)
 {
-    ldvContext->makeCurrent(ldvWindow);
+    makeCurrent();
     TCObject::release(snapshotTaker);
     TCObject::release(modelViewer);
     delete ldvPreferences;
@@ -249,38 +248,26 @@ void LDVWidget::setupLDVFormat(void)
     ldvFormat.setBlueBufferSize(8);
     ldvFormat.setAlphaBufferSize(8);
 
-    ldvFormat.setMajorVersion( 4 );
-    ldvFormat.setMinorVersion( 3 );
-    ldvFormat.setSamples( 16 );
-    ldvFormat.setProfile( QSurfaceFormat::CoreProfile );
-    QSurfaceFormat::setDefaultFormat(ldvFormat);
-}
-
-void LDVWidget::setupLDVWindow(void)
-{
-    ldvWindow = new QWindow();
-    ldvWindow->setSurfaceType(QWindow::OpenGLSurface);
-    ldvWindow->setFormat(ldvFormat);
-    createWindowContainer(ldvWindow, this);
+    ldvFormat.setSamples(16);
+    ldvFormat.setProfile(QGLFormat::CoreProfile);
+    QGLFormat::setDefaultFormat(ldvFormat);
 }
 
 void LDVWidget::setupLDVContext()
 {
     bool needsInitialize = false;
 
-    if (!ldvContext) {
-        ldvContext = new QOpenGLContext(this);
-        ldvContext->setFormat(ldvFormat);
-        if (!ldvContext->create())
-            fprintf(stdout, "Cannot create an OpenGL context!\n");
+    ldvContext = context();
 
+    if (ldvContext->isValid()) {
+        setFormat(ldvFormat);
         needsInitialize = true;
+    } else {
+        fprintf(stdout, "The OpenGL context is not valid!");
     }
 
-    ldvContext->makeCurrent(ldvWindow);
-
     if (needsInitialize) {
-        initializeOpenGLFunctions();
+        initializeGLFunctions();
         //displayGLExtensions();
     }
 }
@@ -296,12 +283,12 @@ void LDVWidget::displayGLExtensions()
     }
 
     // Query extensions
-    QList<QByteArray> extensions = ldvContext->extensions().toList();
-    std::sort( extensions.begin(), extensions.end() );
-    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
-    foreach ( const QByteArray &extension, extensions )
-        fprintf(stdout, "     %s\n", extension.constData());
-    fflush(stdout);
+//    QList<QByteArray> extensions = ldvContext->extensions().toList();
+//    std::sort( extensions.begin(), extensions.end() );
+//    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
+//    foreach ( const QByteArray &extension, extensions )
+//        fprintf(stdout, "     %s\n", extension.constData());
+//    fflush(stdout);
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
@@ -324,7 +311,7 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
     {
         if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
         {
-              ldvContext->makeCurrent(ldvWindow);
+              makeCurrent();
         }
 
         if (strcmp(alert->getMessage(), "PreFbo") == 0)
@@ -335,7 +322,7 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             }
             else
             {
-                ldvContext->makeCurrent(ldvWindow);
+                makeCurrent();
                 TREGLExtensions::setup();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
                 if (TREGLExtensions::haveFramebufferObjectExtension())
@@ -447,7 +434,7 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 
 void LDVWidget::initializeGL(void)
 {
-    ldvContext->makeCurrent(ldvWindow);
+    makeCurrent();
     TREGLExtensions::setup();
     ldvPreferences->doCancel();
 }
@@ -476,7 +463,7 @@ void LDVWidget::resizeGL(int width, int height)
 void LDVWidget::paintGL(void)
 {
     glEnable(GL_DEPTH_TEST);
-    ldvContext->makeCurrent(ldvWindow);
+    makeCurrent();
     if (!TREGLExtensions::haveFramebufferObjectExtension())
     {
          glDrawBuffer(GL_BACK);

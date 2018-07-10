@@ -58,9 +58,8 @@
 
 #include <TCFoundation/TCUserDefaults.h>
 #include <LDLib/LDUserDefaultsKeys.h>
+#include <LDVQt/LDVPovUserDefaultsKeys.h>
 //**
-
-
 
 #if _MSC_VER > 1310
 // Visual C++ 2005 and later require the source files in UTF-8, and all strings
@@ -1087,7 +1086,7 @@ void Gui::clearAllCaches()
 
 void Gui::clearCustomPartCache(bool silent)
 {
-  QMessageBox::StandardButton ret;
+  QMessageBox::StandardButton ret = QMessageBox::Ok;
   QString message = QString("All existing custom part files will be deleted and regenerated.\n"
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);

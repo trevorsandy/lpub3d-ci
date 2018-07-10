@@ -21,7 +21,7 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include "LDLib/LDrawModelViewer.h"
+#include <LDLib/LDrawModelViewer.h>
 
 #include "ui_LDVExportOptionPanel.h"
 

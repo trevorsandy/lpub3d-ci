@@ -44,7 +44,7 @@
 #include "lpub_preferences.h"
 #include "application.h"
 
-#include "LDVWidget.h"
+#include <LDVQt/LDVWidget.h>
 
 #include "paths.h"
 
@@ -331,8 +331,6 @@ int POVRay::renderCsi(
   arguments << h;
   arguments << f;
   arguments << l;
-  arguments << o;
-  arguments << v;
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
      arguments << "-LDConfig=" + Preferences::altLDConfigPath;
@@ -341,6 +339,9 @@ int POVRay::renderCsi(
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
+      arguments << o;
+      arguments << v;
 
       if (Preferences::enableFadeSteps)
         arguments <<  QString("-SaveZMap=1");
@@ -416,7 +417,6 @@ int POVRay::renderCsi(
       if (retError)
           return -1;
   }
-
 
   QStringList povArguments;
   if (Preferences::povrayDisplay){
@@ -550,8 +550,6 @@ int POVRay::renderPli(
   arguments << h;
   arguments << f;
   arguments << l;
-  arguments << o;
-  arguments << v;
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
      arguments << "-LDConfig=" + Preferences::altLDConfigPath;
@@ -560,6 +558,9 @@ int POVRay::renderPli(
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
+      arguments << o;
+      arguments << v;
 
       list = meta.LPub.pli.ldviewParms.value().split(' ');
       for (int i = 0; i < list.size(); i++) {
