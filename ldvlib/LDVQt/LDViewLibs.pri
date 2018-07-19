@@ -25,23 +25,23 @@ contains(LOAD_LDVHEADERS,True) {
     message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
 
     # Copy headers from LDView
-win32 {
-    Make_hdr_dirs_cmd    = cd include && \
-                           if not exist LDExporter mkdir LDExporter && \
-                           if not exist LDLib mkdir LDLib && \
-                           if not exist LDLoader mkdir LDLoader && \
-                           if not exist TRE mkdir TRE && \
-                           if not exist TCFoundation mkdir TCFoundation && \
-                           if not exist 3rdParty mkdir 3rdParty
-} else {
-    Make_hdr_dirs_cmd    = cd include && \
-                           if ! test -e LDExporter; then mkdir LDExporter; fi && \
-                           if ! test -e LDLib; then mkdir LDLib; fi && \
-                           if ! test -e LDLoader; then mkdir LDLoader; fi && \
-                           if ! test -e TRE; then mkdir TRE; fi && \
-                           if ! test -e TCFoundation; then mkdir TCFoundation; fi && \
-                           if ! test -e 3rdParty; then mkdir 3rdParty; fi
-}
+    win32 {
+        Make_hdr_dirs_cmd = cd include && \
+                            if not exist LDExporter mkdir LDExporter && \
+                            if not exist LDLib mkdir LDLib && \
+                            if not exist LDLoader mkdir LDLoader && \
+                            if not exist TRE mkdir TRE && \
+                            if not exist TCFoundation mkdir TCFoundation && \
+                            if not exist 3rdParty mkdir 3rdParty
+    } else {
+        Make_hdr_dirs_cmd = cd include && \
+                            if ! test -e LDExporter; then mkdir LDExporter; fi && \
+                            if ! test -e LDLib; then mkdir LDLib; fi && \
+                            if ! test -e LDLoader; then mkdir LDLoader; fi && \
+                            if ! test -e TRE; then mkdir TRE; fi && \
+                            if ! test -e TCFoundation; then mkdir TCFoundation; fi && \
+                            if ! test -e 3rdParty; then mkdir 3rdParty; fi
+    }
     LDLib_hdr_cmd        = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path(include/LDLib/)
     LDExporter_hdr_cmd   = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path(include/LDExporter/)
     LDLoader_hdr_cmd     = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path(include/LDLoader/)

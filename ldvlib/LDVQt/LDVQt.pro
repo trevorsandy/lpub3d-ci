@@ -111,14 +111,14 @@ win32 {
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {
             QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 -Gm $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4 -WX-
+            QMAKE_CFLAGS_WARN_ON += -W4 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
             QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
             QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
         }
         CONFIG(release, debug|release) {
             QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -Gm- -GF -Gy
             QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX-
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458"
             QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
             QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
         }
