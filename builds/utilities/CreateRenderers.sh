@@ -312,12 +312,6 @@ ApplyLDViewStdlibHack(){
   sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
 }
 
-# args: <none>
-ApplyLDVLibStdlibHack(){
-  Info "Apply stdlib error patch to LDVQt.pro on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
-  sed s/'# stdlib.h fix placeholder - do not remove'/'# Suppress fatal error: stdlib.h: No such file or directory\nQMAKE_CFLAGS_ISYSTEM = -I\n'/ -i ${CallDir}/ldvlib/ldvlib.pri
-}
-
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDGLite() {
   BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
@@ -355,13 +349,11 @@ BuildLDView() {
      case ${platform_ver} in
      24|25|26|27|28|1500|1550|150000)
        ApplyLDViewStdlibHack
-       ApplyLDVLibStdlibHack
        ;;
      esac
     ;;
   arch)
     ApplyLDViewStdlibHack
-    ApplyLDVLibStdlibHack
     ;;
   esac
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
