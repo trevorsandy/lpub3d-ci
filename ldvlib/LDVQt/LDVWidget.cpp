@@ -89,7 +89,7 @@ LDVWidget::LDVWidget(QWidget *parent)
   QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
                                                   .arg(Preferences::dataLocation)
                                                   .arg(VER_LDVMESSAGESINI_FILE));
- fprintf(stdout, "SETTING %s file PATH TO %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
+ //fprintf(stdout, "SETTING %s file PATH TO %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
 
   if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
   {

@@ -69,18 +69,7 @@ mainApp/docs/temp.txt
 builds/utilities/json/lpub3dupdates.json
 builds/utilities/nsis-scripts/AppVersion.nsh
 builds/utilities/update-config-files.log
-ldvlib/LDVQt/include/3rdParty
-ldvlib/LDVQt/include/LDExporter
-ldvlib/LDVQt/include/LDLib
-ldvlib/LDVQt/include/LDLoader
-ldvlib/LDVQt/include/TRE
-ldvlib/LDVQt/include/TCFoundation
-ldvlib/LDVQt/include/GL/gl.h
-ldvlib/LDVQt/include/GL/glcorearb.h
-ldvlib/LDVQt/include/GL/glext.h
-ldvlib/LDVQt/include/GL/glu.h
-ldvlib/LDVQt/include/GL/osmesa.h
-ldvlib/LDVQt/include/GL/wglext.h
+ldvlib/LDVQt/include/*
 
 # Qt Creator generated files
 *.user

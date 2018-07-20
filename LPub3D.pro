@@ -29,34 +29,34 @@ isEmpty(quazipnobuild) {
 }
 
 if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
-    message("~~~ Library tinyxml found ~~~")
+    message("~~~ System library tinyxml found ~~~")
 } else:!win32-msvc* {
-    message("~~~ ALERT: library tinyxml not found, using local... ~~~")
+    message("~~~ ALERT: System library tinyxml not found, using local... ~~~")
 }
 if (unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h)) {
-    message("~~~ Library gl2ps found ~~~")
+    message("~~~ System library gl2ps found ~~~")
 } else:!win32-msvc* {
-    message("~~~ ALERT: library gl2ps not found, using local ~~~")
+    message("~~~ ALERT: System library gl2ps not found, using local ~~~")
 }
 if (unix:exists(/usr/include/lib3ds.h)|exists(/usr/local/include/lib3ds.h)){
-    message("~~~ Library 3ds found ~~~")
+    message("~~~ System library 3ds found ~~~")
 } else:!win32-msvc* {
-    message("~~~ ALERT: library 3ds not found, using local... ~~~")
+    message("~~~ ALERT: System library 3ds not found, using local... ~~~")
 }
 if (unix:macx:exists(/usr/include/zip.h)|exists(/usr/local/include/minizip/zip.h)) {
-    message("~~~ Library minizip found ~~~")
+    message("~~~ System library minizip found ~~~")
 } else:macx:!win32-msvc* {
-    message("~~~ ALERT: library minizip not found, using local... ~~~")
+    message("~~~ ALERT: System library minizip not found, using local... ~~~")
 }
 if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)) {
-    message("~~~ Library png found ~~~")
+    message("~~~ System library png found ~~~")
 } else:!win32-msvc* {
-    message("~~~ ALERT: library png not found, using local... ~~~")
+    message("~~~ ALERT: System library png not found, using local... ~~~")
 }
 if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) {
-    message("~~~ Library jpeglib found ~~~")
+    message("~~~ System library jpeglib found ~~~")
 } else:!win32-msvc* {
-    message("~~~ ALERT: library jpeg not found, using local... ~~~")
+    message("~~~ ALERT: System library jpeg not found, using local... ~~~")
 }
 
 SUBDIRS += ldvqt
@@ -77,6 +77,7 @@ mainApp.makefile = Makefile.mainapp
 mainApp.target   = sub-mainApp
 mainApp.depends  = quazip
 mainApp.depends  = ldrawini
+mainApp.depends  = lclib
 mainApp.depends  = ldvqt
 
 RESOURCES += \

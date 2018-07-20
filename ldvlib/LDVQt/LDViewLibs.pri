@@ -5,166 +5,199 @@ else:  NULL_DEVICE = /dev/null
 # LDView source path components
 win32 {
     COPY_CMD = COPY /y /a /b
-    LDVBLD   = $$BUILD_CONF                   # Debug|Release
-    LDVARCH  = $$LIB_ARCH                     # 64|null
 } else:unix {
     COPY_CMD = cp -f
-    LDVBLD   = $$DESTDIR                      # 64bit_debug|64bit_release|32bit_debug|32bit_release
-    LDVARCH  =                                # null
 }
-LDVHDRDIR    = $$PWD/../../../ldview          # called from <base>/ldvlib/LDVQt
-LDVLIBDIR    = $$_PRO_FILE_PWD_/../../ldview  # called from <base>/mainApp
-LDVDESTDIR   = $$join(LDVBLD,,,$$LDVARCH)
-THIRDLIBDIR  = $${LDVHDRDIR}/3rdParty
-PREBUILTDIR  = $${LDVHDRDIR}/lib
-contains(LIB_ARCH,64): PREBUILTDIR = $${LDVHDRDIR}/lib/x64
 
 contains(LOAD_LDVHEADERS,True) {
     # LDVQt include path
-    LDVINCLUDE  = $$PWD/include
+    isEmpty(LDVINCLUDE):LDVINCLUDE = $$system_path( $$absolute_path( $$PWD/include ) )
+
+    # Create header folders
+    win32 {
+        DELE_HDR_DIRS_CMD = IF EXIST $$LDVINCLUDE RMDIR /S /Q $$LDVINCLUDE
+        system( $$DELE_HDR_DIRS_CMD )
+        MAKE_HDR_DIRS_CMD = MKDIR $$LDVINCLUDE\LDLib $$LDVINCLUDE\LDExporter $$LDVINCLUDE\LDLoader $$LDVINCLUDE\TRE $$LDVINCLUDE\TCFoundation $$LDVINCLUDE\3rdParty $$LDVINCLUDE\GL
+    } else {
+        MAKE_HDR_DIRS_CMD = if test -e $$LDVINCLUDE; then rm -rf $$LDVINCLUDE; fi; \
+                            mkdir -p $$LDVINCLUDE/LDExporter $$LDVINCLUDE/LDLib \
+                            $$LDVINCLUDE/LDLoader $$LDVINCLUDE/TRE $$LDVINCLUDE/TCFoundation \
+                            $$LDVINCLUDE/3rdParty $$LDVINCLUDE/GL
+    }
+    system( $$MAKE_HDR_DIRS_CMD )
+
+    VER_LDVIEW                = ldview-4.3
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../../$$DIST_DIR ) )
+    !exists($$THIRD_PARTY_DIST_DIR_PATH): \
+    message("~~~ ERROR - THIRD PARTY DIST DIR $$THIRD_PARTY_DIST_DIR_PATH WAS NOT DETECTED! ~~~")
+
+    LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+
     message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
+    message("~~~ LDVQt Headers source: $$LDVHDRDIR ~~~ ")
 
     # Copy headers from LDView
-    win32 {
-        Make_hdr_dirs_cmd = cd include && \
-                            if not exist LDExporter mkdir LDExporter && \
-                            if not exist LDLib mkdir LDLib && \
-                            if not exist LDLoader mkdir LDLoader && \
-                            if not exist TRE mkdir TRE && \
-                            if not exist TCFoundation mkdir TCFoundation && \
-                            if not exist 3rdParty mkdir 3rdParty
-    } else {
-        Make_hdr_dirs_cmd = cd include && \
-                            if ! test -e LDExporter; then mkdir LDExporter; fi && \
-                            if ! test -e LDLib; then mkdir LDLib; fi && \
-                            if ! test -e LDLoader; then mkdir LDLoader; fi && \
-                            if ! test -e TRE; then mkdir TRE; fi && \
-                            if ! test -e TCFoundation; then mkdir TCFoundation; fi && \
-                            if ! test -e 3rdParty; then mkdir 3rdParty; fi
-    }
-    LDLib_hdr_cmd        = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path(include/LDLib/)
-    LDExporter_hdr_cmd   = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path(include/LDExporter/)
-    LDLoader_hdr_cmd     = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path(include/LDLoader/)
-    TRE_hdr_cmd          = $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path(include/TRE/)
-    TCFoundation_hdr_cmd = $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path(include/TCFoundation/)
+    LDLIB_DEP                 = $$system_path( $${LDVHDRDIR}/LDLib/LDrawModelViewer.h)
+    LDEXPORTER_DEP            = $$system_path( $${LDVHDRDIR}/LDExporter/LDExporter.h)
+    LDLOADER_DEP              = $$system_path( $${LDVHDRDIR}/LDLoader/LDLModel.h)
+    TRE_DEP                   = $$system_path( $${LDVHDRDIR}/TRE/TREGLExtensions.h)
+    TCFOUNDATION_DEP          = $$system_path( $${LDVHDRDIR}/TCFoundation/TCObject.h)
+    3RDPARTY_DEP              = $$system_path( $${LDVHDRDIR}/3rdParty/lib3ds.h)
+    GL_DEP                    = $$system_path( $${LDVHDRDIR}/GL/glext.h)
 
-    3rdParty_hdr_cmd     = $$COPY_CMD $$system_path( $${LDVHDRDIR}/include/*.h) $$system_path(include/3rdParty/)
-    GL_hdr_cmd           = $$COPY_CMD $$system_path( $${LDVHDRDIR}/include/GL/*.h) $$system_path(include/GL/)
+    LDLIB_HDR_cmd             = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ )
+    LDEXPORTER_HDR_cmd        = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ )
+    LDLOADER_HDR_cmd          = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/)
+    TRE_HDR_cmd               = $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/)
+    TCFOUNDATION_HDR_cmd      = $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ )
+    3RDPARTY_HDR_cmd          = $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ )
+    GL_HDR_cmd                = $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ )
 
-    # Make local directories
-    system( $$Make_hdr_dirs_cmd > $$NULL_DEVICE )
-    # Copy LDView headers
-    system( $$LDExporter_hdr_cmd > $$NULL_DEVICE )
-    system( $$LDLib_hdr_cmd > $$NULL_DEVICE )
-    system( $$LDLoader_hdr_cmd > $$NULL_DEVICE )
-    system( $$TRE_hdr_cmd > $$NULL_DEVICE )
-    system( $$TCFoundation_hdr_cmd > $$NULL_DEVICE )
-    # Copy 3rdParty headers
-    system( $$3rdParty_hdr_cmd > $$NULL_DEVICE )
-    system( $$GL_hdr_cmd > $$NULL_DEVICE )
+    LDLib_hdr.target          = $$LDLIB_DEP
+    LDLib_hdr.commands        = $$LDLIB_HDR_cmd
+    LDLib_hdr.depends         = LDLib_hdr_msg LDExporter_hdr
+    LDLib_hdr_msg.commands    = @echo Copying LDLib headers...
 
-    # LDView include path
-    INCLUDEPATH += $${LDVINCLUDE}/
-    DEPENDPATH  += $${LDVINCLUDE}/
+    LDExporter_hdr.target     = $$LDEXPORTER_DEP
+    LDExporter_hdr.commands   = $$LDEXPORTER_HDR_cmd
+    LDExporter_hdr.depends    = LDExporter_hdr_msg LDLoader_hdr
+    LDExporter_hdr_msg.commands = @echo Copying LDExporter headers...
 
-    # 3rdParty include path
-    INCLUDEPATH += $${LDVINCLUDE}/3rdParty/
-    DEPENDPATH  += $${LDVINCLUDE}/3rdParty/
+    LDLoader_hdr.target       = $$LDLOADER_DEP
+    LDLoader_hdr.commands     = $$LDLOADER_HDR_cmd
+    LDLoader_hdr.depends      = LDLoader_hdr_msg TRE_hdr
+    LDLoader_hdr_msg.commands = @echo Copying LDLoader headers...
+
+    TRE_hdr.target            = $$TRE_DEP
+    TRE_hdr.commands          = $$TRE_HDR_cmd
+    TRE_hdr.depends           = TRE_hdr_msg TCFoundation_hdr
+    TRE_hdr_msg.commands      = @echo Copying TRE headers...
+
+    TCFoundation_hdr.target   = $$TCFOUNDATION_DEP
+    TCFoundation_hdr.commands = $$TCFOUNDATION_HDR_cmd
+    TCFoundation_hdr.depends  = TCFoundation_hdr_msg
+    TCFoundation_hdr_msg.commands = @echo Copying TCFoundation headers...
+
+    3rdParty_hdr.target       = $$3RDPARTY_DEP
+    3rdParty_hdr.commands     = $$3RDPARTY_HDR_cmd
+    3rdParty_hdr.depends      = 3rdParty_hdr_msg Gl_hdr
+    3rdParty_hdr_msg.commands = @echo Copying 3rdParty headers...
+
+    Gl_hdr.target             = $$GL_DEP
+    Gl_hdr.commands           = $$GL_HDR_cmd
+    Gl_hdr.depends            = Gl_hdr_msg
+    Gl_hdr_msg.commands       = @echo Copying Gl headers...
+
+    QMAKE_EXTRA_TARGETS += \
+        LDLib_hdr LDLib_hdr_msg \
+        LDExporter_hdr LDExporter_hdr_msg \
+        LDLoader_hdr LDLoader_hdr_msg \
+        TRE_hdr TRE_hdr_msg \
+        TCFoundation_hdr TCFoundation_hdr_msg \
+        3rdParty_hdr 3rdParty_hdr_msg \
+        Gl_hdr Gl_hdr_msg
+
+   PRE_TARGETDEPS += \
+        $${LDLIB_DEP} \
+        $${LDEXPORTER_DEP} \
+        $${LDLOADER_DEP} \
+        $${TRE_DEP} \
+        $${TCFOUNDATION_DEP} \
+        $${3RDPARTY_DEP} \
+        $${GL_DEP}
+
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/) )
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
+#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
+
+#    exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
+    exists($$TCFOUNDATION_DEP): \
+    message("~~~ LDVIEW HEADERS COPIED TO $${LDVINCLUDE} ~~~")
 }
 
 contains(LOAD_LDVLIBS,True) {
 
-    # LDVQt library path - put everything in single lcation
-    LDVLIBRARY = $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/
-    message("~~~ LDVQt Library path: $$LDVLIBRARY ~~~ ")
+    # LDVQt library path
+    isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
+    win32-msvc*:CONFIG(debug, debug|release): \
+    LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
+    else:CONFIG(release, debug|release): \
+    LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/bin/$$QT_ARCH )
 
-    # Set 'use local' flags
-    if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) { USE_LOCAL_TINYXML_LIB = False }
-    if (unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h)) { USE_LOCAL_GL2PS_LIB = False }
-    if (unix:exists(/usr/include/zip.h)|exists(/usr/local/include/minizip/zip.h)) { USE_LOCAL_MINIZIP_LIB = False }
-    if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)) { USE_LOCAL_PNG_LIB = False }
-    if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) { USE_LOCAL_JPEG_LIB = False }
-    !win32-msvc*: \
-    USE_LOCAL_ZLIB_LIB = False    # Use local zlib if win32-msvc*
-    USE_LOCAL_3DS_LIB =           # Always use local lib3ds
+    message("~~~ LDVQt Library path: $$LDVLIBRARY ~~~ ")
+    message("~~~ LDVQt Library source: $$LDVLIBDIR ~~~ ")
 
     # Set source and local paths and library names
     win32-msvc* {
-        # source paths
-        CONFIG(debug, debug|release) {
-            _LDLIB_DEP        = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/LDLib.lib
-            _LDEXPORTER_DEP   = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/LDExporter.lib
-            _LDLOADER_DEP     = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/LDLoader.lib
-            _TRE_DEP          = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/TRE.lib
-            _TCFOUNDATION_DEP = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/TCFoundation.lib
+        _LDLIB_DEP        = $$system_path( $${LDVLIBDIR}/LDLib.lib )
+        _LDEXPORTER_DEP   = $$system_path( $${LDVLIBDIR}/LDExporter.lib )
+        _LDLOADER_DEP     = $$system_path( $${LDVLIBDIR}/LDLoader.lib )
+        _TRE_DEP          = $$system_path( $${LDVLIBDIR}/TRE.lib )
+        _TCFOUNDATION_DEP = $$system_path( $${LDVLIBDIR}/TCFoundation.lib )
 
-            _GL2PS_DEP        = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/gl2ps.lib
-            _TINYXML_DEP      = $${LDVLIBDIR}/Build/$${LDVDESTDIR}/tinyxml_STL.lib
-        } else:CONFIG(release, debug|release) {
-            _LDLIB_DEP        = $${LDVLIBDIR}/LDLib/Build/$${LDVDESTDIR}/LDLib.lib
-            _LDEXPORTER_DEP   = $${LDVLIBDIR}/LDExporter/Build/$${LDVDESTDIR}/LDExporter.lib
-            _LDLOADER_DEP     = $${LDVLIBDIR}/LDLoader/Build/$${LDVDESTDIR}/LDLoader.lib
-            _TRE_DEP          = $${LDVLIBDIR}/TRE/Build/$${LDVDESTDIR}/TRE.lib
-            _TCFOUNDATION_DEP = $${LDVLIBDIR}/TCFoundation/Build/$${LDVDESTDIR}/TCFoundation.lib
-
-            _GL2PS_DEP        = $${THIRDLIBDIR}/gl2ps/Build/$${LDVDESTDIR}/gl2ps.lib
-            _TINYXML_DEP      = $${THIRDLIBDIR}/tinyxml/Build/$${LDVDESTDIR}/tinyxml_STL.lib
-        }
-        _3DS_DEP         = $${PREBUILTDIR}/lib3ds-vs2015.lib
-        _ZIP_DEP         = $${PREBUILTDIR}/unzip32-vs2015.lib
-        _PNG_DEP         = $${PREBUILTDIR}/libpng16-vs2015.lib
-        _JPEG_DEP        = $${PREBUILTDIR}/libjpeg-vs2015.lib
-        _ZLIB_DEP        = $${PREBUILTDIR}/zlib-vs2015.lib
+        _GL2PS_DEP        = $$system_path( $${LDVLIBDIR}/gl2ps.lib )
+        _TINYXML_DEP      = $$system_path( $${LDVLIBDIR}/tinyxml_STL.lib )
+        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds-vs2015.lib )
+        _MINIZIP_DEP      = $$system_path( $${LDVLIBDIR}/unzip32-vs2015.lib )
+        _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng16-vs2015.lib )
+        _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg-vs2015.lib )
+        _ZLIB_DEP         = $$system_path( $${LDVLIBDIR}/zlib-vs2015.lib )
 
         # library name
-        LDLIB_LIB        = -lLDLib
-        LDEXPORTER_LIB 	 = -lLDExporter
-        LDLOADER_LIB     = -lLDLoader
-        TRE_LIB          = -lTRE
-        TCFOUNDATION_LIB = -lTCFoundation
+        LDLIB_LIB         = -lLDLib
+        LDEXPORTER_LIB 	  = -lLDExporter
+        LDLOADER_LIB      = -lLDLoader
+        TRE_LIB           = -lTRE
+        TCFOUNDATION_LIB  = -lTCFoundation
 
-        GL2PS_LIB        = -lgl2ps
-        TINYXML_LIB      = -ltinyxml_STL
-        3DS_LIB          = -llib3ds-vs2015
-        ZIP_LIB          = -lunzip32-vs2015
-        PNG_LIB          = -llibpng16-vs2015
-        JPEG_LIB         = -llibjpeg-vs2015
-        ZLIB_LIB         = -lzlib-vs2015
+        GL2PS_LIB         = -lgl2ps
+        TINYXML_LIB       = -ltinyxml_STL
+        3DS_LIB           = -llib3ds-vs2015
+        ZIP_LIB           = -lunzip32-vs2015
+        PNG_LIB           = -llibpng16-vs2015
+        JPEG_LIB          = -llibjpeg-vs2015
+        ZLIB_LIB          = -lzlib-vs2015
 
         # local library paths
-        LDLIB_DEP        = $${LDVLIBRARY}/LDLib.lib
-        LDEXPORTER_DEP 	 = $${LDVLIBRARY}/LDExporter.lib
-        LDLOADER_DEP     = $${LDVLIBRARY}/LDLoader.lib
-        TRE_DEP          = $${LDVLIBRARY}/TRE.lib
-        TCFOUNDATION_DEP = $${LDVLIBRARY}/TCFoundation.lib
+        LDLIB_DEP         = $$system_path( $${LDVLIBRARY}/LDLib.lib )
+        LDEXPORTER_DEP 	  = $$system_path( $${LDVLIBRARY}/LDExporter.lib )
+        LDLOADER_DEP      = $$system_path( $${LDVLIBRARY}/LDLoader.lib )
+        TRE_DEP           = $$system_path( $${LDVLIBRARY}/TRE.lib )
+        TCFOUNDATION_DEP  = $$system_path( $${LDVLIBRARY}/TCFoundation.lib )
 
-        GL2PS_DEP        = $${LDVLIBRARY}/gl2ps.lib
-        TINYXML_DEP      = $${LDVLIBRARY}/tinyxml_STL.lib
-        3DS_DEP          = $${LDVLIBRARY}/lib3ds-vs2015.lib
-        ZIP_DEP          = $${LDVLIBRARY}/unzip32-vs2015.lib
-        PNG_DEP          = $${LDVLIBRARY}/libpng16-vs2015.lib
-        JPEG_DEP         = $${LDVLIBRARY}/libjpeg-vs2015.lib
-        ZLIB_DEP         = $${LDVLIBRARY}/zlib-vs2015.lib
-    } else:unix {
+        GL2PS_DEP         = $$system_path( $${LDVLIBRARY}/gl2ps.lib )
+        TINYXML_DEP       = $$system_path( $${LDVLIBRARY}/tinyxml_STL.lib )
+        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds-vs2015.lib )
+        MINIZIP_DEP       = $$system_path( $${LDVLIBRARY}/unzip32-vs2015.lib )
+        PNG_DEP           = $$system_path( $${LDVLIBRARY}/libpng16-vs2015.lib )
+        JPEG_DEP          = $$system_path( $${LDVLIBRARY}/libjpeg-vs2015.lib )
+        ZLIB_DEP          = $$system_path( $${LDVLIBRARY}/zlib-vs2015.lib )
+    } else {
         # source paths
-        _LDLIB_DEP = $${LDVLIBDIR}/LDLib/$${LDVDESTDIR}/libLDraw-osmesa.a
-        _LDEXPORTER_DEP = $${LDVLIBDIR}/LDExporter/$${LDVDESTDIR}/libLDExporter-osmesa.a
-        _LDLOADER_DEP = $${LDVLIBDIR}/LDLoader/$${LDVDESTDIR}/libLDLoader-osmesa.a
-        _TRE_DEP = $${LDVLIBDIR}/TRE/$${LDVDESTDIR}/libTRE-osmesa.a
-        _TCFOUNDATION_DEP = $${LDVLIBDIR}/TCFoundation/$${LDVDESTDIR}/libTCFoundation-osmesa.a
+        _LDLIB_DEP        = $$system_path( $${LDVLIBDIR}/libLDraw-osmesa.a )
+        _LDEXPORTER_DEP   = $$system_path( $${LDVLIBDIR}/libLDExporter-osmesa.a )
+        _LDLOADER_DEP     = $$system_path( $${LDVLIBDIR}/libLDLoader-osmesa.a )
+        _TRE_DEP          = $$system_path( $${LDVLIBDIR}/libTRE-osmesa.a )
+        _TCFOUNDATION_DEP = $$system_path( $${LDVLIBDIR}/libTCFoundation-osmesa.a )
 
-        _GL2PS_DEP = $${THIRDLIBDIR}/gl2ps/$${LDVDESTDIR}/libgl2ps.a
-        _TINYXML_DEP = $${THIRDLIBDIR}/tinyxml/$${LDVDESTDIR}/libtinyxml.a
-        _3DS_DEP         = $${THIRDLIBDIR}/lib3ds/$${LDVDESTDIR}/lib3ds.a
+        _GL2PS_DEP        = $$system_path( $${LDVLIBDIR}/libgl2ps.a )
+        _TINYXML_DEP      = $$system_path( $${LDVLIBDIR}/libtinyxml.a )
+        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds.a )
+        _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng.a )
+        _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg.a )
         macx {
-            _ZIP_DEP     = $${PREBUILTDIR}/MacOSX/libminizip.a
-            _PNG_DEP     = $${PREBUILTDIR}/MacOSX/libpng.a
-            _JPEG_DEP    = $${PREBUILTDIR}/MacOSX/libjpeg.a
+            _MINIZIP_DEP  = $$system_path( $${LDVLIBDIR}/MacOSX/libminizip.a )
         } else {
-            _ZIP_DEP     =
-            _PNG_DEP     = $${THIRDLIBDIR}/libpng/$${LDVDESTDIR}/libpng.a
-            _JPEG_DEP    = $${THIRDLIBDIR}/libjpeg/$${LDVDESTDIR}/libjpeg.a
-            IS_LINUX     = True
+            _MINIZIP_DEP  =
+            IS_LINUX      = True
         }
 
         # library name
@@ -183,35 +216,57 @@ contains(LOAD_LDVLIBS,True) {
         JPEG_LIB         = -llibjpeg
 
         # local paths
-        LDLIB_DEP        = $${LDVLIBRARY}/libLDraw-osmesa.a
-        LDEXPORTER_DEP 	 = $${LDVLIBRARY}/libLDExporter-osmesa.a
-        LDLOADER_DEP     = $${LDVLIBRARY}/libLDLoader-osmesa.a
-        TRE_DEP          = $${LDVLIBRARY}/libTRE-osmesa.a
-        TCFOUNDATION_DEP = $${LDVLIBRARY}/libTCFoundation-osmesa.a
+        LDLIB_DEP        = $$system_path( $${LDVLIBRARY}/libLDraw-osmesa.a )
+        LDEXPORTER_DEP 	 = $$system_path( $${LDVLIBRARY}/libLDExporter-osmesa.a )
+        LDLOADER_DEP     = $$system_path( $${LDVLIBRARY}/libLDLoader-osmesa.a )
+        TRE_DEP          = $$system_path( $${LDVLIBRARY}/libTRE-osmesa.a )
+        TCFOUNDATION_DEP = $$system_path( $${LDVLIBRARY}/libTCFoundation-osmesa.a )
 
-        GL2PS_DEP        = $${LDVLIBRARY}/libgl2ps.a
-        TINYXML_DEP      = $${LDVLIBRARY}/libtinyxml.a
-        3DS_DEP          = $${LDVLIBRARY}/lib3ds.a
-        macx:ZIP_LIB     = $${LDVLIBRARY}/libminizip.a
+        GL2PS_DEP        = $$system_path( $${LDVLIBRARY}/libgl2ps.a )
+        TINYXML_DEP      = $$system_path( $${LDVLIBRARY}/libtinyxml.a )
+        3DS_DEP          = $$system_path( $${LDVLIBRARY}/lib3ds.a )
+        macx:ZIP_LIB     = $$system_path( $${LDVLIBRARY}/libminizip.a )
         else:ZIP_LIB     =
-        PNG_DEP          = $${LDVLIBRARY}/libpng.a
-        JPEG_DEP         = $${LDVLIBRARY}/libjpeg.a
+        PNG_DEP          = $$system_path( $${LDVLIBRARY}/libpng.a )
+        JPEG_DEP         = $$system_path( $${LDVLIBRARY}/libjpeg.a )
     }
 
-    # Copy libraries from LDView
-    LDLIB_LIB_cmd             = $$COPY_CMD $$system_path( $${_LDLIB_DEP} ) $$system_path( $${LDVLIBRARY} )
-    LDEXPORTER_LIB_cmd        = $$COPY_CMD $$system_path( $${_LDEXPORTER_DEP} ) $$system_path( $${LDVLIBRARY} )
-    LDLOADER_LIB_cmd          = $$COPY_CMD $$system_path( $${_LDLOADER_DEP} ) $$system_path( $${LDVLIBRARY} )
-    TRE_LIB_cmd               = $$COPY_CMD $$system_path( $${_TRE_DEP} ) $$system_path( $${LDVLIBRARY} )
-    TCFOUNDATION_LIB_cmd      = $$COPY_CMD $$system_path( $${_TCFOUNDATION_DEP} ) $$system_path( $${LDVLIBRARY} )
+    # Set 'use local' flags
+    !exists($${_GL2PS_DEP}): USE_LOCAL_GL2PS_LIB = False
+    else:message("~~~ Local gl2ps library $${_GL2PS_DEP} detected ~~~")
 
-    TINYXML_LIB_cmd           = $$COPY_CMD $$system_path( $${_TINYXML_DEP} ) $$system_path( $${LDVLIBRARY} )
-    GL2PS_LIB_cmd             = $$COPY_CMD $$system_path( $${_GL2PS_DEP} ) $$system_path( $${LDVLIBRARY} )
-    3DS_LIB_cmd               = $$COPY_CMD $$system_path( $${_3DS_DEP} ) $$system_path( $${LDVLIBRARY} )
-    ZIP_LIB_cmd               = $$COPY_CMD $$system_path( $${_ZIP_DEP} ) $$system_path( $${LDVLIBRARY} )
-    PNG_LIB_cmd               = $$COPY_CMD $$system_path( $${_PNG_DEP} ) $$system_path( $${LDVLIBRARY} )
-    JPEG_LIB_cmd              = $$COPY_CMD $$system_path( $${_JPEG_DEP} ) $$system_path( $${LDVLIBRARY} )
-    ZLIB_LIB_cmd              = $$COPY_CMD $$system_path( $${_ZLIB_DEP} ) $$system_path( $${LDVLIBRARY} )
+    !exists($${_TINYXML_DEP}): USE_LOCAL_TINYXML_LIB = False
+    else:message("~~~ Local tinyxml library $${_TINYXML_DEP} detected ~~~")
+
+    !exists($${_3DS_DEP}): USE_LOCAL_3DS_LIB = False
+    else:message("~~~ Local 3ds library $${_3DS_DEP} detected ~~~")
+
+    !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
+    else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
+
+    !exists($${_PNG_DEP}): USE_LOCAL_PNG_LIB = False
+    else:message("~~~ Local png library $${_PNG_DEP} detected ~~~")
+
+    !exists($${_JPEG_DEP}): USE_LOCAL_JPEG_LIB = False
+    else:message("~~~ Local jpeg library $${_JPEG_DEP} detected ~~~")
+
+    !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
+    else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
+
+    # Copy libraries from LDView
+    LDLIB_LIB_cmd             = $$COPY_CMD $${_LDLIB_DEP} $${LDVLIBRARY}
+    LDEXPORTER_LIB_cmd        = $$COPY_CMD $${_LDEXPORTER_DEP} $${LDVLIBRARY}
+    LDLOADER_LIB_cmd          = $$COPY_CMD $${_LDLOADER_DEP} $${LDVLIBRARY}
+    TRE_LIB_cmd               = $$COPY_CMD $${_TRE_DEP} $${LDVLIBRARY}
+    TCFOUNDATION_LIB_cmd      = $$COPY_CMD $${_TCFOUNDATION_DEP} $${LDVLIBRARY}
+
+    TINYXML_LIB_cmd           = $$COPY_CMD $${_TINYXML_DEP} $${LDVLIBRARY}
+    GL2PS_LIB_cmd             = $$COPY_CMD $${_GL2PS_DEP} $${LDVLIBRARY}
+    3DS_LIB_cmd               = $$COPY_CMD $${_3DS_DEP} $${LDVLIBRARY}
+    MINIZIP_LIB_cmd           = $$COPY_CMD $${_MINIZIP_DEP} $${LDVLIBRARY}
+    PNG_LIB_cmd               = $$COPY_CMD $${_PNG_DEP} $${LDVLIBRARY}
+    JPEG_LIB_cmd              = $$COPY_CMD $${_JPEG_DEP} $${LDVLIBRARY}
+    ZLIB_LIB_cmd              = $$COPY_CMD $${_ZLIB_DEP} $${LDVLIBRARY}
 
     LDLib_lib.target          = $$LDLIB_DEP
     LDLib_lib.commands        = $$LDLIB_LIB_cmd
@@ -270,8 +325,8 @@ contains(LOAD_LDVLIBS,True) {
     }
 
     if (!contains(USE_LOCAL_MINIZIP_LIB,False):!contains(IS_LINUX,True)) {
-      Minizip_lib.target       = $$ZIP_DEP
-      Minizip_lib.commands     = $$ZIP_LIB_cmd
+      Minizip_lib.target       = $$MINIZIP_DEP
+      Minizip_lib.commands     = $$MINIZIP_LIB_cmd
       Minizip_lib.depends      = Minizip_lib_msg
       Minizip_lib_msg.commands = @echo Copying Minizip library...
       QMAKE_EXTRA_TARGETS     += Minizip_lib Minizip_lib_msg
@@ -368,11 +423,10 @@ contains(LOAD_LDVLIBS,True) {
 
     if (contains(USE_LOCAL_MINIZIP_LIB,False)) {
         macx:LIBS += /usr/local/lib/libminizip.dylib
-        else:LIBS += -lminizip
-    } else {
+    } else:!contains(IS_LINUX,True) {
         LIBS           += $$ZIP_LIB
-        PRE_TARGETDEPS += $$ZIP_DEP
-        QMAKE_CLEAN    += $$ZIP_DEP
+        PRE_TARGETDEPS += $$MINIZIP_DEP
+        QMAKE_CLEAN    += $$MINIZIP_DEP
     }
 
     if (contains(USE_LOCAL_3DS_LIB,False)) {
@@ -392,8 +446,12 @@ contains(LOAD_LDVLIBS,True) {
 
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    LDVMESSAGESINI     = LDVMessages.ini
-    LDVMESSAGESINI_DEP = $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
+    isEmpty(LDVMESSAGESINI_DEP): \
+    LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
+    LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )
+
+    message("~~~ LDVQt Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
+    message("~~~ LDVQt Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
 
     win32 {
         PLUS_CMD      = +
@@ -406,14 +464,14 @@ contains(LOAD_LDVLIBS,True) {
 
     ldvmsg_copy_cmd = \
     $$COPY_CMD \
-    $$system_path( $${LDVLIBDIR}/LDViewMessages.ini ) $$PLUS_CMD \
-    $$system_path( $${LDVLIBDIR}/LDExporter/LDExportMessages.ini ) $$REDIRECT_CMD \
+    $$system_path( $${LDVRESDIR}/LDViewMessages.ini ) $$PLUS_CMD \
+    $$system_path( $${LDVRESDIR}/LDExportMessages.ini ) $$REDIRECT_CMD \
     $$system_path( $$LDVMESSAGESINI_DEP )
 
     ldvmsg_copy.target         = $$LDVMESSAGESINI_DEP
     ldvmsg_copy.commands       = $$ldvmsg_copy_cmd
-    ldvmsg_copy.depends        = $${LDVLIBDIR}/LDViewMessages.ini \
-                                 $${LDVLIBDIR}/LDExporter/LDExportMessages.ini \
+    ldvmsg_copy.depends        = $${LDVRESDIR}/LDViewMessages.ini \
+                                 $${LDVRESDIR}/LDExportMessages.ini \
                                  ldvmsg_copy_msg
     ldvmsg_copy_msg.commands   = @echo Copying $${LDVMESSAGESINI}...
 

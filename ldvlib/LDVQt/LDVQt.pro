@@ -12,13 +12,14 @@ CONFIG  -= app_bundle
 
 DEPENDPATH  += .
 INCLUDEPATH += .
+DEPENDPATH  += include
+INCLUDEPATH += include
+DEPENDPATH  += include/3rdParty
+INCLUDEPATH += include/3rdParty
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../qslog
-
-macx {
-INCLUDEPATH += ./include
+macx: \
 INCLUDEPATH += /usr/local/include
-}
 
 DEFINES += _QT
 DEFINES += _NO_BOOST
@@ -125,9 +126,6 @@ win32 {
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
     }
 }
-
-LOAD_LDVHEADERS = True
-include(LDViewLibs.pri)
 
 SOURCES += \
         LDVAlertHandler.cpp \

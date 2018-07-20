@@ -35,9 +35,10 @@ quazipnobuild {
 }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HOST_VERSION = $$(PLATFORM_VER)
-BUILD_TARGET = $$(TARGET_VENDOR)
-BUILD_ARCH   = $$(TARGET_CPU)
+LDVMESSAGESINI = LDVMessages.ini
+HOST_VERSION   = $$(PLATFORM_VER)
+BUILD_TARGET   = $$(TARGET_VENDOR)
+BUILD_ARCH     = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
 else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
 contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): DEFINES += OPENSUSE_1320_ARM
@@ -90,14 +91,14 @@ win32 {
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {
             QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 -Gm $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
+            QMAKE_CFLAGS_WARN_ON += -W4 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701" -wd"4714" -wd"4305" -wd"4099"
             QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
             QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
         }
         CONFIG(release, debug|release) {
             QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
             QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805"
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
             QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
             QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
         }
@@ -216,33 +217,6 @@ MAN_PAGE = $$join(TARGET,,,.1)
 
 message("~~~ $${TARGET} $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
 
-#~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# needed to access ui header from LDVQt
-INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
-
-LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
-
-LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
-
-LOAD_LDVLIBS = True
-include(../ldvlib/LDVQt/LDViewLibs.pri)
-
-quazipnobuild: \
-LIBS += -lquazip
-else: \
-LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
-LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
-
-win32 {
-    LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
-} else:!macx {
-    LIBS += -lGL -lGLU
-}
-!win32-msvc* {
-    LIBS += -lz
-}
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
@@ -258,6 +232,19 @@ UI_DIR          = $$DESTDIR/.ui
 # Projects/Build Steps/Qmake/'Additional arguments' because,
 # macOS build will also bundle all deliverables.
 
+THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+!exists($$THIRD_PARTY_DIST_DIR_PATH) {
+    unix:!macx: DIST_DIR      =lpub3d_linux_3rdparty
+    else:macx: DIST_DIR       =lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      =lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
+    exists($$THIRD_PARTY_DIST_DIR_PATH): \
+    message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+    else: \
+    message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED! ~~~")
+}
+message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+
 # If you wish to build and install on Linux or Windows, then
 # set deb|rpm|pkg|exe respectively.
 macx: build_package = $$(INSTALL_3RD_PARTY)
@@ -269,16 +256,6 @@ if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     }
     isEmpty(opt): opt = $$build_package
     message("~~~ BUILD DISTRIBUTION PACKAGE: $$opt ~~~")
-
-    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        unix:!macx: DIST_DIR=lpub3d_linux_3rdparty
-        macx: DIST_DIR=lpub3d_macos_3rdparty
-        win32: DIST_DIR=lpub3d_windows_3rdparty
-        THIRD_PARTY_DIST_DIR_PATH = $$_PRO_FILE_PWD_/../../$$DIST_DIR
-        message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
-    }
-    message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
     if (unix|copy3rd) {
         CONFIG+=copy3rdexe
@@ -309,6 +286,33 @@ unix:!macx:include(linuxfiledistro.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
+
+#~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# needed to access ui header from LDVQt
+INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
+
+LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
+
+LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
+
+LOAD_LDVLIBS = True
+include(../ldvlib/LDVQt/LDViewLibs.pri)
+
+quazipnobuild: \
+LIBS += -lquazip
+else: \
+LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
+LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+
+win32 {
+    LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
+} else:!macx {
+    LIBS += -lGL -lGLU
+}
+!win32-msvc* {
+    LIBS += -lz
+}
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
