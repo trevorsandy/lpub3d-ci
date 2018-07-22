@@ -9,7 +9,7 @@ echo && echo "- Using XVFB"
 USE_XVFB="true"
 fi
 
-LP3D_CHECK_FILE="${PWD}/${SOURCE_DIR}/builds/check/build_checks.mpd"
+LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
 
 for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04; do
     case ${LP3D_BUILD_CHECK} in

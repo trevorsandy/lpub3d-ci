@@ -223,7 +223,7 @@ echo "- build checks..."
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -f "${LPUB3D_EXE}" ]; then
     # Check commands
-    SOURCE_DIR=$(realpath ../..)
+    SOURCE_DIR=../..
     echo "- build check SOURCE_DIR is ${SOURCE_DIR}..."
     source ${SOURCE_DIR}/builds/check/build_checks.sh
 else
