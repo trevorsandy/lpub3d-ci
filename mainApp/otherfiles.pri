@@ -47,6 +47,10 @@ docs/README.txt \
 ../builds/linux/obs/PKGBUILD \
 ../builds/linux/obs/_service \
 ../builds/macx/CreateDmg.sh \
+../builds/utilities/mesa/build_osmesa.sh \
+../builds/utilities/mesa/glu.spec \
+../builds/utilities/mesa/Mesa.spec \
+../builds/utilities/mesa/osmesa-config \
 ../builds/utilities/ci/dropbox_uploader.sh \
 ../builds/utilities/ci/sfdeploy.sh \
 ../builds/utilities/ci/travis/after_script \

@@ -234,9 +234,9 @@ UI_DIR          = $$DESTDIR/.ui
 
 THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-    unix:!macx: DIST_DIR      =lpub3d_linux_3rdparty
-    else:macx: DIST_DIR       =lpub3d_macos_3rdparty
-    else:win32: DIST_DIR      =lpub3d_windows_3rdparty
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
     exists($$THIRD_PARTY_DIST_DIR_PATH): \
     message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")

@@ -31,8 +31,8 @@ contains(LOAD_LDVHEADERS,True) {
 
     LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
 
-    message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
-    message("~~~ LDVQt Headers source: $$LDVHDRDIR ~~~ ")
+#    message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
+#    message("~~~ LDVQt Headers source: $$LDVHDRDIR ~~~ ")
     !exists($$THIRD_PARTY_DIST_DIR_PATH): \
     message("~~~ ERROR - THIRD PARTY DIST DIR $$THIRD_PARTY_DIST_DIR_PATH NOT DETECTED! ~~~")
 
@@ -61,8 +61,8 @@ contains(LOAD_LDVLIBS,True) {
     else:CONFIG(release, debug|release): \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/bin/$$QT_ARCH )
 
-    message("~~~ LDVQt Library path: $$LDVLIBRARY ~~~ ")
-    message("~~~ LDVQt Library source: $$LDVLIBDIR ~~~ ")
+#    message("~~~ LDVQt Library path: $$LDVLIBRARY ~~~ ")
+#    message("~~~ LDVQt Library source: $$LDVLIBDIR ~~~ ")
 
     # Set source and local paths and library names
     win32-msvc* {
@@ -162,25 +162,25 @@ contains(LOAD_LDVLIBS,True) {
 
     # Set 'use local' flags
     !exists($${_GL2PS_DEP}): USE_LOCAL_GL2PS_LIB = False
-    else:message("~~~ Local gl2ps library $${_GL2PS_DEP} detected ~~~")
+#    else:message("~~~ Local gl2ps library $${_GL2PS_DEP} detected ~~~")
 
     !exists($${_TINYXML_DEP}): USE_LOCAL_TINYXML_LIB = False
-    else:message("~~~ Local tinyxml library $${_TINYXML_DEP} detected ~~~")
+#    else:message("~~~ Local tinyxml library $${_TINYXML_DEP} detected ~~~")
 
     !exists($${_3DS_DEP}): USE_LOCAL_3DS_LIB = False
-    else:message("~~~ Local 3ds library $${_3DS_DEP} detected ~~~")
+#    else:message("~~~ Local 3ds library $${_3DS_DEP} detected ~~~")
 
     !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
-    else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
+#    else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
 
     !exists($${_PNG_DEP}): USE_LOCAL_PNG_LIB = False
-    else:message("~~~ Local png library $${_PNG_DEP} detected ~~~")
+#    else:message("~~~ Local png library $${_PNG_DEP} detected ~~~")
 
     !exists($${_JPEG_DEP}): USE_LOCAL_JPEG_LIB = False
-    else:message("~~~ Local jpeg library $${_JPEG_DEP} detected ~~~")
+#    else:message("~~~ Local jpeg library $${_JPEG_DEP} detected ~~~")
 
     !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
-    else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
+#    else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
 
     # Copy libraries from LDView
     LDLIB_LIB_cmd             = $$COPY_CMD $${_LDLIB_DEP} $${LDVLIBRARY}
@@ -379,8 +379,8 @@ contains(LOAD_LDVLIBS,True) {
     LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
     LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )
 
-    message("~~~ LDVQt Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
-    message("~~~ LDVQt Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
+#    message("~~~ LDVQt Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
+#    message("~~~ LDVQt Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
 
     win32 {
         PLUS_CMD      = +

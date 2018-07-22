@@ -754,7 +754,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
-    displayLogLines=40
+    displayLogLines=27
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
