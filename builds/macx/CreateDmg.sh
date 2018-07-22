@@ -139,10 +139,11 @@ chmod +x builds/utilities/CreateRenderers.sh
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  if [ -f "${HOME}/Library/complete.zip" ]
+  DIST_DIR="../lpub3d_macos_3rdparty"
+  if [ -f "${DIST_DIR}/complete.zip" ]
   then
-    echo "-  copy ldraw official library archive from ${HOME}/Library/ to $(realpath mainApp/extras/)..."
-    cp -f "${HOME}/Library/complete.zip" "mainApp/extras/complete.zip"
+    echo "-  copy ldraw official library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    cp -f "${DIST_DIR}/complete.zip" "mainApp/extras/complete.zip"
   else
     echo "-  download ldraw official library archive to $(realpath mainApp/extras/)..."
     curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
@@ -152,8 +153,14 @@ else
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
-  echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
-  curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
+  if [ -f "${DIST_DIR}/lpub3dldrawunf.zip" ]
+  then
+    echo "-  copy unofficial library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    cp -f "${DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras/lpub3dldrawunf.zip"
+  else
+    echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
+    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
+  fi
 else
   echo "-  ldraw unofficial library exist. skipping download"
 fi
@@ -216,7 +223,8 @@ echo "- build checks..."
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -f "${LPUB3D_EXE}" ]; then
     # Check commands
-    SOURCE_DIR=../../
+    SOURCE_DIR=$(realpath ../..)
+    echo "- build check SOURCE_DIR is ${SOURCE_DIR}..."
     source ${SOURCE_DIR}/builds/check/build_checks.sh
 else
     echo "- build-check failed - ${LPUB3D_EXE} not found."
