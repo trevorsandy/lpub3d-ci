@@ -744,6 +744,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="app"
     validExe="${validSubDir}/${buildArch}/ldglite"
     buildType="release"
+    displayLogLines=10
     ;;
   ldview)
     curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
@@ -753,6 +754,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
+    displayLogLines=27
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
@@ -762,6 +764,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="unix"
     validExe="${validSubDir}/lpub3d_trace_cui"
     buildType="release"
+    displayLogLines=10
     ;;
   esac
 
@@ -821,7 +824,7 @@ for buildDir in ldglite ldview povray; do
         Info && Info "Build check - ${buildDir}..."
         DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
         Info
-        DisplayLogTail ${buildLog} 10
+        DisplayLogTail ${buildLog} ${displayLogLines}
       else
         Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
         Info "------------------Build Log-------------------------"
