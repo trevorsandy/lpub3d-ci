@@ -21,6 +21,10 @@ INCLUDEPATH += ../../qslog
 macx: \
 INCLUDEPATH += /usr/local/include
 
+# Setup LDVQt headers
+LOAD_LDVHEADERS = True
+include(LDViewLibs.pri)
+
 DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC

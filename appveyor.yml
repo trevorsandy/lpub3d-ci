@@ -104,7 +104,7 @@ init:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
-          If (LP3D_BUILD_RENDERERS_VAR -ne "true") {
+          If ($env:LP3D_BUILD_RENDERERS_VAR -ne "true") {
             $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
             $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
             $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)

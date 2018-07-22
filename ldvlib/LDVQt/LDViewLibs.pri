@@ -10,122 +10,51 @@ win32 {
 }
 
 contains(LOAD_LDVHEADERS,True) {
-    # LDVQt include path
     isEmpty(LDVINCLUDE):LDVINCLUDE = $$system_path( $$absolute_path( $$PWD/include ) )
-
-    # Create header folders
-    win32 {
-        DELE_HDR_DIRS_CMD = IF EXIST $$LDVINCLUDE RMDIR /S /Q $$LDVINCLUDE
-        system( $$DELE_HDR_DIRS_CMD )
-        MAKE_HDR_DIRS_CMD = MKDIR $$LDVINCLUDE\LDLib $$LDVINCLUDE\LDExporter $$LDVINCLUDE\LDLoader $$LDVINCLUDE\TRE $$LDVINCLUDE\TCFoundation $$LDVINCLUDE\3rdParty $$LDVINCLUDE\GL
-    } else {
-        MAKE_HDR_DIRS_CMD = if test -e $$LDVINCLUDE; then rm -rf $$LDVINCLUDE; fi; \
-                            mkdir -p $$LDVINCLUDE/LDExporter $$LDVINCLUDE/LDLib \
-                            $$LDVINCLUDE/LDLoader $$LDVINCLUDE/TRE $$LDVINCLUDE/TCFoundation \
-                            $$LDVINCLUDE/3rdParty $$LDVINCLUDE/GL
-    }
-    system( $$MAKE_HDR_DIRS_CMD )
 
     VER_LDVIEW                = ldview-4.3
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../../$$DIST_DIR ) )
+    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
     !exists($$THIRD_PARTY_DIST_DIR_PATH): \
-    message("~~~ ERROR - THIRD PARTY DIST DIR $$THIRD_PARTY_DIST_DIR_PATH WAS NOT DETECTED! ~~~")
+    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../../$$DIST_DIR ) )
+    win32 {
+        DELETE_HDR_DIRS_CMD = IF EXIST $$LDVINCLUDE RMDIR /S /Q $$LDVINCLUDE
+        CREATE_HDR_DIRS_CMD = MKDIR $$LDVINCLUDE\LDLib $$LDVINCLUDE\LDExporter $$LDVINCLUDE\LDLoader $$LDVINCLUDE\TRE $$LDVINCLUDE\TCFoundation $$LDVINCLUDE\3rdParty $$LDVINCLUDE\GL
+    } else {
+        DELETE_HDR_DIRS_CMD = if test -e $$LDVINCLUDE; then rm -rf $$LDVINCLUDE; fi
+        CREATE_HDR_DIRS_CMD = mkdir -p $$LDVINCLUDE/LDExporter $$LDVINCLUDE/LDLib \
+                              $$LDVINCLUDE/LDLoader $$LDVINCLUDE/TRE $$LDVINCLUDE/TCFoundation \
+                              $$LDVINCLUDE/3rdParty $$LDVINCLUDE/GL
+    }
 
     LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
 
     message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
     message("~~~ LDVQt Headers source: $$LDVHDRDIR ~~~ ")
+    !exists($$THIRD_PARTY_DIST_DIR_PATH): \
+    message("~~~ ERROR - THIRD PARTY DIST DIR $$THIRD_PARTY_DIST_DIR_PATH NOT DETECTED! ~~~")
 
-    # Copy headers from LDView
-    LDLIB_DEP                 = $$system_path( $${LDVHDRDIR}/LDLib/LDrawModelViewer.h)
-    LDEXPORTER_DEP            = $$system_path( $${LDVHDRDIR}/LDExporter/LDExporter.h)
-    LDLOADER_DEP              = $$system_path( $${LDVHDRDIR}/LDLoader/LDLModel.h)
-    TRE_DEP                   = $$system_path( $${LDVHDRDIR}/TRE/TREGLExtensions.h)
-    TCFOUNDATION_DEP          = $$system_path( $${LDVHDRDIR}/TCFoundation/TCObject.h)
-    3RDPARTY_DEP              = $$system_path( $${LDVHDRDIR}/3rdParty/lib3ds.h)
-    GL_DEP                    = $$system_path( $${LDVHDRDIR}/GL/glext.h)
+    # Initialize local header folders
+    system( $$DELETE_HDR_DIRS_CMD )
+    system( $$CREATE_HDR_DIRS_CMD )
 
-    LDLIB_HDR_cmd             = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ )
-    LDEXPORTER_HDR_cmd        = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ )
-    LDLOADER_HDR_cmd          = $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/)
-    TRE_HDR_cmd               = $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/)
-    TCFOUNDATION_HDR_cmd      = $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ )
-    3RDPARTY_HDR_cmd          = $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ )
-    GL_HDR_cmd                = $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ )
+    # Copy headers from LDView LDVHDRDIR
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/) )
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
+    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
 
-    LDLib_hdr.target          = $$LDLIB_DEP
-    LDLib_hdr.commands        = $$LDLIB_HDR_cmd
-    LDLib_hdr.depends         = LDLib_hdr_msg LDExporter_hdr
-    LDLib_hdr_msg.commands    = @echo Copying LDLib headers...
-
-    LDExporter_hdr.target     = $$LDEXPORTER_DEP
-    LDExporter_hdr.commands   = $$LDEXPORTER_HDR_cmd
-    LDExporter_hdr.depends    = LDExporter_hdr_msg LDLoader_hdr
-    LDExporter_hdr_msg.commands = @echo Copying LDExporter headers...
-
-    LDLoader_hdr.target       = $$LDLOADER_DEP
-    LDLoader_hdr.commands     = $$LDLOADER_HDR_cmd
-    LDLoader_hdr.depends      = LDLoader_hdr_msg TRE_hdr
-    LDLoader_hdr_msg.commands = @echo Copying LDLoader headers...
-
-    TRE_hdr.target            = $$TRE_DEP
-    TRE_hdr.commands          = $$TRE_HDR_cmd
-    TRE_hdr.depends           = TRE_hdr_msg TCFoundation_hdr
-    TRE_hdr_msg.commands      = @echo Copying TRE headers...
-
-    TCFoundation_hdr.target   = $$TCFOUNDATION_DEP
-    TCFoundation_hdr.commands = $$TCFOUNDATION_HDR_cmd
-    TCFoundation_hdr.depends  = TCFoundation_hdr_msg
-    TCFoundation_hdr_msg.commands = @echo Copying TCFoundation headers...
-
-    3rdParty_hdr.target       = $$3RDPARTY_DEP
-    3rdParty_hdr.commands     = $$3RDPARTY_HDR_cmd
-    3rdParty_hdr.depends      = 3rdParty_hdr_msg Gl_hdr
-    3rdParty_hdr_msg.commands = @echo Copying 3rdParty headers...
-
-    Gl_hdr.target             = $$GL_DEP
-    Gl_hdr.commands           = $$GL_HDR_cmd
-    Gl_hdr.depends            = Gl_hdr_msg
-    Gl_hdr_msg.commands       = @echo Copying Gl headers...
-
-    QMAKE_EXTRA_TARGETS += \
-        LDLib_hdr LDLib_hdr_msg \
-        LDExporter_hdr LDExporter_hdr_msg \
-        LDLoader_hdr LDLoader_hdr_msg \
-        TRE_hdr TRE_hdr_msg \
-        TCFoundation_hdr TCFoundation_hdr_msg \
-        3rdParty_hdr 3rdParty_hdr_msg \
-        Gl_hdr Gl_hdr_msg
-
-   PRE_TARGETDEPS += \
-        $${LDLIB_DEP} \
-        $${LDEXPORTER_DEP} \
-        $${LDLOADER_DEP} \
-        $${TRE_DEP} \
-        $${TCFOUNDATION_DEP} \
-        $${3RDPARTY_DEP} \
-        $${GL_DEP}
-
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/) )
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
-#    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
-
-#    exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
-    exists($$TCFOUNDATION_DEP): \
-    message("~~~ LDVIEW HEADERS COPIED TO $${LDVINCLUDE} ~~~")
+    exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
+    message("~~~ LDVQt Headers copied to $${LDVINCLUDE} ~~~")
 }
 
 contains(LOAD_LDVLIBS,True) {
 
-    # LDVQt library path
     isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
     win32-msvc*:CONFIG(debug, debug|release): \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
@@ -194,7 +123,7 @@ contains(LOAD_LDVLIBS,True) {
         _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng.a )
         _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg.a )
         macx {
-            _MINIZIP_DEP  = $$system_path( $${LDVLIBDIR}/MacOSX/libminizip.a )
+            _MINIZIP_DEP  = $$system_path( $${LDVLIBDIR}/libminizip.a )
         } else {
             _MINIZIP_DEP  =
             IS_LINUX      = True

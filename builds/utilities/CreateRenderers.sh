@@ -125,8 +125,8 @@ DisplayLogTail() {
       startPosition=$2
     fi
     Info "Log file tail..."
-    Info "$1 last $2 lines:"
-    tail $startPositin $logFile
+    Info "$logFile last $startPosition lines:"
+    tail $startPosition $logFile
   else
     Info "ERROR (log tail) - $1 not found or not valid!"
   fi
@@ -754,7 +754,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
-    displayLogLines=27
+    displayLogLines=40
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"

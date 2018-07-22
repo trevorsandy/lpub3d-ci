@@ -112,13 +112,3 @@ UI_DIR          = $$DESTDIR/.ui
 # Input files
 include(quazip.pri)
 include(../LPub3DPlatformSpecific.pri)
-
-# Setup load LDVQt headers
-LOAD_LDVHEADERS           = True
-VER_LDVIEW                = ldview-4.3
-unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
-else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../$$DIST_DIR ) )
-LDVINCLUDE                = $$system_path( $$absolute_path( $$PWD/../ldvlib/LDVQt/include ) )
-include(../ldvlib/LDVQt/LDViewLibs.pri)
