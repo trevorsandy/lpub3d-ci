@@ -78,7 +78,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
   bool retValue = false;
 
   if (!initLDrawSearchDirs()) {
-      qInfo() << "Could not initialize LDrawini ";
+      qDebug() << "Could not initialize LDrawini ";
       return retValue;
     }
 
@@ -98,7 +98,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
     {
       int i;
 
-      qInfo() << "";
+      qDebug() << "";
 
       for (i = 0; i < sm_lDrawIni->nSearchDirs; i++)
         {
@@ -111,7 +111,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
             }
         }
 
-      qInfo() << "";
+      qDebug() << "";
 
       //process extra seach directories (NOT USED)
       bool found = false;
@@ -123,7 +123,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
           if (verifyLDrawDir(dir))
             {
               m_ldrawSearchDirs.push_back(dir);
-              qInfo() << "LDRAW EXTRA SEARCH DIR PUSHED: " << dir;
+              qDebug() << "LDRAW EXTRA SEARCH DIR PUSHED: " << dir;
               found = true;
             }
         }
