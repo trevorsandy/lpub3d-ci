@@ -48,6 +48,9 @@ contains(LOAD_LDVHEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
+    if (unix:!macx:contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+        system( touch temp; echo "// empty placeholder" > temp; cat temp > $${LDVHDRDIR}/GL/glext.h; rm temp )
+    }
 
     exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
     message("~~~ LDVQt Headers copied to $${LDVINCLUDE} ~~~")

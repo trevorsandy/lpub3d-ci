@@ -21,10 +21,6 @@ INCLUDEPATH += ../../qslog
 macx: \
 INCLUDEPATH += /usr/local/include
 
-# Setup LDVQt headers
-LOAD_LDVHEADERS = True
-include(LDViewLibs.pri)
-
 DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC
@@ -39,6 +35,10 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     ARCH  = 32
     LIB_ARCH =
 }
+
+# Setup LDVQt headers
+LOAD_LDVHEADERS = True
+include(LDViewLibs.pri)
 
 unix: !macx: TARGET = ldvqt
 else:        TARGET = LDVQt
