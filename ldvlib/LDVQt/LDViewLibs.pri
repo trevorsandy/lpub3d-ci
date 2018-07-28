@@ -48,10 +48,11 @@ contains(LOAD_LDVHEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
-    system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
     if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-        message("~~~ $$upper($$QT_ARCH) build - remove glext.h content ~~~")
-        system( touch temp; echo "// empty placeholder" > temp; cat temp > $${LDVHDRDIR}/GL/glext.h; rm temp )
+        message("~~~ $$upper($$QT_ARCH) build - skip local GL content ~~~")
+        system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h) )
+    } else {
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
     }
 
     exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
