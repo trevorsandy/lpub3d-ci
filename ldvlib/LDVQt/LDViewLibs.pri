@@ -33,6 +33,7 @@ contains(LOAD_LDVHEADERS,True) {
 
 #    message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
 #    message("~~~ LDVQt Headers source: $$LDVHDRDIR ~~~ ")
+
     !exists($$THIRD_PARTY_DIST_DIR_PATH): \
     message("~~~ ERROR - THIRD PARTY DIST DIR $$THIRD_PARTY_DIST_DIR_PATH NOT DETECTED! ~~~")
 
@@ -48,7 +49,8 @@ contains(LOAD_LDVHEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
-    if (unix:!macx:contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+    if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+        message("~~~ $$upper($$QT_ARCH) build - remove glext.h content ~~~")
         system( touch temp; echo "// empty placeholder" > temp; cat temp > $${LDVHDRDIR}/GL/glext.h; rm temp )
     }
 
