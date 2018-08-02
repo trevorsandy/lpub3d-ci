@@ -73,7 +73,7 @@ cd $LP3D_BUILD_FOLDER
 if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_STORAGE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     echo "Capturing Docker-generated assets..."
-    if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+    if [ "$LP3D_BUILD_ARCH" = "true" ]; then
       file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
       file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_VERSION}*.pkg.tar.xz -type f);
     fi;

@@ -88,7 +88,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
 fi
 # setup linux platform-specific 3rd party distribution directory
 if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
-  if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+  if [ "$LP3D_BUILD_ARCH" = "true" ]; then
     LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
   elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
     LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;

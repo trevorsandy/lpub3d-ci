@@ -76,7 +76,7 @@ jobs:
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build and Package
-    env: LP3D_BUILD_ARCH2017=true
+    env: LP3D_BUILD_ARCH=true
     os: linux
     compiler: gcc
   - stage: Build and Package
