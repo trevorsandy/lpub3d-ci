@@ -12,9 +12,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += concurrent
 }
 
-COMPILE_SOURCE = $$(LP3D_COMPILE_SOURCE)
-TRAVIS_HOST_OS = $$(TRAVIS_OS_NAME)
-!contains(COMPILE_SOURCE,true):!contains(TRAVIS_HOST_OS,linux) {
+win32:macx: \
+ENABLE_GAMEPAD = true
+contains(ENABLE_GAMEPAD,true) {
     DEFINES += _GAMEPAD
     equals(QT_MAJOR_VERSION, 5) {
         greaterThan(QT_MINOR_VERSION, 7) {
