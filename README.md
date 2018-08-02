@@ -124,7 +124,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [dockercomposefile]:   https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml
 [dockerarch]:          https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux
 [dockerxenial]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial
-[dockerfedora]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25
+[dockerfedora]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora
 
 [appimage-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/appimage.png
 [arch-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/arch.png

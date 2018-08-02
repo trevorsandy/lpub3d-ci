@@ -90,7 +90,7 @@ fi
 if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
   if [ "$LP3D_BUILD_ARCH" = "true" ]; then
     LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
-  elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+  elif [ "$LP3D_BUILD_FEDORA" = "true" ]; then
     LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
   elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
     LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;

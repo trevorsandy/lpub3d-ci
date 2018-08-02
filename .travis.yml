@@ -80,7 +80,7 @@ jobs:
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_FEDORA25=true
+    env: LP3D_BUILD_FEDORA=true
     os: linux
     compiler: gcc
   - stage: Build and Package
