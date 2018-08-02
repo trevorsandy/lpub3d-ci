@@ -24,7 +24,7 @@
 #include "lc_colors.h"
 #include <functional>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0) && _GAMEPAD)
 #include <QtGamepad/QGamepad>
 #endif
 
@@ -168,9 +168,8 @@ void lcMainWindow::CreateWidgets()
 #endif
 	setCentralWidget(mModelTabWidget);
 	connect(mModelTabWidget, SIGNAL(currentChanged(int)), this, SLOT(ModelTabChanged(int)));
-
 /*** LPub3D Mod - gamepad connection moved here from constructor ***/
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0) && _GAMEPAD)
 	connect(&mGamepadTimer, &QTimer::timeout, this, &lcMainWindow::UpdateGamepads);
 	mLastGamepadUpdate = QDateTime::currentDateTime();
 	mGamepadTimer.start(33);
@@ -979,7 +978,7 @@ QMenu* lcMainWindow::createPopupMenu()
 
 void lcMainWindow::UpdateGamepads()
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0) && _GAMEPAD)
 	QDateTime Now = QDateTime::currentDateTime();
 	quint64 Elapsed = mLastGamepadUpdate.msecsTo(Now);
 	mLastGamepadUpdate = Now;
