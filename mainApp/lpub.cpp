@@ -871,6 +871,8 @@ void Gui::SetRotStepMeta(QString &value, bool propagate)
 {
     if (propagate && getCurFile() != "") {
 
+        ShowStepRotationStatus();
+
         mStepRotation[0] = mRotStepAngleX;
         mStepRotation[1] = mRotStepAngleY;
         mStepRotation[2] = mRotStepAngleZ;
@@ -903,10 +905,9 @@ void Gui::SetRotStepMeta(QString &value, bool propagate)
                             .arg(value));
         }
     }
-    UpdateStepRotationStatus();
 }
 
-void Gui::UpdateStepRotationStatus()
+void Gui::ShowStepRotationStatus()
 {
     QString rotLabel("Step Rotation %1 %2 %3");
     rotLabel = rotLabel.arg(QString::number(mRotStepAngleX, 'f', 2),
@@ -1984,8 +1985,8 @@ void Gui::preferences()
 
 	if (lightsChanged && nativePovRendererConfig)
 		logInfo() << QString("Lights changed from %1 to %2.")
-							 .arg(lightsCompare)
-							 .arg(Preferences::ldvLights);
+				 .arg(lightsCompare)
+				 .arg(Preferences::ldvLights);
     }
 }
 

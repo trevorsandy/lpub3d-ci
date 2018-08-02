@@ -1350,17 +1350,19 @@ int Native::renderCsi(
   Q_UNUSED(csiKeys);
 
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  float lineThickness = (float(resolution()/Preferences::highlightStepLineWidth));
 
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = CSI;
-  Options.OutputFileName     = pngName;
+  Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = meta.LPub.assem.angle.value(0);
   Options.Longitude         = meta.LPub.assem.angle.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+  Options.LineWidth         = lineThickness;
 
   // Set new project
   Project* CsiImageProject = new Project();
@@ -1392,10 +1394,6 @@ int Native::renderPli(
   Meta              &meta,
   bool               bom)
 {
-  // Line Width
-  int lineThickness = (int(resolution()/lineThickness));
-  Q_UNUSED(lineThickness);
-
   // Select meta type
   PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
 
@@ -1408,6 +1406,7 @@ int Native::renderPli(
   Options.Latitude          = metaType.angle.value(0);
   Options.Longitude         = metaType.angle.value(1);
   Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
+  Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 
   // Set and load new project
   Project* PliImageProject = new Project();
@@ -1435,6 +1434,9 @@ int Native::renderPli(
 
 void Render::CreateNativeImage(const NativeOptions &Options)
 {
+//        if (Options.LineWidth != HIGHLIGHT_LINE_WIDTH_DEFAULT)
+//            gApplication->mPreferences.mLineWidth = Options.LineWidth;
+
         View* ActiveView = gMainWindow->GetActiveView();
         ActiveView->MakeCurrent();
 

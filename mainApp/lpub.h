@@ -620,7 +620,7 @@ public:
 public slots:
   //**3D Viewer Manage Step Rotation
 
-  void UpdateStepRotationStatus();
+  void ShowStepRotationStatus();
   void SetRotStepMeta(QString &value, bool propagate = false);
   void setViewerCsiName(QString &csiName)
   {
@@ -640,19 +640,19 @@ public slots:
   void SetRotStepAngleX(float AngleX)
   {
       mRotStepAngleX = AngleX;
-      UpdateStepRotationStatus();
+      ShowStepRotationStatus();
   }
 
   void SetRotStepAngleY(float AngleY)
   {
       mRotStepAngleY = AngleY;
-      UpdateStepRotationStatus();
+      ShowStepRotationStatus();
   }
 
   void SetRotStepAngleZ(float AngleZ)
   {
       mRotStepAngleZ = AngleZ;
-      UpdateStepRotationStatus();
+      ShowStepRotationStatus();
   }
   //**
 
