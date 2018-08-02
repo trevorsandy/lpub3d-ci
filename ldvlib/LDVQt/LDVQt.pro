@@ -27,7 +27,12 @@ DEFINES += _TC_STATIC
 DEFINES += QT_THREAD_SUPPORT
 
 # platform switch
-BUILD_ARCH = $$(TARGET_CPU)
+HOST_VERSION   = $$(PLATFORM_VER)
+BUILD_TARGET   = $$(TARGET_VENDOR)
+BUILD_ARCH     = $$(TARGET_CPU)
+!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
+contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): DEFINES += _OPENSUSE_1320_ARM
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH  = 64
     LIB_ARCH = 64

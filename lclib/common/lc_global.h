@@ -9,6 +9,7 @@
 #include <QGLWidget>
 #include <QtGui>
 #include <QPrinter>
+#include <array>
 
 #if !defined(EGL_VERSION_1_0) && !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0) && !defined(QT_OPENGL_ES)
 #undef GL_LINES_ADJACENCY_EXT
@@ -36,7 +37,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "18.02"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "e0acb8f"
+#define LC_VERSION_BUILD "1c1a5fb"
 /*** LPub3D Mod end ***/
 
 

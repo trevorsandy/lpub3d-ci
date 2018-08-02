@@ -1438,9 +1438,9 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         View* ActiveView = gMainWindow->GetActiveView();
         ActiveView->MakeCurrent();
 
-        lcModel* Model = ActiveView->mModel;
+        lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-        lcStep CurrentStep = Model->GetCurrentStep();
+        lcStep CurrentStep = ActiveModel->GetCurrentStep();
 
         lcContext* Context = ActiveView->mContext;
 
@@ -1452,7 +1452,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         const int ImageWidth = Options.ImageWidth;
         const int ImageHeight = Options.ImageHeight;
 
-        View View(Model);
+        View View(ActiveModel);
         View.SetHighlight(Options.HighlightNewParts);
         View.SetCamera(Camera, false);
         View.SetContext(Context);
@@ -1465,7 +1465,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
                 return;
         }
 
-        Model->SetTemporaryStep(CurrentStep);
+        ActiveModel->SetTemporaryStep(CurrentStep);
 
         View.OnDraw();
 
@@ -1523,10 +1523,10 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         View.EndRenderToImage();
         Context->ClearResources();
 
-        Model->SetTemporaryStep(CurrentStep);
+        ActiveModel->SetTemporaryStep(CurrentStep);
 
-        if (!Model->mActive)
-                Model->CalculateStep(LC_STEP_MAX);
+        if (!ActiveModel->mActive)
+                ActiveModel->CalculateStep(LC_STEP_MAX);
 }
 
 bool Render::LoadViewer(const ViewerOptions &Options){

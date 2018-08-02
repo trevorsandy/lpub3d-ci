@@ -12,6 +12,12 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += concurrent
 }
 
+equals(QT_MAJOR_VERSION, 5) {
+    greaterThan(QT_MINOR_VERSION, 7) {
+        QT += gamepad
+    }
+}
+
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .

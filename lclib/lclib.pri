@@ -16,6 +16,7 @@ HEADERS += \
     $$PWD/common/lc_glextensions.h \
     $$PWD/common/lc_global.h \
     $$PWD/common/lc_glwidget.h \
+    $$PWD/common/lc_http.h \
     $$PWD/common/lc_library.h \
     $$PWD/common/lc_lxf.h \
     $$PWD/common/lc_mainwindow.h \
@@ -72,6 +73,7 @@ SOURCES +=  \
     $$PWD/common/lc_context.cpp \
     $$PWD/common/lc_file.cpp \
     $$PWD/common/lc_glextensions.cpp \
+    $$PWD/common/lc_http.cpp \
     $$PWD/common/lc_library.cpp \
     $$PWD/common/lc_lxf.cpp \
     $$PWD/common/lc_mainwindow.cpp \
