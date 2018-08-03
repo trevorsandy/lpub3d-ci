@@ -961,7 +961,7 @@ int Gui::drawPage(
                           return rc;
                         }
 
-                      emit gui->messageSig(LOG_STATUS, qPrintable(
+                      emit gui->messageSig(LOG_INFO, qPrintable(
                                           QString("%1 CSI (Single Call) render took "
                                                   "%2 milliseconds to render %3 %4 "
                                                   "for %5 step group on page %6.")
@@ -1184,7 +1184,7 @@ int Gui::drawPage(
                               return rc;
                             }
 
-                          emit gui->messageSig(LOG_STATUS, qPrintable(
+                          emit gui->messageSig(LOG_INFO, qPrintable(
                                       QString("%1 CSI (Single Call) render took "
                                               "%2 milliseconds to render %3 %4 for %5 "
                                               "single step on page %6.")

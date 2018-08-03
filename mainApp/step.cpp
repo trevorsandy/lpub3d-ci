@@ -293,7 +293,7 @@ int Step::createCsi(
               return rc;
           }
 
-          emit gui->messageSig(LOG_STATUS, qPrintable(
+          emit gui->messageSig(LOG_INFO, qPrintable(
                               QString("%1 CSI render call took %2 milliseconds "
                                       "to render %3 for %4 %5 %6 on page %7.")
                                  .arg(Render::getRenderer())

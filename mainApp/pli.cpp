@@ -502,7 +502,7 @@ int Pli::createPartImage(
           return -1;
         }
 
-      emit gui->messageSig(LOG_STATUS, qPrintable(
+      emit gui->messageSig(LOG_INFO, qPrintable(
                           QString("%1 PLI render took %2 milliseconds "
                                   "to render %3 for %4.")
                              .arg(Render::getRenderer())
@@ -539,7 +539,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
           return -1;
         }
 
-      emit gui->messageSig(LOG_STATUS, qPrintable(
+      emit gui->messageSig(LOG_INFO, qPrintable(
                           QString("%1 PLI (Single Call) render took "
                                   "%2 milliseconds to render %3 %4 for %5")
                              .arg(Render::getRenderer())

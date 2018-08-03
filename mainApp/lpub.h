@@ -698,7 +698,18 @@ public slots:
              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
              fflush(stdout);
           }
-      } else {
+      } else
+        if (logType == LOG_INFO) {
+
+            logInfo() << message;
+
+            if (!Preferences::modeGUI) {
+                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                fflush(stdout);
+            }
+
+       } else
+         if (logType == LOG_ERROR) {
 
           logError() << message;
 
