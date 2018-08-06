@@ -370,6 +370,7 @@
 #define WATCHER
 #endif
 
+// PageSize default entry
 #ifndef DEF_SIZE
 #define DEF_SIZE 0
 #endif
