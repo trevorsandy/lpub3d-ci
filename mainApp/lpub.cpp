@@ -107,15 +107,13 @@ void clearCsi3dCache()
  ***************************************************************************/
 
 int Gui::pageSize(PageMeta &meta, int which){
-  int _size;
-
-  // flip orientation for landscape
+  int _which;
   if (meta.orientation.value() == Landscape){
-      which == 0 ? _size = 1 : _size = 0;
+      which == 0 ? _which = 1 : _which = 0;
     } else {
-      _size = which;
+      _which = which;
     }
-  return meta.size.valuePixels(_size);
+  return meta.size.valuePixels(_which);
 }
 
 void Gui::insertCoverPage()
