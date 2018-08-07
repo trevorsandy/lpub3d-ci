@@ -71,10 +71,10 @@ Native  native;
 //Native renderer scale factor
 #define SCALE_FACTOR_NATIVE 11658.9567325322
 
-//LDView single call diagnostics
-#ifndef LDVIEW_USE_SNAPSHOT_LIST
-#define LDVIEW_USE_SNAPSHOT_LIST
-#endif
+//Enable LDView single call -SaveSnapshotsList flag
+//#ifndef LDVIEW_USE_SNAPSHOT_LIST
+//#define LDVIEW_USE_SNAPSHOT_LIST
+//#endif
 
 
 static double pi = 4*atan(1.0);
