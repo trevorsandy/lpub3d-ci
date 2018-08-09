@@ -255,7 +255,7 @@ fi
 if [ ! -f "glu-${gluversion}.tar.bz2" ]; then
   if [ ! "$OBS" = "true" ]; then
     Info "* downloading GLU ${gluversion}..."
-    curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-${mesaversion}.tar.gz"
+    curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-${gluversion}.tar.bz2"
   else
     Info "ERROR - archive file glu-${gluversion}.tar.bz2 was not found."
   fi
