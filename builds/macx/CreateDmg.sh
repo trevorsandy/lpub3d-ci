@@ -7,7 +7,7 @@
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
-FinishElapsedTime() {
+ElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
@@ -177,15 +177,16 @@ if [ ! -d "mainApp/$release/LPub3D.app" ]; then
   echo "ERROR - build output at $(realpath mainApp/$release/LPub3D.app/) not found."
   ElapsedTime
   exit 1
-# Stop here if we are only compiling
-elif [ "$BUILD_OPT" = "compile" ]; then
-  ElapsedTime
-  exit 0
 else
   # run otool -L on LPub3D.app
   echo && echo "otool -L check LPub3D.app/Contents/MacOS/LPub3D..." && \
   otool -L mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null || \
   echo "ERROR - otool -L check LPub3D.app/Contents/MacOS/LPub3D - failed."
+  # Stop here if we are only compiling
+  if [ "$BUILD_OPT" = "compile" ]; then
+    ElapsedTime
+    exit 0
+  fi
 fi
 
 # create dmg environment - begin #
@@ -352,4 +353,4 @@ else
 fi
 
 # Elapsed execution time
-FinishElapsedTime
+ElapsedTime
