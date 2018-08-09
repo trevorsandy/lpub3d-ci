@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 28, 2018
+#  Last Update: August 10, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -12,7 +12,8 @@ cd $LP3D_BUILD_FOLDER
 if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
   # Check commands
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    echo "- build check LPub3D.app bundle..."
+    echo "- macOS build checks..."
+    LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
     SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/lpub3d-ci
     cd $SOURCE_DIR/
     # run otool -L on LPub3D.app...
@@ -20,7 +21,7 @@ if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
       otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
       cd mainApp/64bit_release
     else
-      echo "ERROR - build output at $(realpath mainApp/64bit_release/LPub3D.app/) not found."
+      echo "ERROR - oTool check failed for $(realpath mainApp/64bit_release/${LPUB3D_EXE})"
     fi
     echo "- install library links..."
     /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
@@ -33,28 +34,59 @@ if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
     echo "- change library dependency mapping..."
     /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
     /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    echo "- macOS build checks..."
-    LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
-    #TODO - move these outside macOS and Linux blocks once Linux block is OK
-    source ${SOURCE_DIR}/builds/check/build_checks.sh
   elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
-    echo "- Linux build checks [placeholder]..."
-    SOURCE_DIR=${LP3D_BUILD_FOLDER}
+    echo "- Linux build checks..."
     LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
-    # run otool -L on LPub3D.app...
+    SOURCE_DIR=${LP3D_BUILD_FOLDER}
+    # 3rdParty renderer paths
+    LP3D_3RD_LDGLITE="${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDGLITE}"
+    LP3D_3RD_LDVIEW="${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDVIEW}"
+    LP3D_3RD_POVRAY="${LP3D_DIST_DIR_PATH}/${LP3D_VER_POVRAY}"
+    # 3rdParty renderer exe paths
+    LP3D_3RD_LDGLITE_EXE="${LP3D_3RD_LDGLITE}/bin/x86_64/ldglite"
+    LP3D_3RD_LDVIEW_EXE="${LP3D_3RD_LDVIEW}/bin/x86_64/ldview"
+    LP3D_3RD_POVRAY_EXE="${LP3D_3RD_POVRAY}/bin/x86_64/lpub3d_trace_cui"
+    #-Setup share contents at path lpub3d-ci/share [relative to DESTDIR]
+    LP3D_3RD_SHARE="share/lpub3d/3rdParty"
+    LP3D_LDGLITE_SHARE="${LP3D_3RD_SHARE}/${LP3D_VER_LDGLITE}"
+    LP3D_LDVIEW_SHARE="${LP3D_3RD_SHARE}/${LP3D_VER_LDVIEW}"
+    LP3D_POVRAY_SHARE="${LP3D_3RD_SHARE}/${LP3D_VER_POVRAY}"
+    mkdir -p ${LP3D_LDGLITE_SHARE}
+    mkdir -p ${LP3D_LDVIEW_SHARE}
+    mkdir -p ${LP3D_POVRAY_SHARE}
+    cp -rf ${LP3D_3RD_LDGLITE}/docs ${LP3D_LDGLITE_SHARE}/
+    cp -rf ${LP3D_3RD_LDGLITE}/resources ${LP3D_LDGLITE_SHARE}/
+    cp -rf ${LP3D_3RD_LDVIEW}/docs ${LP3D_LDVIEW_SHARE}/
+    cp -rf ${LP3D_3RD_LDVIEW}/resources ${LP3D_LDVIEW_SHARE}/
+    cp -rf ${LP3D_3RD_POVRAY}/docs ${LP3D_POVRAY_SHARE}/
+    cp -rf ${LP3D_3RD_POVRAY}/resources ${LP3D_POVRAY_SHARE}/
+    #-Setup extras content
+    cp -rf extras share/lpub3d/
+    #-Setup 3rdParty bin contents at path mainApp/opt [relative to DESTDIR]
+    LP3D_OPT_BIN="mainApp/opt/lpub3d/3rdParty"
+    LP3D_LDGLITE_BIN="${LP3D_OPT_BIN}/${LP3D_VER_LDGLITE}/bin"
+    LP3D_LDVIEW_BIN="${LP3D_OPT_BIN}/${LP3D_VER_LDVIEW}/bin"
+    LP3D_POVRAY_BIN="${LP3D_OPT_BIN}/${LP3D_VER_POVRAY}/bin"
+    mkdir -p ${LP3D_3RD_LDGLITE_BIN}
+    mkdir -p ${LP3D_3RD_LDVIEW_BIN}
+    mkdir -p ${LP3D_3RD_POVRAY_BIN}
+    cp -rf ${LP3D_3RD_LDGLITE_EXE} ${LP3D_LDGLITE_BIN}/
+    cp -rf ${LP3D_3RD_LDVIEW_EXE} ${LP3D_LDVIEW_BIN}/
+    cp -rf ${LP3D_3RD_POVRAY_EXE} ${LP3D_POVRAY_BIN}/
+    #-Export Qt libs, ldrawini, quazip paths on LD_LIBRARY_PATH
+    LP3D_QUAZIP_LIB=$(realpath ../../quazip/64bit_release/)
+    LP3D_LDRAWINI_LIB=$(realpath ../../ldrawini/64bit_release/)
+    LP3D_QT_LIB=/opt/qt${LP3D_QT_BASE}/lib
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LP3D_QT_LIB}:${LP3D_QUAZIP_LIB}:${LP3D_LDRAWINI_LIB}"
+    # run LDD
     if [ -d "mainApp/64bit_release" ]; then
-      otool -L mainApp/64bit_release/${LPUB3D_EXE} 2>/dev/null
+      ldd mainApp/64bit_release/${LPUB3D_EXE} 2>/dev/null
       cd mainApp/64bit_release
     else
-      echo "ERROR - build output at $(realpath mainApp/64bit_release/) not found."
+      echo "ERROR - LDD check failed for $(realpath mainApp/64bit_release/${LPUB3D_EXE})"
     fi
-    #TODO setup run environment
-    #-Setup 3rdParty bin contents at path mainApp/opt [relative to DESTDIR]
-    #-Setup share contents at path lpub3d-ci/share [relative to DESTDIR]
-    #-Export Qt libs, ldrawini, quazip paths on LD_LIBRARY_PATH
-    echo "- [TEST] LPub3D exe: ${LPUB3D_EXE}"
-    #source ${SOURCE_DIR}/builds/check/build_checks.sh
   fi
+  source ${SOURCE_DIR}/builds/check/build_checks.sh
 fi
 
 if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
