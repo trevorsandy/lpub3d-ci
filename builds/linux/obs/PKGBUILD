@@ -55,6 +55,19 @@ build() {
 	cd ${pkgname}-git
 	make clean
 	make -j$(nproc)
+        # check lpub3d dependencies
+        LP3D_BUILD_ARCH=32
+        if [[ "${LP3D_TARGET_ARCH}" = "x86_64" || "${LP3D_TARGET_ARCH}" = "aarch64" ]] ; then
+                LP3D_BUILD_ARCH=64
+        fi
+        versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+        validExe="${LP3D_BUILD_ARCH}bit_release/lpub3d${versuffix}
+        if [ -f "${validExe}" ] ; then
+                echo "LDD check lpub3d${versuffix}..."
+                ldd ${validExe} 2>/dev/null
+        else
+                echo "ERROR - LDD check failed for ${PWD}/${validExe}"
+        fi
 }
 
 package() {

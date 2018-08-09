@@ -640,17 +640,18 @@ cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
 echo "Check updated local library pc file..." && \
 cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc"
 %endif
-
-%install
-make INSTALL_ROOT=%buildroot install
-# check lpub3d dependencies with LDD to ensure all dependencies are met
+# set LDLibrary_Path if using local or custom libraries
 %if 0%{?get_qt5} || 0%{?get_local_libs}
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
-export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+%endif
+# check lpub3d dependencies
+versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
 validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
 [ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || \
 echo "ERROR - LDD check failed for ${validExe}"
-%endif
+
+%install
+make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
