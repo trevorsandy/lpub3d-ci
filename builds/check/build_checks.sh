@@ -1,12 +1,13 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 10, 2018
+# Last Update August 10, 2018
 # LPub3D Unix checks
 # NOTE: this file must be sourced. with ${LPUB3D_EXE} and ${SOURCE_DIR} predefined.
 
-if [[ "${DOCKER}" = "true" && ${XMING} != "true" ]]; then
-echo && echo "- Using XVFB"
-USE_XVFB="true"
+if [[ "${XMING}" != "true" && ("${DOCKER}" = "true" || \
+     ("$TRAVIS_OS_NAME" = "linux") && "$LP3D_COMPILE_SOURCE" = "true") ]]; then
+    echo && echo "- Using XVFB"
+    USE_XVFB="true"
 fi
 
 LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"

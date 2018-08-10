@@ -240,10 +240,11 @@ ${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_che
 make clean
 make %{?_smp_mflags}
 # check lpub3d dependencies
+buildArch=32 && [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && buildArch=64
 versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
+validExe="mainApp/${buildArch}bit_release/lpub3d${versuffix}"
 [ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || \
-echo "ERROR - LDD check failed for ${validExe}"
+echo "ERROR - LDD check failed for $(realpath ${validExe})"
 
 %install
 make INSTALL_ROOT=%buildroot install

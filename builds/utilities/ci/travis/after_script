@@ -61,21 +61,21 @@ if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
     cp -rf ${LP3D_3RD_POVRAY}/docs ${LP3D_POVRAY_SHARE}/
     cp -rf ${LP3D_3RD_POVRAY}/resources ${LP3D_POVRAY_SHARE}/
     #-Setup extras content
-    cp -rf extras share/lpub3d/
+    cp -rf mainApp/extras share/lpub3d/
     #-Setup 3rdParty bin contents at path mainApp/opt [relative to DESTDIR]
     LP3D_OPT_BIN="mainApp/opt/lpub3d/3rdParty"
     LP3D_LDGLITE_BIN="${LP3D_OPT_BIN}/${LP3D_VER_LDGLITE}/bin"
     LP3D_LDVIEW_BIN="${LP3D_OPT_BIN}/${LP3D_VER_LDVIEW}/bin"
     LP3D_POVRAY_BIN="${LP3D_OPT_BIN}/${LP3D_VER_POVRAY}/bin"
-    mkdir -p ${LP3D_3RD_LDGLITE_BIN}
-    mkdir -p ${LP3D_3RD_LDVIEW_BIN}
-    mkdir -p ${LP3D_3RD_POVRAY_BIN}
+    mkdir -p ${LP3D_LDGLITE_BIN}
+    mkdir -p ${LP3D_LDVIEW_BIN}
+    mkdir -p ${LP3D_POVRAY_BIN}
     cp -rf ${LP3D_3RD_LDGLITE_EXE} ${LP3D_LDGLITE_BIN}/
     cp -rf ${LP3D_3RD_LDVIEW_EXE} ${LP3D_LDVIEW_BIN}/
     cp -rf ${LP3D_3RD_POVRAY_EXE} ${LP3D_POVRAY_BIN}/
     #-Export Qt libs, ldrawini, quazip paths on LD_LIBRARY_PATH
-    LP3D_QUAZIP_LIB=$(realpath ../../quazip/64bit_release/)
-    LP3D_LDRAWINI_LIB=$(realpath ../../ldrawini/64bit_release/)
+    LP3D_QUAZIP_LIB=$(realpath quazip/64bit_release/)
+    LP3D_LDRAWINI_LIB=$(realpath ldrawini/64bit_release/)
     LP3D_QT_LIB=/opt/qt${LP3D_QT_BASE}/lib
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LP3D_QT_LIB}:${LP3D_QUAZIP_LIB}:${LP3D_LDRAWINI_LIB}"
     # run LDD
