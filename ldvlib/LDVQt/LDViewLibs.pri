@@ -48,19 +48,12 @@ contains(LOAD_LDVHEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
-    if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64):!contains(DEFINES,_OPENSUSE_1320_ARM)) {
-        system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h) )
-        message("~~~ $$upper($$QT_ARCH) build - skip local GL headers ~~~")
+    if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+        !contains(DEFINES,_OPENSUSE_1320_ARM):system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h) )
+        message("~~~ $$upper($$QT_ARCH) build - skip LDVQt local GL headers ~~~")
     } else {
-        contains(DEFINES,_OPENSUSE_1320_ARM) {
-            system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/glext.h) $$system_path( $${LDVINCLUDE}/GL/glext.h ) )
-            system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/osmesa.h) $$system_path( $${LDVINCLUDE}/GL/osmesa.h ) )
-            system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/glcorearb.h) $$system_path( $${LDVINCLUDE}/GL/glcorearb.h ) )
-            message("~~~ $$upper($$QT_ARCH) build - skip local GL.h and GLU.h headers ~~~")
-        } else {
-            system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
-            message("~~~ LDVQt GL headers copied to $${LDVINCLUDE}/GL/ ~~~")
-        }
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
+        message("~~~ LDVQt local GL headers copied to $${LDVINCLUDE}/GL/ ~~~")
     }
 
     exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
