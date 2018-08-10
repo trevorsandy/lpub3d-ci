@@ -15,14 +15,7 @@ if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
     echo "- macOS build checks..."
     LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
     SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/lpub3d-ci
-    cd $SOURCE_DIR/
-    # run otool -L on LPub3D.app...
-    if [ -d "mainApp/64bit_release/LPub3D.app" ]; then
-      otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
-      cd mainApp/64bit_release
-    else
-      echo "ERROR - oTool check failed for $(realpath mainApp/64bit_release/${LPUB3D_EXE})"
-    fi
+    cd ${SOURCE_DIR}/mainApp/64bit_release
     echo "- install library links..."
     /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
     /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib

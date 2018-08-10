@@ -11,7 +11,11 @@ ElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  echo "$ME Finished!"
+  if [ "$BUILD_OPT" = "compile" ]; then
+    echo "LPub3D Compile Finished!"
+  else
+    echo "$ME Finished!"
+  fi
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -181,7 +185,7 @@ else
   # run otool -L on LPub3D.app
   echo && echo "otool -L check LPub3D.app/Contents/MacOS/LPub3D..." && \
   otool -L mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null || \
-  echo "ERROR - otool -L check LPub3D.app/Contents/MacOS/LPub3D - failed."
+  echo "ERROR - oTool check failed for $(realpath mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D)"
   # Stop here if we are only compiling
   if [ "$BUILD_OPT" = "compile" ]; then
     ElapsedTime
