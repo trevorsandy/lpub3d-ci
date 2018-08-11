@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 03, 2018
+# Last Update August 10, 2018
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -229,10 +229,10 @@ LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -f "${LPUB3D_EXE}" ]; then
     # Check commands
     SOURCE_DIR=../..
-    echo "- build check SOURCE_DIR is ${SOURCE_DIR}..."
+    echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})..."
     source ${SOURCE_DIR}/builds/check/build_checks.sh
 else
-    echo "- build-check failed - ${LPUB3D_EXE} not found."
+    echo "- ERROR - build-check failed. $(realpath ${LPUB3D_EXE}) not found."
 fi
 
 echo "- setup dmg source dir $(realpath DMGSRC/)..."

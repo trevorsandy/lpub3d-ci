@@ -7,25 +7,35 @@
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
-# Build checks...
 
+# Build checks...
 if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+     echo "- build check LPub3D macOS..."
      SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/lpub3d-ci
+     # TODO figure out why Linux check is locking up on Travis-CI
+     source ${SOURCE_DIR}/builds/check/build_checks.sh
   elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
+     echo "- build check LPub3D Linux..."
      SOURCE_DIR=${LP3D_BUILD_FOLDER}
   fi
-  source ${SOURCE_DIR}/builds/check/build_checks.sh
+  #source ${SOURCE_DIR}/builds/check/build_checks.sh
 fi
 
 if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
   echo "- build check LPub3D.AppImage bundle..."
+  
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
-  [ -n "$file_DPkg" ] && mkdir appImage_Check && cd appImage_Check && cp -f $file_DPkg . || \
-  echo "ERROR - Nothing copied to build check folder";
-  [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" ] && echo "- checking $(ls ./*.AppImage)..." && \
-  chmod u+x LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage && ./LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage -foo && \
-  echo "- build check completed." && echo || echo "ERROR - Could not run AppImage build check."
+  SOURCE_DIR=${LP3D_BUILD_FOLDER}
+  
+  # make temp directory and copy AppImage
+  [ -n "$file_DPkg" ] && mkdir appImage_Check && cp -f $file_DPkg appImage_Check/ && \
+  echo "- $(ls ./appImage_Check/*.AppImage) copied to check folder." && \
+  LPUB3D_EXE="appImage_Check/LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" || \
+  echo "ERROR - AppImage not copied to check folder.";
+  
+  source ${SOURCE_DIR}/builds/check/build_checks.sh
+  
 fi
 
 cd $LP3D_BUILD_FOLDER

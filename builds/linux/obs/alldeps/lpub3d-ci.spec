@@ -645,11 +645,11 @@ cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_build
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
 %endif
 # check lpub3d dependencies
-buildArch=32 && [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && buildArch=64
+lp3drelease="32bit_release" && [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && lp3drelease="64bit_release"
 versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-validExe="mainApp/${buildArch}bit_release/lpub3d${versuffix}"
-[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || \
-echo "ERROR - LDD check failed for $(realpath ${validExe})"
+validexe="mainApp/${lp3drelease}/lpub3d${versuffix}"
+[ -f "${validexe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validexe} 2>/dev/null || \
+echo "ERROR - LDD check failed for $(realpath ${validexe})"
 
 %install
 make INSTALL_ROOT=%buildroot install
