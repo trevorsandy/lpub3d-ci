@@ -1031,7 +1031,8 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   if (okToEmitToProgressBar())
       emit progressRangeSig(0, 0);
 
-  int archivedPartCount = 0;
+  int partCount = 0;
+  int totalPartCount = 0;
 
   for (int i = 0; i < ldPartsDirs.size(); i++){
 
@@ -1050,10 +1051,10 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           continue;
       }
       bool ok;
-      int partCount = returnMessage.toInt(&ok);
+      partCount = returnMessage.toInt(&ok);
       QString summary;
       if (ok){
-          int totalPartCount = archivedPartCount + partCount;
+          totalPartCount += partCount;
           summary = totalPartCount == 0 ? "parts" :
                     totalPartCount == 1 ? tr("[Total %1] part").arg(totalPartCount) :
                                           tr("[Total %1] parts").arg(totalPartCount);
@@ -1064,7 +1065,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
   // Reload unofficial library parts into memory - only if initial library load already done !
   QString partsLabel = "parts";
-  if (Preferences::lpub3dLoaded && archivedPartCount > 0) {
+  if (Preferences::lpub3dLoaded && totalPartCount > 0) {
 
       if (!gApplication->mLibrary->ReloadUnoffLib()){
           returnMessage = tr("Failed to reload unofficial parts library into memory.");
@@ -1075,17 +1076,17 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           }
           return false;
       } else {
-          partsLabel = archivedPartCount == 1 ? "part" : "parts";
-          returnMessage = tr("Reloaded unofficial library into memory with %1 new %2.").arg(archivedPartCount).arg(partsLabel);
+          partsLabel = totalPartCount == 1 ? "part" : "parts";
+          returnMessage = tr("Reloaded unofficial library into memory with %1 new %2.").arg(totalPartCount).arg(partsLabel);
           if (okToEmitToProgressBar()) {
               emit messageSig(LOG_STATUS,returnMessage);
           } else {
               logInfo() << returnMessage;
           }
       }
-  } else  if (archivedPartCount > 0) {
-      partsLabel = archivedPartCount == 1 ? "part" : "parts";
-      returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory.").arg(archivedPartCount).arg(comment).arg(partsLabel);
+  } else if (totalPartCount > 0) {
+      partsLabel = totalPartCount == 1 ? "part" : "parts";
+      returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory.").arg(totalPartCount).arg(comment).arg(partsLabel);
       _partsArchived = true;
   } else {
       returnMessage = tr("Finished. No %1 parts archived. Unofficial library not reloaded.").arg(comment);

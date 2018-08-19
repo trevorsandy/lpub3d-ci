@@ -1113,6 +1113,28 @@ void Gui::clearCustomPartCache(bool silent)
       return;
   }
 
+//  dirName = QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::libraryDir);
+//  QFileInfo libArchive(QString("%1/%2").arg(dirName).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+//  count = 0;
+//  if (removeDir(count, libArchive.absoluteFilePath())){
+//      emit messageSig(LOG_STATUS,QMessageBox::tr("Delete old insance of %1. %1 %2 removed.")
+//                           .arg(libArchive.fileName())
+//                           .arg(count)
+//                           .arg(count == 1 ? "item": "items"));
+//      if (!libArchive.exists()) {
+//          if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation).arg(libArchive.fileName()), libArchive.absoluteFilePath()))
+//              emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to copy new instance of %1").arg(libArchive.fileName()));
+//          else
+//              processLDSearchDirParts();
+//      } else {
+//          emit messageSig(LOG_ERROR,QMessageBox::tr("Old instance of %1 was not removed. Archive not updated.").arg(libArchive.fileName()));
+//      }
+
+//  } else {
+//      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to delete: %1").arg(libArchive.absoluteFilePath()));
+//      return;
+//  }
+
   // regenerate custom parts
   bool overwriteCustomParts = true;
   processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
@@ -2302,6 +2324,12 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
       emit operateHighlightParts(overwriteCustomParts);
     }
+}
+
+// Update parts archive from LDSearch directories
+void Gui::processLDSearchDirParts(){
+  PartWorker partWorkerLDSearchDirs;
+  partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 
 // left side progress bar

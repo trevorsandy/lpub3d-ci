@@ -673,7 +673,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 
             emit Application::instance()->splashMsgSig("10% - Copying archive libraries...");
 
-            QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
+            QDir libraryDir(QString("%1/%2").arg(lpubDataPath).arg(Paths::libraryDir));
             if (!QDir(libraryDir).exists())
                 libraryDir.mkpath(".");
 
