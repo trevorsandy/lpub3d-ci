@@ -394,6 +394,7 @@ HEADERS += \
     resize.h \
     resolution.h \
     rotateiconitem.h \
+    rotateiconsizedialog.h \
     rx.h \
     scaledialog.h \
     sizeandorientationdialog.h \
@@ -403,7 +404,6 @@ HEADERS += \
     updatecheck.h \
     version.h \
     where.h \
-    lpubalert.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -479,6 +479,7 @@ SOURCES += \
     resolution.cpp \
     rotate.cpp \
     rotateiconitem.cpp \
+    rotateiconsizedialog.cpp \
     rx.cpp \
     scaledialog.cpp \
     sizeandorientationdialog.cpp \
