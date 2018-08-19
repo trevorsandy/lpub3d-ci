@@ -458,7 +458,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
           QString error = QString("Process %1 colour parts failed!.").arg(nameMod);
           emit messageSig(LOG_ERROR,error);
           logError() << error;
-          emit removeProgressStatusSig();
+          emit progressStatusRemoveSig();
           emit customColourFinishedSig();
           return;
       }
@@ -516,7 +516,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
           QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
           emit messageSig(LOG_ERROR,error);
           logError() << error;
-          emit removeProgressStatusSig();
+          emit progressStatusRemoveSig();
           emit customColourFinishedSig();
           return;
       }
@@ -543,7 +543,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                                                     .arg(time) :
                                              QString("No %2 parts created.").arg(nameMod);
 
-  emit removeProgressStatusSig();
+  emit progressStatusRemoveSig();
   emit customColourFinishedSig();
   emit messageSig(LOG_STATUS,fileStatus);
 
@@ -1170,7 +1170,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
            QString error = QString("Process colour parts list failed!.");
            emit messageSig(LOG_ERROR,error);
            logError() << error;
-           emit removeProgressStatusSig();
+           emit progressStatusRemoveSig();
            emit colourPartListFinishedSig();
            return;
        }
@@ -1195,7 +1195,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     bool append = true;
     writeLDrawColourPartFile(append);
 
-    emit removeProgressStatusSig();
+    emit progressStatusRemoveSig();
     emit colourPartListFinishedSig();
     emit messageSig(LOG_STATUS, fileStatus);
 

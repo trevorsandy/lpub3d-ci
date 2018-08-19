@@ -748,22 +748,15 @@ public slots:
   void progressBarSetRange(int minimum, int maximum);
   void progressBarSetValue(int value);
   void progressBarReset();
+  void progressStatusRemove();
+
   // right side progress bar
   void progressBarPermInit();
   void progressBarPermSetText(const QString &progressText);
   void progressBarPermSetRange(int minimum, int maximum);
   void progressBarPermSetValue(int value);
   void progressBarPermReset();
-
-  void removeProgressStatus(){
-      statusBar()->removeWidget(progressBar);
-      statusBar()->removeWidget(progressLabel);
-  }
-
-  void removeProgressPermStatus(){
-      statusBar()->removeWidget(progressBarPerm);
-      statusBar()->removeWidget(progressLabelPerm);
-  }
+  void progressPermStatusRemove();
 
   void preferences();
   void fadeStepSetup();
@@ -840,7 +833,7 @@ signals:
   void progressRangeSig(const int &min, const int &max);
   void progressSetValueSig(const int &value);
   void progressResetSig();
-  void removeProgressStatusSig();
+  void progressStatusRemoveSig();
 
   // right side progress bar
   void progressBarPermInitSig();
@@ -848,7 +841,7 @@ signals:
   void progressPermRangeSig(const int &min, const int &max);
   void progressPermSetValueSig(const int &value);
   void progressPermResetSig();
-  void removeProgressPermStatusSig();
+  void progressPermStatusRemoveSig();
 
   void messageSig(LogType logType, QString message);
 
@@ -896,6 +889,11 @@ private:
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
+
+  bool                   okToInvokeProgressBar()
+  {
+    return               (Preferences::lpub3dLoaded && Preferences::modeGUI);
+  }
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;                // watch the file system for external
