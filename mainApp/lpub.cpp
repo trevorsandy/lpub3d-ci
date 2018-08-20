@@ -1497,6 +1497,7 @@ void Gui::preferences()
     bool fadeStepsUseColourCompare      = Preferences::fadeStepsUseColour;
     int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
     bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
+    bool enableImageMattingCompare      = Preferences::enableImageMatting;
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
@@ -1592,6 +1593,7 @@ void Gui::preferences()
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
+        bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
         bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall                 != useLDViewSCallCompare;
         bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
@@ -1737,6 +1739,11 @@ void Gui::preferences()
             Preferences::enableHighlightStep && !enableHighlightStepChanged))
            clearCustomPartCache(true);    // true = silent
 
+        if (enableImageMattingChanged && Preferences::enableImageMatting)
+            logInfo() << QString("Enable image matting preference changed from %1 to %2")
+                                 .arg(enableImageMattingCompare)
+                                 .arg(Preferences::enableImageMatting);
+
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed from %1 to %2")
                                  .arg(preferredRendererCompare)
@@ -1763,6 +1770,7 @@ void Gui::preferences()
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
                 povFileGeneratorChanged       ||
+                enableImageMattingChanged     ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -2002,7 +2010,7 @@ Gui::Gui()
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::lgeoPreferences();
-    Preferences::rendererPreferences(false);
+    Preferences::rendererPreferences(SkipExisting);
     Preferences::nativePovGenPreferences();
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
@@ -2281,12 +2289,6 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
       emit operateHighlightParts(overwriteCustomParts);
     }
-}
-
-// Update parts archive from LDSearch directories
-void Gui::processLDSearchDirParts(){
-  PartWorker partWorkerLDSearchDirs;
-  partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 
 // left side progress bar
@@ -3336,6 +3338,72 @@ void Gui::showLCStatusMessage(){
 
     if(!viewerDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
+}
+
+void Gui::statusMessage(LogType logType, QString message) {
+    /* logTypes
+     * LOG_STATUS:   - same as INFO but writes to log file also
+     * LOG_INFO:
+     * LOG_TRACE:
+     * LOG_DEBUG:
+     * LOG_NOTICE:
+     * LOG_ERROR:
+     * LOG_FATAL:
+     * LOG_QWARNING: - visible in Qt debug mode
+     * LOG_QDEBUG:   - visible in Qt debug mode
+     */
+    if (logType == LOG_STATUS ){
+
+        logStatus() << message;
+
+        if (Preferences::modeGUI) {
+           statusBarMsg(message);
+        } else {
+           fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+           fflush(stdout);
+        }
+    } else
+      if (logType == LOG_INFO) {
+
+          logInfo() << message;
+
+          if (!Preferences::modeGUI) {
+              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+              fflush(stdout);
+          }
+
+     } else
+        if (logType == LOG_NOTICE) {
+
+            logNotice() << message;
+
+            if (!Preferences::modeGUI) {
+                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                fflush(stdout);
+            }
+
+     } else
+          if (logType == LOG_TRACE) {
+
+              logTrace() << message;
+
+              if (!Preferences::modeGUI) {
+                  fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                  fflush(stdout);
+              }
+
+     } else
+       if (logType == LOG_ERROR) {
+
+        logError() << message;
+
+        if (Preferences::modeGUI) {
+            QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+        } else {
+            fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+            fflush(stdout);
+        }
+    }
 }
 
 void Gui::createDockWindows()

@@ -678,52 +678,7 @@ public slots:
     }
   }
 
-  void statusMessage(LogType logType, QString message){
-      /* logTypes
-       * LOG_STATUS:   - same as INFO but writes to log file also
-       * LOG_INFO:
-       * LOG_TRACE:
-       * LOG_DEBUG:
-       * LOG_NOTICE:
-       * LOG_ERROR:
-       * LOG_FATAL:
-       * LOG_QWARNING: - visible in Qt debug mode
-       * LOG_QDEBUG:   - visible in Qt debug mode
-       */
-      if (logType == LOG_STATUS ){
-
-          logStatus() << message;
-
-          if (Preferences::modeGUI) {
-             statusBarMsg(message);
-          } else {
-             fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-             fflush(stdout);
-          }
-      } else
-        if (logType == LOG_INFO) {
-
-            logInfo() << message;
-
-            if (!Preferences::modeGUI) {
-                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-                fflush(stdout);
-            }
-
-       } else
-         if (logType == LOG_ERROR) {
-
-          logError() << message;
-
-          if (Preferences::modeGUI) {
-              QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
-          } else {
-              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-              fflush(stdout);
-          }       
-      }
-  }
-
+  void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
 
   void showPrintedFile();

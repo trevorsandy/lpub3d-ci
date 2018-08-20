@@ -350,7 +350,6 @@ HEADERS += \
     gradients.h \
     highlighter.h \
     hoverpoints.h \
-    imagematt.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
     ldsearchdirs.h \
@@ -433,7 +432,6 @@ SOURCES += \
     highlighter.cpp \
     highlightstepglobals.cpp \
     hoverpoints.cpp \
-    imagematt.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
