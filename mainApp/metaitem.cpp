@@ -1194,6 +1194,7 @@ void MetaItem::changePlacementOffset(
 //                  << defaultWhere.modelName
 //                     ;
 #endif
+
     }
 
     if (type == StepGroupType) {             
