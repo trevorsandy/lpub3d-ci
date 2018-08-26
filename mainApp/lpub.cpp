@@ -440,12 +440,14 @@ bool Gui::continuousPageDialog(Direction d)
   int pageCount = 0;
   int _maxPages    = 0;
   bool terminateProcess = false;
+  QElapsedTimer continuousTimer;
 
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
   exportType = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
+      continuousTimer.start();
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
               if (d == PAGE_NEXT)
@@ -655,7 +657,15 @@ bool Gui::continuousPageDialog(Direction d)
       previousPageContinuousIsRunning = false;
     }
 
-  emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
+  emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 %4 processed%5.")
+                  .arg(direction).arg(pageCount).arg(_maxPages)
+                  .arg(_maxPages > 1 ? "pages" : "page")
+                  .arg(Preferences::modeGUI ?
+                         QString(" in %1.%2 %3")
+                         .arg(continuousTimer.elapsed() / 1000)
+                         .arg(continuousTimer.elapsed() % 1000)
+                         .arg((continuousTimer.elapsed() / 1000) > 1 ? "seconds" : "second") :
+                         ""));
 
   return true;
 }

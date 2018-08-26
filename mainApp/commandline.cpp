@@ -292,8 +292,9 @@ int Gui::processCommandLine()
       Preferences::highlightStepLineWidth = highlightLineWidth;
     }
 
-  if (!commandlineFile.isEmpty())
-    if (!loadFile(commandlineFile))
+  QElapsedTimer commandTimer;
+  if (!commandlineFile.isEmpty()) {
+      commandTimer.start();
       if (!loadFile(commandlineFile)) {
           return 1;
         }
@@ -323,6 +324,12 @@ int Gui::processCommandLine()
           }
     } else
     return 1;
+
+  emit messageSig(LOG_INFO,QString("Model file '%1' processed in %2.%3 %4.")
+                                   .arg(QFileInfo(commandlineFile).fileName())
+                                   .arg(commandTimer.elapsed() / 1000)
+                                   .arg(commandTimer.elapsed() % 1000)
+                                   .arg((commandTimer.elapsed() / 1000) > 1 ? "seconds" : "second"));
 
   return 0;
 }
