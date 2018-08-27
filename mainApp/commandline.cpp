@@ -325,11 +325,16 @@ int Gui::processCommandLine()
     } else
     return 1;
 
-  emit messageSig(LOG_INFO,QString("Model file '%1' processed in %2.%3 %4.")
+  emit messageSig(LOG_INFO,QString("Model file '%1' processed in %2.")
                                    .arg(QFileInfo(commandlineFile).fileName())
-                                   .arg(commandTimer.elapsed() / 1000)
-                                   .arg(commandTimer.elapsed() % 1000)
-                                   .arg((commandTimer.elapsed() / 1000) > 1 ? "seconds" : "second"));
+                                   .arg((commandTimer.elapsed() / 1000) > 59 ?
+                                          QString("%1 %2")
+                                                  .arg((commandTimer.elapsed() / 1000) / 60)                                // minutes
+                                                  .arg(((commandTimer.elapsed() / 1000) / 60) > 1 ? "minutes" : "minute") : // minute label
+                                          QString("%1.%2 %3")
+                                                  .arg( commandTimer.elapsed() / 1000)                                      // seconds
+                                                  .arg( commandTimer.elapsed() % 1000)                                      // millisecnds
+                                                  .arg((commandTimer.elapsed() / 1000) > 1 ? "seconds" : "second")));       // seconds label
 
   return 0;
 }

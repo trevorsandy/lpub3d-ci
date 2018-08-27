@@ -658,14 +658,19 @@ bool Gui::continuousPageDialog(Direction d)
     }
 
   emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 %4 processed%5.")
-                  .arg(direction).arg(pageCount).arg(_maxPages)
-                  .arg(_maxPages > 1 ? "pages" : "page")
-                  .arg(Preferences::modeGUI ?
-                         QString(" in %1.%2 %3")
-                         .arg(continuousTimer.elapsed() / 1000)
-                         .arg(continuousTimer.elapsed() % 1000)
-                         .arg((continuousTimer.elapsed() / 1000) > 1 ? "seconds" : "second") :
-                         ""));
+                                     .arg(direction).arg(pageCount).arg(_maxPages)
+                                     .arg(_maxPages > 1 ? "pages" : "page")
+                                     .arg(Preferences::modeGUI ?
+                                            QString(" in %1")
+                                                    .arg((continuousTimer.elapsed() / 1000) > 59 ?
+                                                           QString("%1 %2")
+                                                                   .arg((continuousTimer.elapsed() / 1000) / 60)                                // minutes
+                                                                   .arg(((continuousTimer.elapsed() / 1000) / 60) > 1 ? "minutes" : "minute") : // minute label
+                                                           QString("%1.%2 %3")
+                                                                   .arg( continuousTimer.elapsed() / 1000)                                      // seconds
+                                                                   .arg( continuousTimer.elapsed() % 1000)                                      // millisecnds
+                                                                   .arg((continuousTimer.elapsed() / 1000) > 1 ? "seconds" : "second")) :       // seconds label
+                                            ""));                                                                                               // command line so do noting
 
   return true;
 }
