@@ -96,7 +96,7 @@ void clearCsiCache()
   gui->clearCSICache();
 }
 
-void clearCsi3dCache()
+void clearTempCache()
 {
   gui->clearTempCache();
 }
@@ -2704,7 +2704,7 @@ void Gui::createActions()
     clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearTempCacheAct = new QAction(QIcon(":/resources/clearcsi3dcache.png"),tr("Reset Temp File Cache"), this);
+    clearTempCacheAct = new QAction(QIcon(":/resources/clearTempCache.png"),tr("Reset Temp File Cache"), this);
     clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 

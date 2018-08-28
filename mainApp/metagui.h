@@ -38,6 +38,9 @@
 
 void clearPliCache();
 void clearAndRedrawPage();
+void clearCsiCache();
+void clearPliCache();
+void clearTempCache();
 
 class QWidget;
 class QString;
