@@ -480,7 +480,6 @@ public:
 private:
   FadeStepMeta  *meta;
 
-  bool        colorModified;
   QLabel      *colorLabel;
   QComboBox   *colorCombo;
   QLabel      *colorExample;
@@ -514,7 +513,6 @@ public:
 private:
   HighlightStepMeta  *meta;
 
-  bool        colorModified;
   QLabel      *colorLabel;
   QPushButton *colorButton;
   QLabel      *colorExample;
