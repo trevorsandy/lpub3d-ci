@@ -396,7 +396,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
       contents = ldrawFile.contents(subfileNameStr);
       emit progressSetValueSig(i);
-      emit messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE:").arg(subfileNameStr));
+      emit messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE: %1").arg(subfileNameStr));
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
           QString line = contents[i];
           QStringList tokens;
