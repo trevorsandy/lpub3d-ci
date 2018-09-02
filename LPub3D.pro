@@ -65,6 +65,12 @@ ldvqt.makefile = Makefile.ldvqt
 ldvqt.target   = sub-ldvqt
 ldvqt.depends  = #ldlib
 
+SUBDIRS += wpngimage
+wpngimage.subdir   = $$PWD/ldvlib/WPngImage
+wpngimage.makefile = Makefile.WPngImage
+wpngimage.target   = sub-WPngImage
+wpngimage.depends  =
+
 SUBDIRS += lclib
 lclib.subdir   = $$PWD/lclib
 lclib.makefile = Makefile.lc
@@ -80,6 +86,7 @@ mainApp.depends  = quazip
 mainApp.depends  = ldrawini
 mainApp.depends  = lclib
 mainApp.depends  = ldvqt
+mainApp.depends  = wpngimage
 
 RESOURCES += \
     qsimpleupdater/etc/resources/qsimpleupdater.qrc \

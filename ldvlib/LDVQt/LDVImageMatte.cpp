@@ -24,6 +24,7 @@
 
 #include <TCFoundation/mystring.h>
 #include <TRE/TREGLExtensions.h>
+#include <WPngImage.hh>
 
 #include "QsLog.h"
 #include "lpubalert.h"
