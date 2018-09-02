@@ -101,7 +101,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,07)
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-message("~~~ QUAZIP $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
+message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj
