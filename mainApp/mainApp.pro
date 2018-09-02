@@ -12,9 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32:macx: \
-ENABLE_GAMEPAD = true
-contains(ENABLE_GAMEPAD,true) {
-    DEFINES += _GAMEPAD
+GAMEPAD {
+    DEFINES += LC_ENABLE_GAMEPAD
     equals(QT_MAJOR_VERSION, 5) {
         greaterThan(QT_MINOR_VERSION, 7) {
             QT += gamepad
