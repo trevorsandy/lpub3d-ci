@@ -70,7 +70,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
-[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/mainApp/images/lpub3d128.png
+[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/mainApp/resources/lpub3d128.png
 [changelog]:           https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/README.txt
 [credits]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/CREDITS.txt
 [copying]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/COPYING.txt
