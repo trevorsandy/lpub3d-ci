@@ -32,6 +32,7 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 
 ### Quick Links
  - [Build and package LPub3D from source][buildfromsource]
+ - [Release notes][releasenotes]
  - [Change log][changelog]
  - [Credits][credits]
 
@@ -72,6 +73,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 [lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/mainApp/resources/lpub3d128.png
 [changelog]:           https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/README.txt
+[releasenotes]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/RELEASE_NOTES.html
 [credits]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/CREDITS.txt
 [copying]:             https://github.com/trevorsandy/lpub3d-ci/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/utilities/README.md
