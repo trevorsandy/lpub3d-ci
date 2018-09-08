@@ -306,6 +306,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       topOfStep,
                       bottomOfStep,
                       &meta->LPub.assem.cameraAngle,
+                      0.01,
                       1,allowLocal);
     } else if (selectedAction == viewAngleAction) {
       bool allowLocal = parentRelativeType != StepGroupType &&
@@ -361,6 +362,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       begin,
                       bottomOfSteps,
                       &meta->LPub.assem.modelScale,
+                      0.01,
                       1,allowLocal);
     } else if (selectedAction == marginsAction) {
 
