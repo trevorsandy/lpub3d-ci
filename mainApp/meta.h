@@ -2228,6 +2228,7 @@ public:
   StringMeta    ldgliteParms;
   StringMeta    povrayParms;
   BoolMeta      showStepNumber;
+  FloatMeta     cameraAngle;
 
   // image generation
   FloatPairMeta angle;

@@ -2894,17 +2894,23 @@ AssemMeta::AssemMeta() : BranchMeta()
   povrayParms.setValue("+A");
   showStepNumber.setValue(true);
 
+  // cameraAngle
+  cameraAngle.setFormats(6,4,"9.999");
+  cameraAngle.setRange(-1.000,1.000);
+  cameraAngle.setValue(LPUB3D_CAMERA_VIEW_DEFAULT);
+
   // image generation
-  angle.setFormats(6,4,"#999.9");
+  angle.setFormats(7,4,"999.9");
   angle.setRange(-360.0,360.0);
   angle.setValues(23,45);        // using LPub3D Default 0.0,0.0f
+
   fov.setRange(0.0,360.0);
   fov.setValue(0.01);            // using LPub3D Default 0.01f
   znear.setValue(10.0);          // using LPub3D Default 10.0f
   zfar.setValue(4000.0);         // using LPub3D Default 4000.0f
 
   // display step
-  v_angle.setFormats(6,4,"#999.9");
+  v_angle.setFormats(6,4,"999.9");
   v_angle.setRange(-360.0,360.0);
   v_angle.setValues(23,45);      // using LeoCAD defaults
   v_fov.setRange(0.0,360.0);
@@ -2923,6 +2929,8 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   ldgliteParms.init  (this,"LDVIEW_PARMS");
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
+
+  cameraAngle.init   (this,"CAMERA_ANGLE");
 
   angle.init         (this,"IMAGE_ANGLE");
   distance.init      (this,"IMAGE_DISTANCE");
@@ -2979,7 +2987,7 @@ PliMeta::PliMeta() : BranchMeta()
   sort.setValue(false);
   sortBy.setValue(SortOptionName[PartSize]);
 
-  angle.setFormats(6,4,"#999.9");
+  angle.setFormats(6,4,"999.9");
   angle.setRange(-360.0,360.0);
   angle.setValues(23,-45);       // using LPub3D Default 0.0,0.0f (old 23,-45)
   fov.setRange(0.0,360.0);
@@ -3061,7 +3069,7 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue("Part Size");
   sortBy.setValue(SortOptionName[PartColour]);
 
-  angle.setFormats(6,4,"#999.9");
+  angle.setFormats(6,4,"999.9");
   angle.setRange(-360.0,360.0);
   angle.setValues(23,-45);
   fov.setRange(0.0,360.0);
