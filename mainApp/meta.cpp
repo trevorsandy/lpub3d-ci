@@ -2561,10 +2561,10 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   picScale.setRange(-10000.0,10000.0);
   picScale.setFormats(7,4,"99999.9");
   picScale.setValue(1.0);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 }
 
 void RotateIconMeta::init(BranchMeta *parent, QString name)
@@ -2618,10 +2618,10 @@ PageMeta::PageMeta() : BranchMeta()
   else
     cameraDistNative.factor.setValue(CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT);
 
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 
   /* PAGE ATTRIBUTE FORMAT
    *
@@ -2971,10 +2971,10 @@ PliMeta::PliMeta() : BranchMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
@@ -3053,10 +3053,10 @@ BomMeta::BomMeta() : PliMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
@@ -3174,10 +3174,10 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   // instance - default
   instance.placement.setValue(RightBottomOutside, CalloutType);
   background.setValue(BackgroundData::BgSubmodelColor);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   subModelFontColor.setValue("black");
   placement.setValue(RightOutside,CsiType);
   // freeform
@@ -3229,7 +3229,10 @@ PagePointerMeta::PagePointerMeta() : BranchMeta()
   borderData.margin[1] = 0;
   border.setValueInches(borderData);
   margin.setValues(0,0);
-  subModelColor.setValue("#ffffff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 }
 
 void PagePointerMeta::init(BranchMeta *parent, QString name)
