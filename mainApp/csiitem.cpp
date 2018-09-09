@@ -202,9 +202,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       placementAction = commonMenus.placementMenu(menu, name, whatsThis);
     }
 
-  QAction *scaleAction        = commonMenus.scaleMenu(menu, name);
-  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, name);
-  QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, name);
+  QString pl = "Assembly";
+  QAction *scaleAction        = commonMenus.scaleMenu(menu, pl);
+  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
+  QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
 
   QAction *marginsAction = NULL;
   switch (parentRelativeType) {
@@ -213,7 +214,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           "  Margins are the empty space around this assembly picture.\n"
                           "  You can change the margins if things are too close together,\n"
                           "  or too far apart. ");
-      marginsAction = commonMenus.marginMenu(menu, name, whatsThis);
+      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
       break;
     case StepGroupType:
       whatsThis = QString("Change Assembly Margins:\n"
@@ -223,7 +224,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           "  whole group of steps, by clicking the menu button with your\n"
                           "  cursor near this assembly image, and using that\n"
                           "  \"Change Step Group Margins\" menu");
-      marginsAction = commonMenus.scaleMenu(menu, name, whatsThis);
+      marginsAction = commonMenus.scaleMenu(menu, pl, whatsThis);
       break;
     case CalloutType:
       whatsThis = QString("Change Assembly Margins:\n"
@@ -233,7 +234,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           "  this step is in, by putting your cursor on the background\n"
                           "  of the callout, clicking the menu button, and using that\n"
                           "  \"Change Callout Margins\" menu");
-      marginsAction = commonMenus.scaleMenu(menu, name, whatsThis);
+      marginsAction = commonMenus.scaleMenu(menu, pl, whatsThis);
       break;
     default:
       break;
@@ -289,7 +290,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     } else if (selectedAction == cameraFoVAction) {
       bool allowLocal = parentRelativeType != StepGroupType &&
           parentRelativeType != CalloutType;
-      changeFloatSpin("Assembly",
+      changeFloatSpin(pl+" Camera Angle",
                       "Camera FOV",
                       topOfStep,
                       bottomOfStep,
@@ -299,7 +300,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     } else if (selectedAction == cameraAnglesAction) {
       bool allowLocal = parentRelativeType != StepGroupType &&
             parentRelativeType != CalloutType;
-        changeCameraAngles( "Camera Angles",
+        changeCameraAngles(pl+" Camera Angles",
                           topOfStep,
                           bottomOfStep,
                           &meta->LPub.assem.cameraAngles,

@@ -2071,13 +2071,13 @@ void PliBackgroundItem::contextMenuEvent(
                        bottom,
                        &pli->pliMeta.border);
         } else if (selectedAction == scaleAction) {
-          changeFloatSpin(me,
+          changeFloatSpin(me+" Scale",
                           "Model Size",
                           top,
                           bottom,
                           &pli->pliMeta.modelScale);
         } else if (selectedAction == cameraFoVAction) {
-          changeFloatSpin(me,
+          changeFloatSpin(me+" Camera Angle",
                           "Camera FOV",
                           top,
                           bottom,
