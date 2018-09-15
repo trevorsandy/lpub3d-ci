@@ -72,6 +72,7 @@ QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
 QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
+QString Preferences::lpubConfigPath             = DOT_PATH_DEFAULT;
 QString Preferences::lpubExtrasPath             = DOT_PATH_DEFAULT;
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
@@ -305,6 +306,10 @@ void Preferences::lpubPreferences()
 #endif
 
     lpub3dPath = cwd.absolutePath();
+
+    // Default onfiguration path
+    QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+    lpubConfigPath = configPathList.first();
 
 #ifdef Q_OS_WIN //... Windows portable or installed
 
