@@ -3385,6 +3385,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         logger.setIncludeLogLevel(Preferences::includeLogLevel);
         logger.setIncludeTimestamp(Preferences::includeTimestamp);
         logger.setIncludeLineNumber(false);
+        logger.setIncludeTimestamp(true);
         logger.setIncludeFileName(false);
         logger.setColorizeFunctionInfo(false);
         logger.setIncludeFunctionInfo(false);
