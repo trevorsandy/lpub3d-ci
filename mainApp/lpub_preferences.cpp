@@ -2198,7 +2198,7 @@ void Preferences::userInterfacePreferences()
           displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
   }
 
-  QString const showParseErrorsKey("showParseErrors");
+  QString const showParseErrorsKey("ShowParseErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showParseErrorsKey))) {
           QVariant uValue(true);
           showParseErrors = true;
@@ -2232,7 +2232,7 @@ void Preferences::setShowParseErrorsPreference(bool b)
   QSettings Settings;
   showParseErrors = b;
   QVariant uValue(b);
-  QString const showParseErrorsKey("showParseErrors");
+  QString const showParseErrorsKey("ShowParseErrors");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
 }
 
