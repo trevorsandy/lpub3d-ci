@@ -796,7 +796,7 @@ public slots:
   }
   void reloadCurrentModelFile();
   void reloadViewer();
-  void loadTheme();
+  void loadTheme(bool restart = true);
   void restartApplication();
 
   bool removeDir(int &count,const QString &dirName);
