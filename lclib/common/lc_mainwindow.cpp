@@ -1044,6 +1044,12 @@ void lcMainWindow::UpdateGamepads()
 #endif
 }
 
+/*** LPub3D Mod - Viewer Csi file identifier ***/
+const QString lcMainWindow::getViewerCsiName(){
+    return gui->getViewerCsiName();
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Enable3DActions ***/
 void lcMainWindow::Enable3DActions()
 {
