@@ -819,6 +819,7 @@ public slots:
       clearAllCaches();
   }
   void reloadCurrentModelFile();
+  void reloadCurrentPage();
   void reloadViewer();
   void loadTheme(bool restart = true);
   void restartApplication();
