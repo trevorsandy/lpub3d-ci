@@ -419,11 +419,6 @@ enum Mode { PAGE_PROCESS, EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 
-void clearPliCache();
-void clearCsiCache();
-void clearTempCache();
-void clearAndRedrawPage();
-
 class Gui : public QMainWindow
 {
 
@@ -814,10 +809,7 @@ public slots:
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
   void clearPageCSIGraphicsItems(Step *step);
-  void clearAndRedrawPage()
-  {
-      clearAllCaches();
-  }
+  void clearAndRedrawPage() { clearAllCaches(); }
   void reloadCurrentModelFile();
   void reloadCurrentPage();
   void reloadViewer();
@@ -1315,9 +1307,6 @@ private:
   friend class DialogExportPages;
 };
 
-extern class Gui *gui;
-
-
 class GlobalFadeStep
 {
 private:
@@ -1351,5 +1340,12 @@ public:
         mi.sortedGlobalWhere(meta,topLevelFile,"ZZZZZZZ");
     }
 };
+
+extern class Gui *gui;
+
+void clearPliCache();
+void clearCsiCache();
+void clearTempCache();
+void clearAndRedrawPage();
 
 #endif
