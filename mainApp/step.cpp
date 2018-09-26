@@ -191,8 +191,6 @@ int Step::createCsi(
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   if (meta.rotStep.value().type == "ABS") meta.LPub.assem.cameraAngles.setValues(0.0f,0.0f);
 
-  QString viewerCsiName;
-
   ldrName.clear();
 
   // 1 color x y z a b c d e f g h i foo.dat
@@ -292,6 +290,12 @@ int Step::createCsi(
       createViewerCSI(rotatedParts, doFadeStep, doHighlightStep);
 
       gui->insertViewerStep(viewerCsiName,rotatedParts,csiLdrFile,multiStep,calledOut);
+
+      // set viewer camera options
+      viewerOptions.ViewerCsiName  = viewerCsiName;
+      viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
+      viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
+      viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
   }
 
   // Generate renderer CSI file
@@ -344,20 +348,7 @@ int Step::createCsi(
   }
 
   // Load the 3DViewer
-  if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
-
-      // set viewer camera options
-      viewerOptions.ViewerCsiName  = viewerCsiName;
-      viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
-      viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
-      viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
-
-      if (! renderer->LoadViewer(viewerOptions)) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load viewer failed for csi_Name: %1")
-                               .arg(viewerCsiName));
-          return -1;
-      }
-  }
+  loadTheViewer();
 
   // If not using LDView SCall, populate pixmap
   if (! renderer->useLDViewSCall()) {
@@ -367,6 +358,19 @@ int Step::createCsi(
     }
 
   return 0;
+}
+
+bool Step::loadTheViewer(){
+    // Load the 3DViewer
+    if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
+
+        if (! renderer->LoadViewer(viewerOptions)) {
+            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI name: %1")
+                                 .arg(viewerCsiName));
+            return false;
+        }
+    }
+    return true;
 }
 
 // create 3D Viewer version of the csi file
