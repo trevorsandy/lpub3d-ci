@@ -246,7 +246,7 @@ int Step::createCsi(
       if ( ! isOlder(parsedStack,lastModified)) {
           csiOutOfDate = true;
           if (! csi.remove()) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to remove out of date CSI PNG file."));
+              emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI PNG file."));
           }
       }
   }
@@ -255,10 +255,10 @@ int Step::createCsi(
 
   // Populate viewerCsiName variable
   viewerCsiName = QString("%1;%2;%3%4")
-          .arg(top.modelName)
-          .arg(top.lineNumber)
-          .arg(stepNumber.number)
-          .arg(modelDisplayOnlyStep ? "_fm" : "");
+                          .arg(top.modelName)
+                          .arg(top.lineNumber)
+                          .arg(stepNumber.number)
+                          .arg(modelDisplayOnlyStep ? "_fm" : "");
 
   // Viewer Csi does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiName);
@@ -273,7 +273,7 @@ int Step::createCsi(
 
       // rotate parts for 3DViewer display
       if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts)) != 0)
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to rotate viewer CSI parts"));
+        emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
@@ -310,7 +310,7 @@ int Step::createCsi(
             ldrName = csiLdrFile;
 
          if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName)) != 0) {
-             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create and rotate CSI ldr file: %1.")
+             emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              return rc;
          }
@@ -325,7 +325,7 @@ int Step::createCsi(
              csiKeys = (QStringList() << csiKey); // adding just a single key
 
          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
-             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
+             emit gui->messageSig(LOG_ERROR,QString("Render CSI part failed for %1.")
                                                             .arg(pngName));
              return rc;
          }
@@ -434,7 +434,7 @@ int Step::createViewerCSI(
           if (csiSubModels.size() > 2)
               csiSubModels.removeDuplicates();
           if ((rc = mergeViewerCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to process viewer CSI submodels"));
+              emit gui->messageSig(LOG_ERROR,QString("Failed to process viewer CSI submodels"));
               return rc;
             }
         }
@@ -483,7 +483,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
           /* read the actual submodel file */
           QFile ldrfile(ldrName);
           if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not read CSI submodel file %1: %2")
+              emit gui->messageSig(LOG_ERROR,QString("Could not read CSI submodel file %1: %2")
                                    .arg(ldrName)
                                    .arg(ldrfile.errorString()));
               return -1;
@@ -542,7 +542,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
           if (newSubModels.size() > 2)
               newSubModels.removeDuplicates();
           if ((rc = mergeViewerCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to recurse viewer CSI submodels"));
+              emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer CSI submodels"));
               return rc;
             }
         }
