@@ -51,7 +51,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Fade previous step's parts (Fadestep)
  - Unlimited part list (PLI) annotations
  - Split the BOM (divide parts over number of BOM occurrences)
- - Sort PLI/BOM by part size, colour and category
+ - Sort PLI/BOM by part size, color and category
  - "Go To" page navigation and submodel display via drop-down dialogue
  - Automatically generate formatted cover pages
  - POV-Ray high-quality rendered instructions
