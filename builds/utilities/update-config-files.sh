@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 27, 2018
+# Last Update October 03, 2018
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -341,7 +341,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "10.update ${LPUB3D}.spec     - add version and date  [$FILE]"
+Info "10.update ${LPUB3D}.spec  - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -358,7 +358,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "11.update ${LPUB3D}.dsc      - add version           [$FILE]"
+Info "11.update ${LPUB3D}.dsc   - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -370,6 +370,24 @@ then
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
+
+FILE="$LP3D_PWD/../builds/linux/obs/debian/rules"
+Info "12.update debian rules    - add version suffix    [$FILE]"
+LP3D_OS_ARCH=32 && \
+[[ "$(uname -m)" = "x86_64" || "$(uname -m)" = "aarch64" ]] && \
+LP3D_OS_ARCH=64
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+    else
+        sed -i "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
 # -----
 
 if [ "${SOURCED}" = "false" ]
