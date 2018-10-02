@@ -67,7 +67,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Windows automated installer and portable distributions available
  - Full capabilities to [build and package from source][buildfromsource] or Cloud Continuous Integration Service
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
- - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerxenial] and [Fedora 25][dockerfedora] Linux distros
+ - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Ubuntu][dockerubuntu] and [Fedora 25][dockerfedora] Linux distros
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
@@ -125,7 +125,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [dockerinstall]:       https://www.docker.com/get-docker
 [dockercomposefile]:   https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml
 [dockerarch]:          https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux
-[dockerxenial]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial
+[dockerubuntu]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu
 [dockerfedora]:        https://github.com/trevorsandy/lpub3d-ci/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora
 
 [appimage-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d-ci/master/builds/utilities/icons/appimage.png
