@@ -749,7 +749,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
         if(cp != _colourParts.end()){
 
-            // prepare absoluteFilePath for costom file
+            // prepare absoluteFilePath for custom file
             QDir customPartDirPath;
             switch (cp.value()._partType)
             {
@@ -783,7 +783,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
             bool FadeMetaAdded = false;
             bool SilhouetteMetaAdded = false;
 
-            // process costom part contents
+            // process custom part contents
             for (int i = 0; i < cp.value()._contents.size() && endThreadNotRequested(); i++) {
                 QString line =  cp.value()._contents[i];
                 QStringList tokens;
@@ -824,23 +824,23 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     QString colourCode;
                     // Insert color code for fade part
                     if (partType == FADE_PART){
-                        // generate costom color entry - if fadeStepsUseColour, set color to material color (16), without prefix
+                        // generate custom color entry - if fadeStepsUseColour, set color to material color (16), without prefix
                         colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
                         // add color line to local list - if fadeStepsUseColour, no need to create entry
                         if (!Preferences::fadeStepsUseColour && !gui->colourEntryExist(customPartColourList,colourCode,partType))
                             customPartColourList << gui->createColourEntry(colourCode,partType);
-                        // set costom color - if fadeStepsUseColour, do not add costom color prefix
+                        // set custom color - if fadeStepsUseColour, do not add custom color prefix
                         tokens[1] = Preferences::fadeStepsUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
                         //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                     }
                     // Insert color code for silhouette part
                     if (partType == HIGHLIGHT_PART){
-                        // generate costom color entry - always
+                        // generate custom color entry - always
                         colourCode = tokens[1];
                         // add color line to local list - always request to create entry
                         if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
                             customPartColourList << gui->createColourEntry(colourCode,partType);
-                        // set costom color - if fadeStepsUseColour, do not add costom color prefix
+                        // set custom color - if fadeStepsUseColour, do not add custom color prefix
                         tokens[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
                     }
                 }
@@ -858,12 +858,12 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                 }
             }
 
-            // add the costom part color list to the header of the costom part contents
+            // add the custom part color list to the header of the custom part contents
             customPartColourList.toSet().toList(); // remove dupes
 
             int insertionPoint = 0; // skip the first line (title)
             QStringList words;
-            // scan past header...
+            // scan part header...
             for (int i = insertionPoint; i < customPartContent.size(); i++) {
                 insertionPoint = i;
                 // Upper case first title first letter
@@ -904,7 +904,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
 
 /*
- * Write custom part files to costom directory.
+ * Write custom part files to custom directory.
  */
 bool PartWorker::saveCustomFile(
         const QString     &fileName,
@@ -1327,7 +1327,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
                     emit emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
-                                                      "You may want to update the part content and costom color parts list.")
+                                                      "You may want to update the part content and custom color parts list.")
                                                       .arg(fileName).arg(libFileName));
                 }
                 fileEntry = QString("%1:::%2:::%3").arg(fileName).arg(libType).arg(_partFileContents[0].remove(0,2));
