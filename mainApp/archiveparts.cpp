@@ -259,31 +259,47 @@ bool ArchiveParts::GetExistingArchiveFileList(
 
   enum EntryPoint
   {
-      p, p8, p48, s, parts, num_entryPoints
+     parts, p, s, t, p8, p48, partsb, sb, num_entryPoints
   };
   QString EntryPointPaths[num_entryPoints] =
   {
-      "/p", "/p/8", "/p/48", "/parts/s", "/parts"
+      "/parts", "/p", "/parts/s", "/parts/textures", "/p/8", "/p/48", "/parts/b", "/parts/s/b",
   };
   QStringList entryList[num_entryPoints];
 
   foreach (QString dirFile, validDirFiles) {
 
-     QString zipFile = QFileInfo(dirFile).fileName();
-     QString dirName = QFileInfo(dirFile).dir().dirName().toLower();
+     QFileInfo zipFile(dirFile);
+     QString fileName = zipFile.fileName();
+     QString dirName = zipFile.dir().dirName();
 
      EntryPoint ep;
-     if (dirName == "p") {
+     if (dirName == "parts") {
+          ep = parts;
+     } else
+       if (dirName == "p") {
           ep = p;
+     } else
+       if (dirName == "s") {
+          ep = s;
+     } else
+       if (dirName == "textures"){
+          ep = t;
      } else
        if (dirName == "8") {
           ep = p8;
      } else
-       if (dirName == "48"){
+       if (dirName == "48") {
           ep = p48;
      } else
-       if (dirName == "s") {
-          ep = s;
+       if (dirName == "b") {
+           zipFile.dir().cdUp();
+           dirName = zipFile.dir().dirName();
+           if (dirName == "parts")
+               ep = partsb;
+           else
+           if (dirName == "s")
+               ep = sb;
      } else {
           ep = parts;
      }
