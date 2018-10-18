@@ -572,6 +572,7 @@ void Application::mainApp()
 #ifndef DISABLE_UPDATE_CHECK
     DoInitialUpdateCheck();
 #endif
+    gui->checkFadeStetpColorFile();
   }
 }
 

@@ -1401,6 +1401,40 @@ void Gui::highlightStepSetup()
   GlobalHighlightStepDialog::getHighlightStepGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
+bool Gui::checkFadeStetpColorFile(){
+    bool prompt = false;
+    QString colorPartsFile = Preferences::ldrawColourPartsFile;
+    QFile file(colorPartsFile);
+    if ( ! file.exists()) {
+        QString message = QString("Could not find the %1 LDraw Color Parts File: [%2].")
+                                  .arg(Preferences::ldrawLibrary).arg(colorPartsFile);
+        if (Preferences::modeGUI) {
+            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+            QMessageBoxResizable box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+
+            box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+            box.setMinimumSize(40,20);
+
+            QString body = QMessageBox::tr ("Would you like to generate it now ?");
+            box.setText (message);
+            box.setInformativeText (body);
+            box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+            box.setDefaultButton   (QMessageBox::Yes);
+            if (box.exec() == QMessageBox::Yes) {
+                generateCustomColourPartsList(prompt); /* false */
+            }
+        } else {
+            generateCustomColourPartsList(prompt); /* false */
+        }
+    }
+
+    return true;
+}
+
 void Gui::editTitleAnnotations()
 {
     displayParmsFile(Preferences::titleAnnotationsFile);
