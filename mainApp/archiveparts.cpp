@@ -60,13 +60,18 @@ bool ArchiveParts::Archive(
 
   // Confirm archive exist or create new instance
   QFileInfo zipFileInfo(zipArchive);
+
   if (!zipFileInfo.exists()) {
-      if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation).arg(zipFileInfo.fileName()),zipFileInfo.absoluteFilePath())) {
-         emit gui->messageSig(LOG_ERROR, QString("Archive %1 not found and could not copy new instance.").arg(zipFileInfo.fileName()));
+      if (Preferences::usingDefaultLibrary) {
+          if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation).arg(zipFileInfo.fileName()),zipFileInfo.absoluteFilePath())) {
+              emit gui->messageSig(LOG_ERROR, QString("Archive %1 not found and could not copy new instance.").arg(zipFileInfo.fileName()));
+          } else {
+              emit gui->messageSig(LOG_INFO, QString("Archive %1 not found. New instance will be created.").arg(zipFileInfo.fileName()));
+          }
       } else {
-         emit gui->messageSig(LOG_INFO, QString("Archive %1 not found. New instance will be created.").arg(zipFileInfo.fileName()));
+          emit gui->messageSig(LOG_INFO, QString("Archive %1 not found. New instance created.").arg(zipFileInfo.fileName()));
       }
-   }
+  }
 
   // Initialize the zip file
   QuaZip zip(zipArchive);
@@ -93,7 +98,7 @@ bool ArchiveParts::Archive(
               }
           }
           if (isExcludedPath) {
-              emit gui->messageSig(LOG_STATUS, QString("Specified path [%1] is excluded from archive.").arg(fileDir));
+              emit gui->messageSig(LOG_STATUS, QString("Specified path [%1] is excluded from archive").arg(fileDir));
               continue;
           }
           validDirFiles << dirFile;
@@ -111,7 +116,7 @@ bool ArchiveParts::Archive(
       QStringList zipFileList;
       GetExistingArchiveFileList(zipFileList, validDirFiles, zipArchive);
 
-      emit gui->messageSig(LOG_DEBUG, QString("Get Existing Archive File List. %1").arg(gui->elapsedTime(t.elapsed())));
+      emit gui->messageSig(LOG_DEBUG, QString("Get Existing Archive File List %1").arg(gui->elapsedTime(t.elapsed())));
 
       //Create an array of archive file QFileInfo objects
       foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
@@ -289,7 +294,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
          //emit gui->messageSig(LOG_DEBUG, QString("Archive path for [%1] is [%2]").arg(zipFile).arg(zipDir.path()));
          if (entryList[ep].isEmpty())
              entryList[ep] = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Files, QDir::SortByMask);
-         if (entryList[ep].contains(zipFile))
+         if (entryList[ep].contains(fileName))
              zipDirFileList << dirFile;
      } else {
          emit gui->messageSig(LOG_ERROR, QString("Archive entry point not found: %1").arg(EntryPointPaths[ep]));
@@ -323,13 +328,13 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           }
       }
       if (isExcludedPath) {
-          emit gui->messageSig(LOG_STATUS, QString("Specified path [%1] is excluded from archive.").arg(filePath));
+          emit gui->messageSig(LOG_NOTICE, QString("Specified path [%1] is excluded from archive.").arg(filePath));
           return;
       }
 
       QFileInfo finfo(filePath);
       if (finfo.isSymLink()) {
-        emit gui->messageSig(LOG_ERROR, QString("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath()));
+        emit gui->messageSig(LOG_NOTICE, QString("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath()));
         continue;
       }
 
@@ -337,8 +342,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           //emit gui->messageSig(LOG_INFO, "FILE INFO DIR PATH: " << finfo.fileName());
           QDir subDir(finfo.filePath());
           RecurseAddDir(subDir, list);
-       } else if (finfo.suffix().toLower() == "dat" /* || finfo.suffix().toLower() == "ldr" */) {
-          //qDebug() << "LDRAW INCLUDED DIR FILES: " << finfo.filePath();
+       } else if (finfo.suffix().toLower() == "dat" || finfo.suffix().toLower() == "ldr") {
           list << finfo.filePath();
        }
     }

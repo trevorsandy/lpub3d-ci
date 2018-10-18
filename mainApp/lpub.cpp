@@ -47,6 +47,7 @@
 #include "ranges_element.h"
 #include "updatecheck.h"
 #include "step.h"
+#include "messageboxresizable.h"
 
 //** 3D
 #include "camera.h"
@@ -1008,16 +1009,17 @@ void Gui::loadTheme(bool restart){
     }
 }
 
-void  Gui::restartApplication(){
+void  Gui::restartApplication(bool restoreOpenFile){
   QStringList args = QApplication::arguments();
-  if (! getCurFile().isEmpty()){
+  if (! getCurFile().isEmpty() && restoreOpenFile){
       args << QString("%1").arg(getCurFile());
       QSettings Settings;
       Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
     } else {
-      args << QString();
+      QString restartArgs = Preferences::usingDefaultLibrary ? QString() :
+                                                               Preferences::ldrawLibrary == TENTE_LIBRARY ? "++libtente" : "++libvexiq";
+      args << restartArgs;
     }
-  args.removeFirst();
   QProcess::startDetached(QApplication::applicationFilePath(), args);
   messageSig(LOG_INFO, QString("Restarted LPub3D: %1, args: %2").arg(QApplication::applicationFilePath()).arg(args.join(" ")));
   QCoreApplication::quit();
@@ -1524,7 +1526,7 @@ void Gui::viewLog()
 void Gui::preferences()
 {
     bool displayThemeRestart            = false;
-    bool altLDConfigPathRestart         = false;
+    bool restoreOpenFile                = true;
     bool enableLDViewSCallCompare       = Preferences::enableLDViewSingleCall;
     bool enableLDViewSListCompare       = Preferences::enableLDViewSnaphsotList;
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
@@ -1546,6 +1548,7 @@ void Gui::preferences()
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
     QString displayThemeCompare         = Preferences::displayTheme;
+    QString ldrawLibraryCompare         = Preferences::ldrawLibrary;
 
     // Native POV file generation settings
     bool showLDVSettings = false;
@@ -1675,9 +1678,9 @@ void Gui::preferences()
 
         QMessageBox box;
         box.setMinimumSize(40,20);
-        box.setIcon (QMessageBox::Question);
+        box.setIcon (QMessageBox::Information);
         box.setDefaultButton   (QMessageBox::Ok);
-        box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
+        box.setStandardButtons (QMessageBox::Ok);
 
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
@@ -1697,6 +1700,7 @@ void Gui::preferences()
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
         bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
         bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
+        bool ldrawLibraryChanged           = Preferences::ldrawLibrary                           != ldrawLibraryCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
@@ -1732,12 +1736,12 @@ void Gui::preferences()
                             .arg(Preferences::highlightStepColour));
 
         if (ldrawPathChanged)
-            emit messageSig(LOG_INFO,QString("LDraw path preference changed from %1 to %1")
+            emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
                             .arg(ldrawPathCompare)
                             .arg(Preferences::ldrawPath));
 
         if (lgeoPathChanged && !ldrawPathChanged)
-            emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %1")
+            emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
                             .arg(lgeoPathCompare)
                             .arg(Preferences::lgeoPath));
 
@@ -1789,13 +1793,20 @@ void Gui::preferences()
                             .arg(povFileGeneratorCompare)
                             .arg(Preferences::povFileGenerator));
 
+        if (ldrawLibraryChanged) {
+            emit messageSig(LOG_INFO,QString("LDraw parts library changed from %1 to %2")
+                            .arg(ldrawLibraryCompare)
+                            .arg(Preferences::ldrawLibrary));
+            box.setText (QString("%1 will restart to properly load the %2 parts library.")
+                                 .arg(VER_PRODUCTNAME_STR).arg(Preferences::ldrawLibrary));
+            restoreOpenFile = false;
+            box.exec();
+        }
+
         if (altLDConfigPathChanged) {
             emit messageSig(LOG_INFO,QString("Use Alternate LDConfig (Restart Required) %1.").arg(Preferences::altLDConfigPath));
-            box.setText (QString("You must close and restart %1 to properly load your alternate LDConfig file.").arg(VER_PRODUCTNAME_STR));
-            box.setInformativeText (QString("Click \"OK\" to close and restart %1.\n\n").arg(VER_PRODUCTNAME_STR));
-            if (box.exec() == QMessageBox::Ok) {
-                altLDConfigPathRestart = true;
-            }
+            box.setText (QString("%1 will restart to properly load the alternate LDConfig file.").arg(VER_PRODUCTNAME_STR));
+            box.exec();
         }
 
         if (displayThemeChanged) {
@@ -1804,11 +1815,7 @@ void Gui::preferences()
             }
             else
             if (displayThemeChanged) {
-                QMessageBox box;
-                box.setMinimumSize(40,20);
-                box.setIcon (QMessageBox::Question);
-                box.setDefaultButton   (QMessageBox::Ok);
-                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
+                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close);
                 box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
                                      "Editor syntax highlighting will update the next time you start %1")
                                      .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
@@ -2120,8 +2127,8 @@ void Gui::preferences()
                                 .arg(Preferences::ldvLights));
         }
 
-        if (displayThemeRestart || altLDConfigPathRestart) {
-            restartApplication();
+        if (displayThemeRestart || altLDConfigPathChanged || ldrawLibraryChanged) {
+            restartApplication(restoreOpenFile);
         }
     }
 }
@@ -2142,7 +2149,8 @@ Gui::Gui()
     connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
     connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
 
-    Preferences::lgeoPreferences();
+    if (Preferences::usingDefaultLibrary)
+        Preferences::lgeoPreferences();
     Preferences::rendererPreferences(SkipExisting);
     Preferences::nativePovGenPreferences();
     Preferences::viewerPreferences();
@@ -2344,19 +2352,20 @@ void Gui::initialize()
 
   emit disable3DActionsSig();
   setCurrentFile("");
-
   readSettings();
-
 }
 
-void Gui::generateCustomColourPartsList()
+void Gui::generateCustomColourPartsList(bool prompt)
 {
     QMessageBox::StandardButton ret;
+    if (Preferences::modeGUI && prompt) {
     ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-            tr("Generating the color parts list may take a long time.\n"
-                "Are you sure you want to generate this list?"),
+            tr("Generating the %1 color parts list may take a long time.\n"
+                "Are you sure you want to generate this list?").arg(Preferences::ldrawLibrary),
             QMessageBox::Yes | QMessageBox::Cancel);
-    if (ret == QMessageBox::Yes) {
+    }
+
+    if (ret == QMessageBox::Yes || !prompt) {
 
         QThread *listThread   = new QThread();
         colourPartListWorker  = new ColourPartListWorker();
@@ -2423,6 +2432,8 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       emit operateHighlightParts(overwriteCustomParts);
     }
 }
+
+
 
 // Update parts archive from LDSearch directories
 void Gui::processLDSearchDirParts(){
