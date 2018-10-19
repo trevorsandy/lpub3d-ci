@@ -3,7 +3,7 @@ sudo: required
 dist: trusty
 
 git:
-  depth: ${LP3D_GIT_DEPTH}
+  depth: 1500
 
 cache:
   ccache: true
@@ -14,7 +14,6 @@ cache:
 env:
   global:
     - LP3D_QT_BASE=510
-    - LP3D_GIT_DEPTH=1500
     - LP3D_LDRAW_DIR=${HOME}/ldraw
     - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
     - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
@@ -36,8 +35,6 @@ env:
     - LP3D_VER_LDGLITE=ldglite-1.3
     - LP3D_VER_LDVIEW=ldview-4.3
     - LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
-
-
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
