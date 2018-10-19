@@ -259,6 +259,9 @@ void Application::initialize()
               headerPrinted = true;
             }
 
+            if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log"))
+                Preferences::setStdOutToLogPreference(true);
+            else
             // Version output
             if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
             {
@@ -286,59 +289,61 @@ void Application::initialize()
             {
                 m_console_mode = true;
                 m_print_output = true;
-                fprintf(stdout, "Usage: %s [options] [ldraw file]\n",qApp->applicationName().toLatin1().constData());
-                fprintf(stdout, "  [file]:\n");
-                fprintf(stdout, "  Absolute file path and name with .ldr, .mpd or .dat extension.");
+                fprintf(stdout, "Usage: %s [options] [LDraw file]\n",qApp->applicationName().toLatin1().constData());
+                fprintf(stdout, "  [LDraw file]:\n");
+                fprintf(stdout, "  Use absolute file path and file name with .ldr, .mpd or .dat extension.\n");
                 fprintf(stdout, "  [options]:\n");
+                fprintf(stdout, "  Options preceded by '+' will launch %s in GUI mode.\n",qApp->applicationName().toLatin1().constData());
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[%s commands]\n",qApp->applicationName().toLatin1().constData());
-                fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
-                fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
-                fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
+                fprintf(stdout, "  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n");
+                fprintf(stdout, "  +lt, ++libtente: Load the LPub3D TENTE archive parts library in GUI mode.\n");
+                fprintf(stdout, "  +lv, ++libvexiq: Load the LPub3D VEXIQ archive parts library in GUI mode.\n");
+                fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
                 fprintf(stdout, "  -fc, --fade-steps-color <LDraw color code>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %s\n",FADE_COLOUR_DEFAULT);
                 fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade color - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
-//              fprintf(stdout, "  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n");
-                fprintf(stdout, "  -hs, --highlight-step: Turn on highlight current step. Default is off.\n");
+                fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
                 fprintf(stdout, "  -hc, --highlight-step-color <Hex color code>: Set the step highlight color. Color code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
-                fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
-                fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
-                fprintf(stdout, "  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n");
-                fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
-                fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
+                fprintf(stdout, "  -hs, --highlight-step: Turn on highlight current step. Default is off.\n");
+                fprintf(stdout, "  -lt, --libtente: Load the LPub3D TENTE archive parts library in command console mode.\n");
+                fprintf(stdout, "  -lv, --libvexiq: Load the LPub3D VEXIQ archive parts library in command console mode.\n");
                 fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
-                fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
+                fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
                 fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc or povray. Default is native.\n ");
-                fprintf(stdout, "  -lt, --libtente load the LPub3D TENTE archive parts library in command console mode.\n");
-                fprintf(stdout, "  -lv, --libvexiq load the LPub3D VEXIQ archive parts library in command console mode.\n");
-                fprintf(stdout, "  +lt, ++libtente load the LPub3D TENTE archive parts library in GUI mode.\n");
-                fprintf(stdout, "  +lv, ++libvexiq load the LPub3D VEXIQ archive parts library in GUI mode.\n");
+                fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
+                fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
+                fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
+                fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
+                fprintf(stdout, "  -ns, --no-stdout-to-log: Do not enable standard output for logged entries. Useful on Linux to prevent double (stdout and QSLog) output. Default is off.\n");
+                fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
+                fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
+//              fprintf(stdout, "  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n");
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[3DViewer commands - Not tested]\n");
-                fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
-                fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
-                fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
-                fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
-                fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
-                fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
-                fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
                 fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
-                fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+                fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
+                fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
+                fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+                fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
+                fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
+                fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
+                fprintf(stdout, "  -vv, --viewer-version: Output 3DViewer - by LeoCAD version information and exit.\n");
                 fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
                 fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
                 fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
-                fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+                fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
                 fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
-                fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
                 fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
-                fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
-                fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
-                fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
                 fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
-                fprintf(stdout, "  -vv, --viewer-version: Output 3DViewer - by LeoCAD version information and exit.\n");
+                fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
+                fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
+                fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
+                fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
+                fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[Help]\n");
                 fprintf(stdout, "  -?, --help: Display this help message and exit.\n");
-                fprintf(stdout, "  \n");
+                fprintf(stdout, "\n");
                 fflush(stdout);
                 return;
             }

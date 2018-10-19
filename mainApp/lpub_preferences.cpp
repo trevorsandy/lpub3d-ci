@@ -173,6 +173,7 @@ bool    Preferences::enableImageMatting         = false;
 bool    Preferences::pageRuler                  = false;
 bool    Preferences::pageGuides                 = false;
 bool    Preferences::showParseErrors            = true;
+bool    Preferences::suppressStdOutToLog        = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::ldviewMissingLibs          = true;
@@ -196,6 +197,11 @@ QString Preferences::xmlMapPath                 = XML_MAP_PATH_DEFAULT;
 
 Preferences::Preferences()
 {
+}
+
+void Preferences::setStdOutToLogPreference(bool option)
+{
+    suppressStdOutToLog = option;
 }
 
 bool Preferences::checkLDrawLibrary(const QString &libPath) {

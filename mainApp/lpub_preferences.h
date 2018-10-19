@@ -63,10 +63,10 @@ class Preferences
     static bool copyRecursively(const QString &,const QString &);
 
     static void setOverwriteCustomParts(bool);
-
     static void setPageGuidesPreference(bool);
     static void setPageRulerPreference(bool);
     static void setShowParseErrorsPreference(bool);
+    static void setStdOutToLogPreference(bool);
 
     static QString lpub3dAppName;
     static QString ldrawPath;
@@ -198,6 +198,7 @@ class Preferences
     static bool    pageRuler;
     static bool    pageGuides;
     static bool    showParseErrors;
+    static bool    suppressStdOutToLog;
 
 #ifdef Q_OS_MAC
     static bool    ldviewMissingLibs;

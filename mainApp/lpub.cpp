@@ -3623,7 +3623,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                 logInfo() << message;
 
-                if (!guiEnabled) {
+                if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                     fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                     fflush(stdout);
                 }
@@ -3633,7 +3633,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                   logNotice() << message;
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3643,7 +3643,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                   logTrace() << message;
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3654,7 +3654,7 @@ void Gui::statusMessage(LogType logType, QString message) {
                   logDebug() << message;
 
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3666,7 +3666,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                   logInfo() << message;
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3681,7 +3681,7 @@ void Gui::statusMessage(LogType logType, QString message) {
                       } else {
                           QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
                       }
-                  } else {
+                  } else if (!Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
