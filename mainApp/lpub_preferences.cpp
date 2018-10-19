@@ -206,14 +206,14 @@ bool Preferences::checkLDrawLibrary(const QString &libPath) {
     for ( int i = 0; i < NumLibs; i++ )
     {
        if (QFileInfo(QString("%1%2").arg(libPath).arg(validLDrawParts[i])).exists()) {
-           lpub3dAltLibPreferences(validLDrawLibs[i]);
+           setLPub3DAltLibPreferences(validLDrawLibs[i]);
            return true;
        }
     }
     return false;
 }
 
-void Preferences::lpub3dAltLibPreferences(const QString &library)
+void Preferences::setLPub3DAltLibPreferences(const QString &library)
 {
     QSettings Settings;
     if (! library.isEmpty()) {

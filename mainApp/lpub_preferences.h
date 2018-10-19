@@ -57,7 +57,7 @@ class Preferences
     static void updatePOVRayConfFile(UpdateFlag);
     static void updatePOVRayIniFile(UpdateFlag);
 
-    static void lpub3dAltLibPreferences(const QString &);
+    static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);

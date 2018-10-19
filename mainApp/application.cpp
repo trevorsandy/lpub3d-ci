@@ -368,7 +368,7 @@ void Application::initialize()
     }
 
     // Set loaded library flags and variables
-    Preferences::lpub3dAltLibPreferences(ldrawLibrary);
+    Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
 
     // initialize directories
     Preferences::lpubPreferences();
