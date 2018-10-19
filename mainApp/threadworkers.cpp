@@ -44,6 +44,7 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _customPartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
   _customPrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
 
+  _ldSearchDirsKey = Preferences::validLDSearchDirsKey;
   _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
 
@@ -65,7 +66,6 @@ void PartWorker::ldsearchDirPreferences(){
 
   QSettings Settings;
   QString const LdrawiniFilePathKey("LDrawIniFile");
-  QString const LdSearchDirsKey("LDSearchDirs");
 
   // qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
 
@@ -77,7 +77,7 @@ void PartWorker::ldsearchDirPreferences(){
           Preferences::ldrawiniFound = true;
         } else {
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
-          Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
+          Settings.remove(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
         }
     } else if (ldPartsDirs.initLDrawSearchDirs()) {
       QFileInfo ldrawiniInfo(ldPartsDirs.getSearchDirsOrigin());
@@ -107,7 +107,7 @@ void PartWorker::ldsearchDirPreferences(){
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey))) {    // LDrawINI not found and not reset so load registry key
       emit gui->messageSig(LOG_INFO, QString("LDrawINI not found, loading LDSearch directories from registry key..."));
-      QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+      QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
       foreach (QString searchDir, searchDirs){
           if (QDir(searchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
@@ -155,14 +155,14 @@ void PartWorker::ldsearchDirPreferences(){
           // update the registry if custom directory included
           if (customDirsIncluded){
               QSettings Settings;
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
           }
        }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load local paths
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
       emit gui->messageSig(LOG_INFO, QString("Loading LDraw parts search directories..."));
     } else {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
+      Settings.remove(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
       emit gui->messageSig(LOG_ERROR, QString("Unable to load search directories."));
     }
 
@@ -500,7 +500,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   Preferences::ldSearchDirs << QDir::toNativeSeparators(customPartDir);
                   logDebug() << "Add " + nameMod + " part directory to ldSearchDirs:" << customPartDir;
                   QSettings Settings;
-                  Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+                  Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));

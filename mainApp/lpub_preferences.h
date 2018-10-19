@@ -108,8 +108,6 @@ class Preferences
     static QString logPath;
     static QString loggingLevel;
     static QString availableVersions;
-    static QStringList ldSearchDirs;
-    static QStringList ldgliteParms;
     static QString povrayConf;
     static QString povrayIni;
     static QString ldgliteIni;
@@ -133,6 +131,10 @@ class Preferences
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
+    static QString validLDSearchDirsKey;
+
+    static QStringList ldgliteParms;
+    static QStringList ldSearchDirs;
 
     static bool    usingDefaultLibrary;
     static bool    themeAutoRestart;

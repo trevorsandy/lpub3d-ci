@@ -57,6 +57,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
   ldrawLibPathTitle = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
+  ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   // set 3rd party application dialogues to read-only
@@ -208,6 +209,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
   }
 
+  ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
   if (Preferences::ldSearchDirs.size() > 0){
       foreach (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);
@@ -336,6 +338,7 @@ void PreferencesDialog::on_browseLDraw_clicked()
     Preferences::ldrawPreferences(true);
     ui.ldrawPath->setText(Preferences::ldrawPath);
     ui.ldrawBox->setTitle(ldrawLibPathTitle);
+    ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
     ui.lgeoBox->setEnabled(Preferences::usingDefaultLibrary);
 
     if (saveLibrary != Preferences::validLDrawPartsLibrary &&

@@ -157,6 +157,7 @@ private:
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;
     QString ldrawLibPathTitle;
+    QString ldrawSearchDirsTitle;
 };
 
 #endif

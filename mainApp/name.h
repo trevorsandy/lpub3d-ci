@@ -83,6 +83,11 @@ enum Theme { ThemeDark, ThemeDefault };
 #define TENTE_LIBRARY                           "TENTE"
 #define VEXIQ_LIBRARY                           "VEXIQ"
 
+#define LEGO_SEARCH_DIR_KEY                     "LEGOLDSearchDirs"
+#define TENTE_SEARCH_DIR_KEY                    "TENTELDSearchDirs"
+#define VEXIQ_SEARCH_DIR_KEY                    "VEXIQLDSearchDirs"
+
+
 #define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   260  // Native camera distance factor for A4 portrait; factor is about 450 for A4 landscape
 
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds

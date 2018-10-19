@@ -92,6 +92,7 @@ QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
 QString Preferences::povFileGenerator           = RENDERER_LDVIEW;
+QString Preferences::validLDSearchDirsKey       = LEGO_SEARCH_DIR_KEY;
 
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
@@ -199,11 +200,10 @@ Preferences::Preferences()
 
 bool Preferences::checkLDrawLibrary(const QString &libPath) {
 
-    QString foo = "foo";
     QStringList validLDrawLibs = QStringList() << LEGO_LIBRARY << TENTE_LIBRARY << VEXIQ_LIBRARY;
     QStringList validLDrawParts = QStringList() << LDRAWLEGOPART_STR << LDRAWTENTEPART_STR << LDRAWVEXIQPART_STR;
 
-    for ( int i = 1; i < NumLibs; i++ )
+    for ( int i = 0; i < NumLibs; i++ )
     {
        if (QFileInfo(QString("%1%2").arg(libPath).arg(validLDrawParts[i])).exists()) {
            lpub3dAltLibPreferences(validLDrawLibs[i]);
@@ -234,6 +234,7 @@ void Preferences::lpub3dAltLibPreferences(const QString &library)
         validLDrawPart    = LDRAWTENTEPART_STR;
         validLDrawArchive = VER_LPUB3D_TENTE_ARCHIVE;
         validLDrawColorParts = VER_LPUB3D_TENTE_COLOR_PARTS;
+        validLDSearchDirsKey = VEXIQ_SEARCH_DIR_KEY;
         validLDrawCustomArchive = VER_LPUB3D_TENTE_CUSTOM_ARCHIVE;
         validLDrawPartsLibrary = TENTE_LIBRARY "® Construction Parts";
     }
@@ -243,6 +244,7 @@ void Preferences::lpub3dAltLibPreferences(const QString &library)
         validLDrawPart    = LDRAWVEXIQPART_STR;
         validLDrawArchive = VER_LPUB3D_VEXIQ_ARCHIVE;
         validLDrawColorParts = VER_LPUB3D_VEXIQ_COLOR_PARTS;
+        validLDSearchDirsKey = TENTE_SEARCH_DIR_KEY;
         validLDrawCustomArchive = VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE;
         validLDrawPartsLibrary = VEXIQ_LIBRARY "® Parts";
     }
@@ -2708,14 +2710,13 @@ bool Preferences::getPreferences()
                         fprintf(stdout,"%s\n",message.toLatin1().constData());
                         fflush(stdout);
                     }
-
                 }
                 if (! ldSearchDirs.isEmpty())
-                    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"),ldSearchDirs);
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS,validLDSearchDirsKey),ldSearchDirs);
                 else
-                    Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
+                    Settings.remove(QString("%1/%2").arg(SETTINGS,validLDSearchDirsKey));
             } else {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
+                Settings.remove(QString("%1/%2").arg(SETTINGS,validLDSearchDirsKey));
             }
             // update LDView ExtraSearchDirs in ini files
             if (!setLDViewExtraSearchDirs(Preferences::ldviewIni))
