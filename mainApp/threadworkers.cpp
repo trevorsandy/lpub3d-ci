@@ -41,10 +41,10 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
   }
-  _customPartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
-  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
+  _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
+  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
 
-  _ldSearchDirsKey = Preferences::validLDSearchDirsKey;
+  _ldSearchDirsKey = Preferences::validLDrawSearchDirsKey;
   _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
 
@@ -1040,6 +1040,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),_ldrawCustomArchive));
   QString returnMessage = QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
+  int returnMessageSeverity = 1; // 1=Error, 2=Notice
   emit gui->messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
 
   if (okToEmitToProgressBar()) {
@@ -1063,10 +1064,14 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       if (!archiveParts.Archive( archiveFile,
                                  foo.absolutePath(),
                                  returnMessage,
+                                 returnMessageSeverity,
                                  QString("Append %1 parts").arg(comment),
                                  overwriteCustomParts))
       {
-         emit gui->messageSig(LOG_ERROR,returnMessage);
+         if (returnMessageSeverity == 1)
+             emit gui->messageSig(LOG_ERROR,returnMessage);
+         else
+             emit gui->messageSig(LOG_NOTICE,returnMessage);
          continue;
       }
       bool ok;
@@ -1341,7 +1346,9 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
 
             } else {
                 hasColour = true;
-                //emit messageSig(LOG_INFO,QString("File contents VERIFY: %1  COLOUR: %2 %3").arg(line).arg(color));
+#ifdef QT_DEBUG_MODE
+                //emit messageSig(LOG_TRACE,QString("CONTENTS COLOUR LINE: %1 FILE: %2").arg(line).arg(libFileName));
+#endif
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
                     emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
