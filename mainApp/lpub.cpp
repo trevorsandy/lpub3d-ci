@@ -2382,6 +2382,9 @@ void Gui::initialize()
   createDockWindows();
   toggleLCStatusBar(true);
 
+  emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
+  LDrawColor::LDrawColorInit();
+
   emit disable3DActionsSig();
   setCurrentFile("");
   readSettings();
