@@ -827,7 +827,7 @@ public slots:
   void reloadCurrentPage();
   void reloadViewer();
   void loadTheme(bool restart = true);
-  void restartApplication(bool restoreOpenFile = true);
+  void restartApplication(bool changeLibrary = false);
 
   bool removeDir(int &count,const QString &dirName);
 

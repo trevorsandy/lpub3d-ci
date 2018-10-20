@@ -215,6 +215,10 @@ void Application::initialize()
 #endif
             }
             else
+            // Invoke LEGO library in GUI mode
+            if (Param == QLatin1String("+ll") || Param == QLatin1String("++liblego"))
+                loadedLibrary = LEGO_LIBRARY;
+            else
             // Invoke TENTE library in GUI mode
             if (Param == QLatin1String("+lt") || Param == QLatin1String("++libtente"))
                 loadedLibrary = TENTE_LIBRARY;
@@ -297,16 +301,19 @@ void Application::initialize()
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[%s commands]\n",qApp->applicationName().toLatin1().constData());
                 fprintf(stdout, "  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n");
-                fprintf(stdout, "  +lt, ++libtente: Load the LPub3D TENTE archive parts library in GUI mode.\n");
-                fprintf(stdout, "  +lv, ++libvexiq: Load the LPub3D VEXIQ archive parts library in GUI mode.\n");
+                fprintf(stdout, "  +ll, ++libtente: Load the LDraw LEGO archive parts library in GUI mode.\n");
+                fprintf(stdout, "  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n");
+                fprintf(stdout, "  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n");
                 fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
-                fprintf(stdout, "  -fc, --fade-steps-color <LDraw color code>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %s\n",FADE_COLOUR_DEFAULT);
+                fprintf(stdout, "  -fc, --fade-steps-color <LDraw color code>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %s\n",FADE_COLOUR_LEGO_DEFAULT);
                 fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade color - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
                 fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
                 fprintf(stdout, "  -hc, --highlight-step-color <Hex color code>: Set the step highlight color. Color code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
                 fprintf(stdout, "  -hs, --highlight-step: Turn on highlight current step. Default is off.\n");
-                fprintf(stdout, "  -lt, --libtente: Load the LPub3D TENTE archive parts library in command console mode.\n");
-                fprintf(stdout, "  -lv, --libvexiq: Load the LPub3D VEXIQ archive parts library in command console mode.\n");
+                fprintf(stdout, "  -ll, --libtente: Load the LDraw LEGO archive parts library in command console mode.\n");
+                fprintf(stdout, "  -lt, --libtente: Load the LDraw TENTE archive parts library in command console mode.\n");
+                fprintf(stdout, "  -lv, --libvexiq: Load the LDraw VEXIQ archive parts library in command console mode.\n");
+                fprintf(stdout, "  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful on Linux to prevent double (stdout and QSLog) output. Default is off.\n");
                 fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
                 fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
                 fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc or povray. Default is native.\n ");
@@ -314,7 +321,6 @@ void Application::initialize()
                 fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
                 fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
                 fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
-                fprintf(stdout, "  -ns, --no-stdout-to-log: Do not enable standard output for logged entries. Useful on Linux to prevent double (stdout and QSLog) output. Default is off.\n");
                 fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
                 fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
 //              fprintf(stdout, "  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n");
@@ -347,6 +353,10 @@ void Application::initialize()
                 fflush(stdout);
                 return;
             }
+            else
+            // Invoke LEGO library in command console mode
+            if (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))
+                loadedLibrary = LEGO_LIBRARY;
             else
             // Invoke TENTE library in command console mode
             if (Param == QLatin1String("-lt") || Param == QLatin1String("--libtente"))
