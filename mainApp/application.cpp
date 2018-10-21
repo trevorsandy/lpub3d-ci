@@ -575,29 +575,29 @@ void Application::initialize()
 
 void Application::mainApp()
 {
-  if (m_print_output)
-    return;
+    if (m_print_output)
+        return;
 
-  emit splashMsgSig(QString("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
+    emit splashMsgSig(QString("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
 
-  Preferences::setLPub3DLoaded();
+    availableVersions = new AvailableVersions(this);
 
-  availableVersions = new AvailableVersions(this);
+    if (modeGUI()) {
+        splash->finish(gui);
 
-  if (modeGUI())
-  {
-    splash->finish(gui);
+        Preferences::setLPub3DLoaded();
 
-    if (!m_commandline_file.isEmpty())
-       emit gui->loadFileSig(m_commandline_file);
+        gui->show();
 
-    gui->show();
+        if (!m_commandline_file.isEmpty())
+            emit gui->loadFileSig(m_commandline_file);
 
 #ifndef DISABLE_UPDATE_CHECK
-    DoInitialUpdateCheck();
+        DoInitialUpdateCheck();
 #endif
-    gui->checkFadeStetpColorFile();
-  }
+    }
+
+    gui->ldrawColorPartsLoad();
 }
 
 int Application::run()
@@ -605,22 +605,23 @@ int Application::run()
   int ExecReturn = EXIT_FAILURE;
   try
   {
-    // Call the main function
-    emit gui->messageSig(LOG_INFO, QString("Run: Starting application..."));
+      // Call the main function
+      emit gui->messageSig(LOG_INFO, QString("Run: Starting application..."));
 
-    mainApp();
+      if (!modeGUI())
+          ExecReturn = gui->processCommandLine();
 
-    if (modeGUI()) {
       emit gui->messageSig(LOG_INFO, QString("Run: Application started."));
-      ExecReturn = m_application.exec();
-    } else {
-      emit gui->messageSig(LOG_INFO, QString("Run: Application started."));
-      ExecReturn = gui->processCommandLine();
-    }
+
+      mainApp();
+
+      if (modeGUI())
+          ExecReturn = m_application.exec();
+
 #ifdef Q_OS_WIN
-      if (m_allocated_console)
+    if (m_allocated_console)
         Sleep(2000);
-      SetConsoleTextAttribute (       //return the console to the original attributes
+    SetConsoleTextAttribute (       //return the console to the original attributes
         ConsoleOutput,
         m_currentConsoleAttr);
 #endif

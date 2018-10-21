@@ -1401,40 +1401,6 @@ void Gui::highlightStepSetup()
   GlobalHighlightStepDialog::getHighlightStepGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
-bool Gui::checkFadeStetpColorFile(){
-    bool prompt = false;
-    QString colorPartsFile = Preferences::ldrawColourPartsFile;
-    QFile file(colorPartsFile);
-    if ( ! file.exists()) {
-        QString message = QString("Could not find the %1 LDraw Color Parts File: [%2].")
-                                  .arg(Preferences::ldrawLibrary).arg(colorPartsFile);
-        if (Preferences::modeGUI) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            QMessageBoxResizable box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-
-            box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            box.setMinimumSize(40,20);
-
-            QString body = QMessageBox::tr ("Would you like to generate it now ?");
-            box.setText (message);
-            box.setInformativeText (body);
-            box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-            box.setDefaultButton   (QMessageBox::Yes);
-            if (box.exec() == QMessageBox::Yes) {
-                generateCustomColourPartsList(prompt); /* false */
-            }
-        } else {
-            generateCustomColourPartsList(prompt); /* false */
-        }
-    }
-
-    return true;
-}
-
 void Gui::editTitleAnnotations()
 {
     displayParmsFile(Preferences::titleAnnotationsFile);
@@ -1758,8 +1724,17 @@ void Gui::preferences()
                             .arg(lgeoPathCompare)
                             .arg(Preferences::lgeoPath));
 
-        if (enableFadeStepsChanged)
+        if (enableFadeStepsChanged) {
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
+            if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+                QString result;
+                if (!LDrawColourParts::LDrawColorPartsLoad(result)){
+                    QString message = QString("Could not open %1 LDraw color parts file [%2], Error: %3")
+                                      .arg(Preferences::ldrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+                    emit messageSig(LOG_ERROR, message);
+                }
+            }
+        }
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
             emit messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
@@ -2383,6 +2358,7 @@ void Gui::initialize()
   toggleLCStatusBar(true);
 
   emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
+
   LDrawColor::LDrawColorInit();
 
   emit disable3DActionsSig();
@@ -2390,17 +2366,77 @@ void Gui::initialize()
   readSettings();
 }
 
+void Gui::ldrawColorPartsLoad()
+{
+    if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+        QString result;
+        if (!LDrawColourParts::LDrawColorPartsLoad(result)){
+            QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
+                    .arg(Preferences::ldrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+            emit messageSig(LOG_NOTICE, message);
+            bool prompt = false;
+            if (Preferences::modeGUI) {
+                QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                QMessageBoxResizable box;
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (_icon);
+                box.setTextFormat (Qt::RichText);
+
+                box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                box.setMinimumSize(40,20);
+
+                QString body = QMessageBox::tr ("Would you like to generate it now ?");
+                box.setText (message);
+                box.setInformativeText (body);
+                box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+                box.setDefaultButton   (QMessageBox::Yes);
+                if (box.exec() == QMessageBox::Yes) {
+                    generateCustomColourPartsList(prompt); /* false */
+                }
+            } else {
+                generateCustomColourPartsList(prompt); /* false */
+            }
+        }
+    }
+}
+
+void Gui::reloadModelFileAfterColorFileGen(){
+    if (Preferences::modeGUI) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        box.setMinimumSize(10,10);
+        QString message = QString("The %1 LDraw Color Parts File has finished building.")
+                .arg(Preferences::ldrawLibrary);
+        QString body = QMessageBox::tr ("The opened model must be reloaded.");
+        box.setText (message);
+        box.setInformativeText (body);
+        box.setStandardButtons (QMessageBox::Ok);
+        box.setDefaultButton   (QMessageBox::Ok);
+        box.exec();
+    }
+    if (!getCurFile().isEmpty())
+        clearAndRedrawPage();
+}
+
 void Gui::generateCustomColourPartsList(bool prompt)
 {
     QMessageBox::StandardButton ret;
-    if (Preferences::modeGUI && prompt) {
-    ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-            tr("Generating the %1 color parts list may take a long time.\n"
-                "Are you sure you want to generate this list?").arg(Preferences::ldrawLibrary),
-            QMessageBox::Yes | QMessageBox::Cancel);
+    QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::ldrawLibrary);
+
+    if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
+            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+                                   tr("%1 Do you want to continue ?").arg(message),
+                                   QMessageBox::Yes | QMessageBox::Cancel);
     }
 
-    if (ret == QMessageBox::Yes || !prompt) {
+    if (ret == QMessageBox::Yes || ! prompt || !Preferences::lpub3dLoaded) {
+        emit messageSig(LOG_INFO,message);
 
         QThread *listThread   = new QThread();
         colourPartListWorker  = new ColourPartListWorker();
@@ -2408,6 +2444,7 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
         connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateCustomColourPartsList()));
         connect(listThread,           SIGNAL(finished()),                              listThread, SLOT(deleteLater()));
+        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),                   this, SLOT(reloadModelFileAfterColorFileGen()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),             listThread, SLOT(quit()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),      colourPartListWorker, SLOT(requestEndThreadNow()));
@@ -2422,6 +2459,12 @@ void Gui::generateCustomColourPartsList(bool prompt)
         connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),                     this, SLOT(progressStatusRemove()));
 
         listThread->start();
+
+        if (!Preferences::modeGUI) {
+            QEventLoop  *wait = new QEventLoop();
+            wait->connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),         wait, SLOT(quit()));
+            wait->exec();
+        }
 
     } else {
       return;

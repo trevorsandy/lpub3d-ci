@@ -793,10 +793,10 @@ public slots:
 
   void preferences();
   void fadeStepSetup();
-  bool checkFadeStetpColorFile();
   void highlightStepSetup();
   void generateCoverPages();
   void insertFinalModel();
+  void ldrawColorPartsLoad();
 
   void pageSetup();
   void assemSetup();
@@ -824,6 +824,7 @@ public slots:
   void clearPageCSIGraphicsItems(Step *step);
   void clearAndRedrawPage() { clearAllCaches(); }
   void reloadCurrentModelFile();
+  void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage();
   void reloadViewer();
   void loadTheme(bool restart = true);

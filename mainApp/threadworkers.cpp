@@ -1299,7 +1299,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
         }
     }
     emit progressSetValueSig(partCount);
-    emit messageSig(LOG_INFO,QString("Finished %1").arg(library));
+    emit messageSig(LOG_INFO,QString("Finished Processing %1 Parent Color Parts").arg(library));
 
     zip.close();
     if (zip.getZipError() != UNZ_OK) {
