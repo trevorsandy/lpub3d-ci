@@ -107,7 +107,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 QString Preferences::displayTheme               = THEME_DEFAULT;
 
-QString Preferences::ldrawLibrary               = VEXIQ_LIBRARY;            // the currently loaded library
+QString Preferences::ldrawLibrary               = LEGO_LIBRARY;            // the currently loaded library
 QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
 
 QString Preferences::validLDrawDir              = LDRAWDIR_STR;

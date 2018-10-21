@@ -301,7 +301,7 @@ void Application::initialize()
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[%s commands]\n",qApp->applicationName().toLatin1().constData());
                 fprintf(stdout, "  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n");
-                fprintf(stdout, "  +ll, ++libtente: Load the LDraw LEGO archive parts library in GUI mode.\n");
+                fprintf(stdout, "  +ll, ++liblego: Load the LDraw LEGO archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n");
                 fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
@@ -310,7 +310,7 @@ void Application::initialize()
                 fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
                 fprintf(stdout, "  -hc, --highlight-step-color <Hex color code>: Set the step highlight color. Color code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
                 fprintf(stdout, "  -hs, --highlight-step: Turn on highlight current step. Default is off.\n");
-                fprintf(stdout, "  -ll, --libtente: Load the LDraw LEGO archive parts library in command console mode.\n");
+                fprintf(stdout, "  -ll, --liblego: Load the LDraw LEGO archive parts library in command console mode.\n");
                 fprintf(stdout, "  -lt, --libtente: Load the LDraw TENTE archive parts library in command console mode.\n");
                 fprintf(stdout, "  -lv, --libvexiq: Load the LDraw VEXIQ archive parts library in command console mode.\n");
                 fprintf(stdout, "  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful on Linux to prevent double (stdout and QSLog) output. Default is off.\n");
