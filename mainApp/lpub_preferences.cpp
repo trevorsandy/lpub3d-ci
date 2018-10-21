@@ -122,6 +122,7 @@ QString Preferences::fadeStepsColourKey         = FADE_COLOUR_LEGO_KEY;
 QString Preferences::fadeStepsColour            = FADE_COLOUR_LEGO_DEFAULT;
 
 bool    Preferences::usingDefaultLibrary        = true;
+bool    Preferences::portableDistribution       = false;
 
 bool    Preferences::themeAutoRestart           = false;
 bool    Preferences::lgeoStlLib                 = false;
@@ -163,7 +164,7 @@ bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
-bool    Preferences::portableDistribution       = false;
+//bool    Preferences::portableDistribution       = false;
 bool    Preferences::povrayDisplay              = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
@@ -282,6 +283,20 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         fadeStepsColourKey      = FADE_COLOUR_VEXIQ_KEY;
         fadeStepsColour         = FADE_COLOUR_VEXIQ_DEFAULT;
     }
+}
+
+void Preferences::setDistribution(){
+#ifdef Q_OS_WIN
+    if ((portableDistribution = QDir(QCoreApplication::applicationDirPath()+"/extras").exists())){
+        QDir configDir(QCoreApplication::applicationDirPath()+"/config");
+        if(!QDir(configDir).exists())
+            configDir.mkpath(".");
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
+    }
+#else
+    ;
+#endif
 }
 
 void Preferences::lpubPreferences()
@@ -417,16 +432,7 @@ void Preferences::lpubPreferences()
 
 #ifdef Q_OS_WIN //... Windows portable or installed
 
-    portableDistribution = QDir(lpub3dPath + "/extras").exists();
-
     if (portableDistribution) { // we have a portable distribution
-
-        // Write settings to ini file at <LPub3D Path>\config\LPub3D Software\LPub3D<ver>.ini
-        QDir configDir(lpub3dPath + "/config");
-        if(!QDir(configDir).exists())
-            configDir.mkpath(".");
-        QSettings::setDefaultFormat(QSettings::IniFormat);
-        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
 
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                 QCoreApplication::applicationDirPath().contains("Program Files (x86)");

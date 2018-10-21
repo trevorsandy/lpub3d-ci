@@ -187,6 +187,9 @@ void Application::initialize()
     // process arguments
     bool headerPrinted = false;
 #ifdef Q_OS_WIN
+    // Set distribution type
+    Preferences::setDistribution();
+    // Request console redirect
     bool consoleRedirectTreated = false;
 #endif
     QString ldrawLibrary, loadedLibrary;

@@ -51,6 +51,7 @@ class Preferences
     static bool getPreferences();
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
+    static void setDistribution();
     static void updateNativePOVIniFile(UpdateFlag);
     static void updateLDViewIniFile(UpdateFlag);
     static void updateLDViewPOVIniFile(UpdateFlag);
