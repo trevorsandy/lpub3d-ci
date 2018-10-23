@@ -64,7 +64,7 @@
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
 #define VER_LDVMESSAGESINI_FILE             "LDVMessages.ini"
 
-#define VER_PLI_MPD_FILE                    "pli.mpd"
+#define VER_PLI_CONTROL_FILE                "pli.mpd"
 #define VER_LEGO_PLI_CONTROL_FILE           "LEGOPliControl.ldr"
 #define VER_TENTE_PLI_CONTROL_FILE          "TENTEPliControl.ldr"
 #define VER_VEXIQ_PLI_CONTROL_FILE          "VEXIQPliControl.ldr"
@@ -103,18 +103,18 @@
 #define VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE     "vexiqcustomparts.zip"
 
 #if defined Q_OS_WIN || defined Q_OS_MAC
-#define LDRAWDIR_STR                        "LDraw"
-#define LDRAWTENTEDIR_STR                   "TENTEParts"
-#define LDRAWVEXIQDIR_STR                   "VEXIQParts"
+#define VER_LEGO_LDRAWDIR_STR               "LDraw"
+#define VER_TENTE_LDRAWDIR_STR              "TENTEParts"
+#define VER_VEXIQ_LDRAWDIR_STR              "VEXIQParts"
 #else
-#define LDRAWDIR_STR                        "ldraw"
-#define LDRAWTENTEDIR_STR                   "tenteparts"
-#define LDRAWVEXIQDIR_STR                   "vexiqparts"
+#define VER_LEGO_LDRAWDIR_STR               "ldraw"
+#define VER_TENTE_LDRAWDIR_STR              "tenteparts"
+#define VER_VEXIQ_LDRAWDIR_STR              "vexiqparts"
 #endif
 
-#define LDRAWLEGOPART_STR                   "/parts/1.dat"
-#define LDRAWTENTEPART_STR                  "/parts/4circulo.dat"
-#define LDRAWVEXIQPART_STR                  "/parts/228-2500-001.dat"
+#define VER_LEGO_LDRAWPART_STR              "/parts/1.dat"
+#define VER_TENTE_LDRAWPART_STR             "/parts/4circulo.dat"
+#define VER_VEXIQ_LDRAWPART_STR             "/parts/228-2500-001.dat"
 
 #define VER_FADE_PART_COLOURS_FILE          "fadePartColours.lst"
 

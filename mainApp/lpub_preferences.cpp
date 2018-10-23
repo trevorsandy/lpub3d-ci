@@ -86,6 +86,13 @@ QString Preferences::logPath;
 QString Preferences::dataLocation;
 QString Preferences::povFileGenerator           = RENDERER_LDVIEW;
 
+QString Preferences::pliControlFile;
+QString Preferences::titleAnnotationsFile;
+QString Preferences::freeformAnnotationsFile;
+QString Preferences::pliSubstitutePartsFile;
+QString Preferences::excludedPartsFile;
+QString Preferences::ldrawColourPartsFile;
+
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
 
@@ -103,26 +110,19 @@ QString Preferences::displayTheme               = THEME_DEFAULT;
 
 QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the currently loaded library
 QString Preferences::validLDrawLibraryChange    = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
-QString Preferences::validLDrawDir              = LDRAWDIR_STR;
-QString Preferences::validLDrawPart             = LDRAWLEGOPART_STR;
-QString Preferences::validLDrawArchive          = VER_LDRAW_OFFICIAL_ARCHIVE;       
+QString Preferences::validFadeStepsColour       = LEGO_FADE_COLOUR_DEFAULT;
+QString Preferences::validLDrawDir              = VER_LEGO_LDRAWDIR_STR;
+QString Preferences::validLDrawPart             = VER_LEGO_LDRAWPART_STR;
+QString Preferences::validLDrawPartsArchive     = VER_LDRAW_OFFICIAL_ARCHIVE;
 QString Preferences::validLDrawCustomArchive    = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
 QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
-QString Preferences::validFadeStepsColour       = FADE_COLOUR_LEGO_DEFAULT;
 
 QString Preferences::validPliControl            = VER_LEGO_PLI_CONTROL_FILE;
 QString Preferences::validTitleAnnotations      = VER_LEGO_TITLE_ANNOTATEIONS_FILE;
 QString Preferences::validFreeFormAnnotations   = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
 QString Preferences::validPliSubstituteParts    = VER_LEGO_PLI_SUBSTITUTE_FILE;
 QString Preferences::validExcludedPliParts      = VER_LEGO_PLI_EXCLUDED_FILE;
-
-QString Preferences::pliControlFile;
-QString Preferences::titleAnnotationsFile;
-QString Preferences::freeformAnnotationsFile;
-QString Preferences::pliSubstitutePartsFile;
-QString Preferences::excludedPartsFile;
-QString Preferences::ldrawColourPartsFile;
 
 QString Preferences::fadeStepsColourKey         = LEGO_FADE_COLOUR_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
@@ -226,7 +226,7 @@ void Preferences::setStdOutToLogPreference(bool option)
 bool Preferences::checkLDrawLibrary(const QString &libPath) {
 
     QStringList validLDrawLibs = QStringList() << LEGO_LIBRARY << TENTE_LIBRARY << VEXIQ_LIBRARY;
-    QStringList validLDrawParts = QStringList() << LDRAWLEGOPART_STR << LDRAWTENTEPART_STR << LDRAWVEXIQPART_STR;
+    QStringList validLDrawParts = QStringList() << VER_LEGO_LDRAWPART_STR << VER_TENTE_LDRAWPART_STR << VER_VEXIQ_LDRAWPART_STR;
 
     for ( int i = 0; i < NumLibs; i++ )
     {
@@ -255,14 +255,14 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
     usingDefaultLibrary         = validLDrawLibrary ==  LEGO_LIBRARY;
 
     if (validLDrawLibrary ==  LEGO_LIBRARY) {
+        validFadeStepsColour     = LEGO_FADE_COLOUR_DEFAULT;
         validLDrawPartsLibrary   = LEGO_LIBRARY "® Parts";
         validLDrawLibraryChange  = LEGO_LIBRARY;
-        validLDrawDir            = LDRAWDIR_STR;
-        validLDrawPart           = LDRAWLEGOPART_STR;
-        validLDrawArchive        = VER_LDRAW_OFFICIAL_ARCHIVE;
+        validLDrawDir            = VER_LEGO_LDRAWDIR_STR;
+        validLDrawPart           = VER_LEGO_LDRAWPART_STR;
+        validLDrawPartsArchive   = VER_LDRAW_OFFICIAL_ARCHIVE;
         validLDrawColorParts     = VER_LPUB3D_LEGO_COLOR_PARTS;
         validLDrawCustomArchive  = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
-        validFadeStepsColour     = FADE_COLOUR_LEGO_DEFAULT;
         validPliControl          = VER_LEGO_PLI_CONTROL_FILE;
         validTitleAnnotations    = VER_LEGO_TITLE_ANNOTATEIONS_FILE;
         validFreeFormAnnotations = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
@@ -275,14 +275,14 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
     }
     else
     if (validLDrawLibrary == TENTE_LIBRARY) {
+        validFadeStepsColour     = TENTE_FADE_COLOUR_DEFAULT;
         validLDrawPartsLibrary   = TENTE_LIBRARY "® Construction Parts";
         validLDrawLibraryChange  = TENTE_LIBRARY;
-        validLDrawDir            = LDRAWTENTEDIR_STR;
-        validLDrawPart           = LDRAWTENTEPART_STR;
-        validLDrawArchive        = VER_LPUB3D_TENTE_ARCHIVE;
+        validLDrawDir            = VER_TENTE_LDRAWDIR_STR;
+        validLDrawPart           = VER_TENTE_LDRAWPART_STR;
+        validLDrawPartsArchive   = VER_LPUB3D_TENTE_ARCHIVE;
         validLDrawColorParts     = VER_LPUB3D_TENTE_COLOR_PARTS;
         validLDrawCustomArchive  = VER_LPUB3D_TENTE_CUSTOM_ARCHIVE;
-        validFadeStepsColour     = FADE_COLOUR_TENTE_DEFAULT;
         validPliControl          = VER_TENTE_PLI_CONTROL_FILE;
         validTitleAnnotations    = VER_TENTE_TITLE_ANNOTATEIONS_FILE;
         validFreeFormAnnotations = VER_TENTE_FREEFROM_ANNOTATIONS_FILE;
@@ -295,14 +295,14 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
     }
     else
     if (validLDrawLibrary == VEXIQ_LIBRARY) {
+        validFadeStepsColour     = VEXIQ_FADE_COLOUR_DEFAULT;
         validLDrawPartsLibrary   = VEXIQ_LIBRARY "® Parts";
         validLDrawLibraryChange  = VEXIQ_LIBRARY;
-        validLDrawDir            = LDRAWVEXIQDIR_STR;
-        validLDrawPart           = LDRAWVEXIQPART_STR;
-        validLDrawArchive        = VER_LPUB3D_VEXIQ_ARCHIVE;
+        validLDrawDir            = VER_VEXIQ_LDRAWDIR_STR;
+        validLDrawPart           = VER_VEXIQ_LDRAWPART_STR;
+        validLDrawPartsArchive   = VER_LPUB3D_VEXIQ_ARCHIVE;
         validLDrawColorParts     = VER_LPUB3D_VEXIQ_COLOR_PARTS;
         validLDrawCustomArchive  = VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE;
-        validFadeStepsColour     = FADE_COLOUR_VEXIQ_DEFAULT;
         validPliControl          = VER_VEXIQ_PLI_CONTROL_FILE;
         validTitleAnnotations    = VER_VEXIQ_TITLE_ANNOTATEIONS_FILE;
         validFreeFormAnnotations = VER_VEXIQ_FREEFROM_ANNOTATIONS_FILE;
@@ -623,7 +623,7 @@ void Preferences::lpubPreferences()
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_CONTROL_FILE));
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
@@ -819,7 +819,7 @@ void Preferences::lpub3dLibPreferences(bool force)
     QSettings Settings;
     lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
 
-    QString validFile = QString("%1/%2/%3").arg(lpubDataPath, "libraries", validLDrawArchive);
+    QString validFile = QString("%1/%2/%3").arg(lpubDataPath, "libraries", validLDrawPartsArchive);
 
     // Start by checking the registry value, if not exist set the user data path
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,PartsLibraryKey))) {
@@ -868,7 +868,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 
         // lets go look for the archive files...
 
-        fileInfo.setFile(dataLocation + validLDrawArchive);
+        fileInfo.setFile(dataLocation + validLDrawPartsArchive);
         bool archivesExist = fileInfo.exists();
 
         // DEBUG DEBUG DEBUG
@@ -891,7 +891,7 @@ void Preferences::lpub3dLibPreferences(bool force)
             if (!QDir(libraryDir).exists())
                 libraryDir.mkpath(".");
 
-            fileInfo.setFile(QString("%1/%2").arg(libraryDir.absolutePath(), validLDrawArchive));
+            fileInfo.setFile(QString("%1/%2").arg(libraryDir.absolutePath(), validLDrawPartsArchive));
             if (!fileInfo.exists())
                 QFile::copy(dataLocation + fileInfo.fileName(), fileInfo.absoluteFilePath());
 
@@ -927,7 +927,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                                               "The location of your official archive file (%1) should "
                                               "also have the unofficial archive file (%2).\n"
                                               "LDraw library archive files can be copied, downloaded or selected to your '%1/%2/' folder now.")
-                                              .arg(validLDrawArchive)
+                                              .arg(validLDrawPartsArchive)
                                               .arg(usingDefaultLibrary ? VER_LPUB3D_UNOFFICIAL_ARCHIVE : "")
                                               .arg(lpubDataPath, "libraries");
             box.setText (header);
@@ -1014,7 +1014,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                     }
 
                     // validate downloaded files
-                    lpub3dLibFile = QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), validLDrawArchive));
+                    lpub3dLibFile = QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), validLDrawPartsArchive));
                     fileInfo.setFile(lpub3dLibFile);
                     if (!fileInfo.exists()) {
 
@@ -1193,7 +1193,7 @@ void Preferences::ldrawPreferences(bool force)
                                                                   "and the %4 parts archive file %5. The extracted library folder will "
                                                                   "be located at '%6'").arg(searchDetail)
                                                                    .arg(usingDefaultLibrary ? "official LDraw LEGO archive" : "LDraw " + validLDrawLibrary + " archive.")
-                                                                   .arg(validLDrawArchive).arg(usingDefaultLibrary ? "unofficial" : "custom")
+                                                                   .arg(validLDrawPartsArchive).arg(usingDefaultLibrary ? "unofficial" : "custom")
                                                                    .arg(validLDrawCustomArchive).arg(ldrawLibPath);
                                         box.setText (header);
                                         box.setInformativeText (body);
@@ -2296,7 +2296,7 @@ void Preferences::pliPreferences()
         if (pliInfo.exists()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControlFile"),pliControlFile);
         } else {
-            pliControlFile = pliInfo.absolutePath()+"/"+VER_PLI_MPD_FILE;
+            pliControlFile = pliInfo.absolutePath()+"/"+VER_PLI_CONTROL_FILE;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControlFile"),pliControlFile);
         }
     }
@@ -3230,7 +3230,7 @@ bool Preferences::extractLDrawLib() {
 
     // set the archive library path
     QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
-    fileInfo.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), validLDrawArchive)));
+    fileInfo.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), validLDrawPartsArchive)));
 
     // archive library exist so let's proceed...
     if (fileInfo.exists()) {

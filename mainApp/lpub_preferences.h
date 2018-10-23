@@ -120,7 +120,7 @@ class Preferences
     static QString validLDrawLibrary;
     static QString validLDrawDir;
     static QString validLDrawPart;
-    static QString validLDrawArchive;
+    static QString validLDrawPartsArchive;
     static QString validLDrawLibraryChange;
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
