@@ -117,7 +117,7 @@ QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
 QString Preferences::validFadeStepsColour       = FADE_COLOUR_LEGO_DEFAULT;
 
-QString Preferences::fadeStepsColourKey         = FADE_COLOUR_LEGO_KEY;
+QString Preferences::fadeStepsColourKey         = LEGO_FADE_COLOUR_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
 
 bool    Preferences::usingDefaultLibrary        = true;
@@ -248,7 +248,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawPartsLibrary  = LEGO_LIBRARY "® Parts";
         validFadeStepsColour    = FADE_COLOUR_LEGO_DEFAULT;
 
-        fadeStepsColourKey      = FADE_COLOUR_LEGO_KEY;
+        fadeStepsColourKey      = LEGO_FADE_COLOUR_KEY;
         ldrawSearchDirsKey      = LEGO_SEARCH_DIR_KEY;
     }
     else
@@ -262,7 +262,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawPartsLibrary  = TENTE_LIBRARY "® Construction Parts";
         validFadeStepsColour    = FADE_COLOUR_TENTE_DEFAULT;
 
-        fadeStepsColourKey      = FADE_COLOUR_TENTE_KEY;
+        fadeStepsColourKey      = TENTE_FADE_COLOUR_KEY;
         ldrawSearchDirsKey      = TENTE_SEARCH_DIR_KEY;
     }
     else
@@ -276,7 +276,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawPartsLibrary  = VEXIQ_LIBRARY "® Parts";
         validFadeStepsColour    = FADE_COLOUR_VEXIQ_DEFAULT;
 
-        fadeStepsColourKey      = FADE_COLOUR_VEXIQ_KEY;
+        fadeStepsColourKey      = VEXIQ_FADE_COLOUR_KEY;
         ldrawSearchDirsKey      = VEXIQ_SEARCH_DIR_KEY;
     }
 }
