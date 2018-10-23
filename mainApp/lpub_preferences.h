@@ -70,7 +70,7 @@ class Preferences
     static void setStdOutToLogPreference(bool);
 
     static QString lpub3dAppName;
-    static QString ldrawPath;
+    static QString ldrawLibPath;
     static QString altLDConfigPath;
     static QString lpub3dLibFile;
     static QString lgeoPath;
@@ -123,8 +123,8 @@ class Preferences
     static QString displayTheme;
     static QString ldvLights;
     static QString xmlMapPath;
-    static QString validLDrawLibrary;
 
+    static QString validLDrawLibrary;
     static QString validLDrawDir;
     static QString validLDrawPart;
     static QString validLDrawArchive;
@@ -135,6 +135,7 @@ class Preferences
 
     static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;
+    static QString ldrawLibPathKey;
 
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;

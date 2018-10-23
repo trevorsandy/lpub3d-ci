@@ -1565,7 +1565,7 @@ void Gui::preferences()
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
-    QString ldrawPathCompare            = Preferences::ldrawPath;
+    QString ldrawPathCompare            = Preferences::ldrawLibPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
     QString displayThemeCompare         = Preferences::displayTheme;
@@ -1721,14 +1721,14 @@ void Gui::preferences()
         bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
         bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
 
-        bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
+        bool ldrawPathChanged              = QString(Preferences::ldrawLibPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
                             .arg(ldrawPathCompare)
-                            .arg(Preferences::ldrawPath));
+                            .arg(Preferences::ldrawLibPath));
             if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
                 libraryChangeRestart = true;
                 emit messageSig(LOG_INFO,QString("LDraw parts library changed from %1 to %2")
@@ -2654,7 +2654,7 @@ void Gui::refreshLDrawUnoffParts(){
 
     // Automatically extract unofficial archive
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE);
-    QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
+    QString destination = tr("%1/unofficial").arg(Preferences::ldrawLibPath);
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
         emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
@@ -2678,7 +2678,7 @@ void Gui::refreshLDrawOfficialParts(){
 
     // Automatically extract official archive
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
-    QString destination = Preferences::ldrawPath;
+    QString destination = Preferences::ldrawLibPath;
     destination = destination.remove(destination.size() - 6,6);
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){

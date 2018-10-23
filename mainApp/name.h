@@ -91,6 +91,10 @@ enum Theme { ThemeDark, ThemeDefault };
 #define TENTE_FADE_COLOUR_KEY                   "TENTEFadeStepColour"
 #define VEXIQ_FADE_COLOUR_KEY                   "VEXIQFadeStepColour"
 
+#define LEGO_LDRAW_LIB_PATH_KEY                 "LEGOLDrawLibPath"
+#define TENTE_LDRAW_LIB_PATH_KEY                "TENTELDrawLibPath"
+#define VEXIQ_LDRAW_LIB_PATH_KEY                "VEXIQLDrawLibPath"
+
 #define FADE_COLOUR_LEGO_DEFAULT                "Light_Blue"
 #define FADE_COLOUR_TENTE_DEFAULT               "Light_Orange"
 #define FADE_COLOUR_VEXIQ_DEFAULT               "VEX_Sky_Blue"

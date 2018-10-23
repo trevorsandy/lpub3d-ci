@@ -45,7 +45,7 @@ Preferences preferences;
 QDate date = QDate::currentDate();
 
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
-QString Preferences::ldrawPath                  = EMPTY_STRING_DEFAULT;
+QString Preferences::ldrawLibPath               = EMPTY_STRING_DEFAULT;
 QString Preferences::altLDConfigPath            = EMPTY_STRING_DEFAULT;
 QString Preferences::lpub3dLibFile              = EMPTY_STRING_DEFAULT;
 QString Preferences::lgeoPath;
@@ -121,6 +121,7 @@ QString Preferences::validFadeStepsColour       = FADE_COLOUR_LEGO_DEFAULT;
 
 QString Preferences::fadeStepsColourKey         = LEGO_FADE_COLOUR_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
+QString Preferences::ldrawLibPathKey            = LEGO_LDRAW_LIB_PATH_KEY;
 
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
@@ -252,6 +253,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
 
         fadeStepsColourKey      = LEGO_FADE_COLOUR_KEY;
         ldrawSearchDirsKey      = LEGO_SEARCH_DIR_KEY;
+        ldrawLibPathKey         = LEGO_LDRAW_LIB_PATH_KEY;
     }
     else
     if (validLDrawLibrary == TENTE_LIBRARY) {
@@ -266,6 +268,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
 
         fadeStepsColourKey      = TENTE_FADE_COLOUR_KEY;
         ldrawSearchDirsKey      = TENTE_SEARCH_DIR_KEY;
+        ldrawLibPathKey         = TENTE_LDRAW_LIB_PATH_KEY;
     }
     else
     if (validLDrawLibrary == VEXIQ_LIBRARY) {
@@ -280,6 +283,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
 
         fadeStepsColourKey      = VEXIQ_FADE_COLOUR_KEY;
         ldrawSearchDirsKey      = VEXIQ_SEARCH_DIR_KEY;
+        ldrawLibPathKey         = VEXIQ_LDRAW_LIB_PATH_KEY;
     }
 }
 
@@ -1043,39 +1047,30 @@ void Preferences::ldrawPreferences(bool force)
 {
     emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
 
-    QSettings Settings;
+    QSettings Settings;                                                                // Registry check
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey)))
+        ldrawLibPath = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey)).toString());
 
-    QString latestToValidate = QDir::toNativeSeparators(QFileInfo(ldrawPath).dir().absolutePath()+"/"+validLDrawDir);
-    QString const ldrawKey("LDrawDir");    
-                                                    // Registry check
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawKey))) {
-        ldrawPath = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,ldrawKey)).toString());
-    }
-                                                    // Registry folder against latest...
-    if (ldrawPath != latestToValidate){
-       ldrawPath = latestToValidate;
-    }
-
-    QDir ldrawDir(ldrawPath);
+    QDir ldrawDir(ldrawLibPath);
     if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || force) {      // first check
 
         QString returnMessage = QString();
 
         if (! force ) {
-            ldrawPath.clear();
-            Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawKey));
+            ldrawLibPath.clear();
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey));
 
             char* EnvPath = getenv("LDRAWDIR");         // check environment variable LDRAWDIR
 
             if (EnvPath && EnvPath[0])
-                ldrawPath = QString(EnvPath);
+                ldrawLibPath = QString(EnvPath);
 
-            QDir ldrawDir(ldrawPath);
+            QDir ldrawDir(ldrawLibPath);
         }
 
         if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || force) {  // second check
             if (! force) {                                                            // third check - force
-                ldrawPath.clear();
+                ldrawLibPath.clear();
 
                 /* Path Checks */
                 QString homePath,userLocalDataPath,userDocumentsPath;
@@ -1092,27 +1087,27 @@ void Preferences::ldrawPreferences(bool force)
                 dataPathList = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
                 userDocumentsPath = dataPathList.first();
 #endif
-                ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir));
+                ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir));
 
-                if ( ! QDir(ldrawPath).exists()) {     // check user documents path
+                if ( ! QDir(ldrawLibPath).exists()) {     // check user documents path
 
-                    ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(validLDrawDir));
+                    ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(validLDrawDir));
 
-                    if ( ! QDir(ldrawPath).exists()) { // check system data path
+                    if ( ! QDir(ldrawLibPath).exists()) { // check system data path
 
                         dataPathList = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
 
 #if defined Q_OS_WIN || defined Q_OS_MAC
-                        ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1)).arg(validLDrawDir)); /* C:/ProgramData/LDraw, /Library/Application Support/LDraw */
+                        ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1)).arg(validLDrawDir)); /* C:/ProgramData/LDraw, /Library/Application Support/LDraw */
 #else
-                        ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2)).arg(validLDrawDir)); /* /usr/share/LDRAW" */
+                        ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2)).arg(validLDrawDir)); /* /usr/share/LDRAW" */
 #endif
 
-                        if ( ! QDir(ldrawPath).exists()) {     // check user data path
+                        if ( ! QDir(ldrawLibPath).exists()) {     // check user data path
 
-                            ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir));
+                            ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir));
 
-                            if ( ! QDir(ldrawPath).exists()) { // manual prompt for LDraw Library location
+                            if ( ! QDir(ldrawLibPath).exists()) { // manual prompt for LDraw Library location
 
                                 QString searchDetail;
                                 searchDetail = QMessageBox::tr ("\t%1\n\t%2\n\t%3\n\t%4")
@@ -1148,7 +1143,7 @@ void Preferences::ldrawPreferences(bool force)
 
                                             header = "<b> " + QMessageBox::tr ("%1 LDraw library installed").arg(validLDrawLibrary) + "</b>";
                                             body = QMessageBox::tr ("LDraw library was not found. The bundled library archives were installed at\n"
-                                                                    "%1").arg(ldrawPath);
+                                                                    "%1").arg(ldrawLibPath);
                                             detail = QMessageBox::tr ("The following locations were searched for the LDraw library.\n%1\n"
                                                                       "You can change the library path in the Preferences dialogue.").arg(searchDetail);
                                             box.setText (header);
@@ -1175,7 +1170,7 @@ void Preferences::ldrawPreferences(bool force)
                                                                   "be located at '%6'").arg(searchDetail)
                                                                    .arg(usingDefaultLibrary ? "official LDraw LEGO archive" : "LDraw " + validLDrawLibrary + " archive.")
                                                                    .arg(validLDrawArchive).arg(usingDefaultLibrary ? "unofficial" : "custom")
-                                                                   .arg(validLDrawCustomArchive).arg(ldrawPath);
+                                                                   .arg(validLDrawCustomArchive).arg(ldrawLibPath);
                                         box.setText (header);
                                         box.setInformativeText (body);
                                         box.setDetailedText(detail);
@@ -1185,20 +1180,20 @@ void Preferences::ldrawPreferences(bool force)
                                         if (box.clickedButton()==selectButton) {
                                             emit Application::instance()->splashMsgSig("10% - Selecting LDraw folder...");
 
-                                            ldrawPath = QFileDialog::getExistingDirectory(nullptr,
+                                            ldrawLibPath = QFileDialog::getExistingDirectory(nullptr,
                                                                                           QFileDialog::tr("Select LDraw library folder"),
                                                                                           "/",
                                                                                           QFileDialog::ShowDirsOnly |
                                                                                           QFileDialog::DontResolveSymlinks);
 
-                                            if (! ldrawPath.isEmpty()) {
-                                                if (checkLDrawLibrary(ldrawPath)) {
-                                                    Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+                                            if (! ldrawLibPath.isEmpty()) {
+                                                if (checkLDrawLibrary(ldrawLibPath)) {
+                                                    Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
                                                 } else {
-                                                    ldrawPath.clear();
+                                                    ldrawLibPath.clear();
                                                     returnMessage = QMessageBox::tr ("The selected path [%1] does not "
                                                                                      "appear to be a valid LDraw Library.")
-                                                                                     .arg(ldrawPath);
+                                                                                     .arg(ldrawLibPath);
                                                 }
                                             }
 
@@ -1206,7 +1201,7 @@ void Preferences::ldrawPreferences(bool force)
                                             if (box.clickedButton()==extractButton) {
                                                 extractLDrawLib();
                                             } else {
-                                                ldrawPath.clear();
+                                                ldrawLibPath.clear();
                                             }
                                         }
                                     }
@@ -1217,7 +1212,7 @@ void Preferences::ldrawPreferences(bool force)
                                     fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     if (extractLDrawLib()) {
                                         message = QString("The bundled %1 LDraw archive library was extracted to:\n%2\n"
-                                                          "You can edit the library path in the Preferences dialogue.\n").arg(validLDrawLibrary).arg(ldrawPath);
+                                                          "You can edit the library path in the Preferences dialogue.\n").arg(validLDrawLibrary).arg(ldrawLibPath);
                                         fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     }
                                     fflush(stdout);
@@ -1228,30 +1223,30 @@ void Preferences::ldrawPreferences(bool force)
                 }
             }
 
-            if (! ldrawPath.isEmpty() && force && modeGUI) {
+            if (! ldrawLibPath.isEmpty() && force && modeGUI) {
 #ifdef Q_OS_MAC
                 if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
 #endif
                 QString result = QFileDialog::getExistingDirectory(nullptr,
                                                                    QFileDialog::tr("Select LDraw Directory"),
-                                                                   ldrawPath,
+                                                                   ldrawLibPath,
                                                                    QFileDialog::ShowDirsOnly |
                                                                    QFileDialog::DontResolveSymlinks);
                 if (! result.isEmpty()) {
 
                     if (checkLDrawLibrary(result)) {
-                        ldrawPath = QDir::toNativeSeparators(result);
+                        ldrawLibPath = QDir::toNativeSeparators(result);
                     } else {
                         returnMessage = QMessageBox::tr ("The specified path is not a valid LPub3D-supported LDraw Library.\n"
-                                                          "%1").arg(ldrawPath);
+                                                          "%1").arg(ldrawLibPath);
                     }
                 }
             }
 
-            if (! ldrawPath.isEmpty()) {
+            if (! ldrawLibPath.isEmpty()) {
 
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
 
             } else {
 
@@ -1297,10 +1292,10 @@ void Preferences::ldrawPreferences(bool force)
             }
 
         } else {                                 // second check successful - return
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
             QString PartsLibrary = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
             if (PartsLibrary.isEmpty())
-                lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,ldrawKey)).toString());
+                lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey)).toString());
         }
     }                                             // first check successful - return
 
@@ -1356,7 +1351,7 @@ void Preferences::ldrawPreferences(bool force)
 #endif
                     altLDConfigPath = QFileDialog::getOpenFileName(nullptr,
                                                                    QFileDialog::tr("Select LDRaw LDConfig file"),
-                                                                   ldrawPath,
+                                                                   ldrawLibPath,
                                                                    filter);
 
                     if (! altLDConfigPath.isEmpty()) {
@@ -1431,7 +1426,7 @@ void Preferences::lgeoPreferences()
     if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
         lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
     } else { // check in ldraw directory path for lgeo
-        lgeoDir = ldrawPath + "/lgeo";
+        lgeoDir = ldrawLibPath + "/lgeo";
     }
     QDir lgeoDirInfo(lgeoDir);
     if (lgeoDirInfo.exists()) {
@@ -1915,7 +1910,7 @@ void Preferences::updateNativePOVIniFile(UpdateFlag updateFlag)
             if (line.contains(QRegExp("^LDrawDir=")))
             {
                 line.clear();
-                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
+                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
             }
             // set lgeo paths as required
             if (line.contains(QRegExp("^XmlMapPath=")))
@@ -1991,7 +1986,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
             if (line.contains(QRegExp("^LDrawDir=")))
             {
                 line.clear();
-                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
+                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
             }
             // set AutoCrop=0
 //            if (line.contains(QRegExp("^AutoCrop="))) {
@@ -2062,7 +2057,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
             if (line.contains(QRegExp("^LDrawDir=")))
             {
                 line.clear();
-                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
+                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
             }
             // set lgeo paths as required
             if (line.contains(QRegExp("^XmlMapPath=")))
@@ -2630,12 +2625,12 @@ bool Preferences::getPreferences()
 
     if (dialog->exec() == QDialog::Accepted) {
 
-        if (ldrawPath != dialog->ldrawPath()) {
-            ldrawPath = dialog->ldrawPath();
-            if (ldrawPath.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDrawDir"));
+        if (ldrawLibPath != dialog->ldrawLibPath()) {
+            ldrawLibPath = dialog->ldrawLibPath();
+            if (ldrawLibPath.isEmpty()) {
+                Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey));
             } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawDir"),ldrawPath);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
             }
             // update LDView ini files
             updateNativePOVIniFile(UpdateExisting);
@@ -2717,7 +2712,7 @@ bool Preferences::getPreferences()
                     bool entryHasExcludedPath = false;
                     QString formattedDir = QDir::toNativeSeparators(searchDir);
                     foreach(QString excludedPath, excludedPaths) {
-                        QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawPath).arg(excludedPath));
+                        QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(ldrawLibPath).arg(excludedPath));
                         if ((entryHasExcludedPath = (formattedDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                             break;
                         }
@@ -3159,7 +3154,6 @@ bool Preferences::extractLDrawLib() {
         Application::instance()->splash->show();
 #endif
 
-    QString const ldrawKey("LDrawDir");
     QSettings Settings;
     QFileInfo validFile;
     QString message;
@@ -3175,13 +3169,13 @@ bool Preferences::extractLDrawLib() {
     }
 
     // if ldraw directory path is empty use the default location (datapath)
-    if (ldrawPath.isEmpty()) {
-        ldrawPath = QString("%1/%2/").arg(lpubDataPath, validLDrawDir);
+    if (ldrawLibPath.isEmpty()) {
+        ldrawLibPath = QString("%1/%2/").arg(lpubDataPath, validLDrawDir);
     }
 
     // set ldraw parent directory to extract archive.zip
     bool parentDirNotValid = false;
-    QDir ldrawDir(ldrawPath);
+    QDir ldrawDir(ldrawLibPath);
     //logInfo() << QString("LDraw directory: %1").arg(ldrawDir.absolutePath()));
     logDebug() << QString("LDraw directory: %1").arg(ldrawDir.absolutePath());
     if (ldrawDir.dirName().toLower() != validLDrawDir.toLower())
@@ -3205,9 +3199,9 @@ bool Preferences::extractLDrawLib() {
             r = false;
          } else {
             if (! usingDefaultLibrary) {
-                // Rename extracted library (defaults to ldraw)
+                // Rename extracted library to ldraw for compatibility with lc_library and renderers
                 QFile library(QString("%1/%2").arg(destination).arg(validLDrawDir));
-                QFile extract(QString("%1/%2").arg(destination).arg(QString(LDRAWDIR_STR).toLower()));
+                QFile extract(QString("%1/ldraw").arg(destination));
 
                 if (! library.exists() || library.remove()) {
                     if (! extract.rename(library.fileName())) {
@@ -3229,9 +3223,9 @@ bool Preferences::extractLDrawLib() {
 
         // extract lpub3dldrawunf.zip - for LEGO library only
         if (usingDefaultLibrary) {
-            validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE)));
+            validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(),validLDrawCustomArchive)));
             if (validFile.exists()) {
-                QString destination = QString("%1/unofficial").arg(Preferences::ldrawPath);
+                QString destination = QString("%1/unofficial").arg(ldrawLibPath);
                 QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
                 if (result.isEmpty()){
                     logError() << QString("Failed to extract %1 to %2").arg(validFile.absoluteFilePath()).arg(destination);
@@ -3248,17 +3242,17 @@ bool Preferences::extractLDrawLib() {
         // copy extracted contents to ldraw directory and delete extract dir if needed
         if (parentDirNotValid) {
             QDir extractDir(QString("%1/%2").arg(ldrawDir.absolutePath()).arg(validLDrawDir));
-            if (!copyRecursively(extractDir.absolutePath(),ldrawPath)) {
-                message = QMessageBox::tr("Unable to copy %1 to %2").arg(extractDir.absolutePath(),ldrawPath);
+            if (!copyRecursively(extractDir.absolutePath(),ldrawLibPath)) {
+                message = QMessageBox::tr("Unable to copy %1 to %2").arg(extractDir.absolutePath(),ldrawLibPath);
                 logInfo() << QString(message);
                 r = false;
             }
             extractDir.removeRecursively();
         }
 
-        // if no errors, (re)set ldrawPath in registry
+        // if no errors, (re)set ldrawLibPath in registry
         if (r)
-            Settings.setValue(QString("%1/%2").arg(SETTINGS, ldrawKey), ldrawPath);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS, ldrawLibPathKey),ldrawLibPath);
 
     } else {
 
@@ -3290,11 +3284,11 @@ bool Preferences::extractLDrawLib() {
 
         r = false;
 
-        // remove registry setting and clear ldrawPath
-        validFile.setFile(QDir::toNativeSeparators(QString("%1%2").arg(ldrawPath).arg(validLDrawPart)));
+        // remove registry setting and clear ldrawLibPath
+        validFile.setFile(QDir::toNativeSeparators(QString("%1%2").arg(ldrawLibPath).arg(validLDrawPart)));
         if (!validFile.exists()) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS, ldrawKey));
-            ldrawPath.clear();
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey));
+            ldrawLibPath.clear();
         }
 
     }
