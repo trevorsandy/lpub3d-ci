@@ -107,8 +107,8 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 QString Preferences::displayTheme               = THEME_DEFAULT;
 
-QString Preferences::ldrawLibrary               = LEGO_LIBRARY;            // the currently loaded library
-QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
+QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the currently loaded library
+QString Preferences::validLDrawLibraryChange    = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
 QString Preferences::validLDrawDir              = LDRAWDIR_STR;
 QString Preferences::validLDrawPart             = LDRAWLEGOPART_STR;
 QString Preferences::validLDrawArchive          = VER_LDRAW_OFFICIAL_ARCHIVE;       
@@ -215,7 +215,7 @@ bool Preferences::checkLDrawLibrary(const QString &libPath) {
     for ( int i = 0; i < NumLibs; i++ )
     {
        if (QFileInfo(QString("%1%2").arg(libPath).arg(validLDrawParts[i])).exists()) {
-           validLDrawLibrary = validLDrawLibs[i];
+           validLDrawLibraryChange = validLDrawLibs[i];
            return true;
        }
     }
@@ -226,21 +226,20 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
 {
     QSettings Settings;
     if (! library.isEmpty()) {
-        ldrawLibrary = library;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),ldrawLibrary);
+        validLDrawLibrary = library;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),validLDrawLibrary);
     } else {
         if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"))) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),ldrawLibrary);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),validLDrawLibrary);
         } else {
-            ldrawLibrary = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawLibrary")).toString();
+            validLDrawLibrary = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawLibrary")).toString();
         }
     }
 
-    usingDefaultLibrary         = ldrawLibrary ==  LEGO_LIBRARY;
+    usingDefaultLibrary         = validLDrawLibrary ==  LEGO_LIBRARY;
 
-    if (ldrawLibrary ==  LEGO_LIBRARY) {
-        validLDrawLibrary       = LEGO_LIBRARY;
-
+    if (validLDrawLibrary ==  LEGO_LIBRARY) {
+        validLDrawLibraryChange = LEGO_LIBRARY;
         validLDrawDir           = LDRAWDIR_STR;
         validLDrawPart          = LDRAWLEGOPART_STR;
         validLDrawArchive       = VER_LDRAW_OFFICIAL_ARCHIVE;
@@ -253,9 +252,8 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         ldrawSearchDirsKey      = LEGO_SEARCH_DIR_KEY;
     }
     else
-    if (ldrawLibrary == TENTE_LIBRARY) {
-        validLDrawLibrary       = TENTE_LIBRARY;
-
+    if (validLDrawLibrary == TENTE_LIBRARY) {
+        validLDrawLibraryChange = TENTE_LIBRARY;
         validLDrawDir           = LDRAWTENTEDIR_STR;
         validLDrawPart          = LDRAWTENTEPART_STR;
         validLDrawArchive       = VER_LPUB3D_TENTE_ARCHIVE;
@@ -268,9 +266,8 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         ldrawSearchDirsKey      = TENTE_SEARCH_DIR_KEY;
     }
     else
-    if (ldrawLibrary == VEXIQ_LIBRARY) {
-        validLDrawLibrary       = VEXIQ_LIBRARY;
-
+    if (validLDrawLibrary == VEXIQ_LIBRARY) {
+        validLDrawLibraryChange = VEXIQ_LIBRARY;
         validLDrawDir           = LDRAWVEXIQDIR_STR;
         validLDrawPart          = LDRAWVEXIQPART_STR;
         validLDrawArchive       = VER_LPUB3D_VEXIQ_ARCHIVE;
@@ -613,7 +610,7 @@ void Preferences::lpubPreferences()
     qDebug() << "--------------------------";
     qDebug() << "";
 #else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Loaded LDraw Library..(%1 Parts)").arg(ldrawLibrary)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Loaded LDraw Library..(%1 Parts)").arg(validLDrawLibrary)).toLatin1().constData());
     fprintf(stdout, "--------------------------\n");
     fprintf(stdout, "\n");
     fflush(stdout);
@@ -1147,7 +1144,7 @@ void Preferences::ldrawPreferences(bool force)
 
                                         if (extractLDrawLib()) {
 
-                                            header = "<b> " + QMessageBox::tr ("%1 LDraw library installed").arg(ldrawLibrary) + "</b>";
+                                            header = "<b> " + QMessageBox::tr ("%1 LDraw library installed").arg(validLDrawLibrary) + "</b>";
                                             body = QMessageBox::tr ("LDraw library was not found. The bundled library archives were installed at\n"
                                                                     "%1").arg(ldrawPath);
                                             detail = QMessageBox::tr ("The following locations were searched for the LDraw library.\n%1\n"
@@ -1165,16 +1162,16 @@ void Preferences::ldrawPreferences(bool force)
                                         QAbstractButton* extractButton = box.addButton(QMessageBox::tr("Extract Archive"),QMessageBox::YesRole);
                                         QAbstractButton* selectButton  = box.addButton(QMessageBox::tr("Select Folder"),QMessageBox::YesRole);
 
-                                        header = "<b> " + QMessageBox::tr ("%1 LDraw library folder not found!").arg(ldrawLibrary) + "</b>";
+                                        header = "<b> " + QMessageBox::tr ("%1 LDraw library folder not found!").arg(validLDrawLibrary) + "</b>";
                                         body = QMessageBox::tr ("You may select your LDraw folder or extract it from the bundled %1 %2.\n"
                                                                 "Would you like to extract the library or select the LDraw folder?")
-                                                                 .arg(ldrawLibrary).arg(usingDefaultLibrary ? "archives" : "archive");
+                                                                 .arg(validLDrawLibrary).arg(usingDefaultLibrary ? "archives" : "archive");
                                         detail = QMessageBox::tr ("The following locations were searched for the LDraw library:\n%1\n"
                                                                   "You must select an LDraw library folder or extract the library.\n"
                                                                   "It is possible to create your library folder from the %2 file (%3) "
                                                                   "and the %4 parts archive file %5. The extracted library folder will "
                                                                   "be located at '%6'").arg(searchDetail)
-                                                                   .arg(usingDefaultLibrary ? "official LDraw LEGO archive" : "LDraw " + ldrawLibrary + " archive.")
+                                                                   .arg(usingDefaultLibrary ? "official LDraw LEGO archive" : "LDraw " + validLDrawLibrary + " archive.")
                                                                    .arg(validLDrawArchive).arg(usingDefaultLibrary ? "unofficial" : "custom")
                                                                    .arg(validLDrawCustomArchive).arg(ldrawPath);
                                         box.setText (header);
@@ -1214,11 +1211,11 @@ void Preferences::ldrawPreferences(bool force)
 
                                 } else {                  // Console mode so extract and install LDraw Library automatically if not exist in searched paths.
                                     QString message = QString("The %1 LDraw library was not found.\n"
-                                                              "The following locations were searched for the LDraw library:\n%2.\n").arg(ldrawLibrary).arg(searchDetail);
+                                                              "The following locations were searched for the LDraw library:\n%2.\n").arg(validLDrawLibrary).arg(searchDetail);
                                     fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     if (extractLDrawLib()) {
                                         message = QString("The bundled %1 LDraw archive library was extracted to:\n%2\n"
-                                                          "You can edit the library path in the Preferences dialogue.\n").arg(ldrawLibrary).arg(ldrawPath);
+                                                          "You can edit the library path in the Preferences dialogue.\n").arg(validLDrawLibrary).arg(ldrawPath);
                                         fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     }
                                     fflush(stdout);
@@ -3165,7 +3162,7 @@ bool Preferences::extractLDrawLib() {
     QString message;
     bool r = true;
 
-    message = QMessageBox::tr("Extracting %1 LDraw library, please wait...").arg(ldrawLibrary);
+    message = QMessageBox::tr("Extracting %1 LDraw library, please wait...").arg(validLDrawLibrary);
 
     emit Application::instance()->splashMsgSig(message.prepend("10% - "));
 
@@ -3214,7 +3211,7 @@ bool Preferences::extractLDrawLib() {
                         logError() << QString("Failed to rename %1 to %2").arg(extract.fileName()).arg(library.fileName());
                     } else {
                         message = QMessageBox::tr("%1 %2 Library files extracted to %3/%4")
-                                .arg(result.size()).arg(ldrawLibrary).arg(destination).arg(validLDrawDir);
+                                .arg(result.size()).arg(validLDrawLibrary).arg(destination).arg(validLDrawDir);
                         logInfo() << QString(message);
                     }
                 }  else {

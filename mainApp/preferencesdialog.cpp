@@ -57,7 +57,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
-  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawLibrary);
+  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawLibraryChange);
   QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
@@ -349,10 +349,10 @@ void PreferencesDialog::on_ldrawPath_editingFinished()
                             .arg(ui.ldrawPath->text()));
             box.exec();
         } else {
-            if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
-                ui.lgeoBox->setEnabled(Preferences::validLDrawLibrary == LEGO_LIBRARY);
+            if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
+                ui.lgeoBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
                 QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
-                                             .arg(Preferences::validLDrawLibrary);
+                                             .arg(Preferences::validLDrawLibraryChange);
                 ui.ldrawBox->setTitle(ldrawTitle);
                 ui.ldrawBox->setStyleSheet("QGroupBox::title { color : red; }");
             }
@@ -367,10 +367,10 @@ void PreferencesDialog::on_browseLDraw_clicked()
 {
     Preferences::ldrawPreferences(true);
     ui.ldrawPath->setText(Preferences::ldrawPath);
-    if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
-        ui.lgeoBox->setEnabled(Preferences::validLDrawLibrary == LEGO_LIBRARY);
+    if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
+        ui.lgeoBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
         QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
-                                     .arg(Preferences::validLDrawLibrary);
+                                     .arg(Preferences::validLDrawLibraryChange);
         ui.ldrawBox->setTitle(ldrawTitle);
         ui.ldrawBox->setStyleSheet("QGroupBox::title { color : red; }");
     } else {

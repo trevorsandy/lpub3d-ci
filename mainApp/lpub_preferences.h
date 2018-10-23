@@ -123,12 +123,12 @@ class Preferences
     static QString displayTheme;
     static QString ldvLights;
     static QString xmlMapPath;
-    static QString ldrawLibrary;
+    static QString validLDrawLibrary;
 
     static QString validLDrawDir;
     static QString validLDrawPart;
     static QString validLDrawArchive;
-    static QString validLDrawLibrary;
+    static QString validLDrawLibraryChange;
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
