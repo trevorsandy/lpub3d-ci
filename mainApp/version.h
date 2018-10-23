@@ -65,10 +65,29 @@
 #define VER_LDVMESSAGESINI_FILE             "LDVMessages.ini"
 
 #define VER_PLI_MPD_FILE                    "pli.mpd"
-#define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
-#define VER_PLI_SUBSTITUTE_PARTS_FILE       "pliSubstituteParts.lst"
+#define VER_LEGO_PLI_CONTROL_FILE           "LEGOPliControl.ldr"
+#define VER_TENTE_PLI_CONTROL_FILE          "TENTEPliControl.ldr"
+#define VER_VEXIQ_PLI_CONTROL_FILE          "VEXIQPliControl.ldr"
+
 #define VER_TITLE_ANNOTATIONS_FILE          "titleAnnotations.lst"
+#define VER_LEGO_TITLE_ANNOTATEIONS_FILE    "LEGOTitleAnnotations.lst"
+#define VER_TENTE_TITLE_ANNOTATEIONS_FILE   "TENTETitleAnnotations.lst"
+#define VER_VEXIQ_TITLE_ANNOTATEIONS_FILE   "VEXIQTitleAnnotations.lst"
+
+#define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
+#define VER_LEGO_FREEFROM_ANNOTATIONS_FILE  "LEGOFreeFormAnnotations.lst"
+#define VER_TENTE_FREEFROM_ANNOTATIONS_FILE "TENTEFreeFormAnnotations.lst"
+#define VER_VEXIQ_FREEFROM_ANNOTATIONS_FILE "VEXIQFreeFormAnnotations.lst"
+
+#define VER_PLI_SUBSTITUTE_PARTS_FILE       "pliSubstituteParts.lst"
+#define VER_LEGO_PLI_SUBSTITUTE_FILE        "LEGOPliSubstituteParts.lst"
+#define VER_TENTE_PLI_SUBSTITUTE_FILE       "TENTEPliSubstituteParts.lst"
+#define VER_VEXIQ_PLI_SUBSTITUTE_FILE       "VEXIQPliSubstituteParts.lst"
+
 #define VER_EXCLUDED_PARTS_FILE             "excludedParts.lst"
+#define VER_LEGO_PLI_EXCLUDED_FILE          "LEGOExcludedParts.lst"
+#define VER_TENTE_PLI_EXCLUDED_FILE         "TENTEExcludedParts.lst"
+#define VER_VEXIQ_PLI_EXCLUDED_FILE         "VEXIQExcludedParts.lst"
 
 #define VER_LPUB3D_LEGO_COLOR_PARTS         "fadeStepColorParts.lst"
 #define VER_LPUB3D_TENTE_COLOR_PARTS        "tenteFadeStepColorParts.lst"
