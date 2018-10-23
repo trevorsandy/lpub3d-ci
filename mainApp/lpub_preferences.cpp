@@ -789,18 +789,18 @@ void Preferences::lpub3dLibPreferences(bool force)
     QString latestToValidate = QString("%1/%2/%3").arg(lpubDataPath, "libraries", validLDrawArchive);
 
     QFileInfo validFile;
-    QString const LPub3DLibKey("PartsLibrary");
+    QString const PartsLibraryKey("PartsLibrary");
 
     // Start by checking the registry value, if not exist set the user data path
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey))) {
-        lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString();
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,PartsLibraryKey))) {
+        lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
     } else {
         lpub3dLibFile = latestToValidate;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
     }
     if (lpub3dLibFile != latestToValidate) {
         lpub3dLibFile = latestToValidate;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
     }
 
     // If we have a valid library archive file, update the 3DViewer parts_library variable, else clear the registry value
@@ -808,12 +808,12 @@ void Preferences::lpub3dLibPreferences(bool force)
         validFile.setFile(lpub3dLibFile);
 
         if (validFile.exists()) {
-            lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString());
+            lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString());
             return;
         }
         else {
             lpub3dLibFile.clear();
-            Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+            Settings.remove(QString("%1/%2").arg(SETTINGS, PartsLibraryKey));
         }
     }
 
@@ -831,7 +831,7 @@ void Preferences::lpub3dLibPreferences(bool force)
     // Archive library exist, so set registry value
     if (! lpub3dLibFile.isEmpty()) {
 
-        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
 
     } else {
 
@@ -865,7 +865,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                 QFile::copy(dataLocation + validFile.fileName(), validFile.absoluteFilePath());
 
             lpub3dLibFile = validFile.absoluteFilePath();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
 
             if (usingDefaultLibrary)
                 validFile.setFile(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE));
@@ -914,11 +914,11 @@ void Preferences::lpub3dLibPreferences(bool force)
 
                 if (dlgGetFileName.exec() == QFileDialog::Accepted) {
                     lpub3dLibFile = dlgGetFileName.selectedFiles().at(0);
-                    Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
 
                 } else {
 
-                    Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+                    Settings.remove(QString("%1/%2").arg(SETTINGS, PartsLibraryKey));
                     body = QMessageBox::tr ("<u>Selection cancelled</u>.\n"
                                             "The application will terminate.");
                     box.removeButton(selectButton);
@@ -987,7 +987,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                     validFile.setFile(lpub3dLibFile);
                     if (!validFile.exists()) {
 
-                        Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+                        Settings.remove(QString("%1/%2").arg(SETTINGS, PartsLibraryKey));
                         if (usingDefaultLibrary)
                             validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
                         if (usingDefaultLibrary && !validFile.exists()) {
@@ -1033,8 +1033,8 @@ void Preferences::lpub3dLibPreferences(bool force)
         }
     }
 
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)))
-        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString());
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)))
+        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString());
 }
 
 void Preferences::ldrawPreferences(bool force)
