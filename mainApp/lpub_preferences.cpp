@@ -115,11 +115,12 @@ QString Preferences::validLDrawPart             = LDRAWLEGOPART_STR;
 QString Preferences::validLDrawArchive          = VER_LDRAW_OFFICIAL_ARCHIVE;       
 QString Preferences::validLDrawCustomArchive    = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
 QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
-QString Preferences::validLDrawSearchDirsKey    = LEGO_SEARCH_DIR_KEY;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
 
-QString Preferences::fadeStepsColourKey         = FADE_COLOUR_LEGO_KEY;
 QString Preferences::fadeStepsColour            = FADE_COLOUR_LEGO_DEFAULT;
+
+QString Preferences::fadeStepsColourKey         = FADE_COLOUR_LEGO_KEY;
+QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
 
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
@@ -247,11 +248,12 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawArchive       = VER_LDRAW_OFFICIAL_ARCHIVE;
         validLDrawColorParts    = VER_LPUB3D_LEGO_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
-        validLDrawSearchDirsKey = LEGO_SEARCH_DIR_KEY;
         validLDrawPartsLibrary  = LEGO_LIBRARY "® Parts";
 
-        fadeStepsColourKey      = FADE_COLOUR_LEGO_KEY;
         fadeStepsColour         = FADE_COLOUR_LEGO_DEFAULT;
+
+        fadeStepsColourKey      = FADE_COLOUR_LEGO_KEY;
+        ldrawSearchDirsKey      = LEGO_SEARCH_DIR_KEY;
     }
     else
     if (ldrawLibrary == TENTE_LIBRARY) {
@@ -262,11 +264,12 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawArchive       = VER_LPUB3D_TENTE_ARCHIVE;
         validLDrawColorParts    = VER_LPUB3D_TENTE_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_TENTE_CUSTOM_ARCHIVE;
-        validLDrawSearchDirsKey = TENTE_SEARCH_DIR_KEY;
         validLDrawPartsLibrary  = TENTE_LIBRARY "® Construction Parts";
 
-        fadeStepsColourKey      = FADE_COLOUR_TENTE_KEY;
         fadeStepsColour         = FADE_COLOUR_TENTE_DEFAULT;
+
+        fadeStepsColourKey      = FADE_COLOUR_TENTE_KEY;
+        ldrawSearchDirsKey      = TENTE_SEARCH_DIR_KEY;
     }
     else
     if (ldrawLibrary == VEXIQ_LIBRARY) {
@@ -277,11 +280,12 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawArchive       = VER_LPUB3D_VEXIQ_ARCHIVE;
         validLDrawColorParts    = VER_LPUB3D_VEXIQ_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE;
-        validLDrawSearchDirsKey = VEXIQ_SEARCH_DIR_KEY;
         validLDrawPartsLibrary  = VEXIQ_LIBRARY "® Parts";
 
-        fadeStepsColourKey      = FADE_COLOUR_VEXIQ_KEY;
         fadeStepsColour         = FADE_COLOUR_VEXIQ_DEFAULT;
+
+        fadeStepsColourKey      = FADE_COLOUR_VEXIQ_KEY;
+        ldrawSearchDirsKey      = VEXIQ_SEARCH_DIR_KEY;
     }
 }
 
@@ -2749,11 +2753,11 @@ bool Preferences::getPreferences()
                     }
                 }
                 if (! ldSearchDirs.isEmpty())
-                    Settings.setValue(QString("%1/%2").arg(SETTINGS,validLDrawSearchDirsKey),ldSearchDirs);
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawSearchDirsKey),ldSearchDirs);
                 else
-                    Settings.remove(QString("%1/%2").arg(SETTINGS,validLDrawSearchDirsKey));
+                    Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawSearchDirsKey));
             } else {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,validLDrawSearchDirsKey));
+                Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawSearchDirsKey));
             }
             // update LDView ExtraSearchDirs in ini files
             if (!setLDViewExtraSearchDirs(Preferences::ldviewIni))

@@ -44,7 +44,7 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
   _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
 
-  _ldSearchDirsKey = Preferences::validLDrawSearchDirsKey;
+  _ldSearchDirsKey = Preferences::ldrawSearchDirsKey;
   _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
 

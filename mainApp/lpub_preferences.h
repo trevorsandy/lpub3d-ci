@@ -134,7 +134,7 @@ class Preferences
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
-    static QString validLDrawSearchDirsKey;
+    static QString ldrawSearchDirsKey;
 
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;
