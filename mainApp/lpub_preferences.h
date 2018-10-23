@@ -86,7 +86,6 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
-    static QString validFadeStepsColour;
     static QString ldrawColourPartsFile;
     static QString highlightStepColour;
     static QString pliSubstitutePartsFile;
@@ -132,6 +131,7 @@ class Preferences
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
+    static QString validFadeStepsColour;
 
     static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;
