@@ -70,13 +70,15 @@ QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
 QString Preferences::preferredRenderer;
+
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::pliSubstitutePartsFile;
-QString Preferences::ldrawColourPartsFile;
 QString Preferences::excludedPartsFile;
+QString Preferences::ldrawColourPartsFile;
+
+QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 //page attributes dynamic
 QString Preferences::defaultAuthor;
 QString Preferences::defaultURL;
@@ -2450,10 +2452,11 @@ void Preferences::fadestepPreferences()
         fadeStepsOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")).toInt();
     }
 
-    ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
+    QString const LDrawColourPartsKey("LDrawColourPartsFile");
+    ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey)).toString();
     QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
     if (!ldrawColorFileInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"));
+        Settings.remove(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey));
     }
 
     ldrawColourPartsFile    = QDir::toNativeSeparators(QString("%1/extras/%2")
@@ -2461,7 +2464,7 @@ void Preferences::fadestepPreferences()
                                                          .arg(validLDrawColorParts));
     ldrawColorFileInfo.setFile(ldrawColourPartsFile);
     if (ldrawColorFileInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),ldrawColourPartsFile);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey),ldrawColourPartsFile);
     }
 }
 
