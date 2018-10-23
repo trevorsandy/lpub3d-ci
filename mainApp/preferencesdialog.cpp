@@ -137,10 +137,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
   ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
-  QString test = Preferences::fadeStepsColour;
+  QString test = Preferences::validFadeStepsColour;
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
-  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
+  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
+  QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
   if(fadeColor.isValid() ) {
       ui.fadeStepsColourLabel->setAutoFillBackground(true);
       QString styleSheet =

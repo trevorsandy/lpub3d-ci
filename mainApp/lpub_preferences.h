@@ -1,4 +1,4 @@
-/**************************************************************************** 
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 ** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
@@ -86,8 +86,7 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
-    static QString fadeStepsColourKey;
-    static QString fadeStepsColour;
+    static QString validFadeStepsColour;
     static QString ldrawColourPartsFile;
     static QString highlightStepColour;
     static QString pliSubstitutePartsFile;
@@ -124,7 +123,6 @@ class Preferences
     static QString displayTheme;
     static QString ldvLights;
     static QString xmlMapPath;
-
     static QString ldrawLibrary;
 
     static QString validLDrawDir;
@@ -134,6 +132,8 @@ class Preferences
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
+
+    static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;
 
     static QStringList ldgliteParms;

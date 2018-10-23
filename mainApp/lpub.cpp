@@ -1563,7 +1563,7 @@ void Gui::preferences()
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
-    QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
+    QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
@@ -1705,7 +1705,7 @@ void Gui::preferences()
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
-        bool fadeStepsColourChanged        = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
+        bool fadeStepsColourChanged        = QString(Preferences::validFadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
         bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
@@ -1768,7 +1768,7 @@ void Gui::preferences()
         if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
             emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
                             .arg(fadeStepsColourCompare.replace("_"," "))
-                            .arg(QString(Preferences::fadeStepsColour).replace("_"," ")));
+                            .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
 
         if (enableHighlightStepChanged)
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));

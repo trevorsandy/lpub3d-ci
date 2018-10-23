@@ -109,15 +109,13 @@ QString Preferences::displayTheme               = THEME_DEFAULT;
 
 QString Preferences::ldrawLibrary               = LEGO_LIBRARY;            // the currently loaded library
 QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
-
 QString Preferences::validLDrawDir              = LDRAWDIR_STR;
 QString Preferences::validLDrawPart             = LDRAWLEGOPART_STR;
 QString Preferences::validLDrawArchive          = VER_LDRAW_OFFICIAL_ARCHIVE;       
 QString Preferences::validLDrawCustomArchive    = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
 QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
-
-QString Preferences::fadeStepsColour            = FADE_COLOUR_LEGO_DEFAULT;
+QString Preferences::validFadeStepsColour       = FADE_COLOUR_LEGO_DEFAULT;
 
 QString Preferences::fadeStepsColourKey         = FADE_COLOUR_LEGO_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
@@ -249,8 +247,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawColorParts    = VER_LPUB3D_LEGO_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
         validLDrawPartsLibrary  = LEGO_LIBRARY "® Parts";
-
-        fadeStepsColour         = FADE_COLOUR_LEGO_DEFAULT;
+        validFadeStepsColour    = FADE_COLOUR_LEGO_DEFAULT;
 
         fadeStepsColourKey      = FADE_COLOUR_LEGO_KEY;
         ldrawSearchDirsKey      = LEGO_SEARCH_DIR_KEY;
@@ -265,8 +262,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawColorParts    = VER_LPUB3D_TENTE_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_TENTE_CUSTOM_ARCHIVE;
         validLDrawPartsLibrary  = TENTE_LIBRARY "® Construction Parts";
-
-        fadeStepsColour         = FADE_COLOUR_TENTE_DEFAULT;
+        validFadeStepsColour    = FADE_COLOUR_TENTE_DEFAULT;
 
         fadeStepsColourKey      = FADE_COLOUR_TENTE_KEY;
         ldrawSearchDirsKey      = TENTE_SEARCH_DIR_KEY;
@@ -281,8 +277,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawColorParts    = VER_LPUB3D_VEXIQ_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE;
         validLDrawPartsLibrary  = VEXIQ_LIBRARY "® Parts";
-
-        fadeStepsColour         = FADE_COLOUR_VEXIQ_DEFAULT;
+        validFadeStepsColour    = FADE_COLOUR_VEXIQ_DEFAULT;
 
         fadeStepsColourKey      = FADE_COLOUR_VEXIQ_KEY;
         ldrawSearchDirsKey      = VEXIQ_SEARCH_DIR_KEY;
@@ -2445,9 +2440,9 @@ void Preferences::fadestepPreferences()
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey))) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),fadeStepsColour);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),validFadeStepsColour);
     } else {
-        fadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
+        validFadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"))) {
@@ -2847,10 +2842,10 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),fadeStepsUseColour);
         }
 
-        if (fadeStepsColour != dialog->fadeStepsColour())
+        if (validFadeStepsColour != dialog->fadeStepsColour())
         {
-            fadeStepsColour = dialog->fadeStepsColour();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),fadeStepsColour);
+            validFadeStepsColour = dialog->fadeStepsColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),validFadeStepsColour);
         }
 
         if (highlightStepColour != dialog->highlightStepColour())
