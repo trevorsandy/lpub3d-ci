@@ -1817,7 +1817,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     setLDGLiteIniParams();
-    updateNativePOVIniFile(updateFlag);
+    updateLDVPOVIniFile(updateFlag);
     updateLDViewIniFile(updateFlag);
     updateLDViewPOVIniFile(updateFlag);
     updatePOVRayConfFile(updateFlag);
@@ -1891,7 +1891,7 @@ void Preferences::setLDGLiteIniParams()
     logInfo() << QString("LDGLite.ini file   : %1").arg(ldgliteIni.isEmpty() ? "Not found" : ldgliteIni);
 }
 
-void Preferences::updateNativePOVIniFile(UpdateFlag updateFlag)
+void Preferences::updateLDVPOVIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -2677,7 +2677,7 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
             }
             // update LDView ini files
-            updateNativePOVIniFile(UpdateExisting);
+            updateLDVPOVIniFile(UpdateExisting);
             updateLDViewIniFile(UpdateExisting);       //ldraw path changed
             updateLDViewPOVIniFile(UpdateExisting);    //ldraw or lgeo paths changed
             updateLDViewConfigFiles = true;            //set flag to true
