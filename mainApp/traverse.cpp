@@ -538,9 +538,9 @@ int Gui::drawPage(
 
             } // STEP - Process called out submodel
 
-
           if (step && steps->meta.LPub.subModel.show.value()) {
-              bool calloutOk      = (calledOut ? unAssCallout : true );
+              bool calloutOk      = (calledOut ? unAssCallout : true ) &&
+                                    (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value(): true);
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
               step->placeSubModel = (calloutOk && (stepNum == 1) && (!topModel || showTopModel));
