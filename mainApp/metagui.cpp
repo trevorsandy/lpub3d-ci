@@ -3011,10 +3011,10 @@ ShowSubModelGui::ShowSubModelGui(
     showTopModelDefaultBox->setChecked(showTopModelDefaulSettings);
     grid->addWidget(showTopModelDefaultBox,4,0);
 
-    showSubmodelsMetaBox = new QCheckBox("Add meta command",parent);
-    showSubmodelsMetaBox->setToolTip("Add show top model  as a global meta command to the LDraw file.");
-    showSubmodelsMetaBox->setChecked(!showTopModelDefaulSettings);
-    grid->addWidget(showSubmodelsMetaBox,4,1);
+    showTopModelMetaBox = new QCheckBox("Add meta command",parent);
+    showTopModelMetaBox->setToolTip("Add show top model  as a global meta command to the LDraw file.");
+    showTopModelMetaBox->setChecked(!showTopModelDefaulSettings);
+    grid->addWidget(showTopModelMetaBox,4,1);
 
     showSubmodelsModified = false;
     showTopModelModified = false;
@@ -3057,7 +3057,9 @@ void ShowSubModelGui::apply(QString &topLevelFile)
 
         if (showSubmodelsMetaBox->isChecked()){
             MetaItem mi;
+            mi.beginMacro("SubModelMeta");
             mi.setGlobalMeta(topLevelFile,&meta->show);
+            mi.endMacro();
         }
     }
     if (showTopModelModified) {
@@ -3077,7 +3079,9 @@ void ShowSubModelGui::apply(QString &topLevelFile)
 
         if (showTopModelMetaBox->isChecked()){
             MetaItem mi;
+            mi.beginMacro("TopModelMeta");
             mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
+            mi.endMacro();
         }
     }
 }
