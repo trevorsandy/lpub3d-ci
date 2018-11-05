@@ -39,6 +39,7 @@
 void clearPliCache();
 void clearAndRedrawPage();
 void clearCsiCache();
+void clearSubmodelCache();
 void clearPliCache();
 void clearTempCache();
 
