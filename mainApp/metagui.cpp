@@ -1665,6 +1665,123 @@ void CameraDistFactorGui::apply(
   mi.endMacro();
 }
 
+/***********************************************************************
+ *
+ * RotStep
+ *
+ **********************************************************************/
+
+RotStepGui::RotStepGui(
+        RotStepMeta *_meta,
+        QGroupBox  *parent)
+{
+
+  meta = _meta;
+
+  RotStepData rotStep = meta->value();
+
+  QGridLayout *grid = new QGridLayout();
+
+  if (parent) {
+      parent->setLayout(grid);
+    } else {
+      setLayout(grid);
+    }
+
+  QLabel    *rotStepLabel;
+  rotStepLabel = new QLabel("Rotation", parent);
+  grid->addWidget(rotStepLabel,0,0);
+
+  float val = rotStep.rots[0];
+  int a = val - (int)val;
+  int dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  rotStepSpinX = new QDoubleSpinBox(parent);
+  rotStepSpinX->setRange(0.0f,360.0);
+  rotStepSpinX->setSingleStep(1.0);
+  rotStepSpinX->setDecimals(dec);
+  rotStepSpinX->setValue(rotStep.rots[0]);
+  connect(rotStepSpinX,SIGNAL(valueChanged(double)),
+          this,        SLOT(rotStepXChange(double)));
+  grid->addWidget(rotStepSpinX,0,1);
+
+  val = rotStep.rots[1];
+  a = val - (int)val;
+  dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  rotStepSpinY = new QDoubleSpinBox(parent);
+  rotStepSpinY->setRange(0.0f,360.0);
+  rotStepSpinY->setSingleStep(1.0);
+  rotStepSpinY->setDecimals(dec);
+  rotStepSpinY->setValue(rotStep.rots[1]);
+  connect(rotStepSpinY,SIGNAL(valueChanged(double)),
+          this,        SLOT(rotStepYChange(double)));
+  grid->addWidget(rotStepSpinY,0,2);
+
+  val = rotStep.rots[2];
+  a = val - (int)val;
+  dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  rotStepSpinZ = new QDoubleSpinBox(parent);
+  rotStepSpinZ->setRange(0.0f,360.0);
+  rotStepSpinZ->setSingleStep(1.0);
+  rotStepSpinZ->setDecimals(dec);
+  rotStepSpinZ->setValue(rotStep.rots[2]);
+  connect(rotStepSpinZ,SIGNAL(valueChanged(double)),
+          this,        SLOT(rotStepZChange(double)));
+  grid->addWidget(rotStepSpinZ,0,3);
+
+  QLabel    *typeLabel;
+  typeLabel = new QLabel("Transform", parent);
+  grid->addWidget(typeLabel,1,0);
+
+  typeCombo = new QComboBox(parent);
+  typeCombo->addItem("ABS");
+  typeCombo->addItem("REL");
+  typeCombo->addItem("ADD");
+  typeCombo->setCurrentIndex(!rotStep.type.isEmpty() ? typeCombo->findText(rotStep.type) : 1);
+  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
+          this,     SLOT(  typeChange(         QString const &)));
+  grid->addWidget(typeCombo,1,1);
+
+}
+
+void RotStepGui::rotStepXChange(double value)
+{
+  RotStepData data = meta->value();
+  data.rots[0] = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::rotStepYChange(double value)
+{
+  RotStepData data = meta->value();
+  data.rots[1] = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::rotStepZChange(double value)
+{
+  RotStepData data = meta->value();
+  data.rots[2] = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::typeChange(QString const &value)
+{
+  RotStepData data = meta->value();
+  data.type = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
 
 /***********************************************************************
  *

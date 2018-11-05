@@ -59,6 +59,7 @@
 #include "rotateiconsizedialog.h"
 #include "submodelcolordialog.h"
 #include "cameradistfactordialog.h"
+#include "rotstepdialog.h"
 #include "paths.h"
 #include "render.h"
 

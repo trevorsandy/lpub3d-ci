@@ -2312,7 +2312,7 @@ public:
   PliAnnotationMeta annotation;
 
   FloatMeta         cameraFoV;
-  FloatPairMeta     cameraAngles;
+  RotStepMeta          rotStep;
   BoolMeta             showTopModel;
   FloatMeta         znear;
   FloatMeta         zfar;
