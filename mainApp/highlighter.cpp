@@ -250,7 +250,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bBOTTOM\\b"
     << "\\bBOTTOM_LEFT\\b"
     << "\\bBOTTOM_RIGHT\\b"
-    << "\\bBTG\\b"
     << "\\bCALLOUT\\b"
     << "\\bCAMERA_DISTANCE_NATIVE\\b"
     << "\\bCENTER\\b"
@@ -417,23 +416,23 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList MLCadBodyMetaPatterns;
     MLCadBodyMetaPatterns
-    << "\\bROTSTEP\\b"
-    << "\\bROTATION\\b"
-    << "\\bROTSTEP END\\b"
-    << "\\bROTATION CENTER\\b"
-    << "\\bROTATION CONFIG\\b"
-    << "\\bBUFEXCHG\\b"
-    << "\\bGHOST\\b"
-    << "\\bBTG\\b"
-    << "\\bGROUP\\b"
-    << "\\bREL\\b"
     << "\\bABS\\b"
     << "\\bADD\\b"
-    << "\\bSTORE\\b"
-    << "\\bRETRIEVE\\b"
     << "\\bARROW\\b"
+    << "\\bBTG\\b"
+    << "\\bBUFEXCHG\\b"
+    << "\\bGHOST\\b"
+    << "\\bGROUP\\b"
+    << "\\bREL\\b"
+    << "\\bRETRIEVE\\b"
+    << "\\bROTATION CENTER\\b"
+    << "\\bROTATION CONFIG\\b"
+    << "\\bROTATION\\b"
+    << "\\bROTSTEP END\\b"
+    << "\\bROTSTEP\\b"
     << "\\bSKIP_BEGIN\\b"
-    << "\\bSKIP_END\\b";
+    << "\\bSKIP_END\\b"
+    << "\\bSTORE\\b";
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
