@@ -2567,7 +2567,7 @@ SubModelMeta::SubModelMeta() : PliMeta()
   // annotate - default
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"#99999.9");
-  modelScale.setValue(1.0);
+  modelScale.setValue(.50);
   show.setValue(Preferences::showSubmodels);
   showTopModel.setValue(Preferences::showTopModel);
   ldgliteParms.setValue("-l3");

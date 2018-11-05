@@ -1180,7 +1180,7 @@ int Gui::drawPage(
                           emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                           // Get submodel instance count
-                          int  instances;
+                          int  instances = 0;
                           if ( ! multiStep && ! calledOut) {
                               if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
                                   MetaItem mi;
