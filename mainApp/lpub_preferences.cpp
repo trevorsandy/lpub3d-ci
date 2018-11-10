@@ -1775,11 +1775,11 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     }
 
     // Native renderer camera distance factor
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"))) {
         cameraDistFactorNative = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"),rendererTimeout);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"),cameraDistFactorNative);
     } else {
-        cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative")).toInt();
+        cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative")).toInt();
     }
 
     // povray generation renderer
