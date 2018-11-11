@@ -3297,9 +3297,6 @@ bool Preferences::extractLDrawLib() {
     if (ldrawLibPath.isEmpty()) {
         ldrawLibPath = QString("%1/%2").arg(lpubDataPath, validLDrawDir);
     }
-#ifdef QT_DEBUG_MODE
-    logDebug() << "LIB PATH FOR EXTRACT: " << ldrawLibPath;
-#endif
     // set ldraw parent directory to extract archive.zip
     bool parentDirNotValid = false;
     QDir ldrawDir(ldrawLibPath);

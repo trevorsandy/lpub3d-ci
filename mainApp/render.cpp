@@ -1036,7 +1036,7 @@ int LDView::renderCsi(
         const QStringList &csiParts,   // this is ldrNames when useLDViewSCall = true
         const QStringList &csiKeys,
         const QString     &pngName,
-        Meta        &meta)
+        Meta              &meta)
 {
     /* determine camera distance */
     int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
@@ -1055,8 +1055,6 @@ int LDView::renderCsi(
 
     QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
     QString assemPath = QDir::currentPath() + "/" + Paths::assemDir;
-
-    int pageNumber = gui->stepPageNum;
 
     /* Create the CSI DAT file(s) */
     QString f;
@@ -1140,7 +1138,7 @@ int LDView::renderCsi(
   QString a  = QString("-AutoCrop=1");
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawLibPath);
+  QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
@@ -1330,7 +1328,7 @@ int LDView::renderPli(
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawLibPath);
+  QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
