@@ -2255,9 +2255,7 @@ Gui::Gui()
     lpubAlert = new LPubAlert();
     connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
     connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
-
-    if (Preferences::usingDefaultLibrary)
-        Preferences::lgeoPreferences();
+    Preferences::lgeoPreferences();
     Preferences::rendererPreferences(SkipExisting);
     Preferences::nativePovGenPreferences();
     Preferences::viewerPreferences();
