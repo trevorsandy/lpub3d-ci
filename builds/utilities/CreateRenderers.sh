@@ -122,7 +122,7 @@ BuildMesaLibs() {
     if [ ! "${OBS}" = "true" ]; then
       Info &&  Info "OSMesa and GLU build check..."
       DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
-      DisplayLogTail $mesaBuildLog 10
+      DisplayLogTail $mesaBuildLog 20
     fi
     OSMesaBuilt=1
   else
@@ -281,13 +281,14 @@ InstallDependencies() {
       case $1 in
       ldglite)
         pkgbuildFile="$PWD/obs/PKGBUILD"
-        sed -e "s/'glu'//g" -i $pkgbuildFile
         build_osmesa=1
         ;;
       ldview)
+        cp -f QT/PKGBUILD QT/OBS/PKGBUILD
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
-        sed -e "s/'mesa-libgl'//g" -e "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -e "s/'automoc4'//g" \
-            -e "s/'glu'//g" -e "s/'phonon-qt4-gstreamer'//g" -i $pkgbuildFile
+        sed -e "/#Qt4.x/d" -e "/depends=('qt4'/d" -e "s/#depends=/depends=/g" \
+            -e "s/'mesa-libgl'//g" -e "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -e "s/'automoc4'//g" \
+            -e "s/'phonon-qt4-gstreamer'//g" -i $pkgbuildFile
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
@@ -318,7 +319,8 @@ InstallDependencies() {
         ;;
       ldview)
         controlFile="$PWD/QT/debian/control"
-        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' -e 's/kdelibs5-dev//g' \
+        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' \
+            -e 's/#Build-Depends/Build-Depends/g' -e 's/kdelibs5-dev//g' \
             -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i $controlFile
         ;;
       povray)
