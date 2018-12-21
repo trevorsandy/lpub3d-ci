@@ -173,7 +173,12 @@ int SubModel::createSubModelImage(
   QString  &color,
   QPixmap  *pixmap)
 {
-  float modelScale = subModelMeta.modelScale.value();
+  float modelScale = 1.0f;
+  if (Preferences::usingNativeRenderer) {
+      modelScale = subModelMeta.cameraDistNative.factor.value();
+  } else {
+      modelScale = subModelMeta.modelScale.value();
+  }
   QString        unitsName = resolutionType() ? "DPI" : "DPCM";
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8")

@@ -190,12 +190,15 @@ int Step::createCsi(
     Meta              &meta,
     bool               bfxLoad)   // Bfx load special case (no parts added)
 {
-  bool    csiExist        = false;
-  bool    nativeRenderer  = (Preferences::preferredRenderer == RENDERER_NATIVE ||
-                            (Preferences::preferredRenderer == RENDERER_POVRAY &&
-                             Preferences::povFileGenerator == RENDERER_NATIVE));
+  bool csiExist       = false;
+  bool nativeRenderer = (Preferences::usingNativeRenderer);
+  float modelScale    = 1.0f;
+  if (nativeRenderer) {
+      modelScale = meta.LPub.assem.cameraDistNative.factor.value();
+  } else {
+      modelScale = meta.LPub.assem.modelScale.value();
+  }
   QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
-  qreal   modelScale      = meta.LPub.assem.modelScale.value();
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
   bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));

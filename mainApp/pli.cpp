@@ -189,7 +189,12 @@ void Pli::setParts(
           QString category;
           partClass(type,category);  // populate category w/ part class
 
-          float modelScale = pliMeta.modelScale.value();
+          float modelScale = 1.0f;
+          if (Preferences::usingNativeRenderer) {
+              modelScale = pliMeta.cameraDistNative.factor.value();
+          } else {
+              modelScale = pliMeta.modelScale.value();
+          }
 
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
@@ -472,7 +477,12 @@ int Pli::createSubModelIcons()
 
             key = QString("%1_%2").arg(QFileInfo(type).baseName()).arg(color);
 
-            float modelScale = pliMeta.modelScale.value();
+            float modelScale = 1.0f;
+            if (Preferences::usingNativeRenderer) {
+                modelScale = pliMeta.cameraDistNative.factor.value();
+            } else {
+                modelScale = pliMeta.modelScale.value();
+            }
 
             // assemble icon name key
             QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
@@ -561,7 +571,12 @@ int Pli::createPartImage(
 
         emit gui->messageSig(LOG_STATUS, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
-        float modelScale = pliMeta.modelScale.value();
+        float modelScale = 1.0f;
+        if (Preferences::usingNativeRenderer) {
+            modelScale = pliMeta.cameraDistNative.factor.value();
+        } else {
+            modelScale = pliMeta.modelScale.value();
+        }
 
         QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8%9")
                 .arg(partialKey)
