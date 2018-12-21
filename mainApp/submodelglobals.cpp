@@ -119,7 +119,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   grid->addWidget(box);
   box->setLayout(childlayout);
 
-  if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+  if (Preferences::usingNativeRenderer) {
       child = new CameraDistFactorGui("Camera Distance Factor",
                                       &subModelMeta->cameraDistNative,
                                       box);

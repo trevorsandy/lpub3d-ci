@@ -610,7 +610,7 @@ int Pli::createPartImage(
                       highlightStep);
 
             QTextStream out(&part);
-            if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+            if (Preferences::usingNativeRenderer) {
                 QString modelName = QFileInfo(type).baseName();
                 modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
                 out << QString("0 %1").arg(modelName) << endl;
@@ -2228,7 +2228,7 @@ void PliBackgroundItem::contextMenuEvent(
 {
   if (pli) {
       QMenu menu;
-      bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE);
+      bool showCameraDistFactorItem = (Preferences::usingNativeRenderer);
 
       PlacementData placementData = pli->placement.value();
 

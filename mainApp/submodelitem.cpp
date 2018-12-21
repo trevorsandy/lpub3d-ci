@@ -204,7 +204,7 @@ int SubModel::createSubModelImage(
 
     QStringList rotatedModel = orient(type,color);
     QTextStream out(&part);
-    if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+    if (Preferences::usingNativeRenderer) {
         QString modelName = QFileInfo(type).baseName().toLower();
         modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
         out << QString("0 %1").arg(modelName) << endl;
@@ -1101,7 +1101,6 @@ void SubModelBackgroundItem::contextMenuEvent(
     QMenu menu;
     QString pl = "Submodel";
     QString whatsThis;
-    bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE);
 
     QAction *constrainAction = commonMenus.constrainMenu(menu,pl);
     constrainAction->setWhatsThis(             "Change Shape:\n"
@@ -1120,7 +1119,7 @@ void SubModelBackgroundItem::contextMenuEvent(
     whatsThis = commonMenus.naturalLanguagePlacementWhatsThis(SubModelType,placementData,pl);
     QAction *cameraDistFactorAction = nullptr;
     QAction *scaleAction = nullptr;
-    if (showCameraDistFactorItem){
+    if (Preferences::usingNativeRenderer){
         cameraDistFactorAction  = commonMenus.cameraDistFactorrMenu(menu, pl);
     } else {
         scaleAction             = commonMenus.scaleMenu(menu, pl);

@@ -556,7 +556,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
 
 bool Step::loadTheViewer(){
     // Load the 3DViewer
-    if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
+    if (! gui->exporting() /* && !Preferences::usingNativeRenderer */) {
 
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
