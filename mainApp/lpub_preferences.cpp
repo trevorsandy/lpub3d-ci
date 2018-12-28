@@ -84,6 +84,7 @@ QString Preferences::povFileGenerator           = RENDERER_LDVIEW;
 QString Preferences::pliControlFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
+QString Preferences::annotationStyleFile;
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::excludedPartsFile;
 QString Preferences::ldrawColourPartsFile;
@@ -120,8 +121,9 @@ QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
 
 QString Preferences::validPliControl            = VER_LEGO_PLI_CONTROL_FILE;
-QString Preferences::validTitleAnnotations      = VER_LEGO_TITLE_ANNOTATEIONS_FILE;
+QString Preferences::validTitleAnnotations      = VER_LEGO_TITLE_ANNOTATIONS_FILE;
 QString Preferences::validFreeFormAnnotations   = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
+QString Preferences::validAnnotationStyleFile   = VER_LEGO_ANNOTATION_STYLE_FILE;
 QString Preferences::validPliSubstituteParts    = VER_LEGO_PLI_SUBSTITUTE_FILE;
 QString Preferences::validExcludedPliParts      = VER_LEGO_PLI_EXCLUDED_FILE;
 
@@ -259,7 +261,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         }
     }
 
-    usingDefaultLibrary         = validLDrawLibrary ==  LEGO_LIBRARY;
+    usingDefaultLibrary          = validLDrawLibrary ==  LEGO_LIBRARY;
 
     if (validLDrawLibrary ==  LEGO_LIBRARY) {
         validFadeStepsColour     = LEGO_FADE_COLOUR_DEFAULT;
@@ -271,8 +273,9 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawColorParts     = VER_LPUB3D_LEGO_COLOR_PARTS;
         validLDrawCustomArchive  = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
         validPliControl          = VER_LEGO_PLI_CONTROL_FILE;
-        validTitleAnnotations    = VER_LEGO_TITLE_ANNOTATEIONS_FILE;
+        validTitleAnnotations    = VER_LEGO_TITLE_ANNOTATIONS_FILE;
         validFreeFormAnnotations = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
+        validAnnotationStyleFile = VER_LEGO_ANNOTATION_STYLE_FILE;
         validPliSubstituteParts  = VER_LEGO_PLI_SUBSTITUTE_FILE;
         validExcludedPliParts    = VER_LEGO_PLI_EXCLUDED_FILE;
 
@@ -291,8 +294,9 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawColorParts     = VER_LPUB3D_TENTE_COLOR_PARTS;
         validLDrawCustomArchive  = VER_LPUB3D_TENTE_CUSTOM_ARCHIVE;
         validPliControl          = VER_TENTE_PLI_CONTROL_FILE;
-        validTitleAnnotations    = VER_TENTE_TITLE_ANNOTATEIONS_FILE;
+        validTitleAnnotations    = VER_TENTE_TITLE_ANNOTATIONS_FILE;
         validFreeFormAnnotations = VER_TENTE_FREEFROM_ANNOTATIONS_FILE;
+        validAnnotationStyleFile = VER_TENTE_ANNOTATION_STYLE_FILE;
         validPliSubstituteParts  = VER_TENTE_PLI_SUBSTITUTE_FILE;
         validExcludedPliParts    = VER_TENTE_PLI_EXCLUDED_FILE;
 
@@ -311,8 +315,9 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validLDrawColorParts     = VER_LPUB3D_VEXIQ_COLOR_PARTS;
         validLDrawCustomArchive  = VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE;
         validPliControl          = VER_VEXIQ_PLI_CONTROL_FILE;
-        validTitleAnnotations    = VER_VEXIQ_TITLE_ANNOTATEIONS_FILE;
+        validTitleAnnotations    = VER_VEXIQ_TITLE_ANNOTATIONS_FILE;
         validFreeFormAnnotations = VER_VEXIQ_FREEFROM_ANNOTATIONS_FILE;
+        validAnnotationStyleFile = VER_VEXIQ_ANNOTATION_STYLE_FILE;
         validPliSubstituteParts  = VER_VEXIQ_PLI_SUBSTITUTE_FILE;
         validExcludedPliParts    = VER_VEXIQ_PLI_EXCLUDED_FILE;
 
@@ -2637,11 +2642,12 @@ void Preferences::setShowParseErrorsPreference(bool b)
 
 void Preferences::annotationPreferences()
 {
-    bool annoOk[2] = { true, true };
+    bool annoOk[3] = { true, true, true };
     QFileInfo annoInfo;
     QSettings Settings;
     titleAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile")).toString();
     freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile")).toString();
+    annotationStyleFile = Settings.value(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile")).toString();
 
     annoInfo.setFile(titleAnnotationsFile);
     if (! annoInfo.exists()) {
@@ -2655,7 +2661,13 @@ void Preferences::annotationPreferences()
         annoOk[1] = false;
     }
 
-    if (annoOk[0] && annoOk[1])
+    annoInfo.setFile(annotationStyleFile);
+    if (! annoInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile"));
+        annoOk[2] = false;
+    }
+
+    if (annoOk[0] && annoOk[1] && annoOk[2])
         return;
 
     if (! annoOk[0]) {
@@ -2677,6 +2689,21 @@ void Preferences::annotationPreferences()
         } else {
             freeformAnnotationsFile = annoInfo.absolutePath()+"/"+VER_FREEFOM_ANNOTATIONS_FILE;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile"),freeformAnnotationsFile);
+        }
+    }
+
+    if (! annoOk[2]) {
+        annotationStyleFile = QString("%1/extras/%2").arg(lpubDataPath,validFreeFormAnnotations);
+        annoInfo.setFile(annotationStyleFile);
+        if (annoInfo.exists()) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile"),annotationStyleFile);
+        } else {
+            annotationStyleFile = annoInfo.absolutePath()+"/"+VER_ANNOTATION_STYLE_FILE;
+            if (annoInfo.exists()) {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile"),annotationStyleFile);
+            } else {
+                annotationStyleFile = QString();
+            }
         }
     }
 }

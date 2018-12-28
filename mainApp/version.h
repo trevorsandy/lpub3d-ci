@@ -70,14 +70,19 @@
 #define VER_VEXIQ_PLI_CONTROL_FILE          "VEXIQPliControl.ldr"
 
 #define VER_TITLE_ANNOTATIONS_FILE          "titleAnnotations.lst"
-#define VER_LEGO_TITLE_ANNOTATEIONS_FILE    "LEGOTitleAnnotations.lst"
-#define VER_TENTE_TITLE_ANNOTATEIONS_FILE   "TENTETitleAnnotations.lst"
-#define VER_VEXIQ_TITLE_ANNOTATEIONS_FILE   "VEXIQTitleAnnotations.lst"
+#define VER_LEGO_TITLE_ANNOTATIONS_FILE     "LEGOTitleAnnotations.lst"
+#define VER_TENTE_TITLE_ANNOTATIONS_FILE    "TENTETitleAnnotations.lst"
+#define VER_VEXIQ_TITLE_ANNOTATIONS_FILE    "VEXIQTitleAnnotations.lst"
 
 #define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
 #define VER_LEGO_FREEFROM_ANNOTATIONS_FILE  "LEGOFreeFormAnnotations.lst"
 #define VER_TENTE_FREEFROM_ANNOTATIONS_FILE "TENTEFreeFormAnnotations.lst"
 #define VER_VEXIQ_FREEFROM_ANNOTATIONS_FILE "VEXIQFreeFormAnnotations.lst"
+
+#define VER_ANNOTATION_STYLE_FILE           "annotationStyle.lst"
+#define VER_LEGO_ANNOTATION_STYLE_FILE      "LEGOAnnotationStyle.lst"
+#define VER_TENTE_ANNOTATION_STYLE_FILE     "TENTEAnnotationStyle.lst"
+#define VER_VEXIQ_ANNOTATION_STYLE_FILE     "VEXIQAnnotationStyle.lst"
 
 #define VER_PLI_SUBSTITUTE_PARTS_FILE       "pliSubstituteParts.lst"
 #define VER_LEGO_PLI_SUBSTITUTE_FILE        "LEGOPliSubstituteParts.lst"

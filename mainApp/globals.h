@@ -147,6 +147,28 @@ class GlobalPliDialog : public QDialog
 private:
   GlobalPliPrivate *data;
 
+  QRadioButton     *noStyle;
+  QGroupBox        *annotationEditStyleBox;
+  QGroupBox        *annotationTextBox;
+
+  QRadioButton     *squareStyle;
+  QGroupBox        *squareBkGrndStyleBox;
+  QGroupBox        *squareBorderStyleBox;
+  QGroupBox        *squareFormatStyleBox;
+  QGroupBox        *squareSizeStyleBox;
+
+  QRadioButton     *circleStyle;
+  QGroupBox        *circleBkGrndStyleBox;
+  QGroupBox        *circleBorderStyleBox;
+  QGroupBox        *circleFormatStyleBox;
+  QGroupBox        *circleSizeStyleBox;
+
+  QRadioButton     *rectangleStyle;
+  QGroupBox        *rectangleBkGrndStyleBox;
+  QGroupBox        *rectangleBorderStyleBox;
+  QGroupBox        *rectangleFormatStyleBox;
+  QGroupBox        *rectangleSizeStyleBox;
+
 public:
   GlobalPliDialog(QString &topLevelFile, Meta &meta, bool);
   ~GlobalPliDialog() {}
@@ -154,6 +176,8 @@ public:
   static void getBomGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
+  void styleOptionChanged(bool);
+  void displayEditOptionsChanged(bool);
   void accept();
   void cancel();
 };

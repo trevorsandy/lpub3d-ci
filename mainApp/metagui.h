@@ -185,7 +185,8 @@ public:
     QString const &heading0,
     QString const &heading1,
     FloatPairMeta *meta,
-    QGroupBox     *parent = nullptr);
+    QGroupBox     *parent = nullptr,
+    int            decPlaces = 1);
   ~FloatsGui() {}
 
   void setEnabled(bool enabled);
@@ -681,7 +682,8 @@ public:
 
   BackgroundGui(
     BackgroundMeta  *meta,
-    QGroupBox       *parent = nullptr);
+    QGroupBox       *parent = nullptr,
+    bool             pictureSettings = true);
 
   ~BackgroundGui() {}
 
@@ -731,7 +733,8 @@ public:
   BorderGui(
     BorderMeta *meta,
     QGroupBox  *parent  = nullptr,
-    bool rotateArrow = false);
+    bool rotateArrow = false,
+    bool corners = true);
   ~BorderGui() {}
 
   virtual void apply(QString &modelName);
@@ -1054,6 +1057,14 @@ public:
   bool titleModified;
   bool freeformModified;
   bool titleAndFreeformModified;
+  bool axleStyleModified;
+  bool beamStyleModified;
+  bool cableStyleModified;
+  bool connectorStyleModified;
+  bool extendedStyleModified;
+  bool hoseStyleModified;
+  bool panelStyleModified;
+
 
   PliAnnotationGui(
       QString const       &heading,
@@ -1069,12 +1080,32 @@ private:
   QRadioButton      *freeformAnnotationButton;
   QRadioButton      *titleAndFreeformAnnotationButton;
   QGroupBox         *gbPLIAnnotation;
+  QCheckBox         *axleStyleCheck;
+  QCheckBox         *beamStyleCheck;
+  QCheckBox         *cableStyleCheck;
+  QCheckBox         *connectorStyleCheck;
+  QCheckBox         *extendedStyleCheck;
+  QCheckBox         *hoseStyleCheck;
+  QCheckBox         *panelStyleCheck;
+
+  QGroupBox         *gbPLIAnnotationStyle;
   PliAnnotationMeta *meta;
+
+signals:
+  void toggled(bool);
 
 public slots:
   void titleAnnotation(bool);
   void freeformAnnotation(bool);
   void titleAndFreeformAnnotation(bool);
+  void axleStyle(bool);
+  void beamStyle(bool);
+  void cableStyle(bool);
+  void connectorStyle(bool);
+  void extendedStyle(bool);
+  void hoseStyle(bool);
+  void panelStyle(bool);
+
   void gbToggled(bool toggled);
 };
 

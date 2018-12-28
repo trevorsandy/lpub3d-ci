@@ -21,12 +21,19 @@
 
 class Annotations {
   private:
-    static QString     		   empty;
-    static QList<QString>	   titleAnnotations;
-    static QHash<QString, QString> freeformAnnotations;
+    static int                         returnInt;
+    static QString                     returnString;
+    static QList<QString>              titleAnnotations;
+    static QHash<QString, QString>     freeformAnnotations;
+    static QHash<QString, QStringList> annotationStyles;
   public:
     Annotations();
     static const QString &freeformAnnotation(QString part);
+    static const int &getAnnotationStyle(QString part);
+    static const int &getAnnotationCategory(QString part);
+    static const QString &getStyleAnnotation(QString part);
+    static bool exportAnnotationStyleFile();
+    static void loadDefaultAnnotationStyles(QByteArray &Buffer);
     static const QList<QString> getTitleAnnotations()
     {
         return titleAnnotations;

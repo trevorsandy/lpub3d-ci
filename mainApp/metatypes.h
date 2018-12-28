@@ -158,6 +158,23 @@ enum pageType{
     BackCoverPage
 };
 
+enum AnnotationStyle{
+    none = 0,
+    circle,
+    square,
+    rectangle
+};
+
+enum AnnotationCategory{
+    notdefined = 0,
+    axle,
+    beam,
+    cable,
+    connector,
+    hose,
+    panel
+};
+
 enum annotationType{
   TitleAnnotationType = 0,
   FreeFormAnnotationType,

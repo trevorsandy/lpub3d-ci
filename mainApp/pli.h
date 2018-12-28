@@ -70,7 +70,7 @@ class PliPart {
     QString              type;
     QString              color;
     NumberMeta           instanceMeta;
-    NumberMeta           annotateMeta;
+    AnnotationStyleMeta  styleMeta;
     MarginsMeta          csiMargin;
     InstanceTextItem    *instanceText;
     AnnotateTextItem    *annotateText;
@@ -232,7 +232,7 @@ class Pli : public Placement {
 
     void placeCols(QList<QString> &);
     bool initAnnotationString();
-    void getAnnotate(QString &, QString &);
+    void getAnnotation(QString &, QString &);
     void partClass(QString &, QString &);
     int  createPartImage(QString &, QString &, QString &, QPixmap*);
     int  createPartImagesLDViewSCall(QStringList &, bool);      //LDView performance improvement
@@ -300,14 +300,44 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-  //-----------------------------------------
-
   virtual void resize(QPointF);
   virtual void change();
   virtual QRectF currentRect();
 
 private:
 };
+
+  //-----------------------------------------
+  //-----------------------------------------
+  //-----------------------------------------
+
+class PGraphicsPixmapItem : public QGraphicsPixmapItem,
+                            public MetaItem  // ResizePixmapItem
+{
+public:
+  PGraphicsPixmapItem(
+    Pli     *_pli,
+    PliPart *_part,
+    QPixmap &pixmap,
+    PlacementType  _parentRelativeType,
+    QString &type,
+    QString &color)
+  {
+    parentRelativeType = _parentRelativeType;
+    pli = _pli;
+    part = _part;
+    setPixmap(pixmap);
+    setToolTip(pliToolTip(type,color));
+  }
+  QString pliToolTip(QString type, QString Color);
+  PliPart *part;
+  Pli     *pli;
+  PlacementType  parentRelativeType;
+
+protected:
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
 
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
@@ -345,7 +375,7 @@ public:
     setFont(font);
     setToolTip(toolTip);
   }
-  void size(int &x, int &y)
+  virtual void size(int &x, int &y)
   {
     QSizeF size = document()->size();
     x = int(size.width());
@@ -359,23 +389,26 @@ public:
 class AnnotateTextItem : public PGraphicsTextItem
 {
 public:
+    QRectF               annotateRect;
+    StringListMeta       subModelColor;
+    int                  submodelLevel;
+    AnnotationStyleMeta *styleMeta;
+
   AnnotateTextItem(
     Pli     *_pli,
     PliPart *_part,
     QString &text,
     QString &fontString,
     QString &colorString,
-    PlacementType _parentRelativeType)
-  {
-    parentRelativeType = _parentRelativeType;
-    QString toolTip("Part Annotation - right-click to modify");
-    setText(_pli,_part,text,fontString,toolTip);
-    QColor color(colorString);
-    setDefaultTextColor(color);
-  }
+    PlacementType _parentRelativeType);
 
+    void size(int &x, int &y);
+    void setAttributes();
+    QGradient setGradient();
 protected:
+  void setBackground(QPainter *painter);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
 };
 
 class InstanceTextItem : public PGraphicsTextItem
@@ -395,33 +428,6 @@ public:
     QColor color(colorString);
     setDefaultTextColor(color);
   }
-
-protected:
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
-
-class PGraphicsPixmapItem : public QGraphicsPixmapItem,
-                            public MetaItem  // ResizePixmapItem
-{
-public:
-  PGraphicsPixmapItem(
-    Pli     *_pli,
-    PliPart *_part,
-    QPixmap &pixmap,
-    PlacementType  _parentRelativeType,
-    QString &type,
-    QString &color)
-  {
-    parentRelativeType = _parentRelativeType;
-    pli = _pli;
-    part = _part;
-    setPixmap(pixmap);
-    setToolTip(pliToolTip(type,color));
-  }
-  QString pliToolTip(QString type, QString Color);
-  PliPart *part;
-  Pli     *pli;
-  PlacementType  parentRelativeType;
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
