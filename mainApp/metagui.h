@@ -1042,6 +1042,52 @@ public slots:
 
 /***********************************************************************
  *
+ * PliPartElements
+ *
+ **********************************************************************/
+
+class PliPartElementMeta;
+class PliPartElementGui : public MetaGui
+{
+  Q_OBJECT
+public:
+  bool displayModified;
+  bool bricklinkElementsModified;
+  bool legoElementsModified;
+  bool localLegoElementsModified;
+
+
+  PliPartElementGui(
+      QString const       &heading,
+      PliPartElementMeta  *meta,
+      QGroupBox           *parent = nullptr);
+  ~PliPartElementGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  QGroupBox         *gbPliPartElement;
+  QLabel            *headingLabel;
+  QRadioButton      *bricklinkElementsButton;
+  QRadioButton      *legoElementsButton;
+  QCheckBox         *localLegoElementsCheck;
+
+  PliPartElementMeta *meta;
+
+signals:
+  void toggled(bool);
+
+public slots:
+  void bricklinkElements(bool);
+  void legoElements(bool);
+  void localLegoElements(bool);
+
+  void gbToggled(bool toggled);
+};
+
+
+/***********************************************************************
+ *
  * PliAnnotation
  *
  **********************************************************************/

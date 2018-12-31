@@ -3318,6 +3318,125 @@ void PliSortGui::apply(QString &topLevelFile)
 
 /***********************************************************************
  *
+ * PliPartElements
+ *
+ **********************************************************************/
+
+PliPartElementGui::PliPartElementGui(
+    const QString      &heading,
+    PliPartElementMeta *_meta,
+    QGroupBox          *parent)
+{
+  meta = _meta;
+
+  QVBoxLayout *vLayout = new QVBoxLayout(parent);
+  QHBoxLayout *hLayout;
+
+  if (parent) {
+      parent->setLayout(vLayout);
+    }
+
+  if (heading != "") {
+      headingLabel = new QLabel(heading,parent);
+      vLayout->addWidget(headingLabel);
+    } else {
+      headingLabel = nullptr;
+    }
+
+  //PLIAnnotation
+  gbPliPartElement = new QGroupBox("Display Part Element ID",parent);
+  gbPliPartElement->setCheckable(true);
+  gbPliPartElement->setChecked(meta->display.value());
+  hLayout = new QHBoxLayout();
+  gbPliPartElement->setLayout(hLayout);
+  vLayout->addWidget(gbPliPartElement);
+
+  connect(gbPliPartElement,SIGNAL(toggled(bool)),
+          this,            SLOT(  gbToggled(bool)));
+
+  bricklinkElementsButton = new QRadioButton("BrickLink",gbPliPartElement);
+  connect(bricklinkElementsButton,SIGNAL(clicked(bool)),
+          this,                   SLOT(  bricklinkElements(bool)));
+  hLayout->addWidget(bricklinkElementsButton);
+
+  legoElementsButton = new QRadioButton("LEGO",gbPliPartElement);
+  connect(legoElementsButton,SIGNAL(clicked(bool)),
+          this,              SLOT(  legoElements(bool)));
+  hLayout->addWidget(legoElementsButton);
+
+  localLegoElementsCheck = new QCheckBox("Local",gbPliPartElement);
+  localLegoElementsCheck->setToolTip("Use local LEGO Elements file. Default uses BrickLink's LEGO Elements");
+  connect(localLegoElementsCheck,SIGNAL(clicked(bool)),
+          this,                  SLOT(  localLegoElements(bool)));
+  hLayout->addWidget(localLegoElementsCheck);
+
+  bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
+  legoElementsButton->setChecked(meta->legoElements.value());
+  localLegoElementsCheck->setChecked(meta->localLegoElements.value());
+  localLegoElementsCheck->setEnabled(gbPliPartElement->isChecked() &&
+                                     legoElementsButton->isChecked());
+
+  displayModified           = false;
+  bricklinkElementsModified = false;
+  legoElementsModified      = false;
+  localLegoElementsModified = false;
+}
+
+void PliPartElementGui::bricklinkElements(bool checked)
+{
+  meta->bricklinkElements.setValue(checked);
+  meta->legoElements.setValue(! checked);
+  localLegoElementsCheck->setDisabled(checked);
+  modified = bricklinkElementsModified = true;
+}
+
+void PliPartElementGui::legoElements(bool checked)
+{
+  meta->bricklinkElements.setValue(! checked);
+  meta->legoElements.setValue( checked);
+  localLegoElementsCheck->setEnabled(checked);
+  modified = legoElementsModified = true;
+}
+
+void PliPartElementGui::localLegoElements(bool checked)
+{
+  meta->localLegoElements.setValue( checked);
+  modified = localLegoElementsModified = true;
+}
+
+void PliPartElementGui::gbToggled(bool toggled)
+{
+  meta->display.setValue(toggled);
+  if(toggled){
+      bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
+      legoElementsButton->setChecked(meta->legoElements.value());
+      localLegoElementsCheck->setChecked(meta->localLegoElements.value());
+  }
+  localLegoElementsCheck->setEnabled(toggled && legoElementsButton->isChecked());
+  modified = displayModified = true;
+}
+
+void PliPartElementGui::apply(QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("PliPartElementSettings");
+  if (displayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->display);
+  }
+  if (bricklinkElementsModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->bricklinkElements);
+  }
+  if (legoElementsModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->legoElements);
+  }
+  if (localLegoElementsModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->localLegoElements);
+  }
+  mi.endMacro();
+}
+
+/***********************************************************************
+ *
  * PliAnnotation
  *
  **********************************************************************/

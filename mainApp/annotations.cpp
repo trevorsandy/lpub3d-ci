@@ -19,6 +19,7 @@
 #include <QTextStream>
 #include "lpub_preferences.h"
 #include "name.h"
+#include "version.h"
 #include "QsLog.h"
 
 int                         Annotations::returnInt;
@@ -27,20 +28,463 @@ QList<QString>              Annotations::titleAnnotations;
 QHash<QString, QString>     Annotations::freeformAnnotations;
 QHash<QString, QStringList> Annotations::annotationStyles;
 
+QHash<QString, QStringList> Annotations::blElements;
+QHash<QString, QString>     Annotations::legoElements;
+QHash<QString, QString>     Annotations::blColors;
+QHash<QString, QString>     Annotations::ld2blColorsXRef;
+QHash<QString, QString>     Annotations::ld2blCodesXRef;
+
+void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
+/*
+# File: ld2blcolorsxref.lst
+#
+# Tab-delmited LDConfig and BrickLink Color code cross reference
+#
+# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+#
+# 1. LDConfig ID:       LDraw Color ID             (Required)
+# 2. Color ID:          BrickLink Color ID         (Required)
+#
+*/
+    const char LEGOLD2BLColorsXRef[] = {
+        "15\t  1\n"
+        "19\t  2\n"
+        "14\t  3\n"
+        "25\t  4\n"
+        "4\t   5\n"
+        "2\t   6\n"
+        "1\t   7\n"
+        "6\t   8\n"
+        "7\t   9\n"
+        "8\t   10\n"
+        "0\t   11\n"
+        "47\t  12\n"
+        "40\t  13\n"
+        "33\t  14\n"
+        "43\t  15\n"
+        "42\t  16\n"
+        "36\t  17\n"
+        "38\t  18\n"
+        "46\t  19\n"
+        "34\t  20\n"
+        "334\t 21\n"
+        "383\t 22\n"
+        "13\t  23\n"
+        "22\t  24\n"
+        "12\t  25\n"
+        "100\t 26\n"
+        "92\t  28\n"
+        "366\t 29\n"
+        "462\t 31\n"
+        "18\t  33\n"
+        "27\t  34\n"
+        "120\t 35\n"
+        "10\t  36\n"
+        "74\t  37\n"
+        "17\t  38\n"
+        "3\t   39\n"
+        "11\t  40\n"
+        "118\t 41\n"
+        "73\t  42\n"
+        "110\t 43\n"
+        "20\t  44\n"
+        "21\t  46\n"
+        "5\t   47\n"
+        "378\t 48\n"
+        "503\t 49\n"
+        "37\t  50\n"
+        "52\t  51\n"
+        "61\t  52\n"
+        "373\t 54\n"
+        "379\t 55\n"
+        "60\t  57\n"
+        "335\t 58\n"
+        "320\t 59\n"
+        "79\t  60\n"
+        "142\t 61\n"
+        "135\t 61\n"
+        "9\t   62\n"
+        "272\t 63\n"
+        "62\t  64\n"
+        "82\t  65\n"
+        "135\t 66\n"
+        "80\t  67\n"
+        "484\t 68\n"
+        "28\t  69\n"
+        "81\t  70\n"
+        "26\t  71\n"
+        "313\t 72\n"
+        "112\t 73\n"
+        "219\t 73\n"
+        "41\t  74\n"
+        "115\t 76\n"
+        "148\t 77\n"
+        "87\t  77\n"
+        "137\t 78\n"
+        "288\t 80\n"
+        "178\t 81\n"
+        "63\t  82\n"
+        "183\t 83\n"
+        "134\t 84\n"
+        "72\t  85\n"
+        "71\t  86\n"
+        "232\t 87\n"
+        "70\t  88\n"
+        "85\t  89\n"
+        "78\t  90\n"
+        "86\t  91\n"
+        "69\t  93\n"
+        "351\t 94\n"
+        "135\t 95\n"
+        "68\t  96\n"
+        "89\t  97\n"
+        "57\t  98\n"
+        "151\t 99\n"
+        "114\t 100\n"
+        "117\t 101\n"
+        "129\t 102\n"
+        "226\t 103\n"
+        "29\t  104\n"
+        "212\t 105\n"
+        "450\t 106\n"
+        "45\t  107\n"
+        "35\t  108\n"
+        "285\t 108\n"
+        "35\t  108\n"
+        "23\t  109\n"
+        "191\t 110\n"
+        "79\t  111\n"
+        "39\t  113\n"
+        "297\t 115\n"
+        "75\t  116\n"
+        "79\t  117\n"
+        "294\t 118\n"
+        "150\t 119\n"
+        "308\t 120\n"
+        "54\t  121\n"
+        "64\t  122\n"
+        "44\t  144\n"
+        "84\t  150\n"
+        "133\t 151\n"
+        "323\t 152\n"
+        "321\t 153\n"
+        "31\t  154\n"
+        "330\t 155\n"
+        "322\t 156\n"
+        "30\t  157\n"
+        "326\t 158\n"
+        "329\t 159\n"
+        "302\t 162\n"
+        "339\t 163\n"
+    };
+
+    const char LD2BLColorsXRef[] = {
+        "no colors cross-references defined\n"
+    };
+
+    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
+        Buffer.append(LEGOLD2BLColorsXRef, sizeof(LEGOLD2BLColorsXRef));
+    else
+        Buffer.append(LD2BLColorsXRef, sizeof(LD2BLColorsXRef));
+}
+
+void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer){
+/*
+# File: ld2blcodesxref.lst
+#
+# Tab-delmited LDraw Design ID and BrickLink Item Number cross reference
+#
+# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$
+#
+# 1. LDraw ID:             LDraw Design ID              (Required)
+# 2. Item No:              BrickLink Item Number        (Required)
+#
+*/
+    const char LEGOLD2BLCodesXRef[] = {
+        "32126\t     44\n"
+        "3957a\t     3957\n"
+        "76116\t     98313\n"
+        "3819\t      981\n"
+        "3818\t      982\n"
+    };
+
+    const char LD2BLCodesXRef[] = {
+        "no code cross-references defined\n"
+    };
+
+    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
+        Buffer.append(LEGOLD2BLCodesXRef, sizeof(LEGOLD2BLCodesXRef));
+    else
+        Buffer.append(LD2BLCodesXRef, sizeof(LD2BLCodesXRef));
+}
+
+void Annotations::loadBLColors(QByteArray& Buffer){
+/*
+# File: colors.txt
+#
+# Tab-delmited BrickLink Color codes
+#
+# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+#
+# 1. Color ID:            BrickLink Color ID             (Required)
+# 2. Color Name:          BrickLink Color Name           (Required)
+# 3+ Other Fields:        Other fields are not used
+#
+*/
+    const char LEGOBLColors[] = {
+        "0\t    (Not Applicable)\n"
+        "41\t   Aqua\n"
+        "11\t   Black\n"
+        "7\t    Blue\n"
+        "97\t   Blue-Violet\n"
+        "36\t   Bright Green\n"
+        "105\t  Bright Light Blue\n"
+        "110\t  Bright Light Orange\n"
+        "103\t  Bright Light Yellow\n"
+        "104\t  Bright Pink\n"
+        "8\t    Brown\n"
+        "153\t  Dark Azure\n"
+        "63\t   Dark Blue\n"
+        "109\t  Dark Blue-Violet\n"
+        "85\t   Dark Bluish Gray\n"
+        "120\t  Dark Brown\n"
+        "91\t   Dark Flesh\n"
+        "10\t   Dark Gray\n"
+        "80\t   Dark Green\n"
+        "68\t   Dark Orange\n"
+        "47\t   Dark Pink\n"
+        "89\t   Dark Purple\n"
+        "59\t   Dark Red\n"
+        "69\t   Dark Tan\n"
+        "39\t   Dark Turquoise\n"
+        "161\t  Dark Yellow\n"
+        "29\t   Earth Orange\n"
+        "106\t  Fabuland Brown\n"
+        "160\t  Fabuland Orange\n"
+        "28\t   Flesh\n"
+        "6\t    Green\n"
+        "154\t  Lavender\n"
+        "152\t  Light Aqua\n"
+        "62\t   Light Blue\n"
+        "86\t   Light Bluish Gray\n"
+        "90\t   Light Flesh\n"
+        "9\t    Light Gray\n"
+        "38\t   Light Green\n"
+        "35\t   Light Lime\n"
+        "32\t   Light Orange\n"
+        "56\t   Light Pink\n"
+        "93\t   Light Purple\n"
+        "26\t   Light Salmon\n"
+        "40\t   Light Turquoise\n"
+        "44\t   Light Violet\n"
+        "33\t   Light Yellow\n"
+        "34\t   Lime\n"
+        "72\t   Maersk Blue\n"
+        "71\t   Magenta\n"
+        "156\t  Medium Azure\n"
+        "42\t   Medium Blue\n"
+        "150\t  Medium Dark Flesh\n"
+        "94\t   Medium Dark Pink\n"
+        "37\t   Medium Green\n"
+        "157\t  Medium Lavender\n"
+        "76\t   Medium Lime\n"
+        "31\t   Medium Orange\n"
+        "73\t   Medium Violet\n"
+        "166\t  Neon Green\n"
+        "165\t  Neon Orange\n"
+        "155\t  Olive Green\n"
+        "4\t    Orange\n"
+        "23\t   Pink\n"
+        "24\t   Purple\n"
+        "5\t    Red\n"
+        "88\t   Reddish Brown\n"
+        "27\t   Rust\n"
+        "25\t   Salmon\n"
+        "55\t   Sand Blue\n"
+        "48\t   Sand Green\n"
+        "54\t   Sand Purple\n"
+        "58\t   Sand Red\n"
+        "87\t   Sky Blue\n"
+        "2\t    Tan\n"
+        "99\t   Very Light Bluish Gray\n"
+        "49\t   Very Light Gray\n"
+        "96\t   Very Light Orange\n"
+        "43\t   Violet\n"
+        "1\t    White\n"
+        "3\t    Yellow\n"
+        "158\t  Yellowish Green\n"
+        "13\t   Trans-Black\n"
+        "108\t  Trans-Bright Green\n"
+        "12\t   Trans-Clear\n"
+        "14\t   Trans-Dark Blue\n"
+        "50\t   Trans-Dark Pink\n"
+        "20\t   Trans-Green\n"
+        "15\t   Trans-Light Blue\n"
+        "164\t  Trans-Light Orange\n"
+        "114\t  Trans-Light Purple\n"
+        "74\t   Trans-Medium Blue\n"
+        "16\t   Trans-Neon Green\n"
+        "18\t   Trans-Neon Orange\n"
+        "121\t  Trans-Neon Yellow\n"
+        "98\t   Trans-Orange\n"
+        "107\t  Trans-Pink\n"
+        "51\t   Trans-Purple\n"
+        "17\t   Trans-Red\n"
+        "113\t  Trans-Very Lt Blue\n"
+        "19\t   Trans-Yellow\n"
+        "57\t   Chrome Antique Brass\n"
+        "122\t  Chrome Black\n"
+        "52\t   Chrome Blue\n"
+        "21\t   Chrome Gold\n"
+        "64\t   Chrome Green\n"
+        "82\t   Chrome Pink\n"
+        "22\t   Chrome Silver\n"
+        "84\t   Copper\n"
+        "81\t   Flat Dark Gold\n"
+        "95\t   Flat Silver\n"
+        "78\t   Metal Blue\n"
+        "77\t   Pearl Dark Gray\n"
+        "115\t  Pearl Gold\n"
+        "61\t   Pearl Light Gold\n"
+        "66\t   Pearl Light Gray\n"
+        "119\t  Pearl Very Light Gray\n"
+        "83\t   Pearl White\n"
+        "65\t   Metallic Gold\n"
+        "70\t   Metallic Green\n"
+        "67\t   Metallic Silver\n"
+        "46\t   Glow In Dark Opaque\n"
+        "118\t  Glow In Dark Trans\n"
+        "159\t  Glow In Dark White\n"
+        "60\t   Milky White\n"
+        "101\t  Glitter Trans-Clear\n"
+        "100\t  Glitter Trans-Dark Pink\n"
+        "162\t  Glitter Trans-Light Blue\n"
+        "163\t  Glitter Trans-Neon Green\n"
+        "102\t  Glitter Trans-Purple\n"
+        "116\t  Speckle Black-Copper\n"
+        "151\t  Speckle Black-Gold\n"
+        "111\t  Speckle Black-Silver\n"
+        "117\t  Speckle DBGray-Silver\n"
+        "142\t  Mx Aqua Green\n"
+        "128\t  Mx Black\n"
+        "132\t  Mx Brown\n"
+        "133\t  Mx Buff\n"
+        "126\t  Mx Charcoal Gray\n"
+        "149\t  Mx Clear\n"
+        "214\t  Mx Foil Dark Blue\n"
+        "210\t  Mx Foil Dark Gray\n"
+        "212\t  Mx Foil Dark Green\n"
+        "215\t  Mx Foil Light Blue\n"
+        "211\t  Mx Foil Light Gray\n"
+        "213\t  Mx Foil Light Green\n"
+        "219\t  Mx Foil Orange\n"
+        "217\t  Mx Foil Red\n"
+        "216\t  Mx Foil Violet\n"
+        "218\t  Mx Foil Yellow\n"
+        "139\t  Mx Lemon\n"
+        "124\t  Mx Light Bluish Gray\n"
+        "125\t  Mx Light Gray\n"
+        "136\t  Mx Light Orange\n"
+        "137\t  Mx Light Yellow\n"
+        "144\t  Mx Medium Blue\n"
+        "138\t  Mx Ochre Yellow\n"
+        "140\t  Mx Olive Green\n"
+        "135\t  Mx Orange\n"
+        "145\t  Mx Pastel Blue\n"
+        "141\t  Mx Pastel Green\n"
+        "148\t  Mx Pink\n"
+        "130\t  Mx Pink Red\n"
+        "129\t  Mx Red\n"
+        "146\t  Mx Teal Blue\n"
+        "134\t  Mx Terracotta\n"
+        "143\t  Mx Tile Blue\n"
+        "131\t  Mx Tile Brown\n"
+        "127\t  Mx Tile Gray\n"
+        "147\t  Mx Violet\n"
+        "123\t  Mx White\n"
+        "172\t  BA Black\n"
+        "207\t  BA Black Rubber\n"
+        "183\t  BA Blue\n"
+        "199\t  BA Blue Chrome\n"
+        "197\t  BA Brass\n"
+        "198\t  BA Bronze\n"
+        "177\t  BA Brown\n"
+        "209\t  BA Chrome\n"
+        "168\t  BA Cobalt\n"
+        "190\t  BA Dark Blue\n"
+        "178\t  BA Dark Brown\n"
+        "175\t  BA Dark Gray\n"
+        "204\t  BA Dark Gray Rubber\n"
+        "179\t  BA Dark Tan\n"
+        "208\t  BA Glow In Dark\n"
+        "203\t  BA Gray Rubber\n"
+        "182\t  BA Green\n"
+        "170\t  BA Gunmetal\n"
+        "205\t  BA Gunmetal Rubber\n"
+        "174\t  BA Light Gray\n"
+        "189\t  BA OD Green\n"
+        "200\t  BA OD Metallic\n"
+        "181\t  BA Olive\n"
+        "192\t  BA Pink\n"
+        "191\t  BA Purple\n"
+        "176\t  BA Red\n"
+        "201\t  BA Red Chrome\n"
+        "184\t  BA Sand Blue\n"
+        "195\t  BA Silver\n"
+        "206\t  BA Silver Rubber\n"
+        "180\t  BA Tan\n"
+        "196\t  BA Titanium\n"
+        "186\t  BA Trans Black\n"
+        "188\t  BA Trans Blue\n"
+        "185\t  BA Trans Clear\n"
+        "171\t  BA Trans Green\n"
+        "187\t  BA Trans Orange\n"
+        "169\t  BA Trans Red\n"
+        "194\t  BA Trans Red Sparkle\n"
+        "193\t  BA Trans Smoke\n"
+        "167\t  BA UN Blue\n"
+        "173\t  BA White\n"
+        "202\t  BA White Rubber\n"
+    };
+
+    const char BLColors[] = {
+        "no Bricklnk colors defined\n"
+    };
+
+    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
+        Buffer.append(LEGOBLColors, sizeof(LEGOBLColors));
+    else
+        Buffer.append(BLColors, sizeof(BLColors));
+}
+
 void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 
 /*
-*   LEGO Standard:
-*   ------------------------------------
-*   |No |Category      |Annotation Style|
-*   |---|-------------------------------|
-*   | 1 |round(1)      |axle(1)         |
-*   | 2 |square(2)     |beam(2)         |
-*   | 3 |square(2)     |cable(3)        |
-*   | 4 |square(2)     |connector(4)    |
-*   | 5 |square(2)     |hose(5)         |
-*   | 6 |square(2)     |panel(6)        |
-*   ------------------------------------
+# File: styledAnnotations.lst
+#
+# The Regular Expression used is: ^(\b[^=]+\b)=([1|2])\s*([1-6])?\s*([^\s]+).*$
+#
+# 1. Part ID:             LDraw Part Name              (Required)
+# 2. Annotation Style:    1 for Square or 2 for Circle (Required)
+# 3. Annotation Category: Part category                (Required)
+# 4. Annotation:          Annotation text (uses part title annotation if no text defined)
+# 5. Part Description:    Description for reference only. Not loaded
+# Fields 4-5 are optional
+#
+# LEGO Standard:
+# ------------------------------------
+# |No |Category      |Annotation Style|
+# |---|-------------------------------|
+# | 1 |round(1)      |axle(1)         |
+# | 2 |square(2)     |beam(2)         |
+# | 3 |square(2)     |cable(3)        |
+# | 4 |square(2)     |connector(4)    |
+# | 5 |square(2)     |hose(5)         |
+# | 6 |square(2)     |panel(6)        |
+# ------------------------------------
+#
+# 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)
+#
 */
     const char LEGODefaultAnnotationStyles[] = {
         "3704.dat=1    1   2    Technic Axle  2\n"
@@ -237,8 +681,7 @@ Annotations::Annotations()
                                       .arg(annotations)
                                       .arg(file.errorString());
             if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
-                                     message);
+                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
             } else {
                 logError() << message;
             }
@@ -276,8 +719,7 @@ Annotations::Annotations()
                                       .arg(annotations)
                                       .arg(file.errorString());
             if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
-                                     message);
+                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
             } else {
                 logError() << message;
             }
@@ -318,8 +760,7 @@ Annotations::Annotations()
                                           .arg(styleFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
-                                         message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
                 } else {
                     logError() << message;
                 }
@@ -369,47 +810,308 @@ Annotations::Annotations()
             }
         }
     }
-}
 
-bool Annotations::exportAnnotationStyleFile(){
-    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validFreeFormAnnotations));
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        int counter = 1;
-        QTextStream outstream(&file);
+    if (blColors.size() == 0) {
+        QString blColorsFile = Preferences::blColorsFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (!blColorsFile.isEmpty()) {
+            QFile file(blColorsFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open BrickLink colors.txt file: %1:\n%2")
+                                          .arg(blColorsFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return;
+            }
+            QTextStream in(&file);
 
-        QByteArray Buffer;
-        loadDefaultAnnotationStyles(Buffer);
-        QTextStream instream(Buffer);
-        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
-        {
-            outstream << sLine << endl;
-            counter++;
-        }
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "Bricklink Colors RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
 
-        file.close();
-        QString message = QString("Finished Writing Annotation Style Entries, Processed %1 lines in file [%2]")
-                                   .arg(counter)
-                                   .arg(file.fileName());
-        if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),
-                                 message);
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString colorid = rx.cap(1);
+                    QString colorname = rx.cap(2).trimmed();
+                    blColors[colorname.toLower()] = colorid;
+                }
+            }
         } else {
-            logNotice() << message;
+            blColors.clear();
+            QByteArray Buffer;
+            loadBLColors(Buffer);
+            QTextStream instream(Buffer);
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString colorid = rx.cap(1);
+                    QString colorname = rx.cap(2).trimmed();
+                    blColors[colorname.toLower()] = colorid;
+                }
+            }
         }
     }
-    else
-    {
-        QString message = QString("Failed to open Annotation style file: %1:\n%2")
-                                  .arg(file.fileName())
-                                  .arg(file.errorString());
-        if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
-                                 message);
+
+    if (ld2blColorsXRef.size() == 0) {
+        QString ld2blColorsXRefFile = Preferences::ld2blColorsXRefFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (!ld2blColorsXRefFile.isEmpty()) {
+            QFile file(ld2blColorsXRefFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open ld2blcolorsxref.lst file: %1:\n%2")
+                                          .arg(ld2blColorsXRefFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return;
+            }
+            QTextStream in(&file);
+
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "LD2BL ColorsXRef RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
+
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString ldcolorid = rx.cap(1);
+                    QString blcolorid = rx.cap(2).trimmed();
+                    ld2blColorsXRef[ldcolorid.toLower()] = blcolorid;
+                }
+            }
         } else {
-            logError() << message;
+            ld2blColorsXRef.clear();
+            QByteArray Buffer;
+            loadLD2BLColorsXRef(Buffer);
+            QTextStream instream(Buffer);
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString ldcolorid = rx.cap(1);
+                    QString blcolorid = rx.cap(2).trimmed();
+                    ld2blColorsXRef[ldcolorid.toLower()] = blcolorid;
+                }
+            }
         }
-       return false;
+    }
+
+    if (ld2blCodesXRef.size() == 0) {
+        QString ld2blCodesXRefFile = Preferences::ld2blCodesXRefFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (!ld2blCodesXRefFile.isEmpty()) {
+            QFile file(ld2blCodesXRefFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open ld2blcodesxref.lst file: %1:\n%2")
+                                          .arg(ld2blCodesXRefFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return;
+            }
+            QTextStream in(&file);
+
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "LD2BL CodesXRef RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
+
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString ldpartid = rx.cap(1);
+                    QString blitemid = rx.cap(2).trimmed();
+                    ld2blCodesXRef[ldpartid.toLower()] = blitemid;
+                }
+            }
+        } else {
+            ld2blCodesXRef.clear();
+            QByteArray Buffer;
+            loadLD2BLCodesXRef(Buffer);
+            QTextStream instream(Buffer);
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString ldpartid = rx.cap(1);
+                    QString blitemid = rx.cap(2).trimmed();
+                    ld2blCodesXRef[ldpartid.toLower()] = blitemid;
+                }
+            }
+        }
+    }
+}
+
+bool Annotations::loadBLElements(){
+    if (blElements.size() == 0) {
+        QString blElementsFile = Preferences::blElementsFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (! blElementsFile.isEmpty()) {
+            QFile file(blElementsFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open BrickLink codes.txt file: %1:\n%2")
+                                          .arg(blElementsFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return false;
+            }
+            QTextStream in(&file);
+
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
+
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString blitemid = rx.cap(1);
+                    QString blcolorid = getBLColorID(rx.cap(2));
+                    QString elementid = rx.cap(3);
+                    blElements[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+                }
+            }
+        } else {
+           return  false;
+        }
+    }
+    return true;
+}
+
+bool Annotations::loadBLElements(QByteArray &Buffer){
+    if (blElements.size() == 0) {
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        QTextStream instream(Buffer);
+
+        // Load RegExp pattern from Buffer;
+        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+        while ( ! instream.atEnd()) {
+            QString sLine = instream.readLine(0);
+            if (sLine.contains(rxin)) {
+                rx.setPattern(rxin.cap(1));
+                //                logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
+                break;
+            }
+        }
+
+        //     Load input values from instream
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            QChar comment = sLine.at(0);
+            if (comment == '#' || comment == ' ')
+                continue;
+            if (sLine.contains(rx)) {
+                QString blitemid = rx.cap(1);
+                QString blcolorid = getBLColorID(rx.cap(2));
+                QString elementid = rx.cap(3);
+                blElements[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+            }
+        }
+    }
+    return true;
+}
+
+bool Annotations::loadLEGOElements(){
+    if (legoElements.size() == 0) {
+        QString legoElementsFile = Preferences::legoElementsFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (!legoElementsFile.isEmpty()) {
+            QFile file(legoElementsFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open legoelements.lst file: %1:\n%2")
+                                          .arg(legoElementsFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return false;
+            }
+            QTextStream in(&file);
+
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "LEGO elements RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
+
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString ldpartid = rx.cap(1);
+                    QString ldcolorid = rx.cap(2);
+                    QString elementid = rx.cap(3);
+                    legoElements[QString(ldpartid+ldcolorid).toLower()] = elementid;
+                }
+            }
+        } else {
+            QString message = QString("LEGO Elements file was not found : %1").arg(legoElementsFile);
+            if (Preferences::modeGUI){
+                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            } else {
+                logError() << message;
+            }
+            return  false;
+        }
     }
     return true;
 }
@@ -451,4 +1153,262 @@ const QString &Annotations::getStyleAnnotation(QString part)
     return annotationStyles[part.toLower()][2];
   }
   return returnString;
+}
+
+const QString &Annotations::getBLColorID(QString blcolorname)
+{
+  if (blColors.contains(blcolorname.toLower())) {
+    return blColors[blcolorname.toLower()];
+  }
+  return returnString;
+}
+
+const QString &Annotations::getLEGOElement(QString elementkey)
+{
+    loadLEGOElements();
+    if (legoElements.contains(elementkey.toLower())) {
+        return legoElements[elementkey.toLower()];
+    }
+
+    return returnString;
+}
+
+const QString &Annotations::getBLElement(QString ldcolorid, QString ldpartid, int which)
+{
+    loadBLElements();
+    QString blcolorid,elementkey;
+    if (ld2blColorsXRef.contains(ldcolorid.toLower())) {
+        blcolorid = ld2blColorsXRef[ldcolorid.toLower()];
+    }
+    if (!blcolorid.isEmpty()){
+        elementkey = QString(ldpartid+blcolorid).toLower();
+        if (blElements.contains(elementkey)){
+            return blElements[elementkey][which];
+        }
+        else
+        if (ld2blCodesXRef.contains(ldpartid.toLower())) {
+            elementkey = QString(ld2blCodesXRef[ldpartid.toLower()]+blcolorid).toLower();
+            if (blElements.contains(elementkey)) {
+                return blElements[elementkey][which];
+            }
+        }
+    }
+    return returnString;
+}
+
+bool Annotations::exportAnnotationStyleFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validAnnotationStyleFile));
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << Preferences::validAnnotationStyleFile << endl;
+        outstream << "#" << endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
+        outstream << "#" << endl;
+        outstream << "# 1. Part ID:             LDraw Part Name              (Required)" << endl;
+        outstream << "# 2. Annotation Style:    1 for Square or 2 for Circle (Required)" << endl;
+        outstream << "# 3. Annotation Category: Part category                (Required)" << endl;
+        outstream << "# 4. Annotation:          Annotation text (uses part title annotation if no text defined)" << endl;
+        outstream << "# 5. Part Description:    Description for reference only. Not loaded" << endl;
+        outstream << "# Fields 4-5 are optional" << endl;
+        outstream << "#" << endl;
+        outstream << "# LEGO Standard:" << endl;
+        outstream << "# ------------------------------------" << endl;
+        outstream << "# |No |Category      |Annotation Style|" << endl;
+        outstream << "# |---|-------------------------------|" << endl;
+        outstream << "# | 1 |round(1)      |axle(1)         |" << endl;
+        outstream << "# | 2 |square(2)     |beam(2)         |" << endl;
+        outstream << "# | 3 |square(2)     |cable(3)        |" << endl;
+        outstream << "# | 4 |square(2)     |connector(4)    |" << endl;
+        outstream << "# | 5 |square(2)     |hose(5)         |" << endl;
+        outstream << "# | 6 |square(2)     |panel(6)        |" << endl;
+        outstream << "# ------------------------------------" << endl;
+        outstream << "#" << endl;
+        outstream << "# 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)" << endl;
+        outstream << "#" << endl;
+
+        QByteArray Buffer;
+        loadDefaultAnnotationStyles(Buffer);
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing Annotation Style Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open Annotation style file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportBLColorsFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_BLCOLORS_FILE));
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << VER_LPUB3D_BLCOLORS_FILE << endl;
+        outstream << "#" << endl;
+        outstream << "# Tab-delmited BrickLink Color codes" << endl;
+        outstream << "#" << endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
+        outstream << "#" << endl;
+        outstream << "# 1. Color ID:            BrickLink Color ID             (Required)" << endl;
+        outstream << "# 2. Color Name:          BrickLink Color Name           (Required)" << endl;
+        outstream << "# 3+ Other Fields:        Other fields are not used" << endl;
+        outstream << "#" << endl;
+
+        QByteArray Buffer;
+        loadBLColors(Buffer);
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing BrickLink Color Code Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open BrickLink Color Code file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportLD2BLColorsXRefFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCOLORSXREF_FILE));
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << VER_LPUB3D_LD2BLCOLORSXREF_FILE << endl;
+        outstream << "#" << endl;
+        outstream << "# Tab-delmited LDConfig and BrickLink Color code cross reference" << endl;
+        outstream << "#" << endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
+        outstream << "#" << endl;
+        outstream << "# 1. LDConfig ID:       LDraw Color ID             (Required)" << endl;
+        outstream << "# 2. Color ID:          BrickLink Color ID         (Required)" << endl;
+        outstream << "#" << endl;
+
+        QByteArray Buffer;
+        loadLD2BLColorsXRef(Buffer);
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing LDConfig and BrickLink Color Code Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open LDConfig and BrickLink Color Code file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportLD2BLCodesXRefFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCODESXREF_FILE));
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << VER_LPUB3D_LD2BLCODESXREF_FILE << endl;
+        outstream << "#" << endl;
+        outstream << "# Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
+        outstream << "#" << endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
+        outstream << "#" << endl;
+        outstream << "# 1. LDraw ID:             LDraw Design ID              (Required)" << endl;
+        outstream << "# 2. Item No:              BrickLink Item Number        (Required)" << endl;
+        outstream << "#" << endl;
+
+        QByteArray Buffer;
+        loadLD2BLCodesXRef(Buffer);
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing LDraw Design ID and BrickLink Item Number Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open LDraw Design ID and BrickLink Item Number file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
 }

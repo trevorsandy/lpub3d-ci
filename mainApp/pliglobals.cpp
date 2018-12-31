@@ -194,11 +194,6 @@ GlobalPliDialog::GlobalPliDialog(
   child = new NumberGui(&pliMeta->instance,box);
   data->children.append(child);
 
-  annotationTextBox = new QGroupBox("Annotation Text Format");
-  vlayout->addWidget(annotationTextBox);
-  child = new NumberGui(&pliMeta->annotate,annotationTextBox);
-  data->children.append(child);
-
   box = new QGroupBox("Sort Options");
   vlayout->addWidget(box);
   child = new PliSortGui("",&pliMeta->sortBy,box);
@@ -209,12 +204,18 @@ GlobalPliDialog::GlobalPliDialog(
   vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Contents");
-
   /*
-   * PLI Sort
+   * PLI Annotations
    */
-
   widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  QTabWidget *childtab    = new QTabWidget();
+  vlayout->addWidget(childtab);
+  tab->addTab(widget, "Annotations");
+
+  widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
@@ -224,6 +225,25 @@ GlobalPliDialog::GlobalPliDialog(
   connect(child, SIGNAL(toggled(bool)),
           this,  SLOT(  displayEditOptionsChanged(bool)));
   data->children.append(child);
+
+  partElementsBox = new QGroupBox("Part Elements");
+  vlayout->addWidget(partElementsBox);
+  child = new PliPartElementGui("",&pliMeta->partElements,partElementsBox);
+  data->children.append(child);
+
+  annotationTextBox = new QGroupBox("Annotation Text Format");
+  vlayout->addWidget(annotationTextBox);
+  child = new NumberGui(&pliMeta->annotate,annotationTextBox);
+  data->children.append(child);
+
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Options");
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
   //Edit PLI Annotation Style Selection
   NumberMeta styleMeta;
@@ -241,7 +261,7 @@ GlobalPliDialog::GlobalPliDialog(
   noStyle = new QRadioButton("None",sbox);
   noStyle->setChecked(true);
   connect(noStyle,SIGNAL(clicked(bool)),
-          this,       SLOT(  styleOptionChanged(bool)));
+          this,   SLOT(  styleOptionChanged(bool)));
   shlayout->addWidget(noStyle);
 
   squareStyle = new QRadioButton("Square",sbox);
@@ -352,7 +372,7 @@ GlobalPliDialog::GlobalPliDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Annotations");
+  childtab->addTab(widget,tr("Edit Styles"));
 
   /*
    * Submodel colors
@@ -428,9 +448,6 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleBorderStyleBox->hide();
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
-
-      annotationTextBox->setDisabled(true);
-      annotationTextBox->setTitle("Select Style 'None' on 'Annotations' tab to enable");
   }
   else
   if (obj == circleStyle) {
@@ -448,9 +465,6 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleBorderStyleBox->hide();
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
-
-      annotationTextBox->setDisabled(true);
-      annotationTextBox->setTitle("Select Style 'None' on 'Annotations' tab to enable");
   }
   else
   if (obj == rectangleStyle) {
@@ -468,13 +482,7 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       circleBorderStyleBox->hide();
       circleFormatStyleBox->hide();
       circleSizeStyleBox->hide();
-
-      annotationTextBox->setDisabled(true);
-      annotationTextBox->setTitle("Select Style 'None' on 'Annotations' tab to enable");
   } else {
-      annotationTextBox->setDisabled(false);
-      annotationTextBox->setTitle("Annotation Text Format");
-
       squareBkGrndStyleBox->show();
       squareBorderStyleBox->show();
       squareFormatStyleBox->show();
@@ -499,11 +507,8 @@ void GlobalPliDialog::styleOptionChanged(bool b){
 
 void GlobalPliDialog::displayEditOptionsChanged(bool b){
     annotationEditStyleBox->setEnabled(b);
-    annotationTextBox->setDisabled(b);
-    if (annotationTextBox->isEnabled())
-        annotationTextBox->setTitle("Annotation Text Format");
-    else
-        annotationTextBox->setTitle("Select Style 'None' on 'Annotations' tab to enable");
+    partElementsBox->setEnabled(b);
+    annotationTextBox->setEnabled(b);
 }
 
 void GlobalPliDialog::accept()

@@ -74,6 +74,7 @@ class PliPart {
     MarginsMeta          csiMargin;
     InstanceTextItem    *instanceText;
     AnnotateTextItem    *annotateText;
+    AnnotateTextItem    *annotateElement;
     PGraphicsPixmapItem *pixmap;
 
     QString              sortCategory;
@@ -82,28 +83,28 @@ class PliPart {
     QString              nameKey;
     QString              imageName;
 
-    int           width;
-    int           height;
+    int                  width;
+    int                  height;
 
-    int           col;
+    int                  col;
 
-    int           pixmapWidth;
-    int           pixmapHeight;
-    int           textHeight;
-    int           annotHeight;
-    int           annotWidth;
+    int                  pixmapWidth;
+    int                  pixmapHeight;
+    int                  textHeight;
+    int                  annotHeight;
+    int                  annotWidth;
 
-    int           topMargin;
-    int           partTopMargin;
-    int           partBotMargin;
+    int                  topMargin;
+    int                  partTopMargin;
+    int                  partBotMargin;
 
-    QList<int>    leftEdge;
-    QList<int>    rightEdge;
+    QList<int>           leftEdge;
+    QList<int>           rightEdge;
 
     // placement info
-    bool          placed;
-    int           left;
-    int           bot;
+    bool                 placed;
+    int                  left;
+    int                  bot;
 
     PliPart()
     {
@@ -432,5 +433,4 @@ public:
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
-
 #endif

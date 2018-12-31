@@ -2342,6 +2342,25 @@ public:
 
 /*------------------------*/
 
+class PliPartElementMeta : public BranchMeta
+{
+public:
+  BoolMeta      display;
+  BoolMeta      bricklinkElements;
+  BoolMeta      legoElements;
+  BoolMeta      localLegoElements;
+
+  PliPartElementMeta();
+  PliPartElementMeta(const PliPartElementMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PliPartElementMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class PliAnnotationMeta : public BranchMeta
 {
 public:
@@ -2550,6 +2569,7 @@ public:
   BoolMeta             sort;
   PliSortMeta          sortBy;
   PliAnnotationMeta    annotation;
+  PliPartElementMeta   partElements;
   AnnotationStyleMeta  rectangleStyle;
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;

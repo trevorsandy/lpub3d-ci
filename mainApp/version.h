@@ -107,6 +107,12 @@
 #define VER_LPUB3D_TENTE_CUSTOM_ARCHIVE     "tentecustomparts.zip"
 #define VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE     "vexiqcustomparts.zip"
 
+#define VER_LPUB3D_BLCOLORS_FILE            "colors.txt"
+#define VER_LPUB3D_BLELEMENTS_FILE          "codes.txt"
+#define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
+#define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
+#define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
+
 #if defined Q_OS_WIN || defined Q_OS_MAC
 #define VER_LEGO_LDRAWDIR_STR               "LDraw"
 #define VER_TENTE_LDRAWDIR_STR              "TENTEParts"

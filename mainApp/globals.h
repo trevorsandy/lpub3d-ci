@@ -149,6 +149,7 @@ private:
 
   QRadioButton     *noStyle;
   QGroupBox        *annotationEditStyleBox;
+  QGroupBox        *partElementsBox;
   QGroupBox        *annotationTextBox;
 
   QRadioButton     *squareStyle;

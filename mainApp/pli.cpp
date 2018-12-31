@@ -130,6 +130,7 @@ PliPart::~PliPart()
   rightEdge.clear();
 }
 
+//TODO - Add BOM LEGO/BrickLink PartID
 float PliPart::maxMargin()
 {
   float margin1 = qMax(instanceMeta.margin.valuePixels(XX),
@@ -293,6 +294,7 @@ void Pli::setParts(
     } //instances
 
   // now sort then divide the list based on BOM occurrence
+  //TODO - Add BOM LEGO/BrickLink PartID
   if (bom && splitBom){
 
       //sort
@@ -855,9 +857,12 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
             getLeftEdge(image,part->leftEdge);
             getRightEdge(image,part->rightEdge);
 
+            /* Add LEGO part identifier area */
+            //TODO - Add BOM LEGO/BrickLink PartID between CSI and instance text
+
             part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
 
-            /* Lets see if we can slide the text up in the bottom left corner of part image */
+            /* Lets see if we can slide the instance text up in the bottom left corner of part image */
 
             int overlap;
             bool overlapped = false;
@@ -873,6 +878,8 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                 part->leftEdge << 0;
                 part->rightEdge << textWidth;
             }
+
+            //TODO - Lets see if we can slide the BOM LEGO/BrickLink PartID up in the bottom left corner of part image
 
             part->height = part->leftEdge.size();
 
@@ -1024,6 +1031,7 @@ int Pli::placePli(
 
       QPair<int, int> margin;
 
+      //TODO - Compare BOM LEGO/BrickLink PartID
       margin.first = qMax(prevPart->instanceMeta.margin.valuePixels(XX),
                           prevPart->csiMargin.valuePixels(XX));
 
@@ -1375,6 +1383,7 @@ void Pli::getRightEdge(
     }
 }
 
+//TODO - Add BOM LEGO/BrickLink PartID Sort
 int Pli::sortPli()
 {
   // populate part size
@@ -1572,6 +1581,9 @@ int Pli::partSize()
               getLeftEdge(image,part->leftEdge);
               getRightEdge(image,part->rightEdge);
 
+              /* Add LEGO part identifier area */
+              //TODO - Add BOM LEGO/BrickLink PartID between CSI and instance text
+
               part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
 
               /* Lets see if we can slide the text up in the bottom left corner of
@@ -1591,6 +1603,8 @@ int Pli::partSize()
                   part->leftEdge << 0;
                   part->rightEdge << textWidth;
                 }
+
+              //TODO - Lets see if we can slide the BOM LEGO/BrickLink PartID up in the bottom left corner of part image
 
               part->height = part->leftEdge.size();
 
@@ -1855,7 +1869,7 @@ int Pli::resizePli(
   int cols, height;
   bool packSubs = pliMeta.pack.value();
   bool sortType = pliMeta.sort.value();
-  int pliWidth,pliHeight;
+  int pliWidth = 0,pliHeight = 0;
 
   if (constrainData.type == ConstrainData::PliConstrainHeight) {
       int cols;

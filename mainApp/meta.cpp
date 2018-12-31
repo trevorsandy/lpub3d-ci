@@ -2735,6 +2735,25 @@ void PliSortMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 
+PliPartElementMeta::PliPartElementMeta() : BranchMeta()
+{
+  display.setValue               (false);
+  bricklinkElements.setValue     (false);
+  legoElements.setValue          (true);
+  localLegoElements.setValue     (false);   // default is to use BrickLink's LEGO Elements
+}
+
+void PliPartElementMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  display.init                   (this, "DISPLAY");
+  bricklinkElements.init         (this, "BRICKLINK");
+  legoElements.init              (this, "LEGO");
+  localLegoElements.init         (this, "LOCAL_LEGO_ELEMENTS_FILE");
+}
+
+/* ------------------ */
+
 PliAnnotationMeta::PliAnnotationMeta() : BranchMeta()
 {
   titleAnnotation.setValue           (true);
@@ -3349,6 +3368,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
+  partElements    .init(this,"PART_ELEMENTS");
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");
