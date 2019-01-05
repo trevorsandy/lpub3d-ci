@@ -178,7 +178,7 @@ public:
 
 public slots:
   void styleOptionChanged(bool);
-  void displayEditOptionsChanged(bool);
+  void displayAnnotationsChanged(bool);
   void accept();
   void cancel();
 };

@@ -107,12 +107,6 @@
 #define VER_LPUB3D_TENTE_CUSTOM_ARCHIVE     "tentecustomparts.zip"
 #define VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE     "vexiqcustomparts.zip"
 
-#define VER_LPUB3D_BLCOLORS_FILE            "colors.txt"
-#define VER_LPUB3D_BLELEMENTS_FILE          "codes.txt"
-#define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
-#define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
-#define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
-
 #if defined Q_OS_WIN || defined Q_OS_MAC
 #define VER_LEGO_LDRAWDIR_STR               "LDraw"
 #define VER_TENTE_LDRAWDIR_STR              "TENTEParts"
@@ -128,6 +122,13 @@
 #define VER_VEXIQ_LDRAWPART_STR             "/parts/228-2500-001.dat"
 
 #define VER_FADE_PART_COLOURS_FILE          "fadePartColours.lst"
+
+#define VER_LPUB3D_BLCOLORS_FILE            "colors.txt"
+#define VER_LPUB3D_BLELEMENTS_FILE          "codes.txt"
+#define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
+#define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
+#define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
+#define VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL     "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #ifdef QT_DEBUG_MODE

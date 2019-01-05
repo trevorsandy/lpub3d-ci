@@ -2657,7 +2657,7 @@ void Preferences::annotationPreferences()
 
     blElementsFile          = Settings.value(QString("%1/%2").arg(SETTINGS,"BLElementsFile")).toString();
     legoElementsFile        = Settings.value(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile")).toString();
-    blColorsFile            = Settings.value(QString("%1/%2").arg(SETTINGS,"BLElementsFile")).toString();
+    blColorsFile            = Settings.value(QString("%1/%2").arg(SETTINGS,"BLColorsFile")).toString();
     ld2blColorsXRefFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile")).toString();
     ld2blCodesXRefFile      = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLCodesXRefFile")).toString();
 
@@ -2693,7 +2693,7 @@ void Preferences::annotationPreferences()
 
     annoInfo.setFile(blColorsFile);
     if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"BLColors"));
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"BLColorsFile"));
         annoOk[5] = false;
     }
 
@@ -2714,7 +2714,8 @@ void Preferences::annotationPreferences()
         return;
 
     if (! annoOk[3]) {
-        blElementsFile = annoInfo.absolutePath()+"/"+VER_LPUB3D_BLELEMENTS_FILE;
+        blElementsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLELEMENTS_FILE);
+        annoInfo.setFile(blElementsFile);
         if (annoInfo.exists()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLElementsFile"),blElementsFile);
         } else {
@@ -2724,7 +2725,8 @@ void Preferences::annotationPreferences()
     }
 
     if (! annoOk[4]) {
-        legoElementsFile = annoInfo.absolutePath()+"/"+VER_LPUB3D_LEGOELEMENTS_FILE;
+        legoElementsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE);
+        annoInfo.setFile(legoElementsFile);
         if (annoInfo.exists()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile"),legoElementsFile);
         } else {
@@ -2734,9 +2736,10 @@ void Preferences::annotationPreferences()
     }
 
     if (! annoOk[5]) {
-        blColorsFile = annoInfo.absolutePath()+"/"+VER_LPUB3D_BLCOLORS_FILE;
+        blColorsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCOLORS_FILE);
+        annoInfo.setFile(blColorsFile);
         if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLColors"),blColorsFile);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLColorsFile"),blColorsFile);
         } else {
             blColorsFile = QString();
         }
@@ -2744,7 +2747,8 @@ void Preferences::annotationPreferences()
     }
 
     if (! annoOk[6]) {
-        ld2blColorsXRefFile = annoInfo.absolutePath()+"/"+VER_LPUB3D_LD2BLCOLORSXREF_FILE;
+        ld2blColorsXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCOLORSXREF_FILE);
+        annoInfo.setFile(ld2blColorsXRefFile);
         if (annoInfo.exists()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile"),ld2blColorsXRefFile);
         } else {
@@ -2754,7 +2758,8 @@ void Preferences::annotationPreferences()
     }
 
     if (! annoOk[7]) {
-        ld2blCodesXRefFile = annoInfo.absolutePath()+"/"+VER_LPUB3D_LD2BLCODESXREF_FILE;
+        ld2blCodesXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE);
+        annoInfo.setFile(ld2blCodesXRefFile);
         if (annoInfo.exists()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2BLCodesXRefFile"),ld2blCodesXRefFile);
         } else {

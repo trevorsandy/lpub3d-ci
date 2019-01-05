@@ -701,6 +701,8 @@ Annotations::Annotations()
             }
         }
 
+        in.seek(0);
+
         // Load input values
         while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
@@ -738,6 +740,8 @@ Annotations::Annotations()
                 break;
             }
         }
+
+        in.seek(0);
 
         // Load input values
         while ( ! in.atEnd()) {
@@ -778,6 +782,8 @@ Annotations::Annotations()
                     break;
                 }
             }
+
+            in.seek(0);
 
             // Load input values
             while ( ! in.atEnd()) {
@@ -840,6 +846,8 @@ Annotations::Annotations()
                 }
             }
 
+           in.seek(0);
+
             // Load input values
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
@@ -897,6 +905,8 @@ Annotations::Annotations()
                 }
             }
 
+            in.seek(0);
+
             // Load input values
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
@@ -953,6 +963,8 @@ Annotations::Annotations()
                     break;
                 }
             }
+
+           in.seek(0);
 
             // Load input values
             while ( ! in.atEnd()) {
@@ -1013,6 +1025,16 @@ bool Annotations::loadBLElements(){
                 }
             }
 
+            in.seek(0);
+
+// DEBUG -->>>
+//            QString fooFile = Preferences::blElementsFile+"demo.txt";
+//            QFile File(fooFile);
+//            if (!File.open(QIODevice::WriteOnly))
+//                return false;
+//            QTextStream Stream(&File);
+// DEBUG <<<---
+
             // Load input values
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
@@ -1021,8 +1043,18 @@ bool Annotations::loadBLElements(){
                     QString blcolorid = getBLColorID(rx.cap(2));
                     QString elementid = rx.cap(3);
                     blElements[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+// DEBUG -->>>
+//                    Stream << QString("Key: %1 Value[0]: %2 Value[1]: %3")
+//                                      .arg(QString(blitemid+blcolorid).toLower())
+//                                      .arg(QString(blitemid+"-"+blcolorid).toUpper())
+//                                      .arg(elementid);
+// DEBUG <<<---
                 }
             }
+// DEBUG -->>>
+//            Stream.flush();
+// DEBUG <<<---
+
         } else {
            return  false;
         }
@@ -1041,10 +1073,12 @@ bool Annotations::loadBLElements(QByteArray &Buffer){
             QString sLine = instream.readLine(0);
             if (sLine.contains(rxin)) {
                 rx.setPattern(rxin.cap(1));
-                //                logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
+//                logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
                 break;
             }
         }
+
+        instream.seek(0);
 
         //     Load input values from instream
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
@@ -1059,6 +1093,46 @@ bool Annotations::loadBLElements(QByteArray &Buffer){
                 blElements[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
             }
         }
+
+        //    write stream to file
+        QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLELEMENTS_FILE));
+        if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            int counter = 1;
+            QTextStream instream(Buffer);
+            QTextStream outstream(&file);
+
+            while ( ! instream.atEnd()) {
+                QString sLine = instream.readLine(0);
+                outstream << sLine << endl;
+                counter++;
+            }
+
+            outstream.flush();
+            file.close();
+
+            QString message = QString("Finished Writing, Proceed %1 lines for file [%2]")
+                                      .arg(counter)
+                                      .arg(file.fileName());
+            if (Preferences::modeGUI){
+                QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            } else {
+                logInfo() << message;
+            }
+        }
+        else
+        {
+           QString message = QString("Failed to write file: %1:\n%2")
+                                     .arg(file.fileName())
+                                     .arg(file.errorString());
+           if (Preferences::modeGUI){
+               QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+           } else {
+               logError() << message;
+           }
+           return false;
+        }
+        return true;
     }
     return true;
 }
@@ -1092,6 +1166,8 @@ bool Annotations::loadLEGOElements(){
                     break;
                 }
             }
+
+            in.seek(0);
 
             // Load input values
             while ( ! in.atEnd()) {

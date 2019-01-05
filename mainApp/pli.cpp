@@ -130,15 +130,23 @@ PliPart::~PliPart()
   rightEdge.clear();
 }
 
-//TODO - Add BOM LEGO/BrickLink PartID
+
 float PliPart::maxMargin()
 {
   float margin1 = qMax(instanceMeta.margin.valuePixels(XX),
                        csiMargin.valuePixels(XX));
+
+  // Use BOM Element margin
+  if (styleMeta.style.value() != AnnotationStyle::none){
+      float margin2 = styleMeta.margin.valuePixels(XX);
+      margin1 = qMax(margin1,margin2);
+  }
+
   if (annotWidth) {
       float margin2 = styleMeta.margin.valuePixels(XX);
       margin1 = qMax(margin1,margin2);
     }
+
   return margin1;
 }
 
@@ -239,7 +247,7 @@ void Pli::setParts(
               // set style if category enabled
               if (styleCategory) {
                   if (style == AnnotationStyle::circle)
-                      styleMeta        = pliMeta.circleStyle;
+                      styleMeta       = pliMeta.circleStyle;
                   else
                   if (style == AnnotationStyle::square)
                      styleMeta        = pliMeta.squareStyle;
@@ -294,7 +302,7 @@ void Pli::setParts(
     } //instances
 
   // now sort then divide the list based on BOM occurrence
-  //TODO - Add BOM LEGO/BrickLink PartID
+  //TODO - Add BOM Element to sort
   if (bom && splitBom){
 
       //sort
@@ -842,7 +850,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
 
                 part->partTopMargin = part->styleMeta.margin.valuePixels(YY);
 
-                int hMax = int(part->annotHeight + part->styleMeta.margin.value(YY));
+                int hMax = int(part->annotHeight + part->partTopMargin);
                 for (int h = 0; h < hMax; h++) {
                     part->leftEdge  << part->width - part->annotWidth;
                     part->rightEdge << part->width;
@@ -853,33 +861,113 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                 part->annotHeight = 0;
                 part->partTopMargin = 0;
             }
+
             part->topMargin = part->csiMargin.valuePixels(YY);
             getLeftEdge(image,part->leftEdge);
             getRightEdge(image,part->rightEdge);
 
-            /* Add LEGO part identifier area */
-            //TODO - Add BOM LEGO/BrickLink PartID between CSI and instance text
-
-            part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
-
-            /* Lets see if we can slide the instance text up in the bottom left corner of part image */
-
-            int overlap;
             bool overlapped = false;
+
+            int overlap = 0;
+            int hMax = 0;
+            int elementWidth = 0, elementHeight = 0;
+
+            if (bom && pliMeta.partElements.display.value()) {
+
+                /* Add BOM Elements area */
+
+                descr.clear();
+                QString _colorid = part->color;
+                QString _typeid  = QFileInfo(part->type).baseName();
+
+                int which = 0;   // 0 = BL, 1 = LEGO
+                if ( pliMeta.partElements.legoElements.value())
+                    which = 1;
+
+                if (pliMeta.partElements.localLegoElements.value()) {
+                    QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
+                    descr = Annotations::getLEGOElement(elementKey.toLower());
+                }
+                else
+                {
+                    if (!Annotations::loadBLElements()){
+                        QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+                        gui->downloadFile(URL, "BrickLink Elements");
+                        QByteArray Buffer = gui->getDownloadedFile();
+                        Annotations::loadBLElements(Buffer);
+                    }
+                    descr = Annotations::getBLElement(_colorid,_typeid,which);
+                }
+
+                if (descr.size()) {
+
+                    if (pliMeta.annotation.elementStyle.value()){
+                        font   = pliMeta.rectangleStyle.font.valueFoo();
+                        color  = pliMeta.rectangleStyle.color.value();
+                        part->elementTopMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                    } else {
+                        font   = pliMeta.annotate.font.valueFoo();
+                        color  = pliMeta.annotate.color.value();
+                        part->elementTopMargin = pliMeta.annotate.margin.valuePixels(YY);
+                    }
+
+                    part->annotateElement =
+                            new AnnotateTextItem(this,part,descr,font,color,parentRelativeType,true);
+
+                    part->annotateElement->size(elementWidth,elementHeight);
+
+                    part->elementHeight = elementHeight;
+
+                    if (elementWidth > part->width) {
+                        part->width = elementWidth;
+                    }
+
+                    /*
+                     * Lets see if we can slide the BOM Element up in the bottom left corner of
+                     * part image
+                     */
+
+                    overlapped = false;
+
+                    for (overlap = 1; overlap < elementHeight && ! overlapped; overlap++) {
+                        if (part->leftEdge[part->leftEdge.size() - overlap] < elementWidth) {
+                            overlapped = true;
+                        }
+                    }
+
+                    hMax = elementHeight + part->elementTopMargin;
+                    for (int h = overlap; h < hMax; h++) {
+                        part->leftEdge << 0;
+                        part->rightEdge << elementWidth;
+                    }
+
+                } else {
+                    part->annotateElement = nullptr;
+                    part->elementHeight  = 0;
+                }
+            }
+
+            /*
+             * Lets see if we can slide the text up in the bottom left corner of
+             * part image (or part element if display option selected)
+             */
+
+            overlapped = false;
 
             for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
                 if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
                     overlapped = true;
-                }
-            }
+                  }
+              }
 
-            int hMax = textHeight + part->instanceMeta.margin.valuePixels(YY);
+            part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
+
+            //int hMax = int(textHeight + part->instanceMeta.margin.valuePixels(YY)); // seems to be a problem here with instanceMeta.margin.value(YY)
+            hMax = int(textHeight + part->partBotMargin);
             for (int h = overlap; h < hMax; h++) {
                 part->leftEdge << 0;
                 part->rightEdge << textWidth;
-            }
-
-            //TODO - Lets see if we can slide the BOM LEGO/BrickLink PartID up in the bottom left corner of part image
+              }
 
             part->height = part->leftEdge.size();
 
@@ -1031,9 +1119,19 @@ int Pli::placePli(
 
       QPair<int, int> margin;
 
-      //TODO - Compare BOM LEGO/BrickLink PartID
+
       margin.first = qMax(prevPart->instanceMeta.margin.valuePixels(XX),
                           prevPart->csiMargin.valuePixels(XX));
+
+//      TODO_DONE - Compare BOM Element Margin
+
+      // Compare BOM Element Margin
+      if (bom && pliMeta.partElements.display.value()) {
+          part->elementTopMargin = qMax(prevPart->styleMeta.margin.valuePixels(XX),
+                                   prevPart->csiMargin.valuePixels(XX));
+          if (part->elementTopMargin > margin.first)
+              margin.first = part->elementTopMargin;
+      }
 
       tallest = qMax(tallest,prevPart->height);
 
@@ -1564,9 +1662,10 @@ int Pli::partSize()
                       part->width = part->annotWidth;
                     }
 
-                  part->partTopMargin = part->styleMeta.margin.valuePixels(YY);
+                  part->partTopMargin = part->styleMeta.margin.valuePixels(YY);           // annotationStyle margin
 
-                  int hMax = int(part->annotHeight + part->styleMeta.margin.value(YY));
+                  //int hMax = int(part->annotHeight + part->styleMeta.margin.value(YY));   // seems to be a problem here with styleMeta.margin.value(YY)
+                  int hMax = int(part->annotHeight + part->partTopMargin);
                   for (int h = 0; h < hMax; h++) {
                       part->leftEdge  << part->width - part->annotWidth;
                       part->rightEdge << part->width;
@@ -1577,20 +1676,95 @@ int Pli::partSize()
                   part->annotHeight = 0;
                   part->partTopMargin = 0;
                 }
+
               part->topMargin = part->csiMargin.valuePixels(YY);
               getLeftEdge(image,part->leftEdge);
               getRightEdge(image,part->rightEdge);
 
-              /* Add LEGO part identifier area */
-              //TODO - Add BOM LEGO/BrickLink PartID between CSI and instance text
-
-              part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
-
-              /* Lets see if we can slide the text up in the bottom left corner of
-               * part image */
-
-              int overlap;
               bool overlapped = false;
+
+              int overlap = 0;
+              int hMax = 0;
+              int elementWidth = 0, elementHeight = 0;
+
+              if (bom && pliMeta.partElements.display.value()) {
+
+                  /* Add BOM Elements area */
+
+                  descr.clear();
+                  QString _colorid = part->color;
+                  QString _typeid  = QFileInfo(part->type).baseName();
+
+                  int which = 0;   // 0 = BL, 1 = LEGO
+                  if (pliMeta.partElements.legoElements.value())
+                      which = 1;
+
+                  if (pliMeta.partElements.localLegoElements.value()) {
+                      QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
+                      descr = Annotations::getLEGOElement(elementKey.toLower());
+                  } else {
+                      if (!Annotations::loadBLElements()){
+                          QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+                          gui->downloadFile(URL, "BrickLink Elements");
+                          QByteArray Buffer = gui->getDownloadedFile();
+                          Annotations::loadBLElements(Buffer);
+                      }
+                      descr = Annotations::getBLElement(_colorid,_typeid,which);
+                  }
+
+                  if (descr.size()) {
+
+                      if (pliMeta.annotation.elementStyle.value()){
+                          font   = pliMeta.rectangleStyle.font.valueFoo();
+                          color  = pliMeta.rectangleStyle.color.value();
+                          part->elementTopMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                      } else {
+                          font   = pliMeta.annotate.font.valueFoo();
+                          color  = pliMeta.annotate.color.value();
+                          part->elementTopMargin = pliMeta.annotate.margin.valuePixels(YY);
+                      }
+
+                      part->annotateElement =
+                              new AnnotateTextItem(this,part,descr,font,color,parentRelativeType,true);
+
+                      part->annotateElement->size(elementWidth,elementHeight);
+
+                      part->elementHeight = elementHeight;
+
+                      if (elementWidth > part->width) {
+                          part->width = elementWidth;
+                      }
+
+                      /*
+                       * Lets see if we can slide the BOM Element up in the bottom left corner of
+                       * part image
+                       */
+                      overlapped = false;
+
+                      for (overlap = 1; overlap < elementHeight && ! overlapped; overlap++) {
+                          if (part->leftEdge[part->leftEdge.size() - overlap] < elementWidth) {
+                              overlapped = true;
+                          }
+                      }
+
+                      hMax = elementHeight + part->elementTopMargin;
+                      for (int h = overlap; h < hMax; h++) {
+                          part->leftEdge << 0;
+                          part->rightEdge << elementWidth;
+                      }
+
+                  } else {
+                      part->annotateElement = nullptr;
+                      part->elementHeight  = 0;
+                  }
+              }
+
+              /*
+               * Lets see if we can slide the text up in the bottom left corner of
+               * part image (or part element if display option selected)
+               */
+
+              overlapped = false;
 
               for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
                   if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
@@ -1598,13 +1772,14 @@ int Pli::partSize()
                     }
                 }
 
-              int hMax = textHeight + part->instanceMeta.margin.valuePixels(YY);
+              part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
+
+              //int hMax = int(textHeight + part->instanceMeta.margin.valuePixels(YY)); // seems to be a problem here with instanceMeta.margin.value(YY)
+              hMax = int(textHeight + part->partBotMargin);
               for (int h = overlap; h < hMax; h++) {
                   part->leftEdge << 0;
                   part->rightEdge << textWidth;
                 }
-
-              //TODO - Lets see if we can slide the BOM LEGO/BrickLink PartID up in the bottom left corner of part image
 
               part->height = part->leftEdge.size();
 
@@ -2099,10 +2274,19 @@ void Pli::positionChildren(
             (y - part->height + part->annotHeight + part->partTopMargin)/scaleY);
       part->pixmap->setTransformationMode(Qt::SmoothTransformation);
 
+      // Position the BOM Element
+      if (bom && pliMeta.partElements.display.value() && part->annotateElement) {
+          part->annotateElement->setParentItem(background);
+          part->annotateElement->setPos(
+                x/scaleX,
+                (y - part->elementHeight - part->textHeight + part->elementTopMargin)/scaleY);
+      }
+
       part->instanceText->setParentItem(background);
       part->instanceText->setPos(
             x/scaleX,
             (y - part->textHeight)/scaleY);
+      bool foo = true;
     }
 }
 
@@ -2758,29 +2942,45 @@ AnnotateTextItem::AnnotateTextItem(
   QString &_text,
   QString &_fontString,
   QString &_colorString,
-  PlacementType _parentRelativeType)
+  PlacementType _parentRelativeType,
+ bool           _element)
 {
   parentRelativeType = _parentRelativeType;
-  styleMeta          = &_part->styleMeta;
-  QString toolTip("Part Annotation - right-click to modify");
-
-  bool useTextSize = styleMeta->style.value() == AnnotationStyle::none ||
-                     styleMeta->style.value() == AnnotationStyle::rectangle;
 
   QString fontString = _fontString;
-  // adjust font size for 5.5 parts - set Arial to 17 (Interim solution)
-  // TODO - automatically resize text until it fits
-  if (!useTextSize && _text.size() > 2) {
-     fontString = "Arial,17,-1,5,50,0,0,0,0,0";
+
+  bool useDocSize = false;
+
+  QString toolTip;
+
+  if (_element){
+      if (_pli->pliMeta.annotation.elementStyle.value()){
+          styleMeta  = &_pli->pliMeta.rectangleStyle;
+      }
+      toolTip = QString("%1 Element Annotation - right-click to modify")
+                       .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
+  } else {
+      styleMeta  = &_part->styleMeta;
+      useDocSize = styleMeta->style.value() == AnnotationStyle::none;
+      toolTip    = "Part Annotation - right-click to modify";
+      // adjust font size for 5.5 parts - set Arial to 17 (Interim solution)
+      // TODO - automatically resize text until it fits
+      if ((_part->styleMeta.style.value() == AnnotationStyle::circle ||
+           _part->styleMeta.style.value() == AnnotationStyle::square) &&
+           _text.size() > 2) {
+         fontString = "Arial,17,-1,5,50,0,0,0,0,0";
+      }
   }
 
   setText(_pli,_part,_text,fontString,toolTip);
 
-  QRectF docSize = QRectF(0,0,document()->size().width(),document()->size().height());
-  if (useTextSize) {
+  QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
+
+  if (useDocSize) {
       annotateRect = docSize;
   } else {
-      QRectF styleSize = QRectF(0,0,styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(0));
+      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || _element;
+      QRectF styleSize = QRectF(0,0,dw ? docSize.width() : styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(1));
       annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
       // center the document on the new size
       setTextWidth(-1);

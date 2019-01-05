@@ -347,6 +347,19 @@ int UnitsMeta::valuePixels(int which)
   return int(t*r);
 }
 
+void UnitsMeta::setValuePixels(int which, int pixels)
+{
+  float r = resolution();
+
+  float value = float(pixels/r);
+
+  if (resolutionType() == DPCM) {
+    value = centimeters2inches(value);
+  }
+
+  _value[pushed][which] = value;
+}
+
 QString UnitsMeta::format(bool local, bool global)
 {
   QString foo;
@@ -2689,7 +2702,7 @@ void BuffExchgMeta::doc(QStringList &out, QString preamble)
 
 AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
 {
-  margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
+  margin.setValuesInches(0.03f,0.03f);      //4px @ 150DPI
   BorderData borderData;
   borderData.type = BorderData::BdrNone;
   borderData.line = BorderData::BdrLnNone;
@@ -2702,7 +2715,7 @@ AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
   background.setValue(BackgroundData::BgTransparent);
   font.setValuePoints("Arial,20,-1,5,50,0,0,0,0,0");
   color.setValue("#3a3938");
-  size.setValuesInches(0.28f,0.28f);
+  size.setValuesInches(0.28f,0.28f);      //42px @ 150DPI
   size.setRange(0.1f,1.0f);
   size.setFormats(6,4,"9.9999");
   style.setValue(AnnotationStyle::none);
@@ -2764,6 +2777,7 @@ PliAnnotationMeta::PliAnnotationMeta() : BranchMeta()
   beamStyle.setValue                 (true);
   cableStyle.setValue                (true);
   connectorStyle.setValue            (true);
+  elementStyle.setValue              (true);
   extendedStyle.setValue             (false);
   hoseStyle.setValue                 (true);
   panelStyle.setValue                (true);
@@ -2780,6 +2794,7 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
   beamStyle.init                  (this, "BEAM_STYLE");
   cableStyle.init                 (this, "CABLE_STYLE");
   connectorStyle.init             (this, "CONNECTOR_STYLE");
+  elementStyle.init               (this, "ELEMENT_STYLE");
   extendedStyle.init              (this, "EXTENDED_STYLE");
   hoseStyle.init                  (this, "HOSE_STYLE");
   panelStyle.init                 (this, "PANEL_STYLE");
@@ -3475,6 +3490,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
+  partElements    .init(this,"PART_ELEMENTS");
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");

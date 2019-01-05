@@ -3355,11 +3355,13 @@ PliPartElementGui::PliPartElementGui(
           this,            SLOT(  gbToggled(bool)));
 
   bricklinkElementsButton = new QRadioButton("BrickLink",gbPliPartElement);
+  bricklinkElementsButton->setToolTip("Use BrickLink element identification");
   connect(bricklinkElementsButton,SIGNAL(clicked(bool)),
           this,                   SLOT(  bricklinkElements(bool)));
   hLayout->addWidget(bricklinkElementsButton);
 
   legoElementsButton = new QRadioButton("LEGO",gbPliPartElement);
+  legoElementsButton->setToolTip("Use LEGO element identification");
   connect(legoElementsButton,SIGNAL(clicked(bool)),
           this,              SLOT(  legoElements(bool)));
   hLayout->addWidget(legoElementsButton);
@@ -3444,7 +3446,8 @@ void PliPartElementGui::apply(QString &topLevelFile)
 PliAnnotationGui::PliAnnotationGui(
     const QString     &heading,
     PliAnnotationMeta *_meta,
-    QGroupBox         *parent)
+    QGroupBox         *parent,
+    bool               bom)
 {
   meta = _meta;
 
@@ -3496,6 +3499,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   //PLIAnnotation Style Options
   gbPLIAnnotationStyle = new QGroupBox("Enable Annotation Style",parent);
+  gbPLIAnnotationStyle->setEnabled(meta->display.value());
   QGridLayout *sgrid = new QGridLayout();
   gbPLIAnnotationStyle->setLayout(sgrid);
   grid->addWidget(gbPLIAnnotationStyle,1,0);
@@ -3528,26 +3532,34 @@ PliAnnotationGui::PliAnnotationGui(
           this,               SLOT(  connectorStyle(bool)));
   sgrid->addWidget(connectorStyleCheck,0,3);
 
-  hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationStyle);
-  hoseStyleCheck->setChecked(meta->hoseStyle.value());
-  hoseStyleCheck->setToolTip("Default Hose annotation on square background");
-  connect(hoseStyleCheck,SIGNAL(clicked(bool)),
-          this,          SLOT(  hoseStyle(bool)));
-  sgrid->addWidget(hoseStyleCheck,1,0);
+  elementStyleCheck = new QCheckBox("Element",gbPLIAnnotationStyle);
+  elementStyleCheck->setChecked(meta->elementStyle.value());
+  elementStyleCheck->setToolTip("Default part Element annotation on rectanglular background");
+  elementStyleCheck->setVisible(bom);
+  connect(elementStyleCheck,SIGNAL(clicked(bool)),
+          this,              SLOT(  elementStyle(bool)));
+  sgrid->addWidget(elementStyleCheck,1,0);
 
   extendedStyleCheck = new QCheckBox("Extended",gbPLIAnnotationStyle);
   extendedStyleCheck->setChecked(meta->extendedStyle.value());
   extendedStyleCheck->setToolTip("Your custom annotation on rectanglular background");
   connect(extendedStyleCheck,SIGNAL(clicked(bool)),
           this,              SLOT(  extendedStyle(bool)));
-  sgrid->addWidget(extendedStyleCheck,1,1);
+  sgrid->addWidget(extendedStyleCheck,1,bom ? 1 : 0);
+
+  hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationStyle);
+  hoseStyleCheck->setChecked(meta->hoseStyle.value());
+  hoseStyleCheck->setToolTip("Default Hose annotation on square background");
+  connect(hoseStyleCheck,SIGNAL(clicked(bool)),
+          this,          SLOT(  hoseStyle(bool)));
+  sgrid->addWidget(hoseStyleCheck,1,bom ? 2 : 1);
 
   panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationStyle);
   panelStyleCheck->setChecked(meta->panelStyle.value());
   panelStyleCheck->setToolTip("Default Panel annotation on square background");
   connect(panelStyleCheck,SIGNAL(clicked(bool)),
           this,           SLOT(  panelStyle(bool)));
-  sgrid->addWidget(panelStyleCheck,1,2);
+  sgrid->addWidget(panelStyleCheck,1,bom ? 3 : 2);
 
   titleModified            = false;
   freeformModified         = false;
@@ -3556,6 +3568,7 @@ PliAnnotationGui::PliAnnotationGui(
   axleStyleModified        = false;
   beamStyleModified        = false;
   cableStyleModified       = false;
+  elementStyleModified     = false;
   connectorStyleModified   = false;
   extendedStyleModified    = false;
   hoseStyleModified        = false;
@@ -3611,6 +3624,13 @@ void PliAnnotationGui::connectorStyle(bool checked)
   modified = connectorStyleModified = true;
 }
 
+void PliAnnotationGui::elementStyle(bool checked)
+{
+  meta->elementStyle.setValue(checked);
+  modified = elementStyleModified = true;
+}
+
+
 void PliAnnotationGui::extendedStyle(bool checked)
 {
   meta->extendedStyle.setValue(checked);
@@ -3629,16 +3649,16 @@ void PliAnnotationGui::panelStyle(bool checked)
   modified = panelStyleModified = true;
 }
 
-void PliAnnotationGui::gbToggled(bool toggled)
+void PliAnnotationGui::gbToggled(bool checked)
 {
-  meta->display.setValue(toggled);
-  if(toggled){
+  meta->display.setValue(checked);
+  if(checked){
       titleAnnotationButton->setChecked(meta->titleAnnotation.value());
       freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
       titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
   }
 
-  gbPLIAnnotationStyle->setEnabled(toggled);
+  gbPLIAnnotationStyle->setEnabled(checked);
 
   modified = displayModified = true;
 }
@@ -3687,6 +3707,9 @@ void PliAnnotationGui::apply(QString &topLevelFile)
   }
   if (connectorStyleModified) {
       mi.setGlobalMeta(topLevelFile,&meta->connectorStyle);
+  }
+  if (elementStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->elementStyle);
   }
   if (extendedStyleModified) {
       mi.setGlobalMeta(topLevelFile,&meta->extendedStyle);

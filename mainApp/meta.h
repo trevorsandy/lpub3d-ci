@@ -698,6 +698,8 @@ public:
     _value[pushed][1] = v2;
   }
   
+  virtual void setValuePixels(int which, int pixels);
+
   virtual int valuePixels(int which);
 
   UnitsMeta() : FloatPairMeta()
@@ -2372,6 +2374,7 @@ public:
   BoolMeta      beamStyle;
   BoolMeta      cableStyle;
   BoolMeta      connectorStyle;
+  BoolMeta      elementStyle;
   BoolMeta      extendedStyle;
   BoolMeta      hoseStyle;
   BoolMeta      panelStyle;

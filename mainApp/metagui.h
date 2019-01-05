@@ -1107,6 +1107,7 @@ public:
   bool beamStyleModified;
   bool cableStyleModified;
   bool connectorStyleModified;
+  bool elementStyleModified;
   bool extendedStyleModified;
   bool hoseStyleModified;
   bool panelStyleModified;
@@ -1115,7 +1116,8 @@ public:
   PliAnnotationGui(
       QString const       &heading,
       PliAnnotationMeta   *meta,
-      QGroupBox           *parent = nullptr);
+      QGroupBox           *parent = nullptr,
+      bool                 bom = false);
   ~PliAnnotationGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -1130,6 +1132,7 @@ private:
   QCheckBox         *beamStyleCheck;
   QCheckBox         *cableStyleCheck;
   QCheckBox         *connectorStyleCheck;
+  QCheckBox         *elementStyleCheck;
   QCheckBox         *extendedStyleCheck;
   QCheckBox         *hoseStyleCheck;
   QCheckBox         *panelStyleCheck;
@@ -1148,11 +1151,12 @@ public slots:
   void beamStyle(bool);
   void cableStyle(bool);
   void connectorStyle(bool);
+  void elementStyle(bool);
   void extendedStyle(bool);
   void hoseStyle(bool);
   void panelStyle(bool);
 
-  void gbToggled(bool toggled);
+  void gbToggled(bool checked);
 };
 
 /***********************************************************************

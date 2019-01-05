@@ -221,17 +221,21 @@ GlobalPliDialog::GlobalPliDialog(
 
   box = new QGroupBox("Annotation Options");
   vlayout->addWidget(box);
-  child = new PliAnnotationGui("",&pliMeta->annotation,box);
+  child = new PliAnnotationGui("",&pliMeta->annotation,box,bom);
   connect(child, SIGNAL(toggled(bool)),
-          this,  SLOT(  displayEditOptionsChanged(bool)));
+          this,  SLOT(  displayAnnotationsChanged(bool)));
   data->children.append(child);
 
-  partElementsBox = new QGroupBox("Part Elements");
-  vlayout->addWidget(partElementsBox);
-  child = new PliPartElementGui("",&pliMeta->partElements,partElementsBox);
-  data->children.append(child);
+  if (bom) {
+      partElementsBox = new QGroupBox("Part Elements");
+      partElementsBox->setEnabled(pliMeta->annotation.display.value());
+      vlayout->addWidget(partElementsBox);
+      child = new PliPartElementGui("",&pliMeta->partElements,partElementsBox);
+      data->children.append(child);
+  }
 
   annotationTextBox = new QGroupBox("Annotation Text Format");
+  annotationTextBox->setEnabled(pliMeta->annotation.display.value());
   vlayout->addWidget(annotationTextBox);
   child = new NumberGui(&pliMeta->annotate,annotationTextBox);
   data->children.append(child);
@@ -404,6 +408,7 @@ GlobalPliDialog::GlobalPliDialog(
   layout->addWidget(buttonBox);
 
   styleOptionChanged(true);
+
   setModal(true);
   setMinimumSize(40,20);
   adjustSize();
@@ -505,10 +510,11 @@ void GlobalPliDialog::styleOptionChanged(bool b){
   }
 }
 
-void GlobalPliDialog::displayEditOptionsChanged(bool b){
+void GlobalPliDialog::displayAnnotationsChanged(bool b){
     annotationEditStyleBox->setEnabled(b);
-    partElementsBox->setEnabled(b);
     annotationTextBox->setEnabled(b);
+    if (data->bom)
+        partElementsBox->setEnabled(b);
 }
 
 void GlobalPliDialog::accept()

@@ -91,10 +91,12 @@ class PliPart {
     int                  pixmapWidth;
     int                  pixmapHeight;
     int                  textHeight;
+    int                  elementHeight;
     int                  annotHeight;
     int                  annotWidth;
 
     int                  topMargin;
+    int                  elementTopMargin;
     int                  partTopMargin;
     int                  partBotMargin;
 
@@ -108,20 +110,22 @@ class PliPart {
 
     PliPart()
     {
-      placed       = false;
-      instanceText = nullptr;
-      annotateText = nullptr;
-      pixmap       = nullptr;
+      placed          = false;
+      instanceText    = nullptr;
+      annotateText    = nullptr;
+      annotateElement = nullptr;
+      pixmap          = nullptr;
     }
 
     PliPart(QString _type, QString _color)
     {
-      type         = _type;
-      color        = _color;
-      placed       = false;
-      instanceText = nullptr;
-      annotateText = nullptr;
-      pixmap       = nullptr;
+      type            = _type;
+      color           = _color;
+      placed          = false;
+      instanceText    = nullptr;
+      annotateText    = nullptr;
+      annotateElement = nullptr;
+      pixmap          = nullptr;
     }
 
     float maxMargin();
@@ -395,13 +399,13 @@ public:
     int                  submodelLevel;
     AnnotationStyleMeta *styleMeta;
 
-  AnnotateTextItem(
-    Pli     *_pli,
+  AnnotateTextItem(Pli     *_pli,
     PliPart *_part,
     QString &text,
     QString &fontString,
     QString &colorString,
-    PlacementType _parentRelativeType);
+    PlacementType _parentRelativeType,
+    bool          _element = false);
 
     void size(int &x, int &y);
     void setAttributes();
