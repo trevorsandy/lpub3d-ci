@@ -3428,8 +3428,8 @@ BomMeta::BomMeta() : PliMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
-  //instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
-  annotate.font.setValuePoints("Arial,18,-1,5,50,0,0,0,0,0");
+  //annotate.font.setValuePoints("Arial,18,-1,5,50,0,0,0,0,0");     // Rem at 2.3.7 05/01/19
+  instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
 

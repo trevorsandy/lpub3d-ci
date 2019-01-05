@@ -95,8 +95,8 @@ class PliPart {
     int                  annotHeight;
     int                  annotWidth;
 
+    int                  textMargin;
     int                  topMargin;
-    int                  elementTopMargin;
     int                  partTopMargin;
     int                  partBotMargin;
 

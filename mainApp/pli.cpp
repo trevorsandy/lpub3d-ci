@@ -866,11 +866,27 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
             getLeftEdge(image,part->leftEdge);
             getRightEdge(image,part->rightEdge);
 
+            /*
+             * Lets see if we can slide the text up in the bottom left corner of
+             * part image (or part element if display option selected)
+             */
+
             bool overlapped = false;
 
-            int overlap = 0;
-            int hMax = 0;
-            int elementWidth = 0, elementHeight = 0;
+            int overlap;
+            for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
+                if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
+                    overlapped = true;
+                  }
+              }
+
+            part->textMargin = part->instanceMeta.margin.valuePixels(YY);
+
+            int hMax = int(textHeight + part->textMargin);
+            for (int h = overlap; h < hMax; h++) {
+                part->leftEdge << 0;
+                part->rightEdge << textWidth;
+              }
 
             if (bom && pliMeta.partElements.display.value()) {
 
@@ -901,18 +917,22 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
 
                 if (descr.size()) {
 
+                    int elementMargin;
+
                     if (pliMeta.annotation.elementStyle.value()){
                         font   = pliMeta.rectangleStyle.font.valueFoo();
                         color  = pliMeta.rectangleStyle.color.value();
-                        part->elementTopMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                        elementMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
                     } else {
                         font   = pliMeta.annotate.font.valueFoo();
                         color  = pliMeta.annotate.color.value();
-                        part->elementTopMargin = pliMeta.annotate.margin.valuePixels(YY);
+                        elementMargin = pliMeta.annotate.margin.valuePixels(YY);
                     }
 
                     part->annotateElement =
                             new AnnotateTextItem(this,part,descr,font,color,parentRelativeType,true);
+
+                    int elementWidth, elementHeight;
 
                     part->annotateElement->size(elementWidth,elementHeight);
 
@@ -935,39 +955,21 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                         }
                     }
 
-                    hMax = elementHeight + part->elementTopMargin;
+                    part->partBotMargin = elementMargin;
+
+                    hMax = elementHeight + part->partBotMargin;
                     for (int h = overlap; h < hMax; h++) {
                         part->leftEdge << 0;
                         part->rightEdge << elementWidth;
                     }
-
                 } else {
                     part->annotateElement = nullptr;
                     part->elementHeight  = 0;
+                    part->partBotMargin = part->textMargin;
                 }
+            } else {
+                part->partBotMargin = part->textMargin;
             }
-
-            /*
-             * Lets see if we can slide the text up in the bottom left corner of
-             * part image (or part element if display option selected)
-             */
-
-            overlapped = false;
-
-            for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
-                if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
-                    overlapped = true;
-                  }
-              }
-
-            part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
-
-            //int hMax = int(textHeight + part->instanceMeta.margin.valuePixels(YY)); // seems to be a problem here with instanceMeta.margin.value(YY)
-            hMax = int(textHeight + part->partBotMargin);
-            for (int h = overlap; h < hMax; h++) {
-                part->leftEdge << 0;
-                part->rightEdge << textWidth;
-              }
 
             part->height = part->leftEdge.size();
 
@@ -1123,14 +1125,12 @@ int Pli::placePli(
       margin.first = qMax(prevPart->instanceMeta.margin.valuePixels(XX),
                           prevPart->csiMargin.valuePixels(XX));
 
-//      TODO_DONE - Compare BOM Element Margin
-
       // Compare BOM Element Margin
       if (bom && pliMeta.partElements.display.value()) {
-          part->elementTopMargin = qMax(prevPart->styleMeta.margin.valuePixels(XX),
+          int elementMargin = qMax(prevPart->styleMeta.margin.valuePixels(XX),
                                    prevPart->csiMargin.valuePixels(XX));
-          if (part->elementTopMargin > margin.first)
-              margin.first = part->elementTopMargin;
+          if (elementMargin > margin.first)
+              margin.first = elementMargin;
       }
 
       tallest = qMax(tallest,prevPart->height);
@@ -1664,7 +1664,6 @@ int Pli::partSize()
 
                   part->partTopMargin = part->styleMeta.margin.valuePixels(YY);           // annotationStyle margin
 
-                  //int hMax = int(part->annotHeight + part->styleMeta.margin.value(YY));   // seems to be a problem here with styleMeta.margin.value(YY)
                   int hMax = int(part->annotHeight + part->partTopMargin);
                   for (int h = 0; h < hMax; h++) {
                       part->leftEdge  << part->width - part->annotWidth;
@@ -1681,11 +1680,27 @@ int Pli::partSize()
               getLeftEdge(image,part->leftEdge);
               getRightEdge(image,part->rightEdge);
 
+              /*
+               * Lets see if we can slide the text up in the bottom left corner of
+               * part image (or part element if display option selected)
+               */
+
               bool overlapped = false;
 
-              int overlap = 0;
-              int hMax = 0;
-              int elementWidth = 0, elementHeight = 0;
+              int overlap;
+              for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
+                  if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
+                      overlapped = true;
+                    }
+                }
+
+              part->textMargin = part->instanceMeta.margin.valuePixels(YY);
+
+              int hMax = int(textHeight + part->textMargin);
+              for (int h = overlap; h < hMax; h++) {
+                  part->leftEdge << 0;
+                  part->rightEdge << textWidth;
+                }
 
               if (bom && pliMeta.partElements.display.value()) {
 
@@ -1696,13 +1711,15 @@ int Pli::partSize()
                   QString _typeid  = QFileInfo(part->type).baseName();
 
                   int which = 0;   // 0 = BL, 1 = LEGO
-                  if (pliMeta.partElements.legoElements.value())
+                  if ( pliMeta.partElements.legoElements.value())
                       which = 1;
 
                   if (pliMeta.partElements.localLegoElements.value()) {
                       QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
                       descr = Annotations::getLEGOElement(elementKey.toLower());
-                  } else {
+                  }
+                  else
+                  {
                       if (!Annotations::loadBLElements()){
                           QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
                           gui->downloadFile(URL, "BrickLink Elements");
@@ -1714,18 +1731,22 @@ int Pli::partSize()
 
                   if (descr.size()) {
 
+                      int elementMargin;
+
                       if (pliMeta.annotation.elementStyle.value()){
                           font   = pliMeta.rectangleStyle.font.valueFoo();
                           color  = pliMeta.rectangleStyle.color.value();
-                          part->elementTopMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                          elementMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
                       } else {
                           font   = pliMeta.annotate.font.valueFoo();
                           color  = pliMeta.annotate.color.value();
-                          part->elementTopMargin = pliMeta.annotate.margin.valuePixels(YY);
+                          elementMargin = pliMeta.annotate.margin.valuePixels(YY);
                       }
 
                       part->annotateElement =
                               new AnnotateTextItem(this,part,descr,font,color,parentRelativeType,true);
+
+                      int elementWidth, elementHeight;
 
                       part->annotateElement->size(elementWidth,elementHeight);
 
@@ -1739,6 +1760,7 @@ int Pli::partSize()
                        * Lets see if we can slide the BOM Element up in the bottom left corner of
                        * part image
                        */
+
                       overlapped = false;
 
                       for (overlap = 1; overlap < elementHeight && ! overlapped; overlap++) {
@@ -1747,39 +1769,21 @@ int Pli::partSize()
                           }
                       }
 
-                      hMax = elementHeight + part->elementTopMargin;
+                      part->partBotMargin = elementMargin;
+
+                      hMax = elementHeight + part->partBotMargin;
                       for (int h = overlap; h < hMax; h++) {
                           part->leftEdge << 0;
                           part->rightEdge << elementWidth;
                       }
-
                   } else {
                       part->annotateElement = nullptr;
                       part->elementHeight  = 0;
+                      part->partBotMargin = part->textMargin;
                   }
+              } else {
+                  part->partBotMargin = part->textMargin;
               }
-
-              /*
-               * Lets see if we can slide the text up in the bottom left corner of
-               * part image (or part element if display option selected)
-               */
-
-              overlapped = false;
-
-              for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
-                  if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
-                      overlapped = true;
-                    }
-                }
-
-              part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
-
-              //int hMax = int(textHeight + part->instanceMeta.margin.valuePixels(YY)); // seems to be a problem here with instanceMeta.margin.value(YY)
-              hMax = int(textHeight + part->partBotMargin);
-              for (int h = overlap; h < hMax; h++) {
-                  part->leftEdge << 0;
-                  part->rightEdge << textWidth;
-                }
 
               part->height = part->leftEdge.size();
 
@@ -2256,8 +2260,10 @@ void Pli::positionChildren(
       if (part == nullptr) {
           continue;
         }
-      float x,y;
 
+      bool element = bom && pliMeta.partElements.display.value() && part->annotateElement;
+
+      float x,y;
       x = part->left;
       y = height - part->bot;
 
@@ -2274,19 +2280,19 @@ void Pli::positionChildren(
             (y - part->height + part->annotHeight + part->partTopMargin)/scaleY);
       part->pixmap->setTransformationMode(Qt::SmoothTransformation);
 
-      // Position the BOM Element
-      if (bom && pliMeta.partElements.display.value() && part->annotateElement) {
-          part->annotateElement->setParentItem(background);
-          part->annotateElement->setPos(
-                x/scaleX,
-                (y - part->elementHeight - part->textHeight + part->elementTopMargin)/scaleY);
-      }
-
       part->instanceText->setParentItem(background);
       part->instanceText->setPos(
             x/scaleX,
-            (y - part->textHeight)/scaleY);
-      bool foo = true;
+            (y - (element ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
+
+      // Position the BOM Element
+      if (element) {
+          part->annotateElement->setParentItem(background);
+          part->annotateElement->setPos(
+                x/scaleX,
+                (y - part->elementHeight)/scaleY);
+      }
+
     }
 }
 

@@ -480,7 +480,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 # | 3 |square(2)     |cable(3)        |
 # | 4 |square(2)     |connector(4)    |
 # | 5 |square(2)     |hose(5)         |
-# | 6 |square(2)     |panel(6)        |
+# | 6 |round(1)     |panel(6)        |
 # ------------------------------------
 #
 # 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)
@@ -598,33 +598,33 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "43675.dat=2   5  19    Technic Ribbed Hose 19L\n"
         "23397.dat=2   5  24    Technic Ribbed Hose 24L\n"
 
-        "32190.dat=2   6   1    Technic Panel Fairing #1\n"
-        "32191.dat=2   6   2    Technic Panel Fairing #2\n"
-        "44350.dat=2   6  20    Technic Panel Fairing #20\n"
-        "44351.dat=2   6  21    Technic Panel Fairing #21\n"
-        "44352.dat=2   6  22    Technic Panel Fairing #22\n"
-        "44353.dat=2   6  23    Technic Panel Fairing #23\n"
-        "47712.dat=2   6  24    Technic Panel Fairing #24\n"
-        "47713.dat=2   6  25    Technic Panel Fairing #25\n"
-        "32188.dat=2   6   3    Technic Panel Fairing #3\n"
-        "32189.dat=2   6   4    Technic Panel Fairing #4\n"
-        "32527.dat=2   6   5    Technic Panel Fairing #5\n"
-        "32528.dat=2   6   6    Technic Panel Fairing #6\n"
-        "32534.dat=2   6   7    Technic Panel Fairing #7\n"
-        "32535.dat=2   6   8    Technic Panel Fairing #8\n"
+        "32190.dat=1   6   1    Technic Panel Fairing #1\n"
+        "32191.dat=1   6   2    Technic Panel Fairing #2\n"
+        "44350.dat=1   6  20    Technic Panel Fairing #20\n"
+        "44351.dat=1   6  21    Technic Panel Fairing #21\n"
+        "44352.dat=1   6  22    Technic Panel Fairing #22\n"
+        "44353.dat=1   6  23    Technic Panel Fairing #23\n"
+        "47712.dat=1   6  24    Technic Panel Fairing #24\n"
+        "47713.dat=1   6  25    Technic Panel Fairing #25\n"
+        "32188.dat=1   6   3    Technic Panel Fairing #3\n"
+        "32189.dat=1   6   4    Technic Panel Fairing #4\n"
+        "32527.dat=1   6   5    Technic Panel Fairing #5\n"
+        "32528.dat=1   6   6    Technic Panel Fairing #6\n"
+        "32534.dat=1   6   7    Technic Panel Fairing #7\n"
+        "32535.dat=1   6   8    Technic Panel Fairing #8\n"
 
-        "87080.dat=2   6   1    Technic Panel Fairing Smooth #1 (Short)\n"
-        "64394.dat=2   6  13    Technic Panel Fairing Smooth #13 (Wide Medium)\n"
-        "64680.dat=2   6  14    Technic Panel Fairing Smooth #14 (Wide Medium)\n"
-        "64392.dat=2   6  17    Technic Panel Fairing Smooth #17 (Wide Long)\n"
-        "64682.dat=2   6  18    Technic Panel Fairing Smooth #18 (Wide Long)\n"
-        "87086.dat=2   6   2    Technic Panel Fairing Smooth #2 (Short)\n"
-        "11946.dat=2   6  21    Technic Panel Fairing Smooth #21 (Thin Short)\n"
-        "11947.dat=2   6  22    Technic Panel Fairing Smooth #22 (Thin Short)\n"
-        "64683.dat=2   6   3    Technic Panel Fairing Smooth #3 (Medium)\n"
-        "64391.dat=2   6   4    Technic Panel Fairing Smooth #4 (Medium)\n"
-        "64681.dat=2   6   5    Technic Panel Fairing Smooth #5 (Long)\n"
-        "64393.dat=2   6   6    Technic Panel Fairing Smooth #6 (Long)\n"
+        "87080.dat=1   6   1    Technic Panel Fairing Smooth #1 (Short)\n"
+        "64394.dat=1   6  13    Technic Panel Fairing Smooth #13 (Wide Medium)\n"
+        "64680.dat=1   6  14    Technic Panel Fairing Smooth #14 (Wide Medium)\n"
+        "64392.dat=1   6  17    Technic Panel Fairing Smooth #17 (Wide Long)\n"
+        "64682.dat=1   6  18    Technic Panel Fairing Smooth #18 (Wide Long)\n"
+        "87086.dat=1   6   2    Technic Panel Fairing Smooth #2 (Short)\n"
+        "11946.dat=1   6  21    Technic Panel Fairing Smooth #21 (Thin Short)\n"
+        "11947.dat=1   6  22    Technic Panel Fairing Smooth #22 (Thin Short)\n"
+        "64683.dat=1   6   3    Technic Panel Fairing Smooth #3 (Medium)\n"
+        "64391.dat=1   6   4    Technic Panel Fairing Smooth #4 (Medium)\n"
+        "64681.dat=1   6   5    Technic Panel Fairing Smooth #5 (Long)\n"
+        "64393.dat=1   6   6    Technic Panel Fairing Smooth #6 (Long)\n"
 
         "4109810.dat=1 1   2    _Technic Axle  2 Notched Black\n"
         "4211815.dat=1 1   3    _Technic Axle  3 Light_Bluish_Gray\n"
@@ -647,10 +647,10 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "4506697.dat=2 4   5    _Technic Angle Connector #5 (112.5 degree) White\n"
         "4107767.dat=2 4   6    _Technic Angle Connector #6 (90 degree) Black\n"
 
-        "22749.dat=2   6   1    =Technic Panel Fairing #1\n"
-        "22750.dat=2   6   2    =Technic Panel Fairing #2\n"
-        "22972.dat=2   6   3    =Technic Panel Fairing #3\n"
-        "22973.dat=2   6   4    =Technic Panel Fairing #4\n"
+        "22749.dat=1   6   1    =Technic Panel Fairing #1\n"
+        "22750.dat=1   6   2    =Technic Panel Fairing #2\n"
+        "22972.dat=1   6   3    =Technic Panel Fairing #3\n"
+        "22973.dat=1   6   4    =Technic Panel Fairing #4\n"
     };
 
     const char TENTEDefaultAnnotationStyles[] = {

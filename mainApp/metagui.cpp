@@ -3556,7 +3556,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationStyle);
   panelStyleCheck->setChecked(meta->panelStyle.value());
-  panelStyleCheck->setToolTip("Default Panel annotation on square background");
+  panelStyleCheck->setToolTip("Default Panel annotation on round background");
   connect(panelStyleCheck,SIGNAL(clicked(bool)),
           this,           SLOT(  panelStyle(bool)));
   sgrid->addWidget(panelStyleCheck,1,bom ? 3 : 2);
