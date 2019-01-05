@@ -186,6 +186,7 @@ enum sortType{
     PartSize = 0,
     PartColour,
     PartCategory,
+    PartElement,
     SortByType
 };
 
@@ -495,7 +496,8 @@ const QString SortOptionName[SortByType] =
 {
     "Part Size",
     "Part Color",
-    "Part Category"
+    "Part Category",
+    "Part Element"
 };
 
 // testing and diagnostics only

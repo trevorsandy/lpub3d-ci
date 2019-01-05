@@ -3261,7 +3261,8 @@ void ShowSubModelGui::apply(QString &topLevelFile)
 PliSortGui::PliSortGui(
   const QString   &heading,
   PliSortMeta     *_meta,
-  QGroupBox       *parent)
+  QGroupBox       *parent,
+  bool             bom)
 {
   meta = _meta;
 
@@ -3284,14 +3285,18 @@ PliSortGui::PliSortGui(
 
   int currentIndex;
   sortOption  = meta->sortOption.value();
-  sortOption == SortOptionName[PartSize]   ? currentIndex = PartSize :
-  sortOption == SortOptionName[PartColour] ? currentIndex = PartColour :
-                                             currentIndex = PartCategory;
+  sortOption == SortOptionName[PartSize]     ? currentIndex = PartSize :
+  sortOption == SortOptionName[PartColour]   ? currentIndex = PartColour :
+  sortOption == SortOptionName[PartCategory] ? currentIndex = PartCategory :
+                                         bom ? currentIndex = PartElement :
+                                               currentIndex = PartSize;
 
   combo = new QComboBox(parent);
   combo->addItem(SortOptionName[PartSize]);
   combo->addItem(SortOptionName[PartColour]);
   combo->addItem(SortOptionName[PartCategory]);
+  if (bom)
+      combo->addItem(SortOptionName[PartElement]);
   combo->setCurrentIndex(currentIndex);
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  optionChange(       QString const &)));

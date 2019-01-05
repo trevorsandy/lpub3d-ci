@@ -200,6 +200,32 @@ void Pli::setParts(
           QString sortCategory;
           partClass(type,sortCategory);  // populate sort category using part class and
 
+          QString element;
+          if (bom && pliMeta.partElements.display.value()) {
+
+              QString _colorid = color;
+              QString _typeid  = QFileInfo(type).baseName();
+
+              int which = 0;
+              if ( pliMeta.partElements.legoElements.value())
+                  which = 1;
+
+              if (pliMeta.partElements.localLegoElements.value()) {
+                  QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
+                  element = Annotations::getLEGOElement(elementKey.toLower());
+              }
+              else
+              {
+                  if (!Annotations::loadBLElements()){
+                      QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+                      gui->downloadFile(URL, "BrickLink Elements");
+                      QByteArray Buffer = gui->getDownloadedFile();
+                      Annotations::loadBLElements(Buffer);
+                  }
+                  element = Annotations::getBLElement(_colorid,_typeid,which);
+              }
+          }
+
           float modelScale = 1.0f;
           if (Preferences::usingNativeRenderer) {
               modelScale = pliMeta.cameraDistNative.factor.value();
@@ -253,9 +279,10 @@ void Pli::setParts(
                      styleMeta        = pliMeta.squareStyle;
               }
           }
-          else
-          if (styleExtended) {
-              styleMeta = pliMeta.rectangleStyle;
+          else {
+              if (styleExtended) {
+                  styleMeta = pliMeta.rectangleStyle;
+              }
           }
 
           // assemble image name key
@@ -274,11 +301,13 @@ void Pli::setParts(
           if (bom && splitBom){
               if ( ! tempParts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
+                  part->element         = element;
                   part->styleMeta       = styleMeta;
                   part->instanceMeta    = pliMeta.instance;
                   part->csiMargin       = pliMeta.part.margin;
                   part->sortColour      = QString("%1").arg(color,5,'0');
                   part->sortCategory    = QString("%1").arg(sortCategory,80,' ');
+                  part->sortElement     = pliMeta.partElements.legoElements.value() ? QString("%1").arg(element,12,'0'): QString("%1").arg(element,20,' ');
                   part->nameKey         = nameKey;
                   part->imageName       = imageName;
                   tempParts.insert(key,part);
@@ -287,11 +316,13 @@ void Pli::setParts(
             } else {
               if ( ! parts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
+                  part->element         = element;
                   part->styleMeta       = styleMeta;
                   part->instanceMeta    = pliMeta.instance;
                   part->csiMargin       = pliMeta.part.margin;
                   part->sortColour      = QString("%1").arg(color,5,'0');
                   part->sortCategory    = QString("%1").arg(sortCategory,80,' ');
+                  part->sortElement     = pliMeta.partElements.legoElements.value() ? QString("%1").arg(element,12,'0'): QString("%1").arg(element,20,' ');
                   part->nameKey         = nameKey;
                   part->imageName       = imageName;
                   parts.insert(key,part);
@@ -302,7 +333,6 @@ void Pli::setParts(
     } //instances
 
   // now sort then divide the list based on BOM occurrence
-  //TODO - Add BOM Element to sort
   if (bom && splitBom){
 
       //sort
@@ -324,6 +354,17 @@ void Pli::setParts(
           for (int i = 0; i < tempParts.size() - 1; i++) {
               for (int j = i+1; j < tempParts.size(); j++) {
                   if (tempParts[sortedKeys[i]]->sortCategory < tempParts[sortedKeys[j]]->sortCategory) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+        } else if (pliMeta.sortBy.value() == SortOptionName[PartElement]){
+          // Sort tempParts by element
+          for (int i = 0; i < tempParts.size() - 1; i++) {
+              for (int j = i+1; j < tempParts.size(); j++) {
+                  if (tempParts[sortedKeys[i]]->sortElement < tempParts[sortedKeys[j]]->sortElement) {
                       QString t = sortedKeys[i];
                       sortedKeys[i] = sortedKeys[j];
                       sortedKeys[j] = t;
@@ -892,30 +933,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
 
                 /* Add BOM Elements area */
 
-                descr.clear();
-                QString _colorid = part->color;
-                QString _typeid  = QFileInfo(part->type).baseName();
-
-                int which = 0;   // 0 = BL, 1 = LEGO
-                if ( pliMeta.partElements.legoElements.value())
-                    which = 1;
-
-                if (pliMeta.partElements.localLegoElements.value()) {
-                    QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
-                    descr = Annotations::getLEGOElement(elementKey.toLower());
-                }
-                else
-                {
-                    if (!Annotations::loadBLElements()){
-                        QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
-                        gui->downloadFile(URL, "BrickLink Elements");
-                        QByteArray Buffer = gui->getDownloadedFile();
-                        Annotations::loadBLElements(Buffer);
-                    }
-                    descr = Annotations::getBLElement(_colorid,_typeid,which);
-                }
-
-                if (descr.size()) {
+                if (part->element.size()) {
 
                     int elementMargin;
 
@@ -930,7 +948,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                     }
 
                     part->annotateElement =
-                            new AnnotateTextItem(this,part,descr,font,color,parentRelativeType,true);
+                            new AnnotateTextItem(this,part,part->element,font,color,parentRelativeType,true);
 
                     int elementWidth, elementHeight;
 
@@ -1481,7 +1499,6 @@ void Pli::getRightEdge(
     }
 }
 
-//TODO - Add BOM LEGO/BrickLink PartID Sort
 int Pli::sortPli()
 {
   // populate part size
@@ -1547,6 +1564,35 @@ int Pli::sortPli()
             }
         }
 
+    } else if (pliMeta.sortBy.value() == SortOptionName[PartElement]){
+
+      if (! bom)
+        pliMeta.sort.setValue(true);
+
+      // Sort parts by element
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->sortElement < parts[sortedKeys[j]]->sortElement) {
+                  QString t = sortedKeys[i];
+                  sortedKeys[i] = sortedKeys[j];
+                  sortedKeys[j] = t;
+                }
+            }
+        }
+
+      // Sort element-sorted parts by size
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->sortCategory == parts[sortedKeys[j]]->sortCategory) {
+                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+        }
+
     } else {
 
       // Sort parts by size
@@ -1560,6 +1606,7 @@ int Pli::sortPli()
             }
         }
     }
+
   return 0;
 }
 
@@ -1706,30 +1753,7 @@ int Pli::partSize()
 
                   /* Add BOM Elements area */
 
-                  descr.clear();
-                  QString _colorid = part->color;
-                  QString _typeid  = QFileInfo(part->type).baseName();
-
-                  int which = 0;   // 0 = BL, 1 = LEGO
-                  if ( pliMeta.partElements.legoElements.value())
-                      which = 1;
-
-                  if (pliMeta.partElements.localLegoElements.value()) {
-                      QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
-                      descr = Annotations::getLEGOElement(elementKey.toLower());
-                  }
-                  else
-                  {
-                      if (!Annotations::loadBLElements()){
-                          QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
-                          gui->downloadFile(URL, "BrickLink Elements");
-                          QByteArray Buffer = gui->getDownloadedFile();
-                          Annotations::loadBLElements(Buffer);
-                      }
-                      descr = Annotations::getBLElement(_colorid,_typeid,which);
-                  }
-
-                  if (descr.size()) {
+                  if (part->element.size()) {
 
                       int elementMargin;
 
@@ -1744,7 +1768,7 @@ int Pli::partSize()
                       }
 
                       part->annotateElement =
-                              new AnnotateTextItem(this,part,descr,font,color,parentRelativeType,true);
+                              new AnnotateTextItem(this,part,part->element,font,color,parentRelativeType,true);
 
                       int elementWidth, elementHeight;
 
@@ -2765,7 +2789,7 @@ void AnnotateTextItem::contextMenuEvent(
 {
   QMenu menu;
 
-  QString pl = "Part Annotation";
+  QString pl =  element ? "Part Element" : "Part Annotation";
 
   QAction *fontAction       = commonMenus.fontMenu(menu,pl);
   QAction *colorAction      = commonMenus.colorMenu(menu,pl);
@@ -2949,9 +2973,11 @@ AnnotateTextItem::AnnotateTextItem(
   QString &_fontString,
   QString &_colorString,
   PlacementType _parentRelativeType,
- bool           _element)
+  bool          _element)
 {
   parentRelativeType = _parentRelativeType;
+
+  element = _element;
 
   QString fontString = _fontString;
 
@@ -2959,7 +2985,7 @@ AnnotateTextItem::AnnotateTextItem(
 
   QString toolTip;
 
-  if (_element){
+  if (element){
       if (_pli->pliMeta.annotation.elementStyle.value()){
           styleMeta  = &_pli->pliMeta.rectangleStyle;
       }
@@ -2969,7 +2995,6 @@ AnnotateTextItem::AnnotateTextItem(
       styleMeta  = &_part->styleMeta;
       useDocSize = styleMeta->style.value() == AnnotationStyle::none;
       toolTip    = "Part Annotation - right-click to modify";
-      // adjust font size for 5.5 parts - set Arial to 17 (Interim solution)
       // TODO - automatically resize text until it fits
       if ((_part->styleMeta.style.value() == AnnotationStyle::circle ||
            _part->styleMeta.style.value() == AnnotationStyle::square) &&
@@ -2985,7 +3010,7 @@ AnnotateTextItem::AnnotateTextItem(
   if (useDocSize) {
       annotateRect = docSize;
   } else {
-      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || _element;
+      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || element;
       QRectF styleSize = QRectF(0,0,dw ? docSize.width() : styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(1));
       annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
       // center the document on the new size
@@ -3217,5 +3242,6 @@ void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem 
 {
     if (styleMeta->style.value() != AnnotationStyle::none)
         setBackground(painter);
+
     QGraphicsTextItem::paint(painter, o, w);
 }

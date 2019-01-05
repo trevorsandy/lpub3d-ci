@@ -201,6 +201,7 @@ void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer){
 #
 */
     const char LEGOLD2BLCodesXRef[] = {
+        "3245a\t     3245b\n"
         "32126\t     44\n"
         "3957a\t     3957\n"
         "76116\t     98313\n"

@@ -69,6 +69,7 @@ class PliPart {
     QList<Where>         instances;
     QString              type;
     QString              color;
+    QString              element;
     NumberMeta           instanceMeta;
     AnnotationStyleMeta  styleMeta;
     MarginsMeta          csiMargin;
@@ -77,6 +78,7 @@ class PliPart {
     AnnotateTextItem    *annotateElement;
     PGraphicsPixmapItem *pixmap;
 
+    QString              sortElement;
     QString              sortCategory;
     QString              sortColour;
     QString              sortSize;
@@ -389,6 +391,7 @@ public:
   PliPart *part;
   Pli     *pli;
   PlacementType  parentRelativeType;
+  bool     element;
 };
 
 class AnnotateTextItem : public PGraphicsTextItem

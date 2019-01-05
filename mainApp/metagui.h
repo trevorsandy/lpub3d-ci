@@ -1025,7 +1025,8 @@ public:
   PliSortGui(
       QString const &heading,
       PliSortMeta   *meta,
-      QGroupBox     *parent = nullptr);
+      QGroupBox     *parent = nullptr,
+      bool           bom = false);
   ~PliSortGui() {}
 
   virtual void apply(QString &topLevelFile);
