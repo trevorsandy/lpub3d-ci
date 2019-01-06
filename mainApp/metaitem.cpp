@@ -1288,7 +1288,7 @@ void MetaItem::changePlacement(
   PlacementData placementData = placement->value();
   bool ok;
   ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,onPageType,nullptr,pliPerStep);
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType,pliPerStep);
 
   if (ok) {
     placement->setValue(placementData);
