@@ -66,10 +66,10 @@ public:
   bool canConvertToCallout(    Meta *);
   void convertToCallout(       Meta *, const QString &, bool isMirrored, bool assembled = false);
   void addCalloutMetas(        Meta *, const QString &, bool isMirrored, bool assembled = false);
-
-  void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc placement, Rc rc);
-  void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc placement, Rc rc);
-  QPointF pointerTip(          Meta &, const Where &, const Where &);
+  void addCSIAnnotationMeta(QStringList &list, const Where &, const Where &, PlacementEnc, Meta *);
+  void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc, Rc);
+  void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc, Rc);
+  QPointF offsetPoint(         Meta &, const Where &, const Where &, PlacementEnc = Center, int = -1);
 
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
   QString makeMonoName(const QString &fileName, QString &color);
@@ -389,7 +389,7 @@ public:
   void changeInsertOffset(InsertMeta *placement);
   //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
 
-  void hidePLIParts(QList<Where> &parts);
+  void hidePLIParts(    QList<Where> &parts);
   void removeLPubFormatting();
 
   void replaceMeta(const Where &here, const QString &line);

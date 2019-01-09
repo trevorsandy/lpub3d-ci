@@ -88,6 +88,7 @@ enum Rc {
          PagePointerRc,
          IllustrationPointerRc,
 
+         AssemAnnotationIconRc,
          InsertFinalModelRc,
 
          ClearRc,
@@ -2226,6 +2227,37 @@ public:
 
 /*------------------------*/
 
+/*
+ * This class parses the CSI annotation
+ */
+ class CsiAnnotationIconMeta : public LeafMeta
+{
+private:
+  CsiAnnotationIconData _value[2];
+public:
+  CsiAnnotationIconData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(CsiAnnotationIconData &rhs)
+  {
+    _value[pushed] = rhs;
+  }
+  CsiAnnotationIconMeta();
+  CsiAnnotationIconMeta(const CsiAnnotationIconMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+  virtual ~CsiAnnotationIconMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+
+/*------------------------*/
+
 /* This class is to parse MLCad's rotation step */
 
 class RotStepMeta : public LeafMeta
@@ -2390,6 +2422,30 @@ public:
 
 /*------------------------*/
 
+class CsiAnnotationMeta  : public BranchMeta
+{
+public:
+  BoolMeta              display;
+  BoolMeta              axleDisplay;
+  BoolMeta              beamDisplay;
+  BoolMeta              cableDisplay;
+  BoolMeta              connectorDisplay;
+  BoolMeta              extendedDisplay;
+  BoolMeta              hoseDisplay;
+  BoolMeta              panelDisplay;
+  CsiAnnotationIconMeta icon;
+
+  CsiAnnotationMeta();
+  CsiAnnotationMeta(const PliAnnotationMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~CsiAnnotationMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class CalloutSubModelMeta : public BranchMeta
 {
 public:
@@ -2508,44 +2564,6 @@ public:
 
 /*------------------------*/
 
-class AssemMeta : public BranchMeta
-{
-public:
-  // top    == last step
-  // bottom == cur step
-  MarginsMeta     margin;
-  PlacementMeta   placement;
-  FloatMeta       modelScale;
-  StringMeta      ldviewParms;
-  StringMeta      ldgliteParms;
-  StringMeta      povrayParms;
-  BoolMeta        showStepNumber;
-
-  // image generation
-  CameraDistFactorMeta cameraDistNative;
-  FloatMeta            cameraFoV;
-  FloatPairMeta        cameraAngles;
-  IntMeta              distance;
-  FloatMeta            znear;
-  FloatMeta            zfar;
-  // display step
-  FloatMeta     v_cameraFoV;
-  FloatPairMeta v_cameraAngles;
-  IntMeta       v_distance;
-  FloatMeta     v_znear;
-  FloatMeta     v_zfar;
-
-  AssemMeta();
-  AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-  virtual ~AssemMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
 class PliMeta  : public BranchMeta
 {
 public:
@@ -2621,6 +2639,45 @@ public:
   }
 
   virtual ~SubModelMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class AssemMeta : public BranchMeta
+{
+public:
+  // top    == last step
+  // bottom == cur step
+  MarginsMeta           margin;
+  PlacementMeta         placement;
+  FloatMeta             modelScale;
+  StringMeta            ldviewParms;
+  StringMeta            ldgliteParms;
+  StringMeta            povrayParms;
+  BoolMeta              showStepNumber;
+  CsiAnnotationMeta     annotation;
+
+  // image generation
+  CameraDistFactorMeta cameraDistNative;
+  FloatMeta            cameraFoV;
+  FloatPairMeta        cameraAngles;
+  IntMeta              distance;
+  FloatMeta            znear;
+  FloatMeta            zfar;
+  // display step
+  FloatMeta     v_cameraFoV;
+  FloatPairMeta v_cameraAngles;
+  IntMeta       v_distance;
+  FloatMeta     v_znear;
+  FloatMeta     v_zfar;
+
+  AssemMeta();
+  AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~AssemMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2952,7 +3009,7 @@ public:
 private:
 };
 
-const QString RcNames[57] =
+const QString RcNames[58] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",
@@ -2988,6 +3045,7 @@ const QString RcNames[57] =
      "PagePointerRc",
      "IllustrationPointerRc",
 
+     "AssemAnnotationIconRc",
      "InsertFinalModelRc",
 
      "ClearRc",
@@ -3032,5 +3090,11 @@ const QString RcNames[57] =
 
      "EndOfFileRc",
 };
+
+extern const QString relativeNames[];
+extern const QString bRectPlacementNames[];
+extern const QString bPlacementEncNames[];
+extern const QString placementNames[];
+extern const QString prepositionNames[];
 
 #endif

@@ -2285,7 +2285,7 @@ void Pli::positionChildren(
           continue;
         }
 
-      bool element = bom && pliMeta.partElements.display.value() && part->annotateElement;
+      bool showElement = bom && pliMeta.partElements.display.value() && part->annotateElement;
 
       float x,y;
       x = part->left;
@@ -2307,10 +2307,10 @@ void Pli::positionChildren(
       part->instanceText->setParentItem(background);
       part->instanceText->setPos(
             x/scaleX,
-            (y - (element ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
+            (y - (showElement ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
 
       // Position the BOM Element
-      if (element) {
+      if (showElement) {
           part->annotateElement->setParentItem(background);
           part->annotateElement->setPos(
                 x/scaleX,
@@ -2789,7 +2789,7 @@ void AnnotateTextItem::contextMenuEvent(
 {
   QMenu menu;
 
-  QString pl =  element ? "Part Element" : "Part Annotation";
+  QString pl =  isElement ? "Part Element" : "Part Annotation";
 
   QAction *fontAction       = commonMenus.fontMenu(menu,pl);
   QAction *colorAction      = commonMenus.colorMenu(menu,pl);
@@ -2977,7 +2977,7 @@ AnnotateTextItem::AnnotateTextItem(
 {
   parentRelativeType = _parentRelativeType;
 
-  element = _element;
+  isElement = _element;
 
   QString fontString = _fontString;
 
@@ -2985,7 +2985,7 @@ AnnotateTextItem::AnnotateTextItem(
 
   QString toolTip;
 
-  if (element){
+  if (isElement){
       if (_pli->pliMeta.annotation.elementStyle.value()){
           styleMeta  = &_pli->pliMeta.rectangleStyle;
       }
@@ -3010,7 +3010,7 @@ AnnotateTextItem::AnnotateTextItem(
   if (useDocSize) {
       annotateRect = docSize;
   } else {
-      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || element;
+      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || isElement;
       QRectF styleSize = QRectF(0,0,dw ? docSize.width() : styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(1));
       annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
       // center the document on the new size

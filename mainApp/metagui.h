@@ -916,6 +916,7 @@ class RendererGui : public MetaGui
 {
   Q_OBJECT
 public:
+  bool          clearCaches;
 
   RendererGui(CameraDistFactorMeta *_meta,
               QGroupBox *parent = nullptr);
@@ -943,7 +944,6 @@ private:
   QSpinBox      *cameraDistFactorSpin;
   QLabel        *cameraDistFactorLabel;
 
-  bool          clearCaches;
   bool          rendererModified;
   bool          singleCallModified;
   bool          snapshotListModified;
@@ -1156,6 +1156,66 @@ public slots:
   void extendedStyle(bool);
   void hoseStyle(bool);
   void panelStyle(bool);
+
+  void gbToggled(bool checked);
+};
+
+/***********************************************************************
+ *
+ * CsiAnnotation
+ *
+ **********************************************************************/
+
+class CsiAnnotationMeta;
+class QLabel;
+class QRadioButton;
+class CsiAnnotationGui : public MetaGui
+{
+  Q_OBJECT
+public:
+  bool displayModified;
+  bool axleDisplayModified;
+  bool beamDisplayModified;
+  bool cableDisplayModified;
+  bool connectorDisplayModified;
+  bool extendedDisplayModified;
+  bool hoseDisplayModified;
+  bool panelDisplayModified;
+  bool placementModified;
+
+
+  CsiAnnotationGui(
+      QString const     &heading,
+      CsiAnnotationMeta *meta,
+      QGroupBox         *parent = nullptr);
+  ~CsiAnnotationGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  QLabel            *headingLabel;
+  QLabel            *placementLabel;
+  QGroupBox         *gbCSIAnnotationDisplay;
+  QCheckBox         *axleDisplayCheck;
+  QCheckBox         *beamDisplayCheck;
+  QCheckBox         *cableDisplayCheck;
+  QCheckBox         *connectorDisplayCheck;
+  QCheckBox         *extendedDisplayCheck;
+  QCheckBox         *hoseDisplayCheck;
+  QCheckBox         *panelDisplayCheck;
+  QComboBox         *placementCombo;
+
+  CsiAnnotationMeta *meta;
+
+public slots:
+  void axleDisplay(bool);
+  void beamDisplay(bool);
+  void cableDisplay(bool);
+  void connectorDisplay(bool);
+  void extendedDisplay(bool);
+  void hoseDisplay(bool);
+  void panelDisplay(bool);
+  void placementChanged(int const);
 
   void gbToggled(bool checked);
 };

@@ -679,7 +679,7 @@ int Gui::addGraphicsPageItems(
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
 
-                  // add the PLI graphically to the scene                  
+                  // add the PLI graphically to the scene
 
                   step->pli.addPli(step->submodelLevel, pageBg);
 

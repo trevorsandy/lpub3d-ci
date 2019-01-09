@@ -58,8 +58,11 @@ public:
           int            _submodelLevel,
           QGraphicsItem *parent,
           PlacementType  _parentRelativeType);
-          
+
+  void setCsiAnnotations();
+
   virtual void change();
+
 
   void setFlag(GraphicsItemFlag flag, bool value);
 

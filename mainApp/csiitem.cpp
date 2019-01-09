@@ -63,6 +63,10 @@ CsiItem::CsiItem(
     divider = nullptr;
   }
 
+  // CSI annotations
+  if (assem->annotation.display.value() && step->placeCsiAnnotation)
+      setCsiAnnotations();
+
   setTransformationMode(Qt::SmoothTransformation);
 
   setToolTip(step->path() + "- right-click to modify");
@@ -72,6 +76,22 @@ CsiItem::CsiItem(
 
   modelScale = meta->LPub.assem.modelScale;
 }
+
+void CsiItem::setCsiAnnotations()
+{
+    if (!assem->annotation.display.value())
+        return;
+
+    QHash<QString, PliPart*> parts;
+
+    step->pli.getParts(parts);
+
+    if (!parts.size())
+        return;
+
+    // TODO  complete this...
+}
+
 
 void CsiItem::setFlag(GraphicsItemFlag flag, bool value)
 {

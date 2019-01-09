@@ -172,7 +172,8 @@ enum AnnotationCategory{
     cable,
     connector,
     hose,
-    panel
+    panel,
+    extended
 };
 
 enum annotationType{
@@ -230,6 +231,21 @@ public:
   float y4;                    // MidTipY
 };
 
+class CsiAnnotationIconData
+{
+public:
+  PlacementEnc placement;     // placement relative part
+  QString      typeBaseName;  // part name without extension
+  float        offsets[2];    // offset
+  CsiAnnotationIconData()
+  {
+    placement    = Center;
+    typeBaseName = QString("0000");
+    offsets[0]   = 0.0f;
+    offsets[1]   = 0.0f;
+  }
+};
+
 class RotStepData
 {
 public:
@@ -237,7 +253,7 @@ public:
   QString type;
   RotStepData()
   {
-    type = "";
+    type = QString();
     rots[0] = 0;
     rots[1] = 0;
     rots[2] = 0;

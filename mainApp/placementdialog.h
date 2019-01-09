@@ -185,6 +185,8 @@ private:
   QLabel            *lblRelativeTo;
   QDialogButtonBox  *buttonBox;
 
+  static const QString labels[][5];
+  static const QString relativeNames[];
   static const QList<int> relativeToOks[];
   static const int prepositionOks[];
 };

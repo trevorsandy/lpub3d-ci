@@ -58,6 +58,7 @@ class Step : public AbstractRangeElement
     bool                  multiStep;
     bool                  placeSubModel;
     bool                  placeRotateIcon;
+    bool                  placeCsiAnnotation;
     bool                  rangeDivider;
 //    bool                  rangeDividerBefore;
     QList<Callout *>      list;
@@ -111,6 +112,8 @@ class Step : public AbstractRangeElement
     Range *range();
 
     bool loadTheViewer();
+
+    void setCsiAnnotationMetas(Meta &_meta);
 
     int  createCsi(
            QString      const &addLine,

@@ -259,9 +259,13 @@ class Pli : public Placement {
       bom       = from.bom;
     }
 
+    void getParts(QHash<QString, PliPart*> &_parts)
+    {
+      _parts = parts;
+    }
+
     void getLeftEdge(QImage &, QList<int> &);
     void getRightEdge(QImage &, QList<int> &);
-
 };
 
 class PliBackgroundItem : public BackgroundItem, public AbstractResize, public Placement
@@ -388,13 +392,13 @@ public:
     x = int(size.width());
     y = int(size.height());
   }
-  PliPart *part;
-  Pli     *pli;
-  PlacementType  parentRelativeType;
-  bool     element;
+  PliPart      *part;
+  Pli          *pli;
+  PlacementType parentRelativeType;
+  bool          isElement;
 };
 
-class AnnotateTextItem : public PGraphicsTextItem
+class AnnotateTextItem : public PGraphicsTextItem, /*public AbstractResize,*/ public Placement
 {
 public:
     QRectF               annotateRect;

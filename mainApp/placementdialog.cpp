@@ -46,7 +46,7 @@
 
 #include "QsLog.h"
 
-QString labels[5][5] = 
+const QString PlacementDialog::labels[][5] =
 {
   {"Top/Left",   "Top:Left",   "Top:Center",   "Top:Right",   "Top/Right" },
   {"Left:Top",   "Top/Left",   "Top",          "Top/Right",   "Right:Top" },
@@ -55,7 +55,7 @@ QString labels[5][5] =
   {"Bottom/Left","Bottom:Left","Bottom:Center","Bottom:Right","Right/Bottom" },
 };
 
-const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
+const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
 { //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , PhD , Pf, Ms}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
@@ -140,7 +140,7 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 34 NumRelatives             */
 };
 
-const QString relativeNames[NumRelatives] =
+const QString PlacementDialog::relativeNames[NumRelatives] =
 {
   "Page",        		        // 0 Page
   "Assem",                      // 1 Csi

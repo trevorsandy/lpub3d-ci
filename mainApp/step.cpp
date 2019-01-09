@@ -155,6 +155,7 @@ Step::Step(
                               _meta.LPub.rotateIcon.border.valuePixels().thickness);
   placeSubModel             = false;
   placeRotateIcon           = false;
+  placeCsiAnnotation        = false;
 
 }
 
@@ -568,6 +569,142 @@ bool Step::loadTheViewer(){
         }
     }
     return true;
+}
+
+/*
+ *
+ * Place the CSI step annotation metas
+ *
+ */
+void Step::setCsiAnnotationMetas(Meta &_meta)
+{
+    Meta *meta = &_meta;
+
+    if (!meta->LPub.assem.annotation.display.value())
+        return;
+
+    QHash<QString, PliPart*> pliParts;
+
+    pli.getParts(pliParts);
+
+    if (!pliParts.size())
+        return;
+
+    MetaItem mi;
+
+    Rc rc;
+    QString topOf;
+    Where start,undefined,fromHere,toHere;
+    if (multiStep){
+        topOf = "topOfSteps";
+        fromHere = topOfSteps();
+        toHere   = bottomOfSteps();
+        if (toHere == undefined)
+            toHere = fromHere;
+        if (toHere == fromHere) {
+            mi.scanForward(toHere,StepGroupEndMask);
+        }
+    } else if (calledOut){
+        topOf = "topOfCallout";
+        fromHere = callout()->topOfCallout();
+        toHere   = callout()->bottomOfCallout();
+        if (toHere == undefined)
+            toHere = fromHere;
+        if (toHere == fromHere) {
+            mi.scanForward(toHere,CalloutEndMask);
+        }
+    } else {
+        topOf = "topOfStep";
+        fromHere = topOfStep();
+        toHere   = bottomOfStep();
+        if (toHere == undefined)
+            toHere = fromHere;
+        if (toHere == fromHere) {
+            rc = mi.scanForward(toHere,StepMask);
+        }
+    }
+
+    if (fromHere == undefined) {
+        emit gui->messageSig(LOG_ERROR, QString("CSI annotations cound not retrieve %1 settings").arg(topOf));
+        return;
+    }
+
+    start = fromHere;
+
+    PlacementEnc placement = meta->LPub.assem.annotation.icon.value().placement;
+
+    QStringList parts;
+    QString saveName,modelName,lineNumbers;
+
+    for (; start.lineNumber < toHere.lineNumber; ++start) {
+        
+        QString line = gui->readLine(start);
+        QStringList argv;
+        split(line,argv);
+        
+        if (argv.size() == 15 && argv[0] == "1") {
+            QString key = QString("%1_%2").arg(QFileInfo(argv[14]).baseName()).arg(argv[1]);
+            PliPart *part = pliParts[key];
+            
+            if (!part)
+                continue;
+
+            if (part->type != argv[14])
+                continue;
+
+            if (part->annotateText) {
+                QString typeName = QFileInfo(part->type).baseName();
+                QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+").*$");
+                QRegExp rx(pattern);
+                Where walk = start;
+                line = gui->readLine(++walk); // check next line - skip if meta exist
+                if (line.contains(rx) && typeName == rx.cap(2))
+                    continue;
+
+                bool display = false;
+                AnnotationCategory annotationCategory = (AnnotationCategory)Annotations::getAnnotationCategory(part->type);
+                switch (annotationCategory)
+                {
+                case AnnotationCategory::axle:
+                    display = meta->LPub.assem.annotation.axleDisplay.value();
+                    break;
+                case AnnotationCategory::beam:
+                    display = meta->LPub.assem.annotation.beamDisplay.value();
+                    break;
+                case AnnotationCategory::cable:
+                    display = meta->LPub.assem.annotation.cableDisplay.value();
+                    break;
+                case AnnotationCategory::connector:
+                    display = meta->LPub.assem.annotation.connectorDisplay.value();
+                    break;
+                case AnnotationCategory::hose:
+                    display = meta->LPub.assem.annotation.hoseDisplay.value();
+                    break;
+                case AnnotationCategory::panel:
+                    display = meta->LPub.assem.annotation.panelDisplay.value();
+                    break;
+                default:
+                    display = meta->LPub.assem.annotation.extendedDisplay.value();
+                    break;
+                }
+                if (display) {
+                    // Pack parts type, modelName and instance line(s) into stringlist - do not reorder
+                    for (int i = 0; i < part->instances.size(); ++i) {
+                        saveName = typeName+"@"+part->instances[i].modelName;
+                        if (modelName == saveName) {
+                            lineNumbers += QString("%1;").arg(part->instances[i].lineNumber);
+                        } else {
+                            modelName   = saveName;
+                            lineNumbers = QString("%1;").arg(part->instances[i].lineNumber);
+                            parts.append(modelName+"~"+lineNumbers);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (parts.size())
+        mi.addCSIAnnotationMeta(parts,fromHere,toHere,placement,meta);
 }
 
 /*
