@@ -69,6 +69,7 @@ class PliPart {
     QList<Where>         instances;
     QString              type;
     QString              color;
+    QString              text;
     QString              element;
     NumberMeta           instanceMeta;
     AnnotationStyleMeta  styleMeta;
@@ -326,122 +327,229 @@ class PGraphicsPixmapItem : public QGraphicsPixmapItem,
                             public MetaItem  // ResizePixmapItem
 {
 public:
-  PGraphicsPixmapItem(
-    Pli     *_pli,
-    PliPart *_part,
-    QPixmap &pixmap,
-    PlacementType  _parentRelativeType,
-    QString &type,
-    QString &color)
-  {
-    parentRelativeType = _parentRelativeType;
-    pli = _pli;
-    part = _part;
-    setPixmap(pixmap);
-    setToolTip(pliToolTip(type,color));
-  }
-  QString pliToolTip(QString type, QString Color);
-  PliPart *part;
-  Pli     *pli;
-  PlacementType  parentRelativeType;
+PGraphicsPixmapItem(
+  Pli     *_pli,
+  PliPart *_part,
+  QPixmap &pixmap,
+  PlacementType  _parentRelativeType,
+  QString &type,
+  QString &color)
+{
+  parentRelativeType = _parentRelativeType;
+  pli = _pli;
+  part = _part;
+  setPixmap(pixmap);
+  setToolTip(pliToolTip(type,color));
+}
+QString pliToolTip(QString type, QString Color);
+PliPart *part;
+Pli     *pli;
+PlacementType  parentRelativeType;
 
 protected:
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
-
+class CsiItem;
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
 public:
-  PGraphicsTextItem()
-  {
-    pli = nullptr;
-    part = nullptr;
-  }
-  PGraphicsTextItem(
-    Pli     *_pli,
-    PliPart *_part,
-    QString &text,
-    QString &fontString,
-    QString &toolTip)
-  {
-    setText(_pli,
-            _part,
-            text,
-            fontString,
-            toolTip);
-  }
+PGraphicsTextItem()
+{
+  pli = nullptr;
+  csi = nullptr;
+  part = nullptr;
+}
+PGraphicsTextItem(
+  Pli     *_pli,
+  PliPart *_part,
+  QString &text,
+  QString &fontString,
+  QString &toolTip)
+{
+  setText(_pli,
+          _part,
+          text,
+          fontString,
+          toolTip);
+}
+PGraphicsTextItem(
+  CsiItem *_csi,
+  PliPart *_part,
+  QString &text,
+  QString &fontString,
+  QString &toolTip)
+{
+  setText(_csi,
+          _part,
+          text,
+          fontString,
+          toolTip);
+}
+void setText(
+  Pli     *_pli,
+  PliPart *_part,
+  QString &text,
+  QString &fontString,
+  QString &toolTip)
+{
+  pli  = _pli;
+  part = _part;
+  setPlainText(text);
+  QFont font;
+  font.fromString(fontString);
+  setFont(font);
+  setToolTip(toolTip);
+}
+void setText(
+  CsiItem *_csi,
+  PliPart *_part,
+  QString &text,
+  QString &fontString,
+  QString &toolTip)
+{
+  csi  = _csi;
+  part = _part;
+  setPlainText(text);
+  QFont font;
+  font.fromString(fontString);
+  setFont(font);
+  setToolTip(toolTip);
+}
+virtual void size(int &x, int &y)
+{
+  QSizeF size = document()->size();
+  x = int(size.width());
+  y = int(size.height());
+}
+PliPart      *part;
+Pli          *pli;
+CsiItem      *csi;
+PlacementType parentRelativeType;
+bool          isElement;
+};
+
+class InstanceTextItem : public PGraphicsTextItem
+{
+public:
+InstanceTextItem(
+  Pli            *_pli,
+  PliPart        *_part,
+  QString        &text,
+  QString        &fontString,
+  QString        &colorString,
+  PlacementType _parentRelativeType)
+{
+  parentRelativeType = _parentRelativeType;
+  QString toolTip(tr("Times used - right-click to modify"));
+  setText(_pli,_part,text,fontString,toolTip);
+  QColor color(colorString);
+  setDefaultTextColor(color);
+}
+
+protected:
+void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
+class CsiAnnotation;
+class AnnotateTextItem : public PGraphicsTextItem
+{
+public:
+  QRectF               annotateRect;
+  AnnotationStyleMeta *styleMeta;
+
+  AnnotateTextItem(
+    Pli           *_pli,
+    PliPart       *_part,
+    QString       &text,
+    QString       &fontString,
+    QString       &colorString,
+    PlacementType _parentRelativeType,
+    bool          _element = false);
+
+  virtual ~AnnotateTextItem(){}
+
+  void size(int &x, int &y);
+
+protected:
+  StringListMeta       subModelColor;
+  int                  submodelLevel;
+
+  void setBackground(QPainter *painter);
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
+class CsiAnnotation;
+class CsiAnnotationBackgroundItem : public QGraphicsTextItem, /*public AbstractResize,*/ public Placement
+{
+public:
+  CsiAnnotation       *ca;
+  CsiItem             *csi;
+  PliPart             *part;
+  AnnotationStyleMeta *styleMeta;
+  QGraphicsView       *view;
+  PlacementType        parentRelativeType;
+  bool                 positionChanged;
+  QPointF              position;
+  QRectF               annotateRect;
+
+  CsiAnnotationBackgroundItem(QGraphicsItem *_parent = nullptr);
+  void sizeIt();
+  void setPlacementSettings();
   void setText(
-    Pli     *_pli,
-    PliPart *_part,
     QString &text,
     QString &fontString,
     QString &toolTip)
   {
-    pli  = _pli;
-    part = _part;
     setPlainText(text);
     QFont font;
     font.fromString(fontString);
     setFont(font);
     setToolTip(toolTip);
   }
-  virtual void size(int &x, int &y)
+  void setPos(float x, float y)
   {
-    QSizeF size = document()->size();
-    x = int(size.width());
-    y = int(size.height());
+    QGraphicsTextItem::setPos(x,y);
   }
-  PliPart      *part;
-  Pli          *pli;
-  PlacementType parentRelativeType;
-  bool          isElement;
+  void setFlag(GraphicsItemFlag flag, bool value)
+  {
+    QGraphicsItem::setFlag(flag,value);
+  }
+  virtual ~CsiAnnotationBackgroundItem(){}
+
+protected:
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void change() = 0;
+
+private:
 };
 
-class AnnotateTextItem : public PGraphicsTextItem, /*public AbstractResize,*/ public Placement
+class CsiItem;
+class CsiAnnotationItem : public CsiAnnotationBackgroundItem, public MetaItem
 {
 public:
-    QRectF               annotateRect;
-    StringListMeta       subModelColor;
-    int                  submodelLevel;
-    AnnotationStyleMeta *styleMeta;
 
-  AnnotateTextItem(Pli     *_pli,
-    PliPart *_part,
-    QString &text,
-    QString &fontString,
-    QString &colorString,
-    PlacementType _parentRelativeType,
-    bool          _element = false);
+  CsiAnnotationItem(
+    CsiItem       *_csi,
+    CsiAnnotation *_ca,
+    PliPart       *_part,
+    QGraphicsItem *_parent);
 
-    void size(int &x, int &y);
-    void setAttributes();
-    QGradient setGradient();
+  virtual ~CsiAnnotationItem(){}
+
+  void size(int &x, int &y);
+
 protected:
+  StringListMeta       subModelColor;
+  int                  submodelLevel;
+
+  virtual void change();
   void setBackground(QPainter *painter);
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
-};
-
-class InstanceTextItem : public PGraphicsTextItem
-{
-public:
-  InstanceTextItem(
-    Pli            *_pli,
-    PliPart        *_part,
-    QString        &text,
-    QString        &fontString,
-    QString        &colorString,
-    PlacementType _parentRelativeType)
-  {
-    parentRelativeType = _parentRelativeType;
-    QString toolTip(tr("Times used - right-click to modify"));
-    setText(_pli,_part,text,fontString,toolTip);
-    QColor color(colorString);
-    setDefaultTextColor(color);
-  }
-
-protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
+
 #endif

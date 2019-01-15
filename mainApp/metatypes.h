@@ -111,6 +111,24 @@ enum PrepositionEnc {
   Outside
 };
 
+/*
+* PlacementTypes are defined here and in
+* PlacementDialog. Placement
+* Names are defined at PlacementMeta in
+* meta.cpp as relativeNames[] and below as RelNames[]
+* PlacementMeta also defines _relativeTo
+* PlacementDialog also defined RelativeTos
+* Which correspond to each PlacementType
+*
+* -enum       PlacementType                (metatypes.h)
+* -QString    RelNames[NumRelatives]       (metatypes.h)
+* -QString    relativeNames[]              (meta.cpp)
+* -QString    relativeTos                  (meta.cpp, PlacementMeta::parse())
+* -enum       RelativeTos                  (placementdialog.h)
+* -QList<int> relativeToOks[NumRelatives]  (placementdialog.cpp)
+* -int        prepositionOks[NumRelatives] (placementdialog.cpp)
+* -QString    relativeNames[NumRelatives]  (placementdialog.cpp)
+*/
 enum PlacementType {          // placement dialogue codes:
   PageType,                   // 0 Page
   CsiType,                    // 1 Csi  (Assem)
@@ -148,8 +166,9 @@ enum PlacementType {          // placement dialogue codes:
   RangeType,                  //31
   ReserveType,                //32
   CoverPageType,              //33
+  CsiAnnotationType,          //34
 
-  NumRelatives                //34
+  NumRelatives                //35
 };
 
 enum pageType{
@@ -234,15 +253,23 @@ public:
 class CsiAnnotationIconData
 {
 public:
-  PlacementEnc placement;     // placement relative part
-  QString      typeBaseName;  // part name without extension
-  float        offsets[2];    // offset
+  PlacementEnc placement;     // My placement relative to my part - to generate proper offset
+  QString      typeBaseName;  // My part name without extension
+  int          typeColor;     // My part color
+  float        offset[2];     // My offset from my part rect
+  int          size[2];       // How big is my part (in pixels)?
+  int          loc[2];        // Where is my part (in pixels)?
   CsiAnnotationIconData()
   {
     placement    = Center;
-    typeBaseName = QString("0000");
-    offsets[0]   = 0.0f;
-    offsets[1]   = 0.0f;
+    typeBaseName = QString();
+    typeColor    = -1;
+    offset[0]    = 0.0f;
+    offset[1]    = 0.0f;
+    size[0]      = 0;
+    size[1]      = 0;
+    loc[0]       = 0;
+    loc[1]       = 0;
   }
 };
 
@@ -587,9 +614,10 @@ const QString RelNames[NumRelatives] =
    "StepType",                   //20
    "RangeType",                  //31
    "ReserveType",                //32
-   "CoverPageType"               //33
+   "CoverPageType",              //33
+   "CsiAnnotationType"           //34
 
-}; //NumRelatives"               //34
+}; //NumRelatives"               //35
 
 const QString PlacNames[NumPlacements] =
  {

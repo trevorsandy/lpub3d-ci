@@ -586,6 +586,7 @@ int Gui::addGraphicsPageItems(
                   // add the assembly image to the scene
 
                   step->csiItem = new CsiItem(
+//                        view,
                         step,
                         &page->meta,
                         step->csiPixmap,
@@ -678,6 +679,10 @@ int Gui::addGraphicsPageItems(
                   // place the CSI relative to the entire step's box
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
+
+                  // place CSI annotations
+                  if (step->csiItem->assem->annotation.display.value())
+                      step->csiItem->placeCsiPartAnnotations();
 
                   // add the PLI graphically to the scene
 

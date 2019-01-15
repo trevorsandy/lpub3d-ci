@@ -39,30 +39,32 @@
 #include "QsLog.h"
 
 class Step;
-
+class AnnotateTextItem;
 class CsiItem : public ResizePixmapItem
 {
 public:
+//  QGraphicsView *view;
   Meta          *meta;
   AssemMeta     *assem;
   RcMeta        *divider;
+  Step          *step;
   PlacementType  parentRelativeType;
   bool           multiStep;
-  Step          *step;
   int            submodelLevel;
   FloatMeta      modelScale;
 
-  CsiItem(Step          *_step,
+  CsiItem(
+//          QGraphicsView *_view,
+          Step          *_step,
           Meta          *_meta,
           QPixmap       &pixmap,
           int            _submodelLevel,
           QGraphicsItem *parent,
           PlacementType  _parentRelativeType);
 
-  void setCsiAnnotations();
+  void placeCsiPartAnnotations();
 
   virtual void change();
-
 
   void setFlag(GraphicsItemFlag flag, bool value);
 
@@ -72,5 +74,6 @@ private:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 };
+
 #endif
 

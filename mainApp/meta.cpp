@@ -590,7 +590,8 @@ const QString relativeNames[] =
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PARTS","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
   "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","SUBMODEL_DISPLAY",
-  "ROTATE_ICON","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE"
+  "ROTATE_ICON","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE",
+  "ANNOTATION"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -628,7 +629,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PARTS|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
                         "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|SUBMODEL_DISPLAY|"
-                        "ROTATE_ICON|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE)$";
+                        "ROTATE_ICON|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE|ANNOTATION)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
@@ -1698,43 +1699,54 @@ CsiAnnotationIconMeta::CsiAnnotationIconMeta() : LeafMeta()
 {
 }
 
+// parse() should never be used as we manage CsiAnnotationIconData directly in pliPart
 Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 {
 #ifdef QT_DEBUG_MODE
-  QStringList debugLine = QStringList() << "[LINE:";
-  for(int i=0;i<argv.size();i++){
-      debugLine << argv[i];
-      int size = argv.size();
-      int incr = i;
-      int result = size - incr;
-      QString traceLine = QString("ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
-                                  .arg(i+1)
-                                  .arg(i)
-                                  .arg(size)
-                                  .arg(incr)
-                                  .arg(result)
-                                  .arg(argv[i]);
-//      logTrace() << "\nCSI ANNOTATION ICON META PARSE" << traceLine;
-  }
-  debugLine << QString("], Index (%1)[%2], Size (%3), Valid (%4), LineNum (%5), ModelName (%6)")
-                       .arg(index)
-                       .arg(argv[index])
-                       .arg(argv.size())
-                       .arg(argv.size() - index)
-                       .arg(here.modelName)
-                       .arg(here.lineNumber);
+//  QStringList debugLine = QStringList() << "[LINE:";
+//  for(int i=0;i<argv.size();i++){
+//      debugLine << argv[i];
+//      int size = argv.size();
+//      int incr = i;
+//      int result = size - incr;
+//      QString traceLine = QString("ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+//                                  .arg(i+1)
+//                                  .arg(i)
+//                                  .arg(size)
+//                                  .arg(incr)
+//                                  .arg(result)
+//                                  .arg(argv[i]);
+//      logTrace() << "\nCSI ANNOTATION ICON META PARSE" << traceLine;  // ARGS DETAIL
+//  }
+//  debugLine << QString("], Index (%1)[%2], Size (%3), Valid (%4), LineNum (%5), ModelName (%6)")
+//                       .arg(index)
+//                       .arg(argv[index])
+//                       .arg(argv.size())
+//                       .arg(argv.size() - index)
+//                       .arg(here.modelName)
+//                       .arg(here.lineNumber);
 #endif
   CsiAnnotationIconData annotationData;
   Rc rc = FailureRc;
-  bool good = false, ok = false;
-  if (argv.size() - index == 4) {
+  if (argv.size() - index == 9) {
      QRegExp rx("^(TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)$");
      if (argv[index].contains(rx)) {
          annotationData.placement = PlacementEnc(tokenMap[argv[index]]);
          rc = OkRc;
      }
-     annotationData.offsets[0] = argv[++index].toFloat(&good);
-     annotationData.offsets[1] = argv[++index].toFloat(&ok);
+     bool good = false, ok = false;
+     annotationData.offset[0] = argv[++index].toFloat(&good);
+     annotationData.offset[1] = argv[++index].toFloat(&ok);
+     good &= ok;
+     annotationData.size[0] = argv[++index].toInt(&ok);
+     good &= ok;
+     annotationData.size[1] = argv[++index].toInt(&ok);
+     good &= ok;
+     annotationData.loc[0] = argv[++index].toInt(&ok);
+     good &= ok;
+     annotationData.loc[1] = argv[++index].toInt(&ok);
+     good &= ok;
+     annotationData.typeColor = argv[++index].toInt(&ok);
      good &= ok;
      if (good) {
          rc = OkRc;
@@ -1742,13 +1754,12 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
      annotationData.typeBaseName = argv[++index];
   }
 #ifdef QT_DEBUG_MODE
-  QString result = QString(", Result (%1)").arg(rc == 0 ? "OkRc" : "FailureRc");
-  logDebug() << "\nCSI ANNOTATION ICON META PARSE DEBUG" << debugLine.join(" ") << result;
+//  QString result = QString(", Result (%1)").arg(rc == 0 ? "OkRc" : "FailureRc");
+//  logDebug() << "\nCSI ANNOTATION ICON META PARSE DEBUG" << debugLine.join(" ") << result;
 #endif
   if (rc == OkRc) {
       _value[pushed] = annotationData;
       _here[pushed]  = here;
-
       return AssemAnnotationIconRc;
     } else {
       if (reportErrors) {
@@ -1759,24 +1770,31 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
     }
 }
 
+// format() should never be used as we manage CsiAnnotationIconData directly in pliPart
 QString CsiAnnotationIconMeta::format(bool local, bool global)
 {
-  QString foo = QString("%1 %2 %3 %4")
+  QString foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9")
                         .arg(placementNames[_value[pushed].placement])
-                        .arg(_value[pushed].offsets[0],0,'f',3)
-                        .arg(_value[pushed].offsets[1],0,'f',3)
+                        .arg(_value[pushed].offset[0],0,'f',5)
+                        .arg(_value[pushed].offset[1],0,'f',5)
+                        .arg(_value[pushed].size[0])
+                        .arg(_value[pushed].size[1])
+                        .arg(_value[pushed].loc[0])
+                        .arg(_value[pushed].loc[1])
+                        .arg(_value[pushed].typeColor)
                         .arg(_value[pushed].typeBaseName);
 #ifdef QT_DEBUG_MODE
     logDebug() << "\nCSI ANNOTATION ICON META FORMAT" <<
-                  "\nPreamble:" << preamble << "DATA" << foo;
+                  "\nPreamble:" << preamble << "LINE DATA" << foo;
 #endif
   return LeafMeta::format(local,global,foo);
 }
 
 void CsiAnnotationIconMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "(TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)"
-                    " <offset0> <offset1> <part baseName> ";
+  out << preamble + " (TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)"
+                    " <offset0> <offset1> <size0(px)> <size1(px)> <loc0(px)> <loc1(px)>"
+                    " <part color> <part baseName>";
 }
 
 /* ------------------ */ 
@@ -2895,27 +2913,32 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
 
 CsiAnnotationMeta::CsiAnnotationMeta() : BranchMeta()
 {
+  placement.setValue                (BottomLeftInsideCorner,CsiType);
   display.setValue                  (false);
-  axleDisplay.setValue                 (true);
-  beamDisplay.setValue                 (true);
-  cableDisplay.setValue                (true);
-  connectorDisplay.setValue            (true);
-  extendedDisplay.setValue             (false);
-  hoseDisplay.setValue                 (true);
-  panelDisplay.setValue                (true);
+  axleDisplay.setValue              (true);
+  beamDisplay.setValue              (true);
+  cableDisplay.setValue             (true);
+  connectorDisplay.setValue         (true);
+  extendedDisplay.setValue          (false);
+  hoseDisplay.setValue              (true);
+  panelDisplay.setValue             (true);
+  position.setRange                 (0,8); // PlacementEnc
+  position.setValue                 (8);   // Center
 }
 
 void CsiAnnotationMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
+  placement.init                 (this, "PLACEMENT");
   display.init                   (this, "DISPLAY");
-  axleDisplay.init                  (this, "AXLE");
-  beamDisplay.init                  (this, "BEAM");
-  cableDisplay.init                 (this, "CABLE");
-  connectorDisplay.init             (this, "CONNECTOR");
-  extendedDisplay.init              (this, "EXTENDED");
-  hoseDisplay.init                  (this, "HOSE");
-  panelDisplay.init                 (this, "PANEL");
+  axleDisplay.init               (this, "AXLE");
+  beamDisplay.init               (this, "BEAM");
+  cableDisplay.init              (this, "CABLE");
+  connectorDisplay.init          (this, "CONNECTOR");
+  extendedDisplay.init           (this, "EXTENDED");
+  hoseDisplay.init               (this, "HOSE");
+  panelDisplay.init              (this, "PANEL");
+  position.init                  (this, "POSITION");
   icon.init                      (this, "ICON");
 }
 

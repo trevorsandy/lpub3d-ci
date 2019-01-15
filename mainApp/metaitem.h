@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -20,7 +20,7 @@
  *
  * This file describes a class that is used to implement backannotation
  * of user Gui input into the LDraw file.  Furthermore it implements
- * some functions to provide higher level editing capabilities, such 
+ * some functions to provide higher level editing capabilities, such
  * as adding and removing steps from step groups, adding, moving and
  * deleting dividers.
  *
@@ -57,6 +57,8 @@ class StepGroup;
 class MetaItem
 {
 public:
+  void setNativeRenderer();
+  void restoreRenderer(QString &,bool,bool);
   enum monoColors { white, blue, numColors };
   QString monoColor [numColors] = { "white", "blue" };
   QString monoColorCode[numColors] = { "15", "1" };
@@ -66,10 +68,11 @@ public:
   bool canConvertToCallout(    Meta *);
   void convertToCallout(       Meta *, const QString &, bool isMirrored, bool assembled = false);
   void addCalloutMetas(        Meta *, const QString &, bool isMirrored, bool assembled = false);
-  void addCSIAnnotationMeta(QStringList &list, const Where &, const Where &, PlacementEnc, Meta *);
   void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc, Rc);
   void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc, Rc);
-  QPointF offsetPoint(         Meta &, const Where &, const Where &, PlacementEnc = Center, int = -1);
+  void writeCsiAnnotationMeta(QStringList &list, const Where &, const Where &, PlacementEnc, Meta *);
+  bool offsetPoint(Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int = -1);
+  void updateCsiAnnotationIconMeta(const Where &here, CsiAnnotationIconMeta *caim);
 
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
   QString makeMonoName(const QString &fileName, QString &color);
@@ -126,13 +129,13 @@ public:
                     QString             title,
                     bool                onPageType);
   void changePlacement( PlacementType parentType,
-                        PlacementType placedType, 
+                        PlacementType placedType,
                         QString title,
                         const Where &top,
                         const Where &bottom,
                         PlacementMeta *,
-                        bool useTop = true, 
-                        int  append = 1, 
+                        bool useTop = true,
+                        int  append = 1,
                         bool local = true,
                         bool checkLocal = true,
                         int  onPageType = ContentPage);
@@ -152,36 +155,36 @@ public:
 
   void changePlacementOffset(
                         Where defaultconst,
-                        PlacementMeta *placement, 
-                        PlacementType type, 
+                        PlacementMeta *placement,
+                        PlacementType type,
                         bool useTop = true,
-                        bool local = true, 
-                        bool global = false);  
+                        bool local = true,
+                        bool global = false);
 
-  void changeAlloc(     const Where &, 
-                        const Where &, 
+  void changeAlloc(     const Where &,
+                        const Where &,
                         AllocMeta   &,
                         int   append = 1);
-                        
-  void changeBool(      const Where &, 
-                        const Where &, 
+
+  void changeBool(      const Where &,
+                        const Where &,
                         BoolMeta    *,
                         bool  useTop = true,
-                        int   append = 1, 
+                        int   append = 1,
                         bool allowLocal = false,
                         bool askLocal = true);
 
-  void changeFont(      const Where &, 
+  void changeFont(      const Where &,
                         const Where &,
                         FontMeta  *,
                         int   append = 1,
                         bool checkLocal = true,
                         bool  useTop = true);
-  
-  void changeColor(     const Where &, 
+
+  void changeColor(     const Where &,
                         const Where &,
-                        StringMeta  *,  
-                        int   append = 1, 
+                        StringMeta  *,
+                        int   append = 1,
                         bool checkLocal = true,
                         bool  useTop = true);
 
@@ -251,43 +254,43 @@ public:
                         int  append = 1,
                         bool  local = true);
 
-  void changeBorder(    QString, 
-                        const Where &, 
+  void changeBorder(    QString,
+                        const Where &,
                         const Where &,
                         BorderMeta  *,
                         bool useTop = true,
-                        int  append = 1, 
+                        int  append = 1,
                         bool checkLocal = true,
                         bool rotateArrow = false,
                         bool corners = false);
 
   void changeCameraAngles( QString,
-                        const Where &, 
-                        const Where &, 
+                        const Where &,
+                        const Where &,
                         FloatPairMeta *,
-                        int  append = 1, 
-                        bool checkLocal = true);
-
-  void changeConstraint(QString, 
-                        const Where &, 
-                        const Where &, 
-                        ConstrainMeta *,
-                        int   append = 1, 
-                        bool checkLocal = true);
-
-  void changeDivider(   QString, 
-                        const Where &, 
-                        const Where &, 
-                        SepMeta *,   
                         int  append = 1,
                         bool checkLocal = true);
 
-  void changeMargins(   QString, 
-                        const Where &, 
-                        const Where &, 
+  void changeConstraint(QString,
+                        const Where &,
+                        const Where &,
+                        ConstrainMeta *,
+                        int   append = 1,
+                        bool checkLocal = true);
+
+  void changeDivider(   QString,
+                        const Where &,
+                        const Where &,
+                        SepMeta *,
+                        int  append = 1,
+                        bool checkLocal = true);
+
+  void changeMargins(   QString,
+                        const Where &,
+                        const Where &,
                         MarginsMeta *,
                         bool  useTop = true,
-                        int   append = 1,   
+                        int   append = 1,
                         bool checkLocal = true);
 
   void changeCameraDistFactor(
@@ -299,33 +302,33 @@ public:
                         int  append = 1,
                         bool checkLocal = true);
 
-  void changeFloat(     QString, 
-                        QString, 
-                        const Where &, 
-                        const Where &, 
+  void changeFloat(     QString,
+                        QString,
+                        const Where &,
+                        const Where &,
                         FloatMeta *,
-                        int   append = 1, 
+                        int   append = 1,
                         bool checkLocal = true);
 
-  void changeFloat(     const Where &, 
-                        const Where &, 
+  void changeFloat(     const Where &,
+                        const Where &,
                         FloatMeta *,
-                        int   append = 1, 
+                        int   append = 1,
                         bool checkLocal = true);
 
-  void changeFloatSpin( QString, 
-                        QString, 
-                        const Where &, 
-                        const Where &, 
+  void changeFloatSpin( QString,
+                        QString,
+                        const Where &,
+                        const Where &,
                         FloatMeta *,
                         float step = 0.01,
-                        int  append = 1, 
+                        int  append = 1,
                         bool checkLocal = true);
 
-  void changeUnits(     QString,          
-                        const Where &, 
-                        const Where &, 
-                        UnitsMeta *, 
+  void changeUnits(     QString,
+                        const Where &,
+                        const Where &,
+                        UnitsMeta *,
                         int  append = 1,
                         bool checkLocal = true);
 

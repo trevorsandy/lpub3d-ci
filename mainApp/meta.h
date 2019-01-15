@@ -2227,37 +2227,6 @@ public:
 
 /*------------------------*/
 
-/*
- * This class parses the CSI annotation
- */
- class CsiAnnotationIconMeta : public LeafMeta
-{
-private:
-  CsiAnnotationIconData _value[2];
-public:
-  CsiAnnotationIconData &value()
-  {
-    return _value[pushed];
-  }
-  void setValue(CsiAnnotationIconData &rhs)
-  {
-    _value[pushed] = rhs;
-  }
-  CsiAnnotationIconMeta();
-  CsiAnnotationIconMeta(const CsiAnnotationIconMeta &rhs) : LeafMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-  }
-  virtual ~CsiAnnotationIconMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-
-/*------------------------*/
-
 /* This class is to parse MLCad's rotation step */
 
 class RotStepMeta : public LeafMeta
@@ -2420,6 +2389,34 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
+/*
+ * This class parses the CSI annotation
+ */
+ class CsiAnnotationIconMeta : public LeafMeta
+{
+private:
+  CsiAnnotationIconData _value[2];
+public:
+  CsiAnnotationIconData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(CsiAnnotationIconData &rhs)
+  {
+    _value[pushed] = rhs;
+  }
+  CsiAnnotationIconMeta();
+  CsiAnnotationIconMeta(const CsiAnnotationIconMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+  virtual ~CsiAnnotationIconMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
 /*------------------------*/
 
 class CsiAnnotationMeta  : public BranchMeta
@@ -2433,6 +2430,8 @@ public:
   BoolMeta              extendedDisplay;
   BoolMeta              hoseDisplay;
   BoolMeta              panelDisplay;
+  PlacementMeta         placement;
+  IntMeta               position;
   CsiAnnotationIconMeta icon;
 
   CsiAnnotationMeta();

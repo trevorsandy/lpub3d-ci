@@ -1181,7 +1181,7 @@ public:
   bool extendedDisplayModified;
   bool hoseDisplayModified;
   bool panelDisplayModified;
-  bool placementModified;
+  bool positionModified;
 
 
   CsiAnnotationGui(
@@ -1194,7 +1194,7 @@ public:
 
 private:
   QLabel            *headingLabel;
-  QLabel            *placementLabel;
+  QLabel            *positionLabel;
   QGroupBox         *gbCSIAnnotationDisplay;
   QCheckBox         *axleDisplayCheck;
   QCheckBox         *beamDisplayCheck;
@@ -1203,7 +1203,7 @@ private:
   QCheckBox         *extendedDisplayCheck;
   QCheckBox         *hoseDisplayCheck;
   QCheckBox         *panelDisplayCheck;
-  QComboBox         *placementCombo;
+  QComboBox         *positionCombo;
 
   CsiAnnotationMeta *meta;
 
@@ -1215,7 +1215,7 @@ public slots:
   void extendedDisplay(bool);
   void hoseDisplay(bool);
   void panelDisplay(bool);
-  void placementChanged(int const);
+  void positionChanged(int const);
 
   void gbToggled(bool checked);
 };

@@ -92,8 +92,9 @@ const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 20 Step                     */{Page},
   /* 31 Range                    */{Page},
   /* 32 Reserve                  */{Page},
-  /* 33 CoverPage                */{Page}
-  /* 34 NumRelatives             */
+  /* 33 CoverPage                */{Page},
+  /* 34 CsiAnnotationType        */{Page , Csi}
+  /* 35 NumRelatives             */
 };
 
 //front cover options   Page     | Ph | Pf | Tt | At                  | mnt | pt | mdt | pdt | dlt,
@@ -136,8 +137,9 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 20 Step                     */ OutsideOk,
   /* 31 Range                    */ OutsideOk,
   /* 32 Reserve                  */ OutsideOk,
-  /* 33 CoverPage                */ InsideOk
-  /* 34 NumRelatives             */
+  /* 33 CoverPage                */ InsideOk,
+  /* 34 CsiAnnotationType        */ InsideOk
+  /* 35 NumRelatives             */
 };
 
 const QString PlacementDialog::relativeNames[NumRelatives] =
@@ -178,7 +180,8 @@ const QString PlacementDialog::relativeNames[NumRelatives] =
   "Range",                      //31
   "Reserve",                    //32
   "Cover Page"                  //33
- /*NumRelatives               *///34 NumRelatives
+  "CSI Annotation"              //34
+ /*NumRelatives               *///35 NumRelatives
 };
 
 bool PlacementDialog::getPlacement(

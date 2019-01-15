@@ -50,6 +50,96 @@
 
 /*********************************************************************
  *
+ * Create CSI Annotation icon
+ *
+ ********************************************************************/
+
+
+CsiAnnotation::CsiAnnotation()
+{
+    csiAnnotateItem = nullptr;
+    parentStep      = nullptr;
+}
+
+CsiAnnotation::CsiAnnotation(
+    const Where      &_here,
+   CsiAnnotationMeta &_caiMeta,
+   Step              *_step,
+   QGraphicsView     *_view)
+{
+  view             = _view;
+  metaLine         = _here;
+  partLine         = _here - 1;
+  caMeta           = _caiMeta;
+  parentStep       = _step;
+}
+
+void CsiAnnotation::addGraphicsItems(
+   CsiItem       *_csiItem,
+   PliPart       *_part,
+   QGraphicsItem *_parent,
+   bool           _movable)
+{
+
+    CsiAnnotationIconData caiData = caMeta.icon.value();
+
+    // This is the background for CSI Annotation
+
+    csiAnnotateItem =
+            new CsiAnnotationItem(
+                _csiItem,
+                this,               // CsiAnnotation
+                _part,              // PliPart
+                _parent);
+
+//    emit gui->messageSig(LOG_TRACE,QString("CSI ANNOTATION %1 for model [%2]:")
+//                                           .arg("Part ["+_part->type+"] annotation")
+//                                           .arg(partLine.modelName));
+
+//    QRect  newLocRect(newLoc[XX],
+//                      newLoc[YY],
+//                      csiAnnotateItem->Placement::size[XX],
+//                      csiAnnotateItem->Placement::size[YY]);
+
+//    qreal newLocTop    = newLocRect.top();
+//    qreal newLocBottom = newLocRect.bottom();
+//    qreal newLocLeft   = newLocRect.left();
+//    qreal newLocRight  = newLocRect.right();
+//    qreal newLocWidth  = newLocRect.width();
+//    qreal newLocHeight = newLocRect.height();
+
+//    float offsetXX = csiAnnotateItem->placement.value().offsets[XX];
+//    float offsetYY = csiAnnotateItem->placement.value().offsets[YY];
+
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocOffsets[XX]: %1").arg(QString::number(offsetXX)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocOffsets[YY]: %1").arg(QString::number(offsetYY)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocTop:         %1").arg(QString::number(newLocTop)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocLeft:        %1").arg(QString::number(newLocLeft)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocBottom:      %1").arg(QString::number(newLocBottom)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocRight:       %1").arg(QString::number(newLocRight)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocWidth:       %1").arg(QString::number(newLocWidth)));
+//    emit gui->messageSig(LOG_TRACE,QString(" -newLocHeight:      %1").arg(QString::number(newLocHeight)));
+
+    int offsetX = int(csiAnnotateItem->placement.value().offsets[XX] + 0.5);
+    int offsetY = int(csiAnnotateItem->placement.value().offsets[YY] + 0.5);
+
+    int newLoc[2] = { offsetX + csiAnnotateItem->Placement::loc[XX],
+                      offsetY + csiAnnotateItem->Placement::loc[YY] };
+
+  if (csiAnnotateItem) {
+      csiAnnotateItem->setPos(newLoc[XX],newLoc[YY]);
+      csiAnnotateItem->setFlag(QGraphicsItem::ItemIsMovable, _movable);
+      csiAnnotateItem->setFlag(QGraphicsItem::ItemIsSelectable, _movable);
+  }
+}
+
+CsiAnnotation::~CsiAnnotation()
+{
+  Steps::list.clear();
+}
+
+/*********************************************************************
+ *
  * Create a new step and remember the meta-command state at the time
  * that it was created.
  *
@@ -169,7 +259,13 @@ Step::~Step() {
   list.clear();
   pli.clear();
   subModel.clear();
+  for (int i = 0; i < csiAnnotations.size(); i++) {
+      CsiAnnotation *ca = csiAnnotations[i];
+      delete ca;
+  }
+  csiAnnotations.clear();
 }
+
 Step *Step::nextStep()
 {
   const AbstractRangeElement *re = dynamic_cast<const AbstractRangeElement *>(this);
@@ -590,11 +686,12 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
     if (!pliParts.size())
         return;
 
-    MetaItem mi;
-
     Rc rc;
-    QString topOf;
+    MetaItem mi;
+    QStringList parts;
     Where start,undefined,fromHere,toHere;
+    QString topOf,savePartIds,partIds,lineNumbers;
+
     if (multiStep){
         topOf = "topOfSteps";
         fromHere = topOfSteps();
@@ -629,23 +726,20 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
         return;
     }
 
-    start = fromHere;
-
     PlacementEnc placement = meta->LPub.assem.annotation.icon.value().placement;
 
-    QStringList parts;
-    QString saveName,modelName,lineNumbers;
+    start = fromHere;
 
     for (; start.lineNumber < toHere.lineNumber; ++start) {
-        
+
         QString line = gui->readLine(start);
         QStringList argv;
         split(line,argv);
-        
+
         if (argv.size() == 15 && argv[0] == "1") {
             QString key = QString("%1_%2").arg(QFileInfo(argv[14]).baseName()).arg(argv[1]);
             PliPart *part = pliParts[key];
-            
+
             if (!part)
                 continue;
 
@@ -688,23 +782,40 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
                     break;
                 }
                 if (display) {
-                    // Pack parts type, modelName and instance line(s) into stringlist - do not reorder
+                    // Pack parts type, partIds and instance line(s) into stringlist - do not reorder
                     for (int i = 0; i < part->instances.size(); ++i) {
-                        saveName = typeName+"@"+part->instances[i].modelName;
-                        if (modelName == saveName) {
+                        savePartIds = typeName+";"+part->color+";"+part->instances[i].modelName;
+                        if (partIds == savePartIds) {
                             lineNumbers += QString("%1;").arg(part->instances[i].lineNumber);
                         } else {
-                            modelName   = saveName;
+                            partIds     = savePartIds;
                             lineNumbers = QString("%1;").arg(part->instances[i].lineNumber);
-                            parts.append(modelName+"~"+lineNumbers);
+                            parts.append(partIds+"@"+lineNumbers);
                         }
                     }
                 }
             }
         }
     }
-    if (parts.size())
-        mi.addCSIAnnotationMeta(parts,fromHere,toHere,placement,meta);
+    if (parts.size()){
+        mi.writeCsiAnnotationMeta(parts,fromHere,toHere,placement,meta);
+    }
+}
+
+/*
+ *
+ * Add the CSI step annotation metas to a list
+ * to be accessed by the csiItem constructor
+ *
+ */
+
+void Step::appendCsiAnnotation(
+     const Where           &here,
+     CsiAnnotationMeta     &caMeta,
+     QGraphicsView         *view)
+{
+  CsiAnnotation *csiAnnotation = new CsiAnnotation(here,caMeta,this,view);
+  csiAnnotations.append(csiAnnotation);
 }
 
 /*
@@ -1740,7 +1851,9 @@ void Step::addGraphicsItems(
   offsetY += loc[YY];
 
   // CSI
-  csiItem = new CsiItem(this,
+  csiItem = new CsiItem(
+//                        grandparent()->view,
+                        this,
                         meta,
                         csiPixmap,
                         submodelLevel,
@@ -1750,6 +1863,9 @@ void Step::addGraphicsItems(
   csiItem->setPos(offsetX + csiItem->loc[XX],
                   offsetY + csiItem->loc[YY]);
   csiItem->setFlag(QGraphicsItem::ItemIsMovable,movable);
+  // CSI annotations
+  if (csiItem->assem->annotation.display.value())
+      csiItem->placeCsiPartAnnotations();
 
   // PLI
   if (pli.tsize()) {

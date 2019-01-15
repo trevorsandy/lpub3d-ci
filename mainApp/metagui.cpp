@@ -3817,24 +3817,24 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,             SLOT(  panelDisplay(bool)));
   sgrid->addWidget(panelDisplayCheck,1,2);
 
-  placementLabel = new QLabel("Placement",gbCSIAnnotationDisplay);
-  sgrid->addWidget(placementLabel,2,0,1,1);
+  positionLabel = new QLabel("Placement",gbCSIAnnotationDisplay);
+  sgrid->addWidget(positionLabel,2,0,1,1);
 
-  placementCombo = new QComboBox(gbCSIAnnotationDisplay);
-  placementCombo->addItem("Top Left");     //0
-  placementCombo->addItem("Top");          //1
-  placementCombo->addItem("Top Right");    //2
-  placementCombo->addItem("Right");        //3
-  placementCombo->addItem("Bottom Right"); //4
-  placementCombo->addItem("Bottom");       //5
-  placementCombo->addItem("Bottom Left");  //6
-  placementCombo->addItem("Left");         //7
-  placementCombo->addItem("Center");       //8
-  placementCombo->setCurrentIndex(int(meta->icon.value().placement));
-  placementCombo->setToolTip("Select the default annotation placement relative to its part");
-  connect(placementCombo,SIGNAL(currentIndexChanged(int const)),
-          this,          SLOT(  placementChanged(   int const)));
-  sgrid->addWidget(placementCombo,2,1,1,2);
+  positionCombo = new QComboBox(gbCSIAnnotationDisplay);
+  positionCombo->addItem("Top Left");     //0
+  positionCombo->addItem("Top");          //1
+  positionCombo->addItem("Top Right");    //2
+  positionCombo->addItem("Right");        //3
+  positionCombo->addItem("Bottom Right"); //4
+  positionCombo->addItem("Bottom");       //5
+  positionCombo->addItem("Bottom Left");  //6
+  positionCombo->addItem("Left");         //7
+  positionCombo->addItem("Center");       //8
+  positionCombo->setCurrentIndex(meta->position.value());
+  positionCombo->setToolTip("Select the default annotation position relative to its part");
+  connect(positionCombo,SIGNAL(currentIndexChanged(int const)),
+          this,          SLOT( positionChanged(    int const)));
+  sgrid->addWidget(positionCombo,2,1,1,2);
 
   displayModified          = false;
   axleDisplayModified      = false;
@@ -3844,7 +3844,7 @@ CsiAnnotationGui::CsiAnnotationGui(
   extendedDisplayModified  = false;
   hoseDisplayModified      = false;
   panelDisplayModified     = false;
-  placementModified        = false;
+  positionModified         = false;
 }
 
 void CsiAnnotationGui::axleDisplay(bool checked)
@@ -3884,17 +3884,15 @@ void CsiAnnotationGui::hoseDisplay(bool checked)
 }
 
 void CsiAnnotationGui::panelDisplay(bool checked)
-{
+{    
   meta->panelDisplay.setValue(checked);
   modified = panelDisplayModified = true;
 }
 
-void CsiAnnotationGui::placementChanged(int const index)
+void CsiAnnotationGui::positionChanged(int const index)
 {
-  CsiAnnotationIconData caid = meta->icon.value();
-  caid.placement = PlacementEnc(index);
-  meta->icon.setValue(caid);
-  modified = placementModified = true;
+  meta->position.setValue(index);
+  modified = positionModified = true;
 }
 
 void CsiAnnotationGui::gbToggled(bool checked)
@@ -3933,8 +3931,8 @@ void CsiAnnotationGui::apply(QString &topLevelFile)
   if (panelDisplayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->panelDisplay);
   }
-  if (placementModified) {
-      mi.setGlobalMeta(topLevelFile,&meta->icon);
+  if (positionModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->position);
   }
   mi.endMacro();
 }

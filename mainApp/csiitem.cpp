@@ -63,9 +63,9 @@ CsiItem::CsiItem(
     divider = nullptr;
   }
 
-  // CSI annotations
-  if (assem->annotation.display.value() && step->placeCsiAnnotation)
-      setCsiAnnotations();
+//  // CSI annotations
+//  if (assem->annotation.display.value() /*&& step->placeCsiAnnotation */)
+//      placeCsiPartAnnotations();
 
   setTransformationMode(Qt::SmoothTransformation);
 
@@ -77,21 +77,35 @@ CsiItem::CsiItem(
   modelScale = meta->LPub.assem.modelScale;
 }
 
-void CsiItem::setCsiAnnotations()
+void CsiItem::placeCsiPartAnnotations()
 {
     if (!assem->annotation.display.value())
         return;
 
-    QHash<QString, PliPart*> parts;
+    QHash<QString, PliPart*> pliParts;
 
-    step->pli.getParts(parts);
+    step->pli.getParts(pliParts);
 
-    if (!parts.size())
+    if (!pliParts.size())
         return;
 
-    // TODO  complete this...
-}
+    for (int i = 0; i < step->csiAnnotations.size(); ++i) {
+        CsiAnnotation *ca = step->csiAnnotations[i];
+        QString key       = QString("%1_%2")
+                                    .arg(ca->caMeta.icon.value().typeBaseName)
+                                    .arg(ca->caMeta.icon.value().typeColor);
+        PliPart *part     = pliParts[key];
 
+        if (!part)
+            continue;
+
+        for (int i = 0; i < part->instances.size(); ++i) {
+            if (ca->partLine == part->instances[i] && part->text.size()){
+                ca->addGraphicsItems(this,part,parentItem(),true);
+            }
+        }
+    }
+}
 
 void CsiItem::setFlag(GraphicsItemFlag flag, bool value)
 {

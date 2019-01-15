@@ -867,8 +867,11 @@ int Gui::drawPage(
             case AssemAnnotationIconRc:
               if (assemAnnotation) {
                   parseError("Nested ASSEM ANNOTATION ICON not allowed",current);
-                }
-              assemAnnotation = true;
+              } else {
+                  if (step)
+                      step->appendCsiAnnotation(current,curMeta.LPub.assem.annotation,view);
+                  assemAnnotation = false;
+              }
               break;
 
               /* discard subsequent parts, and don't create CSI's for them */
@@ -1489,10 +1492,6 @@ int Gui::drawPage(
                           step->placeRotateIcon = true;
                       }
 
-                      if (assemAnnotation) {
-                          step->placeCsiAnnotation = true;
-                      }
-
                       emit messageSig(LOG_STATUS, "Processing step (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
@@ -1620,7 +1619,6 @@ int Gui::drawPage(
                   coverPage = false;
                   rotateIcon = false;
                   rangeDivider = false;
-                  assemAnnotation = false;
                   step = nullptr;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;

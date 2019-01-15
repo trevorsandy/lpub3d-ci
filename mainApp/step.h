@@ -50,6 +50,31 @@ class Callout;
 class Range;
 class ImageMatt;
 class PagePointer;
+class QGraphicsView;
+class AnnotateTextItem;
+
+class CsiAnnotation : public Steps
+{
+public:
+  Step              *parentStep;
+  CsiAnnotationItem *csiAnnotateItem;   // Background
+  Where              partLine,metaLine; // Part / Meta line in the model file
+  PlacementType      parentRelativeType;
+  CsiAnnotationMeta  caMeta;
+
+  CsiAnnotation();
+  CsiAnnotation(
+     const Where       &_here,
+     CsiAnnotationMeta &_caiMeta,
+     Step              *_step,
+     QGraphicsView     *_view);
+  void addGraphicsItems(
+     CsiItem       *_csiItem,
+     PliPart       *_part,
+     QGraphicsItem *_parent,
+     bool           _movable);
+  virtual ~CsiAnnotation();
+};
 
 class Step : public AbstractRangeElement
 {
@@ -62,13 +87,14 @@ class Step : public AbstractRangeElement
     bool                  rangeDivider;
 //    bool                  rangeDividerBefore;
     QList<Callout *>      list;
+    QList<CsiAnnotation*> csiAnnotations;
     Pli                   pli;
     SubModel              subModel;
     CsiItem              *csiItem;
-    RotateIconMeta        rotateIconMeta;
-    RotateIcon            rotateIcon;
     Placement             csiPlacement;
     QPixmap               csiPixmap;
+    RotateIconMeta        rotateIconMeta;
+    RotateIcon            rotateIcon;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
     bool                  showStepNumber;
@@ -114,6 +140,11 @@ class Step : public AbstractRangeElement
     bool loadTheViewer();
 
     void setCsiAnnotationMetas(Meta &_meta);
+
+    void appendCsiAnnotation(
+            const Where       &here,
+            CsiAnnotationMeta &caMeta,
+            QGraphicsView     *view);
 
     int  createCsi(
            QString      const &addLine,
@@ -164,5 +195,4 @@ class Step : public AbstractRangeElement
     virtual void addGraphicsItems(int ox, int oy, Meta *, PlacementType, QGraphicsItem *, bool);
 
 };
-
 #endif // stepH
