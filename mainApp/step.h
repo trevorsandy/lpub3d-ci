@@ -43,7 +43,6 @@
 #include "pagepointer.h"
 #include "submodelitem.h"
 #include "rotateiconitem.h"
-#include "submodelitem.h"
 
 class Meta;
 class Callout;
@@ -51,30 +50,7 @@ class Range;
 class ImageMatt;
 class PagePointer;
 class QGraphicsView;
-class AnnotateTextItem;
-
-class CsiAnnotation : public Steps
-{
-public:
-  Step              *parentStep;
-  CsiAnnotationItem *csiAnnotateItem;   // Background
-  Where              partLine,metaLine; // Part / Meta line in the model file
-  PlacementType      parentRelativeType;
-  CsiAnnotationMeta  caMeta;
-
-  CsiAnnotation();
-  CsiAnnotation(
-     const Where       &_here,
-     CsiAnnotationMeta &_caiMeta,
-     Step              *_step,
-     QGraphicsView     *_view);
-  void addGraphicsItems(
-     CsiItem       *_csiItem,
-     PliPart       *_part,
-     QGraphicsItem *_parent,
-     bool           _movable);
-  virtual ~CsiAnnotation();
-};
+class CsiAnnotationItem;
 
 class Step : public AbstractRangeElement
 {
@@ -139,12 +115,11 @@ class Step : public AbstractRangeElement
 
     bool loadTheViewer();
 
-    void setCsiAnnotationMetas(Meta &_meta);
+    void setCsiAnnotationMetas(Meta &_meta,bool = false);
 
     void appendCsiAnnotation(
             const Where       &here,
-            CsiAnnotationMeta &caMeta,
-            QGraphicsView     *view);
+            CsiAnnotationMeta &caMeta);
 
     int  createCsi(
            QString      const &addLine,

@@ -1267,6 +1267,47 @@ bool MetaItem::setPointerPlacement(
   return ok;
 }
 
+void MetaItem::changeCsiAnnotationPlacement(
+  PlacementType      parentType,
+  PlacementType      relativeType,
+  QString            title,
+  const Where       &metaLine,
+  const Where       &bottomOf,
+  CsiAnnotationMeta *caMeta,
+  bool               useTop,
+  int                append,
+  bool               local,
+  bool               useLocal,
+  int                onPageType)
+{
+  Q_UNUSED(bottomOf)
+  Q_UNUSED(useTop)
+  Q_UNUSED(append)
+  Q_UNUSED(local)
+  Q_UNUSED(useLocal)
+
+  PlacementData placementData = caMeta->placement.value();
+  bool ok;
+  ok = PlacementDialog
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType);
+
+  if (ok) {
+    CsiAnnotationIconData caiData = caMeta->icon.value();
+    bool hasJustification = (placementData.justification != Center &&
+                             placementData.preposition != Inside);
+    QStringList replacements;
+    replacements << QString::number(placementData.placement);
+    if (hasJustification)
+        replacements << QString::number(placementData.justification);
+    replacements << QString::number(placementData.preposition);
+    caiData.placements = replacements;
+
+    caMeta->icon.setValue(caiData);
+
+    updateCsiAnnotationIconMeta(metaLine, &caMeta->icon);
+  }
+}
+
 void MetaItem::changePlacement(
   PlacementType  parentType,
   PlacementType  relativeType,
@@ -3353,11 +3394,14 @@ void MetaItem::addPointerTipMetas(
       placementName = bPlacementEncNames[placement];
   }
 
-  QPointF offset = QPointF(0.5,0.5);
-  int size[2];  // width, height
-  int loc[2];   // left, top
-  if (offsetPoint(*meta,fromHere,toHere,size,loc))
-      offset = QPointF(float(loc[XX])/size[XX], float(loc[YY])/size[YY]); // Center
+  QPointF centerOffset = QPointF(0.5,0.5);
+
+  int partLoc[2]  = { 0,0 };
+  int csiSize[2]  = { 0,0 };
+  int partSize[2] = { 0,0 };
+
+  if (offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize))
+      centerOffset = QPointF(qreal(partLoc[XX])/csiSize[XX], qreal(partLoc[YY])/csiSize[YY]);
 
   QString pointerType;
   switch (rc)
@@ -3380,8 +3424,8 @@ void MetaItem::addPointerTipMetas(
 
   QString line = QString("%1 %2 %3 0 0 0 0 0 0 1 %4")
                          .arg(preamble)
-                         .arg(offset.x())
-                         .arg(offset.y())
+                         .arg(centerOffset.x())
+                         .arg(centerOffset.y())
                          .arg(placementName);
 
   //logTrace() << "META" << meta->LPub.pointerBase.pointer.format(false,false);
@@ -3409,8 +3453,8 @@ void MetaItem::writeCsiAnnotationMeta(
   QStringList  &parts,
   const Where  &fromHere,
   const Where  &toHere,
-  PlacementEnc  placement,
-  Meta         *meta)
+  Meta         *meta,
+  bool          update)
 {
   // Switch to Native Renderer for fast processing
   QString saveRenderer   = Preferences::preferredRenderer;
@@ -3422,8 +3466,20 @@ void MetaItem::writeCsiAnnotationMeta(
 
   beginMacro("annotationIconMetas");
 
+  Where start = fromHere;
+  Where end   = toHere;
+
   QString preamble = "0 !LPUB ASSEM ANNOTATION ICON";
-  QString placementName = placementNames[placement];
+
+  // Default placement
+
+  PlacementData pld = meta->LPub.assem.annotation.placement.value();
+  QString placements;
+  bool hasJustification = (pld.justification != Center && pld.preposition != Inside);
+  placements = placementNames[pld.placement]+" ";
+  if (hasJustification)
+      placements += placementNames[pld.justification]+" ";
+  placements +=  prepositionNames[pld.preposition];
 
   // Unpack the part parts, modelNames and lineNumbers involved - do not reorder
 
@@ -3436,8 +3492,8 @@ void MetaItem::writeCsiAnnotationMeta(
     QString partColor   = partIds.at(1);                // extract partColor
     QString modelName   = partIds.at(2);                // extract modelName
     QString lines       = parts[i].section('@',1,1);
-    lines.chop(1);                                       // remove trailing ;
-    QStringList lineNumStrings = lines.split(";");       // extract lineNumbers
+    lines.chop(1);                                      // remove trailing ;
+    QStringList lineNumStrings = lines.split(";");      // extract lineNumbers
 
     // for each modelName, sort the list of lineNumbers
 
@@ -3458,97 +3514,54 @@ void MetaItem::writeCsiAnnotationMeta(
 
         Where here(modelName,lineNumber);
 
-        float offset[2] = { 0.5,0.5 };
-        int size[2]     = { 0,0 };
-        int loc[2]      = { 0,0 };
+        int partLoc[2]      = { 0,0 }; // only used to calculate part offset
+        int csiSize[2]      = { 0,0 }; // only used to calculate part offset
 
-        if (offsetPoint(*meta,fromHere,toHere,size,loc,lineNumber)) {
-            switch (placement)
-            {
-            case Center:
-                offset[XX] = float(loc[XX])/size[XX];
-                offset[YY] = float(loc[YY])/size[YY];
-                break;
-            case TopLeft:
-                offset[XX] = float(loc[XX]);
-                offset[YY] = float(loc[YY]);
-                break;
-            case Top:
-                offset[XX] = float(loc[XX])/size[XX];
-                offset[YY] = float(loc[YY]);
-                break;
-            case TopRight:
-                offset[XX] = float(loc[XX])+size[XX];
-                offset[YY] = float(loc[YY]);
-                break;
-            case Right:
-                offset[XX] = float(loc[XX])+size[XX];
-                offset[YY] = float(loc[YY])/size[YY];
-                break;
-            case BottomRight:
-                offset[XX] = float(loc[XX])+size[XX];
-                offset[YY] = float(loc[YY])-size[YY];
-                break;
-            case Bottom:
-                offset[XX] = float(loc[XX])/size[XX];
-                offset[YY] = float(loc[YY])-size[YY];
-                break;
-            case BottomLeft:
-                offset[XX] = float(loc[XX]);
-                offset[YY] = float(loc[YY])-size[YY];
-                break;
-            case Left:
-                offset[XX] = float(loc[XX]);
-                offset[YY] = float(loc[YY])/size[YY];
-                break;
-            default:
-                break;
-            }
-            emit gui->messageSig(LOG_DEBUG,QString(" -Center: (%1, %2) [double(loc[XX])/size[XX], double(loc[YY])/size[YY]]")
-                                                   .arg(QString::number(double(loc[XX])/size[XX],'f',5))
-                                                   .arg(QString::number(double(loc[YY])/size[YY],'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -TopLeft: (%1, %2) [double(loc[XX]),double(loc[YY])]")
-                                                   .arg(QString::number(double(loc[XX]),'f',5))
-                                                   .arg(QString::number(double(loc[YY]),'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -Top: (%1, %2) [double(loc[XX])/size[XX],double(loc[YY])]")
-                                                   .arg(QString::number(double(loc[XX])/size[XX],'f',5))
-                                                   .arg(QString::number(double(loc[YY]),'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -TopRight: (%1, %2) [double(loc[XX])+size[XX],double(loc[YY])]")
-                                                   .arg(QString::number(double(loc[XX])+size[XX],'f',5))
-                                                   .arg(QString::number(double(loc[YY]),'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -Right: (%1, %2) [double(loc[XX])+size[XX],double(loc[YY])/size[YY]]")
-                                                   .arg(QString::number(double(loc[XX])+size[XX],'f',5))
-                                                   .arg(QString::number(double(loc[YY])/size[YY],'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -BottomRight: (%1, %2) [double(loc[XX])+size[XX],double(loc[YY])-size[YY]]")
-                                                   .arg(QString::number(double(loc[XX])+size[XX],'f',5))
-                                                   .arg(QString::number(double(loc[YY]),'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -Bottom: (%1, %2) [double(loc[XX])+size[XX],]")
-                                                   .arg(QString::number(double(loc[XX])/size[XX],'f',5))
-                                                   .arg(QString::number(double(loc[YY])-size[YY],'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -BottomLeft: (%1, %2) [double(loc[XX]),double(loc[YY])-size[YY])]")
-                                                   .arg(QString::number(double(loc[XX]),'f',5))
-                                                   .arg(QString::number(double(loc[YY])-size[YY],'f',5)));
-            emit gui->messageSig(LOG_DEBUG,QString(" -Left: (%1, %2) [double(loc[XX]),double(loc[YY])/size[YY]]")
-                                                   .arg(QString::number(double(loc[XX]),'f',5))
-                                                   .arg(QString::number(double(loc[YY])/size[YY],'f',5)));
+        int iconOffset[2]   = { 0,0 };
+        float partOffset[2] = { 0.5f,0.5f };
+        int partSize[2]     = { 0,0 };
+
+        QString line;
+
+        if (offsetPoint(*meta,start,end,partLoc,csiSize,partSize,lineNumber)) {
+
+            // part offset is alwasy calculcated from center
+            partOffset[XX] = float(partLoc[XX])/csiSize[XX];
+            partOffset[YY] = float(partLoc[YY])/csiSize[YY];
+
+
+            emit gui->messageSig(LOG_DEBUG,QString(" -PartOffsetCenter: (%1, %2)")
+                                 .arg(QString::number(double(partOffset[XX]),'f',5))
+                                 .arg(QString::number(double(partOffset[YY]),'f',5)));
+
+            line = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
+                           .arg(preamble)
+                           .arg(placements)
+                           .arg(QString::number(iconOffset[XX]))
+                           .arg(QString::number(iconOffset[YY]))
+                           .arg(QString::number(double(partOffset[XX]),'f',5))
+                           .arg(QString::number(double(partOffset[YY]),'f',5))
+                           .arg(partSize[XX])
+                           .arg(partSize[YY])
+                           .arg(partColor)
+                           .arg(partName);
+        } else {
+            emit gui->messageSig(LOG_ERROR, QString("Could not generate meta for line [%1]").arg(line));
+            return;
         }
 
-        QString line = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
-                               .arg(preamble)
-                               .arg(placementName)
-                               .arg(double(offset[0]),0,'f',5)
-                               .arg(double(offset[1]),0,'f',5)
-                               .arg(size[0])
-                               .arg(size[1])
-                               .arg(loc[0])
-                               .arg(loc[1])
-                               .arg(partColor)
-                               .arg(partName);
-
         logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
-//                   << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
+//                  << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
                       ;
-          gui->appendLine(here,line);
+        if (update) {
+            Where meta = here + 1;
+            gui->replaceLine(meta,line);
+        } else {
+            gui->appendLine(here,line);
+        }
+
+          // increase toHere lines with each added line
+          end++;
 
         lastLineNumber = lineNumber;
       }
@@ -3570,27 +3583,41 @@ bool MetaItem::offsetPoint(
         Meta    &meta,
   const Where   &fromHere,
   const Where   &toHere,
-  int          (&size)[2],
-  int          (&loc)[2],
-  int            thisPart)
+  int          (&partLoc)[2],
+  int          (&csiSize)[2],
+  int          (&partSize)[2],
+  int            partLineNum)
 {
-  QString title = thisPart ? "annotation" : "pointer";
-  QString modelName = fromHere.modelName;
-  //QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
+  int start           = fromHere.lineNumber;
+  int end             = toHere.lineNumber;
+  bool partAnnotation = partLineNum > -1;
+  QString modelName   = fromHere.modelName;
+  QString title       = "pointer";
+  QString label       = title;
+
+  if (partAnnotation){
+      int colorLines = 3; // Use trans white color versus white
+      title        = "annotation";
+#ifdef QT_DEBUG_MODE
+      label       += QString("_%1_").arg(partLineNum);
+#endif
+      end         += colorLines;
+      partLineNum += colorLines;
+  }
 
   /*
-   * Create a "white" version of the submodel that calls out our callout
+   * Create a "white" version of the model/submodel
    */
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoOutName = makeMonoName(monoOutName,monoColor[white]);
-  monoColorSubmodel(modelName,monoOutName,monoColor[white]);
+  monoOutName = makeMonoName(monoOutName,monoColor[partAnnotation ? transwhite : white], partAnnotation);
+  monoColorSubmodel(modelName,monoOutName,monoColor[partAnnotation ? transwhite : white]);
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("Generate %1 offset cannot read file %2: %3")
-                         .arg(title)
-                         .arg(monoOutName)
-                         .arg(inFile.errorString()));
+                                           .arg(title)
+                                           .arg(monoOutName)
+                                           .arg(inFile.errorString()));
       return false; //pagePosition.center();
   }
 
@@ -3602,27 +3629,32 @@ bool MetaItem::offsetPoint(
    * then gather up the "blue" step parts
    */
 
-  QString thisType = QString();
-  bool finished = false;
-  for (int i = 0; i < toHere.lineNumber; i++) {
-    QString line = in.readLine(0);
-     // create blue parts
-    if (i >= fromHere.lineNumber && ! finished) {
-       QStringList argv;
-       split(line,argv);
-       if (argv.size() == 15) {
-         argv[1] = monoColorCode[blue];
-         line = argv.join(" ");
-         if (thisPart)
-             thisType = argv[14];
-       }
-       finished = i == thisPart;
-    }
-    csiParts << line;
+  QString partType = QString();
+  for (int i = 0; i < end; i++) {
+      QString line = in.readLine(0);
+      if (line.contains("0 Name: "))
+          continue;
+      // create blue part(s)
+      if (i >= start) {
+          QStringList argv;
+          split(line,argv);
+          if (argv.size() == 15) {
+              if (partAnnotation) {
+                  if (i == partLineNum) {
+                      argv[1] = monoColorCode[blue];
+                      partType = argv[14];
+                  }
+              } else {
+                  argv[1] = monoColorCode[blue];
+              }
+              line = argv.join(" ");
+          }
+      }
+      csiParts << line;
   }
 
   if (csiParts.size() == 0) {
-    return false;
+      return false;
   }
 
   bool ok[2];
@@ -3630,15 +3662,15 @@ bool MetaItem::offsetPoint(
   QStringList ldrNames, csiKeys;
   QString addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
   if (renderer->useLDViewSCall()) {
-      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + title + "Mono.ldr";
-      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + title + "Mono.png";
+      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.ldr";
+      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + label + "Mono.png";
       ldrNames << ldrName;
       csiKeys << title + "Mono";
       ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       ok[0] = true;
-      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + title + "Mono.png";
+      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.png";
       if (Preferences::usingNativeRenderer){
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
           ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
@@ -3684,48 +3716,41 @@ bool MetaItem::offsetPoint(
       }
     }
 
-    left = (right+left)/2;
-    top  = (top+bottom)/2;
+    left = partAnnotation ? left : (right+left)/2;
+    top  = partAnnotation ? top : (top+bottom)/2;
 
     if (left > width || top > height) {
-      left = width/2;
-      top  = height/2;
+      left = partAnnotation ? width : width/2;
+      top  = partAnnotation ? height : height/2;
     }
 
-    size[0] = width;
-    size[1] = height;
-    loc [0] = left;
-    loc [1] = top;
+    csiSize[0]  = width;      // csi
+    csiSize[1]  = height;     // csi
+
+    partSize[0] = right-left; // part
+    partSize[1] = bottom-top; // part
+
+    partLoc [0] = left;
+    partLoc [1] = top;
 
     emit gui->messageSig(LOG_DEBUG,QString("%1 for model [%2]:")
-                                           .arg(thisPart ? "Part ["+thisType+"] annotation" :
+                                           .arg(partAnnotation ? "Part ["+partType+"] annotation" :
                                                            "Default pointer tip position")
                                            .arg(modelName));
-    emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partLeft (locX):   %1").arg(QString::number(left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partTop  (locY):   %1").arg(QString::number(top)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partBottom:        %1").arg(QString::number(bottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partRight:         %1").arg(QString::number(right)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partWidth (sizeX): %1").arg(QString::number(right-left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partHeight(sizeY): %1").arg(QString::number(bottom-top)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -csiWidth  (sizeX): %1").arg(QString::number(width)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -csiHeight (sizeY): %1").arg(QString::number(height)));
 
-    QPointF offset = QPointF(double(left)/width, double(top)/height);
-
-    emit gui->messageSig(LOG_DEBUG,QString(" -OffsetXX (left[%1]/width[%2]): %3")
-                                                                   .arg(QString::number(left))
-                                                                   .arg(QString::number(width))
-                                                                   .arg(QString::number(offset.x(),'f',5)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -OffsetYY (top[%1]/height[%2]): %3")
-                                                                   .arg(QString::number(top))
-                                                                   .arg(QString::number(height))
-                                                                   .arg(QString::number(offset.y(),'f',5)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -Annotation Point: (x%1,y%2)")
-                                                                 .arg(QString::number(offset.x(),'f',5))
-                                                                 .arg(QString::number(offset.y(),'f',5)));
-    return true; //offset;
+    return true;
   }
   emit gui->messageSig(LOG_ERROR, QString("Render momo %1 image for %2 failed.")
                        .arg(title.toLower())
-                       .arg(thisPart ? "part ["+thisType+"]" : "model ["+modelName+"]"));
+                       .arg(partAnnotation ? "part ["+partType+"]" : "model ["+modelName+"]"));
   return false;
 }
 
@@ -3882,13 +3907,16 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  *
  */
  
-QString MetaItem::makeMonoName(const QString &fileName, QString &color)
+QString MetaItem::makeMonoName(
+   const QString &fileName,
+   QString &color,
+   bool annotation)
 {
   QString mono = "mono_";
-  QString altColor = "_" + monoColor[(color == monoColor[blue] ? white : blue)];
+  QString altColor = "_" + monoColor[(color == monoColor[blue] ? (annotation ? transwhite : white) : blue)];
   QFileInfo info(fileName);
   QString baseName = info.baseName();
-  if (info.baseName().right(altColor.size()) == ("_" + monoColor[white]))
+  if (info.baseName().right(altColor.size()) == ("_" + monoColor[annotation ? transwhite : white]))
       baseName = info.baseName().left(info.baseName().length() - altColor.size());
   if ((info.fileName().left(mono.size())) == mono)
       return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
@@ -3900,7 +3928,8 @@ int MetaItem::monoColorSubmodel(
   QString &monoOutName,
   QString &color)
 {
-  monoColors colorCode = (color == monoColor[white] ? white : blue);
+  bool annotation = color == monoColor[transwhite];
+  monoColors colorCode = (color == monoColor[white] ? white : annotation ? transwhite : blue);
 
   QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -3911,6 +3940,13 @@ int MetaItem::monoColorSubmodel(
   }
 
   QTextStream out(&outFile);
+
+  if (annotation){
+     out << "0 // LPub3D part custom color" << endl;
+     out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
+     out << "0" << endl;
+  }
+
   int numLines = gui->subFileSize(modelName);
 
   Where walk(modelName,0);
@@ -3932,13 +3968,13 @@ int MetaItem::monoColorSubmodel(
       submodel += "." + suffix;
       if (gui->isSubmodel(submodel)) {
         QString model = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
-        model = makeMonoName(model,color);
+        model = makeMonoName(model,color,annotation);
         monoColorSubmodel(submodel,model,color);
         QFileInfo info(model);
         argv[14] = info.fileName();
       }
       argv[1] = monoColorCode[colorCode];
-    } else if ((argv.size() == 8 && argv[0] == "2") ||
+    } else if ((argv.size() == 8 && argv[0]  == "2") ||
                (argv.size() == 11 && argv[0] == "3") ||
                (argv.size() == 14 && argv[0] == "4") ||
                (argv.size() == 14 && argv[0] == "5")) {
@@ -3947,7 +3983,7 @@ int MetaItem::monoColorSubmodel(
     line = argv.join(" ");
     out << line << endl;
   }
-  
+
   outFile.close();
   return 0;
 }
@@ -4145,12 +4181,12 @@ QPointF MetaItem::defaultPointerTip(
                                            .arg(subModel)
                                            .arg(modelName));
     emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
     emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
     emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
     emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
     emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
-    QPointF offset = QPointF(float(left)/width, float(top)/height);
+    QPointF offset = QPointF(qreal(left)/width, qreal(top)/height);
     emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
                                                                    .arg(QString::number(left))
                                                                    .arg(QString::number(width))
@@ -4164,7 +4200,7 @@ QPointF MetaItem::defaultPointerTip(
                                                  .arg(QString::number(offset.x(),'f',6))
                                                  .arg(QString::number(offset.y(),'f',6)));
 
-    return QPointF(float(left)/width, float(top)/height);
+    return QPointF(qreal(left)/width, qreal(top)/height);
   }
   emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip location failed."));
   return pagePosition.center();

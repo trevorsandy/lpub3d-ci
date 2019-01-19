@@ -217,7 +217,7 @@ int Gui::addGraphicsPageItems(
   PlacementHeader         *pageHeader;
   PlacementFooter         *pageFooter;
   PageBackgroundItem      *pageBg;
-  PageNumberItem          *pageNumber;
+  PageNumberItem          *pageNumber = nullptr;
   SubmodelInstanceCount   *instanceCount;
 
   int pW, pH;
@@ -586,7 +586,6 @@ int Gui::addGraphicsPageItems(
                   // add the assembly image to the scene
 
                   step->csiItem = new CsiItem(
-//                        view,
                         step,
                         &page->meta,
                         step->csiPixmap,
@@ -608,7 +607,7 @@ int Gui::addGraphicsPageItems(
                   // center the csi's bounding box relative to the page
                   // if there is no offset, otherwise place as is
                   PlacementData csiPlacementData = step->csiPlacement.placement.value();
-                  if (csiPlacementData.offsets[XX] == 0 && csiPlacementData.offsets[YY] == 0) {
+                  if (csiPlacementData.offsets[XX] == 0.0f && csiPlacementData.offsets[YY] == 0.0f) {
                       plPage.placeRelativeBounding(step->csiItem);
                     }
 
@@ -680,7 +679,7 @@ int Gui::addGraphicsPageItems(
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
 
-                  // place CSI annotations
+//------------------// place CSI annotations // ----------------------------------------//
                   if (step->csiItem->assem->annotation.display.value())
                       step->csiItem->placeCsiPartAnnotations();
 

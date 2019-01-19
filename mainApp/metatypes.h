@@ -158,17 +158,18 @@ enum PlacementType {          // placement dialogue codes:
   PageCategoryType,           //24 Cat
   SubModelType,               //25 Sm
   RotateIconType,             //26 Ri
-  BomType,                    //27
+  CsiPartType,                //27 Cp
+  BomType,                    //28
 
-  PagePointerType,            //28
-  SingleStepType,             //29
-  StepType,                   //30
-  RangeType,                  //31
-  ReserveType,                //32
-  CoverPageType,              //33
-  CsiAnnotationType,          //34
+  PagePointerType,            //29
+  SingleStepType,             //30
+  StepType,                   //31
+  RangeType,                  //32
+  ReserveType,                //33
+  CoverPageType,              //34
+  CsiAnnotationType,          //35
 
-  NumRelatives                //35
+  NumRelatives                //36
 };
 
 enum pageType{
@@ -253,23 +254,26 @@ public:
 class CsiAnnotationIconData
 {
 public:
-  PlacementEnc placement;     // My placement relative to my part - to generate proper offset
-  QString      typeBaseName;  // My part name without extension
-  int          typeColor;     // My part color
-  float        offset[2];     // My offset from my part rect
-  int          size[2];       // How big is my part (in pixels)?
-  int          loc[2];        // Where is my part (in pixels)?
+  QStringList placements;     // My placement attributes
+  float       iconOffset[2];  // My offset from the part;
+  float       partOffset[2];  // My part offset from the csi
+  int         partSize[2];    // How big is my part (in pixels)?
+  QString     typeBaseName;   // My part name without extension
+  int         typeColor;      // My part color
+  bool        hidden;         // Am I hidden ?
+
   CsiAnnotationIconData()
   {
-    placement    = Center;
-    typeBaseName = QString();
-    typeColor    = -1;
-    offset[0]    = 0.0f;
-    offset[1]    = 0.0f;
-    size[0]      = 0;
-    size[1]      = 0;
-    loc[0]       = 0;
-    loc[1]       = 0;
+    placements    = QStringList() << QString::number(BottomLeft) << QString::number(Outside);
+    iconOffset[0] = 0.0f;
+    iconOffset[1] = 0.0f;
+    partOffset[0] = 0.0f;
+    partOffset[1] = 0.0f;
+    partSize[0]   = 0;
+    partSize[1]   = 0;
+    typeBaseName  = QString();
+    typeColor     = -1;
+    hidden        = false;
   }
 };
 
@@ -607,17 +611,18 @@ const QString RelNames[NumRelatives] =
    "PageCategoryType",           //24 cat
    "SubModelType",               //25 Sm
    "RotateIconType",             //26 Ri
-   "BomType",                    //27
+   "CsiPartType",                //27 Cp
+   "BomType",                    //28
 
-   "PagePointerType",            //28
-   "SingleStepType",             //29
-   "StepType",                   //20
-   "RangeType",                  //31
-   "ReserveType",                //32
-   "CoverPageType",              //33
-   "CsiAnnotationType"           //34
+   "PagePointerType",            //29
+   "SingleStepType",             //30
+   "StepType",                   //31
+   "RangeType",                  //32
+   "ReserveType",                //33
+   "CoverPageType",              //34
+   "CsiAnnotationType"           //35
 
-}; //NumRelatives"               //35
+}; //NumRelatives"               //36
 
 const QString PlacNames[NumPlacements] =
  {

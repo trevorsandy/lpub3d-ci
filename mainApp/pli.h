@@ -291,7 +291,7 @@ public:
     int            submodelLevel,
     QGraphicsItem *parent);
 
-  void setPos(float x, float y)
+  void setPos(double x, double y)
   {
     QGraphicsPixmapItem::setPos(x,y);
   }
@@ -319,9 +319,9 @@ protected:
 private:
 };
 
-  //-----------------------------------------
-  //-----------------------------------------
-  //-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
 
 class PGraphicsPixmapItem : public QGraphicsPixmapItem,
                             public MetaItem  // ResizePixmapItem
@@ -350,14 +350,12 @@ protected:
 void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
-class CsiItem;
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
 public:
 PGraphicsTextItem()
 {
   pli = nullptr;
-  csi = nullptr;
   part = nullptr;
 }
 PGraphicsTextItem(
@@ -368,19 +366,6 @@ PGraphicsTextItem(
   QString &toolTip)
 {
   setText(_pli,
-          _part,
-          text,
-          fontString,
-          toolTip);
-}
-PGraphicsTextItem(
-  CsiItem *_csi,
-  PliPart *_part,
-  QString &text,
-  QString &fontString,
-  QString &toolTip)
-{
-  setText(_csi,
           _part,
           text,
           fontString,
@@ -401,21 +386,7 @@ void setText(
   setFont(font);
   setToolTip(toolTip);
 }
-void setText(
-  CsiItem *_csi,
-  PliPart *_part,
-  QString &text,
-  QString &fontString,
-  QString &toolTip)
-{
-  csi  = _csi;
-  part = _part;
-  setPlainText(text);
-  QFont font;
-  font.fromString(fontString);
-  setFont(font);
-  setToolTip(toolTip);
-}
+
 virtual void size(int &x, int &y)
 {
   QSizeF size = document()->size();
@@ -424,7 +395,6 @@ virtual void size(int &x, int &y)
 }
 PliPart      *part;
 Pli          *pli;
-CsiItem      *csi;
 PlacementType parentRelativeType;
 bool          isElement;
 };
@@ -451,7 +421,6 @@ protected:
 void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
-class CsiAnnotation;
 class AnnotateTextItem : public PGraphicsTextItem
 {
 public:
@@ -480,76 +449,9 @@ protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
-class CsiAnnotation;
-class CsiAnnotationBackgroundItem : public QGraphicsTextItem, /*public AbstractResize,*/ public Placement
-{
-public:
-  CsiAnnotation       *ca;
-  CsiItem             *csi;
-  PliPart             *part;
-  AnnotationStyleMeta *styleMeta;
-  QGraphicsView       *view;
-  PlacementType        parentRelativeType;
-  bool                 positionChanged;
-  QPointF              position;
-  QRectF               annotateRect;
+extern QHash<int, QString>     annotationString;
+extern QList<QString>          titleAnnotations;
 
-  CsiAnnotationBackgroundItem(QGraphicsItem *_parent = nullptr);
-  void sizeIt();
-  void setPlacementSettings();
-  void setText(
-    QString &text,
-    QString &fontString,
-    QString &toolTip)
-  {
-    setPlainText(text);
-    QFont font;
-    font.fromString(fontString);
-    setFont(font);
-    setToolTip(toolTip);
-  }
-  void setPos(float x, float y)
-  {
-    QGraphicsTextItem::setPos(x,y);
-  }
-  void setFlag(GraphicsItemFlag flag, bool value)
-  {
-    QGraphicsItem::setFlag(flag,value);
-  }
-  virtual ~CsiAnnotationBackgroundItem(){}
-
-protected:
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-  virtual void change() = 0;
-
-private:
-};
-
-class CsiItem;
-class CsiAnnotationItem : public CsiAnnotationBackgroundItem, public MetaItem
-{
-public:
-
-  CsiAnnotationItem(
-    CsiItem       *_csi,
-    CsiAnnotation *_ca,
-    PliPart       *_part,
-    QGraphicsItem *_parent);
-
-  virtual ~CsiAnnotationItem(){}
-
-  void size(int &x, int &y);
-
-protected:
-  StringListMeta       subModelColor;
-  int                  submodelLevel;
-
-  virtual void change();
-  void setBackground(QPainter *painter);
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
+// Cut from here.....
 
 #endif

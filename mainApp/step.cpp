@@ -34,109 +34,17 @@
 #include "step.h"
 #include "range.h"
 #include "ranges.h"
-#include "ranges_element.h"
 #include "render.h"
-#include "callout.h"
 #include "calloutbackgrounditem.h"
+#include "csiannotation.h"
 #include "pointer.h"
 #include "calloutpointeritem.h"
 #include "numberitem.h"
-#include "csiitem.h"
 #include "resolution.h"
 #include "dependencies.h"
 #include "paths.h"
 #include "ldrawfiles.h"
 #include <LDVQt/LDVImageMatte.h>
-
-/*********************************************************************
- *
- * Create CSI Annotation icon
- *
- ********************************************************************/
-
-
-CsiAnnotation::CsiAnnotation()
-{
-    csiAnnotateItem = nullptr;
-    parentStep      = nullptr;
-}
-
-CsiAnnotation::CsiAnnotation(
-    const Where      &_here,
-   CsiAnnotationMeta &_caiMeta,
-   Step              *_step,
-   QGraphicsView     *_view)
-{
-  view             = _view;
-  metaLine         = _here;
-  partLine         = _here - 1;
-  caMeta           = _caiMeta;
-  parentStep       = _step;
-}
-
-void CsiAnnotation::addGraphicsItems(
-   CsiItem       *_csiItem,
-   PliPart       *_part,
-   QGraphicsItem *_parent,
-   bool           _movable)
-{
-
-    CsiAnnotationIconData caiData = caMeta.icon.value();
-
-    // This is the background for CSI Annotation
-
-    csiAnnotateItem =
-            new CsiAnnotationItem(
-                _csiItem,
-                this,               // CsiAnnotation
-                _part,              // PliPart
-                _parent);
-
-//    emit gui->messageSig(LOG_TRACE,QString("CSI ANNOTATION %1 for model [%2]:")
-//                                           .arg("Part ["+_part->type+"] annotation")
-//                                           .arg(partLine.modelName));
-
-//    QRect  newLocRect(newLoc[XX],
-//                      newLoc[YY],
-//                      csiAnnotateItem->Placement::size[XX],
-//                      csiAnnotateItem->Placement::size[YY]);
-
-//    qreal newLocTop    = newLocRect.top();
-//    qreal newLocBottom = newLocRect.bottom();
-//    qreal newLocLeft   = newLocRect.left();
-//    qreal newLocRight  = newLocRect.right();
-//    qreal newLocWidth  = newLocRect.width();
-//    qreal newLocHeight = newLocRect.height();
-
-//    float offsetXX = csiAnnotateItem->placement.value().offsets[XX];
-//    float offsetYY = csiAnnotateItem->placement.value().offsets[YY];
-
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocOffsets[XX]: %1").arg(QString::number(offsetXX)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocOffsets[YY]: %1").arg(QString::number(offsetYY)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocTop:         %1").arg(QString::number(newLocTop)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocLeft:        %1").arg(QString::number(newLocLeft)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocBottom:      %1").arg(QString::number(newLocBottom)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocRight:       %1").arg(QString::number(newLocRight)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocWidth:       %1").arg(QString::number(newLocWidth)));
-//    emit gui->messageSig(LOG_TRACE,QString(" -newLocHeight:      %1").arg(QString::number(newLocHeight)));
-
-    int offsetX = int(csiAnnotateItem->placement.value().offsets[XX] + 0.5);
-    int offsetY = int(csiAnnotateItem->placement.value().offsets[YY] + 0.5);
-
-    int newLoc[2] = { offsetX + csiAnnotateItem->Placement::loc[XX],
-                      offsetY + csiAnnotateItem->Placement::loc[YY] };
-
-  if (csiAnnotateItem) {
-      csiAnnotateItem->setPos(newLoc[XX],newLoc[YY]);
-      csiAnnotateItem->setFlag(QGraphicsItem::ItemIsMovable, _movable);
-      csiAnnotateItem->setFlag(QGraphicsItem::ItemIsSelectable, _movable);
-  }
-}
-
-CsiAnnotation::~CsiAnnotation()
-{
-  Steps::list.clear();
-}
 
 /*********************************************************************
  *
@@ -672,7 +580,7 @@ bool Step::loadTheViewer(){
  * Place the CSI step annotation metas
  *
  */
-void Step::setCsiAnnotationMetas(Meta &_meta)
+void Step::setCsiAnnotationMetas(Meta &_meta, bool show)
 {
     Meta *meta = &_meta;
 
@@ -726,8 +634,6 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
         return;
     }
 
-    PlacementEnc placement = meta->LPub.assem.annotation.icon.value().placement;
-
     start = fromHere;
 
     for (; start.lineNumber < toHere.lineNumber; ++start) {
@@ -748,15 +654,16 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
 
             if (part->annotateText) {
                 QString typeName = QFileInfo(part->type).baseName();
-                QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+").*$");
+                QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
                 QRegExp rx(pattern);
                 Where walk = start;
                 line = gui->readLine(++walk); // check next line - skip if meta exist
-                if (line.contains(rx) && typeName == rx.cap(2))
+                if ((line.contains(rx) && typeName == rx.cap(2)) ||
+                   ((rx.cap(2) == "HIDDEN" || rx.cap(2) == "HIDE") && !show))
                     continue;
 
                 bool display = false;
-                AnnotationCategory annotationCategory = (AnnotationCategory)Annotations::getAnnotationCategory(part->type);
+                AnnotationCategory annotationCategory = AnnotationCategory(Annotations::getAnnotationCategory(part->type));
                 switch (annotationCategory)
                 {
                 case AnnotationCategory::axle:
@@ -798,7 +705,7 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
         }
     }
     if (parts.size()){
-        mi.writeCsiAnnotationMeta(parts,fromHere,toHere,placement,meta);
+        mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,show);
     }
 }
 
@@ -810,12 +717,11 @@ void Step::setCsiAnnotationMetas(Meta &_meta)
  */
 
 void Step::appendCsiAnnotation(
-     const Where           &here,
-     CsiAnnotationMeta     &caMeta,
-     QGraphicsView         *view)
+     const Where           &_here,
+     CsiAnnotationMeta     &_caMeta)
 {
-  CsiAnnotation *csiAnnotation = new CsiAnnotation(here,caMeta,this,view);
-  csiAnnotations.append(csiAnnotation);
+  CsiAnnotation *ca = new CsiAnnotation(_here,_caMeta);
+  csiAnnotations.append(ca);
 }
 
 /*
@@ -1852,7 +1758,6 @@ void Step::addGraphicsItems(
 
   // CSI
   csiItem = new CsiItem(
-//                        grandparent()->view,
                         this,
                         meta,
                         csiPixmap,
@@ -1863,6 +1768,7 @@ void Step::addGraphicsItems(
   csiItem->setPos(offsetX + csiItem->loc[XX],
                   offsetY + csiItem->loc[YY]);
   csiItem->setFlag(QGraphicsItem::ItemIsMovable,movable);
+
   // CSI annotations
   if (csiItem->assem->annotation.display.value())
       csiItem->placeCsiPartAnnotations();

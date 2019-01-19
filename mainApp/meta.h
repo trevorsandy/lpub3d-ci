@@ -2422,6 +2422,7 @@ public:
 class CsiAnnotationMeta  : public BranchMeta
 {
 public:
+  PlacementMeta         placement;
   BoolMeta              display;
   BoolMeta              axleDisplay;
   BoolMeta              beamDisplay;
@@ -2430,8 +2431,6 @@ public:
   BoolMeta              extendedDisplay;
   BoolMeta              hoseDisplay;
   BoolMeta              panelDisplay;
-  PlacementMeta         placement;
-  IntMeta               position;
   CsiAnnotationIconMeta icon;
 
   CsiAnnotationMeta();
@@ -2441,6 +2440,25 @@ public:
 
   virtual ~CsiAnnotationMeta() {}
   virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class CsiPartMeta : public BranchMeta
+{
+    public:
+    UnitsMeta     loc;
+    UnitsMeta     size;
+    MarginsMeta   margin;
+    PlacementMeta placement;
+
+    CsiPartMeta();
+    CsiPartMeta(const CsiPartMeta &rhs) : BranchMeta(rhs)
+    {
+    }
+
+    virtual ~CsiPartMeta() {}
+    virtual void init(BranchMeta *parent, QString name);
 };
 
 /*------------------------*/
@@ -3095,5 +3113,7 @@ extern const QString bRectPlacementNames[];
 extern const QString bPlacementEncNames[];
 extern const QString placementNames[];
 extern const QString prepositionNames[];
+extern const QString placementOptions[][3];
+extern QHash<QString, int> tokenMap;
 
 #endif

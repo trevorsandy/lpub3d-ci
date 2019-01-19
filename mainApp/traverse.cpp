@@ -869,7 +869,7 @@ int Gui::drawPage(
                   parseError("Nested ASSEM ANNOTATION ICON not allowed",current);
               } else {
                   if (step)
-                      step->appendCsiAnnotation(current,curMeta.LPub.assem.annotation,view);
+                      step->appendCsiAnnotation(current,curMeta.LPub.assem.annotation/*,view*/);
                   assemAnnotation = false;
               }
               break;

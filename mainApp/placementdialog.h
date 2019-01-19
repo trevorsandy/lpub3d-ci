@@ -105,17 +105,19 @@ public:
       /* 23 PageFooter        */ Pf,
       /* 24 Category          */ Cat,
       /* 25 Submodel          */ Sm,
-      /* 26 Rotate Icon       */ Ri
-      /* 27 Bom               */ // plus 8 more...
+      /* 26 Rotate Icon       */ Ri,
+      /* 27 Csi Part          */ Cp
+      /* 28 Bom               */ // plus 8 more...
 
-      /* 28 PagePointer       */
-      /* 29 SingleStep        */
-      /* 30 Step              */
-      /* 31 Range             */
-      /* 32 Reserve           */
-      /* 33 CoverPage         */
-      /* 34 CsiAnnotationType */
-      /* 35 NumRelatives      */
+      /* 29 PagePointer       */
+      /* 30 SingleStep        */
+      /* 31 Step              */
+      /* 32 Range             */
+      /* 33 Reserve           */
+      /* 34 CoverPage         */
+      /* 35 CsiAnnotationType */
+
+      /* 36 NumRelatives      */
     };
 
   PlacementDialog(

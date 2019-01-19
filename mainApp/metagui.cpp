@@ -1076,8 +1076,8 @@ void PageAttributeTextGui::placementChanged(bool clicked)
        ::getPlacement(SingleStepType,meta->type,placementData,pageAttributeName[meta->type]);
   if (ok) {
       meta->placement.setValue(placementData);
+      modified = placementModified = true;
   }
-  modified = placementModified = true;
 }
 
 void PageAttributeTextGui::toggled(bool toggled)
@@ -1312,8 +1312,8 @@ void PageAttributePictureGui::placementChanged(bool clicked)
 //                << " \nOffset[0]: "                 << placementData.offsets[0]
 //                << " \nOffset[1]: "                 << placementData.offsets[1]
 //                ;
-  }
-  modified = placementModified = true;
+    modified = placementModified = true;
+  }  
 }
 
 void PageAttributePictureGui::toggled(bool toggled)
@@ -3817,24 +3817,16 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,             SLOT(  panelDisplay(bool)));
   sgrid->addWidget(panelDisplayCheck,1,2);
 
-  positionLabel = new QLabel("Placement",gbCSIAnnotationDisplay);
-  sgrid->addWidget(positionLabel,2,0,1,1);
+  gbPlacement = new QGroupBox("Part Annotation Placement",parent);
+  QGridLayout *gLayout = new QGridLayout();
+  gbPlacement->setLayout(gLayout);
+  grid->addWidget(gbPlacement);
 
-  positionCombo = new QComboBox(gbCSIAnnotationDisplay);
-  positionCombo->addItem("Top Left");     //0
-  positionCombo->addItem("Top");          //1
-  positionCombo->addItem("Top Right");    //2
-  positionCombo->addItem("Right");        //3
-  positionCombo->addItem("Bottom Right"); //4
-  positionCombo->addItem("Bottom");       //5
-  positionCombo->addItem("Bottom Left");  //6
-  positionCombo->addItem("Left");         //7
-  positionCombo->addItem("Center");       //8
-  positionCombo->setCurrentIndex(meta->position.value());
-  positionCombo->setToolTip("Select the default annotation position relative to its part");
-  connect(positionCombo,SIGNAL(currentIndexChanged(int const)),
-          this,          SLOT( positionChanged(    int const)));
-  sgrid->addWidget(positionCombo,2,1,1,2);
+  placementButton = new QPushButton("Change Placement",gbPlacement);
+  placementButton->setToolTip("Set annotation placement relative to CSI part");
+  connect(placementButton,SIGNAL(clicked(   bool)),
+          this,           SLOT(  placementChanged(bool)));
+  gLayout->addWidget(placementButton);
 
   displayModified          = false;
   axleDisplayModified      = false;
@@ -3844,7 +3836,7 @@ CsiAnnotationGui::CsiAnnotationGui(
   extendedDisplayModified  = false;
   hoseDisplayModified      = false;
   panelDisplayModified     = false;
-  positionModified         = false;
+  placementModified        = false;
 }
 
 void CsiAnnotationGui::axleDisplay(bool checked)
@@ -3889,11 +3881,19 @@ void CsiAnnotationGui::panelDisplay(bool checked)
   modified = panelDisplayModified = true;
 }
 
-void CsiAnnotationGui::positionChanged(int const index)
+void CsiAnnotationGui::placementChanged(bool clicked)
 {
-  meta->position.setValue(index);
-  modified = positionModified = true;
+  Q_UNUSED(clicked);
+  PlacementData placementData = meta->placement.value();
+  bool ok;
+  ok = PlacementDialog
+       ::getPlacement(SingleStepType,CsiAnnotationType,placementData,"Annotation Placement",ContentPage);
+  if (ok) {
+      meta->placement.setValue(placementData);
+      modified = placementModified = true;
+  }
 }
+
 
 void CsiAnnotationGui::gbToggled(bool checked)
 {
@@ -3901,6 +3901,7 @@ void CsiAnnotationGui::gbToggled(bool checked)
     meta->display.setValue(checked);
     if (saveModified != meta->display.value())
        modified = displayModified = true;
+    gbPlacement->setEnabled(checked);
 }
 
 void CsiAnnotationGui::apply(QString &topLevelFile)
@@ -3931,8 +3932,8 @@ void CsiAnnotationGui::apply(QString &topLevelFile)
   if (panelDisplayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->panelDisplay);
   }
-  if (positionModified) {
-      mi.setGlobalMeta(topLevelFile,&meta->position);
+  if (placementModified){
+      mi.setGlobalMeta(topLevelFile,&meta->placement);
   }
   mi.endMacro();
 }

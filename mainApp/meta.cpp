@@ -517,7 +517,7 @@ void BoolMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */ 
 
-QString placementOptions[][3] = 
+const QString placementOptions[][3] =
 {
   { "TOP_LEFT",    "",      "OUTSIDE"  },
   { "TOP",         "LEFT",  "OUTSIDE"  },
@@ -590,8 +590,8 @@ const QString relativeNames[] =
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PARTS","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
   "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","SUBMODEL_DISPLAY",
-  "ROTATE_ICON","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE",
-  "ANNOTATION"
+  "ROTATE_ICON","CSI_PART","BOM","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE",
+  "COVER_PAGE","ANNOTATION"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -629,7 +629,8 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PARTS|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
                         "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|SUBMODEL_DISPLAY|"
-                        "ROTATE_ICON|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE|ANNOTATION)$";
+                        "ROTATE_ICON|CSI_PART|BOM|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|"
+                        "COVER_PAGE|ANNOTATION)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
@@ -1699,7 +1700,7 @@ CsiAnnotationIconMeta::CsiAnnotationIconMeta() : LeafMeta()
 {
 }
 
-// parse() should never be used as we manage CsiAnnotationIconData directly in pliPart
+
 Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 {
 #ifdef QT_DEBUG_MODE
@@ -1728,64 +1729,109 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 #endif
   CsiAnnotationIconData annotationData;
   Rc rc = FailureRc;
-  if (argv.size() - index == 9) {
-     QRegExp rx("^(TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)$");
-     if (argv[index].contains(rx)) {
-         annotationData.placement = PlacementEnc(tokenMap[argv[index]]);
-         rc = OkRc;
-     }
-     bool good = false, ok = false;
-     annotationData.offset[0] = argv[++index].toFloat(&good);
-     annotationData.offset[1] = argv[++index].toFloat(&ok);
-     good &= ok;
-     annotationData.size[0] = argv[++index].toInt(&ok);
-     good &= ok;
-     annotationData.size[1] = argv[++index].toInt(&ok);
-     good &= ok;
-     annotationData.loc[0] = argv[++index].toInt(&ok);
-     good &= ok;
-     annotationData.loc[1] = argv[++index].toInt(&ok);
-     good &= ok;
-     annotationData.typeColor = argv[++index].toInt(&ok);
-     good &= ok;
-     if (good) {
-         rc = OkRc;
-     }
-     annotationData.typeBaseName = argv[++index];
+  if (argv.size() - index == 1) {
+      QRegExp rx("^(HIDE|HIDDEN)$");
+      if (argv[index].contains(rx)) {
+          annotationData.hidden = true;
+          rc = OkRc;
+      }
+  }
+  else
+  if (argv.size() - index >= 10) {
+    QRegExp rx("^(TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)$");
+    QStringList entries;
+    if (argv[index].contains(rx)) {
+      entries << QString::number(PlacementEnc(tokenMap[argv[index]]));
+      rc = OkRc;
+    }
+    if (argv.size() - index == 11) {
+      if (argv[++index].contains(rx)) {
+        entries << QString::number(PlacementEnc(tokenMap[argv[index]]));
+        rc = OkRc;
+      }
+    }
+    rx.setPattern("^(INSIDE|OUTSIDE)$");
+    if (argv[++index].contains(rx)) {
+      entries << QString::number(PrepositionEnc(tokenMap[argv[index]]));
+      rc = OkRc;
+    }
+    annotationData.placements = entries;
+
+    if (rc == OkRc) {
+      bool good = false, ok = false;
+      annotationData.iconOffset[0] = argv[++index].toFloat(&good);
+      annotationData.iconOffset[1] = argv[++index].toFloat(&ok);
+      good &= ok;
+      annotationData.partOffset[0] = argv[++index].toFloat(&ok);
+      good &= ok;
+      annotationData.partOffset[1] = argv[++index].toFloat(&ok);
+      good &= ok;
+      annotationData.partSize[0] = argv[++index].toInt(&ok);
+      good &= ok;
+      annotationData.partSize[1] = argv[++index].toInt(&ok);
+      good &= ok;
+      annotationData.typeColor = argv[++index].toInt(&ok);
+      good &= ok;
+      if (!good) {
+        rc = FailureRc;
+      } else {
+        annotationData.typeBaseName = argv[++index];
+      }
+    }
   }
 #ifdef QT_DEBUG_MODE
 //  QString result = QString(", Result (%1)").arg(rc == 0 ? "OkRc" : "FailureRc");
 //  logDebug() << "\nCSI ANNOTATION ICON META PARSE DEBUG" << debugLine.join(" ") << result;
 #endif
   if (rc == OkRc) {
-      _value[pushed] = annotationData;
-      _here[pushed]  = here;
-      return AssemAnnotationIconRc;
-    } else {
-      if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed CSI Annotation metacommand \"%1\"\n")
-                               .arg(argv.join(" ")));
-        }
-      return rc;
+    _value[pushed] = annotationData;
+    _here[pushed]  = here;
+    return AssemAnnotationIconRc;
+  } else {
+    if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed CSI Annotation metacommand \"%1\"\n")
+                           .arg(argv.join(" ")));
     }
+    return rc;
+  }
 }
 
 // format() should never be used as we manage CsiAnnotationIconData directly in pliPart
 QString CsiAnnotationIconMeta::format(bool local, bool global)
 {
-  QString foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9")
-                        .arg(placementNames[_value[pushed].placement])
-                        .arg(_value[pushed].offset[0],0,'f',5)
-                        .arg(_value[pushed].offset[1],0,'f',5)
-                        .arg(_value[pushed].size[0])
-                        .arg(_value[pushed].size[1])
-                        .arg(_value[pushed].loc[0])
-                        .arg(_value[pushed].loc[1])
-                        .arg(_value[pushed].typeColor)
-                        .arg(_value[pushed].typeBaseName);
+
+  QString foo,bar;
+
+  if (_value[pushed].hidden){
+      foo = "HIDDEN";
+  } else {
+      if (_value[pushed].placements.size() == 2) {
+         foo = QString("%1 %2 ")
+                 .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
+                 .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(1).toInt())]);
+      }
+      else
+      if (_value[pushed].placements.size() == 3) {
+         foo = QString("%1 %2 %3 ")
+                 .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
+                 .arg(placementNames[PlacementEnc(_value[pushed].placements.at(1).toInt())])
+                 .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
+      }
+      bar = QString("%1 %2 %3 %4 %5 %6 %7 %8")
+                     .arg(_value[pushed].iconOffset[0],0,'f',5)
+                     .arg(_value[pushed].iconOffset[1],0,'f',5)
+                     .arg(_value[pushed].partOffset[0],0,'f',5)
+                     .arg(_value[pushed].partOffset[1],0,'f',5)
+                     .arg(_value[pushed].partSize[0])
+                     .arg(_value[pushed].partSize[1])
+                     .arg(_value[pushed].typeColor)
+                     .arg(_value[pushed].typeBaseName);
+      foo += bar;
+  }
+
 #ifdef QT_DEBUG_MODE
-    logDebug() << "\nCSI ANNOTATION ICON META FORMAT" <<
-                  "\nPreamble:" << preamble << "LINE DATA" << foo;
+//    logDebug() << "\nCSI ANNOTATION ICON META FORMAT" <<
+//                  "\nPreamble:" << preamble << "LINE DATA" << foo;
 #endif
   return LeafMeta::format(local,global,foo);
 }
@@ -1793,8 +1839,8 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
 void CsiAnnotationIconMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)"
-                    " <offset0> <offset1> <size0(px)> <size1(px)> <loc0(px)> <loc1(px)>"
-                    " <part color> <part baseName>";
+                    " <iconOffsetX(px)> <iconOffsetY(px)> <partOffsetX(px)> <partOffsetY(px)>"
+                    " <partSizeX(px)> <partSizeY(px)> <part color> <part baseName>";
 }
 
 /* ------------------ */ 
@@ -2913,7 +2959,7 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
 
 CsiAnnotationMeta::CsiAnnotationMeta() : BranchMeta()
 {
-  placement.setValue                (BottomLeftInsideCorner,CsiType);
+  placement.setValue                (BottomLeftOutsideCorner,CsiPartType);
   display.setValue                  (false);
   axleDisplay.setValue              (true);
   beamDisplay.setValue              (true);
@@ -2922,8 +2968,6 @@ CsiAnnotationMeta::CsiAnnotationMeta() : BranchMeta()
   extendedDisplay.setValue          (false);
   hoseDisplay.setValue              (true);
   panelDisplay.setValue             (true);
-  position.setRange                 (0,8); // PlacementEnc
-  position.setValue                 (8);   // Center
 }
 
 void CsiAnnotationMeta::init(BranchMeta *parent, QString name)
@@ -2938,10 +2982,31 @@ void CsiAnnotationMeta::init(BranchMeta *parent, QString name)
   extendedDisplay.init           (this, "EXTENDED");
   hoseDisplay.init               (this, "HOSE");
   panelDisplay.init              (this, "PANEL");
-  position.init                  (this, "POSITION");
   icon.init                      (this, "ICON");
 }
 
+/* ------------------ */
+
+CsiPartMeta::CsiPartMeta() : BranchMeta()
+{
+  placement.setValue(CenterCenter,CsiType);
+  margin.setValuesInches(0.0f,0.0f);
+  loc.setValuesInches(0.0f,0.0f);
+  loc.setRange(0.0f,10000.0f);
+  loc.setFormats(6,4,"9.9999");
+  size.setValuesInches(0.0f,0.0f);
+  size.setRange(0.0f,1000.0f);
+  size.setFormats(6,4,"9.9999");
+}
+
+void CsiPartMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init        (this, "PLACEMENT");
+  margin.init           (this, "MARGINS");
+  loc.init              (this, "LOC");
+  size.init             (this, "SIZE");
+}
 /* ------------------ */
 
 SubModelMeta::SubModelMeta() : PliMeta()

@@ -59,9 +59,9 @@ class MetaItem
 public:
   void setNativeRenderer();
   void restoreRenderer(QString &,bool,bool);
-  enum monoColors { white, blue, numColors };
-  QString monoColor [numColors] = { "white", "blue" };
-  QString monoColorCode[numColors] = { "15", "1" };
+  enum monoColors { white, blue, transwhite, numColors };
+  QString monoColor [numColors] = { "white", "blue", "transwhite" };
+  QString monoColorCode[numColors] = { "15", "1", "11015"};
 
   void setGlobalMeta(QString &topLevelFile, LeafMeta *leaf);
 
@@ -70,12 +70,12 @@ public:
   void addCalloutMetas(        Meta *, const QString &, bool isMirrored, bool assembled = false);
   void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc, Rc);
   void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc, Rc);
-  void writeCsiAnnotationMeta(QStringList &list, const Where &, const Where &, PlacementEnc, Meta *);
-  bool offsetPoint(Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int = -1);
+  void writeCsiAnnotationMeta(QStringList &list, const Where &, const Where &, Meta *,bool = false);
+  bool offsetPoint(Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int (&)[2], int = -1);
   void updateCsiAnnotationIconMeta(const Where &here, CsiAnnotationIconMeta *caim);
 
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
-  QString makeMonoName(const QString &fileName, QString &color);
+  QString makeMonoName(const QString &fileName, QString &color, bool = false);
   int monoColorSubmodel(QString &modelName, QString &monoOutName, QString &color);
   QPointF defaultPointerTip(
     Meta &meta,QString &modelName,int lineNumber,
@@ -117,6 +117,19 @@ public:
   void convertToIgnore(        Meta *);
   void convertToPart(          Meta *);
 
+  void changeCsiAnnotationPlacement(
+                    PlacementType      parentType,
+                    PlacementType      placedType,
+                    QString            title,
+                    const Where       &topOf,
+                    const Where       &bottomOf,
+                    CsiAnnotationMeta *,
+                    bool useTop     =  true,
+                    int  append     =  1,
+                    bool local      =  true,
+                    bool checkLocal =  true,
+                    int  onPageType =  ContentPage);
+
   bool setPointerPlacement(
                     PlacementMeta       *,
                     const PlacementType parentType,
@@ -128,6 +141,7 @@ public:
                     const PlacementType relativeType,
                     QString             title,
                     bool                onPageType);
+
   void changePlacement( PlacementType parentType,
                         PlacementType placedType,
                         QString title,
