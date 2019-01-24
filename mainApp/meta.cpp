@@ -3638,6 +3638,13 @@ BomMeta::BomMeta() : PliMeta()
   annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
 
+  elementStyle.border.setValue(BorderData::BdrNone,BorderData::BdrLnNone,"#ffffff");
+  elementStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  elementStyle.color.setValue("#34699d");
+  elementStyle.style.setValue(AnnotationStyle::element);
+  elementStyle.size.setValuesInches(1.0f,0.28f);
+  elementStyle.size.setRange(0.1f,1.0f);
+
   rectangleStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
   rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
   rectangleStyle.color.setValue("#34699d"); // #3a3938
@@ -3698,6 +3705,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
   partElements    .init(this,"PART_ELEMENTS");
+  elementStyle    .init(this,"ELEMENT_STYLE");
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");

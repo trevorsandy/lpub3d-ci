@@ -74,8 +74,6 @@ public:
   BorderMeta     border;
   BackgroundMeta background;
   IntMeta        style;
-  UnitsMeta      styleSize;
-  MarginsMeta    styleMargin;
   PlacementType  parentRelativeType;
   int            submodelLevel;
   StringListMeta subModelColor;

@@ -274,7 +274,7 @@ void CsiAnnotationItem::addGraphicsItems(
     setFlag(QGraphicsItem::ItemIsMovable, _movable);
     setFlag(QGraphicsItem::ItemIsSelectable, _movable);
 
-    debugPlacementTrace();
+//    debugPlacementTrace();
 }
 
 void CsiAnnotationItem::sizeIt()
@@ -287,44 +287,42 @@ void CsiAnnotationItem::sizeIt()
 
 void CsiAnnotationItem::setBackground(QPainter *painter)
 {
-    if (style.value() != AnnotationStyle::none) {
+    // set border and background parameters
+    BorderData     borderData     = border.valuePixels();
+    BackgroundData backgroundData = background.value();
 
-        // set border and background parameters
-        BorderData     borderData     = border.valuePixels();
-        BackgroundData backgroundData = background.value();
+    // set rectangle size and dimensions parameters
+    int ibt = int(borderData.thickness);
+    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
 
-        // set rectangle size and dimensions parameters
-        int ibt = int(borderData.thickness);
-        QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
+    // set painter and render hints (initialized with pixmap)
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
 
-        // set painter and render hints (initialized with pixmap)
-        painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+    // set the background then set the border and paint both in one go.
 
-        // set the background then set the border and paint both in one go.
+    /* BACKGROUND */
+    QColor brushColor;
+    switch(backgroundData.type) {
+    case BackgroundData::BgColor:
+        brushColor = LDrawColor::color(backgroundData.string);
+        break;
+    case BackgroundData::BgSubmodelColor:
+        brushColor = LDrawColor::color(subModelColor.value(0));
+        break;
+    default:
+        brushColor = Qt::transparent;
+        break;
+    }
+    painter->setBrush(brushColor);
 
-        /* BACKGROUND */
-        QColor brushColor;
-        switch(backgroundData.type) {
-        case BackgroundData::BgColor:
-            brushColor = LDrawColor::color(backgroundData.string);
-            break;
-        case BackgroundData::BgSubmodelColor:
-            brushColor = LDrawColor::color(subModelColor.value(0));
-            break;
-        default:
-            brushColor = Qt::transparent;
-            break;
-        }
-        painter->setBrush(brushColor);
-
-        /* BORDER */
-        QPen borderPen;
-        QColor borderPenColor;
-        if (borderData.type == BorderData::BdrNone) {
-            borderPenColor = Qt::transparent;
-        } else {
-            borderPenColor =  LDrawColor::color(borderData.color);
-        }
+    /* BORDER */
+    QPen borderPen;
+    QColor borderPenColor;
+    if (borderData.type == BorderData::BdrNone) {
+        borderPenColor = Qt::transparent;
+    } else {
+        borderPenColor =  LDrawColor::color(borderData.color);
+    }
     borderPen.setColor(borderPenColor);
     borderPen.setCapStyle(Qt::RoundCap);
     borderPen.setJoinStyle(Qt::RoundJoin);
@@ -335,54 +333,53 @@ void CsiAnnotationItem::setBackground(QPainter *painter)
         borderPen.setStyle(Qt::SolidLine);
     }
     else if (borderData.line == BorderData::BdrLnDash){
-            borderPen.setStyle(Qt::DashLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDot){
-            borderPen.setStyle(Qt::DotLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDashDot){
-            borderPen.setStyle(Qt::DashDotLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDashDotDot){
-            borderPen.setStyle(Qt::DashDotDotLine);
-        }
-        borderPen.setWidth(ibt);
+        borderPen.setStyle(Qt::DashLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDot){
+        borderPen.setStyle(Qt::DotLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDashDot){
+        borderPen.setStyle(Qt::DashDotLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDashDotDot){
+        borderPen.setStyle(Qt::DashDotDotLine);
+    }
+    borderPen.setWidth(ibt);
 
-        painter->setPen(borderPen);
+    painter->setPen(borderPen);
 
-        // set icon border dimensions
-        qreal rx = borderData.radius;
-        qreal ry = borderData.radius;
-        qreal dx = size[XX];
-        qreal dy = size[YY];
+    // set icon border dimensions
+    qreal rx = borderData.radius;
+    qreal ry = borderData.radius;
+    qreal dx = size[XX];
+    qreal dy = size[YY];
 
-        if (dx && dy) {
-            if (dx > dy) {
-                rx *= dy;
-                rx /= dx;
-            } else {
-                ry *= dx;
-                ry /= dy;
-            }
-        }
-
-        // draw icon rectangle - background and border
-        if (style.value() != AnnotationStyle::circle) {
-            if (borderData.type == BorderData::BdrRound) {
-                painter->drawRoundRect(irect,int(rx),int(ry));
-            } else {
-                painter->drawRect(irect);
-            }
+    if (dx && dy) {
+        if (dx > dy) {
+            rx *= dy;
+            rx /= dx;
         } else {
-            painter->drawEllipse(irect);
+            ry *= dx;
+            ry /= dy;
         }
-        //doPaint = false;
+    }
+
+    // draw icon rectangle - background and border
+    if (style.value() != AnnotationStyle::circle) {
+        if (borderData.type == BorderData::BdrRound) {
+            painter->drawRoundRect(irect,int(rx),int(ry));
+        } else {
+            painter->drawRect(irect);
+        }
+    } else {
+        painter->drawEllipse(irect);
     }
 }
 
 void CsiAnnotationItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
 {
-    setBackground(painter);
+    if (style.value() != AnnotationStyle::none)
+        setBackground(painter);
     QGraphicsTextItem::paint(painter, o, w);
 }
 
