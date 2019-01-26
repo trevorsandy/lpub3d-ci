@@ -1228,6 +1228,9 @@ int Gui::drawPage(
                     } else {
                       callout->parentRelativeType = step->relativeType;
                     }
+                  // set csi annotations - callout
+//                  if (! gui->exportingObjects())
+//                      callout->setCsiAnnotationMetas();
                   callout->pli.clear();
                   callout->placement = curMeta.LPub.callout.placement;
                   callout->setBottomOfCallout(current);
@@ -1305,6 +1308,10 @@ int Gui::drawPage(
                       MetaItem mi;
                       instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                   }
+
+                  // set csi annotations - multistep
+//                  if (! gui->exportingObjects())
+//                      steps->setCsiAnnotationMetas();
 
                   Page *page = dynamic_cast<Page *>(steps);
                   if (page) {
@@ -1390,10 +1397,6 @@ int Gui::drawPage(
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
-
-                  // set csi annotations
-                  if (! gui->exportingObjects())
-                      step->setCsiAnnotationMetas(steps->meta);
                 }
 
               // STEP - normal case of parts added, and not NOSTEP
@@ -1513,10 +1516,6 @@ int Gui::drawPage(
                           //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                       }
 
-                      // set csi annotations
-                      if (! gui->exportingObjects())
-                          step->setCsiAnnotationMetas(steps->meta);
-
                   } else {
 
                       if (pliPerStep) {
@@ -1551,6 +1550,10 @@ int Gui::drawPage(
                           MetaItem mi;
                           instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                       }
+
+                      // set csi annotations - single step
+                      if (! gui->exportingObjects())
+                          step->setCsiAnnotationMetas(steps->meta);
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {

@@ -42,6 +42,7 @@ PlacementCsiPart::PlacementCsiPart(
   size[YY]     = _csiPartMeta.size.valuePixels(YY);
   loc[XX]     += _csiPartMeta.loc.valuePixels(XX);
   loc[YY]     += _csiPartMeta.loc.valuePixels(YY);
+  outline      = false;
 
   setParentItem(_parent);
 }
@@ -52,6 +53,44 @@ bool PlacementCsiPart::hasOffset()
     zero  = placement.value().offsets[XX] == 0.0f;
     zero &= placement.value().offsets[YY] == 0.0f;
     return !zero;
+}
+
+void PlacementCsiPart::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
+{
+//#ifdef QT_DEBUG_MODE
+    if (outline)
+        setOutline(painter);
+//#endif
+    QGraphicsRectItem::paint(painter, o, w);
+}
+
+void PlacementCsiPart::toggleOutline()
+{
+    bool curState = outline;
+    outline = ! curState;
+    update();
+}
+void PlacementCsiPart::setOutline(QPainter *painter)
+{
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+    int ibt = int(1.0f/32.0f);
+
+    /* BORDER */
+    QPen borderPen;
+    borderPen.setColor(QColor(Qt::blue));       // Qt::transparent
+    borderPen.setCapStyle(Qt::SquareCap);
+    borderPen.setJoinStyle(Qt::RoundJoin);
+    borderPen.setStyle(Qt::DashLine);           // Qt::SolidLine
+    borderPen.setWidth(ibt);
+    painter->setPen(borderPen);
+
+    /* BACKGROUND */
+    painter->setBrush(QColor(Qt::transparent)); // Qt::blue
+
+    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
+    painter->drawRect(irect);
+
+    setZValue(10000);
 }
 
 CsiAnnotation::CsiAnnotation(
@@ -156,6 +195,7 @@ CsiAnnotationItem::CsiAnnotationItem(
   : ResizeTextItem(_parent)
 {
    relativeType         = CsiAnnotationType;
+   placementCsiPart     = nullptr;
 }
 
 void CsiAnnotationItem::addGraphicsItems(
@@ -249,9 +289,7 @@ void CsiAnnotationItem::addGraphicsItems(
 
     // place PlacementCsiPart relative to CSI
 
-    PlacementCsiPart    *placementCsiPart =
-            new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
-
+    placementCsiPart = new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);
 
@@ -454,15 +492,22 @@ void CsiAnnotationItem::contextMenuEvent(
   QString whatsThis = commonMenus.naturalLanguagePlacementWhatsThis(CsiAnnotationType,placementData,pl);
 
   QAction *placementAction  = commonMenus.placementMenu(menu, pl, whatsThis);
-  QAction *hideAction       = commonMenus.hideMenu(menu,pl);
+
+  QAction *hideAction = menu.addAction("Hide Part Annotation");
+  hideAction->setIcon(QIcon(":/resources/hidepartannotation.png"));
+
+  QAction *toggleCsiPartRectAction = menu.addAction("Toggle Part Outline");
+  toggleCsiPartRectAction->setIcon(QIcon(":/resources/togglepartoutline.png"));
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
     }
-
-  if (selectedAction == placementAction) {
+  else if (selectedAction == toggleCsiPartRectAction) {
+      placementCsiPart->toggleOutline();
+      gui->pagescene()->update();
+  } else if (selectedAction == placementAction) {
       changeCsiAnnotationPlacement(
               parentRelativeType,
               CsiAnnotationType,
@@ -480,37 +525,6 @@ void CsiAnnotationItem::contextMenuEvent(
 }
 
 // DEBUG FUNCTINOS....................
-
-void PlacementCsiPart::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
-{
-#ifdef QT_DEBUG_MODE
-    setBackground(painter);
-#endif
-    QGraphicsRectItem::paint(painter, o, w);
-}
-
-void PlacementCsiPart::setBackground(QPainter *painter)
-{
-    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
-    int ibt = int(1.0f/32.0f);
-
-    /* BORDER */
-    QPen borderPen;
-    borderPen.setColor(QColor(Qt::blue));       // Qt::transparent
-    borderPen.setCapStyle(Qt::SquareCap);
-    borderPen.setJoinStyle(Qt::RoundJoin);
-    borderPen.setStyle(Qt::DashLine);           // Qt::SolidLine
-    borderPen.setWidth(ibt);
-    painter->setPen(borderPen);
-
-    /* BACKGROUND */
-    painter->setBrush(QColor(Qt::transparent)); // Qt::blue
-
-    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
-    painter->drawRect(irect);
-
-    setZValue(10000);
-}
 
 #ifdef QT_DEBUG_MODE
 #include <lpub.h>

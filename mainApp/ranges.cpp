@@ -634,3 +634,150 @@ Boundary Steps::boundary(AbstractStepsElement *me)
   }
   return Middle;
 }
+
+/******************************************************************************
+ *Place the multistep and callout CSI annotation metas
+ *****************************************************************************/
+
+void Steps::setCsiAnnotationMetas(bool force)
+{
+  if (! meta.LPub.assem.annotation.display.value() ||
+      gui->exportingObjects())
+      return;
+
+  MetaItem mi;
+  QStringList parts;
+  Where undefined,rangeStart,rangeEnd;
+  Where walk,fromHere,toHere;
+
+  bool calledout = relativeType == CalloutType;
+
+  // get the model file lines to process
+  rangeStart = topOfSteps();
+  rangeEnd   = bottomOfSteps();
+
+  if (rangeStart == undefined) {
+    QString topOf = calledout ? "topOfCallout" : "topOfSteps";
+    emit gui->messageSig(LOG_ERROR, QString("CSI annotations could not retrieve %1 location").arg(topOf));
+    return;
+  }
+
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i]->relativeType == RangeType) {
+      Range *range = dynamic_cast<Range *>(list[i]);
+      if (range) {
+        // process annotations for each step
+        for (int j = 0; j < range->list.size(); j++) {
+          if (range->list[j]->relativeType == StepType) {
+            Step *step = dynamic_cast<Step *>(range->list[j]);
+            if (step) {
+
+              // Sometimes we may already have annotations for the
+              // step defined - such as after printing or exporting
+              // In such cases we do not need to set metas again.
+              if (step->csiAnnotations.size() && ! force) {
+                continue;
+              }
+
+              QHash<QString, PliPart*> pliParts;
+
+              step->pli.getParts(pliParts);
+
+              if (! pliParts.size())
+                continue;
+
+              QString savePartIds,partIds,lineNumbers;
+
+              fromHere = step->topOfStep();
+              toHere   = step->bottomOfStep();
+              if (toHere == undefined)
+                  toHere = fromHere;
+              if (toHere == fromHere) {
+                  mi.scanForward(toHere,StepMask);
+              }
+
+              if (fromHere == undefined) {
+                  emit gui->messageSig(LOG_ERROR, QString("CSI annotations could not retrieve topOfStep location"));
+                  continue;
+              }
+
+              walk = fromHere;
+
+              for (; walk.lineNumber < toHere.lineNumber; ++walk) {
+                QString line = gui->readLine(walk);
+                QStringList argv;
+                split(line,argv);
+
+                if (argv.size() == 15 && argv[0] == "1") {
+                  QString key = QString("%1_%2").arg(QFileInfo(argv[14]).baseName()).arg(argv[1]);
+                  PliPart *part = pliParts[key];
+
+                  if (! part)
+                    continue;
+
+                  if (part->type != argv[14])
+                    continue;
+
+                  if (part->annotateText) {
+                    QString typeName = QFileInfo(part->type).baseName();
+                    QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
+                    QRegExp rx(pattern);
+                    Where nextLine = walk;
+                    line = gui->readLine(++nextLine); // check next line - skip if meta exist [we may have to extend this check to the end of the Step]
+                    if ((line.contains(rx) && typeName == rx.cap(2)) ||
+                       ((rx.cap(2) == "HIDDEN" || rx.cap(2) == "HIDE") && !force))
+                       continue;
+
+                    bool display = false;
+                    AnnotationCategory annotationCategory = AnnotationCategory(Annotations::getAnnotationCategory(part->type));
+                    switch (annotationCategory)
+                    {
+                    case AnnotationCategory::axle:
+                        display = meta.LPub.assem.annotation.axleDisplay.value();
+                        break;
+                    case AnnotationCategory::beam:
+                        display = meta.LPub.assem.annotation.beamDisplay.value();
+                        break;
+                    case AnnotationCategory::cable:
+                        display = meta.LPub.assem.annotation.cableDisplay.value();
+                        break;
+                    case AnnotationCategory::connector:
+                        display = meta.LPub.assem.annotation.connectorDisplay.value();
+                        break;
+                    case AnnotationCategory::hose:
+                        display = meta.LPub.assem.annotation.hoseDisplay.value();
+                        break;
+                    case AnnotationCategory::panel:
+                        display = meta.LPub.assem.annotation.panelDisplay.value();
+                        break;
+                    default:
+                        display = meta.LPub.assem.annotation.extendedDisplay.value();
+                        break;
+                    }
+                    if (display) {
+                      // Pack parts type, partIds and instance line(s) into stringlist - do not reorder
+                      for (int i = 0; i < part->instances.size(); ++i) {
+                        savePartIds = typeName+";"+part->color+";"+part->instances[i].modelName;
+                        if (partIds == savePartIds) {
+                          lineNumbers += QString("%1;").arg(part->instances[i].lineNumber);
+                        } else {
+                          partIds     = savePartIds;
+                          lineNumbers = QString("%1;").arg(part->instances[i].lineNumber);
+                          parts.append(partIds+"@"+lineNumbers);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } // step
+        } // foreach step in range - [if gereater than 1 then can be multistep]
+      }
+    }
+  }
+  // add annotation metas for the process list of parts
+  if (parts.size()){
+      mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
+  }
+}
