@@ -3468,12 +3468,11 @@ void MetaItem::writeCsiAnnotationMeta(
 
         Where here(modelName,lineNumber);
 
-        int partLoc[2]      = { 0,0 }; // only used to calculate part offset
-        int csiSize[2]      = { 0,0 }; // only used to calculate part offset
-
+        int partLoc[2]      = { 0,0 }; // used to calculate part offset
+        int csiSize[2]      = { 0,0 }; // used to calculate part offset
+        int partSize[2]     = { 0,0 };
         float iconOffset[2] = { 0.0f,0.0f };
         float partOffset[2] = { 0.5f,0.5f };
-        int partSize[2]     = { 0,0 };
 
         QString line;
 
@@ -3482,11 +3481,6 @@ void MetaItem::writeCsiAnnotationMeta(
             // part offset is alwasy calculcated from center
             partOffset[XX] = float(partLoc[XX])/csiSize[XX];
             partOffset[YY] = float(partLoc[YY])/csiSize[YY];
-
-
-            emit gui->messageSig(LOG_DEBUG,QString(" -PartOffsetCenter: (%1, %2)")
-                                 .arg(QString::number(double(partOffset[XX]),'f',5))
-                                 .arg(QString::number(double(partOffset[YY]),'f',5)));
 
             line = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
                            .arg(preamble)
@@ -3503,10 +3497,11 @@ void MetaItem::writeCsiAnnotationMeta(
             emit gui->messageSig(LOG_ERROR, QString("Could not generate meta for line [%1]").arg(line));
             return;
         }
-
-        logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
+#ifdef QT_DEBUG_MODE
+//        logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
 //                  << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
                       ;
+#endif
         if (update) {
             Where meta = here + 1;
             gui->replaceLine(meta,line);
@@ -3514,8 +3509,8 @@ void MetaItem::writeCsiAnnotationMeta(
             gui->appendLine(here,line);
         }
 
-          // increase toHere lines with each added line
-          end++;
+        // increase toHere lines with each added line
+        end++;
 
         lastLineNumber = lineNumber;
       }

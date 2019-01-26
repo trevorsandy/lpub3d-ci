@@ -113,7 +113,6 @@ public:
     QGraphicsItem::setFlag(flag,value);
   }
   virtual ~CsiAnnotationItem(){}
-  void debugPlacementTrace();
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
