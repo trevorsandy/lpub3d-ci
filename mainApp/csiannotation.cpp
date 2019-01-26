@@ -26,10 +26,7 @@
 #include "metaitem.h"
 #include "color.h"
 #include "step.h"
-
-#ifdef QT_DEBUG_MODE
-#include "lpubalert.h"
-#endif
+#include "lpub.h"
 
 PlacementCsiPart::PlacementCsiPart(
     CsiPartMeta   &_csiPartMeta,
@@ -466,7 +463,7 @@ void CsiAnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 placementData.offsets[YY]    += newPosition.y()/relativeToSize[YY];
                 placement.setValue(placementData);
 #ifdef QT_DEBUG_MODE
-                emit lpubAlert->messageSig(LOG_NOTICE,QString(" -RELATIVE_TO_SIZE_MOUSE_RELEASE: (%1, %2)")
+                emit gui->messageSig(LOG_NOTICE,QString(" -RELATIVE_TO_SIZE_MOUSE_RELEASE: (%1, %2)")
                                            .arg(QString::number(double(relativeToSize[XX]),'f',5))
                                            .arg(QString::number(double(relativeToSize[YY]),'f',5)));
 #endif
@@ -526,16 +523,12 @@ void CsiAnnotationItem::contextMenuEvent(
 
 // DEBUG FUNCTINOS....................
 
-#ifdef QT_DEBUG_MODE
-#include <lpub.h>
-#endif
-
 void CsiAnnotationItem::debugPlacementTrace()
 {
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
+    emit gui->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("%1 FOR MODEL [%2]:")
+    emit gui->messageSig(LOG_DEBUG,QString("%1 FOR MODEL [%2]:")
                          .arg("PART ["+icon.value().typeBaseName+".dat] ANNOTATION")
                          .arg(partLine.modelName));
 
@@ -578,54 +571,54 @@ void CsiAnnotationItem::debugPlacementTrace()
     qreal iconWidth  = boundingRect().width();
     qreal iconHeight = boundingRect().height();
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageTop:        %1").arg(QString::number(pageTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageLeft:       %1").arg(QString::number(pageLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageBottom:     %1").arg(QString::number(pageBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageRight:      %1").arg(QString::number(pageRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageWidth:      %1").arg(QString::number(pageWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageHeight:     %1").arg(QString::number(pageHeight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *pageTop:        %1").arg(QString::number(pageTop)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *pageLeft:       %1").arg(QString::number(pageLeft)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *pageBottom:     %1").arg(QString::number(pageBottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *pageRight:      %1").arg(QString::number(pageRight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *pageWidth:      %1").arg(QString::number(pageWidth)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *pageHeight:     %1").arg(QString::number(pageHeight)));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiTop:         %1").arg(QString::number(csiTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiLeft:        %1").arg(QString::number(csiLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiBottom:      %1").arg(QString::number(csiBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiRight:       %1").arg(QString::number(csiRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiWidth:       %1").arg(QString::number(csiWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiHeight:      %1").arg(QString::number(csiHeight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *csiTop:         %1").arg(QString::number(csiTop)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *csiLeft:        %1").arg(QString::number(csiLeft)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *csiBottom:      %1").arg(QString::number(csiBottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *csiRight:       %1").arg(QString::number(csiRight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *csiWidth:       %1").arg(QString::number(csiWidth)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *csiHeight:      %1").arg(QString::number(csiHeight)));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partTop:        %1").arg(QString::number(partTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLeft:       %1").arg(QString::number(partLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partBottom:     %1").arg(QString::number(partBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partRight:      %1").arg(QString::number(partRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partWidth:      %1").arg(QString::number(partWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partHeight:     %1").arg(QString::number(partHeight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partTop:        %1").arg(QString::number(partTop)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partLeft:       %1").arg(QString::number(partLeft)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partBottom:     %1").arg(QString::number(partBottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partRight:      %1").arg(QString::number(partRight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partWidth:      %1").arg(QString::number(partWidth)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partHeight:     %1").arg(QString::number(partHeight)));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconTop:        %1").arg(QString::number(iconTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconLeft:       %1").arg(QString::number(iconLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconBottom:     %1").arg(QString::number(iconBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconRight:      %1").arg(QString::number(iconRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconWidth:      %1").arg(QString::number(iconWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconHeight:     %1").arg(QString::number(iconHeight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconTop:        %1").arg(QString::number(iconTop)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconLeft:       %1").arg(QString::number(iconLeft)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconBottom:     %1").arg(QString::number(iconBottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconRight:      %1").arg(QString::number(iconRight)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconWidth:      %1").arg(QString::number(iconWidth)));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconHeight:     %1").arg(QString::number(iconHeight)));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[XX]: %1").arg(QString::number(double(icon.value().partOffset[XX]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[YY]: %1").arg(QString::number(double(icon.value().partOffset[YY]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partSize[XX]:   %1").arg(QString::number(relativeToSize[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partSize[YY]:   %1").arg(QString::number(relativeToSize[YY])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLoc[XX]:    %1").arg(QString::number(relativeToLoc[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLoc[YY]:    %1").arg(QString::number(relativeToLoc[YY])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partOffset[XX]: %1").arg(QString::number(double(icon.value().partOffset[XX]))));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partOffset[YY]: %1").arg(QString::number(double(icon.value().partOffset[YY]))));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partSize[XX]:   %1").arg(QString::number(relativeToSize[XX])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partSize[YY]:   %1").arg(QString::number(relativeToSize[YY])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partLoc[XX]:    %1").arg(QString::number(relativeToLoc[XX])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *partLoc[YY]:    %1").arg(QString::number(relativeToLoc[YY])));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconOffset[XX]: %1").arg(QString::number(double(placement.value().offsets[XX]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconOffset[YY]: %1").arg(QString::number(double(placement.value().offsets[YY]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconSize[XX]:   %1").arg(QString::number(size[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconSize[YY]:   %1").arg(QString::number(size[YY])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconLoc[XX]:    %1").arg(QString::number(loc[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconLoc[YY]:    %1").arg(QString::number(loc[YY])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconOffset[XX]: %1").arg(QString::number(double(placement.value().offsets[XX]))));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconOffset[YY]: %1").arg(QString::number(double(placement.value().offsets[YY]))));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconSize[XX]:   %1").arg(QString::number(size[XX])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconSize[YY]:   %1").arg(QString::number(size[YY])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconLoc[XX]:    %1").arg(QString::number(loc[XX])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *iconLoc[YY]:    %1").arg(QString::number(loc[YY])));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundSize[XX]:  %1").arg(QString::number(boundingSize[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundSize[YY]:  %1").arg(QString::number(boundingSize[YY])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundLoc[XX]:   %1").arg(QString::number(boundingLoc[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundLoc[YY]:   %1").arg(QString::number(boundingLoc[YY])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *boundSize[XX]:  %1").arg(QString::number(boundingSize[XX])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *boundSize[YY]:  %1").arg(QString::number(boundingSize[YY])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *boundLoc[XX]:   %1").arg(QString::number(boundingLoc[XX])));
+    emit gui->messageSig(LOG_DEBUG,QString(" *boundLoc[YY]:   %1").arg(QString::number(boundingLoc[YY])));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
+    emit gui->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
+    emit gui->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
 #endif
 }
