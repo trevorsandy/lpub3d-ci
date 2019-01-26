@@ -1759,8 +1759,8 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 
     if (rc == OkRc) {
       bool good = false, ok = false;
-      annotationData.iconOffset[0] = argv[++index].toFloat(&good);
-      annotationData.iconOffset[1] = argv[++index].toFloat(&ok);
+      annotationData.iconOffset[0] = argv[++index].toInt(&good);
+      annotationData.iconOffset[1] = argv[++index].toInt(&ok);
       good &= ok;
       annotationData.partOffset[0] = argv[++index].toFloat(&ok);
       good &= ok;
@@ -1818,8 +1818,8 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
                  .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
       }
       bar = QString("%1 %2 %3 %4 %5 %6 %7 %8")
-                     .arg(_value[pushed].iconOffset[0],0,'f',5)
-                     .arg(_value[pushed].iconOffset[1],0,'f',5)
+                     .arg(_value[pushed].iconOffset[0],0,'f',0)
+                     .arg(_value[pushed].iconOffset[1],0,'f',0)
                      .arg(_value[pushed].partOffset[0],0,'f',5)
                      .arg(_value[pushed].partOffset[1],0,'f',5)
                      .arg(_value[pushed].partSize[0])

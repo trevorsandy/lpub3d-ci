@@ -3471,7 +3471,7 @@ void MetaItem::writeCsiAnnotationMeta(
         int partLoc[2]      = { 0,0 }; // only used to calculate part offset
         int csiSize[2]      = { 0,0 }; // only used to calculate part offset
 
-        int iconOffset[2]   = { 0,0 };
+        float iconOffset[2] = { 0.0f,0.0f };
         float partOffset[2] = { 0.5f,0.5f };
         int partSize[2]     = { 0,0 };
 
@@ -3491,10 +3491,10 @@ void MetaItem::writeCsiAnnotationMeta(
             line = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
                            .arg(preamble)
                            .arg(placements)
-                           .arg(QString::number(iconOffset[XX]))
-                           .arg(QString::number(iconOffset[YY]))
-                           .arg(QString::number(double(partOffset[XX]),'f',5))
-                           .arg(QString::number(double(partOffset[YY]),'f',5))
+                           .arg(iconOffset[XX],0,'f',0)
+                           .arg(iconOffset[YY],0,'f',0)
+                           .arg(partOffset[XX],0,'f',5)
+                           .arg(partOffset[YY],0,'f',5)
                            .arg(partSize[XX])
                            .arg(partSize[YY])
                            .arg(partColor)

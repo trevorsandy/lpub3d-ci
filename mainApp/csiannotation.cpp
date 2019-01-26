@@ -458,9 +458,14 @@ void CsiAnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
                 positionChanged = true;
 
-                PlacementData placementData   = placement.value();
-                placementData.offsets[XX]    += newPosition.x()/relativeToSize[XX];
-                placementData.offsets[YY]    += newPosition.y()/relativeToSize[YY];
+                PlacementData placementData    = placement.value();
+                if (relativeToSize[XX] > 1 || relativeToSize[YY] > 1) {
+                    placementData.offsets[XX] += newPosition.x()+loc[XX];
+                    placementData.offsets[YY] += newPosition.y()+loc[YY];
+                } else {
+                    placementData.offsets[XX] += newPosition.x()/relativeToSize[XX];
+                    placementData.offsets[YY] += newPosition.y()/relativeToSize[YY];
+                }
                 placement.setValue(placementData);
 #ifdef QT_DEBUG_MODE
                 emit gui->messageSig(LOG_NOTICE,QString(" -RELATIVE_TO_SIZE_MOUSE_RELEASE: (%1, %2)")

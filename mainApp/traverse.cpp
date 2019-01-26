@@ -1509,6 +1509,10 @@ int Gui::drawPage(
                           return rc;
                       }
 
+                      // set csi annotations - single step only
+                      if (! gui->exportingObjects() &&  ! multiStep && ! calledOut)
+                          step->setCsiAnnotationMetas(steps->meta);
+
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                           ldrStepFiles << step->ldrName;
                           csiKeys << step->csiKey;
@@ -1550,10 +1554,6 @@ int Gui::drawPage(
                           MetaItem mi;
                           instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                       }
-
-                      // set csi annotations - single step
-                      if (! gui->exportingObjects())
-                          step->setCsiAnnotationMetas(steps->meta);
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {
