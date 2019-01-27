@@ -248,7 +248,7 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
     Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc : StepGroupDividerPointerRc);
     Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc : StepGroupDividerPointerAttribRc);
 
-    PointerMeta ppm       = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer : curMeta.LPub.multiStep.divPointer);
+    PointerMeta pm        = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer       : curMeta.LPub.multiStep.divPointer);
     PointerAttribMeta pam = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointerAttrib : curMeta.LPub.multiStep.divPointerAttrib);
 
     Where walk(current.modelName,current.lineNumber);
@@ -265,7 +265,7 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
         if (mRc == StepRc || mRc == RotStepRc) {
             break;
         } else if (mRc == pRc) {
-            range->appendDividerPointer(walk,view,ppm,pam);
+            range->appendDividerPointer(walk,view,pm,pam);
 #ifdef QT_DEBUG_MODE
 //            int pIndex = range->dividerPointerList.size() - 1;
 //            logTrace() << "\n[DEBUG " + sType + " DIVIDER POINTER PAM"
@@ -1027,7 +1027,7 @@ int Gui::drawPage(
                   if (pagePointer) {
                       parseError("Nested page pointers not allowed within the same page",current);
                   } else {
-                      Positions position = PP_LEFT;
+                      Positions position    = PP_LEFT;
                       PointerMeta ppm       = curMeta.LPub.page.pointer;
                       PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
                       PointerAttribData pad = pam.valueInches();

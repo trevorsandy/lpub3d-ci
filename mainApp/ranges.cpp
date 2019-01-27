@@ -516,9 +516,9 @@ void Steps::addGraphicsItems(
   }
 
   for (int i = 0; i < list.size(); i++) {
-    if (list[i]->relativeType == RangeType) {
+    if (list[i]->relativeType == RangeType) {                       // rangeType
       Range *range = dynamic_cast<Range *>(list[i]);
-      if (range) {
+      if (range) {                                                  // range
         if (relativeType == StepGroupType) {
           new MultiStepRangeBackgroundItem(this,range,&meta,
                     offsetX + loc[XX],
@@ -529,54 +529,11 @@ void Steps::addGraphicsItems(
         range->addGraphicsItems(
           offsetX + loc[XX], offsetY + loc[YY], &meta, relativeType, parent);
 
-        // check range for Steps with rangeDivider
-        int size = range->list.size();
-        if (size) {
-            for (int i = 0; i < range->list.size(); i++) {
-              if (range->list[i]->relativeType == StepType) {
-                Step *step = dynamic_cast<Step *>(range->list[i]);
-                if (step && step->rangeDivider) {
-                    int oX,oY;
-                    if (allocEnc == Vertical) {
-                      oX = offsetX + loc[XX] + range->loc[XX];
-                      oY = offsetY + loc[YY] + step->loc[YY];
-                    } else {
-                      oX = offsetX + loc[XX] + step->loc[XX];
-                      oY = offsetY + loc[YY] + range->loc[YY];
-                    }
-                    logDebug() << "\nRangeDivider Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
-                               << "\nRanges::loc XX     [" << loc[XX] << "]"
-                               << "\nRanges::loc YY     [" << loc[YY] << "]"
-                               << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
-                               << (allocEnc == Vertical ? step->stepNumber.number : i) << "]::loc XX ["
-                               << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
-                               << (allocEnc == Vertical ? "\nRange[" : "\nStep[")
-                               << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY ["
-                               << (allocEnc == Vertical ? range->loc[YY] : step->loc[YY])  << "]"
-                               << "\nStep[" << step->stepNumber.number << "]::size XX [" << step->size[XX] << "]"
-                               << "\nStep[" << step->stepNumber.number << "]::size YY [" << step->size[YY] << "]"
-                               << "\noffsetX            [" << offsetX << "] offsetX"
-                               << "\noffsetY            [" << offsetY << "] offsetY"
-                               << "\noX                 [" << oX << "] offsetX + ranges->loc[XX] + step->loc[XX]"
-                               << "\noY                 [" << oY << "] offsetY + ranges->loc[YY] + range->loc[YY]"
-                                  ;
-                  DividerItem *divider = new DividerItem(step,&meta,oX,oY);
-                  divider->setParentItem(parent);
-
-                  for (int i = 0; i < range->dividerPointerList.size(); i++) {
-                      Pointer *pointer = range->dividerPointerList[i];
-                      divider->addGraphicsPointerItem(pointer,range->view);
-                  }
-                }
-              }
-           }
-        }
-
+        // add divider if exist here
         if (list.size() > 1 && i < list.size() - 1) {
-          // add divider here
-          //int size = range->list.size();
+          int size = range->list.size();
           if (size) {
-            Step *step = dynamic_cast<Step *>(range->list[size-1]);          
+            Step *step = dynamic_cast<Step *>(range->list[size-1]);
             if (step) {
               int oX = offsetX + loc[XX] + range->loc[XX];
               int oY = offsetY + loc[YY] + range->loc[YY];
@@ -608,15 +565,55 @@ void Steps::addGraphicsItems(
               divider->setParentItem(parent);
 
               //   add divider pointers (if any) to the graphics scene
-              for (int i = 0; i < range->dividerPointerList.size(); i++) {
-                  Pointer *pointer = range->dividerPointerList[i];
+              for (int j = 0; j < range->dividerPointerList.size(); j++) {
+                  Pointer *pointer = range->dividerPointerList[j];
                   divider->addGraphicsPointerItem(pointer,range->view);
               }
             }
           }
-        }
-      }
-    }
+        }             // [divider]
+
+        // check steps for rangeDivider
+        for (int i = 0; i < range->list.size(); i++) {
+          if (range->list[i]->relativeType == StepType) {           // stepType
+            Step *step = dynamic_cast<Step *>(range->list[i]);
+            if (step && step->rangeDivider) {                       // step
+               int oX,oY;
+               if (allocEnc == Vertical) {
+                 oX = offsetX + loc[XX] + range->loc[XX];
+                 oY = offsetY + loc[YY] + step->loc[YY];
+               } else {
+                 oX = offsetX + loc[XX] + step->loc[XX];
+                 oY = offsetY + loc[YY] + range->loc[YY];
+               }
+               logDebug() << "\nRangeDivider Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
+                          << "\nRanges::loc XX     [" << loc[XX] << "]"
+                          << "\nRanges::loc YY     [" << loc[YY] << "]"
+                          << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
+                          << (allocEnc == Vertical ? step->stepNumber.number : i) << "]::loc XX ["
+                          << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
+                          << (allocEnc == Vertical ? "\nRange[" : "\nStep[")
+                          << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY ["
+                          << (allocEnc == Vertical ? range->loc[YY] : step->loc[YY])  << "]"
+                          << "\nStep[" << step->stepNumber.number << "]::size XX [" << step->size[XX] << "]"
+                          << "\nStep[" << step->stepNumber.number << "]::size YY [" << step->size[YY] << "]"
+                          << "\noffsetX            [" << offsetX << "] offsetX"
+                          << "\noffsetY            [" << offsetY << "] offsetY"
+                          << "\noX                 [" << oX << "] offsetX + ranges->loc[XX] + step->loc[XX]"
+                          << "\noY                 [" << oY << "] offsetY + ranges->loc[YY] + range->loc[YY]"
+                             ;
+               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
+               divider->setParentItem(parent);
+
+               for (int j = 0; j < range->dividerPointerList.size(); j++) {
+                   Pointer *pointer = range->dividerPointerList[j];
+                   divider->addGraphicsPointerItem(pointer,range->view);
+               }
+            }                    // step          [range divider]
+          }                      // stepType      [range divider]
+        }                        // for each step [range divider]
+      }                          // range
+    }                            // rangeType
   }
 }
 
