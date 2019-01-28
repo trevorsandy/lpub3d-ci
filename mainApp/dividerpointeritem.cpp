@@ -48,6 +48,7 @@ DividerPointerItem::DividerPointerItem(
   pointerTop         = div->parentStep->nextStep()->topOfStep();
   pointerBottom      = div->parentStep->nextStep()->bottomOfStep();
   pointerParentType  = div->parentRelativeType;;
+  resizeRequested    = false;
 
   PointerData pointerData = pointer.pointerMeta.value();
 
@@ -204,8 +205,8 @@ bool DividerPointerItem::autoLocFromTip(){
       PointerData pointerData = pointer.pointerMeta.value();
       placement = pointerData.placement;
 
-      //if (!resizeRequested)
-      points[Base] = QPointF(pointerData.x2,pointerData.y2);
+      if (!resizeRequested)
+          points[Base] = QPointF(pointerData.x2,pointerData.y2);
 
       if (segments() == ThreeSegments){
           int mtx = pointerData.x3;
