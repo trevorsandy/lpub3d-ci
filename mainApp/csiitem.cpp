@@ -410,7 +410,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     } else if (selectedAction == addDividerPointerAction) {
         PlacementEnc placement = Center;
-        addPointerTip(&step->grandparent()->meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
+        addPointerTip(meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
     } else if (selectedAction == allocAction) {
         if (parentRelativeType == StepGroupType) {
             changeAlloc(topOfSteps,
