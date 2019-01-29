@@ -320,7 +320,11 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     return;
   }
   
-  Where topOfStep    = nextStep->topOfStep();
+  Where topOfStep;
+  if (parentStep->rangeDivider)
+      topOfStep = parentStep->topOfStep();
+  else
+      topOfStep = nextStep->topOfStep();
   Where bottomOfStep = nextStep->bottomOfStep();
   Range *range = parentStep->range();
 
