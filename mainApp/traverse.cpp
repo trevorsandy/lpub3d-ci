@@ -1138,8 +1138,7 @@ int Gui::drawPage(
             case CalloutDividerRc:
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
-                  if (line.contains("RANGE"))
-                      rangeDivider = true;
+                  rangeDivider = line.contains("RANGE");
                   set_divider_pointers(curMeta,current,range,view,rangeDivider,CalloutDividerRc);
                   if (! rangeDivider) {
                       range = nullptr;
@@ -1191,8 +1190,7 @@ int Gui::drawPage(
             case StepGroupDividerRc:
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
-                  if (line.contains("RANGE"))
-                      rangeDivider = true;
+                  rangeDivider = line.contains("RANGE");
                   set_divider_pointers(curMeta,current,range,view,rangeDivider,StepGroupDividerRc);
                   if (! rangeDivider) {
                       range = nullptr;

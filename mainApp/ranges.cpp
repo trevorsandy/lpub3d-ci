@@ -569,7 +569,7 @@ void Steps::addGraphicsItems(
                 oY = offsetY + loc[YY] + range->loc[YY];
               }
 
-              DividerItem *divider = new DividerItem(step,&meta,oX,oY);
+              DividerItem *divider = new DividerItem(step,&meta,oX,oY,true);
               divider->setParentItem(parent);
 
               for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {

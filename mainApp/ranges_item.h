@@ -111,7 +111,7 @@ class DividerItem;
 class Pointer;
 class DividerPointerItem;
 class DividerBackgroundItem;
-class DividerItem : public Steps, public QGraphicsRectItem, public MetaItem /*, public Placement  */
+class DividerItem : public Steps, public QGraphicsRectItem, public MetaItem
 {
 public:
     Step                        *parentStep;
@@ -119,13 +119,15 @@ public:
     DividerBackgroundItem       *background;
     QList<DividerPointerItem *>  graphicsPointerList; /* Pointer and pointer tips graphics */
     PlacementType                parentRelativeType;
+    bool                         rangeDivider;
 
     DividerItem() {}
     DividerItem(
       Step  *_step,
       Meta  *_meta,
       int    offsetX,
-      int    offsetY);
+      int    offsetY,
+      bool   rangeDivider = false);
     ~DividerItem();
 
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
