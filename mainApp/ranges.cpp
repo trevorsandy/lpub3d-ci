@@ -516,25 +516,25 @@ void Steps::addGraphicsItems(
   }
 
   for (int i = 0; i < list.size(); i++) {
-    if (list[i]->relativeType == RangeType) {                       // rangeType
+    if (list[i]->relativeType == RangeType) {
       Range *range = dynamic_cast<Range *>(list[i]);
-      if (range) {                                                  // range
+      if (range) {
         if (relativeType == StepGroupType) {
           new MultiStepRangeBackgroundItem(this,range,&meta,
                     offsetX + loc[XX],
                     offsetY + loc[YY],
                     parent);
         }
-        
+
         range->addGraphicsItems(
           offsetX + loc[XX], offsetY + loc[YY], &meta, relativeType, parent);
 
-        // add divider if exist here
+        // add range divider if exist here
         if (list.size() > 1 && i < list.size() - 1) {
           int size = range->list.size();
           if (size) {
             Step *step = dynamic_cast<Step *>(range->list[size-1]);
-            if (step) {
+            if (step && step->dividerType == RangeDivider) {
               int oX = offsetX + loc[XX] + range->loc[XX];
               int oY = offsetY + loc[YY] + range->loc[YY];
               if (allocEnc == Vertical) {
@@ -543,23 +543,23 @@ void Steps::addGraphicsItems(
                 oY += range->size[YY];
               }
 
-              DividerItem *divider = new DividerItem(step,&meta,oX,oY);
+              DividerItem *divider = new DividerItem(step,&meta,oX,oY,step->dividerType);
               divider->setParentItem(parent);
 
               //   add divider pointers (if any) to the graphics scene
-              for (int j = 0; j < range->stepDividerPointerList.size(); j++) {
-                  Pointer *pointer = range->stepDividerPointerList[j];
+              for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {
+                  Pointer *pointer = range->rangeDividerPointerList[j];
                   divider->addGraphicsPointerItem(pointer,range->view);
               }
             }
           }
-        }             // [divider]
+        }             // Range divider
 
-        // check steps for rangeDivider
+        // check steps for step divider
         for (int i = 0; i < range->list.size(); i++) {
-          if (range->list[i]->relativeType == StepType) {           // stepType
+          if (range->list[i]->relativeType == StepType) {
             Step *step = dynamic_cast<Step *>(range->list[i]);
-            if (step && step->rangeDivider) {                       // step
+            if (step && step->dividerType == StepDivider) {
               int oX,oY;
               if (allocEnc == Vertical) {
                 oX = offsetX + loc[XX] + range->loc[XX];
@@ -569,16 +569,18 @@ void Steps::addGraphicsItems(
                 oY = offsetY + loc[YY] + range->loc[YY];
               }
 
-              DividerItem *divider = new DividerItem(step,&meta,oX,oY,true);
+              DividerItem *divider = new DividerItem(step,&meta,oX,oY,step->dividerType);
               divider->setParentItem(parent);
 
-              for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {
-                  Pointer *pointer = range->rangeDividerPointerList[j];
+              //   add divider pointers (if any) to the graphics scene
+              for (int j = 0; j < range->stepDividerPointerList.size(); j++) {
+                Pointer *pointer = range->stepDividerPointerList[j];
+                if (pointer->stepNum == step->stepNumber.number)
                   divider->addGraphicsPointerItem(pointer,range->view);
               }
-            }                    // step          [range divider]
-          }                      // stepType      [range divider]
-        }                        // for each step [range divider]
+            }
+          }
+        }                        // step divider
       }                          // range
     }                            // rangeType
   }

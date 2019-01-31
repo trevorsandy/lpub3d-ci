@@ -46,13 +46,8 @@ DividerPointerItem::DividerPointerItem(
   pointer            = *_pointer;
   divider            = div;
 
-  if (divider->rangeDivider) {
-    pointerTop       = divider->parentStep->topOfStep();
-    pointerBottom    = divider->parentStep->bottomOfStep();
-  } else {
-    pointerTop       = divider->parentStep->nextStep()->topOfStep();
-    pointerBottom    = divider->parentStep->nextStep()->bottomOfStep();
-  }
+  pointerTop         = divider->parentStep->nextStep()->topOfStep();
+  pointerBottom      = divider->parentStep->nextStep()->bottomOfStep();
   pointerParentType  = divider->parentRelativeType;;
   resizeRequested    = false;
 

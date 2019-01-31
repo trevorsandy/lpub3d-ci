@@ -118,16 +118,16 @@ public:
     DividerLine                 *lineItem;
     DividerBackgroundItem       *background;
     QList<DividerPointerItem *>  graphicsPointerList; /* Pointer and pointer tips graphics */
+    DividerType                  dividerType;
     PlacementType                parentRelativeType;
-    bool                         rangeDivider;
 
     DividerItem() {}
     DividerItem(
-      Step  *_step,
-      Meta  *_meta,
-      int    offsetX,
-      int    offsetY,
-      bool   rangeDivider = false);
+      Step       *_step,
+      Meta       *_meta,
+      int         offsetX,
+      int         offsetY,
+      DividerType dividerType);
     ~DividerItem();
 
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

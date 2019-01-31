@@ -585,15 +585,15 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   borderAttribTop.lineNumber = pad.borderWhere.lineNumber;
   borderAttribBottom         = borderAttribTop;
 
-  QAction *setLineAttributesAction = menu.addAction("Set Line Attributes");
+  QAction *setLineAttributesAction = menu.addAction("Edit Line Attributes");
   setLineAttributesAction->setIcon(QIcon(":/resources/lineattributes.png"));
-  setLineAttributesAction->setWhatsThis( "Set pointer line attributes:\n"
-                                         "Set the pointer line color, thickness, and type");
+  setLineAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
+                                         "Edit the pointer line color, thickness, and type");
 
-  QAction *setBorderAttributesAction = menu.addAction("Set Border Attributes");
+  QAction *setBorderAttributesAction = menu.addAction("Edit Border Attributes");
   setBorderAttributesAction->setIcon(QIcon(":/resources/borderattributes.png"));
-  setBorderAttributesAction->setWhatsThis( "Set pointer line attributes:\n"
-                                           "Set the pointer border color, thickness, and line type");
+  setBorderAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
+                                           "Edit the pointer border color, thickness, and line type");
 
   QAction *resetLineAttributesAction = nullptr;
   if (! pad.lineData.useDefault) {

@@ -175,21 +175,20 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
 
 #include "dividerpointeritem.h"
 
-DividerItem::DividerItem(
-  Step  *_step,
-  Meta  *_meta,
-  int    _offsetX,
-  int    _offsetY,
-  bool   _rangeDivider)
+DividerItem::DividerItem(Step  *_step,
+  Meta       *_meta,
+  int         _offsetX,
+  int         _offsetY,
+  DividerType _dividerType)
 {
   meta               = *_meta;
-  parentStep         = _step;
-  Range  *range      = _step->range();
-  Steps  *steps      = _step->grandparent();
-  parentRelativeType = steps->relativeType;
-  placement          = steps->placement;
-  SepData sepData    = range->sepMeta.valuePixels();
-  rangeDivider       = _rangeDivider;
+  parentStep         =  _step;
+  Range  *range      =  _step->range();
+  Steps  *steps      =  _step->grandparent();
+  parentRelativeType =  steps->relativeType;
+  placement          =  steps->placement;
+  SepData sepData    =  range->sepMeta.valuePixels();
+  dividerType        =  _dividerType;
 
   AllocEnc allocEnc;
   if (parentRelativeType == CalloutType) {
@@ -200,7 +199,7 @@ DividerItem::DividerItem(
 
   /* Size the rectangle around the divider */
 
-  if(rangeDivider) { // range divider
+  if(dividerType == StepDivider) { // Step divider
       if (allocEnc == Vertical) {
           setRect(_offsetX,
                   _offsetY,
@@ -212,7 +211,7 @@ DividerItem::DividerItem(
                   2*sepData.margin[XX]+sepData.thickness,
                   parentStep->size[YY]);
       }
-  } else {                      // default divider
+  } else {                        // Range divider
       if (allocEnc == Vertical) {
         setRect(_offsetX,
                 _offsetY,
@@ -243,7 +242,7 @@ DividerItem::DividerItem(
 
   if (sepData.thickness > 0.5) {
     // determine the position of the divider
-    if(rangeDivider) {     // range divider
+    if(dividerType == StepDivider) {     // Step divider
         if (allocEnc == Vertical) {
             int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
             int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
@@ -259,7 +258,7 @@ DividerItem::DividerItem(
                               _offsetX-spacingWidth,     // left
                               _offsetY+parentStep->size[YY]-separatorHeight);
         }
-    } else {                      // default divider
+    } else {                            // Range divider
         if (allocEnc == Vertical) {
           int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
           lineItem->setLine(_offsetX+separatorWidth,   // right
@@ -317,18 +316,12 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
   
   Step *nextStep = nullptr;
-  Where topOfStep,bottomOfStep;
-  if (rangeDivider) {
-      topOfStep    = parentStep->topOfStep();
-      bottomOfStep = parentStep->bottomOfStep();
-  } else {
-      nextStep = parentStep->nextStep();
-      if ( ! nextStep)
-          return;
-      topOfStep    = nextStep->topOfStep();
-      bottomOfStep = nextStep->bottomOfStep();
-  }
-  Range *range = parentStep->range();
+  nextStep = parentStep->nextStep();
+  if ( ! nextStep)
+      return;
+  Where topOfStep    = nextStep->topOfStep();
+  Where bottomOfStep = nextStep->bottomOfStep();
+  Range *range       = parentStep->range();
 
   if (selectedAction == editAction) {
     changeDivider("Divider",topOfStep,bottomOfStep,&range->sepMeta,1,false);
