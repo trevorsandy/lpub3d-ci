@@ -543,7 +543,7 @@ void Steps::addGraphicsItems(
                 oY += range->size[YY];
               }
 
-              DividerItem *divider = new DividerItem(step,&meta,oX,oY,step->dividerType);
+              DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
 
               //   add divider pointers (if any) to the graphics scene
@@ -569,7 +569,7 @@ void Steps::addGraphicsItems(
                 oY = offsetY + loc[YY] + range->loc[YY];
               }
 
-              DividerItem *divider = new DividerItem(step,&meta,oX,oY,step->dividerType);
+              DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
 
               //   add divider pointers (if any) to the graphics scene

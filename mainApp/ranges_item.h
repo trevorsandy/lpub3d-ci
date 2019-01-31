@@ -126,8 +126,7 @@ public:
       Step       *_step,
       Meta       *_meta,
       int         offsetX,
-      int         offsetY,
-      DividerType dividerType);
+      int         offsetY);
     ~DividerItem();
 
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

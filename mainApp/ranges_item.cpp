@@ -175,20 +175,20 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
 
 #include "dividerpointeritem.h"
 
-DividerItem::DividerItem(Step  *_step,
+DividerItem::DividerItem(
+  Step       *_step,
   Meta       *_meta,
   int         _offsetX,
-  int         _offsetY,
-  DividerType _dividerType)
+  int         _offsetY)
 {
   meta               = *_meta;
   parentStep         =  _step;
+  dividerType        =  _step->dividerType;
   Range  *range      =  _step->range();
   Steps  *steps      =  _step->grandparent();
   parentRelativeType =  steps->relativeType;
   placement          =  steps->placement;
   SepData sepData    =  range->sepMeta.valuePixels();
-  dividerType        =  _dividerType;
 
   AllocEnc allocEnc;
   if (parentRelativeType == CalloutType) {
