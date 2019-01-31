@@ -246,30 +246,32 @@ DividerItem::DividerItem(Step  *_step,
         if (allocEnc == Vertical) {
             int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
             int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
-            lineItem->setLine(_offsetX-separatorWidth,
+            lineItem->setLine(_offsetX+separatorWidth,
                               _offsetY-spacingHeight,    // top
-                              _offsetX+parentStep->size[XX]-separatorWidth,
+                              _offsetX+parentStep->size[XX]+separatorWidth,
                               _offsetY-spacingHeight);   // top
         } else {
-            int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
             int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
-            lineItem->setLine(_offsetX-spacingWidth,     // left
+            int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
+            lineItem->setLine(_offsetX+spacingWidth,     // left
                               _offsetY-separatorHeight,
-                              _offsetX-spacingWidth,     // left
+                              _offsetX+spacingWidth,     // left
                               _offsetY+parentStep->size[YY]-separatorHeight);
         }
     } else {                            // Range divider
         if (allocEnc == Vertical) {
           int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
+          int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
           lineItem->setLine(_offsetX+separatorWidth,   // right
-                            _offsetY,
+                            _offsetY-spacingHeight,
                             _offsetX+separatorWidth,   // right
-                            _offsetY+range->size[YY]);
+                            _offsetY+range->size[YY]-spacingHeight);
         } else {
           int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
-          lineItem->setLine(_offsetX,
+          int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
+          lineItem->setLine(_offsetX-spacingWidth,
                             _offsetY+separatorHeight,   // top
-                            _offsetX+range->size[XX],
+                            _offsetX+range->size[XX]-spacingWidth,
                             _offsetY+separatorHeight);  // top
         }
     }
