@@ -326,9 +326,67 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Range *range       = parentStep->range();
 
   if (selectedAction == editAction) {
+
     changeDivider("Divider",topOfStep,bottomOfStep,&range->sepMeta,1,false);
+
   } else if (selectedAction == deleteAction) {
+
+    Where undefined;
+    QString modelName;
+    QList<int> lineNumbers;
+    QHash<int, QString> hash;  // int=lineNumber, QString=pa,pm
+
+    beginMacro("deleteDividerMetas");
+
+    // first we delete any divider pointers
+    bool stepList = parentStep->dividerType == StepDivider;
+    int listSize  = stepList ? range->stepDividerPointerList.size() :
+                               range->rangeDividerPointerList.size();
+    // capture list of pointers and their attirbutes if any
+    for (int j = 0; j < listSize; j++) {
+      Pointer *pointer        = stepList ? range->stepDividerPointerList[j] :
+                                           range->rangeDividerPointerList[j];
+      if (pointer->stepNum   == parentStep->stepNumber.number) {
+        modelName             = pointer->here.modelName;
+        PointerAttribData pad = pointer->pointerAttrib.value();
+        Where lineAttribTop   = Where(pad.lineWhere.modelName,pad.lineWhere.lineNumber);
+        Where borderAttribTop = Where(pad.borderWhere.modelName,pad.borderWhere.lineNumber);
+        // for each pointer load the pointer...
+        hash.insert(pointer->here.lineNumber,"pm");
+        lineNumbers << pointer->here.lineNumber;
+        // load pointer attributes if any...
+        if (lineAttribTop != undefined){
+            hash.insert(lineAttribTop.lineNumber,"pa");
+            lineNumbers << lineAttribTop.lineNumber;
+        }
+        if (borderAttribTop != undefined){
+            hash.insert(borderAttribTop.lineNumber,"pa");
+            lineNumbers << borderAttribTop.lineNumber;
+        }
+      }
+    }
+    // sort the line numbers...
+    qSort(lineNumbers.begin(),lineNumbers.end());
+    // process from last to first to preserve line numbers
+    int lastLineNumber = -1;
+    for (int k = lineNumbers.size() - 1; k >= 0; --k) {
+      int lineNumber  = lineNumbers[k];
+      if (lineNumber != lastLineNumber) {
+        Where here(modelName,lineNumber);
+        QHash<int, QString>::iterator i = hash.find(lineNumber);
+        while (i != hash.end() && i.key() == lineNumber) {
+          if (i.value() == "pa")
+            deletePointerAttribute(here,true);
+          else
+            deleteMeta(here);
+          ++i;
+        }
+        lastLineNumber = lineNumber;
+      }
+    }
+    // delete devider
     deleteDivider(parentRelativeType,topOfStep);
+    endMacro();
   }
 }
 
