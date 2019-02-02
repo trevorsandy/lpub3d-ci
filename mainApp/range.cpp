@@ -109,12 +109,7 @@ void Range::sizeMargins(
 }
 
 int Range::sizeRangeDividers(int axis) {
-    SepData divider;
-    if ( parent->relativeType == CalloutType) {
-      divider = parent->meta.LPub.callout.sep.valuePixels();
-    } else {
-      divider = parent->meta.LPub.multiStep.sep.valuePixels();
-    }
+    SepData divider = sepMeta.valuePixels();
     int dividerSizeAdjust = 0;
     for (int i = 0; i < list.size()-1; i++) {
       if (list[i]->relativeType == StepType) {

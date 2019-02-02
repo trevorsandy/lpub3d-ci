@@ -118,7 +118,6 @@ public:
     DividerLine                 *lineItem;
     DividerBackgroundItem       *background;
     QList<DividerPointerItem *>  graphicsPointerList; /* Pointer and pointer tips graphics */
-    DividerType                  dividerType;
     PlacementType                parentRelativeType;
 
     DividerItem() {}

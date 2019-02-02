@@ -183,7 +183,6 @@ DividerItem::DividerItem(
 {
   meta               = *_meta;
   parentStep         =  _step;
-  dividerType        =  _step->dividerType;
   Range  *range      =  _step->range();
   Steps  *steps      =  _step->grandparent();
   parentRelativeType =  steps->relativeType;
@@ -197,30 +196,41 @@ DividerItem::DividerItem(
     allocEnc = meta.LPub.multiStep.alloc.value();
   }
 
+  /* Size the divider length */
+
+  int separatorLength = sepData.length;
+  if (sepData.type != SepData::LenCustom) {
+    if(parentStep->dividerType == StepDivider) { // Step divider
+      separatorLength = allocEnc == Vertical ? range->size[XX] : range->size[YY];
+    } else {                                    // Range divider
+      separatorLength = allocEnc == Vertical ? range->size[YY] : range->size[XX];
+    }
+  }
+
   /* Size the rectangle around the divider */
 
-  if(dividerType == StepDivider) { // Step divider
+  if(parentStep->dividerType == StepDivider) { // Step divider
       if (allocEnc == Vertical) {
           setRect(_offsetX,
                   _offsetY,
-                  parentStep->size[XX],
+                  separatorLength,
                   2*sepData.margin[YY]+sepData.thickness);
       } else {
           setRect(_offsetX,
                   _offsetY,
                   2*sepData.margin[XX]+sepData.thickness,
-                  parentStep->size[YY]);
+                  separatorLength);
       }
   } else {                        // Range divider
       if (allocEnc == Vertical) {
         setRect(_offsetX,
                 _offsetY,
                 2*sepData.margin[XX]+sepData.thickness,
-                range->size[YY]);
+                separatorLength);
       } else {
         setRect(_offsetX,
                 _offsetY,
-                range->size[XX],
+                separatorLength,
                 2*sepData.margin[YY]+sepData.thickness);
       }
   }
@@ -242,13 +252,13 @@ DividerItem::DividerItem(
 
   if (sepData.thickness > 0.5) {
     // determine the position of the divider
-    if(dividerType == StepDivider) {     // Step divider
+    if(parentStep->dividerType == StepDivider) {     // Step divider
         if (allocEnc == Vertical) {
             int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
             int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
             lineItem->setLine(_offsetX+separatorWidth,
                               _offsetY-spacingHeight,    // top
-                              _offsetX+parentStep->size[XX]+separatorWidth,
+                              _offsetX+separatorLength+separatorWidth,
                               _offsetY-spacingHeight);   // top
         } else {
             int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
@@ -256,7 +266,7 @@ DividerItem::DividerItem(
             lineItem->setLine(_offsetX+spacingWidth,     // left
                               _offsetY-separatorHeight,
                               _offsetX+spacingWidth,     // left
-                              _offsetY+parentStep->size[YY]-separatorHeight);
+                              _offsetY+separatorLength-separatorHeight);
         }
     } else {                            // Range divider
         if (allocEnc == Vertical) {
@@ -265,13 +275,13 @@ DividerItem::DividerItem(
           lineItem->setLine(_offsetX+separatorWidth,   // right
                             _offsetY-spacingHeight,
                             _offsetX+separatorWidth,   // right
-                            _offsetY+range->size[YY]-spacingHeight);
+                            _offsetY+separatorLength-spacingHeight);
         } else {
           int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
           int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
           lineItem->setLine(_offsetX-spacingWidth,
                             _offsetY+separatorHeight,   // top
-                            _offsetX+range->size[XX]-spacingWidth,
+                            _offsetX+separatorLength-spacingWidth,
                             _offsetY+separatorHeight);  // top
         }
     }
@@ -331,10 +341,12 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   } else if (selectedAction == deleteAction) {
 
+    enum Type { Attribute, MetaCmd };
+
     Where undefined;
     QString modelName;
     QList<int> lineNumbers;
-    QHash<int, QString> hash;  // int=lineNumber, QString=pa,pm
+    QHash<int, Type> hash;
 
     beginMacro("deleteDividerMetas");
 
@@ -352,15 +364,15 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         Where lineAttribTop   = Where(pad.lineWhere.modelName,pad.lineWhere.lineNumber);
         Where borderAttribTop = Where(pad.borderWhere.modelName,pad.borderWhere.lineNumber);
         // for each pointer load the pointer...
-        hash.insert(pointer->here.lineNumber,"pm");
+        hash.insert(pointer->here.lineNumber,MetaCmd);
         lineNumbers << pointer->here.lineNumber;
         // load pointer attributes if any...
         if (lineAttribTop != undefined){
-            hash.insert(lineAttribTop.lineNumber,"pa");
+            hash.insert(lineAttribTop.lineNumber,Attribute);
             lineNumbers << lineAttribTop.lineNumber;
         }
         if (borderAttribTop != undefined){
-            hash.insert(borderAttribTop.lineNumber,"pa");
+            hash.insert(borderAttribTop.lineNumber,Attribute);
             lineNumbers << borderAttribTop.lineNumber;
         }
       }
@@ -373,9 +385,9 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       int lineNumber  = lineNumbers[k];
       if (lineNumber != lastLineNumber) {
         Where here(modelName,lineNumber);
-        QHash<int, QString>::iterator i = hash.find(lineNumber);
+        QHash<int, Type>::iterator i = hash.find(lineNumber);
         while (i != hash.end() && i.key() == lineNumber) {
-          if (i.value() == "pa")
+          if (i.value() == Attribute)
             deletePointerAttribute(here,true);
           else
             deleteMeta(here);
@@ -384,7 +396,7 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         lastLineNumber = lineNumber;
       }
     }
-    // delete devider
+    // delete divider
     deleteDivider(parentRelativeType,topOfStep);
     endMacro();
   }
