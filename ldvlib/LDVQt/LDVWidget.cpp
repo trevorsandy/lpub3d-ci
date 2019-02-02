@@ -97,7 +97,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   iniFiles[NativePOVIni] = { "Native POV", Preferences::nativePOVIni };
   iniFiles[LDViewPOVIni] = { "LDView POV", Preferences::ldviewPOVIni };
-  iniFiles[LDViewIni] = { "LDView", Preferences::ldviewIni } ;
+  iniFiles[LDViewIni] = { "LDView", Preferences::ldviewIni };
 
   QString programPath = QCoreApplication::applicationFilePath();
   TCUserDefaults::setCommandLine(programPath.toLatin1().constData());
