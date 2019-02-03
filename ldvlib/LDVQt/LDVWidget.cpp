@@ -95,9 +95,11 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
-  iniFiles[NativePOVIni] = { "Native POV", Preferences::nativePOVIni };
+  iniFiles[NativePOVIni] = { "Native POV", Preferences::nativeExportIni };
+  iniFiles[NativeSTLIni] = { "Native STL", Preferences::nativeExportIni };
+  iniFiles[Native3DSIni] = { "Native 3DS", Preferences::nativeExportIni };
   iniFiles[LDViewPOVIni] = { "LDView POV", Preferences::ldviewPOVIni };
-  iniFiles[LDViewIni] = { "LDView", Preferences::ldviewIni };
+  iniFiles[LDViewIni]    = { "LDView",     Preferences::ldviewIni };
 
   QString programPath = QCoreApplication::applicationFilePath();
   TCUserDefaults::setCommandLine(programPath.toLatin1().constData());
