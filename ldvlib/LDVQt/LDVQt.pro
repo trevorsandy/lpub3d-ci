@@ -24,7 +24,7 @@ DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC
 DEFINES += QT_THREAD_SUPPORT
-!freebsd:  \
+!freebsd: \
 DEFINES += EXPORT_3DS
 
 # platform switch

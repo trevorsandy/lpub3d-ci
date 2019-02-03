@@ -1093,7 +1093,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
         break;
-    case EXPORT_3DS:
+    case EXPORT_3DS_MAX:
         bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
@@ -2729,7 +2729,7 @@ void Gui::reloadModelFileAfterColorFileGen(){
 
 void Gui::generateCustomColourPartsList(bool prompt)
 {
-    QMessageBox::StandardButton ret;
+    QMessageBox::StandardButton ret = QMessageBox::Cancel;
     QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::validLDrawLibrary);
 
     if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
@@ -3123,7 +3123,7 @@ void Gui::createActions()
     connect(export3dsAct, SIGNAL(triggered()), this, SLOT(exportAs3dsDialog()));
 
     exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("Export As &Stereo Lithography Objects"), this);
-    exportBmpAct->setShortcut(tr("Alt+2"));
+    exportStlAct->setShortcut(tr("Alt+2"));
     exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects - Alt+2"));
     exportStlAct->setEnabled(false);
     connect(exportStlAct, SIGNAL(triggered()), this, SLOT(exportAsStlDialog()));
@@ -3619,7 +3619,7 @@ void Gui::enableActions()
   exportBricklinkAct->setEnabled(true);
   exportCsvAct->setEnabled(true);
   exportPovAct->setEnabled(true);
-//  exportStlAct->setEnabled(true); Temp disabled
+  exportStlAct->setEnabled(true);
   export3dsAct->setEnabled(true);
   exportObjAct->setEnabled(true);
   exportColladaAct->setEnabled(true);

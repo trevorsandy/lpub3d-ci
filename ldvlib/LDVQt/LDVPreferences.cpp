@@ -225,11 +225,14 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
         snapshotSaveDirBox->hide();
         snapshotSaveDirEdit->hide();
         snapshotSaveDirButton->hide();
-
+      /*
+       * We will use these for the parts list export
+       *
         defaultPartlistDirLabel->hide();
         partsListsSaveDirBox->hide();
         partsListsSaveDirEdit->hide();
         partsListsSaveDirButton->hide();
+       */
 
         // Remove Updates Tab
         tabs->removeTab(tabs->indexOf(updateTab));
