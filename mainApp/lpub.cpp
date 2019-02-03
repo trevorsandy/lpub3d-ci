@@ -1745,8 +1745,8 @@ void Gui::editLdgliteIni()
 
 void Gui::editNativePovIni()
 {
-    displayParmsFile(Preferences::nativePOVIni);
-    parmsWindow->setWindowTitle(tr("Edit Native POV file generation INI","Edit Native POV file generation INI"));
+    displayParmsFile(Preferences::nativeExportIni);
+    parmsWindow->setWindowTitle(tr("Edit Native Export INI","Edit Native Export INI"));
     parmsWindow->show();
 }
 
@@ -1815,16 +1815,16 @@ void Gui::preferences()
     QString displayThemeCompare         = Preferences::displayTheme;
 
     // Native POV file generation settings
-    bool showLDVSettings = false;
+    bool showLdvPOVGenSettings = false;
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
         if (Preferences::povFileGenerator == RENDERER_NATIVE )
-            TCUserDefaults::setIniFile(Preferences::nativePOVIni.toLatin1().constData());
+            TCUserDefaults::setIniFile(Preferences::nativeExportIni.toLatin1().constData());
         else
             TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
-        showLDVSettings = true;
+        showLdvPOVGenSettings = true;
     } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
         TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
-        showLDVSettings = true;
+        showLdvPOVGenSettings = true;
     }
 
     long qualityCompare = 0.0f;
@@ -1866,7 +1866,7 @@ void Gui::preferences()
     QString bottomIncludeCompare = "";
     QString lightsCompare = "";
 
-    if (showLDVSettings) {
+    if (showLdvPOVGenSettings) {
         switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
         {
         case -1:
@@ -2182,7 +2182,7 @@ void Gui::preferences()
         }
 
         // Native POV file generation settings
-        if (showLDVSettings) {
+        if (showLdvPOVGenSettings) {
             QString selectedAspectRatio;
             switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
             {
