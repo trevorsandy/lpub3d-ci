@@ -190,7 +190,11 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
         }
     }
 
-    bool enableNativeSettings = modelWidget->getIniFlag() == NativePOVIni;
+    IniFlag iniFlag = modelWidget->getIniFlag();
+    bool enableNativeSettings = (iniFlag == NativePOVIni ||
+                                 iniFlag == NativeSTLIni ||
+                                 iniFlag == Native3DSIni);
+
     this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
 
     QPalette readOnlyPalette;
