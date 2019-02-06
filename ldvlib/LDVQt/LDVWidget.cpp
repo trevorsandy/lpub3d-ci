@@ -19,8 +19,8 @@
 #include <QPainter>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QProcess>
 #include <QApplication>
-#include <QMessageBox>
 #include <QDesktopWidget>
 #include <QDesktopServices>
 
@@ -62,12 +62,17 @@
 #include <string>
 #include <assert.h>
 
+#include <QProgressDialog>
+#include <LDLoader/LDLPalette.h>
+#include <LDLoader/LDLMainModel.h>
+
 #ifdef WIN32
 #include <TCFoundation/TCTypedValueArray.h>
 #include <LDVExtensionsSetup.h>
 #endif // WIN32
 
 //#include "lpub_messages.h" //
+#include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "lpubalert.h"
 #include "version.h"
@@ -391,12 +396,6 @@ void LDVWidget::showLDVPreferences()
         ldvPreferences->doCancel();
 
     delete ldvPreferences;
-}
-
-void LDVWidget::closeLDVPreferences()
-{
-    if (ldvPreferences)
-        ldvPreferences->doOk();
 }
 
 void LDVWidget::setupLDVFormat(void)
@@ -744,7 +743,7 @@ bool LDVWidget::saveImage(
 }
 
 void LDVWidget::doPartList(
-    LDHtmlInventory *htmlInventory,
+    LDVHtmlInventory *htmlInventory,
     LDPartsList *partsList,
     const char *filename)
 {
@@ -798,7 +797,8 @@ void LDVWidget::doPartList(void)
         LDPartsList *partsList = modelViewer->getPartsList();
         if (partsList)
         {
-            LDHtmlInventory *htmlInventory = new LDHtmlInventory;
+            QString htmlFilename;
+            LDVHtmlInventory *htmlInventory = new LDVHtmlInventory;
             LDVPartList *ldvPartList = new LDVPartList(this, htmlInventory);
             if (ldvPartList->exec() == QDialog::Accepted)
             {
@@ -828,7 +828,7 @@ void LDVWidget::doPartList(void)
                     " (*.html)";
                 while (!done)
                 {
-                    QString htmlFilename = QFileDialog::getSaveFileName(this,
+                    htmlFilename = QFileDialog::getSaveFileName(this,
                         QString::fromWCharArray(TCLocalStrings::get(L"GeneratePartsList")),
                         initialDir + "/" + filename,
                         filter);
@@ -840,15 +840,30 @@ void LDVWidget::doPartList(void)
                     {
                         if (QFileInfo(htmlFilename).exists())
                         {
+                            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                            QMessageBoxResizable box;
+                            box.setWindowIcon(QIcon());
+                            box.setIconPixmap (_icon);
+                            box.setTextFormat (Qt::RichText);
+                            box.setStandardButtons (QMessageBox::Close);
+                            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                            box.setWindowTitle(tr ("HTML Part List"));
+
+                            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+                            box.setDefaultButton   (QMessageBox::Yes);
+
                             QString prompt =
                                 QString::fromWCharArray(TCLocalStrings::get(L"OverwritePrompt"));
-
                             prompt.replace("%s", htmlFilename);
-                            if (QMessageBox::warning(this, VER_PRODUCTNAME_STR, prompt,
-                                QMessageBox::Yes, QMessageBox::No) ==
-                                QMessageBox::No)
-                            {
-                                continue;
+
+                            QString title = "<b> HTML part list generation. </b>";
+                            QString text = prompt;
+
+                            box.setText (title);
+                            box.setInformativeText (text);
+
+                            if (Preferences::modeGUI && (box.exec() == QMessageBox::No)) {
+                                 continue;
                             }
                         }
                         doPartList(htmlInventory, partsList,
@@ -857,8 +872,150 @@ void LDVWidget::doPartList(void)
                     }
                 }
             }
+            if (htmlInventory->getShowFileFlag() &&
+                QFileInfo(htmlFilename).exists())
+            {
+                showWebPage(htmlFilename);
+            }
             htmlInventory->release();
             partsList->release();
         }
+    }
+}
+
+void LDVWidget::showWebPage(QString &htmlFilename){
+
+  if (QFileInfo(htmlFilename).exists()){
+
+      //display completion message
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
+      QMessageBoxResizable box;
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (_icon);
+      box.setTextFormat (Qt::RichText);
+      box.setStandardButtons (QMessageBox::Close);
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      box.setWindowTitle(tr ("HTML Part List"));
+
+      box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+      box.setDefaultButton   (QMessageBox::Yes);
+
+      QString title = "<b> HTML part list generated. </b>";
+      QString text = tr ("Your HTML part list web page was generated successfully.\n\n"
+                         "Do you want to open this document ?\n\n%1").arg(htmlFilename);
+
+      box.setText (title);
+      box.setInformativeText (text);
+
+      if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
+          QString CommandPath = htmlFilename;
+          QProcess *Process = new QProcess(this);
+          Process->setWorkingDirectory(QDir::currentPath() + "/");
+#ifdef Q_OS_WIN
+          Process->setNativeArguments(CommandPath);
+          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+          Process->execute(CommandPath);
+          Process->waitForFinished();
+
+          QProcess::ExitStatus Status = Process->exitStatus();
+
+          if (Status != 0) {  // look for error
+              QErrorMessage *m = new QErrorMessage(this);
+              m->showMessage(QString("%1<br>%2").arg("Failed to launch HTML part list web page!").arg(CommandPath));
+          }
+#endif
+          return;
+        } else {
+          emit lpubAlert->messageSig(LOG_STATUS, QString("HTML part list generation completed!")
+                                                         .arg(QFileInfo(htmlFilename).baseName()));
+          return;
+
+        }
+  } else {
+      emit lpubAlert->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
+                                                    .arg(QFileInfo(htmlFilename).baseName()));
+  }
+}
+
+bool LDVHtmlInventory::generateHtml(
+    const char *filename,
+    LDPartsList *partsList,
+    const char *modelName)
+{
+    FILE *file = ucfopen(filename, "w");
+    size_t nSlashSpot;
+
+    m_lastFilename = filename;
+    m_lastSavePath = filename;
+    populateColumnMap();
+    nSlashSpot = m_lastSavePath.find_last_of("/\\");
+    if (nSlashSpot < m_lastSavePath.size())
+    {
+        m_lastSavePath = m_lastSavePath.substr(0, nSlashSpot);
+    }
+    m_prefs->setInvLastSavePath(m_lastSavePath.c_str());
+    m_prefs->commitInventorySettings();
+    m_modelName = modelName;
+    nSlashSpot = m_modelName.find_last_of("/\\");
+    if (nSlashSpot < m_modelName.size())
+    {
+        m_modelName = m_modelName.substr(nSlashSpot + 1);
+    }
+    if (file)
+    {
+        QProgressDialog* ProgressDialog = new QProgressDialog(nullptr);
+        ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+        ProgressDialog->setWindowTitle(QString("HTML Part List"));
+        ProgressDialog->setLabelText(QString("Generating %1 HTML Part List...")
+                                             .arg(QFileInfo(filename).baseName()));
+        ProgressDialog->setMinimum(0);
+        ProgressDialog->setValue(0);
+        ProgressDialog->setCancelButton(nullptr);
+        ProgressDialog->setAutoReset(false);
+        ProgressDialog->setModal(true);
+        ProgressDialog->show();
+
+        const LDPartCountVector &partCounts = partsList->getPartCounts();
+        int i, j, pc;
+
+        pc = int(partCounts.size());
+
+        ProgressDialog->setMaximum(pc);
+
+        writeHeader(file);
+        writeTableHeader(file, partsList->getTotalParts());
+        for (i = 0; i < pc; i++)
+        {
+            ProgressDialog->setValue(i);
+            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+            const LDPartCount &partCount = partCounts[i];
+            const IntVector &colors = partCount.getColors();
+            LDLModel *model = const_cast<LDLModel *>(partCount.getModel());
+            LDLPalette *palette = model->getMainModel()->getPalette();
+            //int partTotal = partCount.getTotalCount();
+
+            for (j = 0; j < (int)colors.size(); j++)
+            {
+                int colorNumber = colors[j];
+                LDLColorInfo colorInfo = palette->getAnyColorInfo(colorNumber);
+
+                writePartRow(file, partCount, palette, colorInfo, colorNumber);
+            }
+        }
+        writeTableFooter(file);
+        writeFooter(file);
+        fclose(file);
+
+        ProgressDialog->setValue(pc);
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        ProgressDialog->deleteLater();
+
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }

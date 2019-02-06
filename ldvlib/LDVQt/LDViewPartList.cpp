@@ -78,6 +78,7 @@ void LDVPartList::doOk()
 	m_htmlInventory->setPartImagesFlag(showPartImageButton->isChecked());
 	m_htmlInventory->setShowModelFlag(showmodel = 
 					  showModelButton->isChecked());
+    m_htmlInventory->setShowFileFlag(showWebPageButton->isChecked());
 	if (showmodel)
 	{
 		 m_htmlInventory->setOverwriteSnapshotFlag(
@@ -143,6 +144,7 @@ int LDVPartList::exec()
 		m_htmlInventory->getShowModelFlag());
 	overwriteExistingButton->setChecked(showmodel ?
 		m_htmlInventory->getOverwriteSnapshotFlag() : false);
+    showWebPageButton->setChecked(m_htmlInventory->getShowFileFlag());
 	doShowModel();
 	return QDialog::exec();
 }
