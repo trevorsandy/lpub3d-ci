@@ -2,6 +2,7 @@
 #include "LDViewPartList.h"
 #include "LDVWidget.h"
 #include <LDVPreferences.h>
+#include <LDVWidgetDefaultKeys.h>
 
 LDVPartList::LDVPartList(LDVWidget *modelWidget, LDHtmlInventory *htmlInventory)
         : QDialog(qobject_cast<QWidget*>(modelWidget)),

@@ -19,6 +19,7 @@
 #include <TCFoundation/mystring.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <LDExporter/LDExporter.h>
+#include <LDVWidgetDefaultKeys.h>
 #include <LDVMisc.h>
 #include "LDViewExportOption.h"
 #include "LDVWidget.h"

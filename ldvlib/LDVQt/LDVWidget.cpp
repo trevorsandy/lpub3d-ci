@@ -56,6 +56,7 @@
 
 #include "LDViewPartList.h"
 #include <LDLib/LDPartsList.h>
+#include <LDVWidgetDefaultKeys.h>
 #include <LDVMisc.h>
 
 #include <vector>

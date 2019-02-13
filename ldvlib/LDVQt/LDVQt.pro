@@ -158,12 +158,12 @@ SOURCES += \
 }
 
 HEADERS += \
+    $$PWD/LDVWidgetDefaultKeys.h \
     $$PWD/LDVAlertHandler.h \
     $$PWD/LDViewExportOption.h \
     $$PWD/LDVImageMatte.h \
-	$$PWD/LDViewPartList.h \
+    $$PWD/LDViewPartList.h \
     $$PWD/LDVMisc.h \
-    $$PWD/LDVPovUserDefaultsKeys.h \
     $$PWD/LDVPreferences.h \
     $$PWD/LDVWidget.h
 
