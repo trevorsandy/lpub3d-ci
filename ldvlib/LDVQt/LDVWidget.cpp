@@ -157,6 +157,8 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
 LDVWidget::~LDVWidget(void)
 {
+    TCAutoreleasePool::processReleases();
+    ldvWidget = nullptr;
 }
 
 bool LDVWidget::doCommand(QStringList &arguments)
@@ -175,18 +177,19 @@ bool LDVWidget::doCommand(QStringList &arguments)
         } else if (iniFlag == NativePartList) {
             if (setupLDVApplication()) {
                 doPartList();
-                delete ldvPreferences;
-                TCObject::release(modelViewer);
             }
         }
     }
-    TCObject::release(snapshotTaker);
-    TCObject::release(ldvAlertHandler);
-    makeCurrent();
-    doneCurrent();
     return retValue;
 }
 
+bool LDVWidget::getUseFBO()
+{
+    if (snapshotTaker)
+        return snapshotTaker->getUseFBO();
+    else
+        return false;
+}
 
 void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
 {
@@ -494,14 +497,6 @@ void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
         emit lpubAlert->messageSig(LOG_STATUS, QString("%1")
                                    .arg(alert->getMessage()));
     }
-}
-
-bool LDVWidget::getUseFBO()
-{
-    if (snapshotTaker)
-        return snapshotTaker->getUseFBO();
-    else
-        return false;
 }
 
 bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
