@@ -33,12 +33,12 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     }
 
     if ((! preview) &&
-        (gui->exportMode == EXPORT_POVRAY  ||
-         gui->exportMode == EXPORT_STL /* ||
-        gui->exportMode == EXPORT_3DS_MAX */)){
-       /* flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-               gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni; */
-        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni ;
+        (gui->exportMode == EXPORT_POVRAY ||
+         gui->exportMode == EXPORT_STL    ||
+        gui->exportMode == EXPORT_3DS_MAX)){
+        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+               gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
+//        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
         ui->gropuBoxLDVExport->setTitle(QString("%1 Export Settings")
                                                 .arg(iniFlagNames[IniFlag(flag)]));
     } else {
