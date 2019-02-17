@@ -1922,7 +1922,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
 
 bool Render::NativeExport(const NativeOptions &Options) {
 
-    QString exortMode = nativeExportNames[Options.ExportMode];
+    QString exportMode = nativeExportNames[Options.ExportMode];
 
     bool good = true;
 
@@ -1930,13 +1930,13 @@ bool Render::NativeExport(const NativeOptions &Options) {
         Options.ExportMode == EXPORT_COLLADA   ||
         Options.ExportMode == EXPORT_3DS_MAX /*  ||
         Options.ExportMode == EXPORT_HTML */) {
-        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exortMode));
+        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportMode));
         Project* NativeExportProject = new Project();
         gApplication->SetProject(NativeExportProject);
 
         if (! gMainWindow->OpenProject(Options.InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                                           .arg(exortMode));
+                                                           .arg(exportMode));
             delete NativeExportProject;
             good = false;
         }
@@ -1946,18 +1946,18 @@ bool Render::NativeExport(const NativeOptions &Options) {
         QString workingDirectory = QDir::currentPath();
         QStringList arguments = Options.ExportArgs;
         emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
-                                                 .arg(exortMode)
+                                                 .arg(exportMode)
                                                  .arg(arguments.join(" ")));
         ldvWidget = new LDVWidget(nullptr,IniFlag(Options.IniFlag),true);
         if (! ldvWidget->doCommand(arguments))  {
             emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
-                                                    .arg(exortMode)
+                                                    .arg(exportMode)
                                                     .arg(arguments.join(" ")));
             good = false;
         }
         if (! QDir::setCurrent(workingDirectory)) {
             emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI %1 export working directory: %2")
-                                                    .arg(exortMode)
+                                                    .arg(exportMode)
                                                     .arg(workingDirectory));
             good = false;
         }
