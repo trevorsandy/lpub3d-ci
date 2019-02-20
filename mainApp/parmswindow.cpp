@@ -265,7 +265,22 @@ void ParmsWindow::displayParmsFile(
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == VER_LPUB3D_LD2BLCODESXREF_FILE) {
-        title = "LDraw to Bricklink Desing ID cross-reference";
+        title = "LDraw to Bricklink Desgn ID cross-reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
+    else if (fileInfo.fileName() == Preferences::validAnnotationStyleFile) {
+        title = "Part Annotation Style reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
+    else if (fileInfo.fileName() == VER_LPUB3D_LD2BLCOLORSXREF_FILE) {
+        title = "LDraw to Bricklink Color Code cross-reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
+    else if (fileInfo.fileName() == VER_LPUB3D_BLCOLORS_FILE) {
+        title = "Bricklink Color ID reference";
         showAllCharsAction = true;
         _restartRequired = true;
     }
