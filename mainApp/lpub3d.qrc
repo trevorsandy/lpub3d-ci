@@ -164,6 +164,7 @@
         <file alias="savemetacommands.png">resources/savemetacommands.png</file>
         <file alias="scale.png">resources/scale.png</file>
         <file alias="selectall.png">resources/selectall.png</file>
+        <file alias="showallcharacters.png">resources/showallcharacters.png</file>
         <file alias="softwareupdate.png">resources/softwareupdate.png</file>
         <file alias="sortPli.png">resources/sortPli.png</file>
         <file alias="splitbom.png">resources/splitbom.png</file>
