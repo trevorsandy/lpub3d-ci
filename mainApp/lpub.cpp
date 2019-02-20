@@ -2315,8 +2315,6 @@ void Gui::initialize()
   connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)), this,        SLOT(SetRotStepTransform(QString&,bool)));
   connect(gMainWindow, SIGNAL(GetRotStepMeta()),                   this,        SLOT(GetRotStepMeta()));
 
-  connect(ldvWidget,   SIGNAL(loadBLElementsSig()),                this,        SLOT(loadBLElements()));
-
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
 //      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
