@@ -2467,7 +2467,7 @@ void MetaItem::insertText()
           // capture model when different from model at top of page
           bottomOfStep = gui->topOfPages[gui->displayPageNum];
           if (topOfStep.modelName == bottomOfStep.modelName) {
-            // we the model has not changed
+            // well the model has not changed
             insertPosition = topOfStep;
           } else {
             // we are entering or leaving a submodel
