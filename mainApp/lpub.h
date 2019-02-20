@@ -1179,6 +1179,7 @@ private slots:
     void editLdviewPovIni();
     void editPovrayIni();
     void editPovrayConf();
+    void editLD2BLCodesXRef();
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
 
@@ -1423,6 +1424,7 @@ private:
   QAction *editLdviewPovIniAct;
   QAction *editPovrayIniAct;
   QAction *editPovrayConfAct;
+  QAction *editLD2BLCodesXRefAct;
   QAction *generateCustomColourPartsAct;
 
   // help

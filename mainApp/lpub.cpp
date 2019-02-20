@@ -1779,6 +1779,21 @@ void Gui::editPovrayConf()
     parmsWindow->show();
 }
 
+void Gui::editLD2BLCodesXRef()
+{
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCODESXREF_FILE));
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportLD2BLCodesXRefFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("LDraw to Bricklink Design ID Cross-reference",
+                                   "Edit/add LDraw to Bricklink design ID cross-reference"));
+    parmsWindow->show();
+}
+
 void Gui::viewLog()
 {
     displayParmsFile(Preferences::logPath);
@@ -3162,6 +3177,10 @@ void Gui::createActions()
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
+    editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID Cross-reference"), this);
+    editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID Cross-reference"));
+    connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
+
     generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts List"), this);
     generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
     connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
@@ -3257,6 +3276,7 @@ void Gui::enableActions()
   editLdviewPovIniAct->setEnabled(true);
   editPovrayIniAct->setEnabled(true);
   editPovrayConfAct->setEnabled(true);
+  editLD2BLCodesXRefAct->setEnabled(true);
 
   setPageLineEdit->setEnabled(true);
 
@@ -3332,6 +3352,7 @@ void Gui::disableActions()
   editLdviewPovIniAct->setEnabled(false);
   editPovrayIniAct->setEnabled(false);
   editPovrayConfAct->setEnabled(false);
+  editLD2BLCodesXRefAct->setEnabled(false);
 
   setPageLineEdit->setEnabled(false);
 
@@ -3534,6 +3555,7 @@ void Gui::createMenus()
     editorMenu->addAction(editFreeFormAnnitationsAct);
     editorMenu->addAction(editPliBomSubstitutePartsAct);
     editorMenu->addAction(editExcludedPartsAct);
+    editorMenu->addAction(editLD2BLCodesXRefAct);
     if (Preferences::ldrawiniFound){
       editorMenu->addAction(editLdrawIniFileAct);
     }
