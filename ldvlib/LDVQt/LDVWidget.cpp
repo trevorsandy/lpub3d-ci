@@ -772,12 +772,12 @@ void LDVWidget::startProgressBar(const char *message){
     progressDialog->setLabelText(QString("%1").arg(message));
     progressDialog->setMaximum(1000);
     progressDialog->setMinimum(0);
-    progressDialog->setValue(0);
+    progressDialog->setValue(500);
     progressDialog->setCancelButton(nullptr);
     progressDialog->setAutoReset(false);
     progressDialog->setModal(false);
     progressDialog->show();
-    timer->start(500);
+    timer->start(100);
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
@@ -789,10 +789,8 @@ void LDVWidget::endProgressBar(){
 }
 
 void LDVWidget::updateProgressDialog(){
-    progressDialog->setValue(interval+500);
+    progressDialog->setValue(interval+600);
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    if (interval > progressDialog->maximum())
-        timer->stop();
 }
 
 void LDVWidget::displayGLExtensions()
