@@ -153,6 +153,8 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   TCUserDefaults::setAppName(Preferences::lpub3dAppName.toLatin1().constData());
 
+  if (LDVPreferences::getCheckPartTracker())
+      LDVPreferences::setCheckPartTracker(false);
 
   if (iniflag == NativePartList) {
       progressDialog = new QProgressDialog(nullptr);
