@@ -1,12 +1,12 @@
 #
 # spec file for package lpub3d
 #
-# Copyright © 2017-2018 Trevor SANDY
+# Copyright © 2017-2019 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
-# Last Update: December 10, 2018
+# Last Update: March 06, 2019
 #
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
 #
@@ -436,10 +436,10 @@ BuildRequires:  pkgconfig(xxf86vm)
  and runs on Windows, Linux and macOS Operating Systems.
  LPub3D is also availabe as a Linux 'no-install', multi-platform AppImage.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
- LeoCAD© 2018 Leonardo Zide.and additional third party components.
+ LeoCAD© 2019 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2018 Trevor SANDY
+ © 2015-2019 Trevor SANDY
 
 # work around fc27 and fc28 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
 %if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
