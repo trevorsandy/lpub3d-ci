@@ -98,7 +98,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
               }
           }
           if (isExcludedPath) {
-              emit gui->messageSig(LOG_STATUS, QString("Specified path [%1] is excluded from archive").arg(fileDir));
+              emit gui->messageSig(LOG_NOTICE, QString("Specified path [%1] is excluded from archive").arg(fileDir));
               continue;
           }
           validDirFiles << dirFile;
