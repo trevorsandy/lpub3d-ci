@@ -2723,7 +2723,7 @@ void Gui::refreshLDrawUnoffParts() {
                      .arg(destination);
         emit messageSig(LOG_INFO,message);
     } else {
-        message = tr("Failed to %1 extract library files")
+        message = tr("Failed to extract %1 library files")
                      .arg(QFileInfo(newarchive).fileName());
         emit messageSig(LOG_ERROR,message);
     }
@@ -2829,7 +2829,7 @@ void Gui::refreshLDrawOfficialParts() {
                      .arg(destination);
         emit messageSig(LOG_INFO,message);
     } else {
-        message = tr("Failed to %1 extract library files")
+        message = tr("Failed to extract %1 library files")
                      .arg(QFileInfo(newarchive).fileName());
         emit messageSig(LOG_ERROR,message);
     }
