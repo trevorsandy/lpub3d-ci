@@ -1,6 +1,7 @@
 #
 # spec file for package lpub3d
 #
+# Last Update: March 06, 2019
 # Copyright © 2017-2019 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -151,6 +152,9 @@ BuildRequires: git
 %if 0%{?scientificlinux_version}
 BuildRequires: gnu-free-sans-fonts
 BuildRequires: kde-runtime
+%endif
+%if 0%{?centos_version}
+BuildRequires: mesa-libwayland-egl
 %endif
 BuildRequires: libjpeg-turbo-devel
 %if 0%{?rhel_version}
