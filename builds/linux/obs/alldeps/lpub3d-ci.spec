@@ -181,7 +181,7 @@ BuildRequires: llvm-libs
 BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
-%if 0%{?fedora_version} >= 27
+%if 0%{?fedora_version}== 27 || 0%{?fedora_version}==28
 %define build_osmesa 1
 %endif
 %endif
@@ -446,7 +446,7 @@ BuildRequires:  pkgconfig(xxf86vm)
  © 2015-2019 Trevor SANDY
 
 # work around fc27 and fc28 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
-%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
+%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28 || 0%{?fedora_version}==29
 %global debug_package %{nil}
 %endif
 
