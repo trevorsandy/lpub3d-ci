@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 21, 2019
+# Last Update March 23, 2019
 # Copyright (c) 2018 - 2019 by Trevor SANDY
 # LPub3D Unix checks - for remote CI (Trevis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -72,9 +72,30 @@ if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
     echo "ERROR - $(realpath ${LPUB3D_EXE}) not found."
 fi
 
+# Log file paths
+#if [ "${LP3D_OS_NAME}" = "Darwin" ]; then
+#    LP3D_LOG_FILE="~/Library/Application Support/LPub3D Software/LPub3D/logs/LPub3DLog.txt"
+#elif [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+#    LP3D_LOG_FILE="~/.local/share/LPub3D Software/${LPUB3D_EXE}/logs/LPub3DLog.txt"
+#else
+#    LP3D_LOG_FILE="~/.local/share/LPub3D Software/LPub3D/logs/LPub3DLog.txt"
+#fi
+
+# Initialize variables
+LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
+LP3D_CHECK_SUCCESS="Application terminated with return code 0."
+LP3D_LOG_FILE="Check.out"
+let LP3D_CHECK_PASS=0
+let LP3D_CHECK_FAIL=0
+LP3D_CHECKS_PASS=
+LP3D_CHECKS_FAIL=
+
 echo && echo "------------Build checks start--------------" && echo
 
-LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
+# Remove old log if exist
+if [ -e "${LP3D_LOG_FILE}" ]; then
+    rm -rf "${LP3D_LOG_FILE}"
+fi
 
 for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07; do
     case ${LP3D_BUILD_CHECK} in
@@ -113,11 +134,30 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     echo && echo ${LP3D_CHECK_HDR}
     #echo "  Executable: $(realpath ${LPUB3D_VER})"
     [ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
-    ${LPUB3D_EXE} ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE} || \
-    ${LPUB3D_EXE} ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE}
+    ${LPUB3D_EXE} ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE} &> ${LP3D_LOG_FILE} || \
+    ${LPUB3D_EXE} ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE} &> ${LP3D_LOG_FILE}
+#    ${LPUB3D_EXE} ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE} || \
+#    ${LPUB3D_EXE} ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE}
     # allow some time between checks
     sleep 4
+    # check output log for build check status
+    if [ -f "${LP3D_LOG_FILE}" ]; then
+        if grep -q "${LP3D_CHECK_SUCCESS}" "${LP3D_LOG_FILE}"; then
+            echo "${LP3D_CHECK_HDR} SUCCESS"
+            let LP3D_CHECK_PASS++
+            LP3D_CHECKS_PASS="${LP3D_CHECKS_PASS},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
+        else
+            echo "${LP3D_CHECK_HDR} FAIL"
+            let LP3D_CHECK_FAIL++
+            LP3D_CHECKS_FAIL="${LP3D_CHECKS_FAIL},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
+            cat "${LP3D_LOG_FILE}"
+        fi
+        rm -rf "${LP3D_LOG_FILE}"
+    else
+        echo "ERROR - ${LP3D_LOG_FILE} not found."
+    fi
 done
 
+echo && echo "----Build Check Status: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}]----" && echo
 echo && echo "------------Build checks completed----------" && echo
 
