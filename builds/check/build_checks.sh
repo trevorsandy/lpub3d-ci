@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 06, 2019
+# Last Update March 21, 2019
 # Copyright (c) 2018 - 2019 by Trevor SANDY
 # LPub3D Unix checks - for remote CI (Trevis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -28,6 +28,15 @@ fi
 if [[ "${XMING}" != "true" && ("${DOCKER}" = "true" || ("${LP3D_OS_NAME}" != "Darwin")) ]]; then
     echo && echo "- Using XVFB from working directory: ${PWD}"
     USE_XVFB="true"
+fi
+
+# Interim workaround for LDView Single Call fail on Arch and Fedora Linux
+if [[ "${LP3D_PLATFORM}" = "arch" || "${LP3D_PLATFORM}" = "fedora" ]]; then
+    LP3D_RENDERER3="ldview"
+    LP3D_RENDERER7="ldview"
+else
+    LP3D_RENDERER3="ldview-sc"
+    LP3D_RENDERER7="ldview-scsl"
 fi
 
 # macOS, compile only, initialize build paths and libraries
@@ -79,7 +88,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         ;;
     CHECK03)
         LP3D_CHECK_HDR="- Check 3 of 7: LDView (Single Call) File Process Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ${LP3D_RENDERER3}"
         ;;
     CHECK04)
         LP3D_CHECK_HDR="- Check 4 of 7: LDGLite Export Range Check..."
@@ -96,7 +105,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         ;;
     CHECK07)
         LP3D_CHECK_HDR="- Check 7 of 7: Native VEXIQ Model Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ${LP3D_RENDERER7}"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/VEXIQ/spider.mpd"
         ;;
       esac
