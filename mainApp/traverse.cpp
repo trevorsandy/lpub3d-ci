@@ -578,7 +578,7 @@ int Gui::drawPage(
               QString thisType = type;
 
              /* t.s. Rotated or assembled callout here (treated like a submodel) */
-              if (calloutMode != CalloutBeginMeta::Unassembled) {
+              if ((assembledCallout = calloutMode != CalloutBeginMeta::Unassembled)) {
 
                   /* So, we process these callouts in-line, not when we finally hit the STEP or
                      ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
@@ -587,9 +587,6 @@ int Gui::drawPage(
                      want to be rotated.  Also, for submodel's who's scale is different
                      than their parent's scale, we want to scan ahead and find out the
                      parent's scale and "render" the submodels at the parent's scale */
-
-                  // If callout is assembled, suppress rotate icon
-                  assembledCallout = (calloutMode == CalloutBeginMeta::Assembled);
 
                   Meta tmpMeta = curMeta;
                   Where walk = current;
