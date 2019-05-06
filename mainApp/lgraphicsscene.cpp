@@ -258,9 +258,9 @@ void LGraphicsScene::snapToGrid()
         qreal gy = int(by) / mGridSize;
         qreal gs = qreal(mGridSize);
         if(gx < bx/gs || gx > bx/gs)
-            bx = gs*round(bx/gs);
+            bx = gs*qRound(bx/gs);
         if(gy < by/gs || gy > by/gs)
-            by = gs*round(by/gs);
+            by = gs*qRound(by/gs);
         mBaseItem->setPos(bx,by);
     }
 }

@@ -2798,7 +2798,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneBackgroundColorKey("SceneBackgroundColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey))) {
-          displayTheme == ThemeDark ?
+          displayTheme == THEME_DARK ?
           sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK :
           sceneBackgroundColor = THEME_SCENE_BGCOLOR_DEFAULT;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
@@ -2808,7 +2808,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneGridColorKey("SceneGridColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGridColorKey))) {
-          displayTheme == ThemeDark ?
+          displayTheme == THEME_DARK ?
           sceneGridColor = THEME_GRID_PEN_DARK :
           sceneGridColor = THEME_GRID_PEN_DEFAULT;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
@@ -2818,7 +2818,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneRulerTickColorKey("SceneRulerTickColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey))) {
-          displayTheme == ThemeDark ?
+          displayTheme == THEME_DARK ?
           sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK :
           sceneRulerTickColor = THEME_RULER_TICK_PEN_DEFAULT;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
@@ -2828,7 +2828,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey))) {
-          displayTheme == ThemeDark ?
+          displayTheme == THEME_DARK ?
           sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK :
           sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
@@ -2838,7 +2838,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneGuideColorKey("SceneGuideColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey))) {
-          displayTheme == ThemeDark ?
+          displayTheme == THEME_DARK ?
           sceneGuideColor = THEME_GUIDE_PEN_DARK :
           sceneGuideColor = THEME_GUIDE_PEN_DEFAULT;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
@@ -3855,7 +3855,7 @@ bool Preferences::getPreferences()
         }
 
         if (dialog->resetSceneColors()) {
-            if (displayTheme == ThemeDark) {
+            if (displayTheme == THEME_DARK) {
                 sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK;
                 sceneGridColor = THEME_GRID_PEN_DARK;
                 sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK;

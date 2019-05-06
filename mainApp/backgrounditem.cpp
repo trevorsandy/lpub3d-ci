@@ -77,7 +77,7 @@ void BackgroundItem::setBackground(
       if (borderData.useDefault) {
           borderData.type       = BorderData::BdrSquare;
           borderData.line       = BorderData::BdrLnDash;
-          Preferences::displayTheme == ThemeDark ?
+          Preferences::displayTheme == THEME_DARK ?
           borderData.color      = THEME_TRANS_PAGE_BORDER_DARK :
           borderData.color      = THEME_TRANS_PAGE_BORDER_DEFAULT;
           borderData.thickness  = 1.0f/48.0f;/*DEFAULT_THICKNESS*/;

@@ -96,23 +96,31 @@ void LGraphicsView::setSceneRuler(){
 }
 
 void LGraphicsView::setSceneRulerTracking(){
-  mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking);
-  mVertRuler->setMouseTrack(Preferences::sceneRulerTracking);
+  if (!Preferences::sceneRuler)
+    return;
+  if (mHorzRuler)
+    mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking);
+  if (mVertRuler)
+    mVertRuler->setMouseTrack(Preferences::sceneRulerTracking);
 }
 
 void LGraphicsView::setGridSize(){
-  emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
+  if (Preferences::snapToGrid)
+    emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
 }
 
 void LGraphicsView::setSnapToGrid(){
   emit setSnapToGridSig(Preferences::snapToGrid);
-  emit setGridPenSig(Preferences::sceneGridColor);
-  setGridSize();
+  if (Preferences::snapToGrid) {
+    emit setGridPenSig(Preferences::sceneGridColor);
+    setGridSize();
+  }
 }
 
 void LGraphicsView::setSceneGuides(){
   emit setSceneGuidesSig(Preferences::sceneGuides);
-  emit setGuidePenSig(Preferences::sceneGuideColor);
+  if (Preferences::sceneGuides)
+    emit setGuidePenSig(Preferences::sceneGuideColor);
 }
 
 void LGraphicsView::setSceneBackgroundBrush(){

@@ -799,7 +799,7 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
 {
     resetSceneColorsFlag = checked;
 
-    if (Preferences::displayTheme == ThemeDark) {
+    if (Preferences::displayTheme == THEME_DARK) {
         sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DARK;
         sceneGridColorStr          = THEME_GRID_PEN_DARK;
         sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DARK;
