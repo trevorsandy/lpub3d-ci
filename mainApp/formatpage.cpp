@@ -251,7 +251,7 @@ int Gui::addGraphicsPageItems(
         }
     }
 
-  pageBg = new PageBackgroundItem(page, pW, pH, exporting());
+  pageBg = new PageBackgroundItem(page, pW, pH, exporting(),Preferences::snapToGrid);
 
   view->pageBackgroundItem = pageBg;
   pageBg->setPos(0,0);

@@ -40,10 +40,11 @@
 #include "lpub_preferences.h"
 
 PageBackgroundItem::PageBackgroundItem(
-   Page   *_page,
+  Page   *_page,
   int     width,
   int     height,
-  bool    _exporting)
+  bool    _exporting,
+  bool    _snapToGrid)
 {
   page = _page;
 
@@ -62,7 +63,8 @@ PageBackgroundItem::PageBackgroundItem(
                 page->meta.LPub.page.subModelColor,
                 page->meta.submodelStack.size(),
                 toolTip,
-                _exporting);
+                _exporting,
+                _snapToGrid);
 
   setPixmap(*pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,false);

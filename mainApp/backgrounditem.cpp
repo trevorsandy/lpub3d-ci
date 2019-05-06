@@ -50,7 +50,8 @@ void BackgroundItem::setBackground(
     StringListMeta  &_subModel,
     int              _submodelLevel,
     QString          &toolTip,
-    bool             _exporting)
+    bool             _exporting,
+    bool             _snapToGrid)
 {
   meta               =  _meta;
   background         =  _background;
@@ -201,6 +202,26 @@ void BackgroundItem::setBackground(
     } else {
       painter.drawRect(prect);
     }
+
+  if (_parentRelativeType == PageType && _snapToGrid) {
+
+      QPen pen(QPen(Qt::black, 1));
+      painter.setPen(pen);
+
+      int gridSize = GridSizeTable[Preferences::gridSizeIndex];
+
+      QRectF rect = pixmap->rect();
+
+      qreal left = int(rect.left()) - (int(rect.left()) % gridSize);
+      qreal top = int(rect.top()) - (int(rect.top()) % gridSize);
+      QVector<QPointF> points;
+      for (qreal x = left; x < rect.right(); x += gridSize){
+          for (qreal y = top; y < rect.bottom(); y += gridSize){
+              points.append(QPointF(x,y));
+          }
+      }
+      painter.drawPoints(points.data(), points.size());
+  }
 
   painter.end();
 

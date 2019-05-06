@@ -46,7 +46,8 @@ class PageBackgroundItem : public BackgroundItem
           Page   *_page,
           int     width,
           int     height,
-          bool    _exporting = false);
+          bool    _exporting = false,
+          bool    _snapToGrid = false);
         PlacementType getRelativeType() { return relativeType; }
         Page getPage() { return *page; }
 
