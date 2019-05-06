@@ -1375,7 +1375,7 @@ void Gui::clearAndRedrawModelFile() {
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndRedrawPage() {
+void Gui::clearAndReloadModelFile() {
     clearAllCaches();
 }
 
@@ -2293,7 +2293,7 @@ void Gui::preferences()
                 perspectiveProjectionChanged  ||
                 povrayRenderQualityChanged    ||
                 generateCoverPagesChanged){
-                clearAndRedrawPage();
+                clearAndReloadModelFile();
             }
         }
 
@@ -2462,7 +2462,7 @@ Gui::Gui()
             editWindow,     SLOT(  showLine(   int)));
 
     connect(editWindow,     SIGNAL(redrawSig()),
-            this,           SLOT(  clearAndRedrawPage()));
+            this,           SLOT(  clearAndReloadModelFile()));
 
     connect(editWindow,     SIGNAL(updateSig()),
             this,           SLOT(  reloadCurrentPage()));
@@ -2689,7 +2689,7 @@ void Gui::reloadModelFileAfterColorFileGen(){
         box.exec();
     }
     if (!getCurFile().isEmpty())
-        clearAndRedrawPage();
+        clearAndReloadModelFile();
 }
 
 void Gui::generateCustomColourPartsList(bool prompt)

@@ -733,9 +733,9 @@ void clearCustomPartCache(bool silent)
     gui->clearCustomPartCache(silent);
 }
 
-void clearAndRedrawPage()
+void clearAndReloadModelFile()
 {
-    gui->clearAndRedrawPage();
+    gui->clearAndReloadModelFile();
 }
 
 void reloadCurrentPage(){

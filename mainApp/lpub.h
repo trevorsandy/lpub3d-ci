@@ -928,7 +928,7 @@ public slots:
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
   void clearPageCSIGraphicsItems(Step *step);
-  void clearAndRedrawPage();
+  void clearAndReloadModelFile();
   void clearAndRedrawModelFile();
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
@@ -1549,6 +1549,6 @@ void clearPliCache();
 void clearCsiCache();
 void clearTempCache();
 void clearSubmodelCache();
-void clearAndRedrawPage();
+void clearAndReloadModelFile();
 
 #endif
