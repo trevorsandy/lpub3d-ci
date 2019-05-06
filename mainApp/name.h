@@ -335,6 +335,7 @@ static const SceneObject NoContextSceneObjects[] =
 #define THEME_SCENE_BGCOLOR_DEFAULT     "#aeadac" // Qt Light Gray
 #define THEME_GRID_PEN_DEFAULT          "#1e1b18" // Qt Double Dark Grey
 #define THEME_RULER_TICK_PEN_DEFAULT    "#35322f" // Qt Dark Grey
+#define THEME_RULER_TRACK_PEN_DEFAULT   "#00FF00" // Custom Neon Green
 #define THEME_GUIDE_PEN_DEFAULT         "#aa0000" // LPub3D Maroon
 #define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
 #define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double Dark Grey [NOT USED]
@@ -385,6 +386,7 @@ static const SceneObject NoContextSceneObjects[] =
 #define THEME_SCENE_BGCOLOR_DARK        "#31363b" // Custom Dark Grey
 #define THEME_GRID_PEN_DARK             "#ffffff" // Qt White
 #define THEME_RULER_TICK_PEN_DARK       "#eff0f1" // Custom Pale Grey
+#define THEME_RULER_TRACK_PEN_DARK      "#00FF00" // Custom Neon Green
 #define THEME_GUIDE_PEN_DARK            "#aa0000" // LPub3D Maroon
 #define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom Grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray

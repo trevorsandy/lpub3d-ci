@@ -176,6 +176,8 @@ void Application::setTheme(){
           Preferences::setSceneGridColorPreference(THEME_GRID_PEN_DARK);
       if (!Preferences::customSceneRulerTickColor)
           Preferences::setSceneRulerTickColorPreference(THEME_RULER_TICK_PEN_DARK);
+      if (!Preferences::customSceneRulerTrackingColor)
+          Preferences::setSceneRulerTrackingColorPreference(THEME_RULER_TRACK_PEN_DARK);
       if (!Preferences::customSceneGuideColor)
           Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DARK);
     }
@@ -189,6 +191,8 @@ void Application::setTheme(){
           Preferences::setSceneGridColorPreference(THEME_GRID_PEN_DEFAULT);
       if (!Preferences::customSceneRulerTickColor)
           Preferences::setSceneRulerTickColorPreference(THEME_RULER_TICK_PEN_DEFAULT);
+      if (!Preferences::customSceneRulerTrackingColor)
+          Preferences::setSceneRulerTrackingColorPreference(THEME_RULER_TRACK_PEN_DEFAULT);
       if (!Preferences::customSceneGuideColor)
           Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DEFAULT);
     }

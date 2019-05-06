@@ -61,6 +61,7 @@ class PreferencesDialog : public QDialog
     QString const sceneBackgroundColor();
     QString const sceneGridColor();
     QString const sceneRulerTickColor();
+    QString const sceneRulerTrackingColor();
     QString const sceneGuideColor();
     QStringList const searchDirSettings();
     bool          themeAutoRestart();
@@ -178,6 +179,7 @@ private:
     QString sceneBackgroundColorStr;
     QString sceneGridColorStr;
     QString sceneRulerTickColorStr;
+    QString sceneRulerTrackingColorStr;
     QString sceneGuideColorStr;
     bool resetSceneColorsFlag;
 };

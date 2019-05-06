@@ -47,6 +47,7 @@ public slots:
   void setSceneGuides();
   void setSceneBackgroundBrush();
   void setSceneRuler();
+  void setSceneRulerTracking();
   void setSnapToGrid();
   void setGridSize();
   void setSceneTheme();
@@ -112,6 +113,7 @@ LRuler(LRuler::RulerType rulerType, QWidget* parent)
   setRulerBackgroundColor();
   setRulerNMLPen();
   setRulerTickPen();
+  setRulerTrackingPen();
 }
 
 QSize minimumSizeHint() const
@@ -147,6 +149,7 @@ public slots:
   void setMouseTrack(const bool track);
   void setRulerTickPen();
   void setRulerNMLPen();
+  void setRulerTrackingPen();
   void setRulerBackgroundColor();
 
 protected:
@@ -167,6 +170,7 @@ private:
   bool mDrawText;
   QPen mRulerTickPen;
   QPen mRulerNMLPen;
+  QPen mRulerTrackingPen;
   QColor mRulerBgColor;
 };
 

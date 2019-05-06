@@ -936,8 +936,14 @@ void Gui::sceneGuides()
 
 void Gui::sceneRuler()
 {
-  Preferences::setSceneRulerPreference(sceneRulerAct->isChecked());
+  Preferences::setSceneRulerPreference(sceneRulerComboAct->isChecked());
   KpageView->setSceneRuler();
+}
+
+void Gui::sceneRulerTracking()
+{
+  Preferences::setSceneRulerTrackingPreference(sceneRulerTrackingAct->isChecked());
+  KpageView->setSceneRulerTracking();
 }
 
 void Gui::snapToGrid()
@@ -3442,13 +3448,19 @@ void Gui::createActions()
     fitSceneAct->setEnabled(false);
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
-    sceneRulerAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
-    sceneRulerAct->setShortcut(tr("Alt+U"));
-    sceneRulerAct->setStatusTip(tr("Toggle the scene ruler - Alt+U"));
-    sceneRulerAct->setEnabled(true);
-    sceneRulerAct->setCheckable(true);
-    sceneRulerAct->setChecked(Preferences::sceneRuler);
-    connect(sceneRulerAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
+    sceneRulerTrackingAct = new QAction(tr("Ruler Tracking"),this);
+    sceneRulerTrackingAct->setStatusTip(tr("Toggle scene ruler tracking"));
+    sceneRulerTrackingAct->setCheckable(true);
+    sceneRulerTrackingAct->setChecked(Preferences::sceneRulerTracking);
+    connect(sceneRulerTrackingAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
+    sceneRulerComboAct->setShortcut(tr("Alt+U"));
+    sceneRulerComboAct->setStatusTip(tr("Toggle the scene ruler - Alt+U"));
+    sceneRulerComboAct->setEnabled(true);
+    sceneRulerComboAct->setCheckable(true);
+    sceneRulerComboAct->setChecked(Preferences::sceneRuler);
+    connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
 
     sceneGuidesAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
     sceneGuidesAct->setShortcut(tr("Alt+G"));
@@ -4085,7 +4097,7 @@ void Gui::createMenus()
     viewMenu->addAction(fitSceneAct);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
-    viewMenu->addAction(sceneRulerAct);
+    viewMenu->addAction(sceneRulerComboAct);
     viewMenu->addAction(sceneGuidesAct);
 
     viewMenu->addSeparator();
@@ -4287,7 +4299,10 @@ void Gui::createToolBars()
     zoomToolBar->addAction(actualSizeAct);
     zoomToolBar->addAction(zoomInAct);
     zoomToolBar->addAction(zoomOutAct);
-    zoomToolBar->addAction(sceneRulerAct);
+    sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
+    sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
+    sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
+    zoomToolBar->addAction(sceneRulerComboAct);
     zoomToolBar->addAction(sceneGuidesAct);
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
     for (int actionIdx = GRID_SIZE_FIRST; actionIdx <= GRID_SIZE_LAST; actionIdx++)

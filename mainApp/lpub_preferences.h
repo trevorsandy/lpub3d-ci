@@ -71,16 +71,19 @@ class Preferences
     static void setSnapToGridPreference(bool);
     static void setGridSizeIndexPreference(int);
     static void setSceneRulerPreference(bool);
+    static void setSceneRulerTrackingPreference(bool);
     static void setShowParseErrorsPreference(bool);
     static void setStdOutToLogPreference(bool);
 
     static void setCustomSceneBackgroundColorPreference(bool = true);
     static void setCustomSceneGridColorPreference(bool = true);
     static void setCustomSceneRulerTickColorPreference(bool = true);
+    static void setCustomSceneRulerTrackingColorPreference(bool = true);
     static void setCustomSceneGuideColorPreference(bool = true);
     static void setSceneBackgroundColorPreference(QString);
     static void setSceneGridColorPreference(QString);
     static void setSceneRulerTickColorPreference(QString);
+    static void setSceneRulerTrackingColorPreference(QString);
     static void setSceneGuideColorPreference(QString);
 
     static QString lpub3dAppName;
@@ -171,6 +174,7 @@ class Preferences
     static QString sceneBackgroundColor;
     static QString sceneGridColor;
     static QString sceneRulerTickColor;
+    static QString sceneRulerTrackingColor;
     static QString sceneGuideColor;
 
     static QStringList ldgliteParms;
@@ -250,6 +254,7 @@ class Preferences
     static bool    modeGUI;
 
     static bool    sceneRuler;
+    static bool    sceneRulerTracking;
     static bool    sceneGuides;
     static bool    snapToGrid;
     static bool    showParseErrors;
@@ -258,6 +263,7 @@ class Preferences
     static bool    customSceneBackgroundColor;
     static bool    customSceneGridColor;
     static bool    customSceneRulerTickColor;
+    static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
 
 #ifdef Q_OS_MAC

@@ -143,6 +143,7 @@ QString Preferences::ld2rbCodesXRefFile         = VER_LPUB3D_LD2RBCODESXREF_FILE
 QString Preferences::sceneBackgroundColor       = THEME_SCENE_BGCOLOR_DEFAULT;
 QString Preferences::sceneGridColor             = THEME_GRID_PEN_DEFAULT;
 QString Preferences::sceneRulerTickColor        = THEME_RULER_TICK_PEN_DEFAULT;
+QString Preferences::sceneRulerTrackingColor    = THEME_RULER_TRACK_PEN_DEFAULT;
 QString Preferences::sceneGuideColor            = THEME_GUIDE_PEN_DEFAULT;
 
 bool    Preferences::usingDefaultLibrary        = true;
@@ -210,6 +211,7 @@ bool    Preferences::enableHighlightStep        = false;
 bool    Preferences::enableImageMatting         = false;
 
 bool    Preferences::sceneRuler                 = false;
+bool    Preferences::sceneRulerTracking         = false;
 bool    Preferences::sceneGuides                = false;
 bool    Preferences::snapToGrid                 = false;
 bool    Preferences::showParseErrors            = true;
@@ -219,6 +221,7 @@ bool    Preferences::highlightFirstStep         = false;
 bool    Preferences::customSceneBackgroundColor = false;
 bool    Preferences::customSceneGridColor       = false;
 bool    Preferences::customSceneRulerTickColor  = false;
+bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
 
 #ifdef Q_OS_MAC
@@ -2729,6 +2732,15 @@ void Preferences::userInterfacePreferences()
           sceneRuler = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerKey)).toBool();
   }
 
+  QString const sceneRulerTrackingKey("SceneRulerTracking");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey))) {
+          QVariant uValue(false);
+          sceneRulerTracking = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),uValue);
+  } else {
+          sceneRulerTracking = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey)).toBool();
+  }
+
   QString const sceneGuidesKey("SceneGuides");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesKey))) {
           QVariant uValue(false);
@@ -2763,6 +2775,15 @@ void Preferences::userInterfacePreferences()
           Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey),uValue);
   } else {
           customSceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey)).toBool();
+  }
+
+  QString const customSceneRulerTrackingColorKey("CustomSceneRulerTrackingColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey))) {
+          QVariant uValue(false);
+          customSceneRulerTrackingColor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey),uValue);
+  } else {
+          customSceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey)).toBool();
   }
 
   QString const customSceneGuideColorKey("CustomSceneGuideColor");
@@ -2802,6 +2823,16 @@ void Preferences::userInterfacePreferences()
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
   } else {
           sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString();
+  }
+
+  QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey))) {
+          displayTheme == ThemeDark ?
+          sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK :
+          sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
+  } else {
+          sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString();
   }
 
   QString const sceneGuideColorKey("SceneGuideColor");
@@ -2915,6 +2946,15 @@ void Preferences::setSceneRulerPreference(bool b)
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
 }
 
+void Preferences::setSceneRulerTrackingPreference(bool b)
+{
+  QSettings Settings;
+  sceneRulerTracking = b;
+  QVariant uValue(b);
+  QString const sceneRulerTrackingKey("SceneRulerTracking");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),uValue);
+}
+
 void Preferences::setCustomSceneBackgroundColorPreference(bool b)
 {
   QSettings Settings;
@@ -2940,6 +2980,15 @@ void Preferences::setCustomSceneRulerTickColorPreference(bool b)
   QVariant uValue(b);
   QString const sceneRulerTickColorKey("CustomSceneRulerTickColor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),uValue);
+}
+
+void Preferences::setCustomSceneRulerTrackingColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneRulerTrackingColor = b;
+  QVariant uValue(b);
+  QString const sceneRulerTrackingColorKey("CustomSceneRulerTrackingColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),uValue);
 }
 
 void Preferences::setCustomSceneGuideColorPreference(bool b)
@@ -2976,6 +3025,15 @@ void Preferences::setSceneRulerTickColorPreference(QString s)
   QVariant uValue(s);
   QString const sceneRulerTickColorKey("SceneRulerTickColor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),uValue);
+}
+
+void Preferences::setSceneRulerTrackingColorPreference(QString s)
+{
+  QSettings Settings;
+  sceneRulerTrackingColor = s;
+  QVariant uValue(s);
+  QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),uValue);
 }
 
 void Preferences::setSceneGuideColorPreference(QString s)
@@ -3765,6 +3823,12 @@ bool Preferences::getPreferences()
             setCustomSceneRulerTickColorPreference(true);
         }
 
+        if (sceneRulerTrackingColor != dialog->sceneRulerTrackingColor()){
+            sceneRulerTrackingColor = dialog->sceneRulerTrackingColor();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
+            setCustomSceneRulerTrackingColorPreference(true);
+        }
+
         if (sceneGuideColor != dialog->sceneGuideColor()){
             sceneGuideColor = dialog->sceneGuideColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColore"),sceneGuideColor);
@@ -3776,16 +3840,19 @@ bool Preferences::getPreferences()
                 sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK;
                 sceneGridColor = THEME_GRID_PEN_DARK;
                 sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK;
+                sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK;
                 sceneGuideColor = THEME_GUIDE_PEN_DARK;
             } else {
                 sceneBackgroundColor = THEME_SCENE_BGCOLOR_DEFAULT;
                 sceneGridColor = THEME_GRID_PEN_DEFAULT;
                 sceneRulerTickColor = THEME_RULER_TICK_PEN_DEFAULT;
+                sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
                 sceneGuideColor = THEME_GUIDE_PEN_DEFAULT;
             }
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
         }
 

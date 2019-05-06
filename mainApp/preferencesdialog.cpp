@@ -331,6 +331,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.sceneRulerTickColorButton->setIcon(colorPix);
   connect(ui.sceneRulerTickColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
+  sceneRulerTrackingColorStr = Preferences::sceneRulerTrackingColor;
+  colorPix.fill(QColor(sceneRulerTrackingColorStr));
+  ui.sceneRulerTrackingColorButton->setIcon(colorPix);
+  connect(ui.sceneRulerTrackingColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
+
   sceneGuideColorStr = Preferences::sceneGuideColor;
   colorPix.fill(QColor(sceneGuideColorStr));
   ui.sceneGuideColorButton->setIcon(colorPix);
@@ -392,6 +397,12 @@ void PreferencesDialog::sceneColorButtonClicked()
         title = tr("Select Scene Ruler Tick Color");
         dialogOptions = nullptr;
     }
+    else if (button == ui.sceneRulerTrackingColorButton)
+    {
+        oldColor = QColor(sceneRulerTrackingColorStr);
+        title = tr("Select Ruler Tracking Color");
+        dialogOptions = nullptr;
+    }
     else if (button == ui.sceneGuideColorButton)
     {
         oldColor = QColor(sceneGuideColorStr);
@@ -417,6 +428,10 @@ void PreferencesDialog::sceneColorButtonClicked()
     else if (button == ui.sceneRulerTickColorButton)
     {
         sceneRulerTickColorStr = newColor.name();
+    }
+    else if (button == ui.sceneRulerTrackingColorButton)
+    {
+        sceneRulerTrackingColorStr = newColor.name();
     }
     else if (button == ui.sceneGuideColorButton)
     {
@@ -785,15 +800,17 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
     resetSceneColorsFlag = checked;
 
     if (Preferences::displayTheme == ThemeDark) {
-        sceneBackgroundColorStr = THEME_SCENE_BGCOLOR_DARK;
-        sceneGridColorStr       = THEME_GRID_PEN_DARK;
-        sceneRulerTickColorStr  = THEME_RULER_TICK_PEN_DARK;
-        sceneGuideColorStr      = THEME_GUIDE_PEN_DARK;
+        sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DARK;
+        sceneGridColorStr          = THEME_GRID_PEN_DARK;
+        sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DARK;
+        sceneRulerTrackingColorStr = THEME_RULER_TRACK_PEN_DARK;
+        sceneGuideColorStr         = THEME_GUIDE_PEN_DARK;
     } else {
-        sceneBackgroundColorStr = THEME_SCENE_BGCOLOR_DEFAULT;
-        sceneGridColorStr       = THEME_GRID_PEN_DEFAULT;
-        sceneRulerTickColorStr  = THEME_RULER_TICK_PEN_DEFAULT;
-        sceneGuideColorStr      = THEME_GUIDE_PEN_DEFAULT;
+        sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DEFAULT;
+        sceneGridColorStr          = THEME_GRID_PEN_DEFAULT;
+        sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DEFAULT;
+        sceneRulerTrackingColorStr = THEME_RULER_TRACK_PEN_DEFAULT;
+        sceneGuideColorStr         = THEME_GUIDE_PEN_DEFAULT;
     }
 
     QPixmap pix(12, 12);
@@ -806,6 +823,9 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
 
     pix.fill(QColor(sceneRulerTickColorStr));
     ui.sceneRulerTickColorButton->setIcon(pix);
+
+    pix.fill(QColor(sceneRulerTrackingColorStr));
+    ui.sceneRulerTrackingColorButton->setIcon(pix);
 
     pix.fill(QColor(sceneGuideColorStr));
     ui.sceneGuideColorButton->setIcon(pix);
@@ -1051,6 +1071,11 @@ QString const PreferencesDialog::sceneGridColor()
 QString const PreferencesDialog::sceneRulerTickColor()
 {
   return sceneRulerTickColorStr;
+}
+
+QString const PreferencesDialog::sceneRulerTrackingColor()
+{
+  return sceneRulerTrackingColorStr;
 }
 
 QString const PreferencesDialog::sceneGuideColor()

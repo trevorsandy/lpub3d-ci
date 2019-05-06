@@ -915,6 +915,7 @@ public slots:
   void zoomOut();
   void sceneGuides();
   void sceneRuler();
+  void sceneRulerTracking();
   void snapToGrid();
   void gridSize(int index);
   void gridSizeTriggered();
@@ -1343,6 +1344,7 @@ private:
   QMenu    *nextPageContinuousMenu;
   QMenu    *previousPageContinuousMenu;
   QMenu    *snapToGridMenu;
+  QMenu    *sceneRulerTrackingMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1407,7 +1409,8 @@ private:
   QAction  *zoomOutAct;
 
   QAction  *sceneGuidesAct;
-  QAction  *sceneRulerAct;
+  QAction  *sceneRulerComboAct;
+  QAction  *sceneRulerTrackingAct;
 
   // view
   // navigation toolbar

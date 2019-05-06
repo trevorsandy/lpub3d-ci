@@ -95,6 +95,11 @@ void LGraphicsView::setSceneRuler(){
     }
 }
 
+void LGraphicsView::setSceneRulerTracking(){
+  mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking);
+  mVertRuler->setMouseTrack(Preferences::sceneRulerTracking);
+}
+
 void LGraphicsView::setGridSize(){
   emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
 }
@@ -119,6 +124,7 @@ void LGraphicsView::setSceneTheme(){
   setSceneRuler();
   setSceneGuides();
   setSnapToGrid();
+  setSceneRulerTracking();
 }
 
 void LGraphicsView::fitVisible(const QRectF rect)
@@ -286,6 +292,10 @@ void LRuler::setRulerNMLPen() {
   mRulerNMLPen = QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine);
 }
 
+void LRuler::setRulerTrackingPen() {
+  mRulerTrackingPen = QPen(QBrush(QColor(Preferences::sceneRulerTrackingColor)), 2, Qt::SolidLine);
+}
+
 void LRuler::setRulerBackgroundColor(){
   mRulerBgColor = QColor(Preferences::sceneBackgroundColor);
 }
@@ -436,6 +446,10 @@ void LRuler::drawMousePosTick(QPainter* painter)
 {
   if (mMouseTracking)
   {
+    QPen savedPen = painter->pen();
+    QPen pen(mRulerTrackingPen);
+    painter->setPen(pen);
+
     QPoint starPt = mCursorPos;
     QPoint endPt;
     if (Horizontal == mRulerType)
@@ -451,5 +465,6 @@ void LRuler::drawMousePosTick(QPainter* painter)
       endPt.setY(starPt.y());
     }
     painter->drawLine(starPt,endPt);
+    painter->setPen(savedPen);
   }
 }

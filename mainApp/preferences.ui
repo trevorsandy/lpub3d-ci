@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>513</width>
+    <width>508</width>
     <height>633</height>
    </rect>
   </property>
@@ -1757,32 +1757,12 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_13">
-               <property name="text">
-                <string>Grid</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="sceneGridColorButton">
-               <property name="toolTip">
-                <string>Set custom scene grid color</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QLabel" name="label_14">
                <property name="toolTip">
                 <string>Set custom scene ruler tick color</string>
                </property>
                <property name="text">
-                <string>Ruler Tick</string>
+                <string>Ruler</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1817,6 +1797,40 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
               </widget>
              </item>
              <item>
+              <widget class="QLabel" name="label_13">
+               <property name="text">
+                <string>Grid</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="sceneGridColorButton">
+               <property name="toolTip">
+                <string>Set custom scene grid color</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_19">
+               <property name="text">
+                <string>Tracking</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="sceneRulerTrackingColorButton">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="Line" name="line_4">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -1825,11 +1839,17 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </item>
              <item>
               <widget class="QPushButton" name="resetSceneColorsButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Reset all colors to default</string>
                </property>
                <property name="text">
-                <string>Reset All</string>
+                <string>Reset</string>
                </property>
               </widget>
              </item>
