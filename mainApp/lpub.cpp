@@ -957,6 +957,12 @@ void Gui::snapToGrid()
   reloadCurrentPage();
 }
 
+void Gui::snapGridTransBkgrnd()
+{
+  Preferences::setSnapGridTransBkgrndPreference(snapGridTransBkgrndAct->isChecked());
+  reloadCurrentPage();
+}
+
 void Gui::gridSize(int index)
 {
   if (Preferences::gridSizeIndex == index)
@@ -3477,6 +3483,12 @@ void Gui::createActions()
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
     // Snap to grid
+    snapGridTransBkgrndAct = new QAction(tr("Transparent Page Background"),this);
+    snapGridTransBkgrndAct->setStatusTip(tr("Toggle transparent page background"));
+    snapGridTransBkgrndAct->setCheckable(true);
+    snapGridTransBkgrndAct->setChecked(Preferences::snapGridTransBkgrnd);
+    connect(snapGridTransBkgrndAct, SIGNAL(triggered()), this, SLOT(snapGridTransBkgrnd()));
+
     for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
     {
         QAction* Action = new QAction(qApp->translate("Menu", sgCommands[CommandIdx].MenuName), this);
@@ -4305,6 +4317,8 @@ void Gui::createToolBars()
     zoomToolBar->addAction(sceneRulerComboAct);
     zoomToolBar->addAction(sceneGuidesAct);
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
+    snapToGridMenu->addAction(snapGridTransBkgrndAct);
+    snapToGridMenu->addSeparator();
     for (int actionIdx = GRID_SIZE_FIRST; actionIdx <= GRID_SIZE_LAST; actionIdx++)
         snapToGridMenu->addAction(snapGridActions[actionIdx]);
     snapToGridComboAct->setMenu(snapToGridMenu);

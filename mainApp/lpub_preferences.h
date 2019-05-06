@@ -69,6 +69,7 @@ class Preferences
     static void setOverwriteCustomParts(bool);  // NO SOURCE
     static void setSceneGuidesPreference(bool);
     static void setSnapToGridPreference(bool);
+    static void setSnapGridTransBkgrndPreference(bool);
     static void setGridSizeIndexPreference(int);
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(bool);
@@ -257,6 +258,7 @@ class Preferences
     static bool    sceneRulerTracking;
     static bool    sceneGuides;
     static bool    snapToGrid;
+    static bool    snapGridTransBkgrnd;
     static bool    showParseErrors;
     static bool    suppressStdOutToLog;
 

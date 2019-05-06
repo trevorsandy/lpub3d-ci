@@ -284,6 +284,7 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
     }
 
     painter->drawPoints(points.data(), points.size());
+    update();
 }
 
 void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){

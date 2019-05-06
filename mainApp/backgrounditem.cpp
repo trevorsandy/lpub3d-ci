@@ -41,7 +41,7 @@
 #include "lpubalert.h"
 
 void BackgroundItem::setBackground(
-    QPixmap          *pixmap,
+    QPixmap         *pixmap,
     PlacementType    _parentRelativeType,
     Meta            *_meta,
     BackgroundMeta  &_background,
@@ -50,8 +50,7 @@ void BackgroundItem::setBackground(
     StringListMeta  &_subModel,
     int              _submodelLevel,
     QString          &toolTip,
-    bool             _exporting,
-    bool             _snapToGrid)
+    bool             _exporting)
 {
   meta               =  _meta;
   background         =  _background;
@@ -63,6 +62,32 @@ void BackgroundItem::setBackground(
 
   BorderData     borderData     = _border.valuePixels();
   BackgroundData backgroundData = _background.value();
+
+  if (_parentRelativeType == PageType &&
+      Preferences::snapToGrid &&
+      Preferences::snapGridTransBkgrnd &&
+      ! _exporting) {
+      backgroundData.type = BackgroundData::BgTransparent;
+      background.setValue(backgroundData);
+  }
+
+  if (_parentRelativeType == PageType &&
+      backgroundData.type == BackgroundData::BgTransparent &&
+      ! _exporting){
+      if (borderData.useDefault) {
+          borderData.type       = BorderData::BdrSquare;
+          borderData.line       = BorderData::BdrLnDash;
+          Preferences::displayTheme == ThemeDark ?
+          borderData.color      = THEME_TRANS_PAGE_BORDER_DARK :
+          borderData.color      = THEME_TRANS_PAGE_BORDER_DEFAULT;
+          borderData.thickness  = 1.0f/48.0f;/*DEFAULT_THICKNESS*/;
+          borderData.radius     = 0;
+          borderData.margin[0]  = DEFAULT_MARGIN;
+          borderData.margin[1]  = DEFAULT_MARGIN;
+          border.setValueInches(borderData);
+          borderData = border.valuePixels();
+        }
+    }
 
   int bt = int(borderData.thickness);
 
@@ -203,9 +228,12 @@ void BackgroundItem::setBackground(
       painter.drawRect(prect);
     }
 
-  if (_parentRelativeType == PageType && _snapToGrid) {
+  if (_parentRelativeType == PageType &&
+      Preferences::snapToGrid &&
+      ! Preferences::snapGridTransBkgrnd &&
+      !_exporting) {
 
-      QPen pen(QPen(Qt::black, 1));
+      QPen pen(QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine));
       painter.setPen(pen);
 
       int gridSize = GridSizeTable[Preferences::gridSizeIndex];

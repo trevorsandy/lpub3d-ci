@@ -73,8 +73,7 @@ public:
       StringListMeta  &subModelColor,
       int              submodelLevel,
       QString         &toolTip,
-      bool             exporting = false,
-      bool             _snapToGrid = false);
+      bool             exporting = false);
 
 private: 
   QGradient setGradient();

@@ -917,6 +917,7 @@ public slots:
   void sceneRuler();
   void sceneRulerTracking();
   void snapToGrid();
+  void snapGridTransBkgrnd();
   void gridSize(int index);
   void gridSizeTriggered();
 
@@ -1411,6 +1412,7 @@ private:
   QAction  *sceneGuidesAct;
   QAction  *sceneRulerComboAct;
   QAction  *sceneRulerTrackingAct;
+  QAction  *snapGridTransBkgrndAct;
 
   // view
   // navigation toolbar

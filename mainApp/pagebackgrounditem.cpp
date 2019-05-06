@@ -43,8 +43,7 @@ PageBackgroundItem::PageBackgroundItem(
   Page   *_page,
   int     width,
   int     height,
-  bool    _exporting,
-  bool    _snapToGrid)
+  bool    _exporting)
 {
   page = _page;
 
@@ -63,8 +62,7 @@ PageBackgroundItem::PageBackgroundItem(
                 page->meta.LPub.page.subModelColor,
                 page->meta.submodelStack.size(),
                 toolTip,
-                _exporting,
-                _snapToGrid);
+                _exporting);
 
   setPixmap(*pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,false);

@@ -214,6 +214,7 @@ bool    Preferences::sceneRuler                 = false;
 bool    Preferences::sceneRulerTracking         = false;
 bool    Preferences::sceneGuides                = false;
 bool    Preferences::snapToGrid                 = false;
+bool    Preferences::snapGridTransBkgrnd        = false;
 bool    Preferences::showParseErrors            = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::highlightFirstStep         = false;
@@ -2854,6 +2855,15 @@ void Preferences::userInterfacePreferences()
           snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
   }
 
+  QString const snapGridTransBkgrndKey("SnapToGridTransparentPageBackground");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey))) {
+          QVariant uValue(false);
+          snapGridTransBkgrnd = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey),uValue);
+  } else {
+          snapGridTransBkgrnd = Settings.value(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey)).toBool();
+  }
+
   QString const gridSizeIndexKey("GridSizeIndex");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey))) {
       gridSizeIndex = GRID_SIZE_INDEX_DEFAULT;
@@ -2917,6 +2927,15 @@ void Preferences::setSnapToGridPreference(bool b)
   QVariant uValue(b);
   QString const snapToGridKey("SnapToGrid");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
+}
+
+void Preferences::setSnapGridTransBkgrndPreference(bool b)
+{
+  QSettings Settings;
+  snapGridTransBkgrnd = b;
+  QVariant uValue(b);
+  QString const snapGridTransBkgrndKey("SnapToGridTransparentPageBackground");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey),uValue);
 }
 
 void Preferences::setGridSizeIndexPreference(int i)
@@ -3819,7 +3838,7 @@ bool Preferences::getPreferences()
 
         if (sceneRulerTickColor != dialog->sceneRulerTickColor()){
             sceneRulerTickColor = dialog->sceneRulerTickColor();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColore"),sceneRulerTickColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
             setCustomSceneRulerTickColorPreference(true);
         }
 
@@ -3831,7 +3850,7 @@ bool Preferences::getPreferences()
 
         if (sceneGuideColor != dialog->sceneGuideColor()){
             sceneGuideColor = dialog->sceneGuideColor();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColore"),sceneGuideColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
             setCustomSceneGuideColorPreference(true);
         }
 
