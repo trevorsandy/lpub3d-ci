@@ -82,6 +82,8 @@ void LGraphicsView::setSceneRuler(){
           update();
         }
 
+      setSceneRulerTracking();
+
     } else {
 
       setViewportMargins(0,0,0,0);
@@ -137,6 +139,7 @@ void LGraphicsView::setSceneTheme(){
 
 void LGraphicsView::fitVisible(const QRectF rect)
 {
+
   scale(1.0,1.0);
   mPageRect = rect;
 
@@ -163,7 +166,7 @@ void LGraphicsView::fitWidth(const QRectF rect)
   mPageRect = rect;
 
   QRectF unity = matrix().mapRect(QRectF(0,0,1,1));
-  scale(1/unity.width(), 1 / unity.height());
+  scale(1 / unity.width(), 1 / unity.height());
 
   int margin = 2;
   QRectF viewRect = viewport()->rect().adjusted(margin, margin, -margin, -margin);
@@ -171,7 +174,6 @@ void LGraphicsView::fitWidth(const QRectF rect)
   qreal xratio = viewRect.width() / sceneRect.width();
 
   scale(xratio,xratio);
-  centerOn(mPageRect.center());
   fitMode = FitWidth;
 }
 
@@ -191,16 +193,6 @@ void LGraphicsView::actualSize(){
   fitMode = FitNone;
 }
 
-void LGraphicsView::zoomIn(){
-  scale(1.1,1.1);
-  fitMode = FitNone;
-}
-
-void LGraphicsView::zoomOut(){
-  scale(1.0/1.1,1.0/1.1);
-  fitMode = FitNone;
-}
-
 void LGraphicsView::resizeEvent(QResizeEvent *event)
 {
   Q_UNUSED(event);
@@ -212,6 +204,16 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
         }
     }
   centerOn(viewport()->rect().center());
+}
+
+void LGraphicsView::zoomIn(){
+  scale(1.1,1.1);
+  fitMode = FitNone;
+}
+
+void LGraphicsView::zoomOut(){
+  scale(1.0/1.1,1.0/1.1);
+  fitMode = FitNone;
 }
 
 /* drag and drop */

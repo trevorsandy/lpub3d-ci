@@ -29,7 +29,7 @@ class LRuler;
 
 class LGraphicsView : public QGraphicsView
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
   LGraphicsView(LGraphicsScene *scene);
