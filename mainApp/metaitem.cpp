@@ -1775,22 +1775,24 @@ void MetaItem::changePliAnnotation(
   ok = PliAnnotationDialog::getPliAnnotationOption(annotation,title,gui);
 
   if (ok) {
-      if(annotation.display.value() != pliAnnotationMeta->display.value()){
-          pliAnnotationMeta->display.setValue(annotation.display.value());
-          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->display,append,local,true);
-        }
-      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()){
-          pliAnnotationMeta->titleAnnotation.setValue(annotation.titleAnnotation.value());
-          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAnnotation,append,local,true);
-        }
-      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()){
-          pliAnnotationMeta->freeformAnnotation.setValue(annotation.freeformAnnotation.value());
-          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->freeformAnnotation,append,local,true);
-        }
+      beginMacro("changePliAnnotation");
       if(annotation.titleAndFreeformAnnotation.value() != pliAnnotationMeta->titleAndFreeformAnnotation.value()){
           pliAnnotationMeta->titleAndFreeformAnnotation.setValue(annotation.titleAndFreeformAnnotation.value());
           setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAndFreeformAnnotation,append,local,true);
-        }
+      }
+      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()){
+          pliAnnotationMeta->freeformAnnotation.setValue(annotation.freeformAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->freeformAnnotation,append,local,true);
+      }
+      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()){
+          pliAnnotationMeta->titleAnnotation.setValue(annotation.titleAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAnnotation,append,local,true);
+      }
+      if(annotation.display.value() != pliAnnotationMeta->display.value()){
+          pliAnnotationMeta->display.setValue(annotation.display.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->display,append,local,true);
+      }
+      endMacro();
     }
 }
 
