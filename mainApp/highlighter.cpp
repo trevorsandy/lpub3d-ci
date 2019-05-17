@@ -105,6 +105,20 @@ Highlighter::Highlighter(QTextDocument *parent)
         br28 = QBrush(QColor(THEME_HIGHLIGHT_28_DARK));
       }
 
+    // LPub3D Number Format
+    LPubNumberFormat.setForeground(br14);
+    LPubNumberFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?");
+    rule.format = LPubNumberFormat;
+    highlightingRules.append(rule);
+
+    // LPub3D Hex Number Format
+    LPubHexNumberFormat.setForeground(br15);
+    LPubHexNumberFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("#(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})",Qt::CaseInsensitive);
+    rule.format = LPubHexNumberFormat;
+    highlightingRules.append(rule);
+
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
@@ -165,20 +179,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         rule.format = LDrawBodyFormat;
         highlightingRules.append(rule);
     }
-
-    // LPub3D Number Format
-    LPubNumberFormat.setForeground(br14);
-    LPubNumberFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?");
-    rule.format = LPubNumberFormat;
-    highlightingRules.append(rule);
-
-    // LPub3D Hex Number Format
-    LPubHexNumberFormat.setForeground(br15);
-    LPubHexNumberFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("#(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})",Qt::CaseInsensitive);
-    rule.format = LPubHexNumberFormat;
-    highlightingRules.append(rule);
 
     // LPub3D Meta Format
     LPubMetaFormat.setForeground(br24);
