@@ -166,13 +166,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    // LPub3D Quoted Text Format
-    LPubQuotedTextFormat.setForeground(br27);
-    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("\".*\"");
-    rule.format = LPubQuotedTextFormat;
-    highlightingRules.append(rule);
-
     // LPub3D Number Format
     LPubNumberFormat.setForeground(br14);
     LPubNumberFormat.setFontWeight(QFont::Normal);
@@ -220,6 +213,13 @@ Highlighter::Highlighter(QTextDocument *parent)
     LPubTrueMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("\\bTRUE\\b");
     rule.format = LPubTrueMetaFormat;
+    highlightingRules.append(rule);
+
+    // LPub3D Quoted Text Format
+    LPubQuotedTextFormat.setForeground(br27);
+    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("\".*\"");
+    rule.format = LPubQuotedTextFormat;
     highlightingRules.append(rule);
 
     // LPub3D Page Size Format
