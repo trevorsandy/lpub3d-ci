@@ -112,6 +112,27 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubNumberFormat;
     highlightingRules.append(rule);
 
+    // LDraw Header Value Format
+    LDrawHeaderValueFormat.setForeground(br26);
+    LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|BFC|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
+    rule.format = LDrawHeaderValueFormat;
+    highlightingRules.append(rule);
+
+    // LDraw Custom COLOUR Description Format
+    LDrawColourDescFormat.setForeground(br26);
+    LDrawColourDescFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("\\bLPub3D_[A-Z|a-z|_]+\\b");
+    rule.format = LDrawColourDescFormat;
+    highlightingRules.append(rule);
+
+    // LPub3D Quoted Text Format
+    LPubQuotedTextFormat.setForeground(br27);
+    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("\".*\"");
+    rule.format = LPubQuotedTextFormat;
+    highlightingRules.append(rule);
+
     // LPub3D Hex Number Format
     LPubHexNumberFormat.setForeground(br15);
     LPubHexNumberFormat.setFontWeight(QFont::Bold);
@@ -119,11 +140,18 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubHexNumberFormat;
     highlightingRules.append(rule);
 
-    // LDraw Header Value Format
-    LDrawHeaderValueFormat.setForeground(br26);
-    LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|BFC|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
-    rule.format = LDrawHeaderValueFormat;
+    // LPub3D Font Number Format
+    LPubFontNumberFormat.setForeground(br14);
+    LPubFontNumberFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("\\d+"); // match digit if preceded by , or -
+    rule.format = LPubFontNumberFormat;
+    highlightingRules.append(rule);
+
+    // LPub3D Page Size Format
+    LPubPageSizeFormat.setForeground(br16);
+    LPubPageSizeFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("\\b[A|B][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$",Qt::CaseInsensitive);
+    rule.format = LPubPageSizeFormat;
     highlightingRules.append(rule);
 
     // LDraw Header Format
@@ -180,13 +208,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    // LDraw Custom COLOUR Description Format
-    LDrawColourDescFormat.setForeground(br26);
-    LDrawColourDescFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\bLPub3D_[A-Z|a-z|_]+\\b");
-    rule.format = LDrawColourDescFormat;
-    highlightingRules.append(rule);
-
     // LDraw Body Format
     LDrawBodyFormat.setForeground(br03);
     LDrawBodyFormat.setFontWeight(QFont::Bold);
@@ -240,20 +261,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     LPubTrueMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("\\bTRUE\\b");
     rule.format = LPubTrueMetaFormat;
-    highlightingRules.append(rule);
-
-    // LPub3D Quoted Text Format
-    LPubQuotedTextFormat.setForeground(br27);
-    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("\".*\"");
-    rule.format = LPubQuotedTextFormat;
-    highlightingRules.append(rule);
-
-    // LPub3D Page Size Format
-    LPubPageSizeFormat.setForeground(br16);
-    LPubPageSizeFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\b[A|B][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$",Qt::CaseInsensitive);
-    rule.format = LPubPageSizeFormat;
     highlightingRules.append(rule);
 
     // LPub3D Body Meta Format
