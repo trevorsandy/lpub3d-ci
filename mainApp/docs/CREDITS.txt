@@ -37,9 +37,11 @@ qSLog 2.0.0
 Razvan Petru
 
 QuaZip 0.7.3
+https://github.com/stachenov/quazip
 Sergey A. Tachenov
 
-QSimpleUpdater
+QSimpleUpdater 2.0 a3e9ef2
+https://github.com/trevorsandy/QSimpleUpdater
 Alex Spataru
 
 WPngImage 1.4.0
