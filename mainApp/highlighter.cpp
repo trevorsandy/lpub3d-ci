@@ -274,6 +274,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bBRICKLINK\\b"
     << "\\bCALLOUT\\b"
     << "\\bDIVIDER_POINTER\\b"
+    << "\\bCAMERA_ANGLES\\b"
     << "\\bCAMERA_DISTANCE_NATIVE\\b"
     << "\\bCABLE\\b"
     << "\\bCAMERA_FOV\\b"
