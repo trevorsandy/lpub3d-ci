@@ -81,7 +81,7 @@ if [ "$DOCKER" = "true" ]; then
    # Setup git command
    GIT_CMD="git --git-dir $PWD/${LPUB3D}/.git --work-tree $PWD/${LPUB3D}"
    #1. Get the latest version tag - check across all branches
-   BUILD_TAG=$($GIT_CMD describe --tags --match v* $(git rev-list --tags --max-count=1) 2> /dev/null)
+   BUILD_TAG=$($GIT_CMD describe --tags --match v* $($GIT_CMD rev-list --tags --max-count=1) 2> /dev/null)
    if [ -n "$BUILD_TAG" ]; then
        #2. Get the tag datetime
        BUILD_TAG_TIME=$($GIT_CMD log -1 --format=%ai $BUILD_TAG 2> /dev/null)
