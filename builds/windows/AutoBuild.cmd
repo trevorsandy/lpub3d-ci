@@ -257,6 +257,7 @@ IF /I "%PLATFORM%"=="-all" (
 rem Configure build arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
+SET platform_build_start=%time%
 ECHO.
 ECHO -Building %PACKAGE% %PLATFORM% platform, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
@@ -270,6 +271,8 @@ rem perform build
 nmake.exe
 rem Package 3rd party install content - this must come before check so check can use staged content for test
 IF %INSTALL%==1 CALL :STAGE_INSTALL
+CALL :ELAPSED_BUILD_TIME %platform_build_start%
+ECHO -Elapsed time %LP3D_ELAPSED_BUILD_TIME%
 rem Perform build check if specified
 IF %CHECK%==1 CALL :BUILD_CHECK %PLATFORM%
 GOTO :END
