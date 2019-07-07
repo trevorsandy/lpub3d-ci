@@ -2232,6 +2232,7 @@ void Gui::preferences()
             for(int i =0; i < Preferences::ldSearchDirs.size(); i++) {
                 emit messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(Preferences::ldSearchDirs.at(i))));
             }
+            gui->partWorkerLDSearchDirs.updateLDSearchDirs(true);
         }
 
         if (lgeoPathChanged && !ldrawPathChanged)
