@@ -434,7 +434,7 @@ void Gui::setCurrentFile(const QString &fileName)
                           .arg(VER_PRODUCTNAME_STR)
                           .arg(VER_PRODUCTVERSION_STR)
                           .arg(QString(VER_REVISION_STR).toInt() ?
-                                   QString("Rev %1").arg(VER_REVISION_STR) :
+                                   QString(" Rev %1").arg(VER_REVISION_STR) :
                                    QString());
 #endif
 
