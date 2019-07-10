@@ -1173,6 +1173,7 @@ void Gui::displayParmsFile(
 void Gui::editModelFile()
 {
     if (getCurFile() != "") {
+        save();
         displayFile(&ldrawFile, getCurFile(), true);
         editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
         editModeWindow->show();
