@@ -187,7 +187,7 @@ CalloutPointerItem::CalloutPointerItem(
   head->setToolTip("Pointer head - drag to move");
   addToGroup(head);  
   
-  for (int i = 0; i < NumGrabbers; i++) {
+  for (int i = 0; i < NumPointerGrabbers; i++) {
     grabbers[i] = nullptr;
   }
 
