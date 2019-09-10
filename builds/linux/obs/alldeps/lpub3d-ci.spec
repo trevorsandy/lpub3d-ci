@@ -297,11 +297,6 @@ BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
 
-# needed by gtk3
-%if 0%{?scientificlinux_version} == 700
-BuildRequires:  pkgconfig(wayland-egl)
-%endif
-
 # ------------------------------
 # Build from source dependencies
 # ------------------------------
@@ -373,7 +368,11 @@ BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %else
 %endif
-%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse})
+%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version} == 700
+# needed by gtk3
+%if 0%{?scientificlinux_version} == 700
+BuildRequires:  wayland-devel
+%endif
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
