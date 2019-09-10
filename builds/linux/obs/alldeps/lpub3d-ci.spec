@@ -370,7 +370,7 @@ BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version} == 700
 # needed by gtk3
-%if 0%{?scientificlinux_version} == 700
+%if 0%{?scientificlinux_version}==700
 BuildRequires:  wayland-devel
 %endif
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
@@ -456,8 +456,8 @@ BuildRequires:  pkgconfig(xxf86vm)
  sponsor, authorize or endorse this application.
  © 2015-2019 Trevor SANDY
 
-# work around fc27 and fc28 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
-%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28 || 0%{?fedora_version}==29
+# workaround from fc27 onwards build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
+%if 0%{?fedora_version}>=27
 %global debug_package %{nil}
 %endif
 
