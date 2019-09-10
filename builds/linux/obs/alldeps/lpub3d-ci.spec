@@ -198,7 +198,7 @@ BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200)
 BuildRequires: gl2ps-devel
 %else
 %define build_gl2ps 1
@@ -295,6 +295,11 @@ BuildRequires:  pkgconfig(OpenEXR)
 %if (0%{?suse_version}!=1315 && !0%{?centos_version} && !0%{?rhel_version} && !0%{?scientificlinux_version})
 BuildRequires:  pkgconfig(sdl2)
 %endif
+%endif
+
+# needed by gtk3
+%if 0%{?scientificlinux_version} == 700
+BuildRequires:  pkgconfig(wayland-egl)
 %endif
 
 # ------------------------------
