@@ -9,6 +9,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Add Rectangle to fixed annotations styles #350
 - Enhancement - 3DViewer Display Default Camera Properties #344
 - Change - DPI and scale info is added to filename in PNG export #346
 - Change - Enable rotate icon placement on single step page #348
