@@ -10,6 +10,8 @@
 
 echo "   Start update-config-files.sh execution..."
 
+export LC_ALL=C
+
 LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
