@@ -3,7 +3,7 @@ LPub3D 2.3.13.23.1534 (14 09 2019 17:01:38)
 Features, enhancements, fixes and changes
 ------------
 
-Navigate to an item's GitHub ticket by appending it's #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
 
 Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
 
@@ -26,6 +26,7 @@ Revisions:
 - Change - Set default text edit text size to 24 point #357
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
+- Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
 
  Base:
