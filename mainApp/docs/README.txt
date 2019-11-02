@@ -34,6 +34,7 @@ Revisions:
 - Fix - Export to pdf using page range generates single page #341
 - Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
+- Fix - Update apply camera angle locally initialisation #378
 
  Base:
 
