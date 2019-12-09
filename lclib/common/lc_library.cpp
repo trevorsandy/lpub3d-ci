@@ -1855,13 +1855,42 @@ void lcPiecesLibrary::GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>&
 	}
 }
 
-void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts)
+void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts) const
 {
 	Parts.SetSize(0);
 	Parts.AllocGrow(mPieces.size());
 
 	for (const auto& PartIt : mPieces)
 		Parts.Add(PartIt.second);
+}
+
+std::vector<PieceInfo*> lcPiecesLibrary::GetPartsFromSet(const std::vector<std::string>& PartIds) const
+{
+	std::vector<PieceInfo*> Parts;
+	Parts.reserve(PartIds.size());
+
+	for (const std::string& PartId : PartIds)
+	{
+		std::map<std::string, PieceInfo*>::const_iterator PartIt = mPieces.find(PartId);
+
+		if (PartIt != mPieces.end())
+			Parts.push_back(PartIt->second);
+	}
+
+	return Parts;
+}
+
+std::string lcPiecesLibrary::GetPartId(const PieceInfo* Info) const
+{
+	std::map<std::string, PieceInfo*>::const_iterator PartIt = std::find_if(mPieces.begin(), mPieces.end(), [Info](const std::pair<std::string, PieceInfo*>& PartIt)
+	{
+		return PartIt.second == Info;
+	});
+
+	if (PartIt != mPieces.end())
+		return PartIt->first;
+	else
+		return std::string();
 }
 
 bool lcPiecesLibrary::LoadBuiltinPieces()
