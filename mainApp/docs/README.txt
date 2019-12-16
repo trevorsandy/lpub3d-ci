@@ -27,6 +27,7 @@ Revisions:
 - Change - Enable rotate icon placement on single step page #348
 - Change - LDCad flexible parts new parts per step highlighting #354
 - Change - No response to MODEL_SCALE meta command #342
+- Change - MODEL_SCALE ignored when using callouts #385
 - Change - OFFSET inconsistently uses relative and pixel values #383
 - Change - Page items bring to front and send to back - third pass, set z values #244
 - Change - Page items bring to front and send to back - fourth pass, redesign #244
