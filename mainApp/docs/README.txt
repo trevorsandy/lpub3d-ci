@@ -32,6 +32,7 @@ Revisions:
 - Change - Page items bring to front and send to back - third pass, set z values #244
 - Change - Page items bring to front and send to back - fourth pass, redesign #244
 - Change - PNG Export - transparent background exports as black background. #380
+- Change - Refactor LDView single call render #387
 - Change - Remove check Bricklink codes.txt for RegExp import pattern. #381
 - Change - Pointer segment line is interrupted by border colour at each joint #356
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
