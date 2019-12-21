@@ -47,6 +47,7 @@ Revisions:
 - Fix - Keyword OUTIDE used where the intention is to use OUTSIDE #384
 - Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
+- Fix - Step number displayed on cover page when PLI per step is disabled #388
 - Fix - Substitute part flag ignored when no attributes specified #377
 - Fix - Update apply camera angle locally initialisation #378
 
