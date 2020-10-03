@@ -396,27 +396,26 @@ bool Project::Load(const QString& FileName)
 	{
 		QBuffer Buffer(&FileData);
 		Buffer.open(QIODevice::ReadOnly);
-		std::vector<std::pair<int, lcModel*>> Models;
 
 		while (!Buffer.atEnd())
 		{
 			lcModel* Model = new lcModel(QString());
-			int Pos = Model->SplitMPD(Buffer);
+			Model->SplitMPD(Buffer);
 
-			if (Models.empty() || !Model->GetProperties().mName.isEmpty())
+			if (mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
 			{
 				mModels.Add(Model);
-				Models.emplace_back(std::make_pair(Pos, Model));
 				Model->CreatePieceInfo(this);
 			}
 			else
 				delete Model;
 		}
 
-		for (size_t ModelIdx = 0; ModelIdx < Models.size(); ModelIdx++)
+		Buffer.seek(0);
+
+		for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		{
-			Buffer.seek(Models[ModelIdx].first);
-			lcModel* Model = Models[ModelIdx].second;
+			lcModel* Model = mModels[ModelIdx];
 			Model->LoadLDraw(Buffer, this);
 			Model->SetSaved();
 		}
@@ -1605,8 +1604,6 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lcScene Scene;
-		Scene.SetAllowWireframe(false);
-		Scene.SetAllowLOD(false);
 		Scene.Begin(ViewMatrix);
 
 		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::NORMAL, true);
@@ -1997,8 +1994,6 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				Context->SetProjectionMatrix(ProjectionMatrix);
 
 				lcScene Scene;
-				Scene.SetAllowWireframe(false);
-				Scene.SetAllowLOD(false);
 				Scene.Begin(ViewMatrix);
 
 				Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, lcRenderMeshState::NORMAL, true);

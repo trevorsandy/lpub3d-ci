@@ -21,4 +21,3 @@ bool lcSaveCategories(const QString& FileName, const lcArray<lcLibraryCategory>&
 bool lcSaveCategories(QTextStream& Stream, const lcArray<lcLibraryCategory>& Categories);
 
 bool lcMatchCategory(const char* PieceName, const char* Expression);
-

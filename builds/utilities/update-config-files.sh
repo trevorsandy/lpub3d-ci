@@ -336,7 +336,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "10.update ${LPUB3D}.spec  - add version and date  [$FILE]"
+Info "10.update ${LPUB3D}.spec     - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -353,7 +353,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "11.update ${LPUB3D}.dsc   - add version           [$FILE]"
+Info "11.update ${LPUB3D}.dsc      - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]

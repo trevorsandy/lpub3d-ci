@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 # Last Update March 06, 2019
-# Copyright 2017-2020 Trevor SANDY
+# Copyright 2017-2019 Trevor SANDY
 
 # output every command that modifies files on the build system.
 export DH_VERBOSE=1
@@ -77,11 +77,11 @@ override_dh_auto_configure:
 build: configure-stamp
 override_dh_auto_test:
 	# Start custom test commands
-	if [ -f "validExe" ]; then \
-		echo "LDD check validExe..."; \
-		ldd validExe 2>/dev/null; \
+	if [ -f "mainApp/64bit_release/lpub3d24" ]; then \
+		echo "LDD check mainApp/64bit_release/lpub3d24..."; \
+		ldd mainApp/64bit_release/lpub3d24 2>/dev/null; \
 	else \
-		echo "ERROR - LDD check failed for $$(realpath validExe)"; \
+		echo "ERROR - LDD check failed for $$(realpath mainApp/64bit_release/lpub3d24)"; \
 	fi
 	# End custom test commands
 	dh_auto_test

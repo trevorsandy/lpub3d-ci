@@ -191,4 +191,3 @@ protected:
 	lcBoundingBox mBoundingBox;
 	lcSynthInfo* mSynthInfo;
 };
-

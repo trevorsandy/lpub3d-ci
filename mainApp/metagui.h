@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -190,8 +190,7 @@ public:
     QString const &heading1,
     FloatPairMeta *meta,
     QGroupBox     *parent = nullptr,
-    int            decPlaces = 1,
-    bool           showPair = true);
+    int            decPlaces = 1);
   ~FloatsGui() {}
 
   void setEnabled(bool enabled);
@@ -199,7 +198,6 @@ public:
   virtual void apply(QString &modelName);
 
 private:
-  bool          showPair;
   FloatPairMeta *meta;
   QLabel        *label0;
   QLabel        *label1;

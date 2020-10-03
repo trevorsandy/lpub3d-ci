@@ -492,6 +492,14 @@ inline lcVector3 lcNormalize(const lcVector3& a)
 	return Ret;
 }
 
+inline void lcAlign(lcVector3& t, const lcVector3& a, const lcVector3& b)
+{
+	lcVector3 Vector(b - a);
+	Vector.Normalize();
+	Vector *=  (t - a).Length();
+	t = a + Vector;
+}
+
 inline float lcDot(const lcVector3& a, const lcVector3& b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -634,10 +642,10 @@ inline lcVector3 lcVector3LDrawToLeoCAD(const lcVector3& Vector)
 /*** LPub3D Mod - LeoCAD to LDraw conversion ***/
 inline lcVector3 lcVector3LeoCADToLDraw(const lcVector3& Vector)
 {
-    // Switch Y and Z coordinates to match LDraw
-    // LDraw Y (LeoCAD Z) axis is vertical, with negative value in the up direction
-    //              ld_X[lc_X] ld_Y[-lc_Z] ld_Z[lc_Y]
-    return lcVector3(Vector[0], -Vector[2], Vector[1]);
+	// Switch Y and Z coordinates to match LDraw
+	// LDraw Y (LeoCAD Z) axis is vertical, with negative value in the up direction
+	//              ld_X[lc_X] ld_Y[-lc_Z] ld_Z[lc_Y]
+	return lcVector3(Vector[0], -Vector[2], Vector[1]);
 }
 /*** LPub3D Mod end ***/
 
@@ -918,8 +926,8 @@ inline lcVector3 lcMatrix33ToEulerAngles(const lcMatrix33& RotMat)
 inline float lcMatrix44::Determinant() const
 {
 	return r[0][0] * r[1][1] * r[2][2] + r[0][1] * r[1][2] * r[2][0] +
-	       r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
-	       r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
+		   r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
+		   r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
 }
 
 inline lcMatrix44 lcMatrix44Identity()
@@ -2062,4 +2070,3 @@ bool SphereIntersectsVolume(const Vector3& Center, float Radius, const Vector4* 
 
 	return true;
 }*/
-

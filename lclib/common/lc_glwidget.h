@@ -94,4 +94,3 @@ public:
 	lcContext* mContext;
 	bool mDeleteContext;
 };
-

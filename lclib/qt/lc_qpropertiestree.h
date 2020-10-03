@@ -72,7 +72,7 @@ protected:
 
 	void getPartProperties(lcPartProperties *properties);
 /*** LPub3D Mod - LPub3D properties ***/
-    bool FirstHit;
+	bool FirstHit;
 /*** LPub3D Mod end ***/
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
@@ -97,10 +97,10 @@ protected:
 	QTreeWidgetItem *partColor;
 	QTreeWidgetItem *partID;
 /*** LPub3D Mod - LPub3D Properties ***/
-    QTreeWidgetItem *partFileName;
-    QTreeWidgetItem *partModel;
-    QTreeWidgetItem *partType;
-    QTreeWidgetItem *partIsSubmodel;
+	QTreeWidgetItem *partFileName;
+	QTreeWidgetItem *partModel;
+	QTreeWidgetItem *partType;
+	QTreeWidgetItem *partIsSubmodel;
 /*** LPub3D Mod end ***/
 
 	QTreeWidgetItem *cameraPosition;
@@ -169,4 +169,3 @@ private:
 	mutable QWidget *m_editedWidget;
 	mutable bool m_disablePainting;
 };
-

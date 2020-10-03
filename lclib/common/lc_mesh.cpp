@@ -7,9 +7,6 @@
 #include "lc_application.h"
 #include "lc_library.h"
 
-#define LC_MESH_FILE_ID      LC_FOURCC('M', 'E', 'S', 'H')
-#define LC_MESH_FILE_VERSION 0x0118
-
 lcMesh* gPlaceholderMesh;
 
 lcMesh::lcMesh()
@@ -143,8 +140,6 @@ void lcMesh::CreateBox()
 	Section->NumIndices = 36;
 	Section->PrimitiveType = LC_MESH_TRIANGLES;
 	Section->Texture = nullptr;
-	Section->BoundingBox = mBoundingBox;
-	Section->Radius = mRadius;
 
 	*Indices++ = 0; *Indices++ = 1; *Indices++ = 2;
 	*Indices++ = 0; *Indices++ = 2; *Indices++ = 3;
@@ -171,8 +166,6 @@ void lcMesh::CreateBox()
 	Section->NumIndices = 24;
 	Section->PrimitiveType = LC_MESH_LINES;
 	Section->Texture = nullptr;
-	Section->BoundingBox = mBoundingBox;
-	Section->Radius = mRadius;
 
 	*Indices++ = 0; *Indices++ = 1; *Indices++ = 1; *Indices++ = 2;
 	*Indices++ = 2; *Indices++ = 3; *Indices++ = 3; *Indices++ = 0;
@@ -301,7 +294,7 @@ void lcMesh::ExportPOVRay(lcFile& File, const char* MeshName, const char** Color
 			const lcVector3 n3 = lcUnpackNormal(Verts[Indices[Idx + 2]].Normal);
 
 			sprintf(Line, "  smooth_triangle { <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f> }\n",
-			        -v1.y, -v1.x, v1.z, -n1.y, -n1.x, n1.z, -v2.y, -v2.x, v2.z, -n2.y, -n2.x, n2.z, -v3.y, -v3.x, v3.z, -n3.y, -n3.x, n3.z);
+					-v1.y, -v1.x, v1.z, -n1.y, -n1.x, n1.z, -v2.y, -v2.x, v2.z, -n2.y, -n2.x, n2.z, -v3.y, -v3.x, v3.z, -n3.y, -n3.x, n3.z);
 			File.WriteLine(Line);
 		}
 
@@ -406,9 +399,6 @@ bool lcMesh::FileLoad(lcMemFile& File)
 			Section.IndexOffset = IndexOffset;
 			Section.NumIndices = NumIndices;
 			Section.PrimitiveType = (lcMeshPrimitiveType)PrimtiveType;
-			Section.BoundingBox.Min = File.ReadVector3();
-			Section.BoundingBox.Max = File.ReadVector3();
-			Section.Radius = File.ReadFloat();
 
 			if (!File.ReadU16(&Length, 1))
 				return false;
@@ -467,9 +457,6 @@ bool lcMesh::FileSave(lcMemFile& File)
 			File.WriteU32(Section.IndexOffset);
 			File.WriteU32(Section.NumIndices);
 			File.WriteU16(Section.PrimitiveType);
-			File.WriteVector3(Section.BoundingBox.Min);
-			File.WriteVector3(Section.BoundingBox.Max);
-			File.WriteFloat(Section.Radius);
 
 			if (Section.Texture)
 			{
@@ -493,9 +480,6 @@ bool lcMesh::FileSave(lcMemFile& File)
 
 int lcMesh::GetLodIndex(float Distance) const
 {
-	if (lcGetPiecesLibrary()->GetStudLogo())
-		return LC_MESH_LOD_HIGH;
-
 	if (mLods[LC_MESH_LOD_LOW].NumSections && (Distance - mRadius) > 250.0f)
 		return LC_MESH_LOD_LOW;
 	else

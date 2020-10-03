@@ -180,4 +180,3 @@ inline lcModel* lcGetActiveModel()
 	Project* Project = lcGetActiveProject();
 	return Project ? Project->GetActiveModel() : nullptr;
 }
-

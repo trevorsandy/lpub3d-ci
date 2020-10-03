@@ -67,7 +67,7 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{  0,  0, "" },		                             /*** LPub3D Mod - rotate step ***/
 	};
 
-	static_assert(LC_ARRAY_COUNT(Cursors) == LC_CURSOR_COUNT, "Array size mismatch");
+	static_assert(sizeof(Cursors) / sizeof(Cursors[0]) == LC_CURSOR_COUNT, "Array size mismatch");
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
 /*** LPub3D Mod - rotate step ***/
@@ -162,8 +162,17 @@ QSize lcQGLWidget::sizeHint() const
 
 void lcQGLWidget::initializeGL()
 {
+/*** LPub3D Mod - Revert [No1. Reduce z-fighting 31703618c] ***/
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	// Revert [No2. Enabled polygon offset  0abc4a258a]
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+	// End revert
+	glPolygonOffset(0.5f, 0.1f);
+/*** LPub3D Mod end ***/
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_TRUE);
 }
 
 void lcQGLWidget::resizeGL(int width, int height)

@@ -224,4 +224,3 @@ protected:
 	quint32 mState;
 	char m_strName[81];
 };
-

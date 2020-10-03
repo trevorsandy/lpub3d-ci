@@ -826,16 +826,9 @@ void View::OnDraw()
 	if (!mModel)
 		return;
 
-	const lcPreferences& Preferences = lcGetPreferences();
-	const bool DrawInterface = mWidget != nullptr;
+	bool DrawInterface = mWidget != nullptr;
 
-	mScene.SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
-	mScene.SetActiveSubmodelInstance(mActiveSubmodelInstance, mActiveSubmodelTransform);
-	mScene.SetDrawInterface(DrawInterface);
-
-	mScene.Begin(mCamera->mWorldView);
-
-	mModel->GetScene(mScene, mCamera, mHighlight);
+	mModel->GetScene(mScene, mCamera, DrawInterface, mHighlight, mActiveSubmodelInstance, mActiveSubmodelTransform);
 
 	if (DrawInterface && mTrackTool == LC_TRACKTOOL_INSERT)
 	{
@@ -852,11 +845,6 @@ void View::OnDraw()
 		}
 	}
 
-	if (DrawInterface)
-		mScene.SetPreTranslucentCallback([this]() { DrawGrid(); });
-
-	mScene.End();
-
 	int TotalTileRows = 1;
 	int TotalTileColumns = 1;
 
@@ -871,6 +859,8 @@ void View::OnDraw()
 			TotalTileRows = (mHeight + ImageHeight - 1) / mHeight;
 		}
 	}
+
+	const lcPreferences& Preferences = lcGetPreferences();
 
 	for (int CurrentTileRow = 0; CurrentTileRow < TotalTileRows; CurrentTileRow++)
 	{
@@ -944,6 +934,8 @@ void View::OnDraw()
 
 		mContext->SetLineWidth(1.0f);
 
+		DrawGrid();
+
 		if (Preferences.mDrawAxes)
 			DrawAxes();
 
@@ -956,7 +948,7 @@ void View::OnDraw()
 			DrawSelectMoveOverlay();
 		else
 		if ((Tool == LC_TOOL_ROTATE || (Tool == LC_TOOL_SELECT && mTrackButton != LC_TRACKBUTTON_NONE && mTrackTool >= LC_TRACKTOOL_ROTATE_X && mTrackTool <= LC_TRACKTOOL_ROTATE_XYZ)) && ActiveModel->AnyPiecesSelected())
-/*** LPub3D Mod - Get rotate step angles ***/
+/*** LPub3D Mod - Rotate Step onDraw ***/
 		{
 			  DrawRotateOverlay();
 			  gMainWindow->GetRotStepMetaAngles();
@@ -1611,6 +1603,8 @@ void View::DrawGrid()
 	if (!Preferences.mDrawGridStuds && !Preferences.mDrawGridLines)
 		return;
 
+	mContext->SetWorldMatrix(lcMatrix44Identity());
+
 	const int Spacing = lcMax(Preferences.mGridLineSpacing, 1);
 	int MinX, MaxX, MinY, MaxY;
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
@@ -1661,7 +1655,7 @@ void View::DrawGrid()
 	}
 
 	if (!mGridBuffer.IsValid() || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
-	    Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
+		Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
 	{
 		int VertexBufferSize = 0;
 
@@ -1751,12 +1745,10 @@ void View::DrawGrid()
 
 	int BufferOffset = 0;
 	mContext->SetVertexBuffer(mGridBuffer);
-	mContext->SetWorldMatrix(lcMatrix44Identity());
 
 	if (Preferences.mDrawGridStuds)
 	{
 		mContext->BindTexture2D(gGridTexture->mTexture);
-		mContext->SetDepthWrite(false);
 		glEnable(GL_BLEND);
 
 		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
@@ -1766,7 +1758,6 @@ void View::DrawGrid()
 		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 4);
 
 		glDisable(GL_BLEND);
-		mContext->SetDepthWrite(true);
 
 		BufferOffset = 4 * 5 * sizeof(float);
 	}
@@ -1858,7 +1849,7 @@ void View::DrawViewport()
 	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
 
-	mContext->SetDepthWrite(false);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
 	if (gMainWindow->GetActiveView() == this)
@@ -1887,7 +1878,7 @@ void View::DrawViewport()
 		glDisable(GL_BLEND);
 	}
 
-	mContext->SetDepthWrite(true);
+	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 }
 

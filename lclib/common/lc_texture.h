@@ -67,7 +67,6 @@ public:
 	int mWidth;
 	int mHeight;
 	char mName[LC_TEXTURE_NAME_LEN];
-	QString mFileName;
 	GLuint mTexture;
 
 protected:
@@ -84,4 +83,3 @@ lcTexture* lcLoadTexture(const QString& FileName, int Flags);
 void lcReleaseTexture(lcTexture* Texture);
 
 extern lcTexture* gGridTexture;
-

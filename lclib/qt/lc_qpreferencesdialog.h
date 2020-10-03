@@ -55,11 +55,10 @@ public slots:
 	void on_mouseAssign_clicked();
 	void on_mouseRemove_clicked();
 	void on_mouseReset_clicked();
-	void on_studLogo_toggled();
 	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
 /*** LPub3D Mod - Native Renderer settings ***/
-    void on_ViewpointsCombo_currentIndexChanged(int index);
+	void on_ViewpointsCombo_currentIndexChanged(int index);
 /*** LPub3D Mod end ***/
 private:
 	Ui::lcQPreferencesDialog *ui;
@@ -70,4 +69,3 @@ private:
 	void UpdateMouseTreeItem(int ItemIndex);
 	void setShortcutModified(QTreeWidgetItem *treeItem, bool modified);
 };
-

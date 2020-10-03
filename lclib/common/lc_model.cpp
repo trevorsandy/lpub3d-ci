@@ -474,10 +474,8 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	Stream.flush();
 }
 
-int lcModel::SplitMPD(QIODevice& Device)
+void lcModel::SplitMPD(QIODevice& Device)
 {
-	qint64 ModelPos = Device.pos();
-
 	while (!Device.atEnd())
 	{
 		qint64 Pos = Device.pos();
@@ -501,7 +499,6 @@ int lcModel::SplitMPD(QIODevice& Device)
 				}
 
 				mProperties.mName = LineStream.readAll().trimmed();
-				ModelPos = Pos;
 			}
 			else if (Token == QLatin1String("NOFILE"))
 			{
@@ -509,8 +506,6 @@ int lcModel::SplitMPD(QIODevice& Device)
 			}
 		}
 	}
-
-	return ModelPos;
 }
 
 void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
@@ -652,7 +647,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 					lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
 					PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-					                                         lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+															 lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
 					PieceControlPoint.Scale = Numbers[12];
 				}
 			}
@@ -1267,15 +1262,19 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
-void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) const
+void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight, lcPiece* ActiveSubmodelInstance, const lcMatrix44& ActiveSubmodelTransform) const
 {
+	Scene.Begin(ViewCamera->mWorldView);
+	Scene.SetActiveSubmodelInstance(ActiveSubmodelInstance, ActiveSubmodelTransform);
+	Scene.SetDrawInterface(DrawInterface);
+
 	mPieceInfo->AddRenderMesh(Scene);
 
 	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->AddMainModelRenderMeshes(Scene, Highlight && Piece->GetStepShow() == mCurrentStep);
 
-	if (Scene.GetDrawInterface() && !Scene.GetActiveSubmodelInstance())
+	if (DrawInterface && !ActiveSubmodelInstance)
 	{
 		for (lcCamera* Camera : mCameras)
 			if (Camera != ViewCamera && Camera->IsVisible())
@@ -1285,6 +1284,8 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) con
 			if (Light->IsVisible())
 				Scene.AddInterfaceObject(Light);
 	}
+
+	Scene.End();
 }
 
 void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
@@ -1303,16 +1304,15 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 		return;
 	}
 
-	lcContext* Context = Widget->mContext;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Context->SetDepthWrite(false);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
 	float ViewWidth = (float)Widget->mWidth;
 	float ViewHeight = (float)Widget->mHeight;
 
+	lcContext* Context = Widget->mContext;
 	Context->SetWorldMatrix(lcMatrix44Identity());
 	Context->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	Context->SetProjectionMatrix(lcMatrix44Ortho(0.0f, ViewWidth, 0.0f, ViewHeight, -1.0f, 1.0f));
@@ -1369,7 +1369,7 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	Context->SetDepthWrite(true);
+	glDepthMask(GL_TRUE);
 }
 
 void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End)
@@ -2859,7 +2859,7 @@ bool lcModel::AnyPiecesSelected() const
 
 bool lcModel::AnyObjectsSelected() const
 {
-/*** LPub3D Mod - Suppress select move overlay for piece and light ***/
+/*** LPub3D Mod - Suppress select move overlay ***/
 	for (lcCamera* Camera : mCameras)
 		if (Camera->IsSelected())
 			return true;
