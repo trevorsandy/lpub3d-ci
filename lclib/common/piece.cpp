@@ -32,6 +32,9 @@ lcPiece::lcPiece(PieceInfo* Info)
 /*** LPub3D Mod - Selected Parts ***/
 	mLineTypeIndex = -1;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Piece modified ***/
+	mPieceModified = 0;
+/*** LPub3D Mod end ***/
 	mPivotMatrix = lcMatrix44Identity();
 }
 
@@ -47,6 +50,9 @@ lcPiece::lcPiece(const lcPiece& Other)
 	mStepHide = Other.mStepHide;
 	mGroup = Other.mGroup;
 	mFileLine = -1;
+/*** LPub3D Mod - Piece modified ***/
+	mPieceModified = Other.mPieceModified;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	mLineTypeIndex = -1;
 /*** LPub3D Mod end ***/
