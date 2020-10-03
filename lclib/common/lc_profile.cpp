@@ -135,7 +135,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "UseImageSize", 1),                                             // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/
-	/*** LPub3D Mod end ***/
+	lcProfileEntry("Settings", "AutoCenterSelection", 1),                                      // LC_PROFILE_AUTO_CENTER_SELECTION                      /*** LPub3D Mod - Camera Globe Target Position ***/
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                                  //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultDistanceFactor", 5.0f),                                 //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
