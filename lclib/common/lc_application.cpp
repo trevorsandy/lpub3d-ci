@@ -79,6 +79,12 @@ void lcPreferences::LoadDefaults()
 /*** LPub3D Mod - add background colour to preferences ***/
 	mBackgroundSolidColor = lcGetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR);
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - preview widget ***/
+	mActivePreviewColor = lcGetProfileInt(LC_PROFILE_ACTIVE_PREVIEW_COLOR);
+	mViewSpherePreviewSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE);
+	mViewSpherePreviewLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION));
+/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -138,6 +144,12 @@ void lcPreferences::SaveDefaults()
 
 /*** LPub3D Mod - add background colour to preferences ***/
 	lcSetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR, mBackgroundSolidColor);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - preview widget ***/
+	lcSetProfileInt(LC_PROFILE_ACTIVE_PREVIEW_COLOR, mActivePreviewColor);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE, mViewSpherePreviewSize);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION, static_cast<int>(mViewSpherePreviewLocation));
 /*** LPub3D Mod end ***/
 }
 
