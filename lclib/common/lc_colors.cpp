@@ -12,6 +12,9 @@ int gDefaultColor;
 lcVector4 gInterfaceColors[LC_NUM_INTERFACECOLORS] = // todo: make the colors configurable and include the grid and other hardcoded colors here as well.
 {
 	lcVector4(0.898f, 0.298f, 0.400f, 1.000f), // LC_COLOR_SELECTED
+/*** LPub3D Mod - Selected Parts ***/
+	lcVector4(0.474f, 0.847f, 0.474f, 1.000f), // LC_COLOR_BM_SELECTED   #00CC00
+/*** LPub3D Mod end ***/
 	lcVector4(0.400f, 0.298f, 0.898f, 1.000f), // LC_COLOR_FOCUSED
 	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // LC_COLOR_CAMERA
 	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // LC_COLOR_LIGHT

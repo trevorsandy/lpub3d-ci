@@ -575,7 +575,12 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	if (IsFocused(LC_PIECE_SECTION_POSITION))
 		Context->SetInterfaceColor(LC_COLOR_FOCUSED);
 	else
-		Context->SetInterfaceColor(LC_COLOR_SELECTED);
+/*** LPub3D Mod - Selected Parts ***/
+		if (gApplication->mPreferences.mBuildMofificationEnabled)
+			Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
+		else
+			Context->SetInterfaceColor(LC_COLOR_SELECTED);
+/*** LPub3D Mod end ***/
 
 	Context->SetVertexBufferPointer(LineVerts);
 	Context->SetVertexFormatPosition(3);
