@@ -258,14 +258,12 @@ public:
 
 void Gui::insertCoverPage()
 {
-  MetaItem mi;
-  mi.insertCoverPage();
+  mi->insertCoverPage();
 }
 
 void Gui::appendCoverPage()
 {
-  MetaItem mi;
-  mi.appendCoverPage();
+  mi->appendCoverPage();
   countPages();
   displayPageNum = maxPages;
   displayPage();
@@ -274,31 +272,29 @@ void Gui::appendCoverPage()
 void Gui::generateCoverPages()
 {
     if (Preferences::generateCoverPages){
-        MetaItem mi;
-        if (!mi.frontCoverPageExist())
-            mi.insertCoverPage();
+        if (!mi->frontCoverPageExist())
+            mi->insertCoverPage();
 
-        if (!mi.backCoverPageExist())
-            mi.appendCoverPage();
+        if (!mi->backCoverPageExist())
+            mi->appendCoverPage();
     }
 }
 
 void Gui::insertFinalModel(){
-  MetaItem mi;
   static int modelExist = -1;
   if (Preferences::enableFadeSteps ||
       Preferences::enableHighlightStep){
-      int modelStatus = mi.okToInsertFinalModel();
+      int modelStatus = mi->okToInsertFinalModel();
       if (modelStatus != modelExist) {
         emit messageSig(LOG_INFO, QString("Inserting final model..."));
-        mi.insertFinalModel(modelStatus);
+        mi->insertFinalModel(modelStatus);
       }
   } else
   if (! Preferences::enableFadeSteps &&
       ! Preferences::enableHighlightStep){
-      if (mi.okToInsertFinalModel() == modelExist) {
+      if (mi->okToInsertFinalModel() == modelExist) {
         emit messageSig(LOG_INFO, QString("Removing final model..."));
-        mi.deleteFinalModel();
+        mi->deleteFinalModel();
       }
   }
   resetLastBuildMod(true/*clearNextStep*/);
@@ -307,14 +303,12 @@ void Gui::insertFinalModel(){
 
 //void Gui::insertCoverPage()
 //{
-//  MetaItem mi;
-//  mi.insertCoverPage();
+//  mi->insertCoverPage();
 //}
 
 //void Gui::appendCoverPage()
 //{
-//  MetaItem mi;
-//  mi.appendCoverPage();
+//  mi->appendCoverPage();
 //  countPages();
 //  ++displayPageNum;
 //  displayPage();  // display the page we just added
@@ -322,14 +316,12 @@ void Gui::insertFinalModel(){
 
 void Gui::insertNumberedPage()
 {
-  MetaItem mi;
-  mi.insertNumberedPage();
+  mi->insertNumberedPage();
 }
 
 void Gui::appendNumberedPage()
 {
-  MetaItem mi;
-  mi.appendNumberedPage();
+  mi->appendNumberedPage();
   //countPages();
   //++displayPageNum;
   //displayPage();  // display the page we just added
@@ -337,32 +329,27 @@ void Gui::appendNumberedPage()
 
 void Gui::deletePage()
 {
-  MetaItem mi;
-  mi.deletePage();
+  mi->deletePage();
 }
 
 void Gui::addPicture()
 {
-  MetaItem mi;
-  mi.insertPicture();
+  mi->insertPicture();
 }
 
 void Gui::addText()
 {
-  MetaItem mi;
-  mi.insertText();
+  mi->insertText();
 }
 
 void Gui::addBom()
 {
-  MetaItem mi;
-  mi.insertBOM();
+  mi->insertBOM();
 }
 
 void Gui::removeLPubFormatting()
 {
-  MetaItem mi;
-  mi.removeLPubFormatting();
+  mi->removeLPubFormatting();
   displayPageNum = 1;
   displayPage();
 }
@@ -2955,6 +2942,8 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
+    mi            = new MetaItem();
+
     lpubAlert     = new LPubAlert();
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
@@ -4655,13 +4644,11 @@ void Gui::createActions()
 }
 
 void Gui::loadPages(){
-
-  MetaItem mi;
   int pageNum     = 0;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
-  bool frontCoverPage = mi.frontCoverPageExist();
-  bool backCoverPage  = mi.backCoverPageExist();
+  bool frontCoverPage = mi->frontCoverPageExist();
+  bool backCoverPage  = mi->backCoverPageExist();
 
   for(int i=1;i <= maxPages;i++){
       QApplication::processEvents();
@@ -4862,14 +4849,13 @@ void Gui::disableActions()
 
 void Gui::enableActions2()
 {
-    MetaItem mi;
-    insertCoverPageAct->setEnabled(mi.okToInsertCoverPage() &&
-                                   ! mi.frontCoverPageExist());
-    appendCoverPageAct->setEnabled(mi.okToAppendCoverPage() &&
-                                   ! mi.backCoverPageExist());
-    bool frontCover = mi.okToInsertNumberedPage();
+    insertCoverPageAct->setEnabled(mi->okToInsertCoverPage() &&
+                                   ! mi->frontCoverPageExist());
+    appendCoverPageAct->setEnabled(mi->okToAppendCoverPage() &&
+                                   ! mi->backCoverPageExist());
+    bool frontCover = mi->okToInsertNumberedPage();
     insertNumberedPageAct->setEnabled(frontCover);
-    bool backCover = mi.okToAppendNumberedPage();
+    bool backCover = mi->okToAppendNumberedPage();
     appendNumberedPageAct->setEnabled(backCover);
     deletePageAct->setEnabled(page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
