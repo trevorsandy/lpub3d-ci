@@ -482,6 +482,17 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
+	case PropertyBoolReadOnly:
+		{
+			QCheckBox *editor = new QCheckBox(parent);
+			bool value = item->data(0, PropertyValueRole).toBool();
+
+			editor->setChecked(value);
+			editor->setEnabled(false);
+			editor->setToolTip("Property is read only");
+
+			return editor;
+		}
 	case PropertyFloatCameraAngle:
 		{
 			QLineEdit *editor = new QLineEdit(parent);

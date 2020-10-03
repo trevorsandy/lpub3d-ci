@@ -48,6 +48,7 @@ public:
 		PropertyFloatLightSpotSize,
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
+		PropertyBoolReadOnly,
 		PropertyFloatCameraAngle,
 		PropertyFloatTarget,
 /*** LPub3D Mod end ***/

@@ -94,9 +94,9 @@ public:
 		const int ImageHeight,
 		const int PageWidth,
 		const int PageHeight,
+		const int Renderer,
 		const QString FileName,
-		const float Resolution,
-		const float ModelScale);
+		const float Resolution);
 	void SetImageSize(
 		const int ImageWidth,
 		const int ImageHeight);
@@ -123,13 +123,13 @@ public:
 	{
 		return mResolution;
 	}
-	float GetModelScale() const
-	{
-		return mModelScale;
-	}
 	bool GetViewerLoaded() const
 	{
 		return mViewerLoaded;
+	}
+	int GetRenderer()
+	{
+		return mRenderer;
 	}
 /*** LPub3D Mod end ***/
 
@@ -181,8 +181,8 @@ protected:
 	int mPageWidth;
 	int mPageHeight;
 	int mImageType;
+	int mRenderer;
 	float mResolution;
-	float mModelScale;
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - create Native PLI image ***/
