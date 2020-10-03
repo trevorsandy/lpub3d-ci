@@ -1,4 +1,4 @@
-LPub3D 2.4.0.1.1875 (03 10 2020 18:25:17)
+LPub3D 2.4.0.1.1876 (03 10 2020 18:26:00)
 
 Features, enhancements, fixes and changes
 ------------
@@ -9,6 +9,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Add Rectangle to fixed annotations styles #350
 - Enhancement - 3DViewer Display Default Camera Properties #344
 - Change - DPI and scale info is added to filename in PNG export #346
 - Change - Enable rotate icon placement on single step page #348
