@@ -126,7 +126,7 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 					break;
 				}
 			}
-			else if (Section->PrimitiveType & (LC_MESH_LINES | LC_MESH_TEXTURED_LINES))
+			else if (Section->PrimitiveType & LC_MESH_LINES)
 			{
 				switch (RenderMesh.State)
 				{
@@ -271,15 +271,6 @@ void lcScene::Draw(lcContext* Context) const
 			UntexturedPrimitives |= LC_MESH_CONDITIONAL_LINES;
 
 		DrawRenderMeshes(Context, UntexturedPrimitives, false, false, false);
-
-		if (mHasTexture)
-		{
-			Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-
-			DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);
-
-			Context->BindTexture2D(0);
-		}
 	}
 	else if (ShadingMode == LC_SHADING_FLAT)
 	{
@@ -355,9 +346,6 @@ void lcScene::Draw(lcContext* Context) const
 		{
 			Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
 
-			if (DrawLines && !DoFade)
-				DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);
-
 			DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, false, true);
 
 			if (!mTranslucentMeshes.IsEmpty())
@@ -378,12 +366,6 @@ void lcScene::Draw(lcContext* Context) const
 					  glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
 					  DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
-
-					  if (DrawLines)
-					  {
-						  DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, true, false);    // translucent
-						  DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, false);   // opaque
-					  }
 
 					  glDepthMask(GL_TRUE);
 					  glDisable(GL_BLEND);
@@ -488,12 +470,6 @@ void lcScene::Draw(lcContext* Context) const
 
 		if (mHasTexture)
 		{
-			if (DrawLines && !DoFade)
-			{
-				Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-				DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true);
-			}
-
 			Context->SetMaterial(LC_MATERIAL_FAKELIT_TEXTURE_DECAL);
 			DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, false, true);
 
@@ -515,13 +491,6 @@ void lcScene::Draw(lcContext* Context) const
 					 glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
 					 DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
-
-					 if (DrawLines)
-					 {
-						 Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
-						 DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, true, true);  // translucent
-						 DrawRenderMeshes(Context, LC_MESH_TEXTURED_LINES, false, false, true); // opaque
-					 }
 
 					 glDepthMask(GL_TRUE);
 					 glDisable(GL_BLEND);
