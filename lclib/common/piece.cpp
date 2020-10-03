@@ -110,17 +110,17 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 	QLatin1String LineEnding("\r\n");
 
 	if (mStepHide != LC_STEP_MAX)
-		Stream << QLatin1String("0 !LEOCAD PIECE STEP_HIDE ") << mStepHide << LineEnding;
+		Stream << QLatin1String("0 !LPUB PIECE STEP_HIDE ") << mStepHide << LineEnding;
 
 	if (IsHidden())
-		Stream << QLatin1String("0 !LEOCAD PIECE HIDDEN") << LineEnding;
+		Stream << QLatin1String("0 !LPUB PIECE HIDDEN") << LineEnding;
 
 	if (mState & LC_PIECE_PIVOT_POINT_VALID)
 	{
 		const float* PivotMatrix = mPivotMatrix;
 		float PivotNumbers[12] = { PivotMatrix[12], -PivotMatrix[14], PivotMatrix[13], PivotMatrix[0], -PivotMatrix[8], PivotMatrix[4], -PivotMatrix[2], PivotMatrix[10], -PivotMatrix[6], PivotMatrix[1], -PivotMatrix[9], PivotMatrix[5] };
 
-		Stream << QLatin1String("0 !LEOCAD PIECE PIVOT ");
+		Stream << QLatin1String("0 !LPUB PIECE PIVOT ");
 
 		for (int NumberIdx = 0; NumberIdx < 12; NumberIdx++)
 			Stream << ' ' << lcFormatValue(PivotNumbers[NumberIdx], NumberIdx < 3 ? 4 : 6);
