@@ -119,11 +119,10 @@ public:
 	void SetClipboard(const QByteArray& Clipboard);
 	void ExportClipboard(const QByteArray& Clipboard);
 
-/*** LPub3D Mod - process fade parts ***/
-	bool HighlightStep();
-	bool FadePreviousSteps();
-	bool UseFadeColour();
-	QString FadeColour();
+/*** LPub3D Mod - true fade ***/
+	bool LPubFadeSteps();
+	bool UseLPubFadeColour();
+	QString LPubFadeColour();
 /*** LPub3D Mod end ***/
 
 	Project* mProject;
