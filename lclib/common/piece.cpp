@@ -29,6 +29,9 @@ lcPiece::lcPiece(PieceInfo* Info)
 	mStepHide = LC_STEP_MAX;
 	mGroup = nullptr;
 	mFileLine = -1;
+/*** LPub3D Mod - Selected Parts ***/
+	mLineTypeIndex = -1;
+/*** LPub3D Mod end ***/
 	mPivotMatrix = lcMatrix44Identity();
 }
 
@@ -44,6 +47,9 @@ lcPiece::lcPiece(const lcPiece& Other)
 	mStepHide = Other.mStepHide;
 	mGroup = Other.mGroup;
 	mFileLine = -1;
+/*** LPub3D Mod - Selected Parts ***/
+	mLineTypeIndex = -1;
+/*** LPub3D Mod end ***/
 
 	mPivotMatrix = Other.mPivotMatrix;
 	mState |= ( Other.mState & LC_PIECE_PIVOT_POINT_VALID );
