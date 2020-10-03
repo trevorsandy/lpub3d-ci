@@ -336,6 +336,9 @@ public:
 	void SetCameraZNear(lcCamera* Camera, float ZNear);
 	void SetCameraZFar(lcCamera* Camera, float ZFar);
 	void SetCameraName(lcCamera* Camera, const char* Name);
+/*** LPub3D Mod - Camera Globe ***/
+	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
+/*** LPub3D Mod end ***/
 
 	void ShowPropertiesDialog();
 	void ShowSelectByNameDialog();
