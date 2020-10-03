@@ -1287,7 +1287,7 @@ void lcMainWindow::GetRotStepMetaAngles()
   if (mView->mTrackButton != lcTrackButton::None)
 	{
 	  bool display = true;
-	  lcVector3 mExistingRotStep = GetRotStepMeta();
+	  QVector<float> mExistingRotStep = GetRotStepMeta();
 	  lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
 	  switch (GetActiveView()->mTrackTool)
 		{
@@ -1356,6 +1356,18 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 		  break;
 	  }
    }
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - part selection widget state ***/
+void lcMainWindow::PartSelectionWidgetLoadState(QSettings &Settings)
+{
+	mPartSelectionWidget->LoadState(Settings);
+}
+
+void lcMainWindow::PartSelectionWidgetSaveState(QSettings &Settings)
+{
+	mPartSelectionWidget->SaveState(Settings);
 }
 /*** LPub3D Mod end ***/
 
