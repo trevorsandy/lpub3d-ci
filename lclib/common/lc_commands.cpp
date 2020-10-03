@@ -556,29 +556,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms - Shift+E"),   /*** LPub3D Mod - LPub3D Menu update ***/
 		"Shift+E"
 	},
-/*** LPub3D Mod - coord format commands ***/
-	// LC_EDIT_ROTATESTEP_COORD_FORMAT
-	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Coord.Format"),
-		QT_TRANSLATE_NOOP("Menu", "Coordinate Format"),
-		QT_TRANSLATE_NOOP("Status", "3DViewer and LPub3D use different XYZ coordinates - select format"),
-		""
-	},
-	// LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW
-	{
-		QT_TRANSLATE_NOOP("Action","Edit.Ldraw.Coord.Format"),
-		QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Format"),
-		QT_TRANSLATE_NOOP("Status", "Enter rotation using LDraw XYZ coordinates - Shift+L"),
-		"Shift+L"
-	},
-	// LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD
-	{
-		 QT_TRANSLATE_NOOP("Action","Edit.Leocad.Coord.Format"),
-		 QT_TRANSLATE_NOOP("Menu", "Set LeoCAD XYZ Format"),
-		 QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates"),
-		 "Shift+D"
-	},
-/*** LPub3D Mod end ***/
 	// LC_EDIT_ACTION_INSERT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Insert"),
