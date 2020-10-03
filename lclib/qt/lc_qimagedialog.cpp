@@ -41,6 +41,10 @@ lcQImageDialog::lcQImageDialog(QWidget* Parent)
 	connect(ui->height,SIGNAL(valueChanged(int)),
 				  this,SLOT  (valueChanged(int)));
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - initialize start and end */
+	mStart = 1;
+	mEnd   = 1;
+/*** LPub3D Mod end ***/
 	ui->firstStep->setText(QString::number(mStart));
 	ui->lastStep->setText(QString::number(mEnd));
 	ui->rangeCurrent->setChecked(true);
@@ -59,23 +63,26 @@ lcQImageDialog::~lcQImageDialog()
 /*** LPub3D Mod - lpub3d image size */
 void lcQImageDialog::valueChanged(int value)
 {
-   /* original height x new width / original width = new height */
-   if (ui->aspectRatio->isChecked()){
-	  if (sender() == ui->width) {
-		disconnect(ui->height,SIGNAL(valueChanged(int)),
-						 this,SLOT  (valueChanged(int)));
-		ui->height->setValue(qRound(double(mHeight * value / mWidth)));
-		connect(ui->height,SIGNAL(valueChanged(int)),
-					  this,SLOT  (valueChanged(int)));
-	  } else
-	  if (sender() == ui->height){
-		disconnect(ui->width,SIGNAL(valueChanged(int)),
-					   this, SLOT  (valueChanged(int)));
-		ui->width->setValue(qRound(double(value * mWidth / mHeight)));
-		connect(ui->width,SIGNAL(valueChanged(int)),
-					  this,SLOT (valueChanged(int)));
-	  }
-   }
+	/* original height x new width / original width = new height */
+	if (ui->aspectRatio->isChecked()){
+		if (sender() == ui->width) {
+			disconnect(ui->height,SIGNAL(valueChanged(int)),
+					   this,SLOT  (valueChanged(int)));
+			ui->height->setValue(qRound(double(mHeight * value / mWidth)));
+			connect(ui->height,SIGNAL(valueChanged(int)),
+					this,SLOT  (valueChanged(int)));
+		}
+		else
+		{
+			if (sender() == ui->height){
+				disconnect(ui->width,SIGNAL(valueChanged(int)),
+						   this, SLOT  (valueChanged(int)));
+				ui->width->setValue(qRound(double(value * mWidth / mHeight)));
+				connect(ui->width,SIGNAL(valueChanged(int)),
+						this,SLOT (valueChanged(int)));
+			}
+		}
+	}
 }
 /*** LPub3D Mod end ***/
 
