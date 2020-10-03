@@ -39,6 +39,9 @@ void lcResetCategories(std::vector<lcLibraryCategory>& Categories, bool BuiltInL
 {
 	const char DefaultCategories[] =
 	{
+/*** LPub3D Mod - move Helper category to top ***/
+		"LPub3D Helper=^%Helper\n"
+/*** LPub3D Mod end ***/
 		"Animal=^%Animal | ^%Bone\n"
 		"Antenna=^%Antenna\n"
 		"Arch=^%Arch\n"
@@ -208,7 +211,7 @@ bool lcMatchCategory(const char* PieceName, const char* Expression)
 		}
 		else if (*p == '(')
 		{
-//			const char* Start = p;
+//          const char* Start = p;
 			int c = 0;
 
 			// Skip what's inside the parenthesis.
