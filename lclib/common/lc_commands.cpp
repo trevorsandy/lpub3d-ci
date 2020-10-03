@@ -589,15 +589,31 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_EDIT_ACTION_LIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
-		QT_TRANSLATE_NOOP("Menu", "Light"),
-		QT_TRANSLATE_NOOP("Status", "Add new omni light sources to the model"),
+		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in properties tab"), /*** LPub3D Mod - enable lights ***/
 		""
 	},
+/*** LPub3D Mod - enable lights ***/
+	// LC_EDIT_ACTION_SUNLIGHT
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
+		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in properties tab"),
+		""
+	},
+	// LC_EDIT_ACTION_AREALIGHT
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
+		QT_TRANSLATE_NOOP("Menu", "Arealight"),
+		QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in properties tab"),
+		""
+	},
+/*** LPub3D Mod end ***/
 	// LC_EDIT_ACTION_SPOTLIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
 		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new spotlights to the model"),
+		QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in properties tab"),  /*** LPub3D Mod - enable lights ***/
 		""
 	},
 	// LC_EDIT_ACTION_CAMERA
@@ -822,7 +838,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_VIEW_VIEWPOINT_HOME
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Viewpoint.Home"),
-		QT_TRANSLATE_NOOP("Menu", "&Home"),
+		QT_TRANSLATE_NOOP("Menu", "&Home"),                                        /*** LPub3D Mod - LPub3D Menu update ***/
 		QT_TRANSLATE_NOOP("Status", "View model from the default position - H"),             /*** LPub3D Mod - LPub3D Menu update ***/
 		"H"
 	},
@@ -1544,7 +1560,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.HomePage"),
 		QT_TRANSLATE_NOOP("Menu", "3DViewer &Home Page"),                                                      /*** LPub3D Mod - LPub3D Menu update ***/
-		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),  
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),
 		""
 	},
 	// LC_HELP_BUG_REPORT
@@ -1611,6 +1627,8 @@ const char* gToolNames[LC_NUM_TOOLS] =
 {
 	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),      // LC_TOOL_INSERT
 	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // LC_TOOL_LIGHT
+	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),   // LC_TOOL_SUNLIGHT  /*** LPub3D Mod - enable lights ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // LC_TOOL_AREALIGHT /*** LPub3D Mod - enable lights ***/
 	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),  // LC_TOOL_SPOTLIGHT
 	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),     // LC_TOOL_CAMERA
 	QT_TRANSLATE_NOOP("Mouse", "Select"),        // LC_TOOL_SELECT
