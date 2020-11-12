@@ -25,6 +25,7 @@ Revisions:
 - Fix - Load PLI substitute and excluded part lists on initialisation #471
 - Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
 - Fix - Rounded corners are not round but oval #473
+- Fix - Segmentation fault (core dumped) when dragging step number #466
 - Fix - Some settings do not appear to save #457
 - Fix - Treat as part substitution causes crash #478
 - HowTo - Assure LPub3D release integrity with SHA-512 #461
