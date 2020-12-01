@@ -47,9 +47,7 @@ struct lcInstructionsPageLayout;
 class Project
 {
 public:
-/*** LPub3D Mod - preview widget ***/
-	Project(bool isPreview = false);
-/*** LPub3D Mod end ***/
+	Project(bool IsPreview = false);
 	~Project();
 
 	Project(const Project&) = delete;
@@ -88,12 +86,12 @@ public:
 		return mFileName;
 	}
 /*** LPub3D Mod - set Timeline title ***/
-    void SetTimelineTitle(
-        const QString& LPubModelName,
+	void SetTimelineTitle(
+		const QString& LPubModelName,
 		const int LPubStepNumber)
 	{
-        mLPubModelName  = LPubModelName;
-        mLPubStepNumber = LPubStepNumber;
+		mLPubModelName  = LPubModelName;
+		mLPubStepNumber = LPubStepNumber;
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
@@ -142,9 +140,9 @@ public:
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline title ***/
-    QString GetLPubModelName() const
+	QString GetLPubModelName() const
 	{
-        return mLPubModelName;
+		return mLPubModelName;
 	}
 	int GetLPubStepNumber() const
 	{
@@ -182,7 +180,7 @@ public:
 	void ShowModelListDialog();
 
 /*** LPub3D Mod - preview widget ***/
-    bool Load(const QString& LoadFileName, const QString& StepKey, int Type);
+	bool Load(const QString& LoadFileName, const QString& StepKey, int Type);
 /*** LPub3D Mod end ***/
 	bool Load(const QString& FileName);
 	bool Save(const QString& FileName);
@@ -208,6 +206,7 @@ protected:
 	std::vector<lcModelPartsEntry> GetModelParts();
 //	void SetFileName(const QString& FileName);   /*** LPub3D Mod - viewer interface (moved to public) ***/
 
+	bool mIsPreview;
 	bool mModified;
 	QString mFileName;
 	QFileSystemWatcher mFileWatcher;
@@ -226,11 +225,8 @@ protected:
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline title ***/
-    QString mLPubModelName;
+	QString mLPubModelName;
 	int mLPubStepNumber;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
-	bool mIsPreview;
 /*** LPub3D Mod end ***/
 };
 
