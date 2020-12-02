@@ -714,17 +714,17 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 
 	lcQGLWidget* ViewWidget = new lcQGLWidget(nullptr, Preview);
 
-    if (Preview && ViewWidget)
-    {
-        ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-        if (!Preview->SetCurrentPiece(Info->mFileName, ColorCode))
-            QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
-        ViewWidget->SetPreviewPosition(rect());
-    }
-    else
-    {
-        QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
-    }
+	if (Preview && ViewWidget)
+	{
+		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+		if (!Preview->SetCurrentPiece(Info->mFileName, ColorCode))
+			QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
+		ViewWidget->SetPreviewPosition(rect());
+	}
+	else
+	{
+		QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
+	}
 }
 
 lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
