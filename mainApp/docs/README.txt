@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Add shortcut to Zoom Extents - Shift+X #470
 - Enhancement - Append page options #491
+- Enhancement - Bill of materials options #492
 - Enhancement - Configurable Theme colors #490
 - Enhancement - Do not save fade steps and/or highlight step final model step #483
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
