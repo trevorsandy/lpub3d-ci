@@ -139,6 +139,7 @@ public:
 
 	bool LoadPrimitive(lcLibraryPrimitive* Primitive);
 
+	bool SupportsStudLogo() const;
 	void SetStudLogo(int StudLogo, bool Reload);
 
 	int GetStudLogo() const
@@ -211,3 +212,4 @@ protected:
 	bool mHasUnofficial;
 	bool mCancelLoading;
 };
+
