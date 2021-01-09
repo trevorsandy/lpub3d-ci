@@ -5,7 +5,7 @@
 
 lcSetsDatabaseDialog::lcSetsDatabaseDialog(QWidget* Parent)
 	: QDialog(Parent),
-	ui(new Ui::lcSetsDatabaseDialog)
+    ui(new Ui::lcSetsDatabaseDialog)
 {
 	ui->setupUi(this);
 	ui->SearchEdit->installEventFilter(this);
@@ -159,7 +159,6 @@ void lcSetsDatabaseDialog::on_SearchButton_clicked()
 
 void lcSetsDatabaseDialog::DownloadFinished(lcHttpReply* Reply)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	if (Reply == mKeyListReply)
 	{
 		if (!Reply->error())
@@ -235,7 +234,6 @@ void lcSetsDatabaseDialog::DownloadFinished(lcHttpReply* Reply)
 
 		mInventoryReply = nullptr;
 	}
-#endif
 
 	Reply->deleteLater();
 }
