@@ -959,8 +959,8 @@ inline lcVector3 lcMatrix33ToEulerAngles(const lcMatrix33& RotMat)
 inline float lcMatrix44::Determinant() const
 {
 	return r[0][0] * r[1][1] * r[2][2] + r[0][1] * r[1][2] * r[2][0] +
-		   r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
-		   r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
+	       r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
+	       r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
 }
 
 inline lcMatrix44 lcMatrix44Identity()
@@ -1623,7 +1623,7 @@ inline void lcGetFrustumPlanes(const lcMatrix44& WorldView, const lcMatrix44& Pr
 	}
 }
 
-inline std::tuple<lcVector3, float> lcZoomExtents(const lcVector3& Position, const lcMatrix44& WorldView, const lcMatrix44& Projection, const lcVector3* Points, int NumPoints)
+inline std::tuple<lcVector3, float> lcZoomExtents(const lcVector3& Position, const lcMatrix44& WorldView, const lcMatrix44& Projection, const lcVector3* Points, size_t NumPoints)
 {
 	if (!NumPoints)
 		return std::make_tuple(Position, 2500.0f);
@@ -1641,7 +1641,7 @@ inline std::tuple<lcVector3, float> lcZoomExtents(const lcVector3& Position, con
 		const float ep = lcDot(Position, Plane);
 		const float fp = lcDot(Front, Plane);
 
-		for (int PointIdx = 0; PointIdx < NumPoints; PointIdx++)
+		for (size_t PointIdx = 0; PointIdx < NumPoints; PointIdx++)
 		{
 			const float u = (ep - lcDot(Points[PointIdx], Plane)) / fp;
 
@@ -1654,7 +1654,7 @@ inline std::tuple<lcVector3, float> lcZoomExtents(const lcVector3& Position, con
 
 	float FarDistance = 2500.0f;
 
-	for (int PointIdx = 0; PointIdx < NumPoints; PointIdx++)
+	for (size_t PointIdx = 0; PointIdx < NumPoints; PointIdx++)
 	{
 		const float Distance = lcDot(Points[PointIdx], Front);
 
