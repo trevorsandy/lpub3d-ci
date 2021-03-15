@@ -982,7 +982,8 @@ class PointerAttribGui : public MetaGui
 {
   Q_OBJECT
 public:
-  PointerAttribGui(PointerAttribMeta *meta,
+  PointerAttribGui(
+    PointerAttribMeta *meta,
     QGroupBox         *parent    = nullptr,
     bool               _isCallout= false);
   ~PointerAttribGui() {}
@@ -990,8 +991,10 @@ public:
   virtual void apply(QString &modelName);
 
 private:
-  bool        lineData;
+  bool        isLine;
   PointerAttribMeta *meta;
+  PointerAttribData  line;
+  PointerAttribData  border;
 
   QLineEdit   *thicknessEdit;
   QLabel      *thicknessLabel;
@@ -999,6 +1002,9 @@ private:
   QPushButton *colorButton;
   QComboBox   *lineCombo;
   QCheckBox   *hideTipBox;
+
+  bool        lineModified;
+  bool        borderModified;
 
 public slots:
   void lineChange(QString const &);

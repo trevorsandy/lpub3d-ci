@@ -1250,7 +1250,6 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
           if (ok[0] && ok[1]) {
               _value[pushed].margin[0] = argv[index + 1].toFloat(&ok[0]);
               _value[pushed].margin[1] = argv[index + 2].toFloat(&ok[1]);
-              index += 3;
             } else {
               rc = FailureRc;
             }
@@ -1327,8 +1326,10 @@ QString BorderMeta::text()
 
 Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 {
-    QRegExp rx("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
-    bool isValid = argv[index-1].contains(rx);
+    QRegExp rx("^(GLOBAL|LOCAL)$");
+    int adjust = argv[index-1].contains(rx) ? 2 : 1;
+    rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
+    bool isValid = argv[index-(adjust)].contains(rx);
 
 //debug - capture line contents
 //#ifdef QT_DEBUG_MODE
@@ -1354,7 +1355,6 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
         isValid = false;
 
     if (isValid && argv.size() - index >= (isLine ? 6 : 5)) {
-
         bool ok[4];
         argv[index+1].toInt(&ok[0]);          // line type
         argv[index+3].toFloat(&ok[1]);        // thickness
@@ -1363,7 +1363,11 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
         if (isLine)
             id = argv[index+5].toInt(&ok[3]); // if line id
 
-        if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true) && id > 0) {
+        if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true) && (id > 0 || global)) {
+            if (global) {
+                setValueInches(parseAttributes(argv,here));
+                return OkRc;
+            }
             if (argv[index-2] == "CALLOUT") {
                 if (argv[index-1] == "POINTER_ATTRIBUTE")
                     rc = CalloutPointerAttribRc;
@@ -1383,13 +1387,66 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
             }
             _here[pushed] = here;
         }
-        if (id == 0)
+        if (id == 0 && !global)
         {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
           rc = FailureRc;
         }
     }
     return rc;
+}
+
+PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Where &here)
+{
+  QRegExp rx("^(LINE|BORDER)$");
+  int index = argv.indexOf(rx);
+
+//    #ifdef QT_DEBUG_MODE
+//    QStringList debugLine;
+//    for(int i=0;i<argv.size();i++){
+//        debugLine << argv[i];
+//        int size = argv.size();
+//        int incr = i;
+//        int result = size - incr;
+//        qDebug() << QString("ATTRIBUTES LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+//                    .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
+//    }
+//    logTrace() << "\n[PARSE ATTRIBUTES LINE ARGV]:" << debugLine.join(" ");
+//    logDebug() << "\n[ATTRIBUTES LINE] - argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2]
+//                  ;
+//    #endif
+
+      bool isLine = argv[index] == "LINE";
+      _result = _value[pushed];
+
+      if (isLine) {
+         _result.attribType            = PointerAttribData::Line;
+
+         _result.lineData.line         = setBorderLine(argv[index+1]);
+         _result.lineData.color        = argv[index+2];
+         _result.lineData.thickness    = argv[index+3].toFloat();
+         _result.lineData.hideArrows   = argv[index+4].toInt();        // used to show/hide arrow tip
+         _result.lineData.useDefault   = false;
+         _result.lineHere.modelName    = here.modelName;
+         _result.lineHere.lineNumber   = here.lineNumber;
+      } else
+        if (argv[index] == "BORDER") {
+         _result.attribType            = PointerAttribData::Border;
+
+         _result.borderData.line       = setBorderLine(argv[index+1]);
+         _result.borderData.color      = argv[index+2];
+         _result.borderData.thickness  = argv[index+3].toFloat();
+         _result.borderData.useDefault = false;
+         _result.borderHere.modelName  = here.modelName;
+         _result.borderHere.lineNumber = here.lineNumber;
+      }
+      rx.setPattern("^(GLOBAL|LOCAL)$");
+      bool adjust     = argv[index-1].contains(rx);
+      bool noParent   = argv[index-(adjust ? 3 : 2)] == "CALLOUT" || argv[index-(adjust ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
+      _result.id      = argv[isLine ? index+5 : index+4].toInt();
+      _result.parent  = noParent ? QString() : argv[isLine ? index+6 : index+5];
+
+      return _result;
 }
 
 QString PointerAttribMeta::format(bool local, bool global)

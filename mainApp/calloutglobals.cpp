@@ -214,6 +214,34 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   childtab->addTab(widget,"Assembly");
 
   /*
+   * Pointer Tab
+   */
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Border");
+  vlayout->addWidget(box);
+  PointerAttribData pad = calloutMeta->pointerAttrib.value();
+  pad.attribType = PointerAttribData::Border;
+  calloutMeta->pointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,box,true/*callout*/);
+  data->children.append(child);
+
+  box = new QGroupBox("Line");
+  vlayout->addWidget(box);
+  pad.attribType = PointerAttribData::Line;
+  calloutMeta->pointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,box,true/*callout*/);
+  data->children.append(child);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Pointer");
+
+  /*
    * Submodel colors
    */
   widget = new QWidget();
