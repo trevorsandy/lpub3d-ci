@@ -457,7 +457,7 @@ BuildRequires:  pkgconfig(xxf86vm)
  LeoCAD© 2020 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2020 Trevor SANDY
+ © 2015-2021 Trevor SANDY
 
 # workaround from fc27 onwards build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
 %if 0%{?fedora_version}>=27
