@@ -160,6 +160,10 @@ public:
 	void ShowModelListDialog();
 
 /*** LPub3D Mod - preview widget ***/
+	bool GetIsPreview()
+	{
+		return mIsPreview;
+	}
 	bool Load(const QString& LoadFileName, const QString& StepKey, int Type);
 /*** LPub3D Mod end ***/
 	bool Load(const QString& FileName);
@@ -173,12 +177,12 @@ public:
 	bool ExportModel(const QString& FileName, lcModel* Model) const;
 	bool Export3DStudio(const QString& FileName);
 /*** LPub3D Mod - export ***/
-    bool ExportBrickLink();
+	bool ExportBrickLink();
 /*** LPub3D Mod end ***/
 	bool ExportCOLLADA(const QString& FileName);
 /*** LPub3D Mod - export ***/
-    bool ExportCSV();
-    bool ExportHTML(const lcHTMLExportOptions& Options);
+	bool ExportCSV();
+	bool ExportHTML(const lcHTMLExportOptions& Options);
 /*** LPub3D Mod end ***/
 	bool ExportPOVRay(const QString& FileName);
 	bool ExportWavefront(const QString& FileName);
