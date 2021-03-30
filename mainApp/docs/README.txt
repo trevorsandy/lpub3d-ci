@@ -13,6 +13,27 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+--------------------------------------------------------------------------------------------------
+
+- Enhancement - Global setting for callout pointer (and page pointer) border #510
+- Submodel image does not show at first step of Step Group #512
+
+
+LPub3D 2.4.0.1.2220 (03 10 2020 22:44:10)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
 - Enhancement - Add shortcut to Zoom Extents - Shift+X #470
 - Enhancement - Append page options #491
 - Enhancement - Bill of materials options #492
