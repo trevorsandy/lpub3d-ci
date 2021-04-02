@@ -1321,7 +1321,7 @@ bool Project::ExportBrickLink()
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
-        return false;
+		return false;
 /*** LPub3D Mod end ***/
 	}
 
@@ -1329,9 +1329,9 @@ bool Project::ExportBrickLink()
 
 	if (SaveFileName.isEmpty())
 /*** LPub3D Mod - export ***/
-        return false;
+		return false;
 
-    return lcExportBrickLink(SaveFileName, PartsList);
+	return lcExportBrickLink(SaveFileName, PartsList);
 /*** LPub3D Mod end ***/
 }
 
@@ -1625,10 +1625,10 @@ bool Project::ExportCSV()
 	if (PartsList.empty())
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
-        QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
-        return false;
+		return false;
 /*** LPub3D Mod end ***/
 	}
 
@@ -1636,7 +1636,7 @@ bool Project::ExportCSV()
 
 	if (SaveFileName.isEmpty())
 /*** LPub3D Mod - export ***/
-        return false;
+		return false;
 /*** LPub3D Mod end ***/
 
 	lcDiskFile CSVFile(SaveFileName);
@@ -1648,7 +1648,7 @@ bool Project::ExportCSV()
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
-        return false;
+		return false;
 /*** LPub3D Mod end ***/
 	}
 
@@ -1665,7 +1665,7 @@ bool Project::ExportCSV()
 		}
 	}
 /*** LPub3D Mod - export ***/
-    return true;
+	return true;
 /*** LPub3D Mod end ***/
 }
 
@@ -1737,7 +1737,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 			{
 				QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
-                return false;
+				return false;
 /*** LPub3D Mod end ***/
 
 			}
@@ -1773,7 +1773,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 				{
 					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
-                    return false;
+					return false;
 /*** LPub3D Mod end ***/
 				}
 
@@ -1801,7 +1801,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 				{
 					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
-                    return false;
+					return false;
 /*** LPub3D Mod end ***/
 				}
 
@@ -1837,7 +1837,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 				{
 					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
-                    return false;
+					return false;
 /*** LPub3D Mod end ***/
 				}
 
@@ -1871,7 +1871,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 		{
 			QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export HTML ***/
-            return false;
+			return false;
 /*** LPub3D Mod end ***/
 		}
 
@@ -1914,7 +1914,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 	}
 
 /*** LPub3D Mod - export ***/
-    return true;
+	return true;
 /*** LPub3D Mod end ***/
 }
 
@@ -2177,7 +2177,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
 		lcVector3 Points[8];
-		
+
 		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
 
 		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
@@ -2367,7 +2367,7 @@ void Project::SaveImage()
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-	
+
 	QString Extension = QFileInfo(Dialog.mFileName).suffix();
 
 	if (!Extension.isEmpty())
@@ -2385,7 +2385,7 @@ void Project::SaveImage()
 		lcSetProfileInt(LC_PROFILE_FADE_STEPS, false);
 /*** LPub3D Mod end ***/
 
-mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
+	mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
 
 /*** LPub3D Mod - Save FadeStep Setting ***/
 	if (saveFadeStep)
