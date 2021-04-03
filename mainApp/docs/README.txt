@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add archive parts on demand action #521
 - Enhancement - Add part list to reset page image cache #522
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 
