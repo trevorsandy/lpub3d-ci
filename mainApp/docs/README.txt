@@ -13,9 +13,10 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
-- Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Add archive parts on demand action #521
 - Enhancement - Add part list to reset page image cache #522
+- Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
+- Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
