@@ -21,6 +21,7 @@ Revisions:
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
+- Fix - Unable to generate ldraw color parts file #527
 - Fix - Using 'Remove LPub formatting' causes a crash #526
 
 --------------------------------------------------------------------------------------------------
