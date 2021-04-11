@@ -830,7 +830,7 @@ int POVRay::renderCsi(
   getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hp, pb, hd);
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=%1") .arg(povName);
+  QString f  = QString("-ExportFile=\"%1\"") .arg(povName);
   QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
@@ -861,7 +861,7 @@ int POVRay::renderCsi(
 
       QString workingDirectory = QDir::currentPath();
 
-      arguments << QDir::toNativeSeparators(ldrName);
+      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));
 
       removeEmptyStrings(arguments);
 
@@ -903,7 +903,7 @@ int POVRay::renderCsi(
           addArgument(arguments, ini, "-IniFile", 0, parmsArgs.size());
         }
 
-      arguments << QDir::toNativeSeparators(ldrName);
+      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));;
 
       removeEmptyStrings(arguments);
 
@@ -1190,7 +1190,7 @@ int POVRay::renderPli(
   getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hp, pb, hd);
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+  QString f  = QString("-ExportFile=\"%1\"") .arg(povName);  // -ExportSuffix not required
   QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
@@ -1220,7 +1220,7 @@ int POVRay::renderPli(
   if (Preferences::useNativePovGenerator) {
       QString workingDirectory = QDir::currentPath();
 
-      arguments << QDir::toNativeSeparators(ldrNames.first());
+      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrNames.first()));
 
       removeEmptyStrings(arguments);
 
@@ -1259,7 +1259,7 @@ int POVRay::renderPli(
           addArgument(arguments, ini, "-IniFile", 0, parmsArgs.size());
         }
 
-      arguments << QDir::toNativeSeparators(ldrNames.first());
+      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrNames.first()));
 
       removeEmptyStrings(arguments);
 
