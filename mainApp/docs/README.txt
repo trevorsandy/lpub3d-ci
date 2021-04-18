@@ -22,6 +22,7 @@ Revisions:
 - Change - Viewport divider reset on page load #534
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520
+- Fix - Build Modification - page count for multi-step page with submodel #520
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
