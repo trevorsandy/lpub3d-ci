@@ -20,6 +20,7 @@ Revisions:
 - Enhancement - Parametric and manually resizeable pointer tip #528
 - Change - Rotate icon display pointer tip default restored to enabled #528
 - Change - Viewport divider reset on page load #534
+- Fix - Build Modification - multi-step page with submodel invalid assembly #520
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
