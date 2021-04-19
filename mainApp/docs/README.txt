@@ -25,6 +25,7 @@ Revisions:
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 - Fix - POV-Ray render issue when directory name contains a space #525
 - Fix - Unable to generate ldraw color parts file #527
+- Fix - Updating rotate icon in a callout adds the command to the parent #532
 - Fix - Using 'Remove LPub formatting' causes a crash #526
 
 --------------------------------------------------------------------------------------------------
