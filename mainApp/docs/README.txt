@@ -23,6 +23,7 @@ Revisions:
 - Change - Rotate icon display pointer tip default restored to enabled #528
 - Change - Viewport divider reset on page load #534
 - Change - Visual editor not loading multi-step page last step or callout CSI #536
+- Fix - Abnormal end when deleting lines in the LDraw Editor #530
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520
 - Fix - Build Modification - page count for multi-step page with submodel #520
