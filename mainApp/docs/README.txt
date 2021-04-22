@@ -36,6 +36,7 @@ Revisions:
 - Fix - Unable to generate ldraw color parts file #527
 - Fix - Updating rotate icon in a callout adds the command to the parent #532
 - Fix - Using 'Remove LPub formatting' causes a crash #526
+- Fix - Wrong instance count in sub submodels #537
 
 --------------------------------------------------------------------------------------------------
 
