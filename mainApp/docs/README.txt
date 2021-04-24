@@ -34,6 +34,7 @@ Revisions:
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 - Fix - POV-Ray render issue when directory name contains a space #525
+- Fix - Selecting substitute part in PLI for a custom part causes LPub3D to crash #538
 - Fix - Treat (partially) selection error when marking a line in the command editor #515
 - Fix - Unable to generate ldraw color parts file #527
 - Fix - Updating rotate icon in a callout adds the command to the parent #532
