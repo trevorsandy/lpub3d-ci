@@ -17,6 +17,7 @@ Revisions:
 - Enhancement - Add part list to reset page image cache #522
 - Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
 - Enhancement - Auto update Open With Programs #420
+- Enhancement - Download and install 3rd party renderers on demand #541
 - Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Parametric and manually resizeable pointer tip #528
 - Enhancement - Parse single step NOSTEP command #535
