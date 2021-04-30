@@ -37,6 +37,7 @@ Revisions:
 - Fix - Build modification - recursively get submodel indexes #520
 - Fix - Build modification - remove forward build mods after jump ahead #520
 - Fix - Build Modification - submodel preview display at first step-group step #520
+- Fix - Click and drag MULTI_STEP doesn't persist #544
 - Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global callout pointer tip size settings don't have an effect #543
