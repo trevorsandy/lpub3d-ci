@@ -1,5 +1,5 @@
 # If there is no version tag in git this one will be used
-VERSION = 2.4.3
+VERSION = 2.4.2
 
 # Need to discard STDERR so get path to NULL device
 win32 {
@@ -38,7 +38,7 @@ equals(GIT_DIR, undefined) {
 
     # Check if we do not have a valid version number (i.e. no version tag found)
     isEmpty(GIT_VERSION) {
-        GIT_REVISION = 2
+        GIT_REVISION = 105
         GIT_COMMIT_SHA = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
         GIT_COMMIT_COUNT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION = v$${VERSION}-$${GIT_REVISION}-$${GIT_COMMIT_SHA}
@@ -54,7 +54,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT_COUNT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT_COUNT) {
-            GIT_COMMIT_COUNT = 2768
+            GIT_COMMIT_COUNT = 2767
             message("~~~ ERROR! GIT_COMMIT_COUNT NOT DEFINED, USING $$GIT_COMMIT_COUNT ~~~")
         }
 
@@ -100,7 +100,7 @@ equals(USE_GIT_VER_FILE, true) {
         GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
     } else {
         message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}.2.2768.d04bf50b
+        GIT_VERSION = $${VERSION}.105.2767.4dc6b170
         message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
         GIT_VERSION ~= s/\./" "
     }
