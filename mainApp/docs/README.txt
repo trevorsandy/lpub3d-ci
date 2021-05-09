@@ -43,6 +43,7 @@ Revisions:
 - Fix - Crash on add search directory #540
 - Fix - Crash when adding pointers to callouts #550
 - Fix - Disable automatic insertion of page/model #517
+- Fix - Do not add PARSE_NOSTEP parts to PLI #535
 - Fix - Erroneous fade/highlight step meta command ignored message #505
 - Fix - Global callout pointer tip size settings don't have an effect #543
 - Fix - Global setting for callout pointer generating line instead of border meta #510
