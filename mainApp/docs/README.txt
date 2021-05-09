@@ -47,6 +47,7 @@ Revisions:
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
+- Fix - Parsing instance count lines with meta pointer changes meta values #547
 - Fix - POV-Ray render issue when directory name contains a space #525
 - Fix - Rewrite submodel preview update for build modifications #512
 - Fix - Selecting substitute part in PLI for a custom part causes LPub3D to crash #538
