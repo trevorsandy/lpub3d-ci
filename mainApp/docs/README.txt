@@ -40,6 +40,7 @@ Revisions:
 - Fix - Build Modification - submodel preview display at first step-group step #520
 - Fix - Click and drag MULTI_STEP doesn't persist #544
 - Fix - Crash on add search directory #540
+- Fix - Crash when adding pointers to callouts #550
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global callout pointer tip size settings don't have an effect #543
 - Fix - Global setting for callout pointer generating line instead of border meta #510
