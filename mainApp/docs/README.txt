@@ -42,6 +42,7 @@ Revisions:
 - Fix - Build Modification - submodel preview display at first step-group step #520
 - Fix - Click and drag MULTI_STEP doesn't persist #544
 - Fix - Crash on add search directory #540
+- Fix - Crash on fade previous steps or highlight step preference accept #551
 - Fix - Crash when adding pointers to callouts #550
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Do not add PARSE_NOSTEP parts to PLI #535
