@@ -23,6 +23,7 @@ Revisions:
 - Enhancement - Parametric and manually resizeable pointer tip #528
 - Enhancement - Parse single step NOSTEP command #535
 - Change - Enable instance count on manual override #298
+- Change - Reset fade /highlight step and preferred renderer on file close #505
 - Change - Rotate icon display pointer tip default restored to enabled #528
 - Change - Using the redraw button iterates through every page #546
 - Change - Viewport divider reset on page load #534
