@@ -13,7 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
-- Enhancement - Add archive parts on demand action #521
+- Fix - Treat single step NOSTEP page displayed #535 
 
 --------------------------------------------------------------------------------------------------
 
