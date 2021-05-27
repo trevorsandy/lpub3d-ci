@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Change - No Prompt Using the Command Line Option #554
 - Fix - Treat single step NOSTEP page displayed #535 
 
 --------------------------------------------------------------------------------------------------
