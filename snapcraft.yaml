@@ -56,7 +56,7 @@ parts:
     after: [ldraw-libraries]
     plugin: nil
     source: https://github.com/trevorsandy/lpub3d-ci.git
-    source-commit: df1094fa32f2e93b9d65376c0173fc498c2656ae
+    source-commit: 2c420a5a7d2a0de120b7ea4714f6df58de8dd476
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
