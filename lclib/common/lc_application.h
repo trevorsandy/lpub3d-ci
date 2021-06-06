@@ -217,7 +217,7 @@ class lcApplication : public QObject
 
 public:
 /*** LPub3D Mod - initialization - move arguments to LP3D Application ***/
-    lcApplication(const lcCommandLineOptions *Options);
+	lcApplication(const lcCommandLineOptions *Options);
 /*** LPub3D Mod end ***/
 	~lcApplication();
 
@@ -245,7 +245,7 @@ public:
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - global options ***/
-    lcCommandLineOptions mOptions;
+	lcCommandLineOptions mOptions;
 /*** LPub3D Mod end ***/
 	Project* mProject = nullptr;
 	lcPiecesLibrary* mLibrary = nullptr;
