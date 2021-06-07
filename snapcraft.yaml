@@ -56,7 +56,7 @@ parts:
     after: [ldraw-libraries]
     plugin: nil
     source: https://github.com/trevorsandy/lpub3d-ci.git
-    source-commit: 705c642a250e14cb9e0b735eaef018b562556d17
+    source-commit: cf61991fb7b95ec0a3e303403796c40958e07b5b
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
@@ -182,6 +182,7 @@ parts:
       - SOURCE_DIR: ${SNAPCRAFT_STAGE}/build_staging/lpub3d
       - LPUB3D_DEST: ${SNAPCRAFT_PRIME}/usr
       - LP3D_BUILD_OS: snap
+      - LP3D_CHECK_LDD: true
     build-packages: [xvfb]
     override-prime:
       cd ${SNAPCRAFT_STAGE}/build_staging/lpub3d && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
