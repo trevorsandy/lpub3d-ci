@@ -1,4 +1,4 @@
-LPub3D 2.4.3.43.2830 (07 06 2021 15:38:48)
+LPub3D 2.4.3.49.2836 (08 06 2021 23:25:09)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,7 +14,8 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Change - No Prompt Using the Command Line Option #554
-- Fix - Treat single step NOSTEP page displayed #535 
+- Fix - Command Line Option Cannot Change Export Directory when Exporting PNG Files #555
+- Fix - Treat single step NOSTEP page displayed #535
 
 --------------------------------------------------------------------------------------------------
 
