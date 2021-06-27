@@ -319,6 +319,11 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 	if (ShowModel)
 	{
 		SetActiveModel(mModels.GetSize() - 1);
+
+		lcView* ActiveView = gMainWindow ? gMainWindow->GetActiveView() : nullptr;
+		if (ActiveView)
+			ActiveView->GetCamera()->SetViewpoint(lcViewpoint::Home);
+
 		gMainWindow->UpdateTitle();
 	}
 	else
@@ -548,7 +553,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	else
 	{
 		if (ShowErrors)
-	   		QMessageBox::critical(parent, tr("Error"), tr("Error accessing model data - no valid input"));
+			QMessageBox::critical(parent, tr("Error"), tr("Error accessing model data - no valid input"));
 	}
 
 	mModels.DeleteAll();
