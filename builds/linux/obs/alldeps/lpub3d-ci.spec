@@ -1,7 +1,7 @@
 #
 # spec file for package lpub3d
 #
-# Last Update: July 23, 2020
+# Last Update: May 18, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -169,6 +169,11 @@ BuildRequires: libjpeg-turbo-devel
 %if 0%{?fedora}
 BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
 BuildRequires: qt5-linguist, SDL2-devel
+%if 0%{?fedora_version}>30
+BuildRequires: autoconf >= 2.69
+BuildRequires: automake
+BuildRequires: libXext-devel
+%endif
 %if 0%{?buildservice}
 BuildRequires: samba4-libs
 %if 0%{?fedora_version}==23
@@ -184,9 +189,6 @@ BuildRequires: openssl-devel, storaged
 %endif
 %if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
 %define build_osmesa 1
-%endif
-%if 0%{?fedora_version}>30
-BuildRequires: libXext-devel
 %endif
 %endif
 %endif
