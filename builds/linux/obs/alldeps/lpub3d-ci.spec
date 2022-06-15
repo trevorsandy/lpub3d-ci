@@ -1,7 +1,7 @@
 #
 # spec file for package lpub3d
 #
-# Last Update: Jun 12, 2022
+# Last Update: Jun 15, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -33,7 +33,7 @@
 # set target platform id
 # distinguish between SLE, openSUSE Leap and openSUSE
 # SUSE Linux Enterprise Server
-%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150000 && !0%{?is_opensuse})
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150400 && !0%{?is_opensuse})
 %define dist .SLE%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
@@ -43,7 +43,7 @@
 %define build_sdl2 1
 %else
 # openSUSE Leap
-%if (0%{?sle_version}>=120100 && 0%{?sle_version}<=150000 && 0%{?is_opensuse})
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150400 && 0%{?is_opensuse})
 %define dist .openSUSELeap%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo openSUSE Leap)
 %define suse_dist_label %(echo %{suse_dist_name}..................%{sle_version})
@@ -101,11 +101,11 @@ Group: Productivity/Graphics/Viewers
 Group: Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora}
+%if 0%{?centos_version} || 0%{?fedora_version}
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?centos_version} || 0%{?fedora_version} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
 License: GPLv2+
 %endif
 
@@ -122,7 +122,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d-ci
 Icon: lpub3d.xpm
-Version: 2.4.4.2904
+Version: 2.4.4.2906
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -137,14 +137,15 @@ Source10: lpub3d-ci-rpmlintrc
 BuildRequires: cmake
 %endif
 
-%if 0%{?fedora} || 0%{?centos_version} >= 700 || 0%{?openeuler_version}
+%if 0%{?fedora_version} || 0%{?centos_version} >= 700 || 0%{?openeuler_version}
 BuildRequires: qt5-qtbase-devel
-#BuildRequires: qt5-qttools-devel
-#BuildRequires: qt5-linguist
+%if 0%{?fedora_version} == 36
+BuildRequires: util-linux
+%endif
 %endif
 
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
-%if 0%{?fedora} || 0%{?openeuler_version} || 0%{?centos_version} == 800
+%if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?fedora_version} || 0%{?openeuler_version} || 0%{?centos_version} == 800
 BuildRequires: hostname
 %endif
 %if (!0%{?rhel_version} && 0%{?centos_version}!=800)
@@ -181,7 +182,7 @@ BuildRequires: libXext-devel
 %define build_gl2ps 1
 %endif
 
-%if 0%{?fedora}
+%if 0%{?fedora_version}
 BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
 BuildRequires: qt5-linguist, SDL2-devel
 %if 0%{?fedora_version}>30
@@ -208,8 +209,7 @@ BuildRequires: openssl-devel, storaged
 %endif
 %endif
 
-%if 0%{?suse_version}
-# Requires(pre): gconf2
+%if 0%{?suse_version} || 0%{?sle_version}
 %if (0%{?sle_version}!=150000)
 BuildRequires: freeglut-devel
 %endif
@@ -218,7 +218,7 @@ BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200 && 0%{?sle_version}!=150300)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200 && 0%{?sle_version}!=150300 && 0%{?sle_version}!=150400)
 BuildRequires: gl2ps-devel
 %else
 %define build_gl2ps 1
@@ -344,7 +344,7 @@ BuildRequires:  gcc-c++
 BuildRequires:  imake
 BuildRequires:  libtool
 BuildRequires:  pkgconfig
-%if 0%{?fedora} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires:  python
 BuildRequires:  python-libs
 BuildRequires:  pkgconfig(libdrm)
@@ -380,7 +380,7 @@ BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xxf86vm)
 BuildRequires:  pkgconfig(zlib)
 %ifarch x86_64 %ix86
-%if 0%{?fedora} || 0%{?rhel_version}
+%if 0%{?fedora_version} || 0%{?rhel_version}
 BuildRequires:  elfutils
 BuildRequires:  elfutils-libelf-devel
 BuildRequires:  libdrm-devel
@@ -413,11 +413,13 @@ BuildRequires:  ncurses-devel
 BuildRequires:  cmake
 BuildRequires:  dos2unix
 BuildRequires:  gcc-c++
+%if !0%{?rhel_version} == 800
 BuildRequires:  nasm
+%endif
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(alsa) >= 0.9.0
 BuildRequires:  pkgconfig(dbus-1)
-%if 0%{?fedora}
+%if 0%{?fedora_version}
 BuildRequires:  pkgconfig(fcitx)
 %endif
 %if !0%{?rhel_version} == 600
@@ -580,7 +582,7 @@ export PLATFORM_PRETTY_OBS="CentOS"
 export PLATFORM_VER_OBS=%{centos_version}
 export PLATFORM_CODE="cos"
 %endif
-%if 0%{?fedora}
+%if 0%{?fedora_version}
 export PLATFORM_PRETTY_OBS="Fedora"
 export PLATFORM_VER_OBS=%{fedora_version}
 export PLATFORM_CODE="fc"
@@ -765,5 +767,5 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sun Jun 12 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.2904
+* Wed Jun 15 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.2906
 - LPub3D Linux package (rpm) release

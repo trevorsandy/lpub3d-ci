@@ -249,7 +249,7 @@ contains(LOAD_LDVLIBS,True) {
         GL2PS_SRC        = $$system_path( $${LDVLIBDIR}/libgl2ps.a )
         TINYXML_SRC      = $$system_path( $${LDVLIBDIR}/libtinyxml.a )
         3DS_SRC          = $$system_path( $${LDVLIBDIR}/lib3ds.a )
-        PNG_SRC          = $$system_path( $${LDVLIBDIR}/libpng.a )
+        PNG_SRC          = $$system_path( $${LDVLIBDIR}/libpng16.a )
         JPEG_SRC         = $$system_path( $${LDVLIBDIR}/libjpeg.a )
         MINIZIP_SRC      =
     }
