@@ -13,6 +13,25 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Fix - Invalid appstream file #589
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.4.5.2906 (15 06 2022 04:41:52)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
 - Change - No Prompt Using the Command Line Option #554
 - Fix - Command Line Option Cannot Change Export Directory when Exporting PNG Files #555
 - Fix - Treat single step NOSTEP page displayed #535
