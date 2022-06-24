@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Change - Load model editor at cover page #593
 - Change - TENTE parts outdated #583
 - Fix - Invalid appstream file #589
 - Fix - Update build from source scripts #585
