@@ -1,4 +1,4 @@
-LPub3D 2.4.4.5.2906 (15 06 2022 04:41:52)
+LPub3D 2.4.4.8.2909 (24 06 2022 11:23:19)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Change - TENTE parts outdated #583
 - Fix - Invalid appstream file #589
+- Fix - Update build from source scripts #585
 
 --------------------------------------------------------------------------------------------------
 
