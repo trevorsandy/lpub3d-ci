@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add load visual editor at cover page to project setup #593
 - Enhancement - Load visual editor at cover page #593
 - Change - Load model editor at cover page #593
 - Change - TENTE parts outdated #583
