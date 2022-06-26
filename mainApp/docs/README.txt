@@ -16,7 +16,8 @@ Revisions:
 - Enhancement - Add load visual editor at cover page to project setup #593
 - Enhancement - Load visual editor at cover page #593
 - Change - Load model editor at cover page #593
-- Change - TENTE parts outdated #583
+- Change - TENTE parts outdated #
+- Fix - Error occurred while downloading archive library #568
 - Fix - Invalid appstream file #589
 - Fix - LPub3D plug, logo and other auto text features #594
 - Fix - Preferences default url not being saved #587
