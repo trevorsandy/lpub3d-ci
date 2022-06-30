@@ -12,6 +12,7 @@ GIT_DIR = undefined
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
+    message("~~~ GIT_DIR FOUND AT $$GIT_DIR ~~~")
 }
 
 # enable to Test
