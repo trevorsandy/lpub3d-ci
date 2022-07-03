@@ -21,6 +21,7 @@ Revisions:
 - Fix - BUILD_MOD in Multipart model not working as expected #591
 - Fix - Error occurred while downloading archive library #568
 - Fix - Generating PDF crashes LPub on a certain page #557
+- Fix - Inconsistent page count on completion of export #596
 - Fix - Invalid appstream file #589
 - Fix - LPub3D plug, logo and other auto text features #594
 - Fix - Messed up and weird rendering #518
