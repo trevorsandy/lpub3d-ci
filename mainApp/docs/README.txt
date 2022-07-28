@@ -16,6 +16,7 @@ Revisions:
 
 - Enhancement - Add load unofficial parts in command editor to project setup #591
 - Enhancement - Add load visual editor at cover page to project setup #593
+- Enhancement - Improve performance - enable CLI, PLI and SMP multi-thread execution #598
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - Refactor file loading parse and add inline file load #591
 - Enhancement - View visual editor render preferences in main menu preferences #597
