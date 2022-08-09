@@ -19,6 +19,7 @@ Revisions:
 - Enhancement - Improve performance - enable CLI, PLI and SMP multi-thread execution #598
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - Refactor file loading parse and add inline file load #591
+- Enhancement - Update substitute preview feature #441
 - Enhancement - View visual editor render preferences in main menu preferences #597
 - Change - Failed to resolve google drive file at path #561
 - Change - Load model editor at cover page #593
