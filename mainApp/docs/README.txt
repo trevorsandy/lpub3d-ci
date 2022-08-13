@@ -24,7 +24,8 @@ Revisions:
 - Enhancement - View visual editor render preferences in main menu preferences #597
 - Change - Failed to resolve google drive file at path #561
 - Change - Load model editor at cover page #593
-- Change - TENTE parts outdated #
+- Change - TENTE parts outdated #583
+- Development - Convert command editor to QPlainTextEdit #601
 - Fix - Build mods don't work properly #520
 - Fix - BUILD_MOD in Multipart model not working as expected #591
 - Fix - Error occurred while downloading archive library #568
