@@ -41,6 +41,7 @@ Revisions:
 - Fix - Messed up and weird rendering #518
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
+- Fix - Remove Group meta doesn't work #569
 - Fix - Update build from source scripts #585
 
 --------------------------------------------------------------------------------------------------
