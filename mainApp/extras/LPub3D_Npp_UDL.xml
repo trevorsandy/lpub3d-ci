@@ -15,7 +15,7 @@
 ;; Author......: Trevor SANDY
 ;; Name........: LPub3D_Npp_UDL.xml
 ;; Version.....: 2.4.4.3037
-;; Last Update.: August 29, 2022
+;; Last Update.: September 22, 2022
 ;; License.....: GPLv3
 ;; Homepage....: https://trevorsandy.github.io/lpub3d
 ;; Copyright (C) 2021 - 2022 by Trevor SANDY
@@ -34,7 +34,7 @@
             <Keywords name="Numbers, extras1">A B C D E F a b c d e f</Keywords>
             <Keywords name="Numbers, extras2"></Keywords>
             <Keywords name="Numbers, suffix1"></Keywords>
-            <Keywords name="Numbers, suffix2">, .dat</Keywords>
+            <Keywords name="Numbers, suffix2">,</Keywords>
             <Keywords name="Numbers, range">-</Keywords>
             <Keywords name="Operators1"></Keywords>
             <Keywords name="Operators2"></Keywords>
