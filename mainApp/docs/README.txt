@@ -45,6 +45,7 @@ Revisions:
 - Fix - Preferences default url not being saved #587
 - Fix - Remove Group meta doesn't work #569
 - Fix - Update build from source scripts #585
+- Issue - Submodel preview image is empty for some submodels #558
 
 --------------------------------------------------------------------------------------------------
 
