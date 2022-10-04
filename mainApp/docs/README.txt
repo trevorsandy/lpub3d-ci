@@ -19,7 +19,8 @@ Revisions:
 - Enhancement - Improve performance - enable CLI, PLI and SMP multi-thread execution #598
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - LPub command editor snippet system #602
-- Enhancement - Manage shortcuts #603
+- Enhancement - Manage context menu actions #606
+- Enhancement - Manage keyboard shortcuts #603
 - Enhancement - Refactor file loading parse and add inline file load #591
 - Enhancement - Remove LPub formatting at submodel, page, and step #604
 - Enhancement - Set default system text editor at start-up #599
