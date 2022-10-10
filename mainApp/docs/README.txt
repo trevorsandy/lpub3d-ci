@@ -45,6 +45,7 @@ Revisions:
 - Fix - Messed up and weird rendering #518
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
+- Fix - Projection in visual editor keeps resetting to perspective #607
 - Fix - Remove Group meta doesn't work #569
 - Fix - Render projection not orthographic #608
 - Fix - ROTATE_ICON SIZE does not change size in step group or callout #560
