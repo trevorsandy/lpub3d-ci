@@ -46,6 +46,7 @@ Revisions:
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
 - Fix - Remove Group meta doesn't work #569
+- Fix - Render projection not orthographic #608
 - Fix - ROTATE_ICON SIZE does not change size in step group or callout #560
 - Fix - Update build from source scripts #585
 - Issue - Submodel preview image is empty for some submodels #558
