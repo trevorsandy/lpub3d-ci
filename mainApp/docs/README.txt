@@ -29,6 +29,7 @@ Revisions:
 - Enhancement - Set default system text editor at start-up #599
 - Enhancement - Update substitute preview feature #441
 - Enhancement - View visual editor render preferences in main menu preferences #597
+- Change - Continuous page progress update #615
 - Change - Failed to resolve google drive file at path #561
 - Change - Load model editor at cover page #593
 - Change - Restore preview submodel from callout #271
