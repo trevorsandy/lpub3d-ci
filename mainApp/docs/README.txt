@@ -23,6 +23,7 @@ Revisions:
 - Enhancement - LPub command editor snippet system #602
 - Enhancement - Manage context menu actions #606
 - Enhancement - Manage keyboard shortcuts #603
+- Enhancement - Merge camera viewpoint and camera angles dialogs #612
 - Enhancement - Refactor file loading parse and add inline file load #591
 - Enhancement - Remove LPub formatting at submodel, page, and step #604
 - Enhancement - Set default system text editor at start-up #599
