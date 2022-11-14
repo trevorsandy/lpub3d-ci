@@ -1,7 +1,7 @@
 #
 # spec file for package lpub3d
 #
-# Last Update: August 05, 2022
+# Last Update: November 11, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -78,6 +78,9 @@
 %if 0%{?centos_version} == 800
 %define get_local_libs 1
 %endif
+
+%if 0%{?almalinux_version}
+%define local_freeglut 1
 %endif
 
 %if 0%{?fedora}
@@ -151,6 +154,14 @@ BuildRequires: hostname
 %if (!0%{?rhel_version} && 0%{?centos_version}!=800)
 BuildRequires: OpenEXR-devel
 BuildRequires: mesa-libOSMesa-devel
+%endif
+%if 0%{?local_freeglut}
+BuildRequires: mesa-libGL-devel
+BuildRequires: libXxf86vm-devel
+BuildRequires: libXrandr-devel
+BuildRequires: libXi-devel
+%else
+BuildRequires: freeglut-devel
 %endif
 BuildRequires: freeglut-devel
 BuildRequires: mesa-libGLU-devel
@@ -643,6 +654,10 @@ export get_qt5=%{get_qt5}
 %if 0%{?get_local_libs}
 echo "Get local libraries............yes"
 export get_local_libs=%{get_local_libs}
+%endif
+%if 0%{?local_freeglut}
+echo "Use local freeglut library.....yes"
+export local_freeglut=%{local_freeglut}
 %endif
 set -x
 %endif
