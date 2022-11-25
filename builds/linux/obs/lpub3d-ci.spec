@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update November 11, 2022
+# Last Update November 24, 2022
 # Copyright © 2018 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -110,6 +110,9 @@ BuildRequires: git
 %endif
 %if 0%{?fedora_version}>30
 BuildRequires: libXext-devel
+%if 0%{?fedora_version}==37
+BuildRequires: libverto-libevent
+%endif
 %endif
 %endif
 

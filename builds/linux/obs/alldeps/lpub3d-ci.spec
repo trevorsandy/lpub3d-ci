@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: November 23, 2022
+# Last Update: November 24, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -139,6 +139,9 @@ BuildRequires: cmake
 BuildRequires: qt5-qtbase-devel
 %if 0%{?fedora_version}==36
 BuildRequires: util-linux
+%endif
+%if 0%{?fedora_version}==37
+BuildRequires: libverto-libevent
 %endif
 %endif
 
