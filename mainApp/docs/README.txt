@@ -14,8 +14,9 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Change - Change reset image menu action description to refresh image #623
-- Fix - Build modification - correct navigate backward parse error #621
+- Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
 - Fix - Build modification - correct jump forward parse error #622
+- Fix - Build modification - correct navigate backward parse error #621
 - Fix - Configuration preferences dialog cutoff/min window size #616
 - Fix - Settings for Coverpage and Backcover do not work #620
 
