@@ -19,6 +19,7 @@ Revisions:
 - Fix - Build modification - correct jump forward parse error #622
 - Fix - Build modification - correct navigate backward parse error #621
 - Fix - Configuration preferences dialog cutoff/min window size #616
+- Fix - Open with programs menu action not enabled #629
 - Fix - Settings for Coverpage and Backcover do not work #620
 
 --------------------------------------------------------------------------------------------------
