@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Logging - update messaging and log types #634
 - Enhancement - Prompt user to archive unofficial parts #628
 - Change - Build modification - declaration and action in same STEP #633
 - Change - Change reset image menu action description to refresh image #623
