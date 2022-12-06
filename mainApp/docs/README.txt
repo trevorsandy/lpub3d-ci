@@ -30,6 +30,7 @@ Revisions:
 - Fix - Primitives shown as missing parts in file load status #630
 - Fix - Remove LPub Formatting menu action does nothing #638
 - Fix - Settings for Coverpage and Backcover do not work #620
+- Quality - Multiplication result converted to larger type #641
 
 --------------------------------------------------------------------------------------------------
 
