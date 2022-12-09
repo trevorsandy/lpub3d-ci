@@ -30,6 +30,7 @@ Revisions:
 - Fix - Export to PDF abnormal behaviour #624
 - Fix - Next Step menu actions not working as expected #637
 - Fix - Open with programs menu action not enabled #629
+- Fix - Option Add pointer missing in Call Out #647
 - Fix - Primitives shown as missing parts in file load status #630
 - Fix - Remove LPub Formatting menu action does nothing #638
 - Fix - Settings for Coverpage and Backcover do not work #620
