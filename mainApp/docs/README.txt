@@ -33,6 +33,7 @@ Revisions:
 - Fix - Build modification - unable to validate nested build mod level #642
 - Fix - Build modification - visual editor build mod actions #651
 - Fix - Configuration preferences dialog cutoff/min window size #616
+- Fix - Enable navigation actions #656
 - Fix - Export to PDF abnormal behaviour #624
 - Fix - Next Step menu actions not working as expected #637
 - Fix - Open with programs menu action not enabled #629
