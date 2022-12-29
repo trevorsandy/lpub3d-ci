@@ -41,6 +41,7 @@ Revisions:
 - Fix - Remove LPub Formatting menu action does nothing #638
 - Fix - Set Attributes to Page Pointer globally #648
 - Fix - Settings for Coverpage and Backcover do not work #620
+- Fix - Submodel preview ldr file not generated #655
 - Quality - Multiplication result converted to larger type #641
 
 --------------------------------------------------------------------------------------------------
