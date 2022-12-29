@@ -22,6 +22,7 @@ Revisions:
 - Enhancement - Prompt user to archive unofficial parts #628
 - Enhancement - Show errors and warnings on export or continuous process completion #639
 - Enhancement - Messages - add option to abort processing on error #643
+- Change - Automatically display the visual editor default camera properties #658
 - Change - Build modification - declaration and action in same STEP #633
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
