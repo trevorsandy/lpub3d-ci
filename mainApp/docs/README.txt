@@ -20,6 +20,7 @@ Revisions:
 - Enhancement - Cover page, bill of material, export and error banners #649
 - Enhancement - Logging - update messaging and log types #634
 - Enhancement - Prompt user to archive unofficial parts #628
+- Enhancement - Separate bill of material working folder from parts #659
 - Enhancement - Show errors and warnings on export or continuous process completion #639
 - Enhancement - Messages - add option to abort processing on error #643
 - Change - Automatically display the visual editor default camera properties #658
