@@ -27,6 +27,7 @@ Revisions:
 - Change - Build modification - declaration and action in same STEP #633
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
+- Change - Display clear cache message in information dialog #660
 - Change - Parse top-model INCLUDE file at model file load #631
 - Fix - Apply ROTSTEP to step-group STEP #653
 - Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
