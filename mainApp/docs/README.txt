@@ -28,6 +28,7 @@ Revisions:
 - Fix - Build modification - correct jump forward parse error #622
 - Fix - Build modification - correct navigate backward parse error #621
 - Fix - Build modification - unable to validate nested build mod level #642
+- Fix - Build modification - visual editor build mod actions #651
 - Fix - Configuration preferences dialog cutoff/min window size #616
 - Fix - Export to PDF abnormal behaviour #624
 - Fix - Next Step menu actions not working as expected #637
