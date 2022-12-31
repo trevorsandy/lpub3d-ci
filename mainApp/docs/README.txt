@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add submodels to file load status #636
+- Enhancement - Add reset viewer assembly display menu action #652
 - Enhancement - Build modifications - step-group step in the visual editor #635
 - Enhancement - Cover page, bill of material, export and error banners #649
 - Enhancement - Logging - update messaging and log types #634
