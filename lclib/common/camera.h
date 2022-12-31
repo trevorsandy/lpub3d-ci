@@ -26,6 +26,9 @@ enum class lcViewpoint
 	Left,
 	Right,
 	Home,
+/*** LPub3D Mod - Viewpoint latitude longitude ***/
+	LatLon,
+/*** LPub3D Mod end ***/
 	Count
 };
 
@@ -299,7 +302,7 @@ public:
 	void SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up);
 	void GetAngles(float& Latitude, float& Longitude, float& Distance) const;
 /*** LPub3D Mod - Camera Globe ***/
-    void SetAngles(const float& Latitude, const float& Longitude, const float& Distance);
+	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance);
 	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance, const lcVector3& Target);
 	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance, const lcVector3& Target, lcStep Step, bool AddKey);
 	float GetScale();
