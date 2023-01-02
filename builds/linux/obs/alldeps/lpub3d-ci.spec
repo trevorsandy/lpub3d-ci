@@ -1,8 +1,8 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: December 05, 2022
-# Copyright © 2017 - 2022 Trevor SANDY
+# Last Update: December 31, 2022
+# Copyright © 2017 - 2023 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
