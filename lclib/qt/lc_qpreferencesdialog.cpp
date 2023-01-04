@@ -15,6 +15,7 @@
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Common menus help ***/
+#include "lpub_object.h"
 #include "commonmenus.h"
 /*** LPub3D Mod end ***/
 
@@ -53,14 +54,14 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 	ui->InterfaceColorGroup->setWhatsThis(lpubWT(        WT_CONTROL_VISUAL_PREFERENCES_INTERFACE,ui->InterfaceColorGroup->title()));
 	ui->InterfaceGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_INTERFACE_COLOR,ui->InterfaceGroup->title()));
 	ui->KeyboardShortcutsTableGroup->setWhatsThis(lpubWT(WT_CONTROL_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS_TABLE,ui->KeyboardShortcutsTableGroup->title()));
-    ui->ModelViewGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE,ui->ModelViewGroup->title()));
+	ui->ModelViewGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE,ui->ModelViewGroup->title()));
 	ui->MouseShortcutGroup->setWhatsThis(lpubWT(         WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS,ui->MouseShortcutGroup->title()));
 	ui->MouseShortcutsTableGroup->setWhatsThis(lpubWT(   WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS_TABLE,ui->MouseShortcutsTableGroup->title()));
 	ui->MouseWidget->setWhatsThis(lpubWT(                WT_CONTROL_VISUAL_PREFERENCES_MOUSE,tr("Mouse Sensitivity")));
 	ui->ObjectsColorGroup->setWhatsThis(lpubWT(          WT_CONTROL_VISUAL_PREFERENCES_OBJECTS_COLOR,ui->ObjectsColorGroup->title()));
 	ui->PartPreviewGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_PART_PREVIEW,ui->PartPreviewGroup->title()));
 	ui->RenderingWidget->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_RENDERING,tr("Rendering")));
-    ui->SettingsWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_GENERAL_SETTINGS,tr("General Settings")));
+	ui->SettingsWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_GENERAL_SETTINGS,tr("General Settings")));
 	ui->shortcutGroup->setWhatsThis(lpubWT(              WT_CONTROL_VISUAL_PREFERENCES_SHORTCUT,ui->shortcutGroup->title()));
 	ui->TimelineWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_TIMELINE,tr("Timeline")));
 	ui->ViewSphereGroup->setWhatsThis(lpubWT(            WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE,ui->ViewSphereGroup->title()));
@@ -346,6 +347,7 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 /*** LPub3D Mod - Native Renderer settings ***/
 	ui->ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
 	ui->ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
+	LPub::ViewpointsComboSaveIndex = mOptions->Preferences.mNativeViewpoint;
 /*** LPub3D Mod end ***/
 
 	on_studStyleCombo_currentIndexChanged(ui->studStyleCombo->currentIndex());
@@ -1695,8 +1697,25 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 /*** LPub3D Mod - Native Renderer settings ***/
 void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
+	int ProjectionComboSaveIndex = ui->ProjectionCombo->currentIndex();
+
 	if (index < static_cast<int>(lcViewpoint::Count))
 		ui->ProjectionCombo->setCurrentIndex(2/*Default*/);
+
+	QDialog::DialogCode DialogCode = QDialog::Accepted;
+
+	if (index == static_cast<int>(lcViewpoint::LatLon))
+	{
+		DialogCode = static_cast<QDialog::DialogCode>(lpub->SetViewpointLatLonDialog(true/*SetCamera*/));
+		if (DialogCode != QDialog::Accepted)
+		{
+			ui->ViewpointsCombo->setCurrentIndex(LPub::ViewpointsComboSaveIndex);
+			ui->ProjectionCombo->setCurrentIndex(ProjectionComboSaveIndex);
+		}
+	}
+
+	if (DialogCode == QDialog::Accepted)
+		LPub::ViewpointsComboSaveIndex = index;
 }
 
 void lcQPreferencesDialog::on_ProjectionCombo_currentIndexChanged(int index)
