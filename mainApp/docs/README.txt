@@ -25,6 +25,7 @@ Revisions:
 - Enhancement - Messages - add option to abort processing on error #643
 - Change - Automatically display the visual editor default camera properties #658
 - Change - Build modification - declaration and action in same STEP #633
+- Change - Build modifications - visual editor build mod actions in same STEP #666
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
 - Change - Display clear cache message in information dialog #660
