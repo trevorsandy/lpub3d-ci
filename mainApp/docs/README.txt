@@ -29,6 +29,7 @@ Revisions:
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
 - Change - Display clear cache message in information dialog #660
+- Change - Loading inline unofficial parts, subparts and primitives #667
 - Change - Parse top-model INCLUDE file at model file load #631
 - Change - Re-use Build Mod name (ID) #663
 - Fix - Apply ROTSTEP to step-group STEP #653
