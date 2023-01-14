@@ -13,6 +13,25 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Fix - Segfault after running --help or --version from console #668
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.6.0.3111 (11 01 2023 10:47:23)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
 - Enhancement - Add submodels to file load status #636
 - Enhancement - Add reset viewer assembly display menu action #652
 - Enhancement - Add specify latitude longitude to viewpoints #654
