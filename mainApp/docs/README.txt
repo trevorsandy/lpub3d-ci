@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Fix - Segfault after running --help or --version from console #668
+- Fix - Segfault if selection in command editor and also on cover page #669
 
 --------------------------------------------------------------------------------------------------
 
