@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Refresh step assembly image menu action missing #675
