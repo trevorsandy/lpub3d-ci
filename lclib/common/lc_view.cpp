@@ -454,7 +454,7 @@ lcMatrix44 lcView::GetPieceInsertPosition(bool IgnoreSelected, PieceInfo* Info) 
 	lcModel* ActiveModel = GetActiveModel();
 
 	lcPieceInfoRayTest PieceInfoRayTest = FindPieceInfoUnderPointer(IgnoreSelected);
-		
+
 	if (PieceInfoRayTest.Info)
 	{
 		lcVector3 Position = PieceInfoRayTest.Plane;
@@ -1414,7 +1414,7 @@ void lcView::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] = 
+	GLushort Indices[64 + 32] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
@@ -1488,7 +1488,7 @@ void lcView::DrawGrid()
 	}
 
 	if (!mGridBuffer.IsValid() || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
-	    Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
+		Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
 	{
 		int VertexBufferSize = 0;
 
@@ -1647,24 +1647,24 @@ lcTrackTool lcView::GetOverrideTrackTool(Qt::MouseButton Button) const
 
 	constexpr lcTrackTool TrackToolFromTool[] =
 	{
-	    lcTrackTool::Insert,      // lcTool::Insert
-	    lcTrackTool::PointLight,  // lcTool::Light
-	    lcTrackTool::SunLight,    // lcTool::SunLight      /*** LPub3D Mod - enable lights ***/
-	    lcTrackTool::AreaLight,   // lcTool::AreaLight     /*** LPub3D Mod - enable lights ***/
-	    lcTrackTool::SpotLight,   // lcTool::SpotLight
-	    lcTrackTool::Camera,      // lcTool::Camera
-	    lcTrackTool::Select,      // lcTool::Select
-	    lcTrackTool::MoveXYZ,     // lcTool::Move
-	    lcTrackTool::RotateXYZ,   // lcTool::Rotate
-	    lcTrackTool::Eraser,      // lcTool::Eraser
-	    lcTrackTool::Paint,       // lcTool::Paint
-	    lcTrackTool::ColorPicker, // lcTool::ColorPicker
-	    lcTrackTool::Zoom,        // lcTool::Zoom
-	    lcTrackTool::Pan,         // lcTool::Pan
-	    lcTrackTool::OrbitXY,     // lcTool::RotateView
-	    lcTrackTool::Roll,        // lcTool::Roll
-	    lcTrackTool::ZoomRegion,  // lcTool::ZoomRegion
-	    lcTrackTool::RotateStep   // lcTool::RotateStep    /*** LPub3D Mod - track tool ***/
+		lcTrackTool::Insert,      // lcTool::Insert
+		lcTrackTool::PointLight,  // lcTool::Light
+		lcTrackTool::SunLight,    // lcTool::SunLight      /*** LPub3D Mod - enable lights ***/
+		lcTrackTool::AreaLight,   // lcTool::AreaLight     /*** LPub3D Mod - enable lights ***/
+		lcTrackTool::SpotLight,   // lcTool::SpotLight
+		lcTrackTool::Camera,      // lcTool::Camera
+		lcTrackTool::Select,      // lcTool::Select
+		lcTrackTool::MoveXYZ,     // lcTool::Move
+		lcTrackTool::RotateXYZ,   // lcTool::Rotate
+		lcTrackTool::Eraser,      // lcTool::Eraser
+		lcTrackTool::Paint,       // lcTool::Paint
+		lcTrackTool::ColorPicker, // lcTool::ColorPicker
+		lcTrackTool::Zoom,        // lcTool::Zoom
+		lcTrackTool::Pan,         // lcTool::Pan
+		lcTrackTool::OrbitXY,     // lcTool::RotateView
+		lcTrackTool::Roll,        // lcTool::Roll
+		lcTrackTool::ZoomRegion,  // lcTool::ZoomRegion
+		lcTrackTool::RotateStep   // lcTool::RotateStep    /*** LPub3D Mod - track tool ***/
 	};
 
 	LC_ARRAY_SIZE_CHECK(TrackToolFromTool, lcTool::Count);
@@ -2389,10 +2389,10 @@ void lcView::UpdatePan(int x, int y)
 
 	lcVector3 Points[4] =
 	{
-	    lcVector3((float)x, (float)y, 0.0f),
-	    lcVector3((float)x, (float)y, 1.0f),
-	    lcVector3(mPanX, mPanY, 0.0f),
-	    lcVector3(mPanX, mPanY, 1.0f)
+		lcVector3((float)x, (float)y, 0.0f),
+		lcVector3((float)x, (float)y, 1.0f),
+		lcVector3(mPanX, mPanY, 0.0f),
+		lcVector3(mPanX, mPanY, 1.0f)
 	};
 
 	UnprojectPoints(Points, 4);
@@ -2497,12 +2497,12 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 		case lcTool::ColorPicker:
 			break;
 
-	    case lcTool::Pan:
-		    StartPan(mMouseX, mMouseY);
+		case lcTool::Pan:
+			StartPan(mMouseX, mMouseY);
 			ActiveModel->BeginMouseTool();
-		    break;
+			break;
 
-	    case lcTool::Zoom:
+		case lcTool::Zoom:
 		case lcTool::RotateView:
 		case lcTool::Roll:
 			ActiveModel->BeginMouseTool();
