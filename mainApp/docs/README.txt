@@ -21,6 +21,7 @@ Revisions:
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
+- Fix - Unexpected PLI BEGIN and PLI END parse errors #678
 
 --------------------------------------------------------------------------------------------------
 
