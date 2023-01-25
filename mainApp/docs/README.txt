@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Change - Enable Bill of material progress status #679
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on insert BOM without a preceding STEP command #670
