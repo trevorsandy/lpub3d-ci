@@ -16,6 +16,7 @@ Revisions:
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on insert BOM without a preceding STEP command #670
+- Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - Segfault after running --help or --version from console #668
