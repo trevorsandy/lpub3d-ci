@@ -19,6 +19,7 @@ Revisions:
 - Fix - Crash on insert BOM without a preceding STEP command #670
 - Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Parameter file viewer bad path for save copy as menu action #674
+- Fix - Part IDs missing in BOM #680
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
