@@ -15,6 +15,7 @@ Revisions:
 
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
+- Change - Load model with absolute path FILE name #686
 - Change - Persisting fade previous steps and highlight current step settings #683
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
