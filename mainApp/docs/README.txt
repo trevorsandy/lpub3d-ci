@@ -23,6 +23,7 @@ Revisions:
 - Fix - Crash on insert BOM without a preceding STEP command #670
 - Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Fade previous steps project global setup disabled on initial load #688
+- Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
