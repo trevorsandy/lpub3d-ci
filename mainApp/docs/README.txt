@@ -27,8 +27,9 @@ Revisions:
 - Fix - Justify outside placement #690
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
-- Fix - Persistent data directory installation folder message #687
 - Fix - Parts List Instance placement dialog #685
+- Fix - Persistent data directory installation folder message #687
+- Fix - Placement regression #694
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
