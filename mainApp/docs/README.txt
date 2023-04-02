@@ -25,6 +25,7 @@ Revisions:
 - Fix - Fade previous steps project global setup disabled on initial load #688
 - Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
+- Fix - Crash when exporting images with Native renderer #695
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
 - Fix - Parts List Instance placement dialog #685
