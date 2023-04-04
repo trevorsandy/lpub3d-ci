@@ -745,7 +745,7 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
 		QT_TRANSLATE_NOOP("Menu", "Apply ROTSTEP"),
-		QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta command"),
+		QT_TRANSLATE_NOOP("Status", "Apply LPub3D ROTSTEP command to this STEP"),
 		"Shift+R"
 	},
 	// LC_EDIT_ACTION_RESET_TRANSFORM
@@ -892,7 +892,7 @@ const lcCommand gCommands[] =
 	// LC_VIEW_VIEWPOINT_LAT_LON                                                                /*** LPub3D Mod - Viewpoint latitude longitude ***/
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Viewpoint.Latitude_Longitude"),                       /*** LPub3D Mod - Viewpoint latitude longitude ***/
-        QT_TRANSLATE_NOOP("Menu", "Latitude Longitude"),                                        /*** LPub3D Mod - Viewpoint latitude longitude ***/
+		QT_TRANSLATE_NOOP("Menu", "Latitude Longitude"),                                        /*** LPub3D Mod - Viewpoint latitude longitude ***/
 		QT_TRANSLATE_NOOP("Status", "View model from the specified camera latitude/longitude"), /*** LPub3D Mod - Viewpoint latitude longitude ***/
 		"G"                                                                                     /*** LPub3D Mod - Viewpoint latitude longitude ***/
 	},
