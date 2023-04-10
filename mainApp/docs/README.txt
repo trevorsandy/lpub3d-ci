@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add view load status dialogue menu action #698
+- Enhancement - On startup, set theme based on Windows system theme #700
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
 - Change - Fade previous steps colour value #689
