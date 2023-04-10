@@ -42,6 +42,7 @@ Revisions:
 - Fix - Sub models are deleted #684
 - Fix - Unexpected PLI BEGIN and PLI END parse errors #678
 - Fix - Visual editor parts highlight when parts selected in command editor #682
+- Fix - Wrong message in dialog box #701
 
 --------------------------------------------------------------------------------------------------
 
