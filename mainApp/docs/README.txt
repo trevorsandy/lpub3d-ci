@@ -25,6 +25,7 @@ Revisions:
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on insert BOM without a preceding STEP command #670
 - Fix - Crash when 'Treat as Part' is activated #672
+- Fix - Crash when converting a submodel with NOSTEP to callout #706
 - Fix - Fade previous steps project global setup disabled on initial load #688
 - Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
