@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - On startup, set theme based on Windows system theme #700
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
+- Change - Fade opacity value inverted #708
 - Change - Fade previous steps colour value #689
 - Change - Load model with absolute path FILE name #686
 - Change - Persisting fade previous steps and highlight current step settings #683
