@@ -349,7 +349,7 @@ bool lcApplication::LPubFadeParts()
 
 bool lcApplication::LPubFadeHighlight()
 {
-    // called by lcModel::LoadLDraw, lcModel::GetScene
+	// called by lcModel::LoadLDraw, lcModel::GetScene
 	return mPreferences.mLPubFadeHighlight;
 }
 
