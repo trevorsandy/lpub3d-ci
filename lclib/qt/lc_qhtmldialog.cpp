@@ -6,7 +6,7 @@
 lcQHTMLDialog::lcQHTMLDialog(QWidget* Parent, lcHTMLExportOptions* Options)
 	: QDialog(Parent), ui(new Ui::lcQHTMLDialog)
 {
-	ui->setupUi(this);
+    ui->setupUi(this);
 
 	ui->stepWidth->setValidator(new QIntValidator(0, 2048, ui->stepWidth));
 	ui->stepHeight->setValidator(new QIntValidator(0, 2048, ui->stepHeight));
@@ -40,7 +40,7 @@ lcQHTMLDialog::lcQHTMLDialog(QWidget* Parent, lcHTMLExportOptions* Options)
 
 lcQHTMLDialog::~lcQHTMLDialog()
 {
-	delete ui;
+    delete ui;
 }
 
 void lcQHTMLDialog::accept()
