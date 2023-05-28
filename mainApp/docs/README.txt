@@ -23,6 +23,7 @@ Revisions:
 - Change - Fade opacity value inverted #708
 - Change - Fade previous steps colour value #689
 - Change - Load model with absolute path FILE name #686
+- Change - Part list annotation style #716
 - Change - Persisting fade previous steps and highlight current step settings #683
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
