@@ -31,6 +31,7 @@ Revisions:
 - Change - Refactor consolidate submodel instance to enable count by colour #719
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Abnormal message when loading the model #724
+- Fix - Assembly viewing angle incorrect when LDView is used to render #725
 - Fix - Callout placement inside step assembly for multi-step page #720
 - Fix - Crash on command ASSEM ANNOTATION DISPLAY GLOBAL TRUE #707
 - Fix - Crash on insert BOM without a preceding STEP command #670
