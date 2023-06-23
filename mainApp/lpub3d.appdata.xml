@@ -82,6 +82,7 @@
                 <description>
                     <p>LPub3D 23.06.2023 Continuous Build.
                        - Fix - Abnormal rendering behaviour #726
+                       - Fix - Add LDView Assembly Rendered Arguments conflated #727
                        See https://github.com/trevorsandy/lpub3d/releases/download/continuous/release_notes.html
                     </p>
                 </description>
