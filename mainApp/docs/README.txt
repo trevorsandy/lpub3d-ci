@@ -18,6 +18,7 @@ Revisions:
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Scrambled submodel when placed before ignore IGN command #732
 
 --------------------------------------------------------------------------------------------------
 
