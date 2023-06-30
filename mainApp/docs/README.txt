@@ -15,6 +15,7 @@ Revisions:
 
 - Change - Custom parts with underscore in the name #730
 - Change - Relative justify vertical axis on outside placement #729
+- Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
 
