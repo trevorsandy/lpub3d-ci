@@ -19,7 +19,7 @@ enum class lcCursor
 	Brick,
 	Light,
 	Sunlight,     /*** LPub3D Mod - enable lights ***/
-	Arealight,    /*** LPub3D Mod - enable lights ***/
+    Arealight,    /*** LPub3D Mod - enable lights ***/
 	Spotlight,
 	Camera,
 	Select,
