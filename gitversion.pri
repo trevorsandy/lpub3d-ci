@@ -25,10 +25,13 @@ equals(GIT_DIR, undefined) {
         GIT_DIR_ENV = SNAP
     } else:contains(CONFIG, flp) {
         GIT_DIR_ENV = FLATPAK
+    } else:contains(CONFIG, con) {
+        GIT_DIR_ENV = CONDA
     } else {
         GIT_DIR_ENV = UNDEFINED
     }
 
+    VER_BASE_NAME = $$lower($$(LP3D_APP))
     USE_GIT_VER_FILE = true
 
 } else {
