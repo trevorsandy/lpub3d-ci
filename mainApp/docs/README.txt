@@ -20,6 +20,7 @@ Revisions:
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
 - Fix - Include file meta commands not always applied #735
+- Fix - Parse MPD description line on insert MULTI_STEP BEGIN command #738
 - Fix - Scrambled submodel when placed before ignore IGN command #732
 
 --------------------------------------------------------------------------------------------------
