@@ -157,7 +157,7 @@ win32 {
 #message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
 
 # Separate the date into 'DD/MM/YYYY' format
-if (github_ci | appveyor_ci) {
+if (github_ci_win | azure_ci_win | appveyor_ci_win) {
     message("~~~ BUILD DATE 'Day MM/DD/YYYY': $$BUILD_DATE ~~~")
     BUILD_DATE ~= s/[\sA-Za-z\s]/""
     DATE_MM = $$section(BUILD_DATE, /, 0, 0)
