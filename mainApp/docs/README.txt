@@ -22,6 +22,7 @@ Revisions:
 - Fix - Include file meta commands not always applied #735
 - Fix - Parse MPD description line on insert MULTI_STEP BEGIN command #738
 - Fix - Scrambled submodel when placed before ignore IGN command #732
+- Fix - Submodels shown in BOM when using INSERT DISPLAY_MODEL #739
 
 --------------------------------------------------------------------------------------------------
 
