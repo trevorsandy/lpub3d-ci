@@ -82,6 +82,7 @@
                 <description>
                     <p>LPub3D 04.09.2023 v2.4.7 r74 Continuous Build.
                        Change - Custom parts with underscore in the name #730.
+                       Change - Difference in rendering with native renderer between versions #731.
                        Change - MLCad Part unknown! PART line error after mpd file save #734.
                        Change - Relative justify vertical axis on outside placement #729.
                        Change - Set submodel substitute part as unofficial part #733.
