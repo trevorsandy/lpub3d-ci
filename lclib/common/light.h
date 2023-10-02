@@ -5,11 +5,10 @@
 
 #define LC_LIGHT_HIDDEN            0x0001
 #define LC_LIGHT_DISABLED          0x0002
-#define LC_LIGHT_DIRECTIONAL       0x0004
-#define LC_LIGHT_POSITION_SELECTED 0x0008
-#define LC_LIGHT_POSITION_FOCUSED  0x0010
-#define LC_LIGHT_TARGET_SELECTED   0x0020
-#define LC_LIGHT_TARGET_FOCUSED    0x0040
+#define LC_LIGHT_POSITION_SELECTED 0x0010
+#define LC_LIGHT_POSITION_FOCUSED  0x0020
+#define LC_LIGHT_TARGET_SELECTED   0x0040
+#define LC_LIGHT_TARGET_FOCUSED    0x0080
 
 #define LC_LIGHT_SELECTION_MASK    (LC_LIGHT_POSITION_SELECTED | LC_LIGHT_TARGET_SELECTED)
 #define LC_LIGHT_FOCUS_MASK        (LC_LIGHT_POSITION_FOCUSED | LC_LIGHT_TARGET_FOCUSED)
@@ -28,6 +27,7 @@ enum class lcLightType
 	Sun,
 	Spot
 };
+/*** LPub3D Mod end ***/
 
 enum lcLightShape
 {
@@ -75,7 +75,6 @@ struct lcLightProperties
 	bool      mPOVRayLight;
 	int       mLightShape;
 };
-/*** LPub3D Mod end ***/
 
 class lcLight : public lcObject
 {
@@ -240,9 +239,7 @@ public:
 	}
 
 	void SaveLDraw(QTextStream& Stream) const;
-/*** LPub3D Mod - enable lights ***/
 	bool ParseLDrawLine(QTextStream& Stream);
-/*** LPub3D Mod end ***/
 
 public:
 	void RayTest(lcObjectRayTest& ObjectRayTest) const override;
@@ -256,24 +253,21 @@ public:
 	bool IsVisible() const
 	{ return (mState & LC_LIGHT_HIDDEN) == 0; }
 
-	QString GetName() const override
-	{
-		return mName;
-	}
-
-/*** LPub3D Mod - enable lights ***/
 	void SetName(const QString& Name)
 	{
 		mName = Name;
 	}
-/*** LPub3D Mod end ***/
+
+	QString GetName() const override
+	{
+		return mName;
+	}
 
 	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
 	void UpdatePosition(lcStep Step);
 	void MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance);
 	bool Setup(int LightIndex);
 	void CreateName(const lcArray<lcLight*>& Lights);
-/*** LPub3D Mod - enable lights ***/
 	void UpdateLight(lcStep Step, lcLightProperties Props, int Property);
 	lcLightProperties GetLightProperties() const
 	{
@@ -294,7 +288,6 @@ public:
 		props.mLightShape = mLightShape;
 		return props;
 	}
-/*** LPub3D Mod end ***/
 
 	lcMatrix44 mWorldLight;
 	lcVector3 mPosition;
@@ -303,7 +296,6 @@ public:
 	lcVector4 mDiffuseColor;
 	lcVector4 mSpecularColor;
 	lcVector3 mAttenuation;
-/*** LPub3D Mod - enable lights ***/
 	lcVector3 mLightColor;
 	lcVector2 mLightFactor;
 	lcVector2 mAreaGrid;
@@ -318,12 +310,11 @@ public:
 	float mLightDiffuse;
 	float mLightSpecular;
 	float mSpotSize;
+	float mSpotCutoff;
 	float mSpotFalloff;
 	float mSpotTightness;
-	float mPOVRayExponent;
-/*** LPub3D Mod end ***/
-	float mSpotCutoff;
 	float mSpotExponent;
+	float mPOVRayExponent;
 	QString mName;
 
 protected:
@@ -333,23 +324,27 @@ protected:
 	lcObjectKeyArray<lcVector4> mDiffuseColorKeys;
 	lcObjectKeyArray<lcVector4> mSpecularColorKeys;
 	lcObjectKeyArray<lcVector3> mAttenuationKeys;
-/*** LPub3D Mod - enable lights ***/
 	lcObjectKeyArray<lcVector3> mLightColorKeys;
 	lcObjectKeyArray<lcVector2> mLightFactorKeys;
 	lcObjectKeyArray<lcVector2> mAreaGridKeys;
 	lcObjectKeyArray<float> mLightSpecularKeys;
 	lcObjectKeyArray<float> mLightDiffuseKeys;
 	lcObjectKeyArray<float> mSpotSizeKeys;
-	lcObjectKeyArray<float> mSpotFalloffKeys;
-	lcObjectKeyArray<float> mSpotTightnessKeys;
-/*** LPub3D Mod end ***/
 	lcObjectKeyArray<float> mSpotCutoffKeys;
+	lcObjectKeyArray<float> mSpotFalloffKeys;
 	lcObjectKeyArray<float> mSpotExponentKeys;
+	lcObjectKeyArray<float> mSpotTightnessKeys;
 
-/*** LPub3D Mod - enable lights ***/
-	void DrawDirectionalLight(lcContext* Context) const;
 	void DrawPointLight(lcContext* Context) const;
-/*** LPub3D Mod end ***/
+	void DrawSpotLight(lcContext* Context) const;
+	void DrawSunLight(lcContext* Context) const;
+	void DrawAreaLight(lcContext* Context) const;
+
+	float SetupLightMatrix(lcContext* Context) const;
+	void DrawSphere(lcContext* Context, float Radius) const;
+	void DrawCylinder(lcContext* Context, float Radius, float Height) const;
+	void DrawTarget(lcContext* Context, float TargetDistance) const;
+	void DrawCone(lcContext* Context, float TargetDistance) const;
 
 	quint32 mState;
 	lcLightType mLightType;

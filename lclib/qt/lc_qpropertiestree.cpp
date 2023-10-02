@@ -1195,7 +1195,7 @@ void lcQPropertiesTree::slotReturnPressed()
 			{
 				QString Value = Editor->text();
 
-				Model->SetLightName(Light, Value.toLocal8Bit().data());
+				Model->SetLightName(Light, Value);
 			}
 		}
 	}
@@ -1868,8 +1868,33 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 			FactorAToolTip = tr("The light size for shadow sampling in metres.");
 			ExponentLabel = tr("Exponent");
 			break;
+		case lcLightType::Spot:
+			Type = QLatin1String("Spot");
+			FactorBToolTip = tr("The softness of the spotlight edge.");
+			if (POVRayLight)
+			{
+				FactorALabel = tr("Radius (°)");
+				FactorAToolTip = tr("The angle between the \"hot-spot\" edge at the beam center and the center line.");
+				SpotSizeToolTip = tr("Angle of the spotlight beam - Read only.");
+				Factor[0] = Light->mSpotSize - Light->mSpotFalloff;
+				SpotSizeProperty = PropertyFloatReadOnly;
+			}
+			else
+			{
+				FactorALabel = tr("Radius (m)");
+				FactorAToolTip = tr("Shadow soft size - Light size in metres for shadow sampling.");
+				SpotSizeToolTip = tr("Angle of the spotlight beam.");
+			}
+			break;
+		case lcLightType::Sun:
+			Type = tr("Sun");
+			FactorALabel = tr("Angle (°)");
+			FactorAToolTip = tr("Angular diamater of the sun as seen from the Earth.");
+			ExponentLabel = tr("Strength");
+			break;
 		case lcLightType::Area:
-			Type = QLatin1String("Area");
+			Type = tr("Area");
+			ExponentLabel = tr("Power");
 
 			if (POVRayLight)
 			{
@@ -1884,30 +1909,6 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 				FactorALabel = tr("Width (m)");
 				FactorAToolTip = tr("The width (X direction) of the area light in metres.");
 				FactorBToolTip = tr("The height (Y direction) of the area light in units.");
-			}
-			break;
-		case lcLightType::Sun:
-			Type = QLatin1String("Sun");
-			FactorALabel = tr("Angle (°)");
-			FactorAToolTip = tr("Angular diamater of the sun as seen from the Earth.");
-			ExponentLabel = tr("Strength");
-			break;
-		case lcLightType::Spot:
-			Type = QLatin1String("Spot");
-			FactorBToolTip = tr("The softness of the spotlight edge.");
-			if (POVRayLight)
-			{
-				FactorALabel = tr("Radius (°)");
-					FactorAToolTip = tr("The angle between the \"hot-spot\" edge at the beam center and the center line.");
-				SpotSizeToolTip = tr("Angle of the spotlight beam - Read only.");
-				Factor[0] = Light->mSpotSize - Light->mSpotFalloff;
-				SpotSizeProperty = PropertyFloatReadOnly;
-			}
-			else
-			{
-				FactorALabel = tr("Radius (m)");
-				FactorAToolTip = tr("Shadow soft size - Light size in metres for shadow sampling.");
-				SpotSizeToolTip = tr("Angle of the spotlight beam.");
 			}
 			break;
 		default:
@@ -1996,7 +1997,20 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 		if ((LightType == lcLightType::Point || LightType == lcLightType::Sun) && !POVRayLight)
 			lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
 
-		if (LightType == lcLightType::Area)
+		if (LightType == lcLightType::Spot)
+		{
+			lightSpotSize = addProperty(lightProperties, tr("Spot Size (°)"), SpotSizeProperty);
+			lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloatLightSpotSize);
+
+			if (!POVRayLight)
+				lightFactorB = addProperty(lightProperties, tr("Spot Blend"), PropertyFloat);
+			else
+			{
+				lightSpotFalloff = addProperty(lightProperties, tr("Spot Falloff (°)"), PropertyFloatLightSpotFalloff);
+				lightSpotTightness = addProperty(lightProperties, tr("Spot Tightness"), PropertyFloat);
+			}
+		}
+		else if (LightType == lcLightType::Area)
 		{
 			lightShape = addProperty(lightProperties, tr("Shape"), PropertyLightShape);
 			lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
@@ -2012,19 +2026,6 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 				lightAreaGridColumns = addProperty(lightProperties, tr("Grid Columns"), PropertyFloat);
 			}
 		}
-		else if (LightType == lcLightType::Spot)
-		{
-			lightSpotSize = addProperty(lightProperties, tr("Spot Size (°)"), SpotSizeProperty);
-				lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
-
-			if (!POVRayLight)
-				lightFactorB = addProperty(lightProperties, tr("Spot Blend"), PropertyFloat);
-			else
-			{
-				lightSpotFalloff = addProperty(lightProperties, tr("Spot Falloff (°)"), PropertyFloatLightSpotFalloff);
-					lightSpotTightness = addProperty(lightProperties, tr("Spot Tightness"), PropertyFloat);
-			}
-		}
 
 		if (!POVRayLight)
 		{
@@ -2033,6 +2034,7 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 				lightEnableCutoff = addProperty(lightProperties, tr("Cutoff"), PropertyBool);
 				lightCutoff = addProperty(lightProperties, tr("Cutoff Distance"), PropertyFloat);
 			}
+
 			lightDiffuse = addProperty(lightProperties, tr("Diffuse"), PropertyFloat);
 			lightSpecular = addProperty(lightProperties, tr("Specular"), PropertyFloat);
 		}
