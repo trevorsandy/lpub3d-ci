@@ -57,8 +57,8 @@ public:
 		PropertyStringList,
 		PropertyLightFormat,
 		PropertyLightShape,
-		PropertyLightColor,
 		PropertyColor,
+		PropertyPieceColor,
 		PropertyPart,
 /*** LPub3D Mod - LPub3D properties ***/
 		PropertyIntReadOnly
@@ -99,94 +99,91 @@ protected:
 	QIcon m_checkedIcon;
 	QIcon m_uncheckedIcon;
 
-	QTreeWidgetItem *partPosition;
-	QTreeWidgetItem *partPositionX;
-	QTreeWidgetItem *partPositionY;
-	QTreeWidgetItem *partPositionZ;
-	QTreeWidgetItem *partRotation;
-	QTreeWidgetItem *partRotationX;
-	QTreeWidgetItem *partRotationY;
-	QTreeWidgetItem *partRotationZ;
-	QTreeWidgetItem *partVisibility;
-	QTreeWidgetItem *partShow;
-	QTreeWidgetItem *partHide;
-	QTreeWidgetItem *partAppearance;
-	QTreeWidgetItem *partColor;
-	QTreeWidgetItem *partID;
+	QTreeWidgetItem* mPieceAttributesItem;
+	QTreeWidgetItem* partPosition;
+	QTreeWidgetItem* partPositionX;
+	QTreeWidgetItem* partPositionY;
+	QTreeWidgetItem* partPositionZ;
+	QTreeWidgetItem* partRotation;
+	QTreeWidgetItem* partRotationX;
+	QTreeWidgetItem* partRotationY;
+	QTreeWidgetItem* partRotationZ;
+	QTreeWidgetItem* partVisibility;
+	QTreeWidgetItem* partShow;
+	QTreeWidgetItem* partHide;
+	QTreeWidgetItem* partAppearance;
+	QTreeWidgetItem* mPieceColorItem;
+	QTreeWidgetItem* mPieceIdItem;
 
 /*** LPub3D Mod - LPub3D Properties ***/
-	QTreeWidgetItem *partFileName;
-	QTreeWidgetItem *partModel;
-	QTreeWidgetItem *partType;
-	QTreeWidgetItem *partIsSubmodel;
+	QTreeWidgetItem* partFileName;
+	QTreeWidgetItem* partModel;
+	QTreeWidgetItem* partType;
+	QTreeWidgetItem* partIsSubmodel;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Camera Globe ***/
-	QTreeWidgetItem *picture;
-	QTreeWidgetItem *pictureModelScale;
-	QTreeWidgetItem *pictureResolution;
-	QTreeWidgetItem *picturePageSizeWidth;
-	QTreeWidgetItem *picturePageSizeHeight;
-	QTreeWidgetItem *pictureImageSizeWidth;
-	QTreeWidgetItem *pictureImageSizeHeight;
+	QTreeWidgetItem* picture;
+	QTreeWidgetItem* pictureModelScale;
+	QTreeWidgetItem* pictureResolution;
+	QTreeWidgetItem* picturePageSizeWidth;
+	QTreeWidgetItem* picturePageSizeHeight;
+	QTreeWidgetItem* pictureImageSizeWidth;
+	QTreeWidgetItem* pictureImageSizeHeight;
 	
-	QTreeWidgetItem *cameraGlobe;
-	QTreeWidgetItem *cameraGlobeLatitude;
-	QTreeWidgetItem *cameraGlobeLongitude;
-	QTreeWidgetItem *cameraGlobeDistance;
+	QTreeWidgetItem* cameraGlobe;
+	QTreeWidgetItem* cameraGlobeLatitude;
+	QTreeWidgetItem* cameraGlobeLongitude;
+	QTreeWidgetItem* cameraGlobeDistance;
 /*** LPub3D Mod end ***/
 
-	QTreeWidgetItem *cameraPosition;
-	QTreeWidgetItem *cameraPositionX;
-	QTreeWidgetItem *cameraPositionY;
-	QTreeWidgetItem *cameraPositionZ;
-	QTreeWidgetItem *cameraTarget;
-	QTreeWidgetItem *cameraTargetX;
-	QTreeWidgetItem *cameraTargetY;
-	QTreeWidgetItem *cameraTargetZ;
-	QTreeWidgetItem *cameraUp;
-	QTreeWidgetItem *cameraUpX;
-	QTreeWidgetItem *cameraUpY;
-	QTreeWidgetItem *cameraUpZ;
-	QTreeWidgetItem *cameraSettings;
-	QTreeWidgetItem *cameraOrtho;
-	QTreeWidgetItem *cameraFOV;
-	QTreeWidgetItem *cameraNear;
-	QTreeWidgetItem *cameraFar;
-	QTreeWidgetItem *cameraName;
+	QTreeWidgetItem* cameraPosition;
+	QTreeWidgetItem* cameraPositionX;
+	QTreeWidgetItem* cameraPositionY;
+	QTreeWidgetItem* cameraPositionZ;
+	QTreeWidgetItem* cameraTarget;
+	QTreeWidgetItem* cameraTargetX;
+	QTreeWidgetItem* cameraTargetY;
+	QTreeWidgetItem* cameraTargetZ;
+	QTreeWidgetItem* cameraUp;
+	QTreeWidgetItem* cameraUpX;
+	QTreeWidgetItem* cameraUpY;
+	QTreeWidgetItem* cameraUpZ;
+	QTreeWidgetItem* mCameraAttributesItem;
+	QTreeWidgetItem* mCameraProjectionItem;
+	QTreeWidgetItem* cameraFOV;
+	QTreeWidgetItem* cameraNear;
+	QTreeWidgetItem* cameraFar;
+	QTreeWidgetItem* mCameraNameItem;
 
-	QTreeWidgetItem *lightConfiguration;
-	QTreeWidgetItem *lightPosition;
-	QTreeWidgetItem *lightPositionX;
-	QTreeWidgetItem *lightPositionY;
-	QTreeWidgetItem *lightPositionZ;
-	QTreeWidgetItem *lightTarget;
-	QTreeWidgetItem *lightTargetX;
-	QTreeWidgetItem *lightTargetY;
-	QTreeWidgetItem *lightTargetZ;
-	QTreeWidgetItem *lightColor;
-	QTreeWidgetItem *lightColorIcon;
-	QTreeWidgetItem *lightColorR;
-	QTreeWidgetItem *lightColorG;
-	QTreeWidgetItem *lightColorB;
-	QTreeWidgetItem *lightProperties;
-	QTreeWidgetItem *lightDiffuse;
-	QTreeWidgetItem *lightSpecular;
-	QTreeWidgetItem *lightCutoff;
-	QTreeWidgetItem *lightEnableCutoff;
-	QTreeWidgetItem *lightExponent;
-	QTreeWidgetItem *mLightTypeItem;
-	QTreeWidgetItem *lightSpotSize;
-	QTreeWidgetItem *lightShape;
-	QTreeWidgetItem *lightFactorA;
-	QTreeWidgetItem *lightFactorB;
-	QTreeWidgetItem *lightName;
-	QTreeWidgetItem *lightFormat;
-	QTreeWidgetItem *lightShadowless;
-	QTreeWidgetItem *lightAreaGridRows;
-	QTreeWidgetItem *lightAreaGridColumns;
-	QTreeWidgetItem *lightSpotFalloff;
-	QTreeWidgetItem *lightSpotTightness;
+	QTreeWidgetItem* lightConfiguration;
+	QTreeWidgetItem* lightPosition;
+	QTreeWidgetItem* lightPositionX;
+	QTreeWidgetItem* lightPositionY;
+	QTreeWidgetItem* lightPositionZ;
+	QTreeWidgetItem* lightTarget;
+	QTreeWidgetItem* lightTargetX;
+	QTreeWidgetItem* lightTargetY;
+	QTreeWidgetItem* lightTargetZ;
+	QTreeWidgetItem* mLightColorItem;
+	QTreeWidgetItem* mLightAttributesItem;
+	QTreeWidgetItem* lightDiffuse;
+	QTreeWidgetItem* lightSpecular;
+	QTreeWidgetItem* lightCutoff;
+	QTreeWidgetItem* lightEnableCutoff;
+	QTreeWidgetItem* lightExponent;
+	QTreeWidgetItem* mLightTypeItem;
+	QTreeWidgetItem* lightSpotSize;
+	QTreeWidgetItem* lightShape;
+	QTreeWidgetItem* lightFactorA;
+	QTreeWidgetItem* lightFactorB;
+	QTreeWidgetItem* mLightNameItem;
+	QTreeWidgetItem* lightFormat;
+	QTreeWidgetItem* lightShadowless;
+	QTreeWidgetItem* lightAreaGridRows;
+	QTreeWidgetItem* lightAreaGridColumns;
+	QTreeWidgetItem* lightSpotFalloff;
+	QTreeWidgetItem* lightSpotTightness;
 };
 
 class lcQPropertiesTreeDelegate : public QItemDelegate
