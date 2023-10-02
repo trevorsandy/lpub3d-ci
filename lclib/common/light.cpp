@@ -44,9 +44,7 @@ lcLight::lcLight(const lcVector3& Position, const lcVector3& TargetPosition, lcL
 	}
 
 	mPOVRayLight = false;
-	mShadowless = false;
 	mEnableCutoff = false;
-	mColor = lcVector3(1.0f, 1.0f, 1.0f);
 	mAttenuation = lcVector3(1.0f, 0.0f, 0.0f);
 	mLightFactor[0] = LightType == lcLightType::Sun ? 11.4f : 0.25f;
 	mLightFactor[1] = LightType == lcLightType::Area ? 0.25f : LightType == lcLightType::Spot ? 0.150f : 0.0f;
@@ -114,7 +112,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 	if (mPOVRayLight)
 		Stream << QLatin1String(Meta + " LIGHT POV_RAY") << LineEnding;
 
-	if (mShadowless)
+	if (!mCastShadow)
 		Stream << QLatin1String(Meta + " LIGHT SHADOWLESS") << LineEnding;
 
 	if (mPositionKeys.GetSize() > 1)
@@ -533,7 +531,7 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		}
 		else if (Token == QLatin1String("SHADOWLESS"))
 		{
-			mShadowless = true;
+			mCastShadow = false;
 		}
 		else if ((Token == QLatin1String("POWER_KEY")) || (Token == QLatin1String("STRENGTH_KEY")))
 			mSpotExponentKeys.LoadKeysLDraw(Stream);
@@ -656,9 +654,6 @@ void lcLight::UpdateLight(lcStep Step, lcLightProperties Props, int Property)
 	case LC_LIGHT_SPECULAR:
 		mLightSpecular = Props.mLightSpecular;
 		mLightSpecularKeys.ChangeKey(mLightSpecular, Step, false);
-		break;
-	case LC_LIGHT_SHADOWLESS:
-		mShadowless = Props.mShadowless;
 		break;
 	case LC_LIGHT_EXPONENT:
 		if (Props.mPOVRayLight)
@@ -923,6 +918,11 @@ void lcLight::SetLightType(lcLightType LightType)
 void lcLight::SetColor(const lcVector3& Color, lcStep Step, bool AddKey)
 {
 	mColorKeys.ChangeKey(Color, Step, AddKey);
+}
+
+void lcLight::SetCastShadow(bool CastShadow)
+{
+	mCastShadow = CastShadow;
 }
 
 void lcLight::InsertTime(lcStep Start, lcStep Time)

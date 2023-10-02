@@ -3446,6 +3446,19 @@ void lcModel::SetLightColor(lcLight* Light, const lcVector3& Color)
 	UpdateAllViews();
 }
 
+void lcModel::SetLightCastShadow(lcLight* Light, bool CastShadow)
+{
+	if (Light->GetCastShadow() == CastShadow)
+		return;
+
+	Light->SetCastShadow(CastShadow);
+	Light->UpdatePosition(mCurrentStep);
+
+	SaveCheckpoint(tr("Changing Light Shadow"));
+	gMainWindow->UpdateSelectedObjects(false);
+	UpdateAllViews();
+}
+
 void lcModel::SetLightName(lcLight* Light, const QString &Name)
 {
 	if (Light->GetName() == Name)
