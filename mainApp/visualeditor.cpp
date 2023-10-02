@@ -1361,12 +1361,12 @@ void Gui::applyLightSettings()
             }
 
             // Colour
-            if (notEqual(Light->mLightColor[0], lightData.color[0]) ||
-                notEqual(Light->mLightColor[1], lightData.color[1]) ||
-                notEqual(Light->mLightColor[2], lightData.color[2])) {
-                lightMeta.color.setValues(Light->mLightColor[0],
-                                          Light->mLightColor[1],
-                                          Light->mLightColor[2]);
+            if (notEqual(Light->GetColor()[0], lightData.color[0]) ||
+                notEqual(Light->GetColor()[1], lightData.color[1]) ||
+                notEqual(Light->GetColor()[2], lightData.color[2])) {
+                lightMeta.color.setValues(Light->GetColor()[0],
+                                          Light->GetColor()[1],
+                                          Light->GetColor()[2]);
                 metaString = lightMeta.color.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
@@ -2455,9 +2455,9 @@ QStringList Gui::get3DViewerPOVLightList() const
             lightData.target[X] = Light->mTargetPosition.x;
             lightData.target[Y] = Light->mTargetPosition.y;
             lightData.target[Z] = Light->mTargetPosition.z;
-            lightData.color[0] = Light->mLightColor.x;
-            lightData.color[1] = Light->mLightColor.y;
-            lightData.color[2] = Light->mLightColor.z;
+            lightData.color[0] = Light->GetColor().x;
+            lightData.color[1] = Light->GetColor().y;
+            lightData.color[2] = Light->GetColor().z;
             if (!Light->mPOVRayLight)
             {
                 lightData.specular = Light->mLightSpecular;

@@ -6646,7 +6646,7 @@ void LightMeta::init(BranchMeta *parent, QString _name)
   _povrayLight.init   (this,"POV_RAY",        LeoCadLightPOVRayRc);
   _shadowless.init    (this,"SHADOWLESS",     LeoCadLightShadowless);
 
-  color.init         (this,"COLOR_RGB",       LeoCadLightRc);
+  color.init         (this,"COLOR",           LeoCadLightRc);
   target.init        (this,"TARGET_POSITION", LeoCadLightRc);
   position.init      (this,"POSITION",        LeoCadLightRc);
 }
@@ -7247,7 +7247,7 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
           "SNAP_INCL SNAP_SPH SPRING_ANCHOR SPRING_CAP SPRING_POINT SPRING_SECTION";
   const QString leocadKeyWords =
           "!LEOCAD ANGLE ANGLE_KEY AUTHOR BACKGROUND BEGIN CAMERA COLOR AREA_GRID_KEY "
-          "COLOR_RGB_KEY COMMENT CUTOFF_DISTANCE_KEY DESCRIPTION SPOT_FALLOFF_KEY END FOV "
+          "COLOR_KEY COMMENT CUTOFF_DISTANCE_KEY DESCRIPTION SPOT_FALLOFF_KEY END FOV "
           "GRADIENT GROUP HIDDEN IMAGE MODEL NAME ORTHOGRAPHIC PIECE RADIUS_KEY SHAPE_KEY PIVOT "
           "POSITION_KEY POWER_KEY RADIUS_AND_SPOT_BLEND_KEY SPOT_TIGHTNESS_KEY SIZE_KEY SPECULAR_KEY "
           "SPOT_SIZE_KEY STEP_HIDE STRENGTH STRENGTH_KEY TARGET_POSITION_KEY "
