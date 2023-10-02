@@ -1558,7 +1558,7 @@ void Gui::applyLightSettings()
             }
 
             // Shadowless
-            if (Light->mShadowless)
+            if (Light->GetCastShadow())
             {
                 metaString = lightMeta._shadowless.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
