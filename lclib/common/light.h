@@ -9,14 +9,17 @@
 #define LC_LIGHT_POSITION_FOCUSED  0x0020
 #define LC_LIGHT_TARGET_SELECTED   0x0040
 #define LC_LIGHT_TARGET_FOCUSED    0x0080
+#define LC_LIGHT_UPVECTOR_SELECTED 0x0100
+#define LC_LIGHT_UPVECTOR_FOCUSED  0x0200
 
-#define LC_LIGHT_SELECTION_MASK    (LC_LIGHT_POSITION_SELECTED | LC_LIGHT_TARGET_SELECTED)
-#define LC_LIGHT_FOCUS_MASK        (LC_LIGHT_POSITION_FOCUSED | LC_LIGHT_TARGET_FOCUSED)
+#define LC_LIGHT_SELECTION_MASK    (LC_LIGHT_POSITION_SELECTED | LC_LIGHT_TARGET_SELECTED | LC_LIGHT_UPVECTOR_SELECTED)
+#define LC_LIGHT_FOCUS_MASK        (LC_LIGHT_POSITION_FOCUSED | LC_LIGHT_TARGET_FOCUSED | LC_LIGHT_UPVECTOR_FOCUSED)
 
 enum lcLightSection
 {
 	LC_LIGHT_SECTION_POSITION,
-	LC_LIGHT_SECTION_TARGET
+	LC_LIGHT_SECTION_TARGET,
+	LC_LIGHT_SECTION_UPVECTOR
 };
 
 /*** LPub3D Mod - enable lights ***/
@@ -94,9 +97,26 @@ public:
 		return mLightType == lcLightType::Point;
 	}
 
+	bool IsSpotlight() const
+	{
+		return mLightType == lcLightType::Spot;
+	}
+
+/*** LPub3D Mod - enable lights ***/
 	bool IsDirectionalLight() const
 	{
 		return mLightType != lcLightType::Point;
+	}
+
+	bool IsSunLight() const
+	{
+		return mLightType == lcLightType::Sun;
+	}
+/*** LPub3D Mod end ***/
+	
+	bool IsAreaLight() const
+	{
+		return mLightType == lcLightType::Area;
 	}
 
 	lcLightType GetLightType() const
@@ -124,6 +144,10 @@ public:
 
 		case LC_LIGHT_SECTION_TARGET:
 			return (mState & LC_LIGHT_TARGET_SELECTED) != 0;
+			break;
+
+		case LC_LIGHT_SECTION_UPVECTOR:
+			return (mState & LC_LIGHT_UPVECTOR_SELECTED) != 0;
 			break;
 		}
 		return false;
@@ -162,6 +186,16 @@ public:
 			else
 				mState &= ~(LC_LIGHT_TARGET_SELECTED | LC_LIGHT_TARGET_FOCUSED);
 			break;
+
+		case LC_LIGHT_SECTION_UPVECTOR:
+			if (Selected)
+			{
+				if (!IsPointLight())
+					mState |= LC_LIGHT_UPVECTOR_SELECTED;
+			}
+			else
+				mState &= ~(LC_LIGHT_UPVECTOR_SELECTED | LC_LIGHT_UPVECTOR_FOCUSED);
+			break;
 		}
 	}
 
@@ -181,7 +215,12 @@ public:
 		case LC_LIGHT_SECTION_TARGET:
 			return (mState & LC_LIGHT_TARGET_FOCUSED) != 0;
 			break;
+
+		case LC_LIGHT_SECTION_UPVECTOR:
+			return (mState & LC_LIGHT_UPVECTOR_FOCUSED) != 0;
+			break;
 		}
+
 		return false;
 	}
 
@@ -205,6 +244,16 @@ public:
 			else
 				mState &= ~(LC_LIGHT_TARGET_SELECTED | LC_LIGHT_TARGET_FOCUSED);
 			break;
+
+		case LC_LIGHT_SECTION_UPVECTOR:
+			if (Focused)
+			{
+				if (!IsPointLight())
+					mState |= LC_LIGHT_UPVECTOR_SELECTED | LC_LIGHT_UPVECTOR_FOCUSED;
+			}
+			else
+				mState &= ~(LC_LIGHT_UPVECTOR_SELECTED | LC_LIGHT_UPVECTOR_FOCUSED);
+			break;
 		}
 	}
 
@@ -215,6 +264,9 @@ public:
 
 		if (!IsPointLight() && (mState & LC_LIGHT_TARGET_FOCUSED))
 			return LC_LIGHT_SECTION_TARGET;
+
+		if (IsAreaLight() && (mState & LC_LIGHT_UPVECTOR_FOCUSED))
+			return LC_LIGHT_SECTION_UPVECTOR;
 
 		return ~0U;
 	}
@@ -233,6 +285,9 @@ public:
 
 		case LC_LIGHT_SECTION_TARGET:
 			return mTargetPosition;
+
+		case LC_LIGHT_SECTION_UPVECTOR:
+			return lcMul31(lcVector3(0, 25, 0), lcMatrix44AffineInverse(mWorldLight));
 		}
 
 		return lcVector3(0.0f, 0.0f, 0.0f);
@@ -292,6 +347,8 @@ public:
 	lcMatrix44 mWorldLight;
 	lcVector3 mPosition;
 	lcVector3 mTargetPosition;
+	lcVector3 mUpVector;
+
 	lcVector4 mAmbientColor;
 	lcVector4 mDiffuseColor;
 	lcVector4 mSpecularColor;
@@ -320,6 +377,8 @@ public:
 protected:
 	lcObjectKeyArray<lcVector3> mPositionKeys;
 	lcObjectKeyArray<lcVector3> mTargetPositionKeys;
+	lcObjectKeyArray<lcVector3> mUpVectorKeys;
+
 	lcObjectKeyArray<lcVector4> mAmbientColorKeys;
 	lcObjectKeyArray<lcVector4> mDiffuseColorKeys;
 	lcObjectKeyArray<lcVector4> mSpecularColorKeys;
@@ -337,7 +396,7 @@ protected:
 
 	void DrawPointLight(lcContext* Context) const;
 	void DrawSpotLight(lcContext* Context) const;
-	void DrawSunLight(lcContext* Context) const;
+	void DrawDirectionalLight(lcContext* Context) const;
 	void DrawAreaLight(lcContext* Context) const;
 
 	float SetupLightMatrix(lcContext* Context) const;

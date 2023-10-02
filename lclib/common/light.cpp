@@ -22,19 +22,35 @@ static const std::array<QLatin1String, 4> gLightTypes = { QLatin1String("POINT")
 
 /*** LPub3D Mod - enable lights ***/
 lcLight::lcLight(const lcVector3& Position, const lcVector3& TargetPosition, lcLightType LightType, bool LPubMeta)
-	: lcObject(lcObjectType::Light), mPosition(Position), mTargetPosition(TargetPosition), mLightType(LightType), mLPubMeta(LPubMeta)
+	: lcObject(lcObjectType::Light), mLightType(LightType), mLPubMeta(LPubMeta)
 {
 	mState = 0;
+
+	mPosition = Position;
+	mTargetPosition = TargetPosition;
+	mUpVector = lcVector3(0, 0, 1);
+
+	if (IsAreaLight())
+	{
+		lcVector3 FrontVector = lcNormalize(TargetPosition - Position), SideVector;
+
+		if (FrontVector == mUpVector)
+			SideVector = lcVector3(1, 0, 0);
+		else
+			SideVector = lcCross(FrontVector, mUpVector);
+
+		mUpVector = lcCross(SideVector, FrontVector);
+		mUpVector.Normalize();
+	}
 
 	mPOVRayLight = false;
 	mShadowless = false;
 	mEnableCutoff = false;
-	mTargetPosition = TargetPosition;
 	mAmbientColor = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 	mDiffuseColor = lcVector4(0.8f, 0.8f, 0.8f, 1.0f);
 	mSpecularColor = lcVector4(1.0f, 1.0f, 1.0f, 1.0f);
 	mAttenuation = lcVector3(1.0f, 0.0f, 0.0f);
-	mLightColor = lcVector3(1.0f, 1.0f, 1.0f); /*RGB - White*/
+	mLightColor = lcVector3(1.0f, 1.0f, 1.0f);
 	mLightFactor[0] = LightType == lcLightType::Sun ? 11.4f : 0.25f;
 	mLightFactor[1] = LightType == lcLightType::Area ? 0.25f : LightType == lcLightType::Spot ? 0.150f : 0.0f;
 	mLightDiffuse = 1.0f;
@@ -52,6 +68,7 @@ lcLight::lcLight(const lcVector3& Position, const lcVector3& TargetPosition, lcL
 
 	mPositionKeys.ChangeKey(mPosition, 1, true);
 	mTargetPositionKeys.ChangeKey(mTargetPosition, 1, true);
+	mUpVectorKeys.ChangeKey(mUpVector, 1, true);
 	mAmbientColorKeys.ChangeKey(mAmbientColor, 1, true);
 	mDiffuseColorKeys.ChangeKey(mDiffuseColor, 1, true);
 	mSpecularColorKeys.ChangeKey(mSpecularColor, 1, true);
@@ -101,6 +118,18 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 		{
 			Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mTargetPosition) : mTargetPosition;
 			Stream << QLatin1String(Meta + " LIGHT TARGET_POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+		}
+	}
+
+	if (mLightType == lcLightType::Area)
+	{
+		if (mUpVectorKeys.GetSize() > 1)
+			mUpVectorKeys.SaveKeysLDraw(Stream, "LIGHT UP_VECTOR_KEY ");
+		else
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		{
+			Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mUpVector) : mUpVector;
+			Stream << QLatin1String(Meta + " LIGHT UP_VECTOR ") << mUpVector[0] << ' ' << mUpVector[1] << ' ' << mUpVector[2] << LineEnding;
 		}
 	}
 
@@ -283,7 +312,7 @@ void lcLight::CreateName(const lcArray<lcLight*>& Lights)
 		break;
 
 	case lcLightType::Sun:
-		Prefix = mLPubMeta ? QLatin1String("Sunlight ") : QLatin1String("Directionallight ") ;
+		Prefix = mLPubMeta ? QLatin1String("Sunlight ") : QLatin1String("Directionallight ");
 		break;
 
 	case lcLightType::Area:
@@ -314,7 +343,53 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 	{
 		QString Token;
 		Stream >> Token;
-		if (Token == QLatin1String("COLOR_RGB"))
+
+		if (Token == QLatin1String("POSITION"))
+		{
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/			
+			if (mLPubMeta)
+			{
+				Stream >> mPosition[0] >> mPosition[2] >> mPosition[1];
+				mPosition[2] = -mPosition[2];
+			}
+			else
+				Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
+/*** LPub3D Mod end ***/			
+			mPositionKeys.ChangeKey(mPosition, 1, true);
+		}
+		else if (Token == QLatin1String("TARGET_POSITION"))
+		{
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/			
+			if (mLPubMeta)
+			{
+				Stream >> mTargetPosition[0] >> mTargetPosition[2] >> mTargetPosition[1];
+				mTargetPosition[2] = -mTargetPosition[2];
+			}
+			else			
+				Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
+/*** LPub3D Mod end ***/			
+			mTargetPositionKeys.ChangeKey(mTargetPosition, 1, true);
+		}
+		else if (Token == QLatin1String("UP_VECTOR"))
+		{
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/			
+			if (mLPubMeta)
+			{
+				Stream >> mUpVector[0] >> mUpVector[2] >> mUpVector[1];
+				mUpVector[2] = -mUpVector[2];
+			}
+			else			
+				Stream >> mUpVector[0] >> mUpVector[1] >> mUpVector[2];
+/*** LPub3D Mod end ***/
+			mUpVectorKeys.ChangeKey(mUpVector, 1, true);
+		}
+		else if (Token == QLatin1String("POSITION_KEY"))
+			mPositionKeys.LoadKeysLDraw(Stream);
+		else if (Token == QLatin1String("TARGET_POSITION_KEY"))
+			mTargetPositionKeys.LoadKeysLDraw(Stream);
+		else if (Token == QLatin1String("UP_VECTOR_KEY"))
+			mUpVectorKeys.LoadKeysLDraw(Stream);
+		else if (Token == QLatin1String("COLOR_RGB"))
 		{
 			Stream >> mLightColor[0] >> mLightColor[1] >> mLightColor[2];
 			mLightColorKeys.ChangeKey(mLightColor, 1, true);
@@ -425,32 +500,6 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 					break;
 				}
 			}
-		}
-		else if (Token == QLatin1String("POSITION"))
-		{
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/			
-			if (mLPubMeta)
-			{
-				Stream >> mPosition[0] >> mPosition[2] >> mPosition[1];
-				mPosition[2] = -mPosition[2];
-			}
-			else
-				Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
-/*** LPub3D Mod end ***/				
-			mPositionKeys.ChangeKey(mPosition, 1, true);
-		}
-		else if (Token == QLatin1String("TARGET_POSITION"))
-		{
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/			
-			if (mLPubMeta)
-			{
-				Stream >> mTargetPosition[0] >> mTargetPosition[2] >> mTargetPosition[1];
-				mTargetPosition[2] = -mTargetPosition[2];
-			}
-			else			
-				Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
-/*** LPub3D Mod end ***/				
-			mTargetPositionKeys.ChangeKey(mTargetPosition, 1, true);
 		}
 		else if (Token == QLatin1String("POV_RAY"))
 		{
@@ -737,6 +786,26 @@ void lcLight::RayTest(lcObjectRayTest& ObjectRayTest) const
 		ObjectRayTest.Distance = Distance;
 		ObjectRayTest.PieceInfoRayTest.Plane = Plane;
 	}
+
+	if (IsAreaLight())
+	{
+		const lcMatrix44 LightWorld = lcMatrix44AffineInverse(mWorldLight);
+		const lcVector3 UpVectorPosition = lcMul31(lcVector3(0, 25, 0), LightWorld);
+
+		lcMatrix44 WorldLight = mWorldLight;
+		WorldLight.SetTranslation(lcMul30(-UpVectorPosition, WorldLight));
+
+		Start = lcMul31(ObjectRayTest.Start, WorldLight);
+		End = lcMul31(ObjectRayTest.End, WorldLight);
+
+		if (lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, nullptr, &Plane) && (Distance < ObjectRayTest.Distance))
+		{
+			ObjectRayTest.ObjectSection.Object = const_cast<lcLight*>(this);
+			ObjectRayTest.ObjectSection.Section = LC_LIGHT_SECTION_UPVECTOR;
+			ObjectRayTest.Distance = Distance;
+			ObjectRayTest.PieceInfoRayTest.Plane = Plane;
+		}
+	}
 }
 
 void lcLight::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
@@ -800,12 +869,31 @@ void lcLight::MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance)
 		mTargetPosition += Distance;
 		mTargetPositionKeys.ChangeKey(mTargetPosition, Step, AddKey);
 	}
+	else if (IsSelected(LC_LIGHT_SECTION_UPVECTOR))
+	{
+		mUpVector += Distance;
+		mUpVector.Normalize();
+		mUpVectorKeys.ChangeKey(mUpVector, Step, AddKey);
+	}
+
+	if (IsAreaLight())
+	{
+		const lcVector3 FrontVector(mTargetPosition - mPosition);
+		lcVector3 SideVector = lcCross(FrontVector, mUpVector);
+
+		if (fabsf(lcDot(mUpVector, SideVector)) > 0.99f)
+			SideVector = lcVector3(1, 0, 0);
+
+		mUpVector = lcCross(SideVector, FrontVector);
+		mUpVector.Normalize();
+	}
 }
 
 void lcLight::InsertTime(lcStep Start, lcStep Time)
 {
 	mPositionKeys.InsertTime(Start, Time);
 	mTargetPositionKeys.InsertTime(Start, Time);
+	mUpVectorKeys.InsertTime(Start, Time);
 	mAmbientColorKeys.InsertTime(Start, Time);
 	mDiffuseColorKeys.InsertTime(Start, Time);
 	mSpecularColorKeys.InsertTime(Start, Time);
@@ -826,6 +914,7 @@ void lcLight::RemoveTime(lcStep Start, lcStep Time)
 {
 	mPositionKeys.RemoveTime(Start, Time);
 	mTargetPositionKeys.RemoveTime(Start, Time);
+	mUpVectorKeys.RemoveTime(Start, Time);
 	mAmbientColorKeys.RemoveTime(Start, Time);
 	mDiffuseColorKeys.RemoveTime(Start, Time);
 	mSpecularColorKeys.RemoveTime(Start, Time);
@@ -846,6 +935,7 @@ void lcLight::UpdatePosition(lcStep Step)
 {
 	mPosition = mPositionKeys.CalculateKey(Step);
 	mTargetPosition = mTargetPositionKeys.CalculateKey(Step);
+	mUpVector = mUpVectorKeys.CalculateKey(Step);
 	mAmbientColor = mAmbientColorKeys.CalculateKey(Step);
 	mDiffuseColor = mDiffuseColorKeys.CalculateKey(Step);
 	mSpecularColor = mSpecularColorKeys.CalculateKey(Step);
@@ -865,6 +955,14 @@ void lcLight::UpdatePosition(lcStep Step)
 	{
 		mWorldLight = lcMatrix44Identity();
 		mWorldLight.SetTranslation(-mPosition);
+	}
+	else if (IsAreaLight())
+	{
+		lcVector3 FrontVector(mTargetPosition - mPosition);
+		const lcVector3 SideVector = lcCross(FrontVector, mUpVector);
+		mUpVector = lcNormalize(lcCross(SideVector, FrontVector));
+
+		mWorldLight = lcMatrix44LookAt(mPosition, mTargetPosition, mUpVector);
 	}
 	else
 	{
@@ -906,7 +1004,7 @@ void lcLight::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		break;
 
 	case lcLightType::Sun:
-		DrawSunLight(Context);
+		DrawDirectionalLight(Context);
 		break;
 
 	case lcLightType::Area:
@@ -981,7 +1079,7 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 		DrawCone(Context, TargetDistance);
 }
 
-void lcLight::DrawSunLight(lcContext* Context) const
+void lcLight::DrawDirectionalLight(lcContext* Context) const
 {
 	float TargetDistance = SetupLightMatrix(Context);
 
@@ -1061,6 +1159,63 @@ void lcLight::DrawAreaLight(lcContext* Context) const
 	}
 
 	DrawTarget(Context, TargetDistance);
+
+	float Verts[10 * 3];
+	float* CurVert = Verts;
+
+	*CurVert++ =  LC_LIGHT_TARGET_EDGE; *CurVert++ =  LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ =  LC_LIGHT_TARGET_EDGE;
+	*CurVert++ = -LC_LIGHT_TARGET_EDGE; *CurVert++ =  LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ =  LC_LIGHT_TARGET_EDGE;
+	*CurVert++ = -LC_LIGHT_TARGET_EDGE; *CurVert++ = -LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ =  LC_LIGHT_TARGET_EDGE;
+	*CurVert++ =  LC_LIGHT_TARGET_EDGE; *CurVert++ = -LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ =  LC_LIGHT_TARGET_EDGE;
+	*CurVert++ =  LC_LIGHT_TARGET_EDGE; *CurVert++ =  LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ = -LC_LIGHT_TARGET_EDGE;
+	*CurVert++ = -LC_LIGHT_TARGET_EDGE; *CurVert++ =  LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ = -LC_LIGHT_TARGET_EDGE;
+	*CurVert++ = -LC_LIGHT_TARGET_EDGE; *CurVert++ = -LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ = -LC_LIGHT_TARGET_EDGE;
+	*CurVert++ =  LC_LIGHT_TARGET_EDGE; *CurVert++ = -LC_LIGHT_TARGET_EDGE + 25.0f; *CurVert++ = -LC_LIGHT_TARGET_EDGE;
+
+	*CurVert++ = 0.0f; *CurVert++ =  0.0f; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = 25.0f; *CurVert++ = 0.0f;
+
+	Context->SetVertexBufferPointer(Verts);
+	Context->SetVertexFormatPosition(3);
+
+	const GLushort Indices[(12 + 1) * 2] =
+	{
+		0, 1, 1, 2, 2, 3, 3, 0,
+		4, 5, 5, 6, 6, 7, 7, 4,
+		0, 4, 1, 5, 2, 6, 3, 7,
+		8, 9
+	};
+
+	Context->SetIndexBufferPointer(Indices);
+
+	const lcPreferences& Preferences = lcGetPreferences();
+	const float LineWidth = Preferences.mLineWidth;
+	const lcVector4 LightColor = lcVector4FromColor(Preferences.mLightColor);
+
+	if (IsSelected(LC_LIGHT_SECTION_UPVECTOR))
+	{
+		const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+		const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+
+		Context->SetLineWidth(2.0f * LineWidth);
+
+		if (IsFocused(LC_LIGHT_SECTION_UPVECTOR))
+			Context->SetColor(FocusedColor);
+		else
+			Context->SetColor(SelectedColor);
+	}
+	else
+	{
+		Context->SetLineWidth(LineWidth);
+		Context->SetColor(LightColor);
+	}
+
+	Context->DrawIndexedPrimitives(GL_LINES, 12 * 2, GL_UNSIGNED_SHORT, 0);
+
+	Context->SetLineWidth(LineWidth);
+	Context->SetColor(LightColor);
+
+	Context->DrawIndexedPrimitives(GL_LINES, 2, GL_UNSIGNED_SHORT, 12 * 2 * 2);
 }
 
 float lcLight::SetupLightMatrix(lcContext* Context) const
@@ -1068,19 +1223,26 @@ float lcLight::SetupLightMatrix(lcContext* Context) const
 	lcVector3 FrontVector(mTargetPosition - mPosition);
 	lcVector3 UpVector(1, 1, 1);
 
-	if (fabs(FrontVector[0]) < fabs(FrontVector[1]))
+	if (IsAreaLight())
 	{
-		if (fabs(FrontVector[0]) < fabs(FrontVector[2]))
-			UpVector[0] = -(UpVector[1] * FrontVector[1] + UpVector[2] * FrontVector[2]);
-		else
-			UpVector[2] = -(UpVector[0] * FrontVector[0] + UpVector[1] * FrontVector[1]);
+		UpVector = mUpVector;
 	}
 	else
 	{
-		if (fabs(FrontVector[1]) < fabs(FrontVector[2]))
-			UpVector[1] = -(UpVector[0] * FrontVector[0] + UpVector[2] * FrontVector[2]);
+		if (fabs(FrontVector[0]) < fabs(FrontVector[1]))
+		{
+			if (fabs(FrontVector[0]) < fabs(FrontVector[2]))
+				UpVector[0] = -(UpVector[1] * FrontVector[1] + UpVector[2] * FrontVector[2]);
+			else
+				UpVector[2] = -(UpVector[0] * FrontVector[0] + UpVector[1] * FrontVector[1]);
+		}
 		else
-			UpVector[2] = -(UpVector[0] * FrontVector[0] + UpVector[1] * FrontVector[1]);
+		{
+			if (fabs(FrontVector[1]) < fabs(FrontVector[2]))
+				UpVector[1] = -(UpVector[0] * FrontVector[0] + UpVector[2] * FrontVector[2]);
+			else
+				UpVector[2] = -(UpVector[0] * FrontVector[0] + UpVector[1] * FrontVector[1]);
+		}
 	}
 
 	lcMatrix44 LightMatrix = lcMatrix44LookAt(mPosition, mTargetPosition, UpVector);
@@ -1337,6 +1499,9 @@ void lcLight::RemoveKeyFrames()
 
 	mTargetPositionKeys.RemoveAll();
 	mTargetPositionKeys.ChangeKey(mTargetPosition, 1, true);
+
+	mUpVectorKeys.RemoveAll();
+	mUpVectorKeys.ChangeKey(mUpVector, 1, true);
 
 	mAmbientColorKeys.RemoveAll();
 	mAmbientColorKeys.ChangeKey(mAmbientColor, 1, true);
