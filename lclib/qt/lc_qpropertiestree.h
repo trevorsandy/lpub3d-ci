@@ -44,10 +44,9 @@ public:
 		PropertyGroup,
 		PropertyBool,
 		PropertyFloat,
-/*** LPub3D Mod - enable lights ***/
+		PropertyFloatReadOnly,
 		PropertyFloatLightSpotSize,
 		PropertyFloatLightSpotFalloff,
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
 		PropertyBoolReadOnly,
 		PropertyFloatCameraAngle,
@@ -55,16 +54,13 @@ public:
 /*** LPub3D Mod end ***/
 		PropertyStep,
 		PropertyString,
-/*** LPub3D Mod - enable lights ***/
 		PropertyStringLightReadOnly,
 		PropertyLightFormat,
 		PropertyLightShape,
 		PropertyLightColor,
-/*** LPub3D Mod end ***/
 		PropertyColor,
 		PropertyPart,
 /*** LPub3D Mod - LPub3D properties ***/
-		PropertyFloatReadOnly,
 		PropertyIntReadOnly
 /*** LPub3D Mod end ***/
 	};
@@ -74,18 +70,14 @@ protected slots:
 	void slotReturnPressed();
 	void slotSetValue(int value);
 	void slotColorButtonClicked();
-/*** LPub3D Mod - enable lights ***/
-	void slotSetColorValue(QColor Value);
-/*** LPub3D Mod end ***/
+	void LightColorButtonClicked();
 
 protected:
 	void keyPressEvent(QKeyEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void updateColorEditor(QPushButton *editor, int value) const;
-/*** LPub3D Mod - enable lights ***/
-	void updateLightColorEditor(QPushButton *editor, QColor color) const;
-/*** LPub3D Mod end ***/
+	void UpdateLightColorEditor(QPushButton* Editor, QColor Color) const;
 
 	QTreeWidgetItem *addProperty(QTreeWidgetItem *parent, const QString& label, PropertyType propertyType);
 
@@ -95,17 +87,14 @@ protected:
 	void SetLight(lcObject* Focus);
 	void SetMultiple();
 
-	void getPartProperties(lcPartProperties *properties);
-
-/*** LPub3D Mod - enable lights ***/
 	lcLightType mLightType;
 	int mLightShape;
 	bool mPOVRayLight;
-/*** LPub3D Mod end ***/
+
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
 
-	lcQPropertiesTreeDelegate *m_delegate;
+	lcQPropertiesTreeDelegate* mDelegate;
 	QIcon m_expandIcon;
 	QIcon m_checkedIcon;
 	QIcon m_uncheckedIcon;
@@ -124,6 +113,7 @@ protected:
 	QTreeWidgetItem *partAppearance;
 	QTreeWidgetItem *partColor;
 	QTreeWidgetItem *partID;
+
 /*** LPub3D Mod - LPub3D Properties ***/
 	QTreeWidgetItem *partFileName;
 	QTreeWidgetItem *partModel;
@@ -132,10 +122,6 @@ protected:
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Camera Globe ***/
-	QTreeWidgetItem *cameraGlobe;
-	QTreeWidgetItem *cameraGlobeLatitude;
-	QTreeWidgetItem *cameraGlobeLongitude;
-	QTreeWidgetItem *cameraGlobeDistance;
 	QTreeWidgetItem *picture;
 	QTreeWidgetItem *pictureModelScale;
 	QTreeWidgetItem *pictureResolution;
@@ -143,7 +129,13 @@ protected:
 	QTreeWidgetItem *picturePageSizeHeight;
 	QTreeWidgetItem *pictureImageSizeWidth;
 	QTreeWidgetItem *pictureImageSizeHeight;
+	
+	QTreeWidgetItem *cameraGlobe;
+	QTreeWidgetItem *cameraGlobeLatitude;
+	QTreeWidgetItem *cameraGlobeLongitude;
+	QTreeWidgetItem *cameraGlobeDistance;
 /*** LPub3D Mod end ***/
+
 	QTreeWidgetItem *cameraPosition;
 	QTreeWidgetItem *cameraPositionX;
 	QTreeWidgetItem *cameraPositionY;
@@ -163,7 +155,6 @@ protected:
 	QTreeWidgetItem *cameraFar;
 	QTreeWidgetItem *cameraName;
 
-/*** LPub3D Mod - enable lights ***/
 	QTreeWidgetItem *lightConfiguration;
 	QTreeWidgetItem *lightPosition;
 	QTreeWidgetItem *lightPositionX;
@@ -196,7 +187,6 @@ protected:
 	QTreeWidgetItem *lightAreaGridColumns;
 	QTreeWidgetItem *lightSpotFalloff;
 	QTreeWidgetItem *lightSpotTightness;
-/*** LPub3D Mod end ***/
 };
 
 class lcQPropertiesTreeDelegate : public QItemDelegate
@@ -245,4 +235,3 @@ private:
 	mutable QWidget *m_editedWidget;
 	mutable bool m_disablePainting;
 };
-

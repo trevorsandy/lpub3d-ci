@@ -3328,7 +3328,6 @@ void lcModel::SetSelectedPiecesStepHide(lcStep Step)
 	}
 }
 
-/*** LPub3D Mod - enable lights ***/
 void lcModel::UpdateLight(lcLight* Light, const lcLightProperties Props, int Property)
 {
 	Light->UpdateLight(mCurrentStep, Props, Property);
@@ -3337,7 +3336,6 @@ void lcModel::UpdateLight(lcLight* Light, const lcLightProperties Props, int Pro
 	UpdateAllViews();
 	gMainWindow->UpdateSelectedObjects(false);
 }
-/*** LPub3D Mod end ***/
 
 void lcModel::SetCameraOrthographic(lcCamera* Camera, bool Ortho)
 {
@@ -3425,7 +3423,19 @@ void lcModel::SetCameraName(lcCamera* Camera, const QString& Name)
 	gMainWindow->UpdateCameraMenu();
 }
 
-/*** LPub3D Mod - enable lights ***/
+void lcModel::SetLightColor(lcLight* Light, const lcVector3& Color)
+{
+	if (Light->GetColor() == Color)
+		return;
+
+	Light->SetColor(Color, mCurrentStep, gMainWindow->GetAddKeys());
+	Light->UpdatePosition(mCurrentStep);
+
+	SaveCheckpoint(tr("Changing Light Color"));
+	gMainWindow->UpdateSelectedObjects(false);
+	UpdateAllViews();
+}
+
 void lcModel::SetLightName(lcLight* Light, const QString &Name)
 {
 	if (Light->GetName() == Name)
@@ -3438,7 +3448,6 @@ void lcModel::SetLightName(lcLight* Light, const QString &Name)
 	UpdateAllViews();
 	gMainWindow->UpdateCameraMenu();
 }
-/*** LPub3D Mod end ***/
 
 bool lcModel::AnyPiecesSelected() const
 {
