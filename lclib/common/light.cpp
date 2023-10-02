@@ -18,7 +18,7 @@
 #define LC_LIGHT_POSITION_EDGE 7.5f
 
 /*** LPub3D Mod - enable lights ***/
-static const std::array<QLatin1String, 4> gLightTypes = { QLatin1String("POINT"), QLatin1String("AREA"), QLatin1String("SUN"), QLatin1String("SPOT") };
+static const std::array<QLatin1String, static_cast<int>(lcLightType::Count)> gLightTypes = { QLatin1String("POINT"), QLatin1String("SPOT"), QLatin1String("SUN"), QLatin1String("AREA") };
 
 /*** LPub3D Mod - enable lights ***/
 lcLight::lcLight(const lcVector3& Position, const lcVector3& TargetPosition, lcLightType LightType, bool LPubMeta)
@@ -79,6 +79,29 @@ lcLight::lcLight(const lcVector3& Position, const lcVector3& TargetPosition, lcL
 	mAreaGridKeys.ChangeKey(mAreaGrid, 1, true);
 
 	UpdatePosition(1);
+}
+
+QString lcLight::GetLightTypeString(lcLightType LightType)
+{
+	switch (LightType)
+	{
+	case lcLightType::Point:
+		return QT_TRANSLATE_NOOP("Light Names", "Point Light");
+
+	case lcLightType::Spot:
+		return QT_TRANSLATE_NOOP("Light Names", "Spotlight");
+
+	case lcLightType::Sun:
+		return QT_TRANSLATE_NOOP("Light Names", "Sun Light");
+
+	case lcLightType::Area:
+		return QT_TRANSLATE_NOOP("Light Names", "Area Light");
+
+	case lcLightType::Count:
+		break;
+	}
+
+	return QString();
 }
 
 void lcLight::SaveLDraw(QTextStream& Stream) const
@@ -160,6 +183,9 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 
 	switch (mLightType)
 	{
+	case lcLightType::Count:
+		break;
+
 	case lcLightType::Point:
 		if (!mPOVRayLight)
 		{
@@ -247,6 +273,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 		Stream << QLatin1String(Meta + " LIGHT SHAPE ");
 
 		QString Shape = QLatin1String("UNDEFINED ");
+
 		switch (mLightShape)
 		{
 		case LC_LIGHT_SHAPE_SQUARE:
@@ -298,7 +325,7 @@ void lcLight::CreateName(const lcArray<lcLight*>& Lights)
 	switch (mLightType)
 	{
 	case lcLightType::Point:
-		Prefix = QLatin1String("Pointlight ");
+		Prefix = QLatin1String("Point Light ");
 		break;
 
 	case lcLightType::Spot:
@@ -306,11 +333,14 @@ void lcLight::CreateName(const lcArray<lcLight*>& Lights)
 		break;
 
 	case lcLightType::Sun:
-		Prefix = mLPubMeta ? QLatin1String("Sunlight ") : QLatin1String("Directionallight ");
+		Prefix = mLPubMeta ? QLatin1String("Sun Light ") : QLatin1String("Directional Light ");
 		break;
 
 	case lcLightType::Area:
-		Prefix = QLatin1String("Arealight ");
+		Prefix = QLatin1String("Area Light ");
+		break;
+
+	case lcLightType::Count:
 		break;
 	}
 
@@ -569,6 +599,9 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 						mLightFactorKeys.ChangeKey(mLightFactor, 1, true);
 					}
 				}
+				break;
+
+			case lcLightType::Count:
 				break;
 			}
 
@@ -879,6 +912,14 @@ void lcLight::MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance)
 	}
 }
 
+void lcLight::SetLightType(lcLightType LightType)
+{
+	if (static_cast<int>(LightType) < 0 || LightType >= lcLightType::Count)
+		return;
+
+	mLightType = LightType;
+}
+
 void lcLight::SetColor(const lcVector3& Color, lcStep Step, bool AddKey)
 {
 	mColorKeys.ChangeKey(Color, Step, AddKey);
@@ -995,6 +1036,9 @@ void lcLight::DrawInterface(lcContext* Context, const lcScene& Scene) const
 
 	case lcLightType::Area:
 		DrawAreaLight(Context);
+		break;
+
+	case lcLightType::Count:
 		break;
 	}
 }

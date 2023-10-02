@@ -3423,6 +3423,16 @@ void lcModel::SetCameraName(lcCamera* Camera, const QString& Name)
 	gMainWindow->UpdateCameraMenu();
 }
 
+void lcModel::SetLightType(lcLight* Light, lcLightType LightType)
+{
+	Light->SetLightType(LightType);
+	Light->UpdatePosition(mCurrentStep);
+
+	SaveCheckpoint(tr("Changing Light Type"));
+	gMainWindow->UpdateSelectedObjects(false);
+	UpdateAllViews();
+}
+
 void lcModel::SetLightColor(lcLight* Light, const lcVector3& Color)
 {
 	if (Light->GetColor() == Color)
@@ -4554,7 +4564,6 @@ void lcModel::PointLightToolClicked(const lcVector3& Position)
 	SaveCheckpoint(tr("New Point Light"));
 }
 
-/*** LPub3D Mod - enable lights ***/
 void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, lcLightType LightType)
 {
 	lcLight* Light = new lcLight(Position, Target, LightType);
@@ -4564,33 +4573,33 @@ void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVecto
 	mMouseToolDistance = Target;
 
 	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_TARGET, false);
-	QString light(LightType == lcLightType::Sun  ? "Sunlight "
-				: LightType == lcLightType::Spot ? "Spotlight "
-				: "Arealight ");
-	SaveCheckpoint(tr("%1").arg(light));
 
 	switch (LightType)
 	{
 	case lcLightType::Point:
 		break;
 
+	case lcLightType::Spot:
+		SaveCheckpoint(tr("New Spot Light"));
+		break;
+
+/*** LPub3D Mod - enable lights ***/
+	case lcLightType::Sun:
+		SaveCheckpoint(tr("New Sun Light"));
+/*** LPub3D Mod end ***/		
+		break;
+
 	case lcLightType::Area:
 		SaveCheckpoint(tr("New Area Light"));
 		break;
 
-	case lcLightType::Sun:
-		SaveCheckpoint(tr("New Sun Light"));
-		break;
-
-	case lcLightType::Spot:
-		SaveCheckpoint(tr("New Spot Light"));
+	case lcLightType::Count:
 		break;
 	}
 }
 
 void lcModel::UpdateDirectionalLightTool(const lcVector3& Position)
 {
-/*** LPub3D Mod end ***/
 	lcLight* Light = mLights[mLights.GetSize() - 1];
 
 	Light->MoveSelected(1, false, Position - mMouseToolDistance);
