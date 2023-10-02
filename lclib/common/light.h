@@ -157,10 +157,21 @@ public:
 	{
 		if (Selected)
 		{
-			if (IsPointLight())
+			switch (mLightType)
+			{
+			case lcLightType::Point:
 				mState |= LC_LIGHT_POSITION_SELECTED;
-			else
-				mState |= LC_LIGHT_SELECTION_MASK;
+				break;
+
+			case lcLightType::Spot:
+			case lcLightType::Sun:
+				mState |= LC_LIGHT_POSITION_SELECTED | LC_LIGHT_TARGET_SELECTED;
+				break;
+
+			case lcLightType::Area:
+				mState |= LC_LIGHT_POSITION_SELECTED | LC_LIGHT_TARGET_SELECTED | LC_LIGHT_UPVECTOR_SELECTED;
+				break;
+			}
 		}
 		else
 			mState &= ~(LC_LIGHT_SELECTION_MASK | LC_LIGHT_FOCUS_MASK);
@@ -190,7 +201,7 @@ public:
 		case LC_LIGHT_SECTION_UPVECTOR:
 			if (Selected)
 			{
-				if (!IsPointLight())
+				if (IsAreaLight())
 					mState |= LC_LIGHT_UPVECTOR_SELECTED;
 			}
 			else
@@ -248,7 +259,7 @@ public:
 		case LC_LIGHT_SECTION_UPVECTOR:
 			if (Focused)
 			{
-				if (!IsPointLight())
+				if (IsAreaLight())
 					mState |= LC_LIGHT_UPVECTOR_SELECTED | LC_LIGHT_UPVECTOR_FOCUSED;
 			}
 			else
