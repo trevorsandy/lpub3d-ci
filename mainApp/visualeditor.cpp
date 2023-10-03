@@ -1332,6 +1332,9 @@ void Gui::applyLightSettings()
             if (currentStep->lightList.contains(lightKey))
                 lightMeta.setValue(currentStep->lightList[lightKey]);
 
+            const float* Matrix = Light->mWorldMatrix;
+            const float Numbers[12] = { Matrix[12], -Matrix[14], Matrix[13], Matrix[0], -Matrix[8], Matrix[4], -Matrix[2], Matrix[10], -Matrix[6], Matrix[1], -Matrix[9], Matrix[5] };
+
             // Type and Name
             lightMeta.type.setValue(Type);
             metaString = lightMeta.type.format(local, global);
@@ -1339,23 +1342,25 @@ void Gui::applyLightSettings()
             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
 
             // Position
-            if (notEqual(Light->mPosition[X], lightData.position[X]) ||
-                notEqual(Light->mPosition[Y], lightData.position[Y]) ||
-                notEqual(Light->mPosition[Z], lightData.position[Z])) {
-                lightMeta.position.setValues(Light->mPosition[X],
-                                             Light->mPosition[Y],
-                                             Light->mPosition[Z]);
+            lcVector3 Position = lcVector3LeoCADToLDraw(lcVector3(Numbers[0], Numbers[1], Numbers[2]));
+            if (notEqual(Position[X], lightData.position[X]) ||
+                notEqual(Position[Y], lightData.position[Y]) ||
+                notEqual(Position[Z], lightData.position[Z])) {
+                lightMeta.position.setValues(Position[X],
+                                             Position[Y],
+                                             Position[Z]);
                 metaString = lightMeta.position.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
-            // Target Position
-            if (notEqual(Light->mTargetPosition[X], lightData.target[X]) ||
-                notEqual(Light->mTargetPosition[Y], lightData.target[Y]) ||
-                notEqual(Light->mTargetPosition[Z], lightData.target[Z])) {
-                lightMeta.target.setValues(Light->mTargetPosition[X],
-                                           Light->mTargetPosition[Y],
-                                           Light->mTargetPosition[Z]);
+            // Rotation
+            lcVector3 Rotation = lcVector3LeoCADToLDraw(lcVector3(Numbers[3], Numbers[4], Numbers[5]));
+            if (notEqual(Rotation[X], lightData.target[X]) ||
+                notEqual(Rotation[Y], lightData.target[Y]) ||
+                notEqual(Rotation[Z], lightData.target[Z])) {
+                lightMeta.target.setValues(Rotation[X],
+                                           Rotation[Y],
+                                           Rotation[Z]);
                 metaString = lightMeta.target.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
@@ -2446,15 +2451,20 @@ QStringList Gui::get3DViewerPOVLightList() const
             if (currentStep->lightList.contains(lightKey))
                 lightData = currentStep->lightList[lightKey];
 
+            const float* Matrix = Light->mWorldMatrix;
+            const float Numbers[12] = { Matrix[12], -Matrix[14], Matrix[13], Matrix[0], -Matrix[8], Matrix[4], -Matrix[2], Matrix[10], -Matrix[6], Matrix[1], -Matrix[9], Matrix[5] };
+
             lightData.type = Type;
             lightData.name = Light->mName;
             lightData.povrayLight = Light->mPOVRayLight;
-            lightData.position[X] = Light->mPosition.x;
-            lightData.position[Y] = Light->mPosition.y;
-            lightData.position[Z] = Light->mPosition.z;
-            lightData.target[X] = Light->mTargetPosition.x;
-            lightData.target[Y] = Light->mTargetPosition.y;
-            lightData.target[Z] = Light->mTargetPosition.z;
+            lcVector3 Position = lcVector3LeoCADToLDraw(lcVector3(Numbers[0], Numbers[1], Numbers[2]));
+            lightData.position[X] = Position.x;
+            lightData.position[Y] = Position.y;
+            lightData.position[Z] = Position.z;
+            lcVector3 Rotation = lcVector3LeoCADToLDraw(lcVector3(Numbers[3], Numbers[4], Numbers[5]));
+            lightData.target[X] = Rotation.x;
+            lightData.target[Y] = Rotation.y;
+            lightData.target[Z] = Rotation.z;
             lightData.color[0] = Light->GetColor().x;
             lightData.color[1] = Light->GetColor().y;
             lightData.color[2] = Light->GetColor().z;
