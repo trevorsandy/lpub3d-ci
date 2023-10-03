@@ -1325,6 +1325,8 @@ void Gui::applyLightSettings()
             case lcLightType::Spot:
                 Type = lightData.typeNames[LightData::Spot];
                 break;
+            case lcLightType::Count:
+                break;
             }
 
             // Populate existing settings
@@ -1488,68 +1490,73 @@ void Gui::applyLightSettings()
                 }
                 break;
             case lcLightType::Area:
-                if (Light->mPOVRayLight)
                 {
-                    // Area Rows and Area Columns
-                    if (int(Light->mAreaGrid[0]) != lightData.areaRows || int(Light->mAreaGrid[1]) != lightData.areaColumns) {
-                        lightMeta.areaRows.setValue(Light->mAreaGrid[0]);
-                        lightMeta.areaColumns.setValue(Light->mAreaGrid[1]);
-                        metaString = lightMeta.areaRows.format(local, global);
-                        metaString.append(QString(" AREA_COLUMNS %1").arg(int(Light->mAreaGrid[1])));
+                    if (Light->mPOVRayLight)
+                    {
+                        // Area Rows and Area Columns
+                        if (int(Light->mAreaGrid[0]) != lightData.areaRows || int(Light->mAreaGrid[1]) != lightData.areaColumns) {
+                            lightMeta.areaRows.setValue(Light->mAreaGrid[0]);
+                            lightMeta.areaColumns.setValue(Light->mAreaGrid[1]);
+                            metaString = lightMeta.areaRows.format(local, global);
+                            metaString.append(QString(" AREA_COLUMNS %1").arg(int(Light->mAreaGrid[1])));
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                    }
+
+                    if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight) {
+                        const float width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
+                        const float height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
+                        // Width and Height
+                        if (notEqual(width, lightData.width) || notEqual(height, lightData.height)) {
+                            lightMeta.width.setValue(width);
+                            lightMeta.height.setValue(height);
+                            metaString = lightMeta.width.format(local, global);
+                            metaString.append(QString(" HEIGHT %1").arg(double(height)));
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                    } else {
+                        // Size
+                        if (notEqual(Light->mLightFactor[0], lightData.size)) {
+                            lightMeta.size.setValue(Light->mLightFactor[0]);
+                            metaString = lightMeta.size.format(local, global);
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                    }
+
+                    // Shape
+                    QString Shape = "UNDEFINED";
+                    switch(Light->GetLightShape())
+                    {
+                    case LC_LIGHT_SHAPE_SQUARE:
+                        Shape = QLatin1String("SQUARE");
+                        break;
+                    case LC_LIGHT_SHAPE_DISK:
+                        Shape = QLatin1String("DISK");
+                        break;
+                    case LC_LIGHT_SHAPE_RECTANGLE:
+                        Shape = QLatin1String("RECTANGLE");
+                        break;
+                    case LC_LIGHT_SHAPE_ELLIPSE:
+                        Shape = QLatin1String("ELLIPSE");
+                        break;
+                    }
+
+                    int ShapeInt = LC_LIGHT_SHAPE_SQUARE;
+                    if (lightData.shape == QLatin1String("DISK"))
+                        ShapeInt = LC_LIGHT_SHAPE_DISK;
+                    else if (lightData.shape == QLatin1String("RECTANGLE"))
+                        ShapeInt = LC_LIGHT_SHAPE_RECTANGLE;
+                    else if (lightData.shape == QLatin1String("ELLIPSE"))
+                        ShapeInt = LC_LIGHT_SHAPE_ELLIPSE;
+
+                    if (Light->GetLightShape() != ShapeInt) {
+                        lightMeta.shape.setValue(Shape);
+                        metaString = lightMeta.shape.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                 }
-
-                if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight) {
-                    const float width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
-                    const float height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
-                    // Width and Height
-                    if (notEqual(width, lightData.width) || notEqual(height, lightData.height)) {
-                        lightMeta.width.setValue(width);
-                        lightMeta.height.setValue(height);
-                        metaString = lightMeta.width.format(local, global);
-                        metaString.append(QString(" HEIGHT %1").arg(double(height)));
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                } else {
-                    // Size
-                    if (notEqual(Light->mLightFactor[0], lightData.size)) {
-                        lightMeta.size.setValue(Light->mLightFactor[0]);
-                        metaString = lightMeta.size.format(local, global);
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                }
-
-                // Shape
-                QString Shape = "UNDEFINED";
-                switch(Light->GetLightShape()) {
-                case LC_LIGHT_SHAPE_SQUARE:
-                    Shape = QLatin1String("SQUARE");
-                    break;
-                case LC_LIGHT_SHAPE_DISK:
-                    Shape = QLatin1String("DISK");
-                    break;
-                case LC_LIGHT_SHAPE_RECTANGLE:
-                    Shape = QLatin1String("RECTANGLE");
-                    break;
-                case LC_LIGHT_SHAPE_ELLIPSE:
-                    Shape = QLatin1String("ELLIPSE");
-                    break;
-                }
-
-                int ShapeInt = LC_LIGHT_SHAPE_SQUARE;
-                if (lightData.shape == QLatin1String("DISK"))
-                    ShapeInt = LC_LIGHT_SHAPE_DISK;
-                else if (lightData.shape == QLatin1String("RECTANGLE"))
-                    ShapeInt = LC_LIGHT_SHAPE_RECTANGLE;
-                else if (lightData.shape == QLatin1String("ELLIPSE"))
-                    ShapeInt = LC_LIGHT_SHAPE_ELLIPSE;
-
-                if (Light->GetLightShape() != ShapeInt) {
-                    lightMeta.shape.setValue(Shape);
-                    metaString = lightMeta.shape.format(local, global);
-                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                }
+                break;
+            case lcLightType::Count:
                 break;
             }
 
@@ -2445,6 +2452,8 @@ QStringList Gui::get3DViewerPOVLightList() const
             case lcLightType::Spot:
                 Type = lightData.typeNames[LightData::Spot];
                 break;
+            case lcLightType::Count:
+                break;
             }
 
             const QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
@@ -2499,43 +2508,46 @@ QStringList Gui::get3DViewerPOVLightList() const
                     lightData.spotSize = Light->mSpotSize;
                 }
                 break;
-
             case lcLightType::Sun:
                 lightData.strength = Light->mPOVRayLight ? Light->mPOVRayExponent : Light->mSpotExponent;
                 if (!Light->mPOVRayLight)
                     lightData.angle = Light->mLightFactor[0];
                 break;
-
             case lcLightType::Area:
-                if (Light->mPOVRayLight)
                 {
-                    lightData.areaRows = int(Light->mAreaGrid[0]);
-                    lightData.areaColumns = int(Light->mAreaGrid[1]);
+                    if (Light->mPOVRayLight)
+                    {
+                        lightData.areaRows = int(Light->mAreaGrid[0]);
+                        lightData.areaColumns = int(Light->mAreaGrid[1]);
+                    }
+                    if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight)
+                    {
+                        lightData.width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
+                        lightData.height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
+                    }
+                    else
+                    {
+                        lightData.size = Light->mLightFactor[0];
+                    }
+                    QString Shape = "UNDEFINED";
+                    switch(Light->GetLightShape())
+                    {
+                    case LC_LIGHT_SHAPE_SQUARE:
+                        lightData.shape = QLatin1String("SQUARE");
+                        break;
+                    case LC_LIGHT_SHAPE_DISK:
+                        lightData.shape = QLatin1String("DISK");
+                        break;
+                    case LC_LIGHT_SHAPE_RECTANGLE:
+                        lightData.shape = QLatin1String("RECTANGLE");
+                        break;
+                    case LC_LIGHT_SHAPE_ELLIPSE:
+                        lightData.shape = QLatin1String("ELLIPSE");
+                        break;
+                    }
                 }
-                if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight)
-                {
-                    lightData.width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
-                    lightData.height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
-                }
-                else
-                {
-                    lightData.size = Light->mLightFactor[0];
-                }
-                QString Shape = "UNDEFINED";
-                switch(Light->GetLightShape()) {
-                case LC_LIGHT_SHAPE_SQUARE:
-                    lightData.shape = QLatin1String("SQUARE");
-                    break;
-                case LC_LIGHT_SHAPE_DISK:
-                    lightData.shape = QLatin1String("DISK");
-                    break;
-                case LC_LIGHT_SHAPE_RECTANGLE:
-                    lightData.shape = QLatin1String("RECTANGLE");
-                    break;
-                case LC_LIGHT_SHAPE_ELLIPSE:
-                    lightData.shape = QLatin1String("ELLIPSE");
-                    break;
-                }
+                break;
+            case lcLightType::Count:
                 break;
             }
 
@@ -3501,7 +3513,7 @@ void Gui::ReloadVisualEditor() {
                      else if (Token == QLatin1String("LIGHT"))
                      {
                          if (!Light)
-                             Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, true/*LPubMeta*/);
+                             Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, true/*LPubMeta*/);
 
                          if (Light->ParseLDrawLine(LineStream))
                          {
