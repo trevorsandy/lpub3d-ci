@@ -1070,8 +1070,9 @@ void lcQPropertiesTree::slotReturnPressed()
 
 			if (Item == lightPositionX || Item == lightPositionY || Item == lightPositionZ)
 			{
-				lcVector3 Center = Light->mPosition;
+				lcVector3 Center = Light->GetPosition();
 				lcVector3 Position = Center;
+
 				float Value = lcParseValueLocalized(Editor->text());
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				if (Item == lightPositionX)
@@ -1088,21 +1089,21 @@ void lcQPropertiesTree::slotReturnPressed()
 			}
 			else if (Item == lightTargetX || Item == lightTargetY || Item == lightTargetZ)
 			{
-				lcVector3 Center = Light->mTargetPosition;
-				lcVector3 Position = Center;
-				float Value = lcParseValueLocalized(Editor->text());
+//				lcVector3 Center = Light->mTargetPosition;
+//				lcVector3 Position = Center;
+//				float Value = lcParseValueLocalized(Editor->text());
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-				if (Item == lightTargetX)
-					Position[X] = Value;
-				else if (Item == lightTargetY)
-					Position[Z] = -Value;
-				else if (Item == lightTargetZ)
-					Position[Y] = Value;
+//				if (Item == lightTargetX)
+//					Position[X] = Value;
+//				else if (Item == lightTargetY)
+//					Position[Z] = -Value;
+//				else if (Item == lightTargetZ)
+//					Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
-				lcVector3 Distance = Position - Center;
+//				lcVector3 Distance = Position - Center;
 
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+//				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 			}
 			else if (Item == lightFactorA || Item == lightFactorB)
 			{
@@ -1821,8 +1822,8 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 		Format = POVRayLight ? QLatin1String("POVRay") : QLatin1String("Blender");
 
 		CastShadow = Light->GetCastShadow();
-		Position = Light->mPosition;
-		Target = Light->mTargetPosition;
+		Position = Light->GetPosition();
+//		Target = Light->mTargetPosition;
 		Color = lcQColorFromVector3(Light->GetColor());
 		Factor = Light->mLightFactor;
 		LightType = Light->GetLightType();

@@ -681,7 +681,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			{
 /*** LPub3D Mod - enable lights ***/
 				if (!Light)
-					Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, LPubMeta);
+					Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, LPubMeta);
 /*** LPub3D Mod end ***/
 				if (Light->ParseLDrawLine(LineStream))
 				{
@@ -730,7 +730,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 					lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
 					PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-															 lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+					                                         lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
 					PieceControlPoint.Scale = Numbers[12];
 				}
 			}
@@ -777,7 +777,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 				const float* Matrix = IncludeTransform;
 				const lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
-										   lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
+									       lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
 /*** LPub3D Mod - Selected Parts ***/
 				LineTypeIndex++;
@@ -2313,8 +2313,14 @@ lcMatrix33 lcModel::GetRelativeRotation() const
 	{
 		const lcObject* Focus = GetFocusObject();
 
-		if (Focus && Focus->IsPiece())
-			return ((lcPiece*)Focus)->GetRelativeRotation();
+		if (Focus)
+		{
+			if (Focus->IsPiece())
+				return ((lcPiece*)Focus)->GetRelativeRotation();
+
+			if (Focus->IsLight())
+				return ((lcLight*)Focus)->GetRelativeRotation();
+		}
 	}
 
 	return lcMatrix33Identity();
@@ -2972,6 +2978,16 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 /*** LPub3D Mod end ***/
 				}
 			}
+
+			for (lcLight* Light : mLights)
+			{
+				if (Light->IsSelected())
+				{
+					Light->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedPieceDistance);
+					Light->UpdatePosition(mCurrentStep);
+					Moved = true;
+				}
+			}
 		}
 	}
 
@@ -2985,16 +3001,6 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 			{
 				Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
 				Camera->UpdatePosition(mCurrentStep);
-				Moved = true;
-			}
-		}
-
-		for (lcLight* Light : mLights)
-		{
-			if (Light->IsSelected())
-			{
-				Light->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
-				Light->UpdatePosition(mCurrentStep);
 				Moved = true;
 			}
 		}
@@ -3095,7 +3101,7 @@ void lcModel::RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool
 				{
 					lcLight* Light = (lcLight*)Object;
 
-					Light->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, WorldToFocusMatrix);
+					Light->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
 					Light->UpdatePosition(mCurrentStep);
 					Rotated = true;
 				}
@@ -3155,7 +3161,7 @@ void lcModel::RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool
 						RelativeRotationMatrix = RotationMatrix;
 					}
 
-					Light->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, WorldToFocusMatrix);
+					Light->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
 					Light->UpdatePosition(mCurrentStep);
 					Rotated = true;
 				}
@@ -3644,12 +3650,6 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 
 		Center += Light->GetSectionPosition(LC_LIGHT_SECTION_POSITION);
 		NumSelected++;
-
-		if (!Light->IsPointLight())
-		{
-			Center += Light->GetSectionPosition(LC_LIGHT_SECTION_TARGET);
-			NumSelected++;
-		}
 	}
 
 	if (NumSelected)
@@ -4637,29 +4637,18 @@ void lcModel::InsertPieceToolClicked(const lcMatrix44& WorldMatrix)
 	SaveCheckpoint(tr("Insert"));
 }
 
-void lcModel::PointLightToolClicked(const lcVector3& Position)
+void lcModel::InsertLightToolClicked(const lcVector3& Position, lcLightType LightType)
 {
-	lcLight* Light = new lcLight(Position, lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point);
+	lcLight* Light = new lcLight(Position, LightType);
 	Light->CreateName(mLights);
 	mLights.Add(Light);
 
 	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_POSITION, false);
-	SaveCheckpoint(tr("New Point Light"));
-}
-
-void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, lcLightType LightType)
-{
-	lcLight* Light = new lcLight(Position, Target, LightType);
-	Light->CreateName(mLights);
-	mLights.Add(Light);
-
-	mMouseToolDistance = Target;
-
-	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_TARGET, false);
 
 	switch (LightType)
 	{
 	case lcLightType::Point:
+		SaveCheckpoint(tr("New Point Light"));
 		break;
 
 	case lcLightType::Spot:
@@ -4677,19 +4666,6 @@ void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVecto
 	case lcLightType::Count:
 		break;
 	}
-}
-
-void lcModel::UpdateDirectionalLightTool(const lcVector3& Position)
-{
-	lcLight* Light = mLights[mLights.GetSize() - 1];
-
-	Light->MoveSelected(1, false, Position - mMouseToolDistance);
-	Light->UpdatePosition(1);
-
-	mMouseToolDistance = Position;
-
-	gMainWindow->UpdateSelectedObjects(false);
-	UpdateAllViews();
 }
 
 void lcModel::BeginCameraTool(const lcVector3& Position, const lcVector3& Target)

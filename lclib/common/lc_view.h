@@ -17,10 +17,10 @@ enum class lcCursor
 	Hidden = First,
 	Default,
 	Brick,
-	Light,
-	Sunlight,     /*** LPub3D Mod - enable lights ***/
-    Arealight,    /*** LPub3D Mod - enable lights ***/
-	Spotlight,
+	PointLight,
+	SpotLight,
+	SunLight,
+	AreaLight,
 	Camera,
 	Select,
 	SelectAdd,
@@ -54,9 +54,9 @@ enum class lcTrackTool
 	None,
 	Insert,
 	PointLight,
-	SunLight,      /*** LPub3D Mod - enable lights ***/
-	AreaLight,     /*** LPub3D Mod - enable lights ***/
 	SpotLight,
+	SunLight,
+	AreaLight,
 	Camera,
 	Select,
 	MoveX,
@@ -196,7 +196,7 @@ public:
 	{
 		return mActiveSubmodelTransform;
 	}
-		
+
 /*** LPub3D Mod - Rotate step angles ***/
 	lcTrackTool GetTrackTool() const
 	{
