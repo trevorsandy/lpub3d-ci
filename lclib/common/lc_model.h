@@ -23,9 +23,6 @@
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - enable lights ***/
-class lcLightProps;
-/*** LPub3D Mod end ***/
 
 enum class lcSelectionMode
 {
@@ -83,6 +80,26 @@ public:
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	int mUnoffPartColorCode;
 /*** LPub3D Mod end ***/
+};
+
+class lcPOVRayOptions
+{
+public:
+	lcPOVRayOptions();
+	void ParseLDrawLine(QTextStream& LineStream);
+	void SaveLDraw(QTextStream& Stream) const;
+
+	bool UseLGEO;
+	bool ExcludeFloor;
+	bool ExcludeBackground;
+	bool NoReflection;
+	bool NoShadow;
+	int FloorAxis;
+	float FloorAmbient;
+	float FloorDiffuse;
+	lcVector3 FloorColor;
+	QString HeaderIncludeFile;
+	QString FooterIncludeFile;
 };
 
 struct lcModelHistoryEntry
@@ -152,6 +169,11 @@ public:
 	const lcModelProperties& GetProperties() const
 	{
 		return mProperties;
+	}
+
+	const lcPOVRayOptions& GetPOVRayOptions() const
+	{
+		return mPOVRayOptions;
 	}
 
 /*** LPub3D Mod - preview widget ***/
@@ -447,6 +469,7 @@ protected:
 //	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
 	void InsertPiece(lcPiece* Piece, int Index);
 
+	lcPOVRayOptions mPOVRayOptions;
 	lcModelProperties mProperties;
 	Project* const mProject;
 	PieceInfo* mPieceInfo;
