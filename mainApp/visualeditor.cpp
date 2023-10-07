@@ -906,7 +906,7 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setEnabled(enable);
     //File
-    gMainWindow->mActions[LC_FILE_RENDER]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_RENDER_POVRAY]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
     //Export
@@ -1428,19 +1428,20 @@ void Gui::applyLightSettings()
                 if (Light->mPOVRayLight)
                 {
                     // Spot Tightness
-                    if (notEqual(Light->mSpotTightness, lightData.spotTightness)) {
-                        lightMeta.spotTightness.setValue(Light->mSpotTightness);
+                    if (notEqual(Light->GetSpotTightness(), lightData.spotTightness)) {
+                        lightMeta.spotTightness.setValue(Light->GetSpotTightness());
                         metaString = lightMeta.spotTightness.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     // Spot Falloff
-                    if (notEqual(Light->mSpotFalloff, lightData.spotFalloff)) {
-                        lightMeta.spotFalloff.setValue(Light->mSpotFalloff);
+                    const float spotFalloff = Light->GetSpotConeAngle() / 2.0f;
+                    if (notEqual(spotFalloff, lightData.spotFalloff)) {
+                        lightMeta.spotFalloff.setValue(spotFalloff);
                         metaString = lightMeta.spotFalloff.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     // Radius
-                    const float spotRadius = Light->mSpotSize - Light->mSpotFalloff;
+                    const float spotRadius = spotFalloff - Light->GetSpotPenumbraAngle();
                     if (notEqual(spotRadius, lightData.radius)) {
                         lightMeta.radius.setValue(spotRadius);
                         metaString = lightMeta.radius.format(local, global);
@@ -1462,8 +1463,9 @@ void Gui::applyLightSettings()
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     // Spot Size
-                    if (notEqual(Light->mSpotSize, lightData.spotSize)) {
-                        lightMeta.spotSize.setValue(Light->mSpotSize);
+                    const float spotSize = 75.0f; // Light->mSpotSize
+                    if (notEqual(spotSize, lightData.spotSize)) {
+                        lightMeta.spotSize.setValue(spotSize);
                         metaString = lightMeta.spotSize.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
@@ -2497,15 +2499,15 @@ QStringList Gui::get3DViewerPOVLightList() const
             case lcLightType::Spot:
                 if (Light->mPOVRayLight)
                 {
-                    lightData.spotTightness = Light->mSpotTightness;
-                    lightData.spotFalloff = Light->mSpotFalloff;
-                    lightData.radius = Light->mSpotSize - Light->mSpotFalloff;
+                    lightData.spotTightness = Light->GetSpotTightness();
+                    lightData.spotFalloff = Light->GetSpotConeAngle() / 2.0f;
+                    lightData.radius = lightData.spotFalloff - Light->GetSpotPenumbraAngle();
                 }
                 else
                 {
                     lightData.radius = Light->mLightFactor[0];
                     lightData.spotBlend = Light->mLightFactor[1];
-                    lightData.spotSize = Light->mSpotSize;
+                    lightData.spotSize = 75.0f; // Light->mSpotSize;
                 }
                 break;
             case lcLightType::Sun:
@@ -5267,7 +5269,7 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
             Stream << QLatin1String("0 NOFILE\r\n");
         }
         Stream << QLatin1String("0 FILE ") << Model->GetProperties().mFileName << Extension << LineEnding;
-        Model->SaveLDraw(Stream, false);
+        Model->SaveLDraw(Stream, false, 0);
         Model->SetSaved();
         Stream << QLatin1String("0 NOFILE\r\n");
     }
