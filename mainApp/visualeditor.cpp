@@ -1505,9 +1505,9 @@ void Gui::applyLightSettings()
                         }
                     }
 
-                    if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight) {
-                        const float width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
-                        const float height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
+                    if (Light->GetLightShape() == lcLightAreaShape::Rectangle || Light->GetLightShape() == lcLightAreaShape::Ellipse || Light->mPOVRayLight) {
+                        const float width = Light->mPOVRayLight ? Light->GetAreaSize()[0]: Light->mLightFactor[0];
+                        const float height = Light->mPOVRayLight ? Light->GetAreaSize()[1]: Light->mLightFactor[1];
                         // Width and Height
                         if (notEqual(width, lightData.width) || notEqual(height, lightData.height)) {
                             lightMeta.width.setValue(width);
@@ -1526,32 +1526,34 @@ void Gui::applyLightSettings()
                     }
 
                     // Shape
-                    QString Shape = "UNDEFINED";
+                    QString Shape = QLatin1String("UNDEFINED");
                     switch(Light->GetLightShape())
                     {
-                    case LC_LIGHT_SHAPE_SQUARE:
+                    case lcLightAreaShape::Square:
                         Shape = QLatin1String("SQUARE");
                         break;
-                    case LC_LIGHT_SHAPE_DISK:
+                    case lcLightAreaShape::Disk:
                         Shape = QLatin1String("DISK");
                         break;
-                    case LC_LIGHT_SHAPE_RECTANGLE:
+                    case lcLightAreaShape::Rectangle:
                         Shape = QLatin1String("RECTANGLE");
                         break;
-                    case LC_LIGHT_SHAPE_ELLIPSE:
+                    case lcLightAreaShape::Ellipse:
                         Shape = QLatin1String("ELLIPSE");
+                        break;
+                    case lcLightAreaShape::Count:
                         break;
                     }
 
-                    int ShapeInt = LC_LIGHT_SHAPE_SQUARE;
+                    lcLightAreaShape LightShape = lcLightAreaShape::Square;
                     if (lightData.shape == QLatin1String("DISK"))
-                        ShapeInt = LC_LIGHT_SHAPE_DISK;
+                        LightShape = lcLightAreaShape::Disk;
                     else if (lightData.shape == QLatin1String("RECTANGLE"))
-                        ShapeInt = LC_LIGHT_SHAPE_RECTANGLE;
+                        LightShape = lcLightAreaShape::Rectangle;
                     else if (lightData.shape == QLatin1String("ELLIPSE"))
-                        ShapeInt = LC_LIGHT_SHAPE_ELLIPSE;
+                        LightShape = lcLightAreaShape::Ellipse;
 
-                    if (Light->GetLightShape() != ShapeInt) {
+                    if (Light->GetLightShape() != LightShape) {
                         lightMeta.shape.setValue(Shape);
                         metaString = lightMeta.shape.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
@@ -2522,10 +2524,10 @@ QStringList Gui::get3DViewerPOVLightList() const
                         lightData.areaRows = int(Light->mAreaGrid[0]);
                         lightData.areaColumns = int(Light->mAreaGrid[1]);
                     }
-                    if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight)
+                    if (Light->GetLightShape() == lcLightAreaShape::Rectangle || Light->GetLightShape() == lcLightAreaShape::Ellipse || Light->mPOVRayLight)
                     {
-                        lightData.width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
-                        lightData.height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
+                        lightData.width = Light->mPOVRayLight ? Light->GetAreaSize()[0]: Light->mLightFactor[0];
+                        lightData.height = Light->mPOVRayLight ? Light->GetAreaSize()[1]: Light->mLightFactor[1];
                     }
                     else
                     {
@@ -2534,17 +2536,19 @@ QStringList Gui::get3DViewerPOVLightList() const
                     QString Shape = "UNDEFINED";
                     switch(Light->GetLightShape())
                     {
-                    case LC_LIGHT_SHAPE_SQUARE:
+                    case lcLightAreaShape::Square:
                         lightData.shape = QLatin1String("SQUARE");
                         break;
-                    case LC_LIGHT_SHAPE_DISK:
+                    case lcLightAreaShape::Disk:
                         lightData.shape = QLatin1String("DISK");
                         break;
-                    case LC_LIGHT_SHAPE_RECTANGLE:
+                    case lcLightAreaShape::Rectangle:
                         lightData.shape = QLatin1String("RECTANGLE");
                         break;
-                    case LC_LIGHT_SHAPE_ELLIPSE:
+                    case lcLightAreaShape::Ellipse:
                         lightData.shape = QLatin1String("ELLIPSE");
+                        break;
+                    case lcLightAreaShape::Count:
                         break;
                     }
                 }
