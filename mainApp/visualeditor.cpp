@@ -1303,7 +1303,7 @@ void Gui::applyLightSettings()
 
         for (lcLight* Light : ActiveModel->GetLights()) {
 
-            emit messageSig(LOG_INFO, tr("Setting Light [%1]").arg(Light->mName));
+            emit messageSig(LOG_INFO, tr("Setting Light [%1]").arg(Light->GetName()));
 
             // LeoCAD to LDraw to POVRay: 0 1 2 => 0 -2 1 => 2 0 1
             const int X = Light->mPOVRayLight ? 2 : 0 ;
@@ -1330,7 +1330,7 @@ void Gui::applyLightSettings()
             }
 
             // Populate existing settings
-            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
+            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->GetName());
             if (currentStep->lightList.contains(lightKey))
                 lightMeta.setValue(currentStep->lightList[lightKey]);
 
@@ -1340,7 +1340,7 @@ void Gui::applyLightSettings()
             // Type and Name
             lightMeta.type.setValue(Type);
             metaString = lightMeta.type.format(local, global);
-            metaString.append(QString(" NAME \"%1\"").arg(Light->mName));
+            metaString.append(QString(" NAME \"%1\"").arg(Light->GetName()));
             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
 
             // Position
@@ -1416,9 +1416,10 @@ void Gui::applyLightSettings()
             case lcLightType::Point:
                 if (!Light->mPOVRayLight)
                 {
-                    // Radius
-                    if (notEqual(Light->mLightFactor[0], lightData.radius)) {
-                        lightMeta.radius.setValue(Light->mLightFactor[0]);
+                    // Point Radius
+                    const float pointRadius = 0.25f;
+                    if (notEqual(pointRadius, lightData.radius)) {
+                        lightMeta.radius.setValue(pointRadius);
                         metaString = lightMeta.radius.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
@@ -1440,7 +1441,7 @@ void Gui::applyLightSettings()
                         metaString = lightMeta.spotFalloff.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
-                    // Radius
+                    // Spot Radius
                     const float spotRadius = spotFalloff - Light->GetSpotPenumbraAngle();
                     if (notEqual(spotRadius, lightData.radius)) {
                         lightMeta.radius.setValue(spotRadius);
@@ -1451,19 +1452,21 @@ void Gui::applyLightSettings()
                 else
                 {
                     // Spot Blend
-                    if (notEqual(Light->mLightFactor[1], lightData.spotBlend)) {
-                        lightMeta.spotBlend.setValue(Light->mLightFactor[1]);
+                    const float spotBlend = 0.150f;
+                    if (notEqual(spotBlend, lightData.spotBlend)) {
+                        lightMeta.spotBlend.setValue(spotBlend);
                         metaString = lightMeta.spotBlend.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
-                    // Radius
-                    if (notEqual(Light->mLightFactor[0], lightData.radius)) {
-                        lightMeta.radius.setValue(Light->mLightFactor[0]);
+                    // Spot Radius
+                    const float spotRadius = 0.25f;
+                    if (notEqual(spotRadius, lightData.radius)) {
+                        lightMeta.radius.setValue(spotRadius);
                         metaString = lightMeta.radius.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     // Spot Size
-                    const float spotSize = 75.0f; // Light->mSpotSize
+                    const float spotSize = 75.0f;
                     if (notEqual(spotSize, lightData.spotSize)) {
                         lightMeta.spotSize.setValue(spotSize);
                         metaString = lightMeta.spotSize.format(local, global);
@@ -1483,8 +1486,9 @@ void Gui::applyLightSettings()
                     if (!Light->mPOVRayLight)
                     {
                         // Angle
-                        if (notEqual(Light->mLightFactor[0], lightData.angle)) {
-                            lightMeta.angle.setValue(Light->mLightFactor[0]);
+                        const float sunAngle = 11.4f;
+                        if (notEqual(sunAngle, lightData.angle)) {
+                            lightMeta.angle.setValue(sunAngle);
                             metaString = lightMeta.angle.format(local, global);
                             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
@@ -1505,9 +1509,9 @@ void Gui::applyLightSettings()
                         }
                     }
 
-                    if (Light->GetLightShape() == lcLightAreaShape::Rectangle || Light->GetLightShape() == lcLightAreaShape::Ellipse || Light->mPOVRayLight) {
-                        const float width = Light->mPOVRayLight ? Light->GetAreaSize()[0]: Light->mLightFactor[0];
-                        const float height = Light->mPOVRayLight ? Light->GetAreaSize()[1]: Light->mLightFactor[1];
+                    if (Light->GetAreaShape() == lcLightAreaShape::Rectangle || Light->GetAreaShape() == lcLightAreaShape::Ellipse || Light->mPOVRayLight) {
+                        const float width = Light->GetSize()[0];
+                        const float height = Light->GetSize()[1];
                         // Width and Height
                         if (notEqual(width, lightData.width) || notEqual(height, lightData.height)) {
                             lightMeta.width.setValue(width);
@@ -1518,8 +1522,8 @@ void Gui::applyLightSettings()
                         }
                     } else {
                         // Size
-                        if (notEqual(Light->mLightFactor[0], lightData.size)) {
-                            lightMeta.size.setValue(Light->mLightFactor[0]);
+                        if (notEqual(Light->GetSize()[0], lightData.size)) {
+                            lightMeta.size.setValue(Light->GetSize()[0]);
                             metaString = lightMeta.size.format(local, global);
                             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
@@ -1527,7 +1531,7 @@ void Gui::applyLightSettings()
 
                     // Shape
                     QString Shape = QLatin1String("UNDEFINED");
-                    switch(Light->GetLightShape())
+                    switch(Light->GetAreaShape())
                     {
                     case lcLightAreaShape::Square:
                         Shape = QLatin1String("SQUARE");
@@ -1553,7 +1557,7 @@ void Gui::applyLightSettings()
                     else if (lightData.shape == QLatin1String("ELLIPSE"))
                         LightShape = lcLightAreaShape::Ellipse;
 
-                    if (Light->GetLightShape() != LightShape) {
+                    if (Light->GetAreaShape() != LightShape) {
                         lightMeta.shape.setValue(Shape);
                         metaString = lightMeta.shape.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
@@ -2460,7 +2464,7 @@ QStringList Gui::get3DViewerPOVLightList() const
                 break;
             }
 
-            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
+            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->GetName());
             if (currentStep->lightList.contains(lightKey))
                 lightData = currentStep->lightList[lightKey];
 
@@ -2468,7 +2472,7 @@ QStringList Gui::get3DViewerPOVLightList() const
             const float Numbers[12] = { Matrix[12], -Matrix[14], Matrix[13], Matrix[0], -Matrix[8], Matrix[4], -Matrix[2], Matrix[10], -Matrix[6], Matrix[1], -Matrix[9], Matrix[5] };
 
             lightData.type = Type;
-            lightData.name = Light->mName;
+            lightData.name = Light->GetName();
             lightData.povrayLight = Light->mPOVRayLight;
             lcVector3 Position = lcVector3LeoCADToLDraw(lcVector3(Numbers[0], Numbers[1], Numbers[2]));
             lightData.position[X] = Position.x;
@@ -2496,7 +2500,7 @@ QStringList Gui::get3DViewerPOVLightList() const
             {
             case lcLightType::Point:
                 if (!Light->mPOVRayLight)
-                    lightData.radius = Light->mLightFactor[0];
+                    lightData.radius = 0.25f; // pointRadius
                 break;
             case lcLightType::Spot:
                 if (Light->mPOVRayLight)
@@ -2507,15 +2511,15 @@ QStringList Gui::get3DViewerPOVLightList() const
                 }
                 else
                 {
-                    lightData.radius = Light->mLightFactor[0];
-                    lightData.spotBlend = Light->mLightFactor[1];
-                    lightData.spotSize = 75.0f; // Light->mSpotSize;
+                    lightData.radius = 0.25f; // spotRadius
+                    lightData.spotBlend = 0.150f; // spotBlend
+                    lightData.spotSize = 75.0f; // spotSize
                 }
                 break;
             case lcLightType::Sun:
                 lightData.strength = Light->mPOVRayLight ? Light->mPOVRayExponent : Light->mSpotExponent;
                 if (!Light->mPOVRayLight)
-                    lightData.angle = Light->mLightFactor[0];
+                    lightData.angle = 11.4f; // sunAngle
                 break;
             case lcLightType::Area:
                 {
@@ -2524,17 +2528,17 @@ QStringList Gui::get3DViewerPOVLightList() const
                         lightData.areaRows = int(Light->mAreaGrid[0]);
                         lightData.areaColumns = int(Light->mAreaGrid[1]);
                     }
-                    if (Light->GetLightShape() == lcLightAreaShape::Rectangle || Light->GetLightShape() == lcLightAreaShape::Ellipse || Light->mPOVRayLight)
+                    if (Light->GetAreaShape() == lcLightAreaShape::Rectangle || Light->GetAreaShape() == lcLightAreaShape::Ellipse || Light->mPOVRayLight)
                     {
-                        lightData.width = Light->mPOVRayLight ? Light->GetAreaSize()[0]: Light->mLightFactor[0];
-                        lightData.height = Light->mPOVRayLight ? Light->GetAreaSize()[1]: Light->mLightFactor[1];
+                        lightData.width = Light->GetSize()[0];
+                        lightData.height = Light->GetSize()[1];
                     }
                     else
                     {
-                        lightData.size = Light->mLightFactor[0];
+                        lightData.size = Light->GetSize()[0];
                     }
                     QString Shape = "UNDEFINED";
-                    switch(Light->GetLightShape())
+                    switch(Light->GetAreaShape())
                     {
                     case lcLightAreaShape::Square:
                         lightData.shape = QLatin1String("SQUARE");
