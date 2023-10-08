@@ -682,14 +682,13 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - enable lights ***/
 				if (!Light)
 					Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, LPubMeta);
-
+/*** LPub3D Mod end ***/
 				if (Light->ParseLDrawLine(LineStream))
 				{
 					Light->CreateName(mLights);
 					mLights.Add(Light);
 					Light = nullptr;
 				}
-/*** LPub3D Mod end ***/
 			}
 			else if (Token == QLatin1String("GROUP"))
 			{
@@ -1464,7 +1463,7 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 	if (Step == 0)
 		GetPartsList(gDefaultColor, true, false, PartsList);
 	else
-		GetPartsListForStep(Step, gDefaultColor, PartsList);
+		GetPartsListForStep(Step, gDefaultColor, PartsList, false);
 
 	if (PartsList.empty())
 		return QImage();
@@ -3016,7 +3015,7 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 	}
 }
 
-void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint)
+void lcModel::RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint)
 {
 	if (Angles.LengthSquared() < 0.001f)
 		return;
@@ -3053,6 +3052,12 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 	}
 	else
 	{
+		int Flags;
+		lcArray<lcObject*> Selection;
+		lcObject* Focus;
+
+		GetSelectionInformation(&Flags, Selection, &Focus);
+
 		if (!gMainWindow->GetSeparateTransform())
 		{
 			lcVector3 Center;
@@ -3070,54 +3075,90 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 			else
 				WorldToFocusMatrix = lcMatrix33Identity();
 
-			for (lcPiece* Piece : mPieces)
+			for (lcObject* Object : Selection)
 			{
-				if (!Piece->IsSelected())
-					continue;
+				if (Object->IsPiece())
+				{
+					lcPiece* Piece = (lcPiece*)Object;
 
-				Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
-				Piece->UpdatePosition(mCurrentStep);
+					Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
+					Piece->UpdatePosition(mCurrentStep);
 /*** LPub3D Mod - Build Modification ***/
-				if (!Rotated)
-					Rotated = IsPiece = true;
+					if (!Rotated)
+						Rotated = IsPiece = true;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
-				Piece->SetPieceModified(Rotated);
+					Piece->SetPieceModified(Rotated);
 /*** LPub3D Mod end ***/
+				}
+				else if (Object->IsLight())
+				{
+					lcLight* Light = (lcLight*)Object;
+
+					Light->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, WorldToFocusMatrix);
+					Light->UpdatePosition(mCurrentStep);
+					Rotated = true;
+				}
 			}
 		}
 		else
 		{
-			for (lcPiece* Piece : mPieces)
+			for (lcObject* Object : Selection)
 			{
-				if (!Piece->IsSelected())
-					continue;
-
-				const lcVector3 Center = Piece->GetRotationCenter();
-				lcMatrix33 WorldToFocusMatrix;
-				lcMatrix33 RelativeRotationMatrix;
-
-				if (Relative)
+				if (Object->IsPiece())
 				{
-					const lcMatrix33 RelativeRotation = Piece->GetRelativeRotation();
-					WorldToFocusMatrix = lcMatrix33AffineInverse(RelativeRotation);
-					RelativeRotationMatrix = lcMul(RotationMatrix, RelativeRotation);
-				}
-				else
-				{
-					WorldToFocusMatrix = lcMatrix33Identity();
-					RelativeRotationMatrix = RotationMatrix;
-				}
+					lcPiece* Piece = (lcPiece*)Object;
 
-				Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RelativeRotationMatrix, Center, WorldToFocusMatrix);
-				Piece->UpdatePosition(mCurrentStep);
+					const lcVector3 Center = Piece->GetRotationCenter();
+					lcMatrix33 WorldToFocusMatrix;
+					lcMatrix33 RelativeRotationMatrix;
+
+					if (Relative)
+					{
+						const lcMatrix33 RelativeRotation = Piece->GetRelativeRotation();
+						WorldToFocusMatrix = lcMatrix33AffineInverse(RelativeRotation);
+						RelativeRotationMatrix = lcMul(RotationMatrix, RelativeRotation);
+					}
+					else
+					{
+						WorldToFocusMatrix = lcMatrix33Identity();
+						RelativeRotationMatrix = RotationMatrix;
+					}
+
+					Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RelativeRotationMatrix, Center, WorldToFocusMatrix);
+					Piece->UpdatePosition(mCurrentStep);
 /*** LPub3D Mod - Build Modification ***/
-				if (!Rotated)
-					Rotated = IsPiece = true;
+					if (!Rotated)
+						Rotated = IsPiece = true;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
-				Piece->SetPieceModified(Rotated);
+					Piece->SetPieceModified(Rotated);
 /*** LPub3D Mod end ***/
+				}
+				else if (Object->IsLight())
+				{
+					lcLight* Light = (lcLight*)Object;
+
+					const lcVector3 Center = Light->GetRotationCenter();
+					lcMatrix33 WorldToFocusMatrix;
+					lcMatrix33 RelativeRotationMatrix;
+
+					if (Relative)
+					{
+						const lcMatrix33 RelativeRotation = Light->GetRelativeRotation();
+						WorldToFocusMatrix = lcMatrix33AffineInverse(RelativeRotation);
+						RelativeRotationMatrix = lcMul(RotationMatrix, RelativeRotation);
+					}
+					else
+					{
+						WorldToFocusMatrix = lcMatrix33Identity();
+						RelativeRotationMatrix = RotationMatrix;
+					}
+
+					Light->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, WorldToFocusMatrix);
+					Light->UpdatePosition(mCurrentStep);
+					Rotated = true;
+				}
 			}
 		}
 	}
@@ -3191,14 +3232,14 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 /*** LPub3D Mod - transform command ***/
 		gMainWindow->ApplyRotStepMeta(LC_EDIT_TRANSFORM);
 /*** LPub3D Mod end ***/
-		RotateSelectedPieces(Transform, false, false, true, true);
+		RotateSelectedObjects(Transform, false, false, true, true);
 		break;
 
 	case lcTransformType::RelativeRotation:
 /*** LPub3D Mod - transform command ***/
 		gMainWindow->ApplyRotStepMeta(LC_EDIT_TRANSFORM);
 /*** LPub3D Mod end ***/
-		RotateSelectedPieces(Transform, true, false, true, true);
+		RotateSelectedObjects(Transform, true, false, true, true);
 		break;
 
 	case lcTransformType::Count:
@@ -3591,16 +3632,20 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		if (!Light->IsSelected())
 			continue;
 
-		if (Light->IsFocused() && Relative)
+		if (Light->IsFocused())
 		{
-			Center = Light->GetSectionPosition(Light->GetFocusSection());
-//			RelativeRotation = Piece->GetRelativeRotation();
+			Center = Light->GetRotationCenter();
+
+			if (Relative)
+				RelativeRotation = Light->GetRelativeRotation();
+
 			return true;
 		}
 
 		Center += Light->GetSectionPosition(LC_LIGHT_SECTION_POSITION);
 		NumSelected++;
-		if (Light->IsDirectionalLight())
+
+		if (!Light->IsPointLight())
 		{
 			Center += Light->GetSectionPosition(LC_LIGHT_SECTION_TARGET);
 			NumSelected++;
@@ -3611,6 +3656,33 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 	{
 		Center /= NumSelected;
 		return true;
+	}
+
+	return false;
+}
+
+bool lcModel::CanRotateSelection() const
+{
+	int Flags;
+	lcArray<lcObject*> Selection;
+	lcObject* Focus;
+
+	GetSelectionInformation(&Flags, Selection, &Focus);
+
+	if (Flags & LC_SEL_PIECE)
+	{
+		if ((Flags & (LC_SEL_CAMERA | LC_SEL_LIGHT)) == 0)
+			return true;
+	}
+
+	if ((Flags & (LC_SEL_PIECE | LC_SEL_CAMERA)) == 0)
+	{
+		if (Focus && Focus->IsLight())
+		{
+			lcLight* Light = (lcLight*)Focus;
+
+			return (Light->GetAllowedTransforms() & LC_OBJECT_TRANSFORM_ROTATE_XYZ) != 0;
+		}
 	}
 
 	return false;
@@ -3795,11 +3867,11 @@ void lcModel::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSu
 	}
 }
 
-void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const
+void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList, bool Cumulative) const
 {
 	for (const lcPiece* Piece : mPieces)
 	{
-		if (Piece->GetStepShow() != Step || Piece->IsHidden())
+		if (Cumulative ? Piece->GetStepShow() > Step : Piece->GetStepShow() != Step || Piece->IsHidden())
 			continue;
 
 		int ColorIndex = Piece->GetColorIndex();
@@ -3890,7 +3962,7 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 		if (Camera->IsSelected())
 		{
 			Selection.Add(Camera);
-			*Flags |= LC_SEL_SELECTED;
+			*Flags |= LC_SEL_SELECTED | LC_SEL_CAMERA;
 
 			if (Camera->IsFocused())
 				*Focus = Camera;
@@ -3902,7 +3974,7 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 		if (Light->IsSelected())
 		{
 			Selection.Add(Light);
-			*Flags |= LC_SEL_SELECTED;
+			*Flags |= LC_SEL_SELECTED | LC_SEL_LIGHT;
 
 			if (Light->IsFocused())
 				*Focus = Light;
@@ -4491,10 +4563,8 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 	{
 	case lcTool::Insert:
 	case lcTool::PointLight:
-/*** LPub3D Mod - enable lights ***/
 	case lcTool::SunLight:
 	case lcTool::AreaLight:
-/*** LPub3D Mod end ***/
 		break;
 
 	case lcTool::SpotLight:
@@ -4596,10 +4666,8 @@ void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVecto
 		SaveCheckpoint(tr("New Spot Light"));
 		break;
 
-/*** LPub3D Mod - enable lights ***/
 	case lcLightType::Sun:
 		SaveCheckpoint(tr("New Sun Light"));
-/*** LPub3D Mod end ***/		
 		break;
 
 	case lcLightType::Area:
@@ -4663,7 +4731,7 @@ void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool
 void lcModel::UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag)
 {
 	const lcVector3 Delta = SnapRotation(Angles) - SnapRotation(mMouseToolDistance);
-	RotateSelectedPieces(Delta, true, AlternateButtonDrag, false, false);
+	RotateSelectedObjects(Delta, true, AlternateButtonDrag, false, false);
 	mMouseToolDistance = Angles;
 
 	gMainWindow->UpdateSelectedObjects(false);

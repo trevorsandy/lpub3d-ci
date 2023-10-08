@@ -822,7 +822,7 @@ void lcQPropertiesTree::slotReturnPressed()
 				Rotation[Y] = Value;
 /*** LPub3D Mod end ***/
 
-			Model->RotateSelectedPieces(Rotation - InitialRotation, true, false, true, true);
+			Model->RotateSelectedObjects(Rotation - InitialRotation, true, false, true, true);
 		}
 		else if (Item == partShow)
 		{

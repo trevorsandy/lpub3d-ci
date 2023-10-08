@@ -972,7 +972,7 @@ void lcView::OnDraw()
 			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool);
 		else if (GetCurrentTool() == lcTool::Move && mTrackButton != lcTrackButton::None)
 			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool);
-		else if ((Tool == lcTool::Rotate || (Tool == lcTool::Select && mTrackButton != lcTrackButton::None && mTrackTool >= lcTrackTool::RotateX && mTrackTool <= lcTrackTool::RotateXYZ)) && ActiveModel->AnyPiecesSelected())
+		else if ((Tool == lcTool::Rotate || (Tool == lcTool::Select && mTrackButton != lcTrackButton::None && mTrackTool >= lcTrackTool::RotateX && mTrackTool <= lcTrackTool::RotateXYZ)) && ActiveModel->CanRotateSelection())
 /*** LPub3D Mod - Rotate step angles ***/
 		{
 			mViewManipulator->DrawRotate(mTrackButton, mTrackTool);

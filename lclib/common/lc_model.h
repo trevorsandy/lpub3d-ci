@@ -5,18 +5,20 @@
 #include "lc_array.h"
 
 #define LC_SEL_NO_PIECES                0x0001 // No pieces in model
-#define LC_SEL_PIECE                    0x0002 // At last 1 piece selected
-#define LC_SEL_SELECTED                 0x0004 // At last 1 object selected
-#define LC_SEL_UNSELECTED               0x0008 // At least 1 piece unselected
-#define LC_SEL_HIDDEN                   0x0010 // At least one piece hidden
-#define LC_SEL_HIDDEN_SELECTED          0x0020 // At least one piece selected is hidden
-#define LC_SEL_VISIBLE_SELECTED         0x0040 // At least one piece selected is not hidden
-#define LC_SEL_GROUPED                  0x0080 // At least one piece selected is grouped
-#define LC_SEL_FOCUS_GROUPED            0x0100 // Focused piece is grouped
-#define LC_SEL_CAN_GROUP                0x0200 // Can make a new group
-#define LC_SEL_MODEL_SELECTED           0x0400 // At least one model reference is selected
-#define LC_SEL_CAN_ADD_CONTROL_POINT    0x0800 // Can add control points to focused piece
-#define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x1000 // Can remove control points from focused piece
+#define LC_SEL_PIECE                    0x0002 // At least 1 piece selected
+#define LC_SEL_CAMERA                   0x0004 // At least 1 camera selected
+#define LC_SEL_LIGHT                    0x0008 // At least 1 light selected
+#define LC_SEL_SELECTED                 0x0010 // At least 1 object selected
+#define LC_SEL_UNSELECTED               0x0020 // At least 1 piece unselected
+#define LC_SEL_HIDDEN                   0x0040 // At least one piece hidden
+#define LC_SEL_HIDDEN_SELECTED          0x0080 // At least one piece selected is hidden
+#define LC_SEL_VISIBLE_SELECTED         0x0100 // At least one piece selected is not hidden
+#define LC_SEL_GROUPED                  0x0200 // At least one piece selected is grouped
+#define LC_SEL_FOCUS_GROUPED            0x0400 // Focused piece is grouped
+#define LC_SEL_CAN_GROUP                0x0800 // Can make a new group
+#define LC_SEL_MODEL_SELECTED           0x1000 // At least one model reference is selected
+#define LC_SEL_CAN_ADD_CONTROL_POINT    0x2000 // Can add control points to focused piece
+#define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x4000 // Can remove control points from focused piece
 
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
@@ -287,6 +289,7 @@ public:
 	lcModel* GetFirstSelectedSubmodel() const;
 	void GetSubModels(lcArray<lcModel*>& SubModels) const;
 	bool GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRotation) const;
+	bool CanRotateSelection() const;
 	bool GetPieceFocusOrSelectionCenter(lcVector3& Center) const;
 	lcVector3 GetSelectionOrModelCenter() const;
 	bool GetFocusPosition(lcVector3& Position) const;
@@ -296,7 +299,7 @@ public:
 	bool GetVisiblePiecesBoundingBox(lcVector3& Min, lcVector3& Max) const;
 	std::vector<lcVector3> GetPiecesBoundingBoxPoints() const;
 	void GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const;
-	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const;
+	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList, bool Cumulative) const;
 	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const;
 	void GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection, lcObject** Focus) const;
 	lcArray<lcObject*> GetSelectionModePieces(const lcPiece* SelectedPiece) const;
@@ -399,7 +402,7 @@ public:
 	}
 
 	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
-	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint);
+	void RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);
 /*** LPub3D Mod - transform command ***/
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform, bool PiecesSelected);
