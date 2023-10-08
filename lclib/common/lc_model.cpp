@@ -360,7 +360,7 @@ void lcModel::UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels)
 	mPieceInfo->SetBoundingBox(Min, Max);
 }
 
-void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
+void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly, lcStep LastStep) const
 {
 	const QLatin1String LineEnding("\r\n");
 
@@ -370,11 +370,15 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	lcStep Step = 1;
 	int CurrentLine = 0;
 	int AddedSteps = 0;
+	bool SavedStep = false;
 
 	for (lcPiece* Piece : mPieces)
 	{
 		if (SelectedOnly && !Piece->IsSelected())
 			continue;
+
+		if (SavedStep = (LastStep != 0 && Piece->GetStepShow() > LastStep))
+			break;
 
 		while (Piece->GetFileLine() > CurrentLine && CurrentLine < mFileLines.size())
 		{
@@ -497,7 +501,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 /*** LPub3D Mod end ***/
 	}
 
-	while (CurrentLine < mFileLines.size())
+	while (!SavedStep && CurrentLine < mFileLines.size())
 	{
 		QString Line = mFileLines[CurrentLine];
 		QTextStream LineStream(&Line, QIODevice::ReadOnly);
@@ -993,7 +997,7 @@ bool lcModel::LoadBinary(lcFile* file)
 			pPiece->SetColorCode(lcGetColorCodeFromOriginalColor(color));
 			AddPiece(pPiece);
 
-//          pPiece->SetGroup((lcGroup*)group);
+//			pPiece->SetGroup((lcGroup*)group);
 		}
 	}
 
@@ -1329,7 +1333,7 @@ void lcModel::Copy()
 	QByteArray File;
 	QTextStream Stream(&File, QIODevice::WriteOnly);
 
-	SaveLDraw(Stream, true);
+	SaveLDraw(Stream, true, 0);
 
 	gApplication->ExportClipboard(File);
 }
@@ -1877,7 +1881,7 @@ void lcModel::SaveCheckpoint(const QString& Description)
 	ModelHistoryEntry->Description = Description;
 
 	QTextStream Stream(&ModelHistoryEntry->File);
-	SaveLDraw(Stream, false);
+	SaveLDraw(Stream, false, 0);
 
 	mUndoHistory.insert(mUndoHistory.begin(), ModelHistoryEntry);
 	for (lcModelHistoryEntry* Entry : mRedoHistory)
@@ -3577,6 +3581,45 @@ void lcModel::SetLightColor(lcLight* Light, const lcVector3& Color)
 	UpdateAllViews();
 }
 
+void lcModel::SetSpotLightConeAngle(lcLight* Light, float Angle)
+{
+	if (Light->GetSpotConeAngle() == Angle)
+		return;
+
+	Light->SetSpotConeAngle(Angle, mCurrentStep, gMainWindow->GetAddKeys());
+	Light->UpdatePosition(mCurrentStep);
+
+	SaveCheckpoint(tr("Changing Spot Light Cone Angle"));
+	gMainWindow->UpdateSelectedObjects(false);
+	UpdateAllViews();
+}
+
+void lcModel::SetSpotLightPenumbraAngle(lcLight* Light, float Angle)
+{
+	if (Light->GetSpotPenumbraAngle() == Angle)
+		return;
+
+	Light->SetSpotPenumbraAngle(Angle, mCurrentStep, gMainWindow->GetAddKeys());
+	Light->UpdatePosition(mCurrentStep);
+
+	SaveCheckpoint(tr("Changing Spot Light Penumbra Angle"));
+	gMainWindow->UpdateSelectedObjects(false);
+	UpdateAllViews();
+}
+
+void lcModel::SetSpotLightTightness(lcLight* Light, float Tightness)
+{
+	if (Light->GetSpotTightness() == Tightness)
+		return;
+
+	Light->SetSpotTightness(Tightness, mCurrentStep, gMainWindow->GetAddKeys());
+	Light->UpdatePosition(mCurrentStep);
+
+	SaveCheckpoint(tr("Changing Spot Light Tightness"));
+	gMainWindow->UpdateSelectedObjects(false);
+	UpdateAllViews();
+}
+
 void lcModel::SetLightCastShadow(lcLight* Light, bool CastShadow)
 {
 	if (Light->GetCastShadow() == CastShadow)
@@ -4647,12 +4690,9 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 	{
 	case lcTool::Insert:
 	case lcTool::PointLight:
+	case lcTool::SpotLight:
 	case lcTool::SunLight:
 	case lcTool::AreaLight:
-		break;
-
-	case lcTool::SpotLight:
-		SaveCheckpoint(tr("New SpotLight"));
 		break;
 
 	case lcTool::Camera:

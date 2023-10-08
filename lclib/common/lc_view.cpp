@@ -2390,10 +2390,10 @@ void lcView::UpdatePan(int x, int y)
 
 	lcVector3 Points[4] =
 	{
-		lcVector3((float)x, (float)y, 0.0f),
-		lcVector3((float)x, (float)y, 1.0f),
-		lcVector3(mPanX, mPanY, 0.0f),
-		lcVector3(mPanX, mPanY, 1.0f)
+	    lcVector3((float)x, (float)y, 0.0f),
+	    lcVector3((float)x, (float)y, 1.0f),
+	    lcVector3(mPanX, mPanY, 0.0f),
+	    lcVector3(mPanX, mPanY, 1.0f)
 	};
 
 	UnprojectPoints(Points, 4);

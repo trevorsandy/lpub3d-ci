@@ -36,7 +36,8 @@ public:
 	enum
 	{
 		PropertyTypeRole = Qt::UserRole,
-		PropertyValueRole
+		PropertyValueRole,
+		PropertyRangeRole
 	};
 
 	enum PropertyType
@@ -45,8 +46,6 @@ public:
 		PropertyBool,
 		PropertyFloat,
 		PropertyFloatReadOnly,
-		PropertyFloatLightSpotSize,
-		PropertyFloatLightSpotFalloff,
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
 		PropertyBoolReadOnly,
 		PropertyFloatCameraAngle,
@@ -173,7 +172,9 @@ protected:
 	QTreeWidgetItem* lightEnableCutoff;
 	QTreeWidgetItem* lightExponent;
 	QTreeWidgetItem* mLightTypeItem;
-	QTreeWidgetItem* lightSpotSize;
+	QTreeWidgetItem* mLightSpotConeAngleItem;
+	QTreeWidgetItem* mLightSpotPenumbraAngleItem;
+	QTreeWidgetItem* mLightSpotTightnessItem;
 	QTreeWidgetItem* lightShape;
 	QTreeWidgetItem* lightFactorA;
 	QTreeWidgetItem* lightFactorB;
@@ -182,8 +183,6 @@ protected:
 	QTreeWidgetItem* mLightCastShadowItem;
 	QTreeWidgetItem* lightAreaGridRows;
 	QTreeWidgetItem* lightAreaGridColumns;
-	QTreeWidgetItem* lightSpotFalloff;
-	QTreeWidgetItem* lightSpotTightness;
 };
 
 class lcQPropertiesTreeDelegate : public QItemDelegate

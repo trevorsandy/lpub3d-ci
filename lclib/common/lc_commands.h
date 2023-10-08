@@ -17,7 +17,9 @@ enum lcCommandId
 	LC_FILE_EXPORT_CSV,
 	LC_FILE_EXPORT_POVRAY,
 	LC_FILE_EXPORT_WAVEFRONT,
-	LC_FILE_RENDER,
+	LC_FILE_RENDER_POVRAY,
+	LC_FILE_RENDER_BLENDER,
+	LC_FILE_RENDER_OPEN_IN_BLENDER,
 	LC_FILE_INSTRUCTIONS,
 	LC_FILE_PRINT,
 	LC_FILE_PRINT_PREVIEW,
@@ -97,9 +99,9 @@ enum lcCommandId
 	LC_EDIT_ACTION_FIRST,
 	LC_EDIT_ACTION_INSERT = LC_EDIT_ACTION_FIRST,
 	LC_EDIT_ACTION_POINT_LIGHT,
-	LC_EDIT_ACTION_SUN_LIGHT,                           /*** LPub3D Mod - enable lights ***/
-	LC_EDIT_ACTION_AREA_LIGHT,                          /*** LPub3D Mod - enable lights ***/
-	LC_EDIT_ACTION_SPOT_LIGHT,
+	LC_EDIT_ACTION_SUN_LIGHT,                             /*** LPub3D Mod - enable lights ***/
+	LC_EDIT_ACTION_AREA_LIGHT,                            /*** LPub3D Mod - enable lights ***/
+	LC_EDIT_ACTION_SPOT_LIGHT,                            /*** LPub3D Mod - enable lights ***/
 	LC_EDIT_ACTION_CAMERA,
 	LC_EDIT_ACTION_SELECT,
 	LC_EDIT_ACTION_MOVE,

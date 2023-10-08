@@ -729,11 +729,9 @@ bool lcViewManipulator::IsTrackToolAllowed(lcTrackTool TrackTool, quint32 Allowe
 		case lcTrackTool::None:
 		case lcTrackTool::Insert:
 		case lcTrackTool::PointLight:
-/*** LPub3D Mod - enable lights ***/
+		case lcTrackTool::SpotLight:
 		case lcTrackTool::SunLight:
 		case lcTrackTool::AreaLight:
-/*** LPub3D Mod end ***/
-		case lcTrackTool::SpotLight:
 		case lcTrackTool::Camera:
 		case lcTrackTool::Select:
 			return true;

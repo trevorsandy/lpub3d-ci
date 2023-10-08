@@ -20,9 +20,9 @@
 /*** LPub3D Mod - enable lights ***/
 static const std::array<QLatin1String, static_cast<int>(lcLightType::Count)> gLightTypes = { QLatin1String("POINT"), QLatin1String("SPOT"), QLatin1String("SUN"), QLatin1String("AREA") };
 
-/*** LPub3D Mod - enable lights ***/
 lcLight::lcLight(const lcVector3& Position, lcLightType LightType, bool LPubMeta)
 	: lcObject(lcObjectType::Light), mLightType(LightType), mLPubMeta(LPubMeta)
+/*** LPub3D Mod end ***/
 {
 	mWorldMatrix = lcMatrix44Translation(Position);
 
@@ -35,11 +35,7 @@ lcLight::lcLight(const lcVector3& Position, lcLightType LightType, bool LPubMeta
 	mLightSpecular = 1.0f;
 	mSpotExponent = 10.0f;
 	mPOVRayExponent = 1.0f;
-	mSpotSize = 75.0f;
 	mSpotCutoff = LightType != lcLightType::Sun ? 40.0f : 0.0f;
-/*** LPub3D Mod end ***/
-	mSpotFalloff = 45.0f;
-	mSpotTightness = 0;
 	mAreaGrid = lcVector2(10.0f, 10.0f);
 	mAreaSize = lcVector2(200.0f, 200.0f);
 	mLightShape = LC_LIGHT_SHAPE_SQUARE;
@@ -47,16 +43,16 @@ lcLight::lcLight(const lcVector3& Position, lcLightType LightType, bool LPubMeta
 	mPositionKeys.ChangeKey(mWorldMatrix.GetTranslation(), 1, true);
 	mRotationKeys.ChangeKey(lcMatrix33(mWorldMatrix), 1, true);
 	mColorKeys.ChangeKey(mColor, 1, true);
+	mSpotConeAngleKeys.ChangeKey(mSpotConeAngle, 1, true);
+	mSpotPenumbraAngleKeys.ChangeKey(mSpotPenumbraAngle, 1, true);
+	mSpotTightnessKeys.ChangeKey(mSpotTightness, 1, true);
 
 	mAttenuationKeys.ChangeKey(mAttenuation, 1, true);
 	mLightFactorKeys.ChangeKey(mLightFactor, 1, true);
 	mLightDiffuseKeys.ChangeKey(mLightDiffuse, 1, true);
 	mLightSpecularKeys.ChangeKey(mLightSpecular, 1, true);
 	mSpotCutoffKeys.ChangeKey(mSpotCutoff, 1, true);
-	mSpotFalloffKeys.ChangeKey(mSpotFalloff, 1, true);
 	mSpotExponentKeys.ChangeKey(mSpotExponent, 1, true);
-	mSpotSizeKeys.ChangeKey(mSpotSize, 1, true);
-	mSpotTightnessKeys.ChangeKey(mSpotTightness, 1, true);
 	mAreaGridKeys.ChangeKey(mAreaGrid, 1, true);
 
 	UpdatePosition(1);
@@ -70,7 +66,7 @@ QString lcLight::GetLightTypeString(lcLightType LightType)
 		return QT_TRANSLATE_NOOP("Light Names", "Point Light");
 
 	case lcLightType::Spot:
-		return QT_TRANSLATE_NOOP("Light Names", "Spotlight");
+		return QT_TRANSLATE_NOOP("Light Names", "Spot Light");
 
 	case lcLightType::Sun:
 		return QT_TRANSLATE_NOOP("Light Names", "Sun Light");
@@ -90,6 +86,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 /*** LPub3D Mod - enable lights ***/
 	lcVector3 Vector;
 	QByteArray Meta(mLPubMeta ? "0 !LPUB" : "0 !LEOCAD");
+/*** LPub3D Mod end ***/	
 	const QLatin1String LineEnding("\r\n");
 
 	if (mPOVRayLight)
@@ -97,6 +94,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 
 	if (!mCastShadow)
 		Stream << QLatin1String(Meta + " LIGHT SHADOWLESS") << LineEnding;
+
 	const float* Matrix = mWorldMatrix;
 	const float Numbers[12] = { Matrix[12], -Matrix[14], Matrix[13], Matrix[0], -Matrix[8], Matrix[4], -Matrix[2], Matrix[10], -Matrix[6], Matrix[1], -Matrix[9], Matrix[5] };
 
@@ -124,8 +122,8 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 				Vector = lcVector3LeoCADToLDraw(Vector);
 			Stream << QLatin1String(Meta + " LIGHT ROTATION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
 		}
+/*** LPub3D Mod end ***/		
 	}
-/*** LPub3D Mod end ***/
 
 	if (mColorKeys.GetSize() > 1)
 		mColorKeys.SaveKeysLDraw(Stream, "LIGHT COLOR_KEY ");
@@ -174,28 +172,27 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 		break;
 
 	case lcLightType::Spot:
+		if (mSpotConeAngleKeys.GetSize() > 1)
+			mSpotConeAngleKeys.SaveKeysLDraw(Stream, "LIGHT SPOT_CONE_ANGLE_KEY ");
+		else
+			Stream << QLatin1String("0 !LEOCAD LIGHT SPOT_CONE_ANGLE ") << mSpotConeAngle << LineEnding;
+
+		if (mSpotPenumbraAngleKeys.GetSize() > 1)
+			mSpotPenumbraAngleKeys.SaveKeysLDraw(Stream, "LIGHT SPOT_PENUMBRA_ANGLE_KEY ");
+		else
+			Stream << QLatin1String("0 !LEOCAD LIGHT SPOT_PENUMBRA_ANGLE ") << mSpotPenumbraAngle << LineEnding;
+
 		if (mPOVRayLight)
 		{
-			if (mLightFactorKeys.GetSize() > 1)
-				mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT RADIUS_KEY ");
-			else
-				Stream << QLatin1String(Meta + " LIGHT RADIUS ") << (mSpotSize - mSpotFalloff) << LineEnding;
-			if (mSpotFalloffKeys.GetSize() > 1)
-				mSpotFalloffKeys.SaveKeysLDraw(Stream, "LIGHT SPOT_FALLOFF_KEY ");
-			else
-				Stream << QLatin1String(Meta + " LIGHT SPOT_FALLOFF ") << mSpotFalloff << LineEnding;
+/*** LPub3D Mod - enable lights ***/			
 			if (mSpotTightnessKeys.GetSize() > 1)
 				mSpotTightnessKeys.SaveKeysLDraw(Stream, "SPOT_TIGHTNESS_KEY ");
 			else
 				Stream << QLatin1String(Meta + " LIGHT SPOT_TIGHTNESS ") << mSpotTightness << LineEnding;
+/*** LPub3D Mod end ***/				
 		}
 		else
 		{
-			if (mSpotSizeKeys.GetSize() > 1)
-				mSpotSizeKeys.SaveKeysLDraw(Stream, "LIGHT SPOT_SIZE_KEY ");
-			else
-				Stream << QLatin1String(Meta + " LIGHT SPOT_SIZE ") << mSpotSize << LineEnding;
-
 			if (mLightFactorKeys.GetSize() > 1)
 				mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT RADIUS_AND_SPOT_BLEND_KEY ");
 			else
@@ -306,7 +303,7 @@ void lcLight::CreateName(const lcArray<lcLight*>& Lights)
 		break;
 
 	case lcLightType::Spot:
-		Prefix = QLatin1String("Spotlight ");
+		Prefix = QLatin1String("Spot Light ");
 		break;
 
 	case lcLightType::Sun:
@@ -373,28 +370,29 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 				Stream >> Numbers[TokenIdx];
 
 			float* Matrix = mWorldMatrix;
+
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-			// lcVector3 Rotation;
 			if (mLPubMeta)
 			{
-				//Stream >> Rotation[0] >> Rotation[2] >> Rotation[1];
-				//Rotation[2] = -Rotation[2];
+				Numbers[2] = -Numbers[2];
+
+				Matrix[0] =  Numbers[0];
+				Matrix[8] = -Numbers[2];
+				Matrix[4] =  Numbers[1];
 			}
 			else
 			{
-				//Stream >> Rotation[0] >> Rotation[1] >> Rotation[2];
 				Matrix[0] =  Numbers[0];
 				Matrix[8] = -Numbers[1];
 				Matrix[4] =  Numbers[2];
-				Matrix[2] = -Numbers[3];
-				Matrix[10] = Numbers[4];
-				Matrix[6] = -Numbers[5];
-				Matrix[1] =  Numbers[6];
-				Matrix[9] = -Numbers[7];
-				Matrix[5] =  Numbers[8];
 			}
+			Matrix[2] = -Numbers[3];
+			Matrix[10] = Numbers[4];
+			Matrix[6] = -Numbers[5];
+			Matrix[1] =  Numbers[6];
+			Matrix[9] = -Numbers[7];
+			Matrix[5] =  Numbers[8];
 /*** LPub3D Mod end ***/
-			//mRotationKeys.ChangeKey(Rotation, 1, true);
 			mRotationKeys.ChangeKey(lcMatrix33(mWorldMatrix), 1, true);
 		}
 		else if (Token == QLatin1String("ROTATION_KEY"))
@@ -406,6 +404,28 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		}
 		else if (Token == QLatin1String("COLOR_KEY"))
 			mColorKeys.LoadKeysLDraw(Stream);
+		else if (Token == QLatin1String("SPOT_CONE_ANGLE"))
+		{
+			Stream >> mSpotConeAngle;
+			mSpotConeAngleKeys.ChangeKey(mSpotConeAngle, 1, true);
+		}
+		else if (Token == QLatin1String("SPOT_CONE_ANGLE_KEY"))
+			mSpotConeAngleKeys.LoadKeysLDraw(Stream);
+		else if (Token == QLatin1String("SPOT_PENUMBRA_ANGLE"))
+		{
+			Stream >> mSpotPenumbraAngle;
+			mSpotPenumbraAngleKeys.ChangeKey(mSpotPenumbraAngle, 1, true);
+		}
+		else if (Token == QLatin1String("SPOT_PENUMBRA_ANGLE_KEY"))
+			mSpotPenumbraAngleKeys.LoadKeysLDraw(Stream);
+		else if (Token == QLatin1String("SPOT_TIGHTNESS"))
+		{
+			mPOVRayLight = true;
+			Stream >> mSpotTightness;
+			mSpotTightnessKeys.ChangeKey(mSpotTightness, 1, true);
+		}
+		else if (Token == QLatin1String("SPOT_TIGHTNESS_KEY"))
+			mSpotTightnessKeys.LoadKeysLDraw(Stream);
 		else if (Token == QLatin1String("POWER") || Token == QLatin1String("STRENGTH"))
 		{
 			if (mPOVRayLight)
@@ -449,23 +469,6 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 			mPOVRayLight = true;
 			Stream >> mAreaGrid[1];
 			mAreaGridKeys.ChangeKey(mAreaGrid, 1, true);
-		}
-		else if (Token == QLatin1String("SPOT_FALLOFF"))
-		{
-			mPOVRayLight = true;
-			Stream >> mSpotFalloff;
-			mSpotFalloffKeys.ChangeKey(mSpotFalloff, 1, true);
-		}
-		else if (Token == QLatin1String("SPOT_TIGHTNESS"))
-		{
-			mPOVRayLight = true;
-			Stream >> mSpotTightness;
-			mSpotTightnessKeys.ChangeKey(mSpotTightness, 1, true);
-		}
-		else if (Token == QLatin1String("SPOT_SIZE"))
-		{
-			Stream >> mSpotSize;
-			mSpotSizeKeys.ChangeKey(mSpotSize, 1, true);
 		}
 		else if (Token == QLatin1String("SHAPE"))
 		{
@@ -525,12 +528,6 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 			mSpotExponentKeys.LoadKeysLDraw(Stream);
 		else if ((Token == QLatin1String("ANGLE_KEY")) || (Token == QLatin1String("RADIUS_KEY")) || (Token == QLatin1String("SIZE_KEY")) || (Token == QLatin1String("RADIUS_AND_SPOT_BLEND_KEY")))
 			mLightFactorKeys.LoadKeysLDraw(Stream);
-		else if (Token == QLatin1String("SPOT_SIZE_KEY"))
-			mSpotSizeKeys.LoadKeysLDraw(Stream);
-		else if (Token == QLatin1String("SPOT_FALLOFF_KEY"))
-			mSpotFalloffKeys.LoadKeysLDraw(Stream);
-		else if (Token == QLatin1String("SPOT_TIGHTNESS_KEY"))
-			mSpotTightnessKeys.LoadKeysLDraw(Stream);
 		else if (Token == QLatin1String("AREA_GRID_KEY"))
 			mAreaGridKeys.LoadKeysLDraw(Stream);
 		else if (Token == QLatin1String("DIFFUSE_KEY"))
@@ -647,18 +644,6 @@ void lcLight::UpdateLight(lcStep Step, lcLightProperties Props, int Property)
 		mAreaGrid = Props.mAreaGrid;
 		mAreaGridKeys.ChangeKey(mAreaGrid, Step, false);
 		break;
-	case LC_LIGHT_SPOT_SIZE:
-		mSpotSize = Props.mSpotSize;
-		mSpotSizeKeys.ChangeKey(mSpotSize, Step, false);
-		break;
-	case LC_LIGHT_SPOT_FALLOFF:
-		mSpotFalloff = Props.mSpotFalloff;
-		mSpotFalloffKeys.ChangeKey(mSpotFalloff, Step, false);
-		break;
-	case LC_LIGHT_SPOT_TIGHTNESS:
-		mSpotTightness = Props.mSpotTightness;
-		mSpotTightnessKeys.ChangeKey(mSpotTightness, Step, false);
-		break;
 	case LC_LIGHT_CUTOFF:
 		mSpotCutoff = Props.mSpotCutoff;
 		mSpotCutoffKeys.ChangeKey(mSpotCutoff, Step, false);
@@ -762,7 +747,7 @@ void lcLight::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
 		ObjectBoxTest.Objects.Add(const_cast<lcLight*>(this));
 		return;
 	}
-
+	
 	lcVector3 Min(-LC_LIGHT_POSITION_EDGE, -LC_LIGHT_POSITION_EDGE, -LC_LIGHT_POSITION_EDGE); // todo: fix light box test
 	lcVector3 Max( LC_LIGHT_POSITION_EDGE,  LC_LIGHT_POSITION_EDGE,  LC_LIGHT_POSITION_EDGE);
 
@@ -831,6 +816,21 @@ void lcLight::SetColor(const lcVector3& Color, lcStep Step, bool AddKey)
 	mColorKeys.ChangeKey(Color, Step, AddKey);
 }
 
+void lcLight::SetSpotConeAngle(float Angle, lcStep Step, bool AddKey)
+{
+	mSpotConeAngleKeys.ChangeKey(Angle, Step, AddKey);
+}
+
+void lcLight::SetSpotPenumbraAngle(float Angle, lcStep Step, bool AddKey)
+{
+	mSpotPenumbraAngleKeys.ChangeKey(Angle, Step, AddKey);
+}
+
+void lcLight::SetSpotTightness(float Tightness, lcStep Step, bool AddKey)
+{
+	mSpotTightnessKeys.ChangeKey(Tightness, Step, AddKey);
+}
+
 void lcLight::SetCastShadow(bool CastShadow)
 {
 	mCastShadow = CastShadow;
@@ -841,15 +841,16 @@ void lcLight::InsertTime(lcStep Start, lcStep Time)
 	mPositionKeys.InsertTime(Start, Time);
 	mRotationKeys.InsertTime(Start, Time);
 	mColorKeys.InsertTime(Start, Time);
+	mSpotConeAngleKeys.InsertTime(Start, Time);
+	mSpotPenumbraAngleKeys.InsertTime(Start, Time);
+	mSpotTightnessKeys.InsertTime(Start, Time);
+
 	mAttenuationKeys.InsertTime(Start, Time);
 	mLightFactorKeys.InsertTime(Start, Time);
 	mLightDiffuseKeys.InsertTime(Start, Time);
 	mLightSpecularKeys.InsertTime(Start, Time);
-	mSpotSizeKeys.InsertTime(Start, Time);
 	mSpotCutoffKeys.InsertTime(Start, Time);
 	mSpotExponentKeys.InsertTime(Start, Time);
-	mSpotFalloffKeys.InsertTime(Start, Time);
-	mSpotTightnessKeys.InsertTime(Start, Time);
 	mAreaGridKeys.InsertTime(Start, Time);
 }
 
@@ -858,15 +859,16 @@ void lcLight::RemoveTime(lcStep Start, lcStep Time)
 	mPositionKeys.RemoveTime(Start, Time);
 	mRotationKeys.RemoveTime(Start, Time);
 	mColorKeys.RemoveTime(Start, Time);
+	mSpotConeAngleKeys.RemoveTime(Start, Time);
+	mSpotPenumbraAngleKeys.RemoveTime(Start, Time);
+	mSpotTightnessKeys.RemoveTime(Start, Time);
+
 	mAttenuationKeys.RemoveTime(Start, Time);
 	mLightFactorKeys.RemoveTime(Start, Time);
 	mLightDiffuseKeys.RemoveTime(Start, Time);
 	mLightSpecularKeys.RemoveTime(Start, Time);
-	mSpotSizeKeys.RemoveTime(Start, Time);
 	mSpotCutoffKeys.RemoveTime(Start, Time);
 	mSpotExponentKeys.RemoveTime(Start, Time);
-	mSpotFalloffKeys.RemoveTime(Start, Time);
-	mSpotTightnessKeys.RemoveTime(Start, Time);
 	mAreaGridKeys.RemoveTime(Start, Time);
 }
 
@@ -886,15 +888,16 @@ void lcLight::UpdatePosition(lcStep Step)
 	}
 
 	mColor = mColorKeys.CalculateKey(Step);
+	mSpotConeAngle = mSpotConeAngleKeys.CalculateKey(Step);
+	mSpotPenumbraAngle = mSpotPenumbraAngleKeys.CalculateKey(Step);
+	mSpotTightness = mSpotTightnessKeys.CalculateKey(Step);
+
 	mAttenuation = mAttenuationKeys.CalculateKey(Step);
 	mLightFactor = mLightFactorKeys.CalculateKey(Step);
 	mLightDiffuse = mLightDiffuseKeys.CalculateKey(Step);
 	mLightSpecular = mLightSpecularKeys.CalculateKey(Step);
-	mSpotSize = mSpotSizeKeys.CalculateKey(Step);
 	mSpotCutoff = mSpotCutoffKeys.CalculateKey(Step);
 	mSpotExponent = mSpotExponentKeys.CalculateKey(Step);
-	mSpotFalloff = mSpotFalloffKeys.CalculateKey(Step);
-	mSpotTightness = mSpotTightnessKeys.CalculateKey(Step);
 	mAreaGrid = mAreaGridKeys.CalculateKey(Step);
 }
 
@@ -968,7 +971,7 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 
 	Context->DrawIndexedPrimitives(GL_LINES, (ConeEdges + 4) * 2, GL_UNSIGNED_SHORT, 0);
 
-	const float TargetDistance = 25.0f;
+	const float TargetDistance = 250.0f;
 
 	DrawTarget(Context, TargetDistance);
 
@@ -1243,18 +1246,18 @@ void lcLight::DrawTarget(lcContext* Context, float TargetDistance) const
 void lcLight::DrawCone(lcContext* Context, float TargetDistance) const
 {
 	constexpr int ConeEdges = 16;
-	const float Radius = tanf(LC_DTOR * mSpotCutoff) * TargetDistance;
+	const float OuterRadius = tanf(LC_DTOR * mSpotConeAngle / 2.0f) * TargetDistance;
 
-	float Verts[(ConeEdges + 1) * 3];
+	float Verts[(ConeEdges * 2 + 1) * 3];
 	float* CurVert = Verts;
 
 	for (int EdgeIndex = 0; EdgeIndex < ConeEdges; EdgeIndex++)
 	{
-		float c = cosf((float)EdgeIndex / ConeEdges * LC_2PI) * Radius;
-		float s = sinf((float)EdgeIndex / ConeEdges * LC_2PI) * Radius;
+		const float c = cosf((float)EdgeIndex / ConeEdges * LC_2PI);
+		const float s = sinf((float)EdgeIndex / ConeEdges * LC_2PI);
 
-		*CurVert++ = c;
-		*CurVert++ = s;
+		*CurVert++ = c * OuterRadius;
+		*CurVert++ = s * OuterRadius;
 		*CurVert++ = -TargetDistance;
 	}
 
@@ -1262,19 +1265,38 @@ void lcLight::DrawCone(lcContext* Context, float TargetDistance) const
 	*CurVert++ = 0.0f;
 	*CurVert++ = 0.0f;
 
+	const bool DrawPenumbra = mSpotPenumbraAngle > 1.0f;
+
+	if (DrawPenumbra)
+	{
+		const float InnerRadius = tanf(LC_DTOR * (mSpotConeAngle / 2.0f - mSpotPenumbraAngle)) * TargetDistance;
+
+		for (int EdgeIndex = 0; EdgeIndex < ConeEdges; EdgeIndex++)
+		{
+			const float c = cosf((float)EdgeIndex / ConeEdges * LC_2PI);
+			const float s = sinf((float)EdgeIndex / ConeEdges * LC_2PI);
+
+			*CurVert++ = c * InnerRadius;
+			*CurVert++ = s * InnerRadius;
+			*CurVert++ = -TargetDistance;
+		}
+	}
+
 	Context->SetVertexBufferPointer(Verts);
 	Context->SetVertexFormatPosition(3);
 
-	const GLushort Indices[(ConeEdges + 4) * 2] =
+	constexpr GLushort Indices[(ConeEdges * 2 + 4) * 2] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
 		8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 0,
-		16, 0, 16, 4, 16, 8, 16, 12
+		16, 0, 16, 4, 16, 8, 16, 12,
+		17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25,
+		25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 32, 32, 17
 	};
 
 	Context->SetIndexBufferPointer(Indices);
 
-	Context->DrawIndexedPrimitives(GL_LINES, (ConeEdges + 4) * 2, GL_UNSIGNED_SHORT, 0);
+	Context->DrawIndexedPrimitives(GL_LINES, DrawPenumbra ? (ConeEdges * 2 + 4) * 2 : (ConeEdges + 4) * 2, GL_UNSIGNED_SHORT, 0);
 }
 
 void lcLight::RemoveKeyFrames()
@@ -1288,6 +1310,15 @@ void lcLight::RemoveKeyFrames()
 	mColorKeys.RemoveAll();
 	mColorKeys.ChangeKey(mColor, 1, true);
 
+	mSpotConeAngleKeys.RemoveAll();
+	mSpotConeAngleKeys.ChangeKey(mSpotConeAngle, 1, false);
+
+	mSpotPenumbraAngleKeys.RemoveAll();
+	mSpotPenumbraAngleKeys.ChangeKey(mSpotPenumbraAngle, 1, true);
+
+	mSpotTightnessKeys.RemoveAll();
+	mSpotTightnessKeys.ChangeKey(mSpotTightness, 1, true);
+
 	mAttenuationKeys.RemoveAll();
 	mAttenuationKeys.ChangeKey(mAttenuation, 1, true);
 
@@ -1300,20 +1331,11 @@ void lcLight::RemoveKeyFrames()
 	mLightSpecularKeys.RemoveAll();
 	mLightSpecularKeys.ChangeKey(mLightSpecular, 1, true);
 
-	mSpotSizeKeys.RemoveAll();
-	mSpotSizeKeys.ChangeKey(mSpotSize, 1, false);
-
 	mSpotCutoffKeys.RemoveAll();
 	mSpotCutoffKeys.ChangeKey(mSpotCutoff, 1, true);
 
 	mSpotExponentKeys.RemoveAll();
 	mSpotExponentKeys.ChangeKey(mSpotExponent, 1, true);
-
-	mSpotFalloffKeys.RemoveAll();
-	mSpotFalloffKeys.ChangeKey(mSpotFalloff, 1, true);
-
-	mSpotTightnessKeys.RemoveAll();
-	mSpotTightnessKeys.ChangeKey(mSpotTightness, 1, true);
 
 	mAreaGridKeys.RemoveAll();
 	mAreaGridKeys.ChangeKey(mAreaGrid, 1, true);

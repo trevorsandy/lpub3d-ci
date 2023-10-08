@@ -397,7 +397,7 @@ void Project::ShowModelListDialog()
 				QByteArray File;
 
 				QTextStream SaveStream(&File);
-				Source->SaveLDraw(SaveStream, false);
+				Source->SaveLDraw(SaveStream, false, 0);
 				SaveStream.flush();
 
 				QBuffer Buffer(&File);
@@ -779,7 +779,7 @@ bool Project::Save(QTextStream& Stream)
 		if (MPD)
 			Stream << QLatin1String("0 FILE ") << Model->GetProperties().mFileName << QLatin1String("\r\n");
 
-		Model->SaveLDraw(Stream, false);
+		Model->SaveLDraw(Stream, false, 0);
 		Model->SetSaved();
 
 		if (MPD)
@@ -926,7 +926,7 @@ bool Project::ExportModel(const QString& FileName, lcModel* Model) const
 
 	QTextStream Stream(&File);
 
-	Model->SaveLDraw(Stream, false);
+	Model->SaveLDraw(Stream, false, 0);
 
 	return true;
 }
@@ -2301,7 +2301,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 			"  }\n"
 			"#end\n"
 			"#end\n\n",
-			lcLightType::Point, lcLightType::Spot, lcLightType::Sun, lcLightType::Area);
+			int(lcLightType::Point), int(lcLightType::Spot), int(lcLightType::Sun), int(lcLightType::Area));
 	POVFile.WriteLine(Line);
 
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
@@ -2446,8 +2446,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 			switch(LightType)
 			{
 			case lcLightType::Spot:
-				SpotFalloff = Light->mSpotFalloff;
-				SpotRadius = Light->mSpotSize - SpotFalloff;
+				SpotFalloff = Light->GetSpotConeAngle() / 2.0f;
+				SpotRadius = SpotFalloff - Light->GetSpotPenumbraAngle();
 				break;
 			case lcLightType::Area:
 				AreaCircle = Light->GetLightShape() == LC_LIGHT_SHAPE_DISK ? 1 : 0;

@@ -108,11 +108,26 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Export the current model in Wavefront OBJ format"),
 		""
 	},
-	// LC_FILE_RENDER
+	// LC_FILE_RENDER_POVRAY
 	{
-		QT_TRANSLATE_NOOP("Action", "File.Render"),
-		QT_TRANSLATE_NOOP("Menu", "&Render..."),
+		QT_TRANSLATE_NOOP("Action", "File.Render.POVRay"),
+		QT_TRANSLATE_NOOP("Menu", "&POV-Ray Render..."),
 		QT_TRANSLATE_NOOP("Status", "Render the current model using POV-Ray"),
+		""
+	},
+	// LC_FILE_RENDER_BLENDER
+	{
+		QT_TRANSLATE_NOOP("Action", "File.Render.Blender"),
+		QT_TRANSLATE_NOOP("Menu", "&Blender Render..."),
+		QT_TRANSLATE_NOOP("Status", "Render the current model using Blender"),
+		""
+	},
+
+	// LC_FILE_RENDER_OPEN_IN_BLENDER
+	{
+		QT_TRANSLATE_NOOP("Action", "File.Render.OpenInBlender"),
+		QT_TRANSLATE_NOOP("Menu", "&Open In Blender..."),
+		QT_TRANSLATE_NOOP("Status", "Open the current model in Blender"),
 		""
 	},
 	// LC_FILE_INSTRUCTIONS
@@ -175,8 +190,8 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Undo"),
 		QT_TRANSLATE_NOOP("Menu", "&Undo"),
-		QT_TRANSLATE_NOOP("Status", "Undo the last action - Ctrl+Shift+Y"),
-		"Ctrl+Shift+Y"                     /*** LPub3D Mod - LPub3D Menu conflict ***/
+		QT_TRANSLATE_NOOP("Status", "Undo the last action"),
+		"Ctrl+Shift+Y"                                                     /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_REDO
 	{
@@ -267,7 +282,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "Edit.SelectAll"),
 		QT_TRANSLATE_NOOP("Menu", "Select &All"),
 		QT_TRANSLATE_NOOP("Status", "Select all pieces in the model"),     /*** LPub3D Mod - LPub3D Menu conflict ***/
-		"Ctrl+Shift+A"
+		"Ctrl+Shift+A"                                                     /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_SELECT_NONE
 	{
@@ -281,7 +296,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "Edit.SelectInvert"),
 		QT_TRANSLATE_NOOP("Menu", "Select &Invert"),
 		QT_TRANSLATE_NOOP("Status", "Invert the current selection set"),
-		""
+		""                                                                  /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_SELECT_BY_NAME
 	{
@@ -628,32 +643,30 @@ const lcCommand gCommands[] =
 	},
 	// LC_EDIT_ACTION_POINT_LIGHT
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
-		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.PointLight"),
+		QT_TRANSLATE_NOOP("Menu", "Point Light"),
+		QT_TRANSLATE_NOOP("Status", "Add new point light sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
 		""
 	},
-/*** LPub3D Mod - enable lights ***/
-	// LC_EDIT_ACTION_SUN_LIGHT
+	// LC_EDIT_ACTION_SUN_LIGHT                                                     /*** LPub3D Mod - enable lights ***/
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
-		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in Properties tab"),
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.SunLight"),                          /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Menu", "Sun Light"),                                     /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sun light sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
 		""
 	},
-	// LC_EDIT_ACTION_AREA_LIGHT
+	// LC_EDIT_ACTION_AREA_LIGHT                                                    /*** LPub3D Mod - enable lights ***/
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
-		QT_TRANSLATE_NOOP("Menu", "Arealight"),
-		QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in Properties tab"),
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.AreaLight"),                         /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Menu", "Area Light"),                                    /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Status", "Add new area light sources to the model - edit in Properties tab"),                 /*** LPub3D Mod - enable lights ***/
 		""
 	},
-/*** LPub3D Mod end ***/
-	// LC_EDIT_ACTION_SPOT_LIGHT
+	// LC_EDIT_ACTION_SPOT_LIGHT                                                    /*** LPub3D Mod - enable lights ***/
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
-		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in Properties tab"),  /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.SpotLight"),                         /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Menu", "Spot Light"),                                    /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Status", "Add new spot light sources to the model - edit in Properties tab"),                 /*** LPub3D Mod - enable lights ***/
 		""
 	},
 	// LC_EDIT_ACTION_CAMERA
@@ -668,7 +681,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Select"),
 		QT_TRANSLATE_NOOP("Menu", "Select"),
 		QT_TRANSLATE_NOOP("Status", "Select objects (hold the CTRL key down or drag the mouse to select multiple objects)"),  /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+S"
+		"Shift+S"                                                                              /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_ACTION_MOVE
 	{
@@ -681,8 +694,8 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Rotate"),
 		QT_TRANSLATE_NOOP("Menu", "Rotate"),
-		QT_TRANSLATE_NOOP("Status", "Rotate selected pieces"),                                 /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+L"
+		QT_TRANSLATE_NOOP("Status", "Rotate selected pieces"),
+		"Shift+L"                                                                              /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_ACTION_DELETE
 	{
@@ -709,22 +722,22 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Zoom"),
 		QT_TRANSLATE_NOOP("Menu", "Zoom"),
-		QT_TRANSLATE_NOOP("Status", "Zoom in or out"),                                         /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+Z"
+		QT_TRANSLATE_NOOP("Status", "Zoom in or out"),
+		"Shift+Z"                                                                              /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_ACTION_PAN
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Pan"),
 		QT_TRANSLATE_NOOP("Menu", "Pan"),
-		QT_TRANSLATE_NOOP("Status", "Pan the current view"),                                   /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+P"
+		QT_TRANSLATE_NOOP("Status", "Pan the current view"),
+		"Shift+P"                                                                              /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_ACTION_ROTATE_VIEW
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.RotateView"),
 		QT_TRANSLATE_NOOP("Menu", "Rotate View"),
-		QT_TRANSLATE_NOOP("Status", "Rotate the current view"),                                /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+T"
+		QT_TRANSLATE_NOOP("Status", "Rotate the current view"),
+		"Shift+T"                                                                              /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_ACTION_ROLL
 	{
@@ -737,25 +750,23 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.ZoomRegion"),
 		QT_TRANSLATE_NOOP("Menu", "Zoom Region"),
-		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),                       /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+G"
+		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
+		"Shift+G"                                                                              /*** LPub3D Mod - LPub3D Menu update ***/
 	},
-/*** LPub3D Mod - transform command ***/
-	 // LC_EDIT_ACTION_ROTATESTEP
-	{
-		QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
-		QT_TRANSLATE_NOOP("Menu", "Apply ROTSTEP"),
-		QT_TRANSLATE_NOOP("Status", "Apply LPub3D ROTSTEP command to this STEP"),
-		"Shift+R"
-	},
-	// LC_EDIT_ACTION_RESET_TRANSFORM
-	{
-		QT_TRANSLATE_NOOP("Action","Edit.Tool.Reset.Transform"),
-		QT_TRANSLATE_NOOP("Menu", "Reset Transform"),
-		QT_TRANSLATE_NOOP("Status", "Reset the transform coordinates for the current step"),
-		"Shift+C"
-	},
-/*** LPub3D Mod end ***/
+	 // LC_EDIT_ACTION_ROTATESTEP                                                              /*** LPub3D Mod - transform command ***/
+	{                                                                                          /*** LPub3D Mod - transform command ***/
+		QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),                                    /*** LPub3D Mod - transform command ***/
+		QT_TRANSLATE_NOOP("Menu", "Apply ROTSTEP"),                                            /*** LPub3D Mod - transform command ***/
+		QT_TRANSLATE_NOOP("Status", "Apply LPub3D ROTSTEP command to this STEP"),              /*** LPub3D Mod - transform command ***/
+		"Shift+R"                                                                              /*** LPub3D Mod - transform command ***/
+	},                                                                                         /*** LPub3D Mod - transform command ***/
+	// LC_EDIT_ACTION_RESET_TRANSFORM                                                          /*** LPub3D Mod - transform command ***/
+	{                                                                                          /*** LPub3D Mod - transform command ***/
+		QT_TRANSLATE_NOOP("Action","Edit.Tool.Reset.Transform"),                               /*** LPub3D Mod - transform command ***/
+		QT_TRANSLATE_NOOP("Menu", "Reset Transform"),                                          /*** LPub3D Mod - transform command ***/
+		QT_TRANSLATE_NOOP("Status", "Reset the transform coordinates for the current step"),   /*** LPub3D Mod - transform command ***/
+		"Shift+C"                                                                              /*** LPub3D Mod - transform command ***/
+	},                                                                                         /*** LPub3D Mod - transform command ***/
 	// LC_EDIT_CANCEL
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Cancel"),
@@ -890,12 +901,12 @@ const lcCommand gCommands[] =
 		"H"
 	},
 	// LC_VIEW_VIEWPOINT_LAT_LON                                                                /*** LPub3D Mod - Viewpoint latitude longitude ***/
-	{
+	{                                                                                           /*** LPub3D Mod - Viewpoint latitude longitude ***/
 		QT_TRANSLATE_NOOP("Action", "View.Viewpoint.Latitude_Longitude"),                       /*** LPub3D Mod - Viewpoint latitude longitude ***/
 		QT_TRANSLATE_NOOP("Menu", "Latitude Longitude"),                                        /*** LPub3D Mod - Viewpoint latitude longitude ***/
 		QT_TRANSLATE_NOOP("Status", "View model from the specified camera latitude/longitude"), /*** LPub3D Mod - Viewpoint latitude longitude ***/
 		"G"                                                                                     /*** LPub3D Mod - Viewpoint latitude longitude ***/
-	},
+	},                                                                                          /*** LPub3D Mod - Viewpoint latitude longitude ***/
 	// LC_VIEW_CAMERA_NONE
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Cameras.Default"),                                    /*** LPub3D Mod - Update Default Camera ***/
@@ -1228,7 +1239,7 @@ const lcCommand gCommands[] =
 	// LC_VIEW_FADE_PREVIOUS_STEPS
 	{
 		QT_TRANSLATE_NOOP("Action", "View.FadePreviousSteps"),
-		QT_TRANSLATE_NOOP("Menu", "Fade Steps"),
+		QT_TRANSLATE_NOOP("Menu", "Fade Previous Steps"),
 		QT_TRANSLATE_NOOP("Status", "Toggle fading previous model steps"),
 		""
 	},
@@ -1386,7 +1397,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Make copies of the selected pieces"),
 		""
 	},
-	// 	LC_PIECE_VIEW_SELECTED_MODEL
+	//  LC_PIECE_VIEW_SELECTED_MODEL
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.ViewSelectedModel"),
 		QT_TRANSLATE_NOOP("Menu", "View Selected Model"),                                             /*** LPub3D Mod - LPub3D Menu update ***/
@@ -1460,29 +1471,29 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.HideSelected"),
 		QT_TRANSLATE_NOOP("Menu", "&Hide Selected"),
-		QT_TRANSLATE_NOOP("Status", "Hide selected objects"),                                   /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Hide selected objects"),
 		"Ctrl+H"
 	},
 	// LC_PIECE_HIDE_UNSELECTED
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.HideUnselected"),
 		QT_TRANSLATE_NOOP("Menu", "Hide &Unselected"),
-		QT_TRANSLATE_NOOP("Status", "Hide objects that are not selected"),                      /*** LPub3D Mod - LPub3D Menu update ***/
-		"Ctrl+Shift+H"
+		QT_TRANSLATE_NOOP("Status", "Hide objects that are not selected"),
+		"Ctrl+Shift+H"                                                                         /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_PIECE_UNHIDE_SELECTED
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.UnhideSelected"),
 		QT_TRANSLATE_NOOP("Menu", "&Unhide Selected"),
-		QT_TRANSLATE_NOOP("Status", "Show hidden objects that are selected"),                  /*** LPub3D Mod - LPub3D Menu update ***/
-		"Ctrl+Shift+U"
+		QT_TRANSLATE_NOOP("Status", "Show hidden objects that are selected"),
+		"Ctrl+Shift+U"                                                                         /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_PIECE_UNHIDE_ALL
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.UnhideAll"),
 		QT_TRANSLATE_NOOP("Menu", "U&nhide All"),
-		QT_TRANSLATE_NOOP("Status", "Show all hidden objects"),                                /*** LPub3D Mod - LPub3D Menu update ***/
-		"Ctrl+I"
+		QT_TRANSLATE_NOOP("Status", "Show all hidden objects"),
+		"Ctrl+I"                                                                               /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_PIECE_SHOW_EARLIER
 	{
@@ -1802,28 +1813,28 @@ const lcCommand gCommands[] =
 	// LC_HELP_HOMEPAGE
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.HomePage"),
-		QT_TRANSLATE_NOOP("Menu", "Visual Editor &Home Page"),                                                      /*** LPub3D Mod - LPub3D Menu update ***/
-		QT_TRANSLATE_NOOP("Status", "Open Visual Editor's home page on the internet using your default web browser"),
+		QT_TRANSLATE_NOOP("Menu", "Visual Editor &Home Page"),                                                       /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Open Visual Editor's home page on the internet using your default web browser"),/*** LPub3D Mod - LPub3D Menu update ***/
 		""
 	},
 	// LC_HELP_BUG_REPORT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.BugReport"),
 		QT_TRANSLATE_NOOP("Menu", "Report a Bug"),
-		QT_TRANSLATE_NOOP("Status", "Open Visual Editor's bug report form on your default web browser"),            /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Status", "Open Visual Editor's bug report form on your default web browser"),             /*** LPub3D Mod - support ***/
 		""
 	},
 	// LC_HELP_UPDATES
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.Updates"),
 		QT_TRANSLATE_NOOP("Menu", "Check for &Updates..."),
-		QT_TRANSLATE_NOOP("Status", "Check if a newer Visual Editor version or parts library has been released"),   /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Status", "Check if a newer Visual Editor version or parts library has been released"),    /*** LPub3D Mod - support ***/
 		""
 	},
 	// LC_HELP_ABOUT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.About"),
-		QT_TRANSLATE_NOOP("Menu", "&About Visual Editor - by LeoCAD..."),                                           /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Menu", "&About Visual Editor - by LeoCAD..."),                                            /*** LPub3D Mod - support ***/
 		QT_TRANSLATE_NOOP("Status", "Display program version number and system information"),
 		""
 	},
@@ -1882,24 +1893,24 @@ LC_ARRAY_SIZE_CHECK(gCommands, LC_NUM_COMMANDS);
 
 const char* gToolNames[] =
 {
-	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),      // lcTool::Insert
-	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // lcTool::PointLight
-	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),   // lcTool::NewSunLight  /*** LPub3D Mod - enable lights ***/
-	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // lcTool::NewAreaLight /*** LPub3D Mod - enable lights ***/
-	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),  // lcTool::SpotLight
-	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),     // lcTool::Camera
-	QT_TRANSLATE_NOOP("Mouse", "Select"),        // lcTool::Select
-	QT_TRANSLATE_NOOP("Mouse", "Move"),          // lcTool::Move
-	QT_TRANSLATE_NOOP("Mouse", "Rotate"),        // lcTool::Rotate
-	QT_TRANSLATE_NOOP("Mouse", "Delete"),        // lcTool::Eraser
-	QT_TRANSLATE_NOOP("Mouse", "Paint"),         // lcTool::Paint
-	QT_TRANSLATE_NOOP("Mouse", "ColorPicker"),   // lcTool::ColorPicker
-	QT_TRANSLATE_NOOP("Mouse", "Zoom"),          // lcTool::Zoom
-	QT_TRANSLATE_NOOP("Mouse", "Pan"),           // lcTool::Pan
-	QT_TRANSLATE_NOOP("Mouse", "Orbit"),         // lcTool::RotateView
-	QT_TRANSLATE_NOOP("Mouse", "Roll"),          // lcTool::Roll
-	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion"),    // lcTool::ZoomRegion
-	QT_TRANSLATE_NOOP("Mouse", "RotateStep")     // lcTool::RotateStep  /*** LPub3D Mod - Rotate Step Menu ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),            // lcTool::Insert
+	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"),       // lcTool::PointLight
+	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),         // lcTool::SunLight    /*** LPub3D Mod - enable lights ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),        // lcTool::AreaLight   /*** LPub3D Mod - enable lights ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),        // lcTool::SpotLight   /*** LPub3D Mod - enable lights ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),           // lcTool::Camera
+	QT_TRANSLATE_NOOP("Mouse", "Select"),              // lcTool::Select
+	QT_TRANSLATE_NOOP("Mouse", "Move"),                // lcTool::Move
+	QT_TRANSLATE_NOOP("Mouse", "Rotate"),              // lcTool::Rotate
+	QT_TRANSLATE_NOOP("Mouse", "Delete"),              // lcTool::Eraser
+	QT_TRANSLATE_NOOP("Mouse", "Paint"),               // lcTool::Paint
+	QT_TRANSLATE_NOOP("Mouse", "ColorPicker"),         // lcTool::ColorPicker
+	QT_TRANSLATE_NOOP("Mouse", "Zoom"),                // lcTool::Zoom
+	QT_TRANSLATE_NOOP("Mouse", "Pan"),                 // lcTool::Pan
+	QT_TRANSLATE_NOOP("Mouse", "Orbit"),               // lcTool::RotateView
+	QT_TRANSLATE_NOOP("Mouse", "Roll"),                // lcTool::Roll
+	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion"),          // lcTool::ZoomRegion  /*** LPub3D Mod - Rotate Step Menu ***/
+	QT_TRANSLATE_NOOP("Mouse", "RotateStep")           // lcTool::RotateStep  /*** LPub3D Mod - Rotate Step Menu ***/
 };
 
 LC_ARRAY_SIZE_CHECK(gToolNames, lcTool::Count);

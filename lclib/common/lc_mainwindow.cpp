@@ -157,7 +157,7 @@ void lcMainWindow::CreateWidgets()
 /*** LPub3D Mod - disable 3D actions ***/
 	// disable menu itmes until model loaded
 	//File
-	mActions[LC_FILE_RENDER]->setDisabled(true);
+	mActions[LC_FILE_RENDER_POVRAY]->setDisabled(true);
 	//Export
 	mActions[LC_FILE_EXPORT_3DS]->setDisabled(true);
 	mActions[LC_FILE_EXPORT_BRICKLINK]->setDisabled(true);
@@ -555,7 +555,7 @@ void lcMainWindow::CreateMenus()
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_POVRAY]);
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 	FileMenu->addSeparator();
-	FileMenu->addAction(mActions[LC_FILE_RENDER]);
+	FileMenu->addAction(mActions[LC_FILE_RENDER_POVRAY]);
 	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
@@ -3326,8 +3326,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		lcGetActiveProject()->ExportWavefront(QString());
 		break;
 
-	case LC_FILE_RENDER:
+	case LC_FILE_RENDER_POVRAY:
 		ShowRenderDialog();
+		break;
+
+	case LC_FILE_RENDER_BLENDER:
+	case LC_FILE_RENDER_OPEN_IN_BLENDER:
 		break;
 
 	case LC_FILE_INSTRUCTIONS:
