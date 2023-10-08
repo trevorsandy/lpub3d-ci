@@ -743,54 +743,58 @@ void lcQPropertiesTree::slotReturnPressed()
 	QTreeWidgetItem* Item = mDelegate->editedItem();
 	lcModel* Model = gMainWindow->GetActiveModel();
 
+	lcPiece* Piece = (mFocus && mFocus->IsPiece()) ? (lcPiece*)mFocus : nullptr;
+	lcLight* Light = (mFocus && mFocus->IsLight()) ? (lcLight*)mFocus : nullptr;
+
+	if (Item == mPositionXItem || Item == mPositionYItem || Item == mPositionZItem)
+	{
+		lcVector3 Center;
+		lcMatrix33 RelativeRotation;
+		Model->GetMoveRotateTransform(Center, RelativeRotation);
+		lcVector3 Position = Center;
+		float Value = lcParseValueLocalized(Editor->text());
+
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		if (Item == mPositionXItem)
+			Position[X] = Value;
+		else if (Item == mPositionYItem)
+			Position[Z] = -Value;
+		else if (Item == mPositionZItem)
+			Position[Y] = Value;
+/*** LPub3D Mod end ***/
+
+		lcVector3 Distance = Position - Center;
+
+		Model->MoveSelectedObjects(Distance, Distance, false, true, true, true);
+	}
+	else if (Item == mRotationXItem || Item == mRotationYItem || Item == mRotationZItem)
+	{
+		lcVector3 InitialRotation(0.0f, 0.0f, 0.0f);
+
+		if (Piece)
+			InitialRotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
+		else if (Light)
+			InitialRotation = lcMatrix44ToEulerAngles(Light->mWorldMatrix) * LC_RTOD;
+
+		lcVector3 Rotation = InitialRotation;
+
+		float Value = lcParseValueLocalized(Editor->text());
+
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		if (Item == mRotationXItem)
+			Rotation[X] = Value;
+		else if (Item == mRotationYItem)
+			Rotation[Z] = -Value;
+		else if (Item == mRotationZItem)
+			Rotation[Y] = Value;
+/*** LPub3D Mod end ***/
+
+		Model->RotateSelectedObjects(Rotation - InitialRotation, true, false, true, true);
+	}
+
 	if (mWidgetMode == LC_PROPERTY_WIDGET_PIECE)
 	{
-		lcPiece* Piece = (mFocus && mFocus->IsPiece()) ? (lcPiece*)mFocus : nullptr;
-
-		if (Item == partPositionX || Item == partPositionY || Item == partPositionZ)
-		{
-			lcVector3 Center;
-			lcMatrix33 RelativeRotation;
-			Model->GetMoveRotateTransform(Center, RelativeRotation);
-			lcVector3 Position = Center;
-			float Value = lcParseValueLocalized(Editor->text());
-
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (Item == partPositionX)
-				Position[X] = Value;
-			else if (Item == partPositionY)
-				Position[Z] = -Value;
-			else if (Item == partPositionZ)
-				Position[Y] = Value;
-/*** LPub3D Mod end ***/
-
-			lcVector3 Distance = Position - Center;
-
-			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
-		}
-		else if (Item == partRotationX || Item == partRotationY || Item == partRotationZ)
-		{
-			lcVector3 InitialRotation;
-			if (Piece)
-				InitialRotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
-			else
-				InitialRotation = lcVector3(0.0f, 0.0f, 0.0f);
-			lcVector3 Rotation = InitialRotation;
-
-			float Value = lcParseValueLocalized(Editor->text());
-
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (Item == partRotationX)
-				Rotation[X] = Value;
-			else if (Item == partRotationY)
-				Rotation[Z] = -Value;
-			else if (Item == partRotationZ)
-				Rotation[Y] = Value;
-/*** LPub3D Mod end ***/
-
-			Model->RotateSelectedObjects(Rotation - InitialRotation, true, false, true, true);
-		}
-		else if (Item == partShow)
+		if (Item == partShow)
 		{
 			bool Ok = false;
 			lcStep Step = Editor->text().toUInt(&Ok);
@@ -1026,52 +1030,11 @@ void lcQPropertiesTree::slotReturnPressed()
 	}
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)
 	{
-		lcLight* Light  = (mFocus && mFocus->IsLight()) ? (lcLight*)mFocus : nullptr;
-
 		if (Light)
 		{
 			lcLightProperties Props = Light->GetLightProperties();
 
-			QString Name = Light->GetName();
-
-			if (Item == lightPositionX || Item == lightPositionY || Item == lightPositionZ)
-			{
-				lcVector3 Center = Light->GetPosition();
-				lcVector3 Position = Center;
-
-				float Value = lcParseValueLocalized(Editor->text());
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-				if (Item == lightPositionX)
-					Position[X] = Value;
-				else if (Item == lightPositionY)
-					Position[Z] = -Value;
-				else if (Item == lightPositionZ)
-					Position[Y] = Value;
-/*** LPub3D Mod end ***/
-
-				lcVector3 Distance = Position - Center;
-
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
-			}
-			else if (Item == lightTargetX || Item == lightTargetY || Item == lightTargetZ)
-			{
-//				lcVector3 Center = Light->mTargetPosition;
-//				lcVector3 Position = Center;
-//				float Value = lcParseValueLocalized(Editor->text());
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-//				if (Item == lightTargetX)
-//					Position[X] = Value;
-//				else if (Item == lightTargetY)
-//					Position[Z] = -Value;
-//				else if (Item == lightTargetZ)
-//					Position[Y] = Value;
-/*** LPub3D Mod end ***/
-
-//				lcVector3 Distance = Position - Center;
-
-//				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
-			}
-			else if (Item == mLightSpotConeAngleItem)
+			if (Item == mLightSpotConeAngleItem)
 			{
 				float Value = lcParseValueLocalized(Editor->text());
 
@@ -1321,14 +1284,6 @@ void lcQPropertiesTree::SetEmpty()
 	clear();
 
 	mPieceAttributesItem = nullptr;
-	partPosition = nullptr;
-	partPositionX = nullptr;
-	partPositionY = nullptr;
-	partPositionZ = nullptr;
-	partRotation = nullptr;
-	partRotationX = nullptr;
-	partRotationY = nullptr;
-	partRotationZ = nullptr;
 	partVisibility = nullptr;
 	partShow = nullptr;
 	partHide = nullptr;
@@ -1378,14 +1333,6 @@ void lcQPropertiesTree::SetEmpty()
 /*** LPub3D Mod end ***/
 
 	lightConfiguration = nullptr;
-	lightPosition = nullptr;
-	lightPositionX = nullptr;
-	lightPositionY = nullptr;
-	lightPositionZ = nullptr;
-	lightTarget = nullptr;
-	lightTargetX = nullptr;
-	lightTargetY = nullptr;
-	lightTargetZ = nullptr;
 	mLightColorItem = nullptr;
 	mLightAttributesItem = nullptr;
 	lightDiffuse = nullptr;
@@ -1405,6 +1352,15 @@ void lcQPropertiesTree::SetEmpty()
 	mLightCastShadowItem = nullptr;
 	lightAreaGridRows = nullptr;
 	lightAreaGridColumns = nullptr;
+	
+	mPositionItem = nullptr;
+	mPositionXItem = nullptr;
+	mPositionYItem = nullptr;
+	mPositionZItem = nullptr;
+	mRotationItem = nullptr;
+	mRotationXItem = nullptr;
+	mRotationYItem = nullptr;
+	mRotationZItem = nullptr;
 
 	mWidgetMode = LC_PROPERTY_WIDGET_EMPTY;
 	mFocus = nullptr;
@@ -1432,15 +1388,15 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		partHide = addProperty(partVisibility, tr("Hide"), PropertyStep);
 
 /*** LPub3D Mod - Switch Rotation and Position attributes ***/
-		partRotation  = addProperty(nullptr, tr("Rotation"), PropertyGroup);
-		partRotationX = addProperty(partRotation, tr("X"), PropertyFloat);
-		partRotationY = addProperty(partRotation, tr("Y"), PropertyFloat);
-		partRotationZ = addProperty(partRotation, tr("Z"), PropertyFloat);
+		mRotationItem = addProperty(nullptr, tr("Rotation"), PropertyGroup);
+		mRotationXItem = addProperty(mRotationItem, tr("X"), PropertyFloat);
+		mRotationYItem = addProperty(mRotationItem, tr("Y"), PropertyFloat);
+		mRotationZItem = addProperty(mRotationItem, tr("Z"), PropertyFloat);
 
-		partPosition  = addProperty(nullptr, tr("Position"), PropertyGroup);
-		partPositionX = addProperty(partPosition, tr("X"), PropertyFloat);
-		partPositionY = addProperty(partPosition, tr("Y"), PropertyFloat);
-		partPositionZ = addProperty(partPosition, tr("Z"), PropertyFloat);
+		mPositionItem = addProperty(nullptr, tr("Position"), PropertyGroup);
+		mPositionXItem = addProperty(mPositionItem, tr("X"), PropertyFloat);
+		mPositionYItem = addProperty(mPositionItem, tr("Y"), PropertyFloat);
+		mPositionZItem = addProperty(mPositionItem, tr("Z"), PropertyFloat);
 /*** LPub3D Mod end ***/
 
 		mWidgetMode = LC_PROPERTY_WIDGET_PIECE;
@@ -1452,28 +1408,30 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 
 	lcVector3 Position;
 	lcMatrix33 RelativeRotation;
+
 	Model->GetMoveRotateTransform(Position, RelativeRotation);
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	partPositionX->setText(1, lcFormatValueLocalized(Position[X]));
-	partPositionX->setData(0, PropertyValueRole, Position[X]);
-	partPositionY->setText(1, lcFormatValueLocalized(-Position[Z]));
-	partPositionY->setData(0, PropertyValueRole, -Position[Z]);
-	partPositionZ->setText(1, lcFormatValueLocalized(Position[Y]));
-	partPositionZ->setData(0, PropertyValueRole, Position[Y]);
+	mPositionXItem->setText(1, lcFormatValueLocalized(Position[X]));
+	mPositionXItem->setData(0, PropertyValueRole, Position[X]);
+	mPositionYItem->setText(1, lcFormatValueLocalized(-Position[Z]));
+	mPositionYItem->setData(0, PropertyValueRole, -Position[Z]);
+	mPositionZItem->setText(1, lcFormatValueLocalized(Position[Y]));
+	mPositionZItem->setData(0, PropertyValueRole, Position[Y]);	
 /*** LPub3D Mod end ***/
 
 	lcVector3 Rotation;
+
 	if (Piece)
 		Rotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
 	else
 		Rotation = lcVector3(0.0f, 0.0f, 0.0f);
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	partRotationX->setText(1, lcFormatValueLocalized(Rotation[X]));
-	partRotationX->setData(0, PropertyValueRole, Rotation[X]);
-	partRotationY->setText(1, lcFormatValueLocalized(-Rotation[Z]));
-	partRotationY->setData(0, PropertyValueRole, -Rotation[Z]);
-	partRotationZ->setText(1, lcFormatValueLocalized(Rotation[Y]));
-	partRotationZ->setData(0, PropertyValueRole, Rotation[Y]);
+	mRotationXItem->setText(1, lcFormatValueLocalized(Rotation[X]));
+	mRotationXItem->setData(0, PropertyValueRole, Rotation[X]);
+	mRotationYItem->setText(1, lcFormatValueLocalized(-Rotation[Z]));
+	mRotationYItem->setData(0, PropertyValueRole, -Rotation[Z]);
+	mRotationZItem->setText(1, lcFormatValueLocalized(Rotation[Y]));
+	mRotationZItem->setData(0, PropertyValueRole, Rotation[Y]);
 /*** LPub3D Mod end ***/
 
 	lcStep Show = 0;
@@ -1770,9 +1728,7 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	bool EnableCutoff = false;
 	bool POVRayLight = false;
 	bool CastShadow = true;
-	PropertyType TargetProperty = PropertyFloat;
 	lcVector3 Position(0.0f, 0.0f, 0.0f);
-	lcVector3 Target(0.0f, 0.0f, 0.0f);
 	QColor Color(Qt::white);
 	float SpotConeAngle = 0.0f, SpotPenumbraAngle = 0.0f, SpotTightness = 0.0f;
 	lcVector2 AreaGrid(0.0f, 0.0f);
@@ -1787,7 +1743,6 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 
 		CastShadow = Light->GetCastShadow();
 		Position = Light->GetPosition();
-//		Target = Light->mTargetPosition;
 		Color = lcQColorFromVector3(Light->GetColor());
 		SpotConeAngle = Light->GetSpotConeAngle();
 		SpotPenumbraAngle = Light->GetSpotPenumbraAngle();
@@ -1836,12 +1791,11 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 		ExponentLabel = LightType == lcLightType::Sun ? tr("Strength") : tr("Power");
 		Cutoff = Light->mSpotCutoff;
 		EnableCutoff = Light->mEnableCutoff;
-		TargetProperty = LightType != lcLightType::Point ? PropertyFloat : PropertyFloatReadOnly;
 		SpotTightness = Light->GetSpotTightness();
 		AreaGrid = Light->mAreaGrid;
 	}
 
-	if (mWidgetMode != LC_PROPERTY_WIDGET_LIGHT || mLightType != LightType || mLightAreaShape != LightAreaShape || mPOVRayLight != POVRayLight)
+	if (mWidgetMode != LC_PROPERTY_WIDGET_LIGHT || mLightType != LightType || mPOVRayLight != POVRayLight)
 	{
 		SetEmpty();
 
@@ -1934,47 +1888,51 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 		lightConfiguration = addProperty(nullptr, tr("Configuration"), PropertyGroup);
 		lightFormat = addProperty(lightConfiguration, tr("Format"), PropertyLightFormat);
 
-		// Position
-		lightPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
-		lightPositionX = addProperty(lightPosition, tr("X"), PropertyFloat);
-		lightPositionY = addProperty(lightPosition, tr("Y"), PropertyFloat);
-		lightPositionZ = addProperty(lightPosition, tr("Z"), PropertyFloat);
+		mPositionItem = addProperty(nullptr, tr("Position"), PropertyGroup);
+		mPositionXItem = addProperty(mPositionItem, tr("X"), PropertyFloat);
+		mPositionYItem = addProperty(mPositionItem, tr("Y"), PropertyFloat);
+		mPositionZItem = addProperty(mPositionItem, tr("Z"), PropertyFloat);
 
-		// Target Position
-		if (LightType != lcLightType::Point && !(LightType == lcLightType::Area && POVRayLight))
+		if (LightType != lcLightType::Point)
 		{
-			lightTarget = addProperty(nullptr, tr("Target"), PropertyGroup);
-			lightTargetX = addProperty(lightTarget, tr("X"), TargetProperty);
-			lightTargetY = addProperty(lightTarget, tr("Y"), TargetProperty);
-			lightTargetZ = addProperty(lightTarget, tr("Z"), TargetProperty);
+			mRotationItem = addProperty(nullptr, tr("Rotation"), PropertyGroup);
+			mRotationXItem = addProperty(mRotationItem, tr("X"), PropertyFloat);
+			mRotationYItem = addProperty(mRotationItem, tr("Y"), PropertyFloat);
+			mRotationZItem = addProperty(mRotationItem, tr("Z"), PropertyFloat);
 		}
 
 		mWidgetMode = LC_PROPERTY_WIDGET_LIGHT;
 		mLightType = LightType;
-		mLightAreaShape = LightAreaShape;
 		mPOVRayLight = POVRayLight;
 	}
 
 	mFocus = Light;
 
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	lightPositionX->setText(1, lcFormatValueLocalized(Position[X]));
-	lightPositionX->setData(0, PropertyValueRole, Position[X]);
-	lightPositionY->setText(1, lcFormatValueLocalized(-Position[Z]));
-	lightPositionY->setData(0, PropertyValueRole, -Position[Z]);
-	lightPositionZ->setText(1, lcFormatValueLocalized(Position[Y]));
-	lightPositionZ->setData(0, PropertyValueRole, Position[Y]);
+	mPositionXItem->setText(1, lcFormatValueLocalized(Position[X]));
+	mPositionXItem->setData(0, PropertyValueRole, Position[X]);
+	mPositionYItem->setText(1, lcFormatValueLocalized(-Position[Z]));
+	mPositionYItem->setData(0, PropertyValueRole, -Position[Z]);
+	mPositionZItem->setText(1, lcFormatValueLocalized(Position[Y]));
+	mPositionZItem->setData(0, PropertyValueRole, Position[Y]);	
 /*** LPub3D Mod end ***/
 
-	if (LightType != lcLightType::Point && !(LightType == lcLightType::Area && POVRayLight))
+	if (LightType != lcLightType::Point)
 	{
+		lcVector3 Rotation;
+
+		if (Light)
+			Rotation = lcMatrix44ToEulerAngles(Light->mWorldMatrix) * LC_RTOD;
+		else
+			Rotation = lcVector3(0.0f, 0.0f, 0.0f);
+		
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-		lightTargetX->setText(1, lcFormatValueLocalized(Target[X]));
-		lightTargetX->setData(0, PropertyValueRole, Target[X]);
-		lightTargetY->setText(1, lcFormatValueLocalized(-Target[Z]));
-		lightTargetY->setData(0, PropertyValueRole, -Target[Z]);
-		lightTargetZ->setText(1, lcFormatValueLocalized(Target[Y]));
-		lightTargetZ->setData(0, PropertyValueRole, Target[Y]);
+		mRotationXItem->setText(1, lcFormatValueLocalized(Rotation[X]));
+		mRotationXItem->setData(0, PropertyValueRole, Rotation[X]);
+		mRotationYItem->setText(1, lcFormatValueLocalized(-Rotation[Z]));
+		mRotationYItem->setData(0, PropertyValueRole, -Rotation[Z]);
+		mRotationZItem->setText(1, lcFormatValueLocalized(Rotation[Y]));
+		mRotationZItem->setData(0, PropertyValueRole, Rotation[Y]);
 /*** LPub3D Mod end ***/
 	}
 

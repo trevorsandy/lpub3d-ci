@@ -86,7 +86,6 @@ protected:
 	void SetMultiple();
 
 	lcLightType mLightType;
-	lcLightAreaShape mLightAreaShape;
 	bool mPOVRayLight;
 
 	lcPropertyWidgetMode mWidgetMode;
@@ -98,14 +97,6 @@ protected:
 	QIcon m_uncheckedIcon;
 
 	QTreeWidgetItem* mPieceAttributesItem;
-	QTreeWidgetItem* partPosition;
-	QTreeWidgetItem* partPositionX;
-	QTreeWidgetItem* partPositionY;
-	QTreeWidgetItem* partPositionZ;
-	QTreeWidgetItem* partRotation;
-	QTreeWidgetItem* partRotationX;
-	QTreeWidgetItem* partRotationY;
-	QTreeWidgetItem* partRotationZ;
 	QTreeWidgetItem* partVisibility;
 	QTreeWidgetItem* partShow;
 	QTreeWidgetItem* partHide;
@@ -155,14 +146,6 @@ protected:
 	QTreeWidgetItem* mCameraNameItem;
 
 	QTreeWidgetItem* lightConfiguration;
-	QTreeWidgetItem* lightPosition;
-	QTreeWidgetItem* lightPositionX;
-	QTreeWidgetItem* lightPositionY;
-	QTreeWidgetItem* lightPositionZ;
-	QTreeWidgetItem* lightTarget;
-	QTreeWidgetItem* lightTargetX;
-	QTreeWidgetItem* lightTargetY;
-	QTreeWidgetItem* lightTargetZ;
 	QTreeWidgetItem* mLightColorItem;
 	QTreeWidgetItem* mLightAttributesItem;
 	QTreeWidgetItem* lightDiffuse;
@@ -182,6 +165,15 @@ protected:
 	QTreeWidgetItem* mLightCastShadowItem;
 	QTreeWidgetItem* lightAreaGridRows;
 	QTreeWidgetItem* lightAreaGridColumns;
+
+	QTreeWidgetItem* mPositionItem;
+	QTreeWidgetItem* mPositionXItem;
+	QTreeWidgetItem* mPositionYItem;
+	QTreeWidgetItem* mPositionZItem;
+	QTreeWidgetItem* mRotationItem;
+	QTreeWidgetItem* mRotationXItem;
+	QTreeWidgetItem* mRotationYItem;
+	QTreeWidgetItem* mRotationZItem;
 };
 
 class lcQPropertiesTreeDelegate : public QItemDelegate
