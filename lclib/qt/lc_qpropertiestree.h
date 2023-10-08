@@ -55,7 +55,6 @@ public:
 		PropertyString,
 		PropertyStringList,
 		PropertyLightFormat,
-		PropertyLightShape,
 		PropertyColor,
 		PropertyPieceColor,
 		PropertyPart,
@@ -87,7 +86,7 @@ protected:
 	void SetMultiple();
 
 	lcLightType mLightType;
-	int mLightShape;
+	lcLightAreaShape mLightAreaShape;
 	bool mPOVRayLight;
 
 	lcPropertyWidgetMode mWidgetMode;
@@ -175,7 +174,9 @@ protected:
 	QTreeWidgetItem* mLightSpotConeAngleItem;
 	QTreeWidgetItem* mLightSpotPenumbraAngleItem;
 	QTreeWidgetItem* mLightSpotTightnessItem;
-	QTreeWidgetItem* lightShape;
+	QTreeWidgetItem* mLightAreaShapeItem;
+	QTreeWidgetItem* mLightAreaSizeXItem;
+	QTreeWidgetItem* mLightAreaSizeYItem;
 	QTreeWidgetItem* lightFactorA;
 	QTreeWidgetItem* lightFactorB;
 	QTreeWidgetItem* mLightNameItem;
