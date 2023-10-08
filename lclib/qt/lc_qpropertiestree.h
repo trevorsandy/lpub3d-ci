@@ -45,8 +45,8 @@ public:
 		PropertyGroup,
 		PropertyBool,
 		PropertyFloat,
-		PropertyFloatReadOnly,
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
+		PropertyFloatReadOnly,
 		PropertyBoolReadOnly,
 		PropertyFloatCameraAngle,
 		PropertyFloatTarget,
@@ -119,7 +119,7 @@ protected:
 	QTreeWidgetItem* picturePageSizeHeight;
 	QTreeWidgetItem* pictureImageSizeWidth;
 	QTreeWidgetItem* pictureImageSizeHeight;
-	
+
 	QTreeWidgetItem* cameraGlobe;
 	QTreeWidgetItem* cameraGlobeLatitude;
 	QTreeWidgetItem* cameraGlobeLongitude;
@@ -147,6 +147,7 @@ protected:
 
 	QTreeWidgetItem* lightConfiguration;
 	QTreeWidgetItem* mLightColorItem;
+	QTreeWidgetItem* mLightPowerItem;
 	QTreeWidgetItem* mLightAttributesItem;
 	QTreeWidgetItem* lightDiffuse;
 	QTreeWidgetItem* lightSpecular;
