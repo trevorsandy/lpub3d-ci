@@ -156,40 +156,13 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 	const QLatin1String LineEnding("\r\n");
 
 /*** LPub3D Mod - LPUB meta command ***/
-	lcVector3 Vector;
 	QByteArray Meta(mLPubMeta ? "0 !LPUB" : "0 !LEOCAD");
-
 	Stream << QLatin1String(Meta + " CAMERA FOV ") << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding;
 /*** LPub3D Mod end ***/
-
-	if (mPositionKeys.GetSize() > 1)
-		mPositionKeys.SaveKeysLDraw(Stream, "CAMERA POSITION_KEY ");
-	else
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	{
-		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mPosition) : mPosition;
-		Stream << QLatin1String(Meta + " CAMERA POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
-	}
-/*** LPub3D Mod end ***/
-
-	if (mTargetPositionKeys.GetSize() > 1)
-		mTargetPositionKeys.SaveKeysLDraw(Stream, "CAMERA TARGET_POSITION_KEY ");
-	else
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	{
-		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mTargetPosition) : mTargetPosition;
-		Stream << QLatin1String(Meta + " CAMERA TARGET_POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
-	}
-/*** LPub3D Mod end ***/
-
-	if (mUpVectorKeys.GetSize() > 1)
-		mUpVectorKeys.SaveKeysLDraw(Stream, "CAMERA UP_VECTOR_KEY ");
-	else
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	{
-		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mUpVector) : mUpVector;
-		Stream << QLatin1String(Meta + " CAMERA UP_VECTOR ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
-	}
+	SaveAttribute(Stream, mLPubMeta ? lcVector3LeoCADToLDraw(mPosition) : mPosition, mPositionKeys, "CAMERA", "POSITION", Meta);
+	SaveAttribute(Stream, mLPubMeta ? lcVector3LeoCADToLDraw(mTargetPosition) : mTargetPosition, mTargetPositionKeys, "CAMERA", "TARGET_POSITION", Meta);
+	SaveAttribute(Stream, mLPubMeta ? lcVector3LeoCADToLDraw(mUpVector) : mUpVector, mUpVectorKeys, "CAMERA", "UP_VECTOR", Meta);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - LPUB meta command ***/
@@ -211,7 +184,6 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 	bool latOk = false, lonOk = false, tarOk = false;
 	float Lat = 23.0f, Lon = 45.0f, Dist = 1.0f;
 /*** LPub3D Mod end ***/
-
 	while (!Stream.atEnd())
 	{
 		QString Token;
@@ -235,6 +207,7 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 			Stream >> m_zNear;
 		else if (Token == QLatin1String("ZFAR"))
 			Stream >> m_zFar;
+/*** LPub3D Mod - Camera Globe ***/
 		else if (Token == QLatin1String("POSITION"))
 		{
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Z(LD -Y) in the up direction ***/
@@ -244,9 +217,7 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 /*** LPub3D Mod end ***/
 			mPositionKeys.ChangeKey(mPosition, 1, true);
 		}
-/*** LPub3D Mod - Camera Globe ***/
 		else if ((tarOk = Token == QLatin1String("TARGET_POSITION")))
-/*** LPub3D Mod end ***/
 		{
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Z(LD -Y) in the up direction ***/
 			Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
@@ -270,6 +241,7 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 			mTargetPositionKeys.LoadKeysLDraw(Stream);
 		else if (Token == QLatin1String("UP_VECTOR_KEY"))
 			mUpVectorKeys.LoadKeysLDraw(Stream);
+/*** LPub3D Mod end ***/
 		else if (Token == QLatin1String("NAME"))
 		{
 			mName = Stream.readAll().trimmed();
@@ -597,7 +569,7 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -Length;
 	*CurVert++ = 0.0f; *CurVert++ = 25.0f; *CurVert++ = 0.0f;
 
-	const GLushort Indices[40 + 24 + 24 + 4 + 16] = 
+	const GLushort Indices[40 + 24 + 24 + 4 + 16] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 0,
 		4, 5, 5, 6, 6, 7, 7, 4,
@@ -984,7 +956,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 		Z[0] = -Z[0];
 		Z[1] = -Z[1];
 	}
- 
+
 	const lcMatrix44 YRot(lcVector4(Z[0], Z[1], 0.0f, 0.0f), lcVector4(-Z[1], Z[0], 0.0f, 0.0f), lcVector4(0.0f, 0.0f, 1.0f, 0.0f), lcVector4(0.0f, 0.0f, 0.0f, 1.0f));
 	const lcMatrix44 transform = lcMul(lcMul(lcMul(lcMatrix44AffineInverse(YRot), lcMatrix44RotationY(DistanceY)), YRot), lcMatrix44RotationZ(-DistanceX));
 

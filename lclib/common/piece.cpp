@@ -150,10 +150,14 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 	}
 
 	if (mPositionKeys.GetSize() > 1)
-		mPositionKeys.SaveKeysLDraw(Stream, "PIECE POSITION_KEY ");
+/*** LPub3D Mod - LPUB meta command ***/
+		mPositionKeys.SaveKeysLDraw(Stream, "PIECE", "POSITION", "0 !LPUB");
+/*** LPub3D Mod end ***/
 
 	if (mRotationKeys.GetSize() > 1)
-		mRotationKeys.SaveKeysLDraw(Stream, "PIECE ROTATION_KEY ");
+/*** LPub3D Mod - LPUB meta command ***/
+		mRotationKeys.SaveKeysLDraw(Stream, "PIECE", "ROTATION", "0 !LPUB");
+/*** LPub3D Mod end ***/
 
 	Stream << "1 " << mColorCode << ' ';
 

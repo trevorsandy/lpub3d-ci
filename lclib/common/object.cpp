@@ -1,6 +1,22 @@
 #include "lc_global.h"
 #include "object.h"
 
+#define LC_OBJECT_ATTRIBUTE(T) \
+	template void lcObjectKeyArray<T>::SaveKeysLDraw(QTextStream& Stream, const char* ObjectName, const char* VariableName, const char* Meta) const; \
+	template void lcObjectKeyArray<T>::LoadKeysLDraw(QTextStream& Stream); \
+	template const T& lcObjectKeyArray<T>::CalculateKey(lcStep Step) const; \
+	template void lcObjectKeyArray<T>::ChangeKey(const T& Value, lcStep Step, bool AddKey); \
+	template void lcObjectKeyArray<T>::InsertTime(lcStep Start, lcStep Time); \
+	template void lcObjectKeyArray<T>::RemoveTime(lcStep Start, lcStep Time); \
+	template void lcObject::SaveAttribute<T>(QTextStream& Stream, const T& Variable, const lcObjectKeyArray<T>& Keys, const char* ObjectName, const char* VariableName, const char* Meta) const; \
+	template bool lcObject::LoadAttribute<T>(QTextStream& Stream, const QString& Token, T& Variable, lcObjectKeyArray<T>& Keys, const char* VariableName)
+
+LC_OBJECT_ATTRIBUTE(float);
+LC_OBJECT_ATTRIBUTE(lcVector2);
+LC_OBJECT_ATTRIBUTE(lcVector3);
+LC_OBJECT_ATTRIBUTE(lcVector4);
+LC_OBJECT_ATTRIBUTE(lcMatrix33);
+
 lcObject::lcObject(lcObjectType ObjectType)
 	: mObjectType(ObjectType)
 {
@@ -10,63 +26,36 @@ lcObject::~lcObject()
 {
 }
 
-template void lcObjectKeyArray<float>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<float>::LoadKeysLDraw(QTextStream& Stream);
-template const float& lcObjectKeyArray<float>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<float>::ChangeKey(const float& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<float>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<float>::RemoveTime(lcStep Start, lcStep Time);
-
-template void lcObjectKeyArray<lcVector3>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcVector3>::LoadKeysLDraw(QTextStream& Stream);
-template const lcVector3& lcObjectKeyArray<lcVector3>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcVector3>::ChangeKey(const lcVector3& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcVector3>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcVector3>::RemoveTime(lcStep Start, lcStep Time);
-
-template void lcObjectKeyArray<lcVector4>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcVector4>::LoadKeysLDraw(QTextStream& Stream);
-template const lcVector4& lcObjectKeyArray<lcVector4>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcVector4>::ChangeKey(const lcVector4& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcVector4>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcVector4>::RemoveTime(lcStep Start, lcStep Time);
-
-template void lcObjectKeyArray<lcMatrix33>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcMatrix33>::LoadKeysLDraw(QTextStream& Stream);
-template const lcMatrix33& lcObjectKeyArray<lcMatrix33>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcMatrix33>::ChangeKey(const lcMatrix33& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcMatrix33>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcMatrix33>::RemoveTime(lcStep Start, lcStep Time);
-
-/*** LPub3D Mod - enable lights ***/
-template void lcObjectKeyArray<int>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<int>::LoadKeysLDraw(QTextStream& Stream);
-template const int& lcObjectKeyArray<int>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<int>::ChangeKey(const int& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<int>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<int>::RemoveTime(lcStep Start, lcStep Time);
-
-template void lcObjectKeyArray<lcVector2>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcVector2>::LoadKeysLDraw(QTextStream& Stream);
-template const lcVector2& lcObjectKeyArray<lcVector2>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcVector2>::ChangeKey(const lcVector2& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcVector2>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcVector2>::RemoveTime(lcStep Start, lcStep Time);
-/*** LPub3D Mod end ***/
-
 template<typename T>
-void lcObjectKeyArray<T>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const
+static void SaveFloatValue(QTextStream& Stream, const T& Value)
 {
 	constexpr int Count = sizeof(T) / sizeof(float);
 
+	for (int ValueIndex = 0; ValueIndex < Count; ValueIndex++)
+		Stream << ((const float*)&Value)[ValueIndex] << ' ';
+}
+
+template<typename T>
+static void LoadFloatValue(QTextStream& Stream, T& Value)
+{
+	constexpr int Count = sizeof(T) / sizeof(float);
+
+	for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
+		Stream >> ((float*)&Value)[ValueIdx];
+}
+
+template<typename T>
+/*** LPub3D Mod - LPUB meta command ***/
+void lcObjectKeyArray<T>::SaveKeysLDraw(QTextStream& Stream, const char* ObjectName, const char* VariableName, const char* Meta) const
+/*** LPub3D Mod end ***/
+{
 	for (const lcObjectKey<T>& Key : mKeys)
 	{
 /*** LPub3D Mod - LPUB meta command ***/
-		Stream << QLatin1String("0 !LPUB ") << KeyName << Key.Step << ' ';
-/*** LPub3D Mod end ***/	
+		Stream << Meta << ObjectName << ' ' << VariableName << "_KEY " << Key.Step << ' ';
+/*** LPub3D Mod end ***/
 
-		for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
-			Stream << ((float*)&Key.Value)[ValueIdx] << ' ';
+		SaveFloatValue(Stream, Key.Value);
 
 		Stream << QLatin1String("\r\n");
 	}
@@ -185,4 +174,46 @@ void lcObjectKeyArray<T>::RemoveTime(lcStep Start, lcStep Time)
 		KeyIt->Step -= Time;
 		KeyIt++;
 	}
+}
+
+template<typename T>
+/*** LPub3D Mod - LPUB meta command ***/
+void lcObject::SaveAttribute(QTextStream& Stream, const T& Variable, const lcObjectKeyArray<T>& Keys, const char* ObjectName, const char* VariableName, const char* Meta) const
+/*** LPub3D Mod end ***/
+{
+	if (Keys.GetSize() == 1)
+	{
+/*** LPub3D Mod - LPUB meta command ***/
+		Stream << Meta << ObjectName << ' ' << VariableName << ' ';
+/*** LPub3D Mod end ***/
+
+		SaveFloatValue(Stream, Variable);
+
+		Stream << QLatin1String("\r\n");
+	}
+	else
+/*** LPub3D Mod - LPUB meta command ***/
+		Keys.SaveKeysLDraw(Stream, ObjectName, VariableName, Meta);
+/*** LPub3D Mod end ***/
+}
+
+template<typename T>
+bool lcObject::LoadAttribute(QTextStream& Stream, const QString& Token, T& Variable, lcObjectKeyArray<T>& Keys, const char* VariableName)
+{
+	if (Token == VariableName)
+	{
+		LoadFloatValue(Stream, Variable);
+		Keys.ChangeKey(Variable, 1, true);
+
+		return true;
+	}
+
+	if (Token.endsWith(QLatin1String("_KEY")) && Token.leftRef(Token.size() - 4) == VariableName)
+	{
+		Keys.LoadKeysLDraw(Stream);
+
+		return true;
+	}
+
+	return false;
 }

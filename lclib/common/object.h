@@ -36,7 +36,9 @@ public:
 		mKeys.clear();
 	}
 
-	void SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
+/*** LPub3D Mod - LPUB meta command ***/
+	void SaveKeysLDraw(QTextStream& Stream, const char* ObjectName, const char* VariableName, const char* Meta) const;
+/*** LPub3D Mod end ***/
 	void LoadKeysLDraw(QTextStream& Stream);
 	const T& CalculateKey(lcStep Step) const;
 	void ChangeKey(const T& Value, lcStep Step, bool AddKey);
@@ -141,7 +143,14 @@ public:
 	virtual void RemoveKeyFrames() = 0;
 	virtual QString GetName() const = 0;
 
+protected:
+	template<typename T>
+/*** LPub3D Mod - LPUB meta command ***/
+	void SaveAttribute(QTextStream& Stream, const T& Variable, const lcObjectKeyArray<T>& Keys, const char* ObjectName, const char* VariableName, const char* Meta) const;
+/*** LPub3D Mod end ***/
+	template<typename T>
+	bool LoadAttribute(QTextStream& Stream, const QString& Token, T& Variable, lcObjectKeyArray<T>& Keys, const char* VariableName);
+
 private:
 	lcObjectType mObjectType;
 };
-
