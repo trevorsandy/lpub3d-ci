@@ -68,6 +68,8 @@ public:
 	static bool staticFileCaseCallback(char *filename);
 	static bool staticFileCaseLevel(QDir &dir, char *filename);
 
+	static void messageSig(LogType type, const QString &message, int = 0);
+
 	void modelViewerAlertCallback(TCAlert *alert);
 	void snapshotTakerAlertCallback(TCAlert *alert);
 	void progressAlertCallback(TCProgressAlert *alert);
@@ -125,7 +127,7 @@ protected:
 	void timerEvent(QTimerEvent *event);
 
 	char *getLDrawDir(void);
-    char *getLDrawZipPath(void);
+	char *getLDrawZipPath(void);
 	bool verifyLDrawDir(bool forceChoose = false);
 	bool verifyLDrawDir(char *value);
 	bool promptForLDrawDir(QString prompt);
