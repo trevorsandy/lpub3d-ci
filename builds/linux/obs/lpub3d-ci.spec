@@ -316,6 +316,9 @@ update-desktop-database || true
 * Sun Sep 15 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3824
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
+* Mon Sep 04 2023 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3551
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 

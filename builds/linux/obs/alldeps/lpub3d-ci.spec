@@ -291,6 +291,24 @@ BuildRequires:  python-gobject
 BuildRequires:  python-gobject-base
 %endif
 
+# -----minizip dependency------
+%if ( 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?rhel} > 7 || 0%{?scientificlinux_version}>=700 || 0%{?oraclelinux}>=7 || 0%{?fedora} || 0%{?openeuler_version} || 0%{?almalinux})
+BuildRequires:  minizip-compat-devel
+%endif
+
+%if 0%{?suse_version}
+BuildRequires:  minizip-devel
+%endif
+
+%if 0%{?mageia}
+%ifarch x86_64
+BuildRequires:  lib64minizip-devel
+%else
+BuildRequires:  libminizip-devel
+%endif
+%endif
+# -----------------------------
+
 # POV-Ray dependencies - SUSE/CentOS builds
 %if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 BuildRequires:  autoconf
@@ -798,6 +816,9 @@ update-desktop-database || true
 
 %changelog
 * Sun Sep 15 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3824
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Sep 04 2023 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3551
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670
