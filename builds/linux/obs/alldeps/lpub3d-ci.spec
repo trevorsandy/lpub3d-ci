@@ -714,6 +714,7 @@ source builds/linux/obs/alldeps/GetLocalLibs.sh
 source builds/linux/obs/alldeps/LcLibPCH.sh
 %endif
 # build 3rd-party renderers
+export LP3D_LOG_PATH="%{_lp3d_log_path}" ; \
 export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # option flags and qmake settings

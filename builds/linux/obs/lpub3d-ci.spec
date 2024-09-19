@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update November 24, 2022
+# Last Update September 19, 2024
 # Copyright © 2018 - 2024 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -249,6 +249,7 @@ echo "Build OSMesa from source.......yes"
 export build_osmesa="%{build_osmesa}"
 %endif
 # build 3rd-party renderers
+export LP3D_LOG_PATH="%{_lp3d_log_path}" ; \
 export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # Qt setup
