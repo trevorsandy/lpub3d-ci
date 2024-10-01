@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add shortcut to launch About LPub3D window #762
 - Enhancement - Apple silicon arm64 builds #761 
 - Change - Custom parts with underscore in the name #730
 - Change - Difference in rendering with native renderer between versions #731
