@@ -23,6 +23,7 @@ Revisions:
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Caches are not cleared when exporting #750
 - Fix - Crash when opening "BOM Placement" applet. #754
 - Fix - Crash when showing BOM #742
 - Fix - Group step number not displayed when enabled in global settings #764
