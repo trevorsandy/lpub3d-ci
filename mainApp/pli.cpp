@@ -577,8 +577,11 @@ void Pli::setParts(
           QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
                                                        partsDir + QDir::separator() + nameKey + ".png");
 
+          QString individual;
+          if (pliMeta.individualParts.value()) individual = QString("%1-").arg(randomFour());
+
           if (bom && splitBom) {
-              if ( ! tempParts.contains(key)) {
+              if ( ! tempParts.contains(individual+key)) {
                   PliPart *part = new PliPart(type,color);
                   part->subType         = subType;
                   part->subOriginalType = subOriginalType;
@@ -594,11 +597,11 @@ void Pli::setParts(
                   part->nameKey         = nameKey;
                   part->imageName       = imageName;
                   part->groupMeta       = getGroupMeta();
-                  tempParts.insert(key,part);
+                  tempParts.insert(individual+key,part);
                 }
-              tempParts[key]->instances.append(here);
+              tempParts[individual+key]->instances.append(here);
             } else {
-              if ( ! parts.contains(key)) {
+              if ( ! parts.contains(individual+key)) {
                   PliPart *part = new PliPart(type,color);
                   part->subType         = subType;
                   part->subOriginalType = subOriginalType;
@@ -614,27 +617,42 @@ void Pli::setParts(
                   part->nameKey         = nameKey;
                   part->imageName       = imageName;
                   part->groupMeta       = getGroupMeta();
-                  parts.insert(key,part);
+                  parts.insert(individual+key,part);
                 }
-              parts[key]->instances.append(here);
+              parts[individual+key]->instances.append(here);
             }
-//#ifdef QT_DEBUG_MODE
-//          logNotice() << "\n"
-//                      << "01/05 PLI PART GROUP ATTRIBUTES [" + key + "] - SET PART"
-//                      << "\n0. Found:      " <<(found ? "Yes" : "No")
-//                      << "\n0. Bom Part:   " <<(bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
-//                      << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
-//                      << "\n1. Type:       " << groupMeta.value().type
-//                      << "\n2. Color:      " << groupMeta.value().color
-//                      << "\n3. ZValue:     " << groupMeta.value().zValue
-//                      << "\n4. OffsetX:    " << groupMeta.value().offset[0]
-//                      << "\n5. OffsetY:    " << groupMeta.value().offset[1]
-//                      << "\n6. Group Model:" << groupMeta.value().group.modelName
-//                      << "\n7. Group Line: " << groupMeta.value().group.lineNumber
-//                      << "\n8. Meta Model: " << groupMeta.here().modelName
-//                      << "\n9. Meta Line:  " << groupMeta.here().lineNumber
-//                         ;
-//#endif
+//* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+          qDebug() << "\n"
+                   << "01/05 PLI PART ATTRIBUTES [" + individual+key + "] - SET PART"
+                   << "\n1. Found:        " << (found ? "Yes" : "No")
+                   << "\n2. Bom Part:     " << (bom ? "Yes" : "No")
+                   << "\n3. Individual ID:" << individual << (individual.isEmpty() ? "(NoID)" : "")
+                   << "\n4. Type:         " << type
+                   << "\n5. Color:        " << color
+                   << "\n6. Element:      " << element
+                   << "\n7. NameKey:      " << nameKey
+                      ;
+#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+          qDebug() << "\n"
+                   << "01/05 PLI PART GROUP ATTRIBUTES [" + individual+key + "] - SET PART"
+                   << "\n0. Found:        " << (found ? "Yes" : "No")
+                   << "\n0. Bom Part:     " << (bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
+                   << "\n0. BOM:          " << (groupMeta.value().bom ? "True" : "False")
+                   << "\n0. Individual ID:" << individual << (individual.isEmpty() ? "(NoID)" : "")
+                   << "\n1. Type:         " << groupMeta.value().type
+                   << "\n2. Color:        " << groupMeta.value().color
+                   << "\n3. OffsetX:      " << groupMeta.value().offset[0]
+                   << "\n4. OffsetY:      " << groupMeta.value().offset[1]
+                   << "\n5. Group Model:  " << groupMeta.value().group.modelName
+                   << "\n6. Group Line:   " << groupMeta.value().group.lineNumber
+                   << "\n7. Meta Model:   " << groupMeta.here().modelName
+                   << "\n8. Meta Line:    " << groupMeta.here().lineNumber
+                      ;
+#endif
+//*/
         }
     } //instances
 
@@ -1314,14 +1332,17 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             QString font = pliMeta.instance.font.valueFoo();
             QString color = pliMeta.instance.color.value();
 
-            part->instanceText =
+            int textWidth = 0, textHeight = 0;
+
+            if (!pliMeta.individualParts.value()) {
+
+                part->instanceText =
                     new InstanceTextItem(this,part,descr,font,color,parentRelativeType);
 
-            int textWidth, textHeight;
+                part->instanceText->size(textWidth,textHeight);
 
-            part->instanceText->size(textWidth,textHeight);
-
-            part->textHeight = textHeight;
+                part->textHeight = textHeight;
+            }
 
             // if text width greater than image width
             // the bounding box is wider
@@ -2241,14 +2262,17 @@ int Pli::partSize()
               QString font = pliMeta.instance.font.valueFoo();
               QString color = pliMeta.instance.color.value();
 
-              part->instanceText =
-                  new InstanceTextItem(this,part,descr,font,color,parentRelativeType);
+              int textWidth = 0, textHeight = 0;
 
-              int textWidth, textHeight;
+              if (!pliMeta.individualParts.value()) {
 
-              part->instanceText->size(textWidth,textHeight);
+                  part->instanceText =
+                        new InstanceTextItem(this,part,descr,font,color,parentRelativeType);
 
-              part->textHeight = textHeight;
+                  part->instanceText->size(textWidth,textHeight);
+
+                  part->textHeight = textHeight;
+              }
 
               // if text width greater than image width
               // the bounding box is wider
@@ -3109,10 +3133,12 @@ void Pli::positionChildren(
             (y - part->height + part->annotHeight + part->partTopMargin)/scaleY);
       part->pixmap->setTransformationMode(Qt::SmoothTransformation);
 
-      part->instanceText->setParentItem(background);
-      part->instanceText->setPos(
-            x/scaleX,
-            (y - (showElement ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
+      if (!pliMeta.individualParts.value()) {
+          part->instanceText->setParentItem(background);
+          part->instanceText->setPos(
+                x/scaleX,
+                (y - (showElement ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
+      }
 
       // Position the BOM Element
       if (showElement) {
