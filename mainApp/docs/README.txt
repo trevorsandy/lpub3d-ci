@@ -23,6 +23,7 @@ Revisions:
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
 - Fix - LPub3D crashes on Mac #753
 - Fix - LPub3D unstable if 'Author:' value is empty in LDR-file #760
