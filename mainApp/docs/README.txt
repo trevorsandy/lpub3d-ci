@@ -26,6 +26,7 @@ Revisions:
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
 - Fix - Caches are not cleared when exporting #750
+- Fix - Crash when clicking in the Command Editor #767
 - Fix - Crash when opening "BOM Placement" applet #754
 - Fix - Crash when showing BOM #742
 - Fix - Create new Buildmod after one BM does not work #743
