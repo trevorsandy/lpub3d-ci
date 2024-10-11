@@ -21,6 +21,7 @@ Revisions:
 - Change - Difference in rendering with native renderer between versions #731
 - Change - MLCad Part unknown! PART line error after mpd file save #734
 - Change - Relative justify vertical axis on outside placement #729
+- Change - Set command editor highlight lines default to off #768
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
