@@ -2,7 +2,7 @@
 # Trevor SANDY
 # Last Update February 02, 2023
 #
-# This script is called from .github/workflows/build.yml
+# This script is called from .github/workflows/devops_ci_build.yml
 #
 # Run command:
 # bash -ex builds/utilities/ci/github/build-deploy.sh
