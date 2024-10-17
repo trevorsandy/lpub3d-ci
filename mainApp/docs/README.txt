@@ -31,6 +31,7 @@ Revisions:
 - Fix - Crash when opening "BOM Placement" applet #754
 - Fix - Crash when showing BOM #742
 - Fix - Create new Buildmod after one BM does not work #743
+- Fix - Final INSERT MODEL - command placed after BOM - should be before #770
 - Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
 - Fix - Incorrect preview image in the preview window #769
