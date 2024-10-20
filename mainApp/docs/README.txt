@@ -13,6 +13,25 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Fix - Abnormal end on app close after view preference dialogue #773
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.8.0.3953 (19 10 2024 08:45:39)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
 - Feature - Show individual part instance in BOM and PLI #766
 - Enhancement - Add shortcut to launch About LPub3D window #762
 - Enhancement - Apple silicon arm64 builds #761
