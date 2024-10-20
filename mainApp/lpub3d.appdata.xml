@@ -81,6 +81,7 @@
             <release version="2.4.8.3953" date="2024-10-18">
                 <description>
                     <p>LPub3D 18.10.2024 v2.4.8 Release Build.
+                        Enhancement - Add renderer arguments and environment vars to global settings #775
                         Fix - Abnormal end on app close after view preference dialogue #773
 						Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
                         See RELEASE_NOTES for full details.
