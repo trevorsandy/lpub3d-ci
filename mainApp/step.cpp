@@ -800,10 +800,10 @@ int Step::createCsi(
 /*
  * Process csiParts list - fade previous step-parts and or highlight current step-parts.
  * To get the previous content position, take the previous cisFile file size.
- * The csiFile entries are only parts with not formatting or meta commands so it is
+ * The csiFile entries are only parts with no formatting or meta commands so it is
  * well suited to provide the delta between steps.
  * When using the Native renderer, it is possible to 'disable' colour code and part
- * name formatting with the lpubFadeHighlight flat in order to use the Native renderer
+ * name formatting with the lpubFadeHighlight flag in order to use the Native renderer
  * fade and highlight behaviour.
  * The lpubFadeHighlight flag is set from the LPUB_FADE/LPUB_HIGHLIGHT meta command.
  */
@@ -857,59 +857,66 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
     // retrieve the previous step position
     int prevStepPosition = 0;
     if (!displayStep) {
-      prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber, stepNum);
-      if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
+      if (Gui::savePrevStepPosition && !calledOut && !multiStep)
         prevStepPosition = Gui::savePrevStepPosition;
+      else
+        prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName, current.lineNumber, stepNum);
     }
 /*
 #ifdef QT_DEBUG_MODE
-    emit lpub->messageSig(LOG_DEBUG, QString("\nConfigure Model Step:"
-                                             "\nStepNum....................%1"
-                                             "\nPreviousStepPos............%2"
-                                             "\nCurrentStepPos (StepSize)..%3"
-                                             "\nModelSize..................%4"
-                                             "\nModelName..................%5"
-                                             "\nLPubFadeHighlight..........%6"
-                                             "\nDisplayStep................%7"
-                                             "\nEnableFadeSteps............%8"
-                                             "\nFadeStepsUseColour.........%9"
-                                             "\nFadeColourCode.............%10"
-                                             "\nFadeStepsOpacity...........%11"
-                                             "\nFadeStepsGuiSetup..........%12"
-                                             "\nFadeStepsMetaSetup.........%13"
-                                             "\nEnableHighlightStep........%14"
-                                             "\nHighlightFirstStep.........%15"
-                                             "\nHighlightColour............%16"
-                                             "\nHighlightStepLineWidth.....%17"
-                                             "\nHighlightStepGuiSetup......%18"
-                                             "\nHighlightStepMetaSetup.....%19"
-                                             )
-                                             .arg(stepNum)                                                              //01
-                                             .arg(prevStepPosition)                                                     //02
-                                             .arg(parts.size())                                                         //03
-                                             .arg(lpub->ldrawFile.size(current.modelName))                              //04
-                                             .arg(current.modelName)                                                    //05
-                                             .arg(lpubFadeHighlight ? "Yes" : "No")                                     //06
-                                             .arg(displayStep ? "Yes" : "No")                                           //07
-                                             .arg(enableFadeSteps ? "Yes" : "No")                                       //08
-                                             .arg(fadeStepsUseColour ? "Yes" : "No")                                    //09
-                                             .arg(QString("%1 (%2)").arg(fadeColour).arg(LDrawColor::name(fadeColour))) //10
-                                             .arg(fadeStepsOpacity)                                                     //11
-                                             .arg(Gui::m_fadeStepsSetup ? "Yes" : "No")                                 //12
-                                             .arg(csiStepMeta.fadeSteps.setup.value() ? "Yes" : "No")                   //13
-                                             .arg(enableHighlightStep ? "Yes" : "No")                                   //14
-                                             .arg(highlightFirstStep ? "Yes" : "No")                                    //15
-                                             .arg(highlightColour)                                                      //16
-                                             .arg(highlightStepLineWidth)                                               //17
-                                             .arg(Gui::m_highlightStepSetup ? "Yes" : "No")                             //18
-                                             .arg(csiStepMeta.highlightStep.setup.value() ? "Yes" : "No")               //19
-                          );
+    bool fromSavePrev = Gui::savePrevStepPosition && !calledOut && !multiStep
+    emit lpub->messageSig(LOG_DEBUG,
+    QString("\nConfigure Model Page - %1:      "
+            "\n - StepNum....................%2"
+            "\n - PreviousStepSource.........%3"
+            "\n - PreviousStepPos............%4"
+            "\n - CurrentStepPos (CSI Size)..%5"
+            "\n - SubModelName...............%6"
+            "\n - CalledOut..................%7"
+            "\n - MultiStep..................%8"
+            "\n - SubModelSize...............%9"
+            "\n - LPubFadeHighlight..........%10"
+            "\n - DisplayStep................%11"
+            "\n - EnableFadeSteps............%12"
+            "\n - FadeStepsUseColour.........%13"
+            "\n - FadeColourCode.............%14"
+            "\n - FadeStepsOpacity...........%15"
+            "\n - FadeStepsGuiSetup..........%16"
+            "\n - FadeStepsMetaSetup.........%17"
+            "\n - EnableHighlightStep........%18"
+            "\n - HighlightFirstStep.........%19"
+            "\n - HighlightColour............%20"
+            "\n - HighlightStepLineWidth.....%21"
+            "\n - HighlightStepGuiSetup......%22"
+            "\n - HighlightStepMetaSetup.....%23"
+           ).arg(gui->stepPageNum)                                                     //01
+            .arg(stepNum)                                                              //02
+            .arg(fromSavePrev ? "SavePrevStep" : "GetPrevStep")                        //03
+            .arg(prevStepPosition)                                                     //04
+            .arg(parts.size() )                                                        //05
+            .arg(current.modelName)                                                    //06
+            .arg(calledOut ? "Yes" : "No")                                             //07
+            .arg(multiStep ? "Yes" : "No")                                             //08
+            .arg(lpub->ldrawFile.size(current.modelName))                              //09
+            .arg(lpubFadeHighlight ? "Yes" : "No")                                     //00
+            .arg(displayStep ? "Yes" : "No")                                           //11
+            .arg(enableFadeSteps ? "Yes" : "No")                                       //12
+            .arg(fadeStepsUseColour ? "Yes" : "No")                                    //13
+            .arg(QString("%1 (%2)").arg(fadeColour).arg(LDrawColor::name(fadeColour))) //14
+            .arg(fadeStepsOpacity)                                                     //15
+            .arg(Gui::m_fadeStepsSetup ? "Yes" : "No")                                 //16
+            .arg(csiStepMeta.fadeSteps.setup.value() ? "Yes" : "No")                   //17
+            .arg(enableHighlightStep ? "Yes" : "No")                                   //18
+            .arg(highlightFirstStep ? "Yes" : "No")                                    //19
+            .arg(highlightColour)                                                      //10
+            .arg(highlightStepLineWidth)                                               //21
+            .arg(Gui::m_highlightStepSetup ? "Yes" : "No")                             //22
+            .arg(csiStepMeta.highlightStep.setup.value() ? "Yes" : "No")               //23
+           );
 #endif
 //*/
 
     QStringList argv;
-
-    int type_1_5_line_count = 0;
 
     for (int index = 0; index < parts.size(); index++) {
 
@@ -925,7 +932,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
       split(csiLine, argv);
 
-      // parse step for manually entered FADE or SILHOUETTE commands
+      // parse each step line for manually entered FADE or SILHOUETTE commands
       if (argv.size() >= 2 && argv[0] == "0") {
         bool ok, update = false;
         if (enableFadeSteps && argv[1] == QStringLiteral("!FADE")) {
@@ -1018,7 +1025,6 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       // determine line type
       if (argv.size() && argv[0].size() == 1 && argv[0] >= "1" && argv[0] <= "5") {
         type_1_5_line = true;
-        type_1_5_line_count++;
         if (argv.size() == 15 && argv[0] == "1") {
           type_1_line = true;
           is_helper_part = ExcludedParts::isExcludedHelperPart(argv[argv.size()-1]);
@@ -1054,7 +1060,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                     continue;
                   else if (line.contains(invalidMetaRx)) {
                     Where where(submodelName, lpub->ldrawFile.getSubmodelIndex(submodelName), i);
-                    QString const &message = QObject::tr("Meta command not supported in display step submodel '%1'.<br>Line [%2]").arg(submodelName).arg(line);
+                    QString const &message = QObject::tr("Meta command not supported in STEP for display submodel '%1'.<br>Line [%2]").arg(submodelName).arg(line);
                     gui->parseError(message,where,Preferences::ParseErrors,true,false,QMessageBox::Warning);
                   } else {
                     QStringList argv;
@@ -1073,7 +1079,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
           /*
           if (is_colour_part)
             emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
-          */
+          //*/
         } // type_1_line
 
         // write fade step entries
@@ -1180,7 +1186,18 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       // insert closing meta commands
       if (!displayStep && !fadeCommand && !highlightCommand) {
         // insert closing fade meta
-        if (updatePosition == prevStepPosition) {
+        int stepPosition = prevStepPosition;
+        if (prevStepPosition >= parts.size()) {
+            stepPosition = prevStepPosition - parts.size();
+/*
+#ifdef QT_DEBUG_MODE
+            emit lpub->messageSig(LOG_TRACE,
+            QString("DEBUG: NAVIGATE BACKWARD ADJUSTMENT (%1) prevStepPosition: %2 -  parts.size(): %3")
+                    .arg(stepPosition).arg(prevStepPosition).arg(parts.size()));
+#endif
+//*/
+        }
+        if (updatePosition == stepPosition) {
           if (FadeMetaAdded)
             processedCsiParts.append(QStringLiteral("0 !FADE"));
         }
@@ -1199,9 +1216,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
     if (highlightCommand)
       processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
 
-    // save the current step position
-    if (!displayStep)
-      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
+    // Step position accurately saved in findPage/drawPage
+
   };
 
   if (csiParts.size()                         &&
@@ -1213,9 +1229,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
   } else {
 
-    // save the current step position
-    if (!displayStep)
-      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
+    // Step position accurately saved in findPage/drawPage
 
     return csiParts;
 
