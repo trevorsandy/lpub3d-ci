@@ -17,6 +17,7 @@ Revisions:
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
+- Fix - False Fade Steps, Highlight Step message #777
 
 --------------------------------------------------------------------------------------------------
 
