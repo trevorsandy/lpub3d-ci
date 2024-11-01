@@ -19,6 +19,7 @@ Revisions:
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
 - Fix - False Fade Steps, Highlight Step message #777
+- Fix - TopOfStep modelIndex below model start #778
 
 --------------------------------------------------------------------------------------------------
 
