@@ -21,6 +21,7 @@ Revisions:
 - Fix - False Fade Steps, Highlight Step message #777
 - Fix - Parts in PLI are not always drawn on model #780
 - Fix - TopOfStep modelIndex below model start #778
+- Fix - Treat submodel as substitute part error #747
 
 --------------------------------------------------------------------------------------------------
 
