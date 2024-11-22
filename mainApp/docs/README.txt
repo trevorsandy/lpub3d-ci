@@ -15,6 +15,7 @@ Revisions:
 
 - Feature - Increase the capability to change Edge Lines size #772
 - Enhancement - Add renderer arguments and environment vars to global settings #775
+- Enhamcement - Automatic restart #790
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
 - Change - Add minizip unzOpen to quazip to avoid violating ODR #787
