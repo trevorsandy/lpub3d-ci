@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.4135" date="2024-11-25">
+            <release version="2.4.8.4141" date="2024-11-26">
                 <description>
-                    <p>LPub3D 25.11.2024 v2.4.8 r182 Continuous Build.
+                    <p>LPub3D 26.11.2024 v2.4.8 r188 Continuous Build.
                         Feature - Increase the capability to change Edge Lines size #772
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Automatic restart #790
