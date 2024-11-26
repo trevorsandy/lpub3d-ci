@@ -19,6 +19,7 @@ Revisions:
 - Enhancement - Enhanced extended subfile load path options #794
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
+- Enhancement - Option to load last opened page on load last opened file #795
 - Change - AbEnd on insert a page pointer at the top of a STEP #789
 - Change - Add minizip unzOpen to quazip to avoid violating ODR #787
 - Change - AppImage build Qt Network SSL limitation #784
