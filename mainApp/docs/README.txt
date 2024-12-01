@@ -34,6 +34,7 @@ Revisions:
 - Fix - Message reset dialog does not show the number of messages to reset #785
 - Fix - Parts in PLI are not always drawn on model #780
 - Fix - Part placed after CALLOUT does not display in the PLI #793
+- Fix - PLI substitution and rotation parse fail #797
 - Fix - TopOfStep modelIndex below model start #778
 - Fix - Treat submodel as substitute part error #747
 
