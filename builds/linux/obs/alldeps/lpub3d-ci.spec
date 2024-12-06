@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: December 04, 2024
+# Last Update: December 06, 2024
 # Copyright © 2017 - 2024 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -714,7 +714,6 @@ source builds/linux/obs/alldeps/GetLocalLibs.sh
 source builds/linux/obs/alldeps/LcLibPCH.sh
 %endif
 # build 3rd-party renderers
-export LP3D_APP_VERSION=%{_lp3d_app_version}; \
 export LP3D_LOG_PATH="%{_lp3d_log_path}" ; \
 export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
