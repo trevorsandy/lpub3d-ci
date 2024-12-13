@@ -1,4 +1,4 @@
-LPub3D 2.4.8.252.4205 (07 12 2024 09:25:23)
+LPub3D 2.4.8.264.4217 (11 12 2024 06:56:24)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Feature - Increase the capability to change Edge Lines size #772
+- Enhancement - Add reload file option to LDraw search directories dialog #801
 - Enhancement - Add renderer arguments and environment vars to global settings #775
 - Enhancement - Automatic restart #790
 - Enhancement - Change Local LEGO Elements to User-defined Elements #796
