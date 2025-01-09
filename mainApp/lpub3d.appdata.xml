@@ -81,6 +81,7 @@
             <release version="2.4.9.4047" date="2025-01-07">
                 <description>
                     <p>LPub3D 07.01.2025 v2.4.9 Release Build.
+                        - Regression - Library Update failed #804
                     </p>
                 </description>
             </release>
