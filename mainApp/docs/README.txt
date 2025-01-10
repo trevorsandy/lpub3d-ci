@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Regression - Library Update failed #804
+- Fix - Submodel preview rotation #803
 
 --------------------------------------------------------------------------------------------------
 

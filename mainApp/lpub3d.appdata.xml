@@ -82,6 +82,7 @@
                 <description>
                     <p>LPub3D 07.01.2025 v2.4.9 Release Build.
                         - Regression - Library Update failed #804
+                        - Fix - Submodel preview rotation #803
                     </p>
                 </description>
             </release>
