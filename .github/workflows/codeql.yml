@@ -25,7 +25,7 @@ on:
 
 jobs:
   analyze:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
