@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Inconsistency with parts list shape inputs #805
+- Change - Set annotation style attributes for fixed and extended types #811
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
 - Regression - Library Update failed #804
 - Fix - Cannot edit AnnotationStyle list from menu action #810
