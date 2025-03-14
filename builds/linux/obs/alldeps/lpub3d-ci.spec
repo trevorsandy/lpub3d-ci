@@ -828,10 +828,22 @@ update-desktop-database || true
 
 %changelog
 * Wed Mar 12 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4337
-- LPub3D 2.3.8 enhancements and fixes - see RELEASE_NOTES for details
+- LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
-* Wed Mar 12 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4337
-- LPub3D 2.3.7 enhancements and fixes - see RELEASE_NOTES for details
+* Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047
+- LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Oct 18 2024 - trevor dot sandy at gmail dot com 2.4.8.3953
+- LPub3D 2.4.8 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Jun 21 2023 - trevor dot sandy at gmail dot com 2.4.7.3476
+- LPub3D 2.4.7 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Nov 30 2022 - trevor dot sandy at gmail dot com 2.4.6.3001
+- LPub3D 2.4.6 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Nov 22 2022 - trevor dot sandy at gmail dot com 2.4.5.2977
+- LPub3D 2.4.5 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
