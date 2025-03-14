@@ -83,7 +83,7 @@ jobs:
           if-no-files-found: ignore
 
   build-macos:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Build macOS ${{ matrix.runner-version }}
     runs-on: macos-${{ matrix.runner-version }}
     strategy:
@@ -132,7 +132,7 @@ jobs:
           if-no-files-found: ignore
 
   build-windows:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Build Windows 2022
     runs-on: windows-2022
     steps:
@@ -225,6 +225,7 @@ jobs:
     # add "${{ false }} && # remove to enable" after pipe to disable
     if: |
       always() &&
+      ${{ false }} &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
       (contains(github.event.head_commit.message, 'RELEASE_BUILD') ||
        contains(github.event.head_commit.message, 'BUILD_ALL') ||
