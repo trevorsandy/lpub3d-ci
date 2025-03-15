@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update March 14, 2025
+# Last Update March 15, 2025
 # Copyright © 2018 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -151,7 +151,7 @@ BuildRequires: libsane1, libproxy-webkit
  LeoCAD© 2022 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2022 Trevor SANDY
+ Copyright © 2015 - 2022 Trevor SANDY
 
 %prep
 set +x
