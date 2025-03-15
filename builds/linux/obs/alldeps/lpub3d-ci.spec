@@ -716,10 +716,15 @@ source builds/linux/obs/alldeps/GetLocalLibs.sh
 source builds/linux/obs/alldeps/LcLibPCH.sh
 %endif
 # build 3rd-party renderers
+export WD=$(readlink -e ../)
+%if 0%{?buildservice}
+%define _lp3d_cpu_cores %(echo `nproc`)
+%define _lp3d_log_path %(echo `pwd`)
+%define _lp3d_3rd_dist_dir %(echo lpub3d_linux_3rdparty)
+%endif
 export LP3D_LOG_PATH="%{_lp3d_log_path}"; \
 export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"; \
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"; \
-export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && \
 env \
 WD=${WD} \
