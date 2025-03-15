@@ -725,16 +725,7 @@ export WD=$(readlink -e ../)
 export LP3D_LOG_PATH="%{_lp3d_log_path}"; \
 export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"; \
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"; \
-chmod a+x builds/utilities/CreateRenderers.sh && \
-env \
-WD=${WD} \
-OBS=${OBS} \
-LPUB3D=${LPUB3D} \
-LDRAWDIR=${LDRAWDIR} \
-LP3D_LOG_PATH=${LP3D_LOG_PATH} \
-LP3D_CPU_CORES=${LP3D_CPU_CORES} \
-LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
-./builds/utilities/CreateRenderers.sh
+chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # option flags and qmake settings
 %if 0%{?fedora_version}==23
 %ifarch x86_64
