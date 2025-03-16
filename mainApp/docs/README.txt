@@ -20,6 +20,7 @@ Revisions:
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
 - Regression - Library Update failed #804
 - Fix - Cannot edit AnnotationStyle list from menu action #810
+- Fix - Pointer Tip of a page pointer cannot be hidden #813
 - Fix - Submodel preview rotation #803
 
 --------------------------------------------------------------------------------------------------
