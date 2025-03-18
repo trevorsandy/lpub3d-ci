@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: March 17, 2025
+# Last Update: March 18, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -571,9 +571,9 @@ for LDrawLibFile in \
   ${SrcPath}/vexiqparts.zip; do
   LibFile="$(basename ${LDrawLibFile})"
   if [ -f "${LDrawLibFile}" ]; then
-    if [ "${LibFile}" = "complete.zip" ]]; then
-      cp -f ${LDrawLibFile} ../ || \
-      echo "Error: ${LibFile} copy to $(readlink -e ../) failed."
+    if [ "${LibFile}" = "complete.zip" ]; then
+      cp -f ${LDrawLibFile} ../BUILD || \
+      echo "Error: ${LibFile} copy to $(readlink -e ../BUILD) failed."
     fi
     mv -f ${LDrawLibFile} mainApp/extras/ || \
 	echo "Error: ${LibFile} move to $(readlink -e mainApp/extras) failed."
