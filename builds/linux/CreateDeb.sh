@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 15, 2025
+# Last Update March 20, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -423,6 +423,7 @@ then
         23.10) LP3D_PLATFORM_NAME="mantic" ;;
         24.04) LP3D_PLATFORM_NAME="noble" ;;
         24.10) LP3D_PLATFORM_NAME="oracular" ;;
+        25.04) LP3D_PLATFORM_NAME="plucky" ;;
         *) LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
         ;;
@@ -433,6 +434,7 @@ then
         10) LP3D_PLATFORM_NAME="buster" ;;
         11) LP3D_PLATFORM_NAME="bullseye" ;;
         12) LP3D_PLATFORM_NAME="bookworm" ;;
+        13) LP3D_PLATFORM_NAME="trixie" ;;
         *) LP3D_PLATFORM_NAME="debian" ;;
         esac
         ;;
