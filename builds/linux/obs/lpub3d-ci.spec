@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update March 15, 2025
+# Last Update March 20, 2025
 # Copyright © 2018 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -205,7 +205,7 @@ for LDrawLibFile in \
   ${SrcPath}/vexiqparts.zip; do
   LibFile="$(basename ${LDrawLibFile})"
   if [ -f "${LDrawLibFile}" ]; then
-    if [ "${LibFile}" = "complete.zip" ]]; then
+    if [ "${LibFile}" = "complete.zip" ]; then
       cp -f ${LDrawLibFile} ../ || \
       echo "Error: ${LibFile} copy to $(readlink -e ../) failed."
     fi
@@ -215,7 +215,7 @@ for LDrawLibFile in \
     echo "Error: ${LDrawLibFile} not found."
   fi
 done
-# Copy 3rd party renderer source archives and build renderers
+# move 3rd party renderer source archives and build renderers
 for TarballFile in \
   ${SrcPath}/ldglite.tar.gz \
   ${SrcPath}/ldview.tar.gz \
@@ -229,7 +229,7 @@ for TarballFile in \
   fi
 done
 set -x
-# Indicate OBS status (should always be No for this spec file)
+# indicate OBS status (should always be No for this spec file)
 export OBS=%{usingbuildservice}
 # RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}

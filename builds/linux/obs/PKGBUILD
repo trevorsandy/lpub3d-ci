@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: March 15, 2025
+#  Last Update: March 20, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d-ci
 pkgver=2.4.9.4366
@@ -19,7 +19,6 @@ md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
 	# location is ../src
-	echo "  -> Current working directory: $PWD"
 	export WD="$PWD"
 	export LDRAWDIR="${HOME}/ldraw"
 	export PLATFORM_PRETTY="Arch Linux"
@@ -31,33 +30,19 @@ prepare() {
 	export LP3D_CPU_CORES="$(nproc)"
 	export LP3D_3RD_DIST_DIR="lpub3d_linux_3rdparty"
 	cd ${pkgname}-git
+	# move ldraw archive libraries to extras
+	for LDrawLibFile in \
+		../complete.zip \
+		../lpub3dldrawunf.zip \
+		../tenteparts.zip \
+		../vexiqparts.zip; do
+		if [ -f "${LDrawLibFile}" ]; then
+			[ "$(basename ${LDrawLibFile})" = "complete.zip" ] && LibCopy=cp || LibCopy=mv
+			${LibCopy} -f ${LDrawLibFile} mainApp/extras/
+		fi
+	done
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# location is ../src/${pkgname}-git
-	echo "  -> Current working directory: $PWD"
-	if [ -f ../complete.zip ] ; then
-		cp ../complete.zip mainApp/extras
-		echo "LDraw archive library complete.zip copied"
-	else
-		echo "complete.zip not found at $PWD"
-	fi
-	if [ -f ../lpub3dldrawunf.zip ] ; then
-		cp ../lpub3dldrawunf.zip mainApp/extras
-		echo "LDraw archive library lpub3dldrawunf.zip copied"
-	else
-		echo "lpub3dldrawunf.zip not found at $PWD"
-	fi
-	if [ -f ../tenteparts.zip ] ; then
-		cp ../tenteparts.zip mainApp/extras
-		echo "LDraw archive library tenteparts.zip copied"
-	else
-		echo "tenteparts.zip not found at $PWD"
-	fi
-	if [ -f ../vexiqparts.zip ] ; then
-		cp ../vexiqparts.zip mainApp/extras
-		echo "LDraw archive library vexiqparts.zip copied"
-	else
-		echo "vexiqparts.zip not found at $PWD"
-	fi
 	export QT_SELECT=qt5
 	export LP3D_BUILD_PKG=yes
 	export LDRAWDIR=${HOME}/ldraw
@@ -72,20 +57,13 @@ prepare() {
 build() {
 	cd ${pkgname}-git
 	make clean
-	make -j$(nproc)
+	make -j${LP3D_CPU_CORES}
 	# check lpub3d dependencies
-	LP3D_RELEASE="32bit_release"
-	if [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] ; then
-		LP3D_RELEASE="64bit_release"
-	fi
-	versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-	validExe="mainApp/${LP3D_RELEASE}/lpub3d${versuffix}"
-	if [ -f "${validExe}" ] ; then
-		echo "LDD check ${validExe}..."
-		ldd ${validExe} 2>/dev/null
-	else
-		echo "ERROR - LDD check failed for ${PWD}/${validExe}"
-	fi
+	[[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && \
+	LP3D_RELEASE="64bit_release" || LP3D_RELEASE="32bit_release"
+	LP3D_SUFFIX=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+	LP3D_EXE="mainApp/${LP3D_RELEASE}/lpub3d${LP3D_SUFFIX}"
+	[ -f "${LP3D_EXE}" ] && ldd ${LP3D_EXE} 2>/dev/null || :
 }
 
 package() {
