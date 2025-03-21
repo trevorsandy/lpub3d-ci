@@ -1921,7 +1921,7 @@ void lcPiecesLibrary::GetParts(std::vector<PieceInfo*>& Parts) const
 		Parts.emplace_back(PartIt.second);
 }
 
-std::vector<PieceInfo*> lcPiecesLibrary::GetTrainTrackParts(const lcTrainTrackConnectionType& ConnectionType) const
+std::vector<PieceInfo*> lcPiecesLibrary::GetVisibleTrainTrackParts(const lcTrainTrackConnectionType& ConnectionType) const
 {
 	std::vector<PieceInfo*> Parts;
 
@@ -1929,7 +1929,7 @@ std::vector<PieceInfo*> lcPiecesLibrary::GetTrainTrackParts(const lcTrainTrackCo
 	{
 		lcTrainTrackInfo* TrainTrackInfo = Info->GetTrainTrackInfo();
 
-		if (TrainTrackInfo && TrainTrackInfo->CanConnectTo(ConnectionType))
+		if (TrainTrackInfo && TrainTrackInfo->IsVisible() && TrainTrackInfo->CanConnectTo(ConnectionType))
 			Parts.emplace_back(Info);
 	}
 

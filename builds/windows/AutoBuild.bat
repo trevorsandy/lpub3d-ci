@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 13, 2025
+rem  Last Update: March 20, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -349,7 +349,9 @@ IF "%BUILD_WORKER%" EQU "True" (
   ECHO   BUILD_HOST.....................[%BUILD_WORKER_HOST%]
   ECHO   BUILD_WORKER_IMAGE.............[%BUILD_WORKER_IMAGE%]
   ECHO   BUILD_WORKER_JOB...............[%BUILD_WORKER_JOB%]
+  IF "%LP3D_CONDA_BUILD%" NEQ "True" (
   ECHO   BUILD_WORKER_REF...............[%BUILD_WORKER_REF%]
+  )
   ECHO   BUILD_WORKER_OS................[%BUILD_WORKER_OS%]
   ECHO   PROJECT REPOSITORY.............[%BUILD_WORKER_REPO%]
   ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
@@ -366,7 +368,9 @@ IF "%APPVEYOR%" EQU "True" (
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
+IF "%LP3D_CONDA_BUILD%" NEQ "True" (
 ECHO   COMMIT MESSAGE.................[%LP3D_COMMIT_MSG%]
+)
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
