@@ -80,7 +80,10 @@ IF "%BUILD_WORKER%" EQU "True" (
       SET CONFIG_CI=github_ci_win
     )
     IF "%LP3D_CONDA_BUILD%" EQU "True" (
-      SET CONFIG_CI=azure_ci_win
+	  :: Using default 'DD/MM/YYYY' date format for 'BUILD_OPT=local' build
+	  IF "%BUILD_OPT%" EQU "default" (
+        SET CONFIG_CI=azure_ci_win
+	  )
     )
   )
   SET ABS_WD=%BUILD_WORKSPACE%
@@ -175,6 +178,7 @@ IF NOT EXIST "%ABS_WD%\mainApp" (
   GOTO :ERROR_END
 )
 
+rem https://en.wikipedia.org/wiki/Microsoft_Visual_C++
 rem Visual C++ 2012 -vcvars_ver=11.0 Toolset v110 VSVersion 11.0    _MSC_VER 1700
 rem Visual C++ 2013 -vcvars_ver=12.0 Toolset v120 VSVersion 12.0    _MSC_VER 1800
 rem Visual C++ 2015 -vcvars_ver=14.0 Toolset v140 VSVersion 14.0    _MSC_VER 1900

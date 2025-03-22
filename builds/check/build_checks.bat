@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 24, 2023
+rem  Last Update: March 22, 2025
 rem  Copyright (C) 2018 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -24,7 +24,7 @@ IF "%LP3D_CONDA_TEST%" NEQ "True" (
   SET PKG_PLATFORM=x86_64
   SET PKG_DISTRO_DIR=%PACKAGE%_x86_64
   SET PKG_TARGET_DIR=%LIBRARY_PREFIX%\bin
-  SET PKG_RUNLOG_DIR=%SRC_DIR%\%PACKAGE%_Logs
+  SET PKG_RUNLOG_DIR=%CD%\%PACKAGE%_Logs
 )
 SET PKG_CHECK_DIR=%ABS_WD%\builds\check
 SET PKG_CHECK_FILE=%PKG_CHECK_DIR%\build_checks.mpd
@@ -128,6 +128,9 @@ ECHO   PKG_RUNLOG_DIR............[%PKG_RUNLOG_DIR%]
 ECHO   PKG_ASSETS_FOLDER.........[%PKG_CHECK_DIR%]
 IF "%LP3D_CONDA_TEST%" NEQ "True" (
   ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
+) ELSE (
+  ECHO --------------------------------------------
+  %PKG_TARGET_FILE% --version
 )
 
 CALL :SET_LDRAW_LIBS

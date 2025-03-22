@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 26, 2024
+rem  Last Update: March 22, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -135,13 +135,14 @@ REM ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
-
-IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
-ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
-IF EXIST "%LP3D_VER_INFO_FILE%" (
-  ECHO   FILE version.info..............[written to builds\utilities\version.info]
-) ELSE (
-  ECHO   FILE version.info..............[ERROR - file %LP3D_VER_INFO_FILE% not found]
+IF [%2] NEQ [ParseVersionInfoFile] (
+  IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
+  ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
+  IF EXIST "%LP3D_VER_INFO_FILE%" (
+    ECHO   FILE version.info..............[written to builds\utilities\version.info]
+  ) ELSE (
+    ECHO   FILE version.info..............[ERROR - file %LP3D_VER_INFO_FILE% not found]
+  )
 )
 GOTO :END
 
