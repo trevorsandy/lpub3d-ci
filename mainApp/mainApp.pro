@@ -397,7 +397,10 @@ if(!isEmpty(option)) {
         DISTRO_PACKAGE = CONDA ($$option)
     } else {
         DISTRO_PACKAGE = ($$option)
+        IN_APP_UPDATE = Enabled
     }
+
+    !equals(IN_APP_UPDATE, Enabled): DEFINES += DISABLE_IN_APP_UPDATE
 
     message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
 
