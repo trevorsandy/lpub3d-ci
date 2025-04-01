@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update March 15, 2025
+# Last Update: April 01, 2025
 # Copyright (C) 2017 - 2025 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -8,9 +8,6 @@ export DH_VERBOSE=1
 
 # use Qt5
 export QT_SELECT=qt5
-
-# for 3rd party apps install
-export LP3D_BUILD_PKG=yes
 
 # get CPU arch - DEB_BUILD_ARCH returns amd64 for x86_64, arm for armv7l or arm64 for aarch64
 export TARGET_CPU=${DEB_BUILD_ARCH}

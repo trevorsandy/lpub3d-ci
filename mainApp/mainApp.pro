@@ -370,15 +370,10 @@ message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIP
 message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
-build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
-if(deb|rpm|pkg|dmg|exe|api|snp|flp|con|contains(build_package, yes)) {
+if(deb|rpm|pkg|dmg|exe|api|snp|flp|con) {
     args = deb rpm pkg dmg exe api snp flp con
     for(arg, args) {
         contains(CONFIG, $$arg): opt = $$arg
-    }
-
-    isEmpty(opt) {
-        opt = $$build_package
     }
 
     contains(opt, api) {

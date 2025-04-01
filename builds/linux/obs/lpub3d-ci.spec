@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update March 20, 2025
+# Last Update: April 01, 2025
 # Copyright © 2018 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -239,8 +239,6 @@ export PLATFORM_VER=%{fedora}
 export LPUB3D=%{name}
 export RPM_BUILD=true
 export LDRAWDIR=${HOME}/ldraw
-# instruct qmake to install 3rd-party renderers
-export LP3D_BUILD_PKG=yes
 # set Qt5
 export QT_SELECT=qt5
 # 3rd-party renderers build-from-source requirements

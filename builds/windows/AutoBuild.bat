@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 20, 2025
+rem  Last Update: April 01, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -700,10 +700,6 @@ IF "%BUILD_WORKER%" EQU "True" (
 )
 IF "%APPVEYOR%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=%CONFIG_CI%
-  IF "%LP3D_BUILD_PKG%" EQU "yes" (
-    ECHO.
-    ECHO   LP3D_BUILD_PKG.................[%LP3D_BUILD_PKG%]
-  )
 )
 IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (

@@ -46,7 +46,6 @@ prepare() {
 	[ -f "../version.info" ] &&	cp -f ../version.info builds/utilities/ || :
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	export QT_SELECT=qt5
-	export LP3D_BUILD_PKG=yes
 	if [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
