@@ -25,13 +25,13 @@ unix:!macx {
         COPY_CMD = cp -f
         EXTRAS_PATH = $$system_path( $${_PRO_FILE_PWD_}/extras)
         system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $${EXTRAS_PATH}/ )
-        ! exists( $${EXTRAS_PATH}/complete.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/complete.zip not copied ~~~" )
+        ! exists( $${EXTRAS_PATH}/complete.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/complete.zip not copied ~~~" )
         system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/lpub3dldrawunf.zip) $${EXTRAS_PATH}/ )
-        ! exists( $${EXTRAS_PATH}/lpub3dldrawunf.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/lpub3dldrawunf.zip not copied ~~~" )
+        ! exists( $${EXTRAS_PATH}/lpub3dldrawunf.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/lpub3dldrawunf.zip not copied ~~~" )
         system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/tenteparts.zip) $${EXTRAS_PATH}/ )
-        ! exists( $${EXTRAS_PATH}/tenteparts.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/tenteparts.zip not copied ~~~" )
+        ! exists( $${EXTRAS_PATH}/tenteparts.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/tenteparts.zip not copied ~~~" )
         system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/vexiqparts.zip) $${EXTRAS_PATH}/ )
-        ! exists( $${EXTRAS_PATH}/vexiqparts.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/vexiqparts.zip not copied ~~~" )
+        ! exists( $${EXTRAS_PATH}/vexiqparts.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/vexiqparts.zip not copied ~~~" )
     }
 
     _PLATFORM_ID = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo \"$ID\")
@@ -49,12 +49,12 @@ unix:!macx {
     contains(BUILD_ARCH, arm64): BUILD_ARCH_POVRAY = aarch64
     else: BUILD_ARCH_POVRAY = $${BUILD_ARCH}
 
-    isEmpty(HOST_VERSION):   message("~~~ ERROR $${TARGET}: - PLATFORM_VERSION NOT DETECTED ~~~")
-    isEmpty(_PLATFORM_CODE): message("~~~ ERROR $${TARGET}: - PLATFORM_CODE NOT DETECTED ~~~")
-    isEmpty(_TARGET_CPU):    message("~~~ ERROR $${TARGET}: - PLATFORM_CPU NOT DETECTED ~~~")
+    isEmpty(HOST_VERSION):   message("~~~ $${LPUB3D} ERROR: - PLATFORM_VERSION NOT DETECTED ~~~")
+    isEmpty(_PLATFORM_CODE): message("~~~ $${LPUB3D} ERROR: - PLATFORM_CODE NOT DETECTED ~~~")
+    isEmpty(_TARGET_CPU):    message("~~~ $${LPUB3D} ERROR: - PLATFORM_CPU NOT DETECTED ~~~")
 
     DISTRO_PACKAGE = $${BUILD_CODE}-$${_PLATFORM_CODE}-$${HOST_VERSION}-$${_TARGET_CPU}
-    message("~~~ $${TARGET} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
+    message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
     DEFINES += DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 
     MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR
