@@ -45,8 +45,8 @@ prepare() {
 		../tenteparts.zip \
 		../vexiqparts.zip; do
 		if [ -f "${LDrawLibFile}" ]; then
-			[ "$(basename ${LDrawLibFile})" = "complete.zip" ] && LibCopy=cp || LibCopy=mv
-			${LibCopy} -f ${LDrawLibFile} mainApp/extras/
+			[ "$(basename ${LDrawLibFile})" = "complete.zip" ] && LIB_CMD=cp || LIB_CMD=mv
+			${LIB_CMD} -f ${LDrawLibFile} mainApp/extras/
 		fi
 	done
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
