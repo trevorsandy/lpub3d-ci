@@ -1,15 +1,4 @@
 lpub3d-ci: spelling-error-in-description GNU Public License GNU General Public License
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldglite-1.3/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldglite-1.3/bin/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldglite-1.3/bin/ldglite
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldview-4.5/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldview-4.5/bin/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/ldview-4.5/bin/ldview
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/lpub3d_trace_cui-3.8/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/lpub3d_trace_cui-3.8/bin/
-lpub3d-ci: dir-or-file-in-opt opt/lpub3d/3rdParty/lpub3d_trace_cui-3.8/bin/lpub3d_trace_cui
 lpub3d-ci: extra-license-file usr/share/doc/lpub3d/COPYING.txt.gz
 lpub3d-ci: extra-license-file usr/share/lpub3d/3rdParty/ldglite-1.3/doc/LICENCE
 lpub3d-ci: extra-license-file usr/share/lpub3d/3rdParty/ldview-4.5/doc/license.txt

@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: April 01, 2025
+# Last Update: April 02, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -112,8 +112,10 @@ License: GPL-2.0+
 BuildRequires: fdupes
 %endif
 
-# set custom directory paths
-%define _3rdexedir /opt/lpub3d/3rdParty
+# set directory paths
+%if 0%{?buildservice}
+%define _lp3d_3rd_exec_dir /usr/bin/lpub3d/3rdParty
+%endif
 %define _iconsdir %{_datadir}/icons
 
 # preamble
@@ -804,7 +806,7 @@ rm -rf $RPM_BUILD_ROOT
 #  {_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%attr(755,-,-) %{_3rdexedir}/*
+%attr(755,-,-) %{_lp3d_3rd_exec_dir}/*
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d/*
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*

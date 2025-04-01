@@ -41,10 +41,10 @@
 #define VER_UNOFFICIAL_MODEL_STR            "Unofficial_Model"
 #define VER_UNOFFICIAL_PART_STR             "Unofficial_Part"
 #define VER_LDRAW_FILE_LICENSE_STR          "Redistributable under CCAL version 2.0 : see CAreadme.txt"
-#ifdef OPT_PREFIX
-  #define VER_OPT_PREFIX_STR                OPT_PREFIX
+#ifdef INSTALL_PREFIX
+  #define VER_INSTALL_PREFIX_STR            INSTALL_PREFIX
 #else
-  #define VER_OPT_PREFIX_STR                ""
+  #define VER_INSTALL_PREFIX_STR            ""
 #endif
 #ifdef QT_DEBUG_MODE
   #define COMPANYNAME_STR                   "LPub3D Software Maint"

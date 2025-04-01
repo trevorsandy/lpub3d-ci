@@ -25,7 +25,7 @@ unix:!macx {
     snp: BUILD_CODE = snp
     flp: BUILD_CODE = flp
     if (api|snp|flp) {
-        THIRD_PARTY_EXE_DIR = $$(LP3D_3RD_EXE_DIR)
+        THIRD_PARTY_EXEC_DIR = $$(LP3D_3RD_EXE_DIR)
         _PLATFORM_CODE = osl
         COPY_CMD = cp -f
         EXTRAS_PATH = $$system_path( $${_PRO_FILE_PWD_}/extras)
@@ -72,11 +72,8 @@ unix:!macx {
     
     isEmpty(BIN_DIR): BIN_DIR               = $$INSTALL_PREFIX/bin
     isEmpty(SHARE_DIR): SHARE_DIR           = $$INSTALL_PREFIX/share
-
-    isEmpty(THIRD_PARTY_EXE_DIR) {
-    flp:  THIRD_PARTY_EXE_DIR               = $$INSTALL_PREFIX/opt/$$DIST_TARGET
-    else: THIRD_PARTY_EXE_DIR               = /opt/$$DIST_TARGET
-    }
+    isEmpty(THIRD_PARTY_EXEC_DIR): \
+    THIRD_PARTY_EXEC_DIR                    = $$INSTALL_PREFIX/bin/$$DIST_TARGET
 
     isEmpty(DOCS_DIR): DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
     isEmpty(ICON_DIR): ICON_DIR             = $$SHARE_DIR/icons
@@ -243,9 +240,9 @@ unix:!macx {
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
     # installed data directories - 3rd party renderer executables
-    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDGLITE/bin
-    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDVIEW/bin
-    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_POVRAY/bin
+    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$THIRD_PARTY_EXEC_DIR/3rdParty/$$VER_LDGLITE/bin
+    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$THIRD_PARTY_EXEC_DIR/3rdParty/$$VER_LDVIEW/bin
+    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$THIRD_PARTY_EXEC_DIR/3rdParty/$$VER_POVRAY/bin
 
     # installed data directories - 3rd party components
     isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/doc

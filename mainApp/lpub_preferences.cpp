@@ -322,7 +322,7 @@ QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
-QString Preferences::optPrefix                  = VER_OPT_PREFIX_STR;
+QString Preferences::installPrefix              = VER_INSTALL_PREFIX_STR;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion              = qApp->applicationVersion();
@@ -2630,20 +2630,19 @@ void Preferences::rendererPreferences()
 #else
     QDir appDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
-        lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
+        lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();
     } else {
         appDir.setPath(QString("%1/../share").arg(lpub3dPath));
         lpub3d3rdPartyAppDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
     }
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"))) {
-        lpub3d3rdPartyAppExeDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir")).toString();;
+        lpub3d3rdPartyAppExeDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir")).toString();
     } else {
-        appDir.setPath(QString("%1/../../%2").arg(lpub3dPath).arg(optPrefix.isEmpty() ? "opt" : optPrefix+"/opt"));
+        appDir.setPath(QString("%1/../../%2").arg(lpub3dPath).arg(installPrefix.isEmpty() ? "usr/bin" : installPrefix + "/usr/bin"));
         lpub3d3rdPartyAppExeDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
     }
 #endif // DEBUG_MODE_USE_BUILD_FOLDERS
-
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppExeDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/ldview").arg(lpub3d3rdPartyAppExeDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppExeDir, VER_POVRAY_STR));

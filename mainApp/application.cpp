@@ -1032,7 +1032,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 #else
     const QString lpub3d3rdPartyAppExeDir = QDir(QString("%1/../../%2/%3/3rdParty")
                                                          .arg(Preferences::lpub3dPath)
-                                                         .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix + "/opt")
+                                                         .arg(Preferences::installPrefix.isEmpty() ? "usr/bin" : Preferences::installPrefix + "/usr/bin")
                                                          .arg(Preferences::lpub3dAppName)).absolutePath();
     Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(lpub3d3rdPartyAppExeDir)));
 #endif // DEBUG_MODE_USE_BUILD_FOLDERS

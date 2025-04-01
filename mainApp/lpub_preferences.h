@@ -230,7 +230,7 @@ class Preferences
     static QString systemTheme;
     static QString ldvLights;
     static QString xmlMapPath;
-    static QString optPrefix;
+    static QString installPrefix;
 
     static QString validLDrawLibrary;
     static QString validLDrawDir;
