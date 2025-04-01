@@ -30,7 +30,6 @@ prepare() {
 	export WD="$PWD"
 	export LDRAWDIR="${HOME}/ldraw"
 	export PLATFORM_PRETTY="Arch Linux"
-	export PLATFORM_CODE="ar"
 	export PLATFORM_VER="2025"
 	export LPUB3D="${pkgname}"
 	export TARGET_CPU="$(uname -m)"
@@ -63,8 +62,12 @@ prepare() {
 
 build() {
 	cd ${pkgname}-git
+	export TARGET_VENDOR="Arch Linux"
+	export PLATFORM_CODE="ar"
+	export PLATFORM_VER="2025"
+	export TARGET_CPU="$(uname -m)"
 	make clean
-	make -j${LP3D_CPU_CORES}
+	make -j$(nproc)
 	# check lpub3d dependencies
 	[[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && \
 	LP3D_RELEASE="64bit_release" || LP3D_RELEASE="32bit_release"
