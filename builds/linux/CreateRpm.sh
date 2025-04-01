@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 01, 2025
+# Last Update: April 02, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -74,6 +74,7 @@ PRESERVE=${PRESERVE:-} # preserve cloned repository
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 LP3D_BASE=${LP3D_BASE:-fedora}
 LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
+LP3D_3RD_EXE_PREFIX=${INSTALL_PREFIX:-/usr}/bin/lpub3d/3rdParty
 LP3D_TARGET_ARCH=`uname -m`
 
 export OBS # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by lpub3d.spec
@@ -344,6 +345,7 @@ rpmbuild \
 --define "_lp3d_log_path ${LP3D_LOG_PATH}" \
 --define "_lp3d_cpu_cores ${LP3D_CPU_CORES}" \
 --define "_lp3d_3rd_dist_dir ${LP3D_3RD_DIST_DIR}" \
+--define "_lp3d_3rd_exec_dir ${LP3D_3RD_EXE_PREFIX}" \
 -vv -bb ${LPUB3D}.spec || exit 1
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}

@@ -5,7 +5,7 @@ if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
     message("~~~ $${TARGET} 3RD_INSTALL FROM REPO: $$THIRD_PARTY_SRC ~~~")
     unix:!macx {
         THIRD_PARTY_DEST = $$RESOURCE_DIR/3rdParty
-        message("~~~ $${TARGET} 3RD_INSTALL TO EXE DEST: $$THIRD_PARTY_EXE_DIR/3rdParty ~~~")
+        message("~~~ $${TARGET} 3RD_INSTALL TO EXE DEST: $$THIRD_PARTY_EXEC_DIR/3rdParty ~~~")
     }
     message("~~~ $${TARGET} 3RD_INSTALL TO DEST: $$THIRD_PARTY_DEST ~~~")
 }
