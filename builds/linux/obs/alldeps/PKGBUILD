@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: March 20, 2025
+#  Last Update: April 01, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d-ci
 pkgver=2.4.9.4373
@@ -8,8 +8,8 @@ pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d-ci.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
-makedepends=('iptables' 'glu' 'gcc' 'make' 'ca-certificates' 'llvm' 'mesa')
-depends=('unzip' 'qt5-base' 'qt5-tools' 'libpng' 'libjpeg-turbo' 'gl2ps' 'tinyxml' 'minizip' 'freeglut' 'mesa-libgl' 'boost-libs' 'boost' 'openexr' 'libtiff' 'xorg-util-macros' 'libelf' 'llvm-libs')
+makedepends=('glu' 'gcc' 'make')
+depends=('unzip' 'qt5-base' 'qt5-tools' 'libpng' 'libjpeg-turbo' 'gl2ps' 'tinyxml' 'minizip' 'freeglut' 'mesa-libgl' 'boost-libs' 'boost' 'openexr' 'libtiff' 'sdl2' 'xorg-util-macros' 'libelf' 'llvm-libs' 'llvm' 'mesa')
 conflicts=()
 replaces=()
 backup=()
