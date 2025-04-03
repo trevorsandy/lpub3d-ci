@@ -81,21 +81,21 @@ contains(LOAD_LDV_HEADERS,True) {
         }
     }
 
-    if (unix:exists(/usr/include/tinyxml.h)|exists($${SYSTEM_PREFIX}/include/tinyxml.h)) {
+    if (unix:exists(/usr/include/tinyxml.h)|exists($${SYSTEM_PREFIX_}/include/tinyxml.h)) {
         message("~~~ lib$${TARGET} system library header for tinyxml FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/tinyxml.h) {
         message("~~~ lib$${TARGET} local library header for tinyxml FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for tinyxml NOT FOUND ~~~")
     }
-    if (unix:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX}/include/gl2ps.h)) {
+    if (unix:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX_}/include/gl2ps.h)) {
         message("~~~ lib$${TARGET} system library header for gl2ps FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for gl2ps FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for gl2ps NOT FOUND, using local ~~~")
     }
-    if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX}/include/lib3ds.h)) {
+    if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX_}/include/lib3ds.h)) {
         message("~~~ lib$${TARGET} system library header for 3ds FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
         message("~~~ lib$${TARGET} local library header for 3ds FOUND ~~~")
@@ -109,14 +109,14 @@ contains(LOAD_LDV_HEADERS,True) {
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for minizip NOT FOUND ~~~")
     }
-    if (unix:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX}/include/png.h)) {
+    if (unix:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX_}/include/png.h)) {
         message("~~~ lib$${TARGET} system library header for png FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/png.h) {
         message("~~~ lib$${TARGET} local library header for png FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for png NOT FOUND ~~~")
     }
-    if (unix:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX}/include/jpeglib.h)) {
+    if (unix:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX_}/include/jpeglib.h)) {
         message("~~~ lib$${TARGET} system library header for jpeg FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for jpeg FOUND ~~~")
@@ -251,35 +251,35 @@ contains(LOAD_LDV_LIBS,True) {
     # 3rd party libraries should come after main libraries
 
     if (contains(USE_LOCAL_GL2PS_LIB,False)) {
-        macx:LIBS          += $${SYSTEM_PREFIX}/lib/libgl2ps.dylib
+        macx:LIBS          += $${SYSTEM_PREFIX_}/lib/libgl2ps.dylib
         else:LIBS          += -lgl2ps
     } else {
         LIBS               += $$GL2PS_LIB
     }
 
     if (contains(USE_LOCAL_TINYXML_LIB,False)) {
-        macx:LIBS          += $${SYSTEM_PREFIX}/lib/libtinyxml.dylib
+        macx:LIBS          += $${SYSTEM_PREFIX_}/lib/libtinyxml.dylib
         else:LIBS          += -ltinyxml
     } else {
         LIBS               += $$TINYXML_LIB
     }
 
     if (contains(USE_LOCAL_PNG_LIB,False)) {
-        macx:LIBS          += $${SYSTEM_PREFIX}/lib/libpng.dylib
+        macx:LIBS          += $${SYSTEM_PREFIX_}/lib/libpng.dylib
         else:LIBS          += -lpng
     } else {
         LIBS               += $$PNG_LIB
     }
 
     if (contains(USE_LOCAL_JPEG_LIB,False)) {
-        macx:LIBS          += $${SYSTEM_PREFIX}/lib/libjpeg.dylib
+        macx:LIBS          += $${SYSTEM_PREFIX_}/lib/libjpeg.dylib
         else:LIBS          += -ljpeg
     } else {
         LIBS               += $$JPEG_LIB
     }
 
     if (contains(USE_LOCAL_3DS_LIB,False)) {
-        macx:LIBS          += $${SYSTEM_PREFIX}/lib/lib3ds.dylib
+        macx:LIBS          += $${SYSTEM_PREFIX_}/lib/lib3ds.dylib
         else:LIBS          += -l3ds
     } else {
         LIBS               += $$3DS_LIB
