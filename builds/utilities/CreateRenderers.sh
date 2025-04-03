@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 03, 2025
+# Last Update: April 04, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -548,7 +548,7 @@ function package_renderers()
     else
         LP3D_OUT_PATH=${LP3D_LOG_PATH}
     fi
-	declare -r p=Package
+    declare -r p=Package
     LP3D_ARCH=${TARGET_CPU}
     LP3D_BASE=${platform_id}-${platform_ver}
     LP3D_RNDR_VERSION=${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}
@@ -1030,16 +1030,14 @@ for buildDir in ldglite ldview povray; do
     # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
     Info && Info "Setup ${!artefactVer} source files..."
     Info "----------------------------------------------------"
-    if [ ! -d "${buildDir}/${validSubDir}" ]; then
-      # Check if build dependencies or no binary...
-      if [[ ! -f "${!artefactBinary}" || ! "$LP3D_NO_DEPS" = "true" ]]; then
-        Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-        if [ ! -f ${buildDir}.tar.gz ]; then
-          Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-          curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-        fi
-        ExtractArchive ${buildDir} ${validSubDir}
+    if [ ! -d "${buildDir}/${validSubDir}" ]; then      
+      # Check if tarball archive exist...
+      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+      if [ ! -f ${buildDir}.tar.gz ]; then
+        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
       fi
+      [ -f ${buildDir}.tar.gz ] && ExtractArchive ${buildDir} ${validSubDir} || Info "ERROR - Failed to download ${buildDir}.tar.gz"
     else
       cd ${buildDir}
     fi
