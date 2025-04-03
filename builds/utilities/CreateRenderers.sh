@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 01, 2025
+# Last Update: April 03, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -471,10 +471,10 @@ BuildLDView() {
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make -j1
+    make -j${CPU_CORES}
     make install
   else
-    make -j1 > $2 2>&1 &
+    make -j${CPU_CORES} > $2 2>&1 &
     TreatLongProcess "$!" "60" "LDView make"
     make install >> $2 2>&1
   fi
