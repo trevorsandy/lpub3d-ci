@@ -24,10 +24,10 @@ INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
-SYSTEM_PREFIX = /usr/local
+SYSTEM_PREFIX_ = /usr/local
 macx {
-    contains(QT_ARCH,arm64): SYSTEM_PREFIX = /opt/homebrew
-    INCLUDEPATH += $${SYSTEM_PREFIX}/include
+    contains(QT_ARCH,arm64): SYSTEM_PREFIX_ = /opt/homebrew
+    INCLUDEPATH += $${SYSTEM_PREFIX_}/include
 }
 DEFINES += _QT
 DEFINES += _NO_BOOST
