@@ -13,9 +13,17 @@ depends=('unzip' 'qt5-tools' 'qt5-base' 'libjpeg-turbo' 'mesa-libgl' 'gl2ps' 'ti
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
-noextract=("complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
-md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
+source=('lpub3d-ci-git.tar.gz' 'complete.zip' 'lpub3dldrawunf.zip' 'tenteparts.zip' 'vexiqparts.zip' 'povray.tar.gz' 'ldview.tar.gz' 'ldglite.tar.gz')
+noextract=('complete.zip' 'lpub3dldrawunf.zip' 'tenteparts.zip' 'vexiqparts.zip' 'povray.tar.gz' 'ldview.tar.gz' 'ldglite.tar.gz')
+sha256sums=(
+	SKIP
+	'a4ab15366d22ae0589901ec15bcc465fd5bb5b6057661b91b89b810f98a56c06'
+	'a22da755a9c10cecf37928f4c951be00be9149146914de2a2b7a526906fdfd0e'
+	'95b65664c455f4895f480ab8e3ed9e96046ca69ee1b296922d76a369e2cf2846'
+	'e2f4114c8ff6bfe7e5a43b6c88fb47f32328ddb147578456ec0825aa76803b20'
+	'2793182e702750daa9c3dea19b167c78d004846e44c4ad73b9c3ec34566e1dcb'
+	'f8d5db81e65d4372b302610f686b50f3ed17797ac724cd968d9a10a942e11db0'
+	'9acf098ad1e4c8bc4c496ef97b1a5e095e5481574dd6e88830e93d646f7af02f')
 
 prepare() {
 	# location is ../src
