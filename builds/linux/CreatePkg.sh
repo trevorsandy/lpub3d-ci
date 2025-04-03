@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 15, 2025
+# Last Update: April 01, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -276,7 +276,7 @@ else
     curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip || :
 
     [ ! -f complete.zip ] && \
-    curl -O $curlopts https://library.ldraw.org/library/updates/complete.zip || :
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip || :
 
     [ ! -f tenteparts.zip ] && \
     curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :

@@ -13,7 +13,7 @@ depends=('unzip' 'qt5-base' 'qt5-tools' 'libpng' 'libjpeg-turbo' 'gl2ps' 'tinyxm
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-ci-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz" "version.info")
+source=("lpub3d-ci-git.tar.gz" "version.info" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
 noextract=("complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
 md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
 

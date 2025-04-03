@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 18, 2025
+rem  Last Update: April 01, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -368,7 +368,7 @@ SET ARCHIVE_FILE_DIR=%LDRAW_DIR%
 SET ARCHIVE_FILE=complete.zip
 SET VALID_SDIR=parts
 SET WebCONTENT="%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
-SET WebNAME=https://library.ldraw.org/library/updates/complete.zip
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip
 IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.

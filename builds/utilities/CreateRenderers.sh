@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 18, 2025
+# Last Update: April 01, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -787,7 +787,7 @@ if [ "$OBS" != "true" ]; then
     Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "complete.zip" ]; then
       Info "Downloading complete.zip..." && \
-      curl $curlopts https://library.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip
+      curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o ${DIST_PKG_DIR}/complete.zip
     else
       ldrawlib=$(echo $PWD/complete.zip)
       Info "Linking complete.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} complete.zip)

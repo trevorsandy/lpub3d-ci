@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 13, 2025
+# Last Update: April 01, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -241,7 +241,7 @@ then
     cp -f "${DIST_DIR}/complete.zip" "mainApp/extras/complete.zip"
   else
     echo "-  download ldraw official library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts https://library.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o mainApp/extras/complete.zip
   fi
 else
   echo "-  ldraw official library exist. skipping download"

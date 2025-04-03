@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 01, 2025
+rem  Last Update: April 02, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -1101,7 +1101,7 @@ EXIT /b
 
 :GET_OFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=https://library.ldraw.org/library/updates/%OfficialCONTENT%
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%OfficialCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...

@@ -21,6 +21,7 @@
       <param name="exclude">builds/linux/standard</param>
       <param name="exclude">builds/windows</param>
       <param name="exclude">builds/macx</param>
+      <param name="exclude">.git</param>
       <param name="exclude">.gitignore</param>
       <param name="exclude">.gitattributes</param>
       <param name="exclude">.github</param>
@@ -148,13 +149,14 @@
   </service>
   <service name="download_url">
    <param name="protocol">https</param>
-   <param name="host">library.ldraw.org</param>
-   <param name="path">/library/unofficial/ldrawunf.zip</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip</param>
    <param name="filename">lpub3dldrawunf.zip</param>
   </service>
   <service name="download_url">
    <param name="protocol">https</param>
-   <param name="host">library.ldraw.org</param>
-   <param name="path">/library/updates/complete.zip</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip</param>
+   <param name="filename">complete.zip</param>
   </service>
 </services>

@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 09, 2025
+rem  Last Update: April 01, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -1422,7 +1422,7 @@ EXIT /b
 
 :GET_OFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=https://library.ldraw.org/library/updates/%OfficialCONTENT%
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%OfficialCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...

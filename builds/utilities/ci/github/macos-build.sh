@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 21, 2024
+# Last Update: April 01, 2025
 
 function ShowHelp() {
     echo
@@ -216,7 +216,7 @@ wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub
 ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" || :
 cp -f ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip mainApp/extras
 [ ! -f "${LP3D_3RD_PARTY_PATH}/complete.zip" ] && \
-wget -q https://library.ldraw.org/library/updates/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip || :
+wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip || :
 [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ] && \
 ln -sf "${LP3D_3RD_PARTY_PATH}/complete.zip" "${LP3D_DIST_DIR_PATH}/complete.zip" || :
 cp -f ${LP3D_3RD_PARTY_PATH}/complete.zip mainApp/extras
