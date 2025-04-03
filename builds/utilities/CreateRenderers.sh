@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 03, 2025
+# Last Update: April 04, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -236,6 +236,7 @@ TreatLongProcess() {
   if test -z "$s_plabel"; then s_plabel="Create renderer"; fi
 
   # Spawn a process that coninually reports the command is running
+  Info
   while Info "$(date): $s_plabel process $s_pid is running since `ElapsedTime $s_start`..."; \
   do sleep $s_msgint; done &
   s_nark=$!
@@ -252,6 +253,7 @@ TreatLongProcess() {
     s_return_code=$?
     Info "$(date): $s_plabel process terminated (returned ${s_return_code})"
   fi
+  Info
   return $s_return_code
 }
 
@@ -503,19 +505,21 @@ BuildPOVRay() {
     BUILD_FLAGS="CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\"" || \
     BUILD_FLAGS="$BUILD_FLAGS CPPFLAGS=\"-I$LP3D_LL_USR/include\" LDFLAGS=\"$LP3D_LDFLAGS\""
     export PKG_CONFIG_PATH=$LP3D_LL_USR/lib64/pkgconfig:$PKG_CONFIG_PATH && \
-    Info "Prepend PKG_CONFIG_PATH for POVRay build: $PKG_CONFIG_PATH"
+    Info "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
   fi
-  #Info "DEBUG_DEBUG BUILD_FLAGS: $BUILD_FLAGS"
-  #Info "DEBUG_DEBUG PRINT_ENV:   $BUILD_CONFIG"
-  [ ! "$OS_NAME" = "Darwin" ] && export POV_IGNORE_SYSCONF_MSG="yes" || true
-  chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
-  [ -n "$BUILD_FLAGS" ] && \
-  Info && Info "BUILD_FLAGS: $BUILD_FLAGS" && \
-  Info "BUILD_CONFIG: $BUILD_CONFIG" && \
-  env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
-  Info && Info "BUILD_CONFIG: $BUILD_CONFIG" && \
-  ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
-  #Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
+  #Info "DEBUG_BUILD_FLAGS:  $BUILD_FLAGS"
+  #Info "DEBUG_BUILD_CONFIG: $BUILD_CONFIG"
+  [ ! "$OS_NAME" = "Darwin" ] && export POV_IGNORE_SYSCONF_MSG="yes" || :
+  chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh > $2 2>&1
+  if [ -n "$BUILD_FLAGS" ]; then
+    Info && Info "BUILD_FLAGS: $BUILD_FLAGS" && \
+    Info "BUILD_CONFIG: $BUILD_CONFIG" && \
+    env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG >> $2 2>&1
+  else
+    Info && Info "BUILD_CONFIG: $BUILD_CONFIG" && \
+    ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG >> $2 2>&1
+  fi
+  #Info "DEBUG_CONFIG.LOG: " && cat config.log || :
   if [ "${OBS}" = "true" ]; then
     make -j${CPU_CORES}
     make install
@@ -526,7 +530,7 @@ BuildPOVRay() {
       cat config.log
     fi
   else
-    make -j${CPU_CORES} > $2 2>&1 &
+    make -j${CPU_CORES} >> $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
     make check >> $2 2>&1
     make install >> $2 2>&1
@@ -548,7 +552,7 @@ function package_renderers()
     else
         LP3D_OUT_PATH=${LP3D_LOG_PATH}
     fi
-	declare -r p=Package
+    declare -r p=Package
     LP3D_ARCH=${TARGET_CPU}
     LP3D_BASE=${platform_id}-${platform_ver}
     LP3D_RNDR_VERSION=${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}
@@ -867,11 +871,11 @@ OSMesaBuildAttempt=0
 # processor and linkier flags for building local libs
 if [ "$get_local_libs" = 1 ]; then
   export PATH=$LP3D_LL_USR/bin:$PATH && \
-  Info "Prepend PATH with: $PATH"
+  Info "PATH: $PATH"
   export LD_LIBRARY_PATH=$LP3D_LL_USR/bin:$LP3D_LL_USR/lib64:$LD_LIBRARY_PATH && \
-  Info "Prepend LD_LIBRARY_PATH with: $LD_LIBRARY_PATH"
+  Info "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
   LP3D_LDFLAGS="-L$LP3D_LL_USR/lib64" && \
-  Info "Set LP3D_LDFLAGS to $LP3D_LDFLAGS" && Info
+  Info "LP3D_LDFLAGS: $LP3D_LDFLAGS" && Info
   export Q_LDFLAGS="$LP3D_LDFLAGS"
 fi
 
@@ -1030,16 +1034,14 @@ for buildDir in ldglite ldview povray; do
     # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
     Info && Info "Setup ${!artefactVer} source files..."
     Info "----------------------------------------------------"
-    if [ ! -d "${buildDir}/${validSubDir}" ]; then
-      # Check if build dependencies or no binary...
-      if [[ ! -f "${!artefactBinary}" || ! "$LP3D_NO_DEPS" = "true" ]]; then
-        Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-        if [ ! -f ${buildDir}.tar.gz ]; then
-          Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-          curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-        fi
-        ExtractArchive ${buildDir} ${validSubDir}
+    if [ ! -d "${buildDir}/${validSubDir}" ]; then      
+      # Check if tarball archive exist...
+      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+      if [ ! -f ${buildDir}.tar.gz ]; then
+        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
       fi
+      [ -f ${buildDir}.tar.gz ] && ExtractArchive ${buildDir} ${validSubDir} || Info "ERROR - Failed to download ${buildDir}.tar.gz"
     else
       cd ${buildDir}
     fi
