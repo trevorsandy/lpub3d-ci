@@ -397,6 +397,9 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
+  if [ "${MSYS2}" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG-=win32 CONFIG+=unix CONFIG+=msys"
+  fi
   if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
@@ -448,6 +451,9 @@ BuildLDView() {
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
+  fi
+  if [ "${MSYS2}" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG-=win32 CONFIG+=unix CONFIG+=msys"
   fi
   BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS"
   if [ "$prebuilt_3ds" = 1 ]; then
@@ -537,8 +543,8 @@ BuildPOVRay() {
 canPackageRenderers="true"
 function package_renderers()
 {
-    if [[ "${OBS}" = "true" || "${SNAP}" = "true" ]]; then
-        Info "Cannot create renderer package under OBS or SNAP builds"
+    if [[ "${OBS}" = "true" || -n "${SNAP}" || -n "${MSYS2}" ]]; then
+        Info "Cannot create renderer package under OBS, SNAP or MSYS builds"
         return
     fi
     if [ -d "/out" ]; then
@@ -636,7 +642,7 @@ if [ "${TARGET_CPU}" = "aarch64" ]; then
 fi
 
 # Initialize OBS if not in command line input - FlatPak does not call this script
-if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${CI}" = "" && "${SNAP}" = "" ]]; then
+if [[ -z "${OBS}" && -z "${DOCKER}" && -z "${CI}" && -z "${SNAP}" && -z "${MSYS2}" ]]; then
   OBS=true
 fi
 
@@ -652,7 +658,11 @@ if [ "$OS_NAME" = "Darwin" ]; then
 else
   platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
   platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
-  platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
+  if [ -z "${MSYS2}" ]; then
+    platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo `uname -a`)
+  else
+    platform_ver=$(echo `uname -a` | awk '{print $3}')
+  fi
   if [ "${OBS}" = "true" ]; then
     if [ "$RPM_BUILD" = "true" ]; then
       Info "OBS Build Family.........[RPM_BUILD]"
@@ -727,13 +737,15 @@ fi
 
 Info "Platform Version.........[$platform_ver]"
 Info "Target CPU...............[${TARGET_CPU}]"
-Info "Dist Working Directory...[$WD]"
+Info "Working Directory (WD)...[$WD]"
 
 # Distribution directory
 DIST_DIR=${LP3D_3RD_DIST_DIR:-}
 if [ -z "$DIST_DIR" ]; then
   if [ "$OS_NAME" = "Darwin" ]; then
     DIST_DIR=lpub3d_macos_3rdparty
+  elif [ -n "${MSYS2}" ]; then
+    DIST_DIR=lpub3d_msys_3rdparty
   else
     DIST_DIR=lpub3d_linux_3rdparty
   fi
@@ -744,7 +756,7 @@ if [ ! -d "${DIST_PKG_DIR}" ]; then
 fi
 export DIST_PKG_DIR="${DIST_PKG_DIR}"
 
-Info "Dist Directory...........[${DIST_PKG_DIR}]"
+Info "Dist Package Directory...[${DIST_PKG_DIR}]"
 
 # Change to Working directory
 # Travis: /home/travis/build/trevorsandy
@@ -830,15 +842,25 @@ if [ "$OS_NAME" = "Darwin" ]; then
   # Qt setup - MacOS
   QMAKE_EXEC=qmake
 else
-  # Qt setup - Linux
-  if [ -f $LP3D_QT5_BIN/qmake ] ; then
-    QMAKE_EXEC=$LP3D_QT5_BIN/qmake
-  else
-    export QT_SELECT=qt5
-    if [ -x /usr/bin/qmake-qt5 ] ; then
-      QMAKE_EXEC=/usr/bin/qmake-qt5
+
+  if [ -n "${MSYS2}" ]; then
+    # Qt setup - MinGW
+    if [ -f "${LP3D_QT5_BIN}/qmake.exe" ] ; then
+      QMAKE_EXEC=${LP3D_QT5_BIN}/qmake.exe
     else
-      QMAKE_EXEC=qmake
+      QMAKE_EXEC=${MINGW_PREFIX}/bin/qmake.exe
+    fi
+  else
+    # Qt setup - Linux
+    if [ -f "${LP3D_QT5_BIN}/qmake" ] ; then
+      QMAKE_EXEC=$LP3D_QT5_BIN/qmake
+    else
+      export QT_SELECT=qt5
+      if [ -x "/usr/bin/qmake-qt5" ] ; then
+        QMAKE_EXEC=/usr/bin/qmake-qt5
+      else
+        QMAKE_EXEC=qmake
+      fi
     fi
   fi
   # set dependency profiler and nubmer of CPUs
