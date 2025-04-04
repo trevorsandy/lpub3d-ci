@@ -2528,7 +2528,7 @@ lcPiece* lcModel::AddPiece(PieceInfo* Info, quint32 Section)
 
 	if (Last)
 	{
-		std::vector<lcTrainTrackInsert> TrainTracks;
+		std::vector<lcPieceInfoTransform> TrainTracks;
 
 		if (Info->GetTrainTrackInfo() && Last->mPieceInfo->GetTrainTrackInfo())
 		{
@@ -2539,7 +2539,7 @@ lcPiece* lcModel::AddPiece(PieceInfo* Info, quint32 Section)
 
 			TrainTracks = lcTrainTrackInfo::GetPieceInsertTransforms(Last, Info, Section);
 
-			for (const lcTrainTrackInsert& TrainTrack : TrainTracks)
+			for (const lcPieceInfoTransform& TrainTrack : TrainTracks)
 			{
 				int ColorIndex = lcGetColorIndex(TrainTrack.Info->GetTrainTrackInfo()->GetColorCode());
 
@@ -2747,12 +2747,12 @@ void lcModel::RotateFocusedTrainTrack(int Direction)
 	SaveCheckpoint(tr("Rotating"));
 }
 
-void lcModel::UpdateTrainTrackConnections(lcPiece* FocusPiece) const
+void lcModel::UpdateTrainTrackConnections(lcPiece* TrackPiece) const
 {
-	if (!FocusPiece || !FocusPiece->IsFocused())
+	if (!TrackPiece)
 		return;
 
-	const lcTrainTrackInfo* TrainTrackInfo = FocusPiece->mPieceInfo->GetTrainTrackInfo();
+	const lcTrainTrackInfo* TrainTrackInfo = TrackPiece->mPieceInfo->GetTrainTrackInfo();
 
 	if (!TrainTrackInfo)
 		return;
@@ -2762,15 +2762,15 @@ void lcModel::UpdateTrainTrackConnections(lcPiece* FocusPiece) const
 
 	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
 	{
-		if (Piece.get() == FocusPiece || !Piece->mPieceInfo->GetTrainTrackInfo())
+		if (Piece.get() == TrackPiece || !Piece->mPieceInfo->GetTrainTrackInfo())
 			continue;
 
 		for (int ConnectionIndex = 0; ConnectionIndex < ConnectionCount; ConnectionIndex++)
-			if (!Connections[ConnectionIndex] && lcTrainTrackInfo::GetPieceConnectionIndex(FocusPiece, ConnectionIndex, Piece.get()) != -1)
+			if (!Connections[ConnectionIndex] && lcTrainTrackInfo::GetPieceConnectionIndex(TrackPiece, ConnectionIndex, Piece.get()) != -1)
 				Connections[ConnectionIndex] = true;
 	}
 
-	FocusPiece->SetTrainTrackConnections(std::move(Connections));
+	TrackPiece->SetTrainTrackConnections(std::move(Connections));
 }
 
 void lcModel::DeleteAllCameras()
@@ -4996,13 +4996,21 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 	}
 }
 
-void lcModel::InsertPieceToolClicked(PieceInfo* Info, const lcMatrix44& WorldMatrix)
+void lcModel::InsertPieceToolClicked(const std::vector<lcPieceInfoTransform>& PieceInfoTransforms)
 {
-	lcPiece* Piece = new lcPiece(Info);
-	Piece->Initialize(WorldMatrix, mCurrentStep);
-	Piece->SetColorIndex(gMainWindow->mColorIndex);
-	Piece->UpdatePosition(mCurrentStep);
-	AddPiece(Piece);
+	lcPiece* Piece = nullptr;
+
+	for (const lcPieceInfoTransform& PieceInfoTransform : PieceInfoTransforms)
+	{
+		Piece = new lcPiece(PieceInfoTransform.Info);
+		Piece->Initialize(PieceInfoTransform.Transform, mCurrentStep);
+		Piece->SetColorIndex(gMainWindow->mColorIndex);
+		Piece->UpdatePosition(mCurrentStep);
+		AddPiece(Piece);
+	}
+
+	if (!Piece)
+		return;
 
 	gMainWindow->UpdateTimeline(false, false);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION, false);
