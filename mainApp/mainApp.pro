@@ -78,8 +78,9 @@ exists($$PWD/../builds/3rdparty) {
 isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
 THIRD_PARTY_DIST_DIR_PATH="undefined"
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    unix:!msys:!macx: DIST_DIR= lpub3d_linux_3rdparty
     else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+	else:msys: DIST_DIR       = lpub3d_msys_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
@@ -116,16 +117,18 @@ VER_USE_LDVIEW_DEV = False
 CONFIG(debug, debug|release) {
     # These lines requires a git extract of ldview at the same location as the lpub3d git extract
     # and defines the ldview git extract folder name, you can set as you like
-    unix: VER_LDVIEW_DEV = ldview
-    else:win32: VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} ) )
-    exists($$VER_LDVIEW_DEV_REPOSITORY) {
-        VER_USE_LDVIEW_DEV = True
-        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-    } else {
-        message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-    }
+	!msys {
+        unix: VER_LDVIEW_DEV = ldview
+        else:win32: VER_LDVIEW_DEV = ldview_vs_build
+        # This line defines the path of the ldview git extract relative to this project file
+        VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} ) )
+        exists($$VER_LDVIEW_DEV_REPOSITORY) {
+            VER_USE_LDVIEW_DEV = True
+            message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+        } else {
+            message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        }
+	}
 }
 # Load LDView libraries for LDVQt
 LOAD_LDV_LIBS = True
@@ -154,7 +157,8 @@ isEmpty(BUILD_TARGET) {
 }
 isEmpty(HOST_VERSION) {
     win32:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
-    unix:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+    unix:!msys:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+	msys:HOST_VERSION = $$system(echo `uname -a` | awk '{print $3}')
     macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
 }
 
@@ -378,31 +382,41 @@ message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_
 # When building from QtCreator, set CONFIG+=<option> in
 # project additional arguments. When building from a
 # script call, set CONFIG+=<option> as a qmake argument.
-config_options = exe dmg deb rpm pkg api snp flp con
+config_options = exe dmg deb rpm pkg api snp flp con msys
 for(config_option, config_options) {
     contains(CONFIG, $$config_option): option = $$config_option
 }
 if(!isEmpty(option)) {
     contains(option, api) {
         DEFINES += LP3D_APPIMAGE
-        DISTRO_PACKAGE = APPIMAGE ($$option)
+        DISTRO_PACKAGE = AppImage
     } else:contains(option, snp) {
         DEFINES += LP3D_SNAP
-        DISTRO_PACKAGE = SNAP ($$option)
+        DISTRO_PACKAGE = Snap
     } else:contains(option, flp) {
         DEFINES += LP3D_FLATPACK
-        DISTRO_PACKAGE = FLATPACK ($$option)
+        DISTRO_PACKAGE = FlatPak
     } else:contains(option, con) {
         DEFINES += LP3D_CONDA
-        DISTRO_PACKAGE = CONDA ($$option)
+        DISTRO_PACKAGE = Conda
+    } else:contains(option, msys) {
+        DISTRO_PACKAGE = MinGW
+        DEFINES += LP3D_MSYS2
+        isEmpty(INSTALL_PREFIX): INSTALL_PREFIX = $$PREFIX
+        !win32:message("~~~ $${LPUB3D} MSYS2 Mingw-w64 (win32-g++) ~~~")
+        message("~~~ $${LPUB3D} MSYS2 INSTALL_PREFIX $${INSTALL_PREFIX} ~~~")
     } else {
-        DISTRO_PACKAGE = ($$option)
+        contains(option, exe): DISTRO_PACKAGE = Windows
+		contains(option, dmg): DISTRO_PACKAGE = macOS
+		contains(option, deb): DISTRO_PACKAGE = Debian
+		contains(option, rpm): DISTRO_PACKAGE = RedHat
+		contains(option, pkg): DISTRO_PACKAGE = Arch
         IN_APP_UPDATE = Enabled
     }
 
     !equals(IN_APP_UPDATE, Enabled): DEFINES += DISABLE_IN_APP_UPDATE
 
-    message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
+    message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ($$option) ~~~")
 
     if (unix|copy3rd) {
         CONFIG+=copy3rdexe

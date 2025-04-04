@@ -32,6 +32,8 @@ equals(GIT_DIR, undefined) {
         UPDATE_CONFIG = 1
     } else:contains(CONFIG, con) {
         GIT_DIR_ENV = CONDA
+    } else:contains(CONFIG, msys) {
+        GIT_DIR_ENV = MSYS2
     } else {
         GIT_DIR_ENV = UNDEFINED
     }
@@ -62,8 +64,8 @@ equals(GIT_DIR, undefined) {
         GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
         contains(CONFIG, snp): GIT_DIR_ENV = SNAP
-        contains(CONFIG, flp): GIT_DIR_ENV = FLATPAK
-        if(isEmpty(GIT_SHA)|equals(GIT_DIR_ENV, SNAP)|equals(GIT_DIR_ENV, FLATPAK)) {
+        else:contains(CONFIG, flp): GIT_DIR_ENV = FLATPAK
+        if(isEmpty(GIT_SHA)|!isEmpty(GIT_DIR_ENV)) {
             USE_GIT_VER_FILE = true
         } else {
             VERSION_INFO_VAR = $$(LP3D_VERSION_INFO)
@@ -79,6 +81,7 @@ equals(GIT_DIR, undefined) {
                 message("~~~ ALERT LPUB3D! GIT TAG AND LP3D_VERSION_INFO NOT FOUND, USING HEAD $$GIT_VERSION ~~~")
             }
         }
+		isEmpty(GIT_DIR_ENV): GIT_DIR_ENV = UNDEFINED
     }
 
     !equals(USE_GIT_VER_FILE, true):!equals(USE_VERSION_INFO_VAR, true) {

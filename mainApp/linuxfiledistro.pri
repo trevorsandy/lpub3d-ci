@@ -19,7 +19,7 @@ unix:!macx {
 
     # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
     !isEmpty(option): BUILD_CODE = $$option
-    if (api|snp|flp) {
+    if (api|snp|flp|msys) {
         THIRD_PARTY_EXEC_DIR = $$(LP3D_3RD_EXE_DIR)
         _PLATFORM_CODE = ap
         COPY_CMD = cp -f

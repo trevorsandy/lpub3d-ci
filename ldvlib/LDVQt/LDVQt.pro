@@ -24,11 +24,7 @@ INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
-SYSTEM_PREFIX_ = /usr/local
-macx {
-    contains(QT_ARCH,arm64): SYSTEM_PREFIX_ = /opt/homebrew
-    INCLUDEPATH += $${SYSTEM_PREFIX_}/include
-}
+
 DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC
@@ -39,6 +35,15 @@ DEFINES += EXPORT_3DS
 
 unix: !macx: TARGET = ldvqt
 else:        TARGET = LDVQt
+
+msys {
+    SYSTEM_PREFIX_ = $$PREFIX
+    message("~~~ lib$${TARGET} MSYS2 SYSTEM_PREFIX $${SYSTEM_PREFIX_} ~~~ ")
+} else: SYSTEM_PREFIX_ = /usr/local
+macx {
+    contains(QT_ARCH,arm64): SYSTEM_PREFIX_ = /opt/homebrew
+    INCLUDEPATH += $${SYSTEM_PREFIX_}/include
+}
 
 # platform name and version
 BUILD_TARGET   = $$(TARGET_VENDOR)  # Platform ID
@@ -56,7 +61,8 @@ isEmpty(BUILD_TARGET) {
 }
 isEmpty(HOST_VERSION) {
     win32:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
-    unix:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+    unix:!msys:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+	msys:HOST_VERSION = $$system(echo `uname -a` | awk '{print $3}')
     macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
 }
 
@@ -99,20 +105,24 @@ CONFIG(debug, debug|release) {
     unix:!macx: TARGET = $$join(TARGET,,,d)
     # The remaining lines in this block adds the LDView header and source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    VER_USE_LDVIEW_DEV = True
-    # These lines defines the ldview git extract folder name, you can set as you like
-    unix: VER_LDVIEW_DEV = ldview
-    else:win32: VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} ) )
-    exists($$VER_LDVIEW_DEV_REPOSITORY) {
-        message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-        message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-        INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
-    } else {
-        VER_USE_LDVIEW_DEV = False
-        message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-    }
+	msys {
+	    VER_USE_LDVIEW_DEV = False
+	} else {
+        VER_USE_LDVIEW_DEV = True
+        # These lines defines the ldview git extract folder name, you can set as you like
+        unix: VER_LDVIEW_DEV = ldview
+        else:win32: VER_LDVIEW_DEV = ldview_vs_build
+        # This line defines the path of the ldview git extract relative to this project file
+        VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} ) )
+        exists($$VER_LDVIEW_DEV_REPOSITORY) {
+            message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+            message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+            INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
+        } else {
+            VER_USE_LDVIEW_DEV = False
+            message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        }
+	}
 } else {
     BUILD_CONF = Release
     ARCH_BLD = bit_release
