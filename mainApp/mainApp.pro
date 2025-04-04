@@ -7,6 +7,7 @@ QT     += xml
 QT     += concurrent
 QT     *= printsupport
 CONFIG += warn_on
+CONFIG += exceptions
 
 lessThan(QT_MAJOR_VERSION, 5) {
     error("LPub3D requires Qt5.4 or later.")
@@ -21,16 +22,6 @@ greaterThan(QT_MAJOR_VERSION, 5) {
     QT += core5compat openglwidgets
     DEFINES += QOPENGLWIDGET
 }
-
-win32:macx: \
-GAMEPAD {
-    qtHaveModule(gamepad) {
-        QT += gamepad
-        DEFINES += LC_ENABLE_GAMEPAD
-    }
-}
-
-CONFIG += exceptions
 
 CONFIG(debug, debug|release) { LPUB3D = LPub3Dd } else { LPUB3D = LPub3D }
 
@@ -50,7 +41,18 @@ DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
 DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
 DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+win32:macx: \
+GAMEPAD {
+    qtHaveModule(gamepad) {
+        QT += gamepad
+        DEFINES += LC_ENABLE_GAMEPAD
+    }
+}
+
 #~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # - Set enviroinment variable LP3D_DIST_DIR_PATH as needed.
 # - 3rd party libraries, executables, documentation and resources.
 # - When building on macOS, it is necessary to add CONFIG+=dmg at
@@ -369,29 +371,32 @@ message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIP
 !isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): message("~~~ $${LPUB3D} $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
 message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
-# To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
-if(deb|rpm|pkg|dmg|exe|api|snp|flp|con) {
-    args = deb rpm pkg dmg exe api snp flp con
-    for(arg, args) {
-        contains(CONFIG, $$arg): opt = $$arg
-    }
+#~~configuration options~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    contains(opt, api) {
+# To stage and install LPub3D content, a configuration
+# option must be specified using CONFIG+=<option>.
+# When building from QtCreator, set CONFIG+=<option> in
+# project additional arguments. When building from a
+# script call, set CONFIG+=<option> as a qmake argument.
+config_options = exe dmg deb rpm pkg api snp flp con
+for(config_option, config_options) {
+    contains(CONFIG, $$config_option): option = $$config_option
+}
+if(!isEmpty(option)) {
+    contains(option, api) {
         DEFINES += LP3D_APPIMAGE
-        DISTRO_PACKAGE = APPIMAGE ($$opt)
-    } else:contains(opt, snp) {
+        DISTRO_PACKAGE = APPIMAGE ($$option)
+    } else:contains(option, snp) {
         DEFINES += LP3D_SNAP
-        DISTRO_PACKAGE = SNAP ($$opt)
-    } else:contains(opt, flp) {
+        DISTRO_PACKAGE = SNAP ($$option)
+    } else:contains(option, flp) {
         DEFINES += LP3D_FLATPACK
-        DISTRO_PACKAGE = FLATPACK ($$opt)
-    } else:contains(opt, con) {
-        DISTRO_PACKAGE = CONDA ($$opt)
-        CONFIG-=$$opt
-        CONFIG+=conda_build
+        DISTRO_PACKAGE = FLATPACK ($$option)
+    } else:contains(option, con) {
         DEFINES += LP3D_CONDA
+        DISTRO_PACKAGE = CONDA ($$option)
     } else {
-        DISTRO_PACKAGE = ($$opt)
+        DISTRO_PACKAGE = ($$option)
     }
 
     message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
