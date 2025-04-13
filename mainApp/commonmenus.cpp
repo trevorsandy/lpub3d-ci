@@ -1622,6 +1622,21 @@ CommonMenus::WT_Text CommonMenus::WT[WT_NUM_ENTRIES];
 
 void CommonMenus::setWhatsThis()
 {
+#ifdef DISABLE_IN_APP_UPDATE
+  QString distribution;
+  #ifdef LP3D_APPIMAGE
+    distribution = QLatin1String(VER_APPIMAGE_BUILD_STR);
+  #elif defined LP3D_FLATPACK
+    distribution = QObject::tr("%1 Package").arg(VER_FLATPAK_BUILD_STR);
+  #elif defined LP3D_CONDA
+    distribution = QObject::tr("%1 Package").arg(VER_CONDA_BUILD_STR);
+  #elif defined LP3D_SNAP
+    distribution =  QObject::tr("%1 Package").arg(VER_SNAP_BUILD_STR);
+  #elif defined LP3D_MSYS2
+    distribution = QObject::tr("%1 Package").arg(VER_MSYS2_BUILD_STR);
+  #endif
+#endif
+
     WT_Text WTData[] =
     {
         //************************************
@@ -5795,6 +5810,11 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_LPUB3D_PREFERENCES_UPDATES
         {
             QObject::tr(
+#ifdef DISABLE_IN_APP_UPDATE
+            "  %1 check for updates settings are disabled for<br>"
+            "  %2 builds. Updates are performed by the %2 manager.<br>"
+            "  %3<br>"
+#else
             "  Configure %1 check for updates settings.<br>"
             "  - Frequency: select from never, once a day, once a week<br>"
             "    or once a month.<br><br>"
@@ -5811,8 +5831,13 @@ void CommonMenus::setWhatsThis()
             "  - Show Redirects: show the download URL redirect accept<br>"
             "    message prompt when redirected.<br><br>"
             "  - Check For Updates...: interactively trigger an update<br>"
-            "    check.%2<br>")
+            "    check.%2<br>"
+#endif
+            )
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+#ifdef DISABLE_IN_APP_UPDATE
+            .arg(distribution)
+#endif
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_LPUB3D_PREFERENCES_UPDATES")

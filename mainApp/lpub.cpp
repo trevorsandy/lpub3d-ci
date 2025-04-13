@@ -7153,7 +7153,7 @@ void Gui::createMenus()
     helpMenu->setObjectName("helpMenu");
     gui->menus.insert(helpMenu->objectName(), helpMenu);
     helpMenu->addAction(gui->getAct("viewLogAct.1"));
-#ifndef DISABLE_UPDATE_CHECK
+#if !defined(DISABLE_UPDATE_CHECK) && !defined(DISABLE_IN_APP_UPDATE)
     helpMenu->addAction(gui->getAct("updateAppAct.1"));
 #endif
     helpMenu->addAction(gui->getAct("visitHomepageAct.1"));
