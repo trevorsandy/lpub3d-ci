@@ -55,6 +55,12 @@
 #define VER_CHIPSET_STR                     VER_CHIPSET
 #define VER_BUILD_ARCH_STR                  VER_ARCH
 
+#define VER_APPIMAGE_BUILD_STR              "Appimage"
+#define VER_FLATPAK_BUILD_STR               "Flatpak"
+#define VER_CONDA_BUILD_STR                 "Conda"
+#define VER_SNAP_BUILD_STR                  "Snap"
+#define VER_MSYS2_BUILD_STR                 "MSYS2 MinGW"
+
 #ifdef LP3D_CONTINUOUS_BUILD
   #ifdef LP3D_DEVOPS_BUILD
      #ifdef QT_DEBUG_MODE
