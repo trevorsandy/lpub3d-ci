@@ -409,7 +409,10 @@ if(!isEmpty(option)) {
         contains(option, deb): DISTRO_PACKAGE = Debian
         contains(option, rpm): DISTRO_PACKAGE = RedHat
         contains(option, pkg): DISTRO_PACKAGE = Arch
+        IN_APP_UPDATE = Enabled
     }
+
+    !equals(IN_APP_UPDATE, Enabled): DEFINES += DISABLE_IN_APP_UPDATE
 
     message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ($$option) ~~~")
 

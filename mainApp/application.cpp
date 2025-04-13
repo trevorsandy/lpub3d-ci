@@ -1076,19 +1076,21 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 QString distribution = tr("Installed");
 #ifdef Q_OS_WIN
     if (Preferences::portableDistribution)
-#ifdef LP3D_CONDA
-        distribution = tr("Conda Package");
-#else
+  #ifdef LP3D_CONDA
+        distribution = tr("%1 Package").arg(VER_CONDA_BUILD_STR);
+  #elif defined LP3D_MSYS2
+        distribution = tr("%1 Package").arg(VER_MSYS2_BUILD_STR);
+  #else
         distribution = tr("Portable");
-#endif
+  #endif
 #elif defined(Q_OS_LINUX)
-#ifdef LP3D_APPIMAGE
-    distribution = tr("Appimage");
-#elif defined(LP3D_SNAP)
-    distribution = tr("Snap Package");
-#elif defined(LP3D_FLATPACK)
-    distribution = tr("Flatpak Package");
-#endif
+  #ifdef LP3D_APPIMAGE
+    distribution = QLatin1String(VER_APPIMAGE_BUILD_STR);
+  #elif defined(LP3D_SNAP)
+    distribution = tr("%1 Package").arg(VER_SNAP_BUILD_STR);
+  #elif defined(LP3D_FLATPACK)
+    distribution = tr("%1 Package").arg(VER_FLATPAK_BUILD_STR);
+  #endif
 #elif defined(Q_OS_MAC)
 #endif
     Preferences::printInfo(tr("Application Distribution.....(%1)").arg(distribution));

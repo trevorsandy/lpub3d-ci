@@ -294,6 +294,39 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 
   ui.preferencesTabWidget->setCurrentIndex(0);
 
+  bool enabled = true;
+#if defined(DISABLE_UPDATE_CHECK)
+  enabled = false;
+#elif defined(DISABLE_IN_APP_UPDATE)
+  enabled = false;
+  QString distribution;
+  #ifdef LP3D_APPIMAGE
+    distribution = QLatin1String(VER_APPIMAGE_BUILD_STR);
+  #elif defined LP3D_FLATPACK
+    distribution = tr("%1 Package").arg(VER_FLATPAK_BUILD_STR);
+  #elif defined LP3D_CONDA
+    distribution = tr("%1 Package").arg(VER_CONDA_BUILD_STR);
+  #elif defined LP3D_SNAP
+    distribution =  tr("%1 Package").arg(VER_SNAP_BUILD_STR);
+  #elif defined LP3D_MSYS2
+    distribution = tr("%1 Package").arg(VER_MSYS2_BUILD_STR);
+  #endif
+  const QString toolTip = tr("Updates are performed by the %1 manager.").arg(distribution);
+  ui.checkUpdateFrequency_Combo->setToolTip(toolTip);
+  ui.moduleVersion_Combo->setToolTip(toolTip);
+  ui.autoUpdateChangeLogBox->setToolTip(toolTip);
+  ui.updateChangeLogBtn->setToolTip(toolTip);
+#endif
+  ui.checkUpdateFrequency_Combo->setEnabled(enabled);
+  ui.moduleVersion_Combo->setEnabled(enabled);
+  ui.showAllNotificstions_Chk->setVisible(!enabled);
+  ui.enableDownloader_Chk->setVisible(!enabled);
+  ui.showDownloadRedirects_Chk->setVisible(!enabled);
+  ui.showUpdateNotifications_Chk->setVisible(!enabled);
+  ui.checkForUpdates_btn->setVisible(!enabled);
+  ui.autoUpdateChangeLogBox->setEnabled(enabled);
+  ui.updateChangeLogBtn->setEnabled(enabled);
+
   // lcLib
   connect(ui.FadeStepsColor,                &QToolButton::clicked,
           this,                             &PreferencesDialog::ColorButtonClicked);
@@ -372,7 +405,9 @@ void PreferencesDialog::setPreferences()
   showSaveOnUpdateFlag         = Preferences::showSaveOnUpdate;
 
   ui.autoUpdateChangeLogBox->setChecked(         Preferences::autoUpdateChangeLog);
+#if !defined(DISABLE_UPDATE_CHECK) && !defined(DISABLE_IN_APP_UPDATE)
   ui.updateChangeLogBtn->setEnabled(            !Preferences::autoUpdateChangeLog);
+#endif
 
   // preferred renderer
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
@@ -2425,8 +2460,10 @@ void PreferencesDialog::updateChangelog()
     else
         ui.changeLog_txbr->setHtml(LPub::m_releaseNotesContent);
 
+#if !defined(DISABLE_UPDATE_CHECK) && !defined(DISABLE_IN_APP_UPDATE)
     if (ui.updateChangeLogBtn->isEnabled())
         ui.updateChangeLogBtn->setEnabled(false);
+#endif
 
     m_updateFinished = true;
 }
