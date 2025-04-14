@@ -18,15 +18,10 @@ unix:!macx {
     # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|snp|flp|dmg> accordingly
 
     # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
-    deb: BUILD_CODE = deb
-    rpm: BUILD_CODE = rpm
-    pkg: BUILD_CODE = pkg
-    api: BUILD_CODE = api
-    snp: BUILD_CODE = snp
-    flp: BUILD_CODE = flp
+    !isEmpty(option): BUILD_CODE = $$option
     if (api|snp|flp) {
         THIRD_PARTY_EXEC_DIR = $$(LP3D_3RD_EXE_DIR)
-        _PLATFORM_CODE = osl
+        _PLATFORM_CODE = ap
         COPY_CMD = cp -f
         EXTRAS_PATH = $$system_path( $${_PRO_FILE_PWD_}/extras)
         system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $${EXTRAS_PATH}/ )

@@ -369,32 +369,40 @@ message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIP
 !isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): message("~~~ $${LPUB3D} $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
 message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
-# To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
-if(deb|rpm|pkg|dmg|exe|api|snp|flp|con) {
-    args = deb rpm pkg dmg exe api snp flp con
-    for(arg, args) {
-        contains(CONFIG, $$arg): opt = $$arg
-    }
+#~~configuration options~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    contains(opt, api) {
+# To stage and install LPub3D content, a configuration
+# option must be specified using CONFIG+=<option>.
+# When building from QtCreator, set CONFIG+=<option> in
+# project additional arguments. When building from a
+# script call, set CONFIG+=<option> as a qmake argument.
+config_options = exe dmg deb rpm pkg api snp flp con
+for(config_option, config_options) {
+    contains(CONFIG, $$config_option): \
+    option = $$config_option
+}
+if(!isEmpty(option)) {
+    contains(option, api) {
         DEFINES += LP3D_APPIMAGE
-        DISTRO_PACKAGE = APPIMAGE ($$opt)
-    } else:contains(opt, snp) {
+        DISTRO_PACKAGE = AppImage
+    } else:contains(option, snp) {
         DEFINES += LP3D_SNAP
-        DISTRO_PACKAGE = SNAP ($$opt)
-    } else:contains(opt, flp) {
+        DISTRO_PACKAGE = Snap
+    } else:contains(option, flp) {
         DEFINES += LP3D_FLATPACK
-        DISTRO_PACKAGE = FLATPACK ($$opt)
-    } else:contains(opt, con) {
-        DISTRO_PACKAGE = CONDA ($$opt)
-        CONFIG-=$$opt
-        CONFIG+=conda_build
+        DISTRO_PACKAGE = FlatPak
+    } else:contains(option, con) {
         DEFINES += LP3D_CONDA
+        DISTRO_PACKAGE = Conda
     } else {
-        DISTRO_PACKAGE = ($$opt)
+        contains(option, exe): DISTRO_PACKAGE = Windows
+        contains(option, dmg): DISTRO_PACKAGE = macOS
+        contains(option, deb): DISTRO_PACKAGE = Debian
+        contains(option, rpm): DISTRO_PACKAGE = RedHat
+        contains(option, pkg): DISTRO_PACKAGE = Arch
     }
 
-    message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
+    message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ($$option) ~~~")
 
     if (unix|copy3rd) {
         CONFIG+=copy3rdexe
