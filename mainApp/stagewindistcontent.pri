@@ -32,7 +32,7 @@ win32: stagewindistcontent {
         lpub3d_extras \
         lpub3d_docs
 
-    conda_build {
+    contains(option, con) {
         message("~~~ $${TARGET} CONDA BUILD - Qt PLUGLINS AND LIBS WILL NOT BE STAGED ~~~")
     } else {
         lpub3d_plugin_bearer.files += \
