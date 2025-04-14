@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 02, 2025
+rem  Last Update: April 15, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -580,7 +580,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
   ENDLOCAL
-  IF %CHECK%==1 (CALL :BUILD_CHECK %%P) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
+  IF %CHECK%==1 (CALL :BUILD_CHECK %%P) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS %%P)
 )
 GOTO :END
 
@@ -801,6 +801,7 @@ nmake.exe %LPUB3D_MAKE_ARGS% install
 EXIT /b
 
 :ADD_LDRAW_LIBS_TO_EXTRAS
+SET PLATFORM_ARCH=%1
 IF NOT EXIST "%LDRAW_LIBS%\" (
   ECHO.
   ECHO -ERROR - LDraw store folder %LDRAW_LIBS% does not exist.
