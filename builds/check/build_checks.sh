@@ -1,14 +1,18 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 14, 2025
+# Last Update April 22, 2025
 # Copyright (C) 2018 - 2025 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
-#       $BUILD_OPT = compile   (macOS only)
-#       $XSERVER = true|false  (used when running local XServer)
-#       $LP3D_BUILD_OS = appimage|flatpak|snap,
-#       $SOURCE_DIR = <lpub3d source folder>
-#       $LPUB3D_EXE = <lpub3d executable path>
+#       BUILD_OPT = compile   (macOS only)
+#       XSERVER = true|false  (used when running local XServer)
+#       LP3D_CHECK_LDD = check library dependencies using ldd
+#       LP3D_BUILD_OS = appimage|flatpak|snap,
+#       SOURCE_DIR = <lpub3d source folder>
+#       LPUB3D_EXE = <lpub3d executable path>
+#       LDGLITE_EXE = <LDGLite renderer executable path>
+#       LDVIEW_EXE = <LDView renderer executable path>
+#       POVRAY_EXE = <POVRay renderer executable path>
 
 # Startup
 BUILD_DIR=$PWD
@@ -32,8 +36,11 @@ function show_settings
     echo "--Buld Check Settings:"
     [ -n "${LP3D_BUILD_OS}" ] && echo "--LP3D_BUILD_OS......$LP3D_BUILD_OS"
     echo "--LPUB3D_EXE.........$LPUB3D_EXE"
+    [ -n "$LDGLITE_EXE" ] && echo "--LP3D_LDGLITE.......$LP3D_LDGLITE"
+    [ -n "$LDVIEW_EXE" ] && echo "--LP3D_LDVIEW........$LP3D_LDVIEW"
+    [ -n "$POVRAY_EXE" ] && echo "--LP3D_POVRAY........$LP3D_POVRAY"
     echo "--SOURCE_DIR.........$SOURCE_DIR"
-    [ "${LP3D_OS_NAME}" != "Darwin" ] && echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"
+    [ -n "$XDG_RUNTIME_DIR" ] && echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"
     [ "${USE_XVFB}" = "true" ] && echo "--USE_XVFB...........YES"
     [ "${XSERVER}" = "true" ] && echo "--XSERVER............YES"
     [ "${DOCKER}" = "true" ] && echo "--DOCKER.............YES"
@@ -75,6 +82,17 @@ if [[ "${LP3D_OS_NAME}" = "Darwin" ]]; then
     LP3D_PLATFORM=$(echo `sw_vers -productName`)
 else
     LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
+fi
+
+# Check if renderers are available
+if [ -n "$LDGLITE_EXE" ]; then
+    [ -f "$LDGLITE_EXE" ] && LP3D_LDGLITE="Available" || LP3D_LDGLITE="Not Available"
+fi
+if [ -n "$LDVIEW_EXE" ]; then
+    [ -f "$LDVIEW_EXE" ] && LP3D_LDVIEW="Available" || LP3D_LDVIEW="Not Available"
+fi
+if [ -n "$POVRAY_EXE" ]; then
+    [ -f "$POVRAY_EXE" ] && LP3D_POVRAY="Available" || LP3D_POVRAY="Not Available"
 fi
 
 unset LP3D_BUNDLED_APP
@@ -172,6 +190,7 @@ LP3D_CHECK_STDLOG=
 
 # Applicatin status check
 [ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
+${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2> ${LP3D_LOG_FILE} || \
 ${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2> ${LP3D_LOG_FILE}
 if [[ $? -ne 0 && -s "${LP3D_LOG_FILE}" ]];then
     echo "- LPub3D Status Log Trace..."
@@ -184,7 +203,12 @@ if [[ -n "${LP3D_CHECK_LDD}" && ${VALID_APPIMAGE} -eq 0 ]]; then
     find ${LPUB3D_LDD_EXE} -executable -type f -exec ldd {} \;
 fi
 
-LP3D_BUILD_CHECK_LIST=( CHECK_01 CHECK_02 CHECK_03 CHECK_04 CHECK_05 CHECK_06 CHECK_07 )
+# Set build checks based on available renderers
+LP3D_BUILD_CHECK_LIST=( CHECK_01 )
+[ "$LP3D_LDGLITE" != "Not Available" ] && LP3D_BUILD_CHECK_LIST+=( CHECK_02 ) || :
+[ "$LP3D_POVRAY" != "Not Available" ] && LP3D_BUILD_CHECK_LIST+=( CHECK_03 ) || :
+[ "$LP3D_LDVIEW" != "Not Available" ] && LP3D_BUILD_CHECK_LIST+=( CHECK_04 CHECK_05 CHECK_06 CHECK_07 ) || :
+
 NUM_CHECKS=${#LP3D_BUILD_CHECK_LIST[@]}
 
 # disable automatic restart on abnormal end
@@ -206,28 +230,28 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
         ;;
     CHECK_02)
-        LP3D_CHECK_LBL="LDView File Process"
-        LP3D_CHECK_HDR="- Check 2 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
-        LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stdout-ldview"
-        ;;
-    CHECK_03)
-        LP3D_CHECK_LBL="LDView (Single Call) File Process"
-        LP3D_CHECK_HDR="- Check 3 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
-        LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stdout-ldview"
-        ;;
-    CHECK_04)
         LP3D_CHECK_LBL="LDGLite Export Range"
         LP3D_CHECK_HDR="- Check 4 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stderr-ldglite"
         ;;
-    CHECK_05)
+    CHECK_03)
         LP3D_CHECK_LBL="Native POV Generation"
         LP3D_CHECK_HDR="- Check 5 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer povray"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stderr-povray"
+        ;;
+    CHECK_04)
+        LP3D_CHECK_LBL="LDView File Process"
+        LP3D_CHECK_HDR="- Check 2 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stdout-ldview"
+        ;;
+    CHECK_05)
+        LP3D_CHECK_LBL="LDView (Single Call) File Process"
+        LP3D_CHECK_HDR="- Check 3 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stdout-ldview"
         ;;
     CHECK_06)
         LP3D_CHECK_LBL="LDView TENTE Model"
@@ -284,7 +308,7 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
                     LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
                     if [ "${LP3D_CHECK_ASSETS}" ]; then
                         echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
-                        echo "- Archiving assets to ${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz"
+                        echo "- Archiving assets to ${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" >/dev/null 2>&1
                         if tar -czvf "${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
                             echo "Success"
                         else
