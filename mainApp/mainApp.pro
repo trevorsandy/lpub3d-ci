@@ -404,16 +404,21 @@ if(!isEmpty(option)) {
 
     message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ($$option) ~~~")
 
-    if (unix|copy3rd) {
-        CONFIG+=copy3rdexe
-        CONFIG+=copy3rdexeconfig
-        CONFIG+=copy3rdcontent
+    if (unix|install3rd) {
+        CONFIG += install3rdexe
+        CONFIG += install3rdassets
+        CONFIG += install3rdconfig
+        CONFIG += install3rdcontent
+        macx:include(macosfiledistro.pri)
+        else:include(posixfiledistro.pri)
     }
-    win32 {
-        CONFIG+=stagewindistcontent
-        CONFIG+=stage3rdexe
-        CONFIG+=stage3rdexeconfig
-        CONFIG+=stage3rdcontent
+
+    win32-msvc* {
+        CONFIG += stage3rdexe
+        CONFIG += stage3rdassets
+        CONFIG += stage3rdconfig
+        CONFIG += stage3rdcontent
+        include(winfiledistro.pri)
     }
 }
 
@@ -460,10 +465,6 @@ win32-msvc* {
 }
 
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32:include(winfiledistro.pri)
-macx:include(macosfiledistro.pri)
-unix:!macx:include(linuxfiledistro.pri)
 
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
