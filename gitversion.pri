@@ -44,7 +44,9 @@ equals(GIT_DIR, undefined) {
         }
     }
 
-    VER_BASE_NAME = $$lower($$(LP3D_APP))
+    VER_BASE_NAME    = $$lower($$(LP3D_APP))
+    isEmpty(VER_BASE_NAME): \
+    VER_BASE_NAME    = lpub3d-ci
     USE_GIT_VER_FILE = true
 
 } else {
@@ -120,13 +122,13 @@ equals(GIT_DIR, undefined) {
 
     # Get the git repository name
     GIT_BASE_NAME = $$system($$GIT_BASE_COMMAND rev-parse --show-toplevel 2> $$NULL_DEVICE)
-    VER_BASE_NAME = $$basename(GIT_BASE_NAME)
+    VER_BASE_NAME = $$lower($$basename(GIT_BASE_NAME))
     message("~~~ $${LPUB3D} USING GIT_BASE_NAME $$GIT_BASE_NAME ~~~")
 }
 
 if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
     equals(USE_GIT_VER_FILE, true) {
-        GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
+        GIT_VER_FILE = $$PWD/builds/utilities/version.info
 
         exists($$GIT_VER_FILE) {
             message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
@@ -201,16 +203,14 @@ contains(BUILD_TYPE,continuous) {
     DEFINES += LP3D_CONTINUOUS_BUILD
 }
 
-if (contains(VER_BASE_NAME, $$lower("lpub3d-ci"))|contains(VER_BASE_NAME, $$lower("lpub3dnext"))) {
-    contains(VER_BASE_NAME, $$lower("lpub3dnext")) {
-        message("~~~ $${LPUB3D} USING NEXT DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
-        DEFINES += LP3D_NEXT_BUILD
-    } else {
-        message("~~~ $${LPUB3D} USING CI DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
-        DEFINES += LP3D_DEVOPS_BUILD
-    }
+if (contains(VER_BASE_NAME, $$lower($${TARGET}))) {
+    message("~~~ $${LPUB3D} USING RELEASE BUILD VER_BASE_NAME: $$VER_BASE_NAME ~~~")
+} else:contains(VER_BASE_NAME, $$lower("$${TARGET}next")) {
+    message("~~~ $${LPUB3D} USING NEXT DEVEL BUILD VER_BASE_NAME: $$VER_BASE_NAME ~~~")
+    DEFINES += LP3D_NEXT_BUILD
 } else {
-    message("~~~ $${LPUB3D} USING RELEASE BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
+    message("~~~ $${LPUB3D} USING CI DEVEL BUILD VER_BASE_NAME: $$VER_BASE_NAME ~~~")
+    DEFINES += LP3D_DEVOPS_BUILD
 }
 
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
