@@ -1322,6 +1322,11 @@ char *LDVWidget::getLDrawDir(void)
 				path = QDir::toNativeSeparators("%1/LDraw").arg(getenv("ALLUSERSPROFILE"));
 				if (QFileInfo(path).exists())
 					return path.toUtf8().constData();
+#ifdef __MINGW64__
+				path = QString("/usr/share/ldraw");
+				if (QFileInfo(path).exists())
+					return path.toUtf8().constData();
+#endif
 				path = QString("C:\\LDraw");
 				return path.toUtf8().constData();
 			};
