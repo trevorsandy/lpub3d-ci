@@ -11,9 +11,6 @@ win32-msvc* {
         message("~~~ lib$${TARGET} BUILD WORKER: Visual Studio $$BUILD_WORKER_VERSION ~~~")
         message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS LIBRARY VERSION: $$VSVER ~~~")
     }
-    COPY_CMD = COPY /Y /A /B
-} else {
-    COPY_CMD = cp -f
 }
 
 contains(LOAD_LDV_HEADERS,True) {
@@ -296,47 +293,43 @@ contains(LOAD_LDV_LIBS,True) {
 
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    win32 {
-        PLUS_CMD     = +
-        REDIRECT_CMD =
-    } else:unix {
-        COPY_CMD     = cat
-        PLUS_CMD     =
-        REDIRECT_CMD = >
-    }
-
     #LDVMESSAGESINI defined in mainApp.pro
-    isEmpty(LDVMESSAGESINI_DEP): \
-    LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
-    LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )
-    #message("~~~ $${LPUB3D} Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
-    #message("~~~ $${LPUB3D} Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
-    LDVMSGINI_COPY_CMD = \
-    $$COPY_CMD \
-    $$system_path( $${LDVRESDIR}/LDViewMessages.ini ) $$PLUS_CMD \
-    $$system_path( $${LDVRESDIR}/LDExportMessages.ini ) $$PLUS_CMD \
-    $$system_path( $$PWD/LDVWidgetMessages.ini ) $$REDIRECT_CMD \
-    $$system_path( $$LDVMESSAGESINI_DEP )
+    if (mingw:ide_qtcreator)|win32-msvc* {
+        COPY_CMD        = COPY /V /Y
+        LDV_CONCAT_CMD  = TYPE
+    } else {
+        COPY_CMD        = cp -f
+        LDV_CONCAT_CMD  = cat
+    }
+    LDV_RESOURCE_DIR    = $$shell_path( $$absolute_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources ) )
+    LDV_MESSAGES        = $$shell_path( $$absolute_path( $${LDV_RESOURCE_DIR}/LDViewMessages.ini ) )
+    LDV_EXPORT_MESSAGES = $$shell_path( $$absolute_path( $${LDV_RESOURCE_DIR}/LDExportMessages.ini ) )
+    LDV_WIDGET_MESSAGES = $$shell_path( $$absolute_path( $$PWD/LDVWidgetMessages.ini ) )
+    LDV_CONCAT_MESSAGES = $$shell_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
+    #message("~~~ DEBUG_$$upper($${TARGET}) LDV_CONCAT_MESSAGES: $$LDV_CONCAT_MESSAGES ~~~ ")
+    #message("~~~ DEBUG_$$upper($${TARGET}) LDV_RESOURCE_DIR: $$LDV_RESOURCE_DIR ~~~ ")
+    LDV_CONCAT_MESSAGES_CMD = \
+    $$LDV_CONCAT_CMD $$LDV_MESSAGES $$LDV_EXPORT_MESSAGES $$LDV_WIDGET_MESSAGES > $$LDV_CONCAT_MESSAGES
     # When compiling from QtCreator, add ldvMessages.ini to destination directory extras folder - except for macOS
     contains(DEVL_LDV_MESSAGES_INI,True) {
-        unix:COPY_CMD = cp -f
-        LDVMESSAGESINI_DEVL = $$system_path( $$OUT_PWD/$$DESTDIR/extras/$$LDVMESSAGESINI )
-        message("~~~ $${LPUB3D} COPY LDVMESSAGES.INI TO: ./$$DESTDIR/extras/$$LDVMESSAGESINI) ~~~ ")
-        LDVMSGINI_COPY_CMD += \
+        LDV_MESSAGES_DEVL = $$shell_path( $${OUT_PWD}/$${DESTDIR}/extras/$$LDVMESSAGESINI )
+        message("~~~ $${LPUB3D} COPY LDVMESSAGES.INI TO: ./$${DESTDIR}/extras/$$LDVMESSAGESINI ~~~")
+        LDV_CONCAT_MESSAGES_CMD += \
         $$escape_expand(\n\t) \
         $$COPY_CMD \
-        $$system_path( $$LDVMESSAGESINI_DEP $$LDVMESSAGESINI_DEVL )
+        $$LDV_CONCAT_MESSAGES $$LDV_MESSAGES_DEVL
     }
+    #message("~~~ DEBUG_$$upper($${TARGET}) LDV_CONCAT_MESSAGES_CMD: $$LDV_CONCAT_MESSAGES_CMD ~~~ ")
+    ldvmsg_concat_msg.target   = ConcatProjectMessage
+    ldvmsg_concat_msg.commands = @echo Project MESSAGE: ~~~ $${LPUB3D} Creating $${TARGET} $${LDVMESSAGESINI}... ~~~
+    ldvmsg_concat.target       = ConcatenateMessages
+    ldvmsg_concat.commands     = $$LDV_CONCAT_MESSAGES_CMD
+    ldvmsg_concat.depends      = $${LDV_MESSAGES} \
+                                 $${LDV_EXPORT_MESSAGES} \
+                                 $${LDV_WIDGET_MESSAGES} \
+                                 ConcatProjectMessage
 
-    ldvmsg_copy.target       = $$LDVMESSAGESINI_DEP
-    ldvmsg_copy.commands     = $$LDVMSGINI_COPY_CMD
-    ldvmsg_copy.depends      = $${LDVRESDIR}/LDViewMessages.ini \
-                               $${LDVRESDIR}/LDExportMessages.ini \
-                               $$PWD/LDVWidgetMessages.ini \
-                               ldvmsg_copy_msg
-    ldvmsg_copy_msg.commands = @echo Project MESSAGE: ~~~ Creating $${TARGET} $${LDVMESSAGESINI}... ~~~
-
-    QMAKE_EXTRA_TARGETS += ldvmsg_copy ldvmsg_copy_msg
-    PRE_TARGETDEPS      += $$LDVMESSAGESINI_DEP
-    QMAKE_CLEAN         += $$LDVMESSAGESINI_DEP
+    QMAKE_EXTRA_TARGETS     += ldvmsg_concat ldvmsg_concat_msg
+    PRE_TARGETDEPS          += $$LDV_CONCAT_MESSAGES
+    QMAKE_CLEAN             += $$LDV_CONCAT_MESSAGES
 } # LPub3D LOAD_LDV_LIBS,True
