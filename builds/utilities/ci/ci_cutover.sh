@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 18, 2025
+# Last Update: April 15, 2025
 # Copyright (C) 2024 by Trevor SANDY
 
 function ShowHelp() {
@@ -425,7 +425,6 @@ for file in $(find . -type f \
               -not -path "./builds/utilities/ci/$0" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               -not -path './.github/workflows/$prod_build_yml' \
-              -not -path "./gitversion.pri" \
               -not -path "./snapcraft.yaml" \
               -not -path "./appveyor.yml" \
               -not -path "./travis.yml" \
