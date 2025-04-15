@@ -95,8 +95,10 @@ sprintf stat strcat strchr strcmp strcpy strdup strlen strncmp strncpy ungetc
 #include <Shlwapi.h>
 #endif
 #if defined(_WIN32) || defined(__TURBOC__)
+#ifndef __MINGW64__
 // Disable warning message C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead.
 #pragma warning( disable : 4996 )
+#endif
 #define BACKSLASH_CHAR '\\'
 #define BACKSLASH_STRING "\\"
 #define SLASH_CHAR '/'
