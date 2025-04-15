@@ -41,26 +41,26 @@ ldvqt.depends  = #ldlib
 
 SUBDIRS += wpngimage
 wpngimage.subdir   = $$PWD/ldvlib/WPngImage
-wpngimage.makefile = Makefile.WPngImage
-wpngimage.target   = sub-WPngImage
+wpngimage.makefile = Makefile.wpngimage
+wpngimage.target   = sub-wpngimage
 wpngimage.depends  =
 
 SUBDIRS += lclib
 lclib.subdir   = $$PWD/lclib
-lclib.makefile = Makefile.lc
+lclib.makefile = Makefile.lclib
 lclib.target   = sub-lclib
 lclib.depends  =
 
 SUBDIRS += waitingspinner
 waitingspinner.subdir   = $$PWD/waitingspinner
-waitingspinner.makefile = Makefile.WaitingSpinner
-waitingspinner.target   = sub-WaitingSpinner
+waitingspinner.makefile = Makefile.waitingspinner
+waitingspinner.target   = sub-waitingspinner
 waitingspinner.depends  =
 
 SUBDIRS += mainApp
 mainApp.subdir   = $$PWD/mainApp
 mainApp.makefile = Makefile.mainapp
-mainApp.target   = sub-mainApp
+mainApp.target   = sub-mainapp
 isEmpty(quazipnobuild): \
 mainApp.depends  = quazip
 mainApp.depends  = ldrawini
