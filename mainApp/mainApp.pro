@@ -1,26 +1,35 @@
 TEMPLATE = app
-QT     += core
-QT     += gui
-QT     += opengl
-QT     += network
-QT     += xml
-QT     += concurrent
-QT     *= printsupport
-CONFIG += warn_on
+TARGET   = LPub3D
+QT      += core
+QT      += gui
+QT      += opengl
+QT      += network
+QT      += xml
+QT      += concurrent
+QT      *= printsupport
+CONFIG  += warn_on
+CONFIG  += exceptions
+CONFIG  += incremental
 
 lessThan(QT_MAJOR_VERSION, 5) {
-    error("LPub3D requires Qt5.4 or later.")
+    error("$${TARGET} requires Qt5.4 or later.")
 }
 
 equals(  QT_MAJOR_VERSION, 5): \
 lessThan(QT_MINOR_VERSION, 4) {
-    error("LPub3D requires Qt5.4 or later.")
+    error("$${TARGET} requires Qt5.4 or later.")
 }
 
 greaterThan(QT_MAJOR_VERSION, 5) {
     QT += core5compat openglwidgets
     DEFINES += QOPENGLWIDGET
 }
+
+CONFIG(debug, debug|release) { LPUB3D = $${TARGET}d } else { LPUB3D = $${TARGET} }
+
+include(../gitversion.pri)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32:macx: \
 GAMEPAD {
@@ -30,111 +39,59 @@ GAMEPAD {
     }
 }
 
-CONFIG += exceptions
-
-CONFIG(debug, debug|release) { LPUB3D = LPub3Dd } else { LPUB3D = LPub3D }
-
-include(../gitversion.pri)
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+win32 {
+
+    QMAKE_TARGET_COMPANY = "$${TARGET} Software"
+    QMAKE_TARGET_DESCRIPTION = "$${TARGET} - An LDraw Building Instruction Editor."
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2015 - 2025 Trevor SANDY"
+    QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
+    RC_LANG = "English (United Kingdom)"
+    RC_ICONS = "lpub3d.ico"
+
+    QMAKE_EXT_OBJ = .obj
+    DEFINES      += QT_NODLL
+    DEFINES      += _WIN_UTF8_PATHS
+    CONFIG       += windows
+
+    DEFINES += _WINSOCKAPI_
+    DEFINES += _TC_STATIC
+    DEFINES +=  QUAZIP_STATIC
+
+    win32-msvc* {
+
+        CONFIG  += force_debug_info
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+        QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
+        QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
+        QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
+        QMAKE_CFLAGS_WARN_ON -= -W3
+        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
+        CONFIG(debug, debug|release) {
+            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
+            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701" -wd"4714" -wd"4305" -wd"4099"
+            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        }
+        CONFIG(release, debug|release) {
+            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
+            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
+            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        }
+        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+    }
+} else {
+    macx: \
+    LIBS += -framework CoreFoundation -framework CoreServices
+}
 
 unix:!macx: TARGET = lpub3d
-else:       TARGET = LPub3D
-STG_TARGET         = $$TARGET
-DIST_TARGET        = $$TARGET
+STG_TARGET         = $${TARGET}
+DIST_TARGET        = $${TARGET}
 
-VER_LDVIEW  = ldview-4.5
-VER_LDGLITE = ldglite-1.3
-VER_POVRAY  = lpub3d_trace_cui-3.8
-DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
-DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
-DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
-
-#~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# - Set enviroinment variable LP3D_DIST_DIR_PATH as needed.
-# - 3rd party libraries, executables, documentation and resources.
-# - When building on macOS, it is necessary to add CONFIG+=dmg at
-#   Projects/Build Steps/Qmake/'Additional arguments' because,
-#   macOS build will also bundle all deliverables.
-
-#   Argument path - LP3D_3RD_DIST_DIR
-!isEmpty(LP3D_3RD_DIST_DIR) {
-    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
-    3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
-} else {
-#   Environment variable path - LP3D_DIST_DIR_PATH
-    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-        3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
-}
-#   Local path
-isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-exists($$PWD/../builds/3rdparty) {
-    THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../builds/3rdparty ) )
-    3RD_DIR_SOURCE = LOCAL_3RD_DIST_DIR
-}
-isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-THIRD_PARTY_DIST_DIR_PATH="undefined"
-!exists($$THIRD_PARTY_DIST_DIR_PATH) {
-    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
-    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
-    exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
-    } else {
-        3RD_DIR_SOURCE_UNSPECIFIED = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
-        THIRD_PARTY_DIST_DIR_PATH="undefined"
-    }
-    3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-DEPENDPATH  += .
-INCLUDEPATH += .
-INCLUDEPATH += ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-SYSTEM_PREFIX_ = /usr/local
-macx {
-    contains(QT_ARCH,arm64): SYSTEM_PREFIX_ = /opt/homebrew
-    CONFIG += sdk_no_version_check
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
-INCLUDEPATH += ../quazip
-
-#~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-VER_USE_LDVIEW_DEV = False
-CONFIG(debug, debug|release) {
-    # These lines requires a git extract of ldview at the same location as the lpub3d git extract
-    # and defines the ldview git extract folder name, you can set as you like
-    unix: VER_LDVIEW_DEV = ldview
-    else:win32: VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} ) )
-    exists($$VER_LDVIEW_DEV_REPOSITORY) {
-        VER_USE_LDVIEW_DEV = True
-        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-    } else {
-        message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-    }
-}
-# Load LDView libraries for LDVQt
-LOAD_LDV_LIBS = True
-LDVMESSAGESINI = ldvMessages.ini
-
-#~~ ldsearchDirs (uses LDView's LDrawIni)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if (equals(VER_USE_LDVIEW_DEV,True)) {
-    INCLUDEPATH += $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty)
-} else {
-    INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include/3rdParty )
-}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HOST_VERSION   = $$(PLATFORM_VER)
@@ -156,7 +113,8 @@ isEmpty(HOST_VERSION) {
     macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
 }
 
-message("~~~ $${LPUB3D} LPUB3D $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
+message("~~~ $${LPUB3D} $$upper($${TARGET}) $$upper($$QT_ARCH) BUILD: $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
+message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
 
 # for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
@@ -184,14 +142,104 @@ DEFINES += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+VER_LDVIEW  = ldview-4.5
+VER_LDGLITE = ldglite-1.3
+VER_POVRAY  = lpub3d_trace_cui-3.8
+DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DEPENDPATH  += .
+INCLUDEPATH += .
+INCLUDEPATH += ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
+win32-msvc*: \
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SYSTEM_PREFIX_ = $${PREFIX}/usr/local
+macx {
+    contains(QT_ARCH,arm64): \
+    SYSTEM_PREFIX_ = /opt/homebrew
+    CONFIG += sdk_no_version_check
+}
+
+#~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# - Set enviroinment variable LP3D_DIST_DIR_PATH as needed.
+# - 3rd party libraries, executables, documentation and resources.
+# - When building on macOS, it is necessary to add CONFIG+=dmg at
+#   Projects/Build Steps/Qmake/'Additional arguments' because,
+#   macOS build will also bundle all deliverables.
+
+#   Argument path - LP3D_3RD_DIST_DIR
+!isEmpty(LP3D_3RD_DIST_DIR) {
+    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
+    3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
+} else {
+#   Environment variable path - LP3D_DIST_DIR_PATH
+    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+    3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
+}
+#   Local path
+isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
+exists($$THIRD_PARTY_DIST_DIR_PATH): \
+3RD_DIR_SOURCE = LOCAL_3RD_DIST_DIR
+else {
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR )
+    exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
+    } else {
+        3RD_DIR_SOURCE_UNSPECIFIED = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
+        THIRD_PARTY_DIST_DIR_PATH="undefined"
+    }
+    3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
+}
+
+#~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+VER_USE_LDVIEW_DEV = False
+CONFIG(debug, debug|release) {
+    # These lines requires a git extract of ldview at the same location as the lpub3d git extract
+    # and defines the ldview git extract folder name, you can set as you like
+    unix: VER_LDVIEW_DEV = ldview
+    else:win32: VER_LDVIEW_DEV = ldview_vs_build
+    # This line defines the path of the ldview git extract relative to this project file
+    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+    exists($$VER_LDVIEW_DEV_REPOSITORY) {
+        VER_USE_LDVIEW_DEV = True
+        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+    } else {
+        message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+    }
+}
+# Load LDView libraries for LDVQt
+LOAD_LDV_LIBS = True
+!freebsd: \
+DEFINES += EXPORT_3DS
+
+#~~ ldsearchDirs (uses LDView's LDrawIni)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if (equals(VER_USE_LDVIEW_DEV,True)) {
+    INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty
+} else {
+    INCLUDEPATH += $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include/3rdParty
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # USE CPP 11
 contains(USE_CPP11,NO) {
     message("NO CPP11")
 } else {
     DEFINES += USE_CPP11
 }
-
-message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
 
 # Greater than or equal to Qt 5.4
 greaterThan(QT_MAJOR_VERSION, 4): \
@@ -207,68 +255,18 @@ greaterThan(QT_MINOR_VERSION, 3) {
     }
 }
 
-!freebsd: \
-DEFINES += EXPORT_3DS
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32 {
-
-    DEFINES += QT_NODLL
-    QMAKE_EXT_OBJ = .obj
-    CONFIG += windows incremental force_debug_info
-    win32-msvc* {
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-        DEFINES += _WINSOCKAPI_
-        DEFINES += _TC_STATIC
-        DEFINES += QUAZIP_STATIC
-
-        QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
-        QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-        CONFIG(debug, debug|release) {
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701" -wd"4714" -wd"4305" -wd"4099"
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    } else {
-        QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
-    }
-
-    QMAKE_TARGET_COMPANY = "LPub3D Software"
-    QMAKE_TARGET_DESCRIPTION = "LPub3D - An LDraw Building Instruction Editor."
-    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2015 - 2025 Trevor SANDY"
-    QMAKE_TARGET_PRODUCT = "LPub3D ($$join(ARCH,,,bit))"
-    RC_LANG = "English (United Kingdom)"
-    RC_ICONS = "lpub3d.ico"
-
-} else {
-    macx: \
-    LIBS += -framework CoreFoundation -framework CoreServices
-}
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 static {                                     # everything below takes effect with CONFIG ''= static
-    CONFIG+= static
-    LIBS += -static
-    BUILD = Static
+    BUILD    = Static
+    CONFIG  += static
+    LIBS    += -static
     DEFINES += STATIC
     DEFINES += QUAZIP_STATIC                 # this is so the compiler can detect quazip static
-    macx: TARGET = $$join(TARGET,,,_static)  # this adds an _static in the end, so you can seperate static build from non static build
+    macx:  TARGET = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
     win32: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 } else {
-    BUILD = Shared
+    BUILD   = Shared
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,8 +276,8 @@ static {                                     # everything below takes effect wit
 
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
-    BUILD_CONF = Debug
     ARCH_BLD = bit_debug
+    BUILD_CONF = Debug
 
     win32 {
         LDRAWINI_LIB = LDrawInid161
@@ -302,7 +300,7 @@ CONFIG(debug, debug|release) {
 
     unix:!macx {
         LDRAWINI_LIB = ldrawinid
-        QUAZIP_LIB = quazipd
+        QUAZIP_LIB = libquazipd
         LC_LIB = lcd
         LDVQT_LIB = ldvqtd
         WPNGIMAGE_LIB = wpngimaged
@@ -314,8 +312,8 @@ CONFIG(debug, debug|release) {
     }
 
     # executable target name
-    macx: TARGET = $$join(TARGET,,,_debug)
-    win32:TARGET = $$join(TARGET,,,d)
+    macx:       TARGET = $$join(TARGET,,,_debug)
+    win32:      TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
     # enable copy ldvMessages to OUT_PWD/mainApp/extras (except macOS)
@@ -323,8 +321,8 @@ CONFIG(debug, debug|release) {
 
 } else {
 
-    BUILD_CONF = Release
     ARCH_BLD = bit_release
+    BUILD_CONF = Release
 
     win32 {
         LDRAWINI_LIB = LDrawIni161
@@ -337,7 +335,7 @@ CONFIG(debug, debug|release) {
 
     macx {
         LDRAWINI_LIB = LDrawIni
-        QUAZIP_LIB = QuaZIP
+        QUAZIP_LIB = libQuaZIP
         LC_LIB = LC
         LDVQT_LIB = LDVQt
         WPNGIMAGE_LIB = WPngImage
@@ -345,9 +343,8 @@ CONFIG(debug, debug|release) {
     }
 
     unix:!macx {
-
         LDRAWINI_LIB = ldrawini
-        QUAZIP_LIB = quazip
+        QUAZIP_LIB = libquazip
         LC_LIB = lc
         LDVQT_LIB = ldvqt
         WPNGIMAGE_LIB = wpngimage
@@ -357,25 +354,37 @@ CONFIG(debug, debug|release) {
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
+
+#~~build path components~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+
+PRECOMPILED_DIR = $$DESTDIR/.pch
+OBJECTS_DIR     = $$DESTDIR/.obj
+MOC_DIR         = $$DESTDIR/.moc
+RCC_DIR         = $$DESTDIR/.qrc
+UI_DIR          = $$DESTDIR/.ui
+
 BUILD += $$BUILD_CONF
 
 #manpage
 MAN_PAGE = $$join(TARGET,,,.1)
 
-message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIPSET} Chipset ~~~")
+message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $$upper($${BUILD}) ($${TARGET}) $${CHIPSET} CHIPSET ~~~")
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): message("~~~ $${LPUB3D} $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
+!isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): \
+message("~~~ $${LPUB3D} $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
 message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 #~~configuration options~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# To stage and install LPub3D content, a configuration
-# option must be specified using CONFIG+=<option>.
-# When building from QtCreator, set CONFIG+=<option> in
-# project additional arguments. When building from a
-# script call, set CONFIG+=<option> as a qmake argument.
+# To stage and install LPub3D content, a configuration option must be specified
+# using CONFIG+=<option>. When building from QtCreator, set CONFIG+=<option> in
+# project additional arguments. When building from a script call, you can set
+# CONFIG+=<option> as a qmake argument. Example CONFIG additions:
+# CONFIG-=release CONFIG-=debug_and_release CONFIG+=stagerenderers CONFIG+=exe
 config_options = exe dmg deb rpm pkg api snp flp con
 for(config_option, config_options) {
     contains(CONFIG, $$config_option): \
@@ -439,68 +448,72 @@ message("~~~ $${LPUB3D} AUTO_RESTART ENVIRONMENT VARIABLE $${AUTO_RESTART_STR} ~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# build path component
-DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-
-PRECOMPILED_DIR = $$DESTDIR/.pch
-OBJECTS_DIR     = $$DESTDIR/.obj
-MOC_DIR         = $$DESTDIR/.moc
-RCC_DIR         = $$DESTDIR/.qrc
-UI_DIR          = $$DESTDIR/.ui
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # Specify LDView modules develpment or third party header paths
 equals(VER_USE_LDVIEW_DEV,True) {
-    INCLUDEPATH += $$system_path( $${VER_LDVIEW_DEV_REPOSITORY} ) $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/include )
+    INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY} $${VER_LDVIEW_DEV_REPOSITORY}/include
 } else {
-    INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+    INCLUDEPATH +=$${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
 }
 
 # Needed to access ui header from LDVQt
-INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
+INCLUDEPATH += $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
+INCLUDEPATH += ../quazip
 
 win32-msvc* {
-    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+    EXT_S = lib
+    EXT_D = so
+} else {
+    EXT_S = a
+    EXT_D = dll
 }
 
-#~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~ includes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 
 #~~~ libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
+# 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
+LIBS += $$absolute_path($$OUT_PWD/../quazip/$${DESTDIR}/$${QUAZIP_LIB}.$${EXT_S})
+#message("~~~ DEBUG_QUAZIP_LIB: $$absolute_path($$OUT_PWD/../quazip/$${DESTDIR}/$${QUAZIP_LIB}.$${EXT_S}) ~~~")
 
-LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+LIBS += -L$$absolute_path($$OUT_PWD/../ldrawini/$$DESTDIR) -l$$LDRAWINI_LIB
 
-LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
+LIBS += -L$$absolute_path($$OUT_PWD/../waitingspinner/$$DESTDIR) -l$$WAITING_SPINNER_LIB
 
-LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
+LIBS += -L$$absolute_path($$OUT_PWD/../lclib/$$DESTDIR) -l$$LC_LIB
 
-LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
+LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR) -l$$LDVQT_LIB
 
 # WPngImage must follow LDVQT or else there will be compile errors
-LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
+LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR) -l$$WPNGIMAGE_LIB
 
-include(../ldvlib/LDVQt/LDVQtLibs.pri) 
+include(../ldvlib/LDVQt/LDVQtLibs.pri)
 
-win32 {
-    DEFINES += _WIN_UTF8_PATHS
-    LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
-} else:!macx {
-    LIBS += -lGL -lGLU
-}
-!win32-msvc* {
-    LIBS += -lz
-}
+win32: \
+LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
+else:!macx: \
+LIBS += -lGL -lGLU
+!win32-msvc*: \
+LIBS += -lz
 
-#~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~ update check ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # set config to enable/disable initial update check
 # CONFIG+=disable_update_check
-disable_update_check: DEFINES += DISABLE_UPDATE_CHECK
+disable_update_check: \
+DEFINES += DISABLE_UPDATE_CHECK
+
+#~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#message("~~~ DEBUG_CONFIG_$$upper($$TARGET): $$CONFIG ~~~")
+#message("~~~ DEBUG_INCLUDEPATH_$$upper($$TARGET): $$INCLUDEPATH ~~~")
+#message("~~~ DEBUG_LIBS_$$upper($$TARGET): $$LIBS ~~~")
 
 #~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
