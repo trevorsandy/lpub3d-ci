@@ -1,7 +1,9 @@
 TEMPLATE  = lib
+TARGET    = WPngImage
 QT       -= gui
 CONFIG   += qt warn_on
 CONFIG   += staticlib
+CONFIG   += skip_target_version_ext
 macx: \
 CONFIG   -= app_bundle
 
@@ -29,12 +31,18 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 
 win32 {
 
+    QMAKE_TARGET_COMPANY = "Juha Nieminen"
+    QMAKE_TARGET_DESCRIPTION = "C++ library to manage images in PNG format"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2017 Juha Nieminen"
+    QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
+
     QMAKE_EXT_OBJ = .obj
-    CONFIG += windows
+    CONFIG  += windows
 
     win32-msvc* {
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
 
+        CONFIG  += force_debug_info
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {
@@ -54,16 +62,9 @@ win32 {
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
     }
 
-    QMAKE_TARGET_COMPANY = "Juha Nieminen"
-    QMAKE_TARGET_DESCRIPTION = "C++ library to manage images in PNG format"
-    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2017 Juha Nieminen"
-    QMAKE_TARGET_PRODUCT = "WPngImage ($$join(ARCH,,,bit))"
 }
 
-CONFIG += skip_target_version_ext
-
-unix: !macx: TARGET = wpngimage
-else:        TARGET = WPngImage
+unix: !macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib {
