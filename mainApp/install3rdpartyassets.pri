@@ -1,7 +1,7 @@
 # install 3rd party executables, documents and resources
 install3rdassets {
-    win32: THIRD_PARTY_DEST = $$LPUB3D_INS_CONTENT_PATH
-    macx:  THIRD_PARTY_DEST = $$DESTDIR/$${TARGET}.app/Contents/3rdParty
+    win32-msvc*: THIRD_PARTY_DEST = $$LPUB3D_INS_CONTENT_PATH
+    else:macx:   THIRD_PARTY_DEST = $$DESTDIR/$${TARGET}.app/Contents/3rdParty
     message("~~~ $${LPUB3D} 3RD_INSTALL FROM REPO: $$THIRD_PARTY_SRC ~~~")
     unix:!macx {
         THIRD_PARTY_DEST = $$RESOURCE_DIR/3rdParty
@@ -110,8 +110,7 @@ install3rdcontent {
             ldglite_ins_resources
         } else {
             INSTALLS += \
-            ldglite_ins_docs \
-            ldglite_ins_resources
+            ldglite_ins_docs
         }
 
         message("~~~ $${LPUB3D} 1 OF 3 $$upper($${VER_LDGLITE}) DOCUMENTATION AND RESOURCES INSTALLED ~~~")
