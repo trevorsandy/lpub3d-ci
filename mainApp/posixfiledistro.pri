@@ -18,19 +18,64 @@ binarybuild {
 
 # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
 !isEmpty(option): BUILD_CODE = $$option
-if (api|snp|flp) {
+if (api|snp|flp):equals(PWD, $${OUT_PWD}) {
     THIRD_PARTY_EXEC_DIR = $$(LP3D_3RD_EXE_DIR)
     _PLATFORM_CODE = ap
-    COPY_CMD = cp -f
-    EXTRAS_PATH = $$system_path( $${_PRO_FILE_PWD_}/extras)
-    system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $${EXTRAS_PATH}/ )
-    ! exists( $${EXTRAS_PATH}/complete.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/complete.zip not copied ~~~" )
-    system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/lpub3dldrawunf.zip) $${EXTRAS_PATH}/ )
-    ! exists( $${EXTRAS_PATH}/lpub3dldrawunf.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/lpub3dldrawunf.zip not copied ~~~" )
-    system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/tenteparts.zip) $${EXTRAS_PATH}/ )
-    ! exists( $${EXTRAS_PATH}/tenteparts.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/tenteparts.zip not copied ~~~" )
-    system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/vexiqparts.zip) $${EXTRAS_PATH}/ )
-    ! exists( $${EXTRAS_PATH}/vexiqparts.zip ): message( "~~~ $${LPUB3D} ERROR: - $${EXTRAS_PATH}/vexiqparts.zip not copied ~~~" )
+    mingw:ide_qtcreator {
+        NOT_EXISTS_CMD = IF NOT EXIST
+        COPY_CMD = COPY /V /Y
+    } else {
+        NOT_EXISTS_CMD = test ! -f
+        COPY_CMD = cp -f
+    }
+    EXTRAS_DIR = $${_PRO_FILE_PWD_}/extras
+    copy_ldraw_libs.target = CopyLDrawLibs
+    !exists($${EXTRAS_DIR}) {
+        mingw:ide_qtcreator: \
+        MAKE_EXTRAS_DIR_CMD = MD $${EXTRAS_DIR}
+        else: \
+        MAKE_EXTRAS_DIR_CMD = mkdir -p $${EXTRAS_DIR}
+        message("~~~ DEBUG_$$upper($${TARGET})_MAKE_DIR_CMD: $$MAKE_EXTRAS_DIR_CMD ~~~")
+        make_extras_dir_msg.target   = MakeExtrasDirMessage
+        make_extras_dir_msg.commands = @echo Project MESSAGE: ~~~ $${LPUB3D} Creating $${TARGET} extras directory... ~~~
+        make_extras_dir.target   = MakeExtrasDirectory
+        make_extras_dir.depends  = MakeExtrasDirMessage
+        make_extras_dir.commands = $${MAKE_EXTRAS_DIR_CMD}
+        copy_ldraw_libs.depends  = MakeExtrasDirectory $${EXTRAS_DIR}
+        QMAKE_EXTRA_TARGETS     += make_extras_dir make_extras_dir_msg
+    }
+    LIB_COMPLETE = $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip
+    LIB_LDRAWUNF = $${THIRD_PARTY_DIST_DIR_PATH}/lpub3dldrawunf.zip
+    LIB_TENTE    = $${THIRD_PARTY_DIST_DIR_PATH}/tenteparts.zip
+    LIB_VEXIQ    = $${THIRD_PARTY_DIST_DIR_PATH}/vexiqparts.zip
+    COPY_LDRAW_LIBS_TO_EXTRAS_CMD = \
+    $${NOT_EXISTS_CMD} $${EXTRAS_DIR}/complete.zip && $${COPY_CMD} $${LIB_COMPLETE} $${EXTRAS_DIR}/ \
+    $$escape_expand(\n\t) \
+    $${NOT_EXISTS_CMD} $${EXTRAS_DIR}/lpub3dldrawunf.zip && $${COPY_CMD} $${LIB_LDRAWUNF} $${EXTRAS_DIR}/ \
+    $$escape_expand(\n\t) \
+    $${NOT_EXISTS_CMD} $${EXTRAS_DIR}/tenteparts.zip && $${COPY_CMD} $${LIB_TENTE} $${EXTRAS_DIR}/ \
+    $$escape_expand(\n\t) \
+    $${NOT_EXISTS_CMD} $${EXTRAS_DIR}/vexiqparts.zip && $${COPY_CMD} $${LIB_VEXIQ} $${EXTRAS_DIR}/
+    message("~~~ DEBUG_$$upper($${TARGET})_COPY_LDRAW_LIBS_TO_EXTRAS_CMD: $$COPY_LDRAW_LIBS_TO_EXTRAS_CMD ~~~")
+    copy_ldraw_libs.commands = $${COPY_LDRAW_LIBS_TO_EXTRAS_CMD}
+    copy_ldraw_libs_msg.target = CopyLDrawLibsMessage
+    copy_ldraw_libs_msg.depends  = CopyLDrawLibs \
+                                   $${EXTRAS_DIR}/complete.zip \
+                                   $${EXTRAS_DIR}/lpub3dldrawunf.zip \
+                                   $${EXTRAS_DIR}/tenteparts.zip \
+                                   $${EXTRAS_DIR}/vexiqparts.zip
+    copy_ldraw_libs_msg.commands = @echo Project MESSAGE: ~~~ $${LPUB3D} complete.zip copied to extras/ ~~~ \
+                                   $$escape_expand(\n\t) \
+                                   echo Project MESSAGE: ~~~ $${LPUB3D} lpub3dldrawunf.zip copied to extras/ ~~~ \
+                                   $$escape_expand(\n\t) \
+                                   echo Project MESSAGE: ~~~ $${LPUB3D} tenteparts.zip copied to extras/ ~~~ \
+                                   $$escape_expand(\n\t) \
+                                   echo Project MESSAGE: ~~~ $${LPUB3D} vexiqparts.zip copied to extras/ ~~~
+    QMAKE_EXTRA_TARGETS         += copy_ldraw_libs_msg copy_ldraw_libs
+    PRE_TARGETDEPS              += $${LIB_COMPLETE} \
+                                   $${LIB_LDRAWUNF} \
+                                   $${LIB_TENTE} \
+                                   $${LIB_VEXIQ}
 }
 
 _PLATFORM_ID = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo \"$ID\")

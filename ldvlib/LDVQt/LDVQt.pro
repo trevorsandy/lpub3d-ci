@@ -1,4 +1,5 @@
 TEMPLATE = lib
+TARGET   = LDVQt
 QT      += core
 QT      += opengl
 QT      += network
@@ -18,17 +19,28 @@ greaterThan(QT_MAJOR_VERSION, 5) {
   DEFINES += QOPENGLWIDGET
 }
 
+# The ABI version.
+VER_MAJ = 4
+VER_MIN = 5
+VER_PAT = 0
+VER_BLD = 0
+win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
+else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+
 DEPENDPATH  += .
 INCLUDEPATH += .
 INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
-SYSTEM_PREFIX_ = /usr/local
+
+SYSTEM_PREFIX_ = $${PREFIX}/usr/local
 macx {
-    contains(QT_ARCH,arm64): SYSTEM_PREFIX_ = /opt/homebrew
-    INCLUDEPATH += $${SYSTEM_PREFIX_}/include
+    contains(QT_ARCH,arm64): \
+    SYSTEM_PREFIX_ = /opt/homebrew
 }
+INCLUDEPATH += $${SYSTEM_PREFIX_}/include
+
 DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC
@@ -36,9 +48,6 @@ DEFINES += _WIN_UTF8_PATHS
 DEFINES += QT_THREAD_SUPPORT
 !freebsd: \
 DEFINES += EXPORT_3DS
-
-unix: !macx: TARGET = ldvqt
-else:        TARGET = LDVQt
 
 # platform name and version
 BUILD_TARGET   = $$(TARGET_VENDOR)  # Platform ID
@@ -73,13 +82,41 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 !macx:contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
 UNIX_ARM_BUILD_ARCH = True
 
-# The ABI version.
-VER_MAJ = 4
-VER_MIN = 5
-VER_PAT = 0
-VER_BLD = 0
-win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
-else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+CONFIG += incremental
+
+win32 {
+
+    QMAKE_EXT_OBJ = .obj
+    CONFIG       += windows
+    DEFINES      += _WINSOCKAPI_
+
+    win32-msvc* {
+
+        CONFIG  += force_debug_info
+        DEFINES += _TC_STATIC
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+        QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
+        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
+        QMAKE_CFLAGS_WARN_ON -= -W3
+        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
+        CONFIG(debug, debug|release) {
+            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
+            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
+            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        }
+        CONFIG(release, debug|release) {
+            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
+            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805"
+            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        }
+        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+    }
+}
+
+unix: !macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib {
@@ -104,7 +141,7 @@ CONFIG(debug, debug|release) {
     unix: VER_LDVIEW_DEV = ldview
     else:win32: VER_LDVIEW_DEV = ldview_vs_build
     # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} ) )
+    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
     exists($$VER_LDVIEW_DEV_REPOSITORY) {
         message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
         message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
@@ -188,37 +225,7 @@ contains(QT_VERSION, ^6\\..*) {
   }
 }
 
-#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32 {
-    CONFIG       += windows incremental force_debug_info
-    QMAKE_EXT_OBJ = .obj
-
-    win32-msvc* {
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-        DEFINES += _WINSOCKAPI_
-        DEFINES += _TC_STATIC
-        QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
-
-        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-        CONFIG(debug, debug|release) {
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    }
-}
+#~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SOURCES += \
     $$PWD/LDVAlertHandler.cpp \
@@ -263,8 +270,9 @@ OTHER_FILES += \
     $$PWD/LDVWidgetMessages.ini \
     $$PWD/../../mainApp/extras/ldvMessages.ini
 
-# suppress warnings
-!win32-msvc*:!macx {
+#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+unix|msys {
 QMAKE_CFLAGS_WARN_ON += \
      -Wall -W \
      -Wno-deprecated-declarations \

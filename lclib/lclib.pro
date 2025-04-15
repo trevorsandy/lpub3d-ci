@@ -1,4 +1,5 @@
 TEMPLATE = lib
+TARGET   = LC
 QT      += core
 QT      += gui
 QT      += opengl
@@ -8,59 +9,7 @@ QT      += concurrent
 QT      *= printsupport
 CONFIG  += staticlib
 CONFIG  += warn_on
-
-win32:macx: \
-GAMEPAD {
-    qtHaveModule(gamepad) {
-        QT += gamepad
-        DEFINES += LC_ENABLE_GAMEPAD
-    }
-}
-
-TARGET +=
-DEPENDPATH += .
-INCLUDEPATH += .
-INCLUDEPATH += qt common
-INCLUDEPATH += ../mainApp ../qsimpleupdater/include ../qsimpleupdater/src
-INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
-
-#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# 3rd party libraries, executables, documentation and resources.
-!isEmpty(LP3D_3RD_DIST_DIR) {
-    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
-} else {
-    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-}
-isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-exists($$PWD/../builds/3rdparty) {
-    THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../builds/3rdparty ) )
-}
-isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-THIRD_PARTY_DIST_DIR_PATH="undefined"
-!exists($$THIRD_PARTY_DIST_DIR_PATH) {
-    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
-    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../$$DIST_DIR ) )
-    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        message("~~~ ERROR lib$${TARGET}: - THIRD_PARTY_DIST_DIR_PATH (LCLIB) WAS NOT FOUND! ~~~ ")
-        THIRD_PARTY_DIST_DIR_PATH="undefined"
-    }
-}
-VER_LDVIEW  = ldview-4.5
-
-# Copy LDView headers (Disabled)
-#INCLUDEPATH += ../ldvlib/LDVQt/include
-
-# Reference LDView headers
-INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32-msvc* {
-    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
-}
+CONFIG  += skip_target_version_ext
 
 # The ABI version.
 # REMINDER: Update LC_LIB = LC233 in mainApp.pro on version change
@@ -70,6 +19,108 @@ VER_PAT = 0
 VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+
+win32:macx: \
+GAMEPAD {
+    qtHaveModule(gamepad) {
+        QT += gamepad
+        DEFINES += LC_ENABLE_GAMEPAD
+    }
+}
+
+DEPENDPATH += .
+INCLUDEPATH += .
+INCLUDEPATH += qt common
+INCLUDEPATH += ../mainApp ../qsimpleupdater/include ../qsimpleupdater/src
+INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
+win32-msvc*: \
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+
+CONFIG += incremental precompile_header
+
+win32 {
+
+    QMAKE_EXT_OBJ = .obj
+    CONFIG += windows
+
+    win32-msvc* {
+
+        CONFIG  += force_debug_info
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+        DEFINES += _WINSOCKAPI_
+        DEFINES += _TC_STATIC
+
+        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
+        QMAKE_CFLAGS_WARN_ON -= -W3
+        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
+
+        PRECOMPILED_HEADER = common/lc_global.h
+        PRECOMPILED_SOURCE = common/lc_global.cpp
+
+        CONFIG(debug, debug|release) {
+            DEFINES += QT_DEBUG_MODE
+            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
+            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
+            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        }
+        CONFIG(release, debug|release) {
+            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
+            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4714" -wd"4805"
+            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        }
+        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+    }
+
+    LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
+
+    !win32-msvc*: \
+        LIBS += -lz
+
+} else {
+
+    PRECOMPILED_HEADER = common/lc_global.h
+    LIBS += -lz
+
+}
+
+unix: !macx: $$lower($$TARGET)
+
+#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# 3rd party libraries, executables, documentation and resources.
+!isEmpty(LP3D_3RD_DIST_DIR): \
+THIRD_PARTY_DIST_DIR_PATH     = $$LP3D_3RD_DIST_DIR
+else: \
+THIRD_PARTY_DIST_DIR_PATH     = $$(LP3D_DIST_DIR_PATH)
+isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
+!exists($$THIRD_PARTY_DIST_DIR_PATH) {
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../$$DIST_DIR )
+    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        message("~~~ ERROR lib$${TARGET}: - THIRD_PARTY_DIST_DIR_PATH (LCLIB) WAS NOT FOUND! ~~~ ")
+        THIRD_PARTY_DIST_DIR_PATH="undefined"
+    }
+}
+VER_LDVIEW  = ldview-4.5
+
+# Reference LDView headers
+VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+CONFIG(debug, debug|release) {
+    unix:             VER_LDVIEW_DEV = ldview           # change this as necessary
+    else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
+    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+    exists($$VER_LDVIEW_DEV_REPOSITORY): \
+    VER_LDVIEW_INCLUDE = $$VER_LDVIEW_DEV_REPOSITORY
+}
+INCLUDEPATH += $$VER_LDVIEW_INCLUDE
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # platform switch
 BUILD_ARCH   = $$(TARGET_CPU)
@@ -111,62 +162,6 @@ contains(QT_VERSION, ^6\\..*) {
         }
     }
 }
-
-CONFIG += incremental force_debug_info
-
-win32 {
-
-    win32-msvc* {
-        CONFIG += precompile_header
-
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-        DEFINES += _WINSOCKAPI_
-        DEFINES += _TC_STATIC
-
-        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-
-        PRECOMPILED_HEADER = common/lc_global.h
-        PRECOMPILED_SOURCE = common/lc_global.cpp
-
-        CONFIG(debug, debug|release) {
-            DEFINES += QT_DEBUG_MODE
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4714" -wd"4805"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    }
-
-    QMAKE_EXT_OBJ = .obj
-
-    LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
-
-    !win32-msvc* {
-        LIBS += -lz
-    }
-
-} else {
-
-    CONFIG += precompile_header
-    PRECOMPILED_HEADER = common/lc_global.h
-    LIBS += -lz
-
-}
-
-CONFIG += skip_target_version_ext
-
-unix: !macx: TARGET = lc
-else:        TARGET = LC
 
 # Indicate build type
 staticlib {

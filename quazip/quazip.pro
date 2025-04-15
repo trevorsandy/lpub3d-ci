@@ -1,15 +1,9 @@
 TEMPLATE = lib
-CONFIG += qt warn_on
-QT -= gui
-CONFIG += staticlib
-
-# The ABI version.
-VER_MAJ = 1
-VER_MIN = 1
-VER_PAT = 0
-VER_BLD = 0
-win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
-else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+TARGET   = QuaZIP
+CONFIG   += qt warn_on
+QT       -= gui
+CONFIG   += staticlib
+CONFIG   += skip_target_version_ext
 
 # 1.0.0 is the first stable ABI.
 # The next binary incompatible change will be 2.0.0 and so on.
@@ -27,6 +21,14 @@ else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.pa
 # 2.0, VERSION to 2.0.0.
 # And so on.
 
+# The ABI version.
+VER_MAJ = 1
+VER_MIN = 1
+VER_PAT = 0
+VER_BLD = 0
+win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
+else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+
 BUILD_ARCH   = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
 else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
@@ -37,6 +39,47 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     ARCH     = 32
     STG_ARCH = x86
 }
+
+win32 {
+
+    QMAKE_TARGET_COMPANY = "Sergey A. Tachenov"
+    QMAKE_TARGET_DESCRIPTION = "C++ wrapper over Gilles Vollant's ZIP/UNZIP"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2005-2014 Sergey A. Tachenov"
+    QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
+
+    QMAKE_EXT_OBJ = .obj
+    CONFIG += windows
+
+    win32-msvc* {
+
+        CONFIG += force_debug_info
+        INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+        QMAKE_CFLAGS_WARN_ON -= -W3
+        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
+        CONFIG(debug, debug|release) {
+            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
+            QMAKE_CFLAGS_WARN_ON += -W4
+            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        }
+        CONFIG(release, debug|release) {
+            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
+            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805"
+            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        }
+        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+    } else {
+        LIBS += -lz
+    }
+
+} else {
+    LIBS += -lz
+}
+
+unix: !macx: $$lower($$TARGET)
 
 contains(QT_VERSION, ^5\\..*) {
   unix:!macx {  
@@ -67,48 +110,6 @@ contains(QT_VERSION, ^6\\..*) {
     }
   }
 }
-
-win32 {
-
-    QMAKE_EXT_OBJ = .obj
-    CONFIG += windows
-
-    win32-msvc* {
-        INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-        CONFIG(debug, debug|release) {
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4 
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    } else {
-        LIBS += -lz
-    }
-
-    QMAKE_TARGET_COMPANY = "Sergey A. Tachenov"
-    QMAKE_TARGET_DESCRIPTION = "C++ wrapper over Gilles Vollant's ZIP/UNZIP"
-    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2005-2014 Sergey A. Tachenov"
-    QMAKE_TARGET_PRODUCT = "QuaZIP ($$join(ARCH,,,bit))"
-
-}
-
-macx: LIBS += -lz
-
-CONFIG += skip_target_version_ext
-unix: !macx: TARGET = quazip
-else:        TARGET = QuaZIP
 
 # You'll need to define this one manually if using a build system other
 # than qmake or using QuaZIP sources directly in your project.

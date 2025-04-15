@@ -1,7 +1,9 @@
 TEMPLATE = lib
-CONFIG += qt warn_on
-QT -= gui
-CONFIG += staticlib
+TARGET   = LDrawIni
+QT      -= gui
+CONFIG   += qt warn_on
+CONFIG   += staticlib
+CONFIG   += skip_target_version_ext
 
 # The ABI version.
 VER_MAJ = 16
@@ -24,12 +26,16 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 
 win32 {
 
+    QMAKE_TARGET_COMPANY = "Lars C. Hassing"
+    QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2004-2008  Lars C. Hassing"
+    QMAKE_TARGET_PRODUCT = "$${TEMPLATE} ($$join(ARCH,,,bit))"
+
     QMAKE_EXT_OBJ = .obj
-    CONFIG += windows
 
     win32-msvc* {
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
 
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {
@@ -47,11 +53,6 @@ win32 {
         }
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
     }
-
-    QMAKE_TARGET_COMPANY = "Lars C. Hassing"
-    QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
-    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2004-2008  Lars C. Hassing"
-    QMAKE_TARGET_PRODUCT = "LDrawIni ($$join(ARCH,,,bit))"
 }
 
 macx {
@@ -59,9 +60,7 @@ macx {
     LIBS += -framework CoreFoundation
 }
 
-CONFIG += skip_target_version_ext
-unix: !macx: TARGET = ldrawini
-else:        TARGET = LDrawIni
+unix: !macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib: BUILD = Static
@@ -79,6 +78,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
