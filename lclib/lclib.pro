@@ -196,44 +196,45 @@ UI_DIR          = $$DESTDIR/.ui
 include(lclib.pri)
 
 # Suppress warnings
-!win32-msvc*:!macx {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-deprecated-declarations \
-    -Wno-deprecated-copy \
-    -Wno-unused-parameter \
-    -Wno-sign-compare
-}
-macx {
-
+unix|msys {
 QMAKE_CFLAGS_WARN_ON += \
     -Wall -W \
-    -Wno-deprecated-copy \
     -Wno-deprecated-declarations \
-    -Wno-overloaded-virtual \
-    -Wno-sometimes-uninitialized \
-    -Wno-self-assign \
-    -Wno-unused-result
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-
-} else: win32 {
-
-!win32-msvc* {
+    -Wno-unknown-pragmas \
+    -Wno-overloaded-virtual
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-copy
+} # unix|msys
+if (unix|msys):!macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-implicit-fallthrough \
+    -Wno-unused-parameter \
+    -Wno-sign-compare \
+    -Wno-unknown-pragmas \
+    -Wno-strict-aliasing
+msys {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-attributes
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-
 QMAKE_CFLAGS_WARN_ON += \
-   -Wno-misleading-indentation
+    -Wno-misleading-indentation
 QMAKE_CXXFLAGS_WARN_ON += \
-   -Wno-maybe-uninitialized \
-   -Wno-implicit-fallthrough \
-   -Wno-strict-aliasing \
-   -Wno-unused-result \
-   -Wno-cpp
-}
-
-} else {
+    -Wno-template-id-cdtor \
+    -Wno-class-memaccess \
+    -Wno-stringop-overflow \
+    -Wno-stringop-truncation \
+    -Wno-type-limits \
+    -Wno-maybe-uninitialized \
+    -Wno-unused-result \
+    -Wno-cpp
+} else: \
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+} # unix|msys:!macx
+macx {
 QMAKE_CFLAGS_WARN_ON += \
-    -Wno-strict-aliasing
+    -Wno-sometimes-uninitialized \
+    -Wno-self-assign \
+    -Wno-unused-result
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 }
