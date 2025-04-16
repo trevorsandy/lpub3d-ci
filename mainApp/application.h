@@ -14,7 +14,9 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
+#endif
 
 #include "lc_global.h"
 #include "lc_math.h"
