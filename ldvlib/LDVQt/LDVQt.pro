@@ -287,81 +287,56 @@ OTHER_FILES += \
 
 unix|msys {
 QMAKE_CFLAGS_WARN_ON += \
-     -Wall -W \
-     -Wno-deprecated-declarations \
-     -Wno-deprecated-copy \
-     -Wno-implicit-fallthrough \
-     -Wno-parentheses \
-     -Wno-return-type \
-     -Wno-sign-compare \
-     -Wno-uninitialized \
-     -Wno-unknown-pragmas \
-     -Wno-unused-parameter \
-     -Wno-unused-result \
-     -Wno-unused-variable
-}
-macx {
+    -Wall -W \
+    -Wno-deprecated-declarations
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-copy
+} # unix|msys
+if (unix|msys):!macx {
 QMAKE_CFLAGS_WARN_ON += \
-     -Wall -W \
-     -Wno-deprecated-copy \
-     -Wno-deprecated-declarations \
-     -Wno-for-loop-analysis \
-     -Wno-implicit-function-declaration \
-     -Wno-incompatible-pointer-types \
-     -Wno-incompatible-pointer-types-discards-qualifiers \
-     -Wno-int-conversion \
-     -Wno-invalid-source-encoding \
-     -Wno-mismatched-new-delete \
-     -Wno-nullability-completeness \
-     -Wno-reorder \
-     -Wno-undefined-bool-conversion
-} else {
-!win32-msvc* {
+    -Wno-comment \
+    -Wno-format-security \
+    -Wno-format \
+    -Wno-implicit-fallthrough \
+    -Wno-parentheses \
+    -Wno-return-type \
+    -Wno-sign-compare \
+    -Wno-uninitialized \
+    -Wno-unknown-pragmas \
+    -Wno-unused-parameter \
+    -Wno-unused-result \
+    -Wno-unused-variable \
+    -Wno-clobbered \
+    -Wno-switch \
+    -Wno-unused-but-set-variable \
+    -Wno-overloaded-virtual
+msys {
 QMAKE_CFLAGS_WARN_ON += \
-     -Wno-clobbered
-}
-}
+    -Wno-attributes
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-
-!win32-msvc*:!macx {
-QMAKE_CFLAGS_WARN_ON =  \
-      -Wno-comment \
-      -Wno-deprecated-declarations \
-      -Wno-deprecated-copy \
-      -Wno-format-security \
-      -Wno-format \
-      -Wno-parentheses \
-      -Wno-return-type \
-      -Wno-sign-compare \
-      -Wno-switch \
-      -Wno-uninitialized \
-      -Wno-unused-but-set-variable \
-      -Wno-unused-parameter \
-      -Wno-unused-result \
-      -Wno-unused-variable
-
-QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
-
-QMAKE_CFLAGS_WARN_ON +=  \
-      -Wno-implicit-function-declaration \
-      -Wno-incompatible-pointer-types
-}
-
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-misleading-indentation  \
+    -Wno-implicit-function-declaration \
+    -Wno-incompatible-pointer-types
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-template-id-cdtor \
+    -Wno-cast-function-type \
+    -Wno-class-memaccess \
+    -Wno-type-limits \
+    -Wno-cpp
+} else: \
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+} # unix|msys:!macx
 macx {
-
 QMAKE_CFLAGS_WARN_ON += \
-      -Wall -W \
-      -Wno-deprecated-copy \
-      -Wno-deprecated-declarations \
-      -Wno-overloaded-virtual
-QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
-
-QMAKE_CFLAGS_WARN_ON += \
-      -Wno-for-loop-analysis \
-      -Wno-incompatible-pointer-types-discards-qualifiers \
-      -Wno-int-conversion \
-      -Wno-invalid-source-encoding \
-      -Wno-mismatched-new-delete \
-      -Wno-reorder \
-      -Wno-undefined-bool-conversion
+    -Wno-for-loop-analysis \
+    -Wno-incompatible-pointer-types-discards-qualifiers \
+    -Wno-int-conversion \
+    -Wno-invalid-source-encoding \
+    -Wno-mismatched-new-delete \
+    -Wno-nullability-completeness \
+    -Wno-reorder \
+    -Wno-undefined-bool-conversion
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 }
