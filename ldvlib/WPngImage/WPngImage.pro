@@ -100,12 +100,19 @@ QMAKE_EXT_CPP = .cc
 include(WPngImage.pri)
 
 # Suppress warnings
-!win32-msvc* {
+unix|msys {
 QMAKE_CFLAGS_WARN_ON += \
     -Wall -W \
-    -Wno-deprecated-copy \
-    -Wno-deprecated-declarations \
     -Wno-sign-compare \
-    -Wno-overloaded-virtual
-QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
-}
+    -Wno-overloaded-virtual \
+    -Wno-deprecated-declarations
+msys {
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-copy
+} else {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-deprecated-copy
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+} # msys
+} # unix|msys
