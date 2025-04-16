@@ -96,11 +96,13 @@ QMAKE_EXT_CPP = .c
 include(ldrawini.pri)
 
 # Suppress warnings
-!win32-msvc* {
+unix|msys {
 QMAKE_CFLAGS_WARN_ON += \
     -Wall -W \
-    -Wno-deprecated-copy \
+    -Wno-sign-compare \
     -Wno-deprecated-declarations \
-    -Wno-sign-compare
-QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
-}
+    -Wno-unknown-pragmas
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-copy
+} # unix|msys

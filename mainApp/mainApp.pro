@@ -854,49 +854,45 @@ RESOURCES += \
 
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!win32-msvc*:!macx {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-deprecated-declarations \
-    -Wno-deprecated-copy \
-    -Wno-unused-parameter \
-    -Wno-sign-compare
-}
-
-macx {
-
+unix|msys {
 QMAKE_CFLAGS_WARN_ON += \
     -Wall -W \
-    -Wno-deprecated-copy \
     -Wno-deprecated-declarations \
-    -Wno-overloaded-virtual \
-    -Wno-self-assign \
-    -Wno-sometimes-uninitialized \
-    -Wno-unused-result
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-
-} else: win32 {
-
-!win32-msvc* {
+    -Wno-unknown-pragmas \
+    -Wno-overloaded-virtual
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-copy
+} # unix|msys
+if (unix|msys):!macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-implicit-fallthrough \
+    -Wno-unused-parameter \
+    -Wno-sign-compare \
+    -Wno-strict-aliasing
+msys {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-attributes
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-
 QMAKE_CFLAGS_WARN_ON += \
-   -Wno-misleading-indentation
+    -Wno-misleading-indentation
 QMAKE_CXXFLAGS_WARN_ON += \
-   -Wno-cpp \
-   -Wno-implicit-fallthrough \
-   -Wno-maybe-uninitialized \
-   -Wno-strict-aliasing \
-   -Wno-unused-result
-}
-
-} else {
-
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-strict-aliasing
+    -Wno-template-id-cdtor \
+    -Wno-cast-function-type \
+    -Wno-class-memaccess \
+    -Wno-type-limits \
+    -Wno-maybe-uninitialized \
+    -Wno-unused-result \
+    -Wno-cpp
+} else: \
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-
+} # unix|msys:!macx
+macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-sometimes-uninitialized \
+    -Wno-self-assign \
+    -Wno-unused-result
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 }
 
 #message($$CONFIG)
