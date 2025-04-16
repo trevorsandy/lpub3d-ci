@@ -30,6 +30,11 @@
 #include "declarations.h"
 #include "LDVHtmlInventory.h"
 
+#ifdef Q_OS_WIN
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
 #define LIBRARY_UPDATE_FINISHED 1
 #define LIBRARY_UPDATE_CANCELED 2
 #define LIBRARY_UPDATE_NONE 3

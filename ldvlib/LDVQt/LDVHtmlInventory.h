@@ -6,6 +6,11 @@
 #include <LDLoader/LDLPalette.h>
 #include <stdio.h>
 
+#ifdef Q_OS_WIN
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
 class LDPartsList;
 class LDPartCount;
 class LDLPalette;

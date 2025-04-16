@@ -17,6 +17,11 @@
 
 #include <TCFoundation/TCObject.h>
 
+#ifdef Q_OS_WIN
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
 class LDVWidget;
 class TCProgressAlert;
 class TCAlert;

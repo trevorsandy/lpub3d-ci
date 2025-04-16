@@ -32,6 +32,11 @@
 #include "declarations.h"
 #include "paths.h"
 
+#ifdef Q_OS_WIN
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
 QHash<QString, QString> LDVImageMatte::csiKey2csiFile;  // csiKey, csiFile
 QHash<QString, QString> LDVImageMatte::csiFile2csiKey;  // csiFileName, csiKey
 
