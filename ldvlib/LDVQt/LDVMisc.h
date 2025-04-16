@@ -9,6 +9,11 @@
 #include <QtCore/qstring.h>
 #include <TCFoundation/mystring.h>
 
+#ifdef Q_OS_WIN
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
 void wcstoqstring(QString &dst, const wchar_t *src, int length = -1);
 QString wcstoqstring(const wchar_t *src, int length = -1);
 void wstringtoqstring(QString &dst, const std::wstring &src);
