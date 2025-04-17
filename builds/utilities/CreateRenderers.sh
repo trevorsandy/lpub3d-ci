@@ -488,7 +488,9 @@ BuildPOVRay() {
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
-  if [ "$build_sdl2" = 1 ]; then
+  if [ "$MACOS_POVRAY_NO_XWINDOW" = "true" ]; then
+    BUILD_CONFIG="$BUILD_CONFIG --without-x"
+  elif [ "$build_sdl2" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2=from-src"
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
@@ -911,21 +913,22 @@ if [ "$OS_NAME" = "Darwin" ]; then
   Info "Checking for X11 (xquartz) at /usr/X11..."
   if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
     Info "Good to go - X11 found."
+    depsList="X11"
   else
-    Msg="ERROR - Sorry to say friend, I cannot go on - X11 not found."
+    Msg="NOTICE - X11 not found. LPub3D_Trace(POVRay) will not build the XWindow display."
     Info $Msg && Info $Msg > $depsLog 2>&1
     if [ "${CI}" != "true" ]; then
       Info "  You can install xquartz using homebrew:"
       Info "  \$ brew cask list"
       Info "  \$ brew cask install xquartz"
       Info "  Note: elevated access password will be required."
-      Info "  Build will terminate."
     fi
-    exit 1
+    MACOS_POVRAY_NO_XWINDOW="true"
   fi
   depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
-    Info "Dependencies List........[X11 boost ${brewDeps}]"
+    [ -n "$depsList" ] && depsList="$depsList $brewDeps" || :
+    Info "Dependencies List........[${depsList} boost]"
     if [ "${CI}" = "true" ]; then
      Info  "--- Skipped brew update to save time"
     else
@@ -945,7 +948,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
     Info $Msg && DisplayLogTail $depsLog 3 && Info $Msg >> $depsLog 2>&1
   fi
   # Set povray --without-optimiz flag on macOS High Sierra 10.13
-  [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || true
+  [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || :
   # set dependency profiler and nubmer of CPUs
   LDD_EXEC="otool -L"
   CPU_CORES=$(sysctl -n hw.ncpu)
