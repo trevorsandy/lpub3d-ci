@@ -46,6 +46,10 @@ win32 {
     PRECOMPILED_HEADER = common/lc_global.h
     PRECOMPILED_SOURCE = common/lc_global.cpp
 
+    PRECOMPILED_HEADER = common/lc_global.h
+    PRECOMPILED_SOURCE = common/lc_global.cpp
+    DEFINES += _WINSOCKAPI_
+
     win32-msvc* {
 
         CONFIG  += windows
@@ -54,10 +58,6 @@ win32 {
         QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-
-        PRECOMPILED_HEADER = common/lc_global.h
-        PRECOMPILED_SOURCE = common/lc_global.cpp
-
         CONFIG(debug, debug|release) {
             DEFINES += QT_DEBUG_MODE
             QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
