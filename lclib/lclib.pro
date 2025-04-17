@@ -43,20 +43,18 @@ win32 {
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
 
+    PRECOMPILED_HEADER = common/lc_global.h
+    PRECOMPILED_SOURCE = common/lc_global.cpp
+    DEFINES += _WINSOCKAPI_
+
     win32-msvc* {
 
         CONFIG  += force_debug_info
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-        DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
-
+        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-
-        PRECOMPILED_HEADER = common/lc_global.h
-        PRECOMPILED_SOURCE = common/lc_global.cpp
-
         CONFIG(debug, debug|release) {
             DEFINES += QT_DEBUG_MODE
             QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
