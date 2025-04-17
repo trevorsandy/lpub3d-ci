@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 04, 2025
+# Last Update: April 17, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -164,6 +164,7 @@ BuildMesaLibs() {
 
 # args: $1 = <log file>, $2 = <position>
 DisplayLogTail() {
+  [ -n "$LP3D_NO_LOG_TAIL" ] && return 0 || :
   if [[ -f "$1" && -s "$1" ]]; then
     logFile="$1"
     if [ "$2" = "" ]; then
@@ -769,6 +770,7 @@ if [[ -n "$CD" || -n "${GITHUB}" ]]; then
     [ -n "$GITHUB" ] && Info "GITHUB...................${GITHUB}" || :
     [ -n "$LP3D_CPU_CORES" ] && Info "CPU CORES................${LP3D_CPU_CORES}" || :
     [ -z "$LP3D_NO_DEPS" ] && Info "LOAD LIB DEPENDENCY......true" || :
+    [ -z "$LP3D_NO_LOG_TAIL" ] && Info "DISPLAY LOG TAIL.........true" || :
     [ -n "$LP3D_NO_CLEANUP" ] && Info "NO CLEANUP...............${LP3D_NO_CLEANUP}" || :
     [ -n "$LP3D_BASE" ] && Info "BUILD BASE...............${LP3D_BASE}" || :
     [ -n "$LP3D_ARCH" ] && Info "BUILD ARCH...............${LP3D_ARCH}" || :
@@ -985,8 +987,8 @@ for buildDir in ldglite ldview povray; do
     ;;
   ldview)
     curlCommand="https://github.com/trevorsandy/ldview/archive/lpub3d-build.tar.gz"
-    checkString="LDView Image Output"
-    linesAfter="9"
+    checkString="LDView.*LPub3D Edition Image Output"
+    linesAfter="6"
     buildCommand="BuildLDView"
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
