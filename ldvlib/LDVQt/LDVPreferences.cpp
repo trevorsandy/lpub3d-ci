@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include <stdlib.h>
 // On the Mac, when using Qt, glextmacosqt.h has to be included prior to anything
 // else that might include GL/gl.h, to override and force-load the needed extensions,
 // otherwise things don't compile. This is annoying, but it doesn't appear to hurt anything.
@@ -22,11 +23,11 @@
 #include <LDLoader/LDLModel.h>
 #include <LDLoader/LDLPalette.h>
 #include <TCFoundation/TCUserDefaults.h>
-#include <TCFoundation/mystring.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <TCFoundation/TCMacros.h>
 //#include <TCFoundation/TCWebClient.h>  // Not Used
 #include <QColor>
+#include <QStyleFactory>
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -53,7 +54,7 @@ TCStringArray* LDVPreferences::extraSearchDirs = nullptr;
 
 LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	:QDialog(parent),
-	  LDVPreferencesPanel(),
+	  Ui::LDVPreferencesPanel(),
 	  modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
 	  ldPrefs(new LDPreferences(modelViewer)),
 	  checkAbandon(true)
