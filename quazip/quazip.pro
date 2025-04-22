@@ -118,10 +118,14 @@ contains(QT_VERSION, ^6\\..*) {
 staticlib {
     BUILD    = Static
     DEFINES += QUAZIP_STATIC
+    QMAKE_LFLAGS += -static
+    QMAKE_LFLAGS += -static-libgcc
+    QMAKE_LFLAGS += -static-libstdc++
 } else {
-    # This one handles dllimport/dllexport directives.
     BUILD    = Shared
     DEFINES += QUAZIP_BUILD
+    msys: \
+    CONFIG  -= staticlib
 }
 
 CONFIG(debug, debug|release) {

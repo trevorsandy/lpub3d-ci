@@ -60,8 +60,16 @@ win32 {
 if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
-staticlib: BUILD = Static
-else:      BUILD = Shared
+staticlib {
+    BUILD    = Static
+    QMAKE_LFLAGS += -static
+    QMAKE_LFLAGS += -static-libgcc
+    QMAKE_LFLAGS += -static-libstdc++
+} else {
+    BUILD    = Shared
+    msys: \
+    CONFIG  -= staticlib
+}
 
 CONFIG(debug, debug|release) {
     BUILD += Debug Build

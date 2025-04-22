@@ -124,8 +124,15 @@ if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 # Indicate build type
 staticlib {
     BUILD    = Static
+    QMAKE_LFLAGS += -static
+    QMAKE_LFLAGS += -static-libgcc
+    QMAKE_LFLAGS += -static-libstdc++
+    unix|msys: \
+    DEFINES += _TC_STATIC
 } else {
     BUILD    = Shared
+    msys: \
+    CONFIG  -= staticlib
 }
 
 VER_LDVIEW = ldview-4.5
