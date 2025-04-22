@@ -15,9 +15,6 @@
 #ifndef __PREFERENCES_H__
 #define __PREFERENCES_H__
 
-#include <stdlib.h>
-#include <QStyleFactory>
-
 #include <LDLib/LDrawModelViewer.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDInputHandler.h>
@@ -107,7 +104,7 @@ public:
 	void userDefaultChangedAlertCallback(TCAlert *alert);
 	void checkLightVector(void);
 	void browseForDir(QString prompt, QLineEdit *textField, QString &dir);
-	QString getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename) { return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str()); }
+	QString getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename);
 	void populateExtraDirsListBox(void);
 	void recordExtraSearchDirs(void);
 	void populateExtraSearchDirs(void);
