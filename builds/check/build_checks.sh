@@ -132,7 +132,7 @@ if [[ "$LP3D_BUILD_OS" = "appimage" && $VALID_APPIMAGE -eq 1 ]]; then
 fi
 
 # Set XDG_RUNTIME_DIR
-if [ "${LP3D_OS_NAME}" != "Darwin" ]; then
+if [[ "${LP3D_OS_NAME}" != "Darwin" && "${LP3D_PLATFORM}" != "msys2" ]]; then
     VALID_UID=0
     if [[ "$LP3D_BUILD_OS" = "snap" ]]; then
         [ -n $UID ] && VALID_UID=1
@@ -150,7 +150,7 @@ if [ "${LP3D_OS_NAME}" != "Darwin" ]; then
 fi
 
 # Set USE_XVFB flag
-if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" || "${LP3D_OS_NAME}" != "Darwin") ]]; then
+if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" && "${LP3D_OS_NAME}" != "Darwin" && "${LP3D_PLATFORM}" != "msys2") ]]; then
     if [ -z "$(command -v xvfb-run)" ]; then
         show_settings_and_exit "ERROR - XVFB (xvfb-run) could not be found. Build check cannot be executed."
     else
@@ -304,7 +304,8 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             cat "${LP3D_CHECK_STDLOG}" || true
             if [ -z "$LP3D_BUNDLED_APP" ]; then
                 if [ -d "${LP3D_CHECK_PATH}" ]; then
-                    cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
+				    [ "${LP3D_PLATFORM}" != "msys2" ] && \
+                    cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}" || :
                     LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
                     if [ "${LP3D_CHECK_ASSETS}" ]; then
                         echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
