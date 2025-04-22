@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update April 22, 2025
+# Last Update May 22, 2025
 # Copyright (C) 2018 - 2025 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -76,12 +76,13 @@ ElapsedCheckTime() {
 }
 
 # Initialize platform variables
-LP3D_OS_NAME=$(uname)
+LP3D_OS_NAME=$(uname | awk '{print tolower($0)}')
 LP3D_TARGET_ARCH="$(uname -m)"
-if [[ "${LP3D_OS_NAME}" = "Darwin" ]]; then
+if [[ "${LP3D_OS_NAME}" = "darwin" ]]; then
     LP3D_PLATFORM=$(echo `sw_vers -productName`)
 else
     LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
+    [ "${LP3D_PLATFORM}" = "msys2" ] && LP3D_OS_NAME="${LP3D_PLATFORM}" && MSYS2=1 || :
 fi
 
 # Check if renderers are available
@@ -132,7 +133,7 @@ if [[ "$LP3D_BUILD_OS" = "appimage" && $VALID_APPIMAGE -eq 1 ]]; then
 fi
 
 # Set XDG_RUNTIME_DIR
-if [ "${LP3D_OS_NAME}" != "Darwin" ]; then
+if [[ "${LP3D_OS_NAME}" != "darwin" && "${LP3D_OS_NAME}" != "msys2" ]]; then
     VALID_UID=0
     if [[ "$LP3D_BUILD_OS" = "snap" ]]; then
         [ -n $UID ] && VALID_UID=1
@@ -150,7 +151,7 @@ if [ "${LP3D_OS_NAME}" != "Darwin" ]; then
 fi
 
 # Set USE_XVFB flag
-if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" || "${LP3D_OS_NAME}" != "Darwin") ]]; then
+if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" && "${LP3D_OS_NAME}" != "darwin" && "${LP3D_OS_NAME}" != "msys2") ]]; then
     if [ -z "$(command -v xvfb-run)" ]; then
         show_settings_and_exit "ERROR - XVFB (xvfb-run) could not be found. Build check cannot be executed."
     else
@@ -164,7 +165,7 @@ fi
 show_settings
 
 # macOS, compile only, initialize build paths and libraries
-if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
+if [[ "${LP3D_OS_NAME}" = "darwin" && "$BUILD_OPT" = "compile" ]]; then
     cd ${SOURCE_DIR}/mainApp/64bit_release
 
     echo "- set macOS LPub3D executable..."
@@ -175,26 +176,31 @@ if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
 fi
 
 # Initialize variables
-LP3D_CHECK_STATUS=${LP3D_CHECK_STATUS:---version}
+LP3D_CONSOLE="$([ -n "${MSYS2}" ] && echo "--no-console-redirect " || echo "--no-stdout-log ")"
+LP3D_CHECK_STATUS=${LP3D_CHECK_STATUS:-${LP3D_CONSOLE}--version}
 LP3D_CHECK_PATH="$(realpath ${SOURCE_DIR})/builds/check"
 LP3D_CHECK_FILE="${LP3D_CHECK_PATH}/build_checks.mpd"
 LP3D_CHECK_SUCCESS="Application terminated with return code 0."
 LP3D_XVFB_ERROR="xvfb-run: error: "
 LP3D_LOG_FILE="Check.out"
 LP3D_ERROR=0
+LP3D_COUNT=0
 let LP3D_CHECK_PASS=0
 let LP3D_CHECK_FAIL=0
 LP3D_CHECKS_PASS=
 LP3D_CHECKS_FAIL=
 LP3D_CHECK_STDLOG=
 
-# Applicatin status check
+# Application status check
 [ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
 ${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2> ${LP3D_LOG_FILE} || \
 ${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2> ${LP3D_LOG_FILE}
 if [[ $? -ne 0 && -s "${LP3D_LOG_FILE}" ]];then
     echo "- LPub3D Status Log Trace..."
     cat "${LP3D_LOG_FILE}"
+else
+        # remove empty file
+        rm -f "${LP3D_LOG_FILE}"
 fi
 
 if [[ -n "${LP3D_CHECK_LDD}" && ${VALID_APPIMAGE} -eq 0 ]]; then
@@ -222,48 +228,49 @@ echo && echo "------------Build Checks Start--------------" && echo
 for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
     lp3d_check_start=$SECONDS
     LP3D_LOG_FILE="${LP3D_BUILD_CHECK}.out"
+        LP3D_COUNT=$((LP3D_COUNT + 1))
     case ${LP3D_BUILD_CHECK} in
     CHECK_01)
         QT_DEBUG_PLUGINS=1
         LP3D_CHECK_LBL="Native File Process"
-        LP3D_CHECK_HDR="- Check 1 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-file --liblego --preferred-renderer native"
         ;;
     CHECK_02)
         LP3D_CHECK_LBL="LDGLite Export Range"
-        LP3D_CHECK_HDR="- Check 4 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stderr-ldglite"
         ;;
     CHECK_03)
         LP3D_CHECK_LBL="Native POV Generation"
-        LP3D_CHECK_HDR="- Check 5 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer povray"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-file --clear-cache --liblego --preferred-renderer povray"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stderr-povray"
         ;;
     CHECK_04)
         LP3D_CHECK_LBL="LDView File Process"
-        LP3D_CHECK_HDR="- Check 2 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-file --clear-cache --liblego --preferred-renderer ldview"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stdout-ldview"
         ;;
     CHECK_05)
         LP3D_CHECK_LBL="LDView (Single Call) File Process"
-        LP3D_CHECK_HDR="- Check 3 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-file --clear-cache --liblego --preferred-renderer ldview-sc"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/stdout-ldview"
         ;;
     CHECK_06)
         LP3D_CHECK_LBL="LDView TENTE Model"
-        LP3D_CHECK_HDR="- Check 6 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libtente --preferred-renderer ldview"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-file --clear-cache --libtente --preferred-renderer ldview"
         LP3D_CHECK_FILE="${LP3D_CHECK_PATH}/TENTE/astromovil.ldr"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/TENTE/stdout-ldview"
         ;;
     CHECK_07)
         LP3D_CHECK_LBL="LDView (Snapshot List) VEXIQ Model"
-        LP3D_CHECK_HDR="- Check 7 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
+        LP3D_CHECK_HDR="- Check ${LP3D_COUNT} of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_OPTIONS="${LP3D_CONSOLE}--process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
         LP3D_CHECK_FILE="${LP3D_CHECK_PATH}/VEXIQ/spider.mpd"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_PATH}/VEXIQ/stdout-ldview"
         ;;
@@ -304,7 +311,9 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             cat "${LP3D_CHECK_STDLOG}" || true
             if [ -z "$LP3D_BUNDLED_APP" ]; then
                 if [ -d "${LP3D_CHECK_PATH}" ]; then
-                    cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
+                    [ -z "${MSYS2}" ] && \
+                    cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}" || \
+                    find "$(dirname ${LPUB3D_EXE})" -maxdepth 1 -iname "LPub3D.*" -type f -exec cp -f {} "${LP3D_CHECK_PATH}" \;
                     LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
                     if [ "${LP3D_CHECK_ASSETS}" ]; then
                         echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
@@ -335,7 +344,7 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             rm -rf "${LP3D_LOG_FILE}"
         fi
         # Cleanup check output
-        find ${LP3D_CHECK_PATH} -depth -iname "LPub3D" -type d -exec rm -rf {} \; >/dev/null 2>&1
+        find ${LP3D_CHECK_PATH} -depth -iname "LPub3D" -type d -prune -exec rm -rf {} \; >/dev/null 2>&1
         find ${LP3D_CHECK_PATH} \( -name "std*" -o -name "*.pdf" \) -type f -exec rm -rf {} \; >/dev/null 2>&1
     else
         echo "ERROR - ${LP3D_LOG_FILE} was not generated."
@@ -354,6 +363,8 @@ fi
 if [ -z "$LP3D_BUNDLED_APP" ]; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
         RUN_LOG=$(find ${HOME}/Library/Application\ Support/LPub3D\ Software -type f -name "*Log.txt")
+    elif [ -n "${MSYS2}" ]; then
+        RUN_LOG=$(find "$(dirname "${LPUB3D_EXE}")" -type f -name "*Log.txt")
     else
         RUN_LOG=$(find ${HOME}/.local/share -type f -name "*Log.txt")
     fi
@@ -366,8 +377,9 @@ if [ -z "$LP3D_BUNDLED_APP" ]; then
     fi
 fi
 
-SUMMARY_MSG=''
+unset SUMMARY_MSG
 SUMMARY_MSG+="----Build Check Completed: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], "
-SUMMARY_MSG+="FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}], "
-SUMMARY_MSG+="ELAPSED TIME [`ElapsedCheckTime $lp3d_elapsed_check_start`]----"
+(( ${LP3D_CHECK_FAIL} > 0 )) && \
+SUMMARY_MSG+="FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}], " || :
+SUMMARY_MSG+="ELAPSED TIME [$(ElapsedCheckTime $lp3d_elapsed_check_start)]----"
 echo && echo $SUMMARY_MSG && echo
