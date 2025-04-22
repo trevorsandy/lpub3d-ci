@@ -54,15 +54,32 @@ function ElapsedTime()
   echo "$TIME_ELAPSED"
 }
 
-# Functions
+# Args: [$1 = -n,] $2 = <message>
 function Info()
 {
-  if [ "${SOURCED}" = "true" ]
-  then
-    f="${0##*/}"; f="${f%.*}"
-    echo "   ${f}: ${*}" >&2
+  local i
+  if [ "${NEW_LINE}" = 0 ]; then
+    NEW_LINE=1
+    echo "${*}" >&2
+    return
+  elif [ "$1" = "-n" ]; then
+    NEW_LINE=0
+    i=${*:2}
+    if [ "${SOURCED}" = "true" ]; then
+      f="${0##*/}"; f="${f%.*}"
+      echo -n "   ${f}: ${i}" >&2
+    else
+      echo -n "-${i}" >&2
+    fi
+    return
   else
-    echo "-${*}" >&2
+    i=${*}
+  fi
+  if [ "${SOURCED}" = "true" ]; then
+    f="${0##*/}"; f="${f%.*}"
+    echo "   ${f}: ${i}" >&2
+  else
+    echo "-${i}" >&2
   fi
 }
 
@@ -604,13 +621,13 @@ function PackageRenderers()
   fi
   Info "DEBUG_LP3D_RENDERER_PACKAGES:  $LP3D_RENDERER_PACKAGES"
   Info "DEBUG_LP3D_LDVIEW_DEV:  $LP3D_LDVIEW_DEV"
-  echo -n "Creating renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERER_ZIP}..."
+  Info -n "Creating renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERER_ZIP}..."
   ( cd "${DIST_PKG_DIR}/" || return && \
   tar -czf "${LP3D_RENDERER_ZIP}" "${LP3D_LDVIEW_DEV}" "$(echo ${LP3D_RENDERER_PACKAGES} | xargs)" && \
   sha512sum "${LP3D_RENDERER_ZIP}" > "${LP3D_RENDERER_ZIP}.sha512" && \
   mv -f "${LP3D_RENDERER_ZIP}" "${LP3D_RENDERER_ZIP}.sha512" \
   "${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
-  [ -f $p.out ] && echo "ERROR" && tail -80 $p.out || echo "Ok"
+  [ -f $p.out ] && Info "ERROR" && tail -80 $p.out || Info "Ok"
   Info
 }
 
@@ -888,25 +905,32 @@ if [ -z "$LDRAWDIR" ]; then
   export LDRAWDIR=${LDRAWDIR}
 fi
 
+declare -r l=Log
 if [ "$OBS" != "true" ]; then
   if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
     Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "complete.zip" ]; then
-      Info "Downloading complete.zip..." && \
-      curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o ${DIST_PKG_DIR}/complete.zip
+      Info -n "Downloading complete.zip..."
+      curl $CURL_OPTS https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o ${DIST_PKG_DIR}/complete.zip && \
+      Info "Ok." || Info "Failed."
     else
       ldrawlib=$(echo $PWD/complete.zip)
-      Info "Linking complete.zip..." && (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" complete.zip || :)
+      Info -n "Linking complete.zip..."
+      (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" complete.zip || :) >$l.out 2>&1 && rm $l.out
+      [ -f $l.out ] && Info "Failed." && tail -20 $l.out || Info "Ok"
     fi
   fi
   if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
     Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "lpub3dldrawunf.zip" ]; then
-      Info "Downloading lpub3dldrawunf.zip..." && \
-      curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip
+      Info -n "Downloading lpub3dldrawunf.zip..."
+      curl $CURL_OPTS https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip && \
+      Info "Ok." || Info "Failed."
     else
       ldrawlib=$(echo $PWD/lpub3dldrawunf.zip)
-      Info "Linking lpub3dldrawunf.zip..." && (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" lpub3dldrawunf.zip || :)
+      Info -n "Linking lpub3dldrawunf.zip..."
+      (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" lpub3dldrawunf.zip || :) >$l.out 2>&1 && rm $l.out
+      [ -f $l.out ] && Info "Failed." && tail -20 $l.out || Info "Ok"
     fi
   fi
 fi
@@ -917,10 +941,9 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
     [ ! -f "complete.zip" ] && \
     cp -f ${DIST_PKG_DIR}/complete.zip . || :
   fi
-  Info && Info "Extracting ${PWD}/complete.zip LDraw library into ${LDRAWDIR}..."
-  declare -r l=Log
+  Info && Info -n "Extracting ${PWD}/complete.zip LDraw library into ${LDRAWDIR}..."
   ( unzip -od ${LDRAWDIR_ROOT} -q complete.zip; ) >$l.out 2>&1 && rm $l.out
-  [ -f $l.out ] && Info "ERROR - Extract complete.zip failed." && tail -20 $l.out || :
+  [ -f $l.out ] && Info "ERROR - Failed." && tail -20 $l.out || Info "Ok"
   if [ -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined." && Info
   fi
@@ -1014,12 +1037,14 @@ if [ "$OS_NAME" = "Darwin" ]; then
        ;;
      esac
   done
-  Info "Checking for X11 (xquartz) at /usr/X11..."
+  Info -n "Checking for X11 (xquartz) at /usr/X11..."
   if [[ -d "/usr/X11/lib" && -d "/usr/X11/include" ]]; then
-    Info "Good to go - X11 found."
+    Info "X11 found."
     depsList="X11"
   else
-    Msg="NOTICE - X11 not found. LPub3D_Trace(POVRay) will not build the XWindow display."
+    Msg="X11 not found." 
+    Info $Msg && Info $Msg > $depsLog 2>&1
+    Msg "LPub3D_Trace(POVRay) will not build the XWindow display."
     Info $Msg && Info $Msg > $depsLog 2>&1
     if [ "${CI}" != "true" ]; then
       Info "  You can install xquartz using homebrew:"
