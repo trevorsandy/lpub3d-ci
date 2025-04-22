@@ -23,10 +23,6 @@
 #define new DEBUG_CLIENTBLOCK
 #endif // _DEBUG
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400 && defined(_DEBUG)
-#define new DEBUG_CLIENTBLOCK
-#endif
-
 // WGL_EXT_pixel_format
 PFNWGLGETPIXELFORMATATTRIBIVEXTPROC
 	LDVExtensionsSetup::sm_wglGetPixelFormatAttribivARB = NULL;
@@ -166,7 +162,7 @@ LDVExtensionsSetup::LDVExtensionsSetupCleanup::~LDVExtensionsSetupCleanup(void)
 	}
 	if (LDVExtensionsSetup::sm_extensionsSetup)
 	{
-        LDVExtensionsSetup::sm_extensionsSetup->release();
+		LDVExtensionsSetup::sm_extensionsSetup->release();
 		LDVExtensionsSetup::sm_extensionsSetup = NULL;
 	}
 	if (LDVExtensionsSetup::sm_pfIntValues)
@@ -178,9 +174,9 @@ LDVExtensionsSetup::LDVExtensionsSetupCleanup::~LDVExtensionsSetupCleanup(void)
 
 
 LDVExtensionsSetup::LDVExtensionsSetup(HWND hWnd, HINSTANCE hInstance ):
-    hInstance(hInstance),
-    hdc(GetDC(hWnd)),
-    hWnd(hWnd)
+	hInstance(hInstance),
+	hdc(GetDC(hWnd)),
+	hWnd(hWnd)
 {
 }
 
@@ -190,8 +186,8 @@ LDVExtensionsSetup::~LDVExtensionsSetup(void)
 
 BOOL LDVExtensionsSetup::initExtensions(void)
 {
-    if (sm_extensionsSetup)
-    {
+	if (sm_extensionsSetup)
+	{
 		GLint intValue;
 
 		TREGLExtensions::setup();
@@ -218,7 +214,7 @@ BOOL LDVExtensionsSetup::initExtensions(void)
 		// extensions have the force flag set to true.  Otherwise, if the
 		// program starts with the ignore flag set, and it later gets cleared,
 		// the function pointers won't be loaded.
-        if (checkForWGLExtension((char *)"WGL_ARB_pixel_format", true))
+		if (checkForWGLExtension((char *)"WGL_ARB_pixel_format", true))
 		{
 			sm_wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVEXTPROC)
 				wglGetProcAddress("wglGetPixelFormatAttribivARB");
@@ -270,8 +266,8 @@ BOOL LDVExtensionsSetup::initExtensions(void)
 		wglAllocateMemoryNV = sm_wglAllocateMemoryNV;
 		wglFreeMemoryNV = sm_wglFreeMemoryNV;
 		return TRUE;
-    }
-    return FALSE;
+	}
+	return FALSE;
 }
 
 void LDVExtensionsSetup::recordPixelFormats(void)
@@ -316,7 +312,7 @@ void LDVExtensionsSetup::recordPixelFormats(void)
 				sm_pfIntValues->addObject(valueArray);
 				valueArray->release();
 			}
-            delete[] values;
+			delete[] values;
 		}
 	}
 }
@@ -379,14 +375,14 @@ bool LDVExtensionsSetup::haveMultisampleExtension(bool force)
 	bool ignore = TCUserDefaults::longForKey(IGNORE_MULTISAMPLE_KEY, 0, false)
 		!= 0;
 
-    return (!ignore || force) && checkForWGLExtension((char*)"WGL_ARB_multisample");
+	return (!ignore || force) && checkForWGLExtension((char*)"WGL_ARB_multisample");
 }
 
 bool LDVExtensionsSetup::havePixelBufferExtension(bool force)
 {
 	bool ignore = TCUserDefaults::longForKey(IGNORE_PBUFFER_KEY, 0, false) != 0;
 
-    return (!ignore || force) && checkForWGLExtension((char*)"WGL_ARB_pbuffer", force);
+	return (!ignore || force) && checkForWGLExtension((char*)"WGL_ARB_pbuffer", force);
 }
 
 bool LDVExtensionsSetup::havePixelFormatExtension(bool force)
@@ -394,7 +390,7 @@ bool LDVExtensionsSetup::havePixelFormatExtension(bool force)
 	bool ignore = TCUserDefaults::longForKey(IGNORE_PIXEL_FORMAT_KEY, 0, false)
 		!= 0;
 
-    return (!ignore || force) && checkForWGLExtension((char*)"WGL_ARB_pixel_format");
+	return (!ignore || force) && checkForWGLExtension((char*)"WGL_ARB_pixel_format");
 }
 
 bool LDVExtensionsSetup::checkForWGLExtension(char* extension, bool force)
@@ -406,8 +402,8 @@ void LDVExtensionsSetup::setup(HWND hWnd, HINSTANCE hInstance)
 {
 	if (!sm_performedInitialSetup)
 	{
-        sm_extensionsSetup = new LDVExtensionsSetup(hWnd, hInstance);
-        sm_extensionsSetup->initExtensions();
+		sm_extensionsSetup = new LDVExtensionsSetup(hWnd, hInstance);
+		sm_extensionsSetup->initExtensions();
 		sm_performedInitialSetup = true;
 	}
 }
