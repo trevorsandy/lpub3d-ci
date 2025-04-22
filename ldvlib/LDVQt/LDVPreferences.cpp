@@ -225,9 +225,11 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 
 	loadSettings();
 #ifdef WIN32
+#ifndef _OSMESA
 	setupAntialiasing();
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
+#endif // _OSMESA
 	connect( havePixelBufferButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
 	connect( updateLDrawLibraryButton, SIGNAL( clicked () ), this, SLOT(doLibraryCheckForUpdates() ) );
 #else
@@ -2347,6 +2349,7 @@ void LDVPreferences::disableProxyServer(void)
 }
 
 #ifdef WIN32
+#ifndef _OSMESA
 
 int LDVPreferences::getFSAAFactor(void)
 {
@@ -2473,6 +2476,7 @@ void LDVPreferences::fsaaModeBoxChanged(const QString &controlString)
 	enableApply();
 }
 
+#endif // _OSMESA
 #endif // WIN32
 
 void LDVPreferences::setupDefaultRotationMatrix(void)
@@ -2724,6 +2728,11 @@ void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString 
 		textField->setText(dir = selectedfile);
 		applyButton->setEnabled(true);
 	}
+}
+
+QString LDVPreferences::getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename)
+{
+	return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str());
 }
 
 void LDVPreferences::enableStudStyleCombo()
