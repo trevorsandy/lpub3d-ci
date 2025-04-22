@@ -127,8 +127,13 @@ if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 # Indicate build type
 staticlib {
     BUILD    = Static
+    QMAKE_LFLAGS += -static
+    unix|msys: \
+    DEFINES += _TC_STATIC
 } else {
     BUILD    = Shared
+    msys: \
+    CONFIG  -= staticlib
 }
 
 # LDVQT Qt/OSMesa/WGL library identifiers

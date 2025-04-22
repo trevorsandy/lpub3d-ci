@@ -265,14 +265,17 @@ greaterThan(QT_MINOR_VERSION, 3) {
 
 static {                                     # everything below takes effect with CONFIG ''= static
     BUILD    = Static
-    CONFIG  += static
-    LIBS    += -static
     DEFINES += STATIC
-    DEFINES += QUAZIP_STATIC                 # this is so the compiler can detect quazip static
-    macx:  TARGET = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
-    win32: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
+    unix|msys: \
+    DEFINES += _TC_STATIC
+    DEFINES += QUAZIP_STATIC
+    QMAKE_LFLAGS += -static                  # same as LIBS += -static
+    macx:        TARGET = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
+    win32-msvc*: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 } else {
     BUILD   = Shared
+    msys: \
+    CONFIG  -= static
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

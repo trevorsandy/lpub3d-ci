@@ -66,8 +66,14 @@ macx {
 if(unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
-staticlib: BUILD = Static
-else:      BUILD = Shared
+staticlib {
+    BUILD    = Static
+    QMAKE_LFLAGS += -static
+} else {
+    BUILD    = Shared
+    msys: \
+    CONFIG  -= staticlib
+}
 
 CONFIG(debug, debug|release) {
     BUILD += Debug Build
