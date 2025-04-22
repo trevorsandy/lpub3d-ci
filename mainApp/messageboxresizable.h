@@ -24,7 +24,7 @@
 
 enum DetailButtonLabel { ShowLabel = 0, HideLabel = 1 };
 
-class QMessageBoxDetailsText : public QWidget
+class MessageBoxDetailsText : public QWidget
 {
     Q_OBJECT
 public:
@@ -34,30 +34,14 @@ public:
         TextBrowser(QWidget *parent=0) : QTextBrowser(parent) { }
         void contextMenuEvent(QContextMenuEvent * e) override;
     };
-    QMessageBoxDetailsText(QWidget *parent=0);
+    MessageBoxDetailsText(QWidget *parent=0);
     void setHtml(const QString &text) { textBrowser->setHtml(text); }
     void setText(const QString &text) { textBrowser->setPlainText(text); }
     QString text() const { return textBrowser->toPlainText(); }
-    bool copy()
-    {
-#ifdef QT_NO_CLIPBOARD
-        return false;
-#else
-        if (!copyAvailable)
-            return false;
-        textBrowser->copy();
-        return true;
-#endif // QT_NO_CLIPBOARD
-    }
-    void selectAll()
-    {
-        textBrowser->selectAll();
-    }
+    bool copy();
+    void selectAll() { textBrowser->selectAll(); }
 private slots:
-    void textCopyAvailable(bool available)
-    {
-        copyAvailable = available;
-    }
+    void textCopyAvailable(bool available) { copyAvailable = available; }
 private:
     bool copyAvailable;
     TextBrowser *textBrowser;
@@ -98,7 +82,7 @@ private slots:
 private:
     virtual bool event(QEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
-    QMessageBoxDetailsText *detailsTextBrowser;
+    MessageBoxDetailsText *detailsTextBrowser;
     DetailPushButton       *detailsPushButton;
     int                     fixedWidth;
     bool                    autoAddOkButton;

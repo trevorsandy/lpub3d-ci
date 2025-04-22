@@ -79,7 +79,7 @@ void QMessageBoxResizable::setDetailedText(const QString &text, bool html) {
         detailsPushButton = 0;
     } else {
         if (!detailsTextBrowser) {
-            detailsTextBrowser = new QMessageBoxDetailsText(this);
+            detailsTextBrowser = new MessageBoxDetailsText(this);
             detailsTextBrowser->hide();
         }
         if (!detailsPushButton) {
@@ -139,14 +139,14 @@ bool QMessageBoxResizable::event(QEvent *e) {
     return res;
 }
 
-void QMessageBoxDetailsText::TextBrowser::contextMenuEvent(QContextMenuEvent * e)
+void MessageBoxDetailsText::TextBrowser::contextMenuEvent(QContextMenuEvent * e)
 {
     QMenu *menu = createStandardContextMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->popup(e->globalPos());
 }
 
-QMessageBoxDetailsText::QMessageBoxDetailsText(QWidget *parent)
+MessageBoxDetailsText::MessageBoxDetailsText(QWidget *parent)
     : QWidget(parent)
     , copyAvailable(false)
 {
@@ -170,6 +170,18 @@ QMessageBoxDetailsText::QMessageBoxDetailsText(QWidget *parent)
     setLayout(layout);
     connect(textBrowser, SIGNAL(copyAvailable(bool)),
             this, SLOT(textCopyAvailable(bool)));
+}
+
+bool MessageBoxDetailsText::copy()
+{
+#ifdef QT_NO_CLIPBOARD
+    return false;
+#else
+    if (!copyAvailable)
+        return false;
+    textBrowser->copy();
+    return true;
+#endif // QT_NO_CLIPBOARD
 }
 
 QSize DetailPushButton::sizeHint() const {
