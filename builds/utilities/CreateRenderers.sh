@@ -21,11 +21,15 @@
 #        OBS flag is 'ON' by default if not using DOCKER, be sure to set it false to disable in your build command accordingly
 #        elevated access required for dnf builddeps, execute with sudo if running noninteractive
 
+# =======================================
+# Functions
+# =======================================
+
 # Capture elapsed time - reset BASH time counter
-SECONDS=0
-FinishElapsedTime() {
+function FinishElapsedTime()
+{
   # Elapsed execution time
-  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  local ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
   echo "$ME Finished!"
   echo "$ELAPSED"
@@ -34,8 +38,25 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
+# Args: 1 = <start> (seconds mark)
+function ElapsedTime()
+{
+  if test -z "$1"; then return 0; fi
+  TIME_ELAPSED="$(((SECONDS - $1) % 60))sec"
+  TIME_MINUTES=$((((SECONDS - $1) / 60) % 60))
+  TIME_HOURS=$(((SECONDS - $1) / 3600))
+  if [ "$TIME_MINUTES" -gt 0 ]; then
+    TIME_ELAPSED="${TIME_MINUTES}mins $TIME_ELAPSED"
+  fi
+  if [ "$TIME_HOURS" -gt 0 ]; then
+    TIME_ELAPSED="${TIME_HOURS}hrs $TIME_ELAPSED"
+  fi
+  echo "$TIME_ELAPSED"
+}
+
 # Functions
-Info () {
+function Info()
+{
   if [ "${SOURCED}" = "true" ]
   then
     f="${0##*/}"; f="${f%.*}"
@@ -45,21 +66,23 @@ Info () {
   fi
 }
 
-ExtractArchive() {
-  # args: $1 = <build folder>, $2 = <valid subfolder>
+# Args: $1 = <build folder>, $2 = <valid subfolder>
+function ExtractArchive()
+{
   Info "Extracting $1.tar.gz..."
   mkdir -p $1 && tar -mxzf $1.tar.gz -C $1 --strip-components=1
   if [ -d $1/$2 ]; then
     Info "Archive $1.tar.gz successfully extracted."
     [ "${LP3D_NO_CLEANUP}" != "true" ] && rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz." && Info || :
-    cd $1
+    cd "$1" || :
   else
     Info "ERROR - $1.tar.gz did not extract properly." && Info
   fi
 }
 
-BuildMesaLibs() {
-  mesaUtilsDir="$CallDir/builds/utilities/mesa"
+function BuildMesaLibs()
+{
+  mesaUtilsDir="$CALL_DIR/builds/utilities/mesa"
   if [ "${OBS}" != "true" ]; then
     mesaDepsLog=${LP3D_LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
     mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
@@ -162,16 +185,17 @@ BuildMesaLibs() {
   return $return_code
 }
 
-# args: $1 = <log file>, $2 = <position>
-DisplayLogTail() {
-  [ -n "$LP3D_NO_LOG_TAIL" ] && return 0 || :
+# Args: $1 = <log file>, $2 = <position>
+function DisplayLogTail()
+{
+  [ "$LP3D_NO_LOG_TAIL" = "true" ] && return 0 || :
   if [[ -f "$1" && -s "$1" ]]; then
     logFile="$1"
     if [ "$2" = "" ]; then
-      # default to 5 lines from the bottom of the file if not specified
+      # Default to 5 lines from the bottom of the file if not specified
       startPosition=-5
     elif [[ "${2:0:1}" != "-" || "${2:0:1}" != "+" ]]; then
-      # default to the bottom of the file if not specified
+      # Default to the bottom of the file if not specified
       startPosition=-$2
     else
       startPosition=$2
@@ -184,11 +208,12 @@ DisplayLogTail() {
   fi
 }
 
-# args: $1 = <log file>, $2 = <search String>, $3 = <lines Before>, $4 = <lines After>
-DisplayCheckStatus() {
+# Args: $1 = <log file>, $2 = <search String>, $3 = <lines Before>, $4 = <lines After>
+function DisplayCheckStatus()
+{
   declare -i i; i=0
   for arg in "$@"; do
-    i=i+1
+    i=$((i+1))
     if test $i -eq 1; then s_buildLog="$arg"; fi
     if test $i -eq 2; then s_checkString="$arg"; fi
     if test $i -eq 3; then s_linesBefore="$arg"; fi
@@ -205,32 +230,18 @@ DisplayCheckStatus() {
   fi
 }
 
-# args: 1 = <start> (seconds mark)
-ElapsedTime() {
-  if test -z "$1"; then return 0; fi
-  TIME_ELAPSED="$(((SECONDS - $1) % 60))sec"
-  TIME_MINUTES=$((((SECONDS - $1) / 60) % 60))
-  TIME_HOURS=$(((SECONDS - $1) / 3600))
-  if [ "$TIME_MINUTES" -gt 0 ]; then
-    TIME_ELAPSED="${TIME_MINUTES}mins $TIME_ELAPSED"
-  fi
-  if [ "$TIME_HOURS" -gt 0 ]; then
-    TIME_ELAPSED="${TIME_HOURS}hrs $TIME_ELAPSED"
-  fi
-  echo "$TIME_ELAPSED"
-}
-
-# args: 1 = <pid>, 2 = <message interval>, [3 = <pretty label>]
-TreatLongProcess() {
+# Args: 1 = <pid>, 2 = <message interval>, [3 = <pretty label>]
+function TreatLongProcess()
+{
   declare -i i; i=0
   for arg in "$@"; do
-    i=i+1
+    i=$((i+1))
     if test $i -eq 1; then s_pid="$arg"; fi    # pid
     if test $i -eq 2; then s_msgint="$arg"; fi # message interval
     if test $i -eq 3; then s_plabel="$arg"; fi # pretty label
   done
 
-  # initialize the duration counter
+  # Initialize the duration counter
   s_start=$SECONDS
 
   # Validate the optional pretty label
@@ -258,8 +269,9 @@ TreatLongProcess() {
   return $s_return_code
 }
 
-# args: 1 = <build folder>
-InstallDependencies() {
+# Args: 1 = <build folder>
+function InstallDependencies()
+{
   if [ "$OS_NAME" = "Linux" ]; then
     Msg="Install $1 build dependencies for target platform: [$platform_id]..."
     Info && Info $Msg && Info $Msg >> $depsLog 2>&1
@@ -385,15 +397,17 @@ InstallDependencies() {
   fi
 }
 
-# args: <none>
-ApplyLDViewStdlibHack() {
+# Args: <none>
+function ApplyLDViewStdlibHack()
+{
   Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
   sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
   Info
 }
 
-# args: 1 = <build type (release|debug)>, 2 = <build log>
-BuildLDGLite() {
+# Args: 1 = <build type (release|debug)>, 2 = <build log>
+function BuildLDGLite()
+{
   BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
@@ -412,8 +426,9 @@ BuildLDGLite() {
   if [ "$local_freeglut" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_FREEGLUT_LOCAL"
   fi
+  BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
   ${QMAKE_EXEC} -v && Info
-  ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
+  ${QMAKE_EXEC} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make -j${CPU_CORES}
     make install
@@ -423,8 +438,9 @@ BuildLDGLite() {
   fi
 }
 
-# args: 1 = <build type (release|debug)>, 2 = <build log>
-BuildLDView() {
+# Args: 1 = <build type (release|debug)>, 2 = <build log>
+function BuildLDView()
+{
   # Patch fatal error: stdlib.h: No such file or directory
   # on Docker, Fedora's platform_id is 'fedora', on OBS it is 'redhat'
   case ${platform_id} in
@@ -456,23 +472,25 @@ BuildLDView() {
   if [ "$prebuilt_3ds" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_3RD_PARTY_PREBUILT_3DS"
   fi
-  if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
-  fi
-  if [ "$no_gallium" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
-  fi
   if [ "$build_tinyxml" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_TINYXML"
   fi
   if [ "$build_gl2ps" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
+  if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
+  fi
+  if [ "$no_gallium" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
+  fi
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
+  BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
+  # Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
   ${QMAKE_EXEC} -v && Info
-  ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
+  ${QMAKE_EXEC} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
     make -j${CPU_CORES}
     make install
@@ -483,8 +501,9 @@ BuildLDView() {
   fi
 }
 
-# args: 1 = <build type (release|debug)>, 2 = <build log>
-BuildPOVRay() {
+# Args: 1 = <build type (release|debug)>, 2 = <build log>
+function BuildPOVRay()
+{
   BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --enable-watch-cursor"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
@@ -576,12 +595,32 @@ function package_renderers()
     Info
 }
 
-# **************** Begin Main Script *****************************
+# =======================================
+# Main Script
+# =======================================
+
+# Elapsed time in seconds
+SECONDS=0
+
+# Enable -n (no NEW_LINE termination) flag on Info
+NEW_LINE=1
+
+# Grab the calling dir
+CALL_DIR=$PWD
+
+# Tell curl to be silent, continue downloads and follow redirects
+CURL_OPTS="-sL -C -"
+
+# Populate the OS Name
+OS_NAME=$(uname)
+
+# Get CPU arch - 'uname -m' returns x86_64, armv7l or aarch64
+TARGET_CPU=$(uname -m)
 
 # Grab the script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
-# Start message and set sourced flag
+# Start message and set sourced and new line flags
 if [ "${ME}" = "CreateRenderers.sh" ]; then
   SOURCED="false"
   Info && Info "Start $ME execution at $PWD..."
@@ -592,6 +631,13 @@ fi
 if [[ "${SOURCED}" = "false" && -f "rendererVars.sh" ]]; then
   # Info && cat rendererVars.sh
   source rendererVars.sh && importedRendererVars=1
+fi
+
+# Define build architecture and cached renderer paths
+if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
+  BUILD_ARCH="64bit_release"
+else
+  BUILD_ARCH="32bit_release"
 fi
 
 # Check for required 'WD' variable
@@ -617,25 +663,6 @@ if [ "${WD}" = "" ]; then
   Info "WARNING - 'WD' environment varialbe not specified. Using $WD"
 fi
 
-# Grab the calling dir
-CallDir=$PWD
-
-# Tell curl to be silent, continue downloads and follow redirects
-curlopts="-sL -C -"
-
-# Populate the OS Name
-OS_NAME=$(uname)
-
-# Get CPU arch - 'uname -m' returns x86_64, armv7l or aarch64
-TARGET_CPU=$(uname -m)
-
-# Define build architecture and cached renderer paths
-if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
-  buildArch="64bit_release"
-else
-  buildArch="32bit_release"
-fi
-
 # QMake CPU value for ARM 64bit is arm64
 TARGET_CPU_QMAKE=${TARGET_CPU}
 if [ "${TARGET_CPU}" = "aarch64" ]; then
@@ -648,6 +675,19 @@ if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${CI}" = "" && "${SNAP}" = "" ]]; th
 fi
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
+
+# Expose GitHub Actions variables
+if [[ -n "$CD" || -n "${GITHUB}" ]]; then      
+  Info
+  [ -n "$CI" ] && Info "CI.......................${CI}" || :
+  [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
+  [ -n "$DOCKER" ] && Info "Docker...................${DOCKER}" || :
+  [ -n "$GITHUB" ] && Info "GitHub...................${GITHUB}" || :
+  [ -n "$LP3D_BASE" ] && Info "Build base...............${LP3D_BASE}" || :
+  [ -n "$LP3D_ARCH" ] && Info "Build Architecture.......${LP3D_ARCH}" || :
+  [ -n "$LP3D_APPIMAGE" ] && Info "AppImage.................${LP3D_APPIMAGE}" || :
+fi
+
 [ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
 [ -n "$importedRendererVars" ] && Info "Renderer Build Variables.[rendererVars.sh]" || :
 
@@ -687,7 +727,7 @@ else
       platform_ver="${LP3D_UCS_VER}"
     fi
   fi
-  # change Arch Pretty Name export Arch Extra codes
+  # Change Arch Pretty Name export Arch Extra codes
   if [ "$platform_id" = "arch" ]; then
     platform_pretty=$PLATFORM_PRETTY
     platform_ver=$PLATFORM_VER
@@ -696,7 +736,7 @@ fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
 # Display platform settings
-Info "Build Working Directory..[${CallDir}]"
+Info "Build Working Directory..[${CALL_DIR}]"
 [ -n "${LP3D_UCS_VER}" ] && \
 Info "Platform ID..............[ucs]" || \
 Info "Platform ID..............[${platform_id}]"
@@ -719,10 +759,11 @@ elif [ "${OBS}" = "true" ]; then
   fi
   Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
-  [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
+  [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
+  [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
   [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "OSMesa...................[Build from source]"
-  [ -n "$no_gallium" ] && Info "Gallium driver...........[Not available]" || true
-  [ -n "$get_local_libs" ] && Info "Get local libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
+  [ -n "$no_gallium" ] && Info "Gallium Driver...........[Not available]" || true
+  [ -n "$get_local_libs" ] && Info "Get Local Libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
   [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
   [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
   [ -n "$build_gl2ps" ] && Info "GL2PS....................[Build from source]" || true
@@ -733,8 +774,15 @@ else
 fi
 
 Info "Platform Version.........[$platform_ver]"
-Info "Target CPU...............[${TARGET_CPU}]"
-Info "Dist Working Directory...[$WD]"
+Info "No Lib Dependency Load...[${LP3D_NO_DEPS:-false}]"
+Info "No Display Log Tail......[${LP3D_NO_LOG_TAIL:-true}]"
+Info "No Build Cleanup.........[${LP3D_NO_CLEANUP:-false}]"
+Info "Working Directory (WD)...[$WD]"
+
+# Set log output path
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD} || :
+Info "Log Path.................[${LP3D_LOG_PATH}]"
+
 
 # Distribution directory
 DIST_DIR=${LP3D_3RD_DIST_DIR:-}
@@ -751,31 +799,46 @@ if [ ! -d "${DIST_PKG_DIR}" ]; then
 fi
 export DIST_PKG_DIR="${DIST_PKG_DIR}"
 
-Info "Dist Directory...........[${DIST_PKG_DIR}]"
+Info "Dist Package Directory...[${DIST_PKG_DIR}]"
 
 # Change to Working directory
 # Travis: /home/travis/build/trevorsandy
-cd ${WD}
+cd "${WD}" || :
 
-# set log output path
-[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD} || :
-Info "Log Path.................[${LP3D_LOG_PATH}]"
-
-# expose GitHub Actions variables
-if [[ -n "$CD" || -n "${GITHUB}" ]]; then
-    Info
-    [ -n "$CI" ] && Info "CI.......................${CI}" || :
-    [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
-    [ -n "$DOCKER" ] && Info "DOCKER...................${DOCKER}" || :
-    [ -n "$GITHUB" ] && Info "GITHUB...................${GITHUB}" || :
-    [ -n "$LP3D_CPU_CORES" ] && Info "CPU CORES................${LP3D_CPU_CORES}" || :
-    [ -z "$LP3D_NO_DEPS" ] && Info "LOAD LIB DEPENDENCY......true" || :
-    [ -z "$LP3D_NO_LOG_TAIL" ] && Info "DISPLAY LOG TAIL.........true" || :
-    [ -n "$LP3D_NO_CLEANUP" ] && Info "NO CLEANUP...............${LP3D_NO_CLEANUP}" || :
-    [ -n "$LP3D_BASE" ] && Info "BUILD BASE...............${LP3D_BASE}" || :
-    [ -n "$LP3D_ARCH" ] && Info "BUILD ARCH...............${LP3D_ARCH}" || :
-    [ -n "$LP3D_APPIMAGE" ] && Info "APPIMAGE.................${LP3D_APPIMAGE}" || :
+# QMake ldd and cpu cores configuration
+if [ "$OS_NAME" = "Darwin" ]; then
+  # Qt setup - MacOS
+  QMAKE_EXEC=qmake
+  # set dependency profiler and nubmer of CPUs
+  LDD_EXEC="otool -L"
+  CPU_CORES=$(sysctl -n hw.ncpu)
+else
+  # Qt setup - Linux
+  if [ -f $LP3D_QT5_BIN/qmake ] ; then
+    QMAKE_EXEC=$LP3D_QT5_BIN/qmake
+  else
+    export QT_SELECT=qt5
+    if [ -x /usr/bin/qmake-qt5 ] ; then
+      QMAKE_EXEC=/usr/bin/qmake-qt5
+    else
+      QMAKE_EXEC=qmake
+    fi
+  fi
+  # set dependency profiler and nubmer of CPUs
+  LDD_EXEC=ldd
+  if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
+    CPU_CORES=1
+  else
+    if [ -n "${LP3D_CPU_CORES}" ]; then
+      CPU_CORES=${LP3D_CPU_CORES}
+    else
+      CPU_CORES=$(nproc)
+    fi
+  fi
 fi
+
+Info "Target CPU...............[${TARGET_CPU}]"
+Info "Number Of CPU Cores......[${CPU_CORES}]"
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
 if [ -z "$LDRAWDIR_ROOT" ]; then
@@ -798,7 +861,7 @@ if [ "$OBS" != "true" ]; then
       curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o ${DIST_PKG_DIR}/complete.zip
     else
       ldrawlib=$(echo $PWD/complete.zip)
-      Info "Linking complete.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} complete.zip)
+      Info "Linking complete.zip..." && (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" complete.zip || :)
     fi
   fi
   if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
@@ -808,10 +871,12 @@ if [ "$OBS" != "true" ]; then
       curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip
     else
       ldrawlib=$(echo $PWD/lpub3dldrawunf.zip)
-      Info "Linking lpub3dldrawunf.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} lpub3dldrawunf.zip)
+      Info "Linking lpub3dldrawunf.zip..." && (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" lpub3dldrawunf.zip || :)
     fi
   fi
 fi
+
+# LDraw path
 if [ ! -d "${LDRAWDIR}/parts" ]; then
   if [ "$OBS" != "true" ]; then
     [ ! -f "complete.zip" ] && \
@@ -822,12 +887,13 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
   ( unzip -od ${LDRAWDIR_ROOT} -q complete.zip; ) >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && Info "ERROR - Extract complete.zip failed." && tail -20 $l.out || :
   if [ -d "${LDRAWDIR}/parts" ]; then
-    Info "LDraw library extracted. LDRAWDIR defined."
+    Info "LDraw library extracted. LDRAWDIR defined." && Info
   fi
 elif [ "$OS_NAME" != "Darwin" ]; then
   Info "LDraw Library............[${LDRAWDIR}]"
 fi
-# QMake and additional LDraw configuration
+
+# Additional macOS LDraw configuration
 if [ "$OS_NAME" = "Darwin" ]; then
   Info "LDraw Library............[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."
@@ -862,17 +928,17 @@ else
   fi
 fi
 
-# get Qt version
+# Get Qt version
 Info && ${QMAKE_EXEC} -v && Info
 QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 
-# backup ld_library_path
-LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
+# Backup ld_library_path
+[ -n "${LD_LIBRARY_PATH}" ] && LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH || :
 
-# initialize mesa build flag
+# Initialize mesa build flag
 OSMesaBuildAttempt=0
 
-# processor and linkier flags for building local libs
+# Processor and linkier flags for building local libs
 if [ "$get_local_libs" = 1 ]; then
   export PATH=$LP3D_LL_USR/bin:$PATH && \
   Info "PATH: $PATH"
@@ -883,22 +949,23 @@ if [ "$get_local_libs" = 1 ]; then
   export Q_LDFLAGS="$LP3D_LDFLAGS"
 fi
 
-# renderer versions
+# Renderer versions
 VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.5
 VER_POVRAY=lpub3d_trace_cui-3.8
-# renderer paths
+# Renderer paths
 LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU_QMAKE}/ldglite
 LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${TARGET_CPU_QMAKE}/ldview
 LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui
 
-# install build dependencies for MacOS
+# Install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
+  depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   Msg="Install $OS_NAME renderer build dependencies..."
   Info && Info $Msg && Info $Msg > $depsLog 2>&1
   Info "----------------------------------------------------"
   Info "Platform.................[macos]"
-  Info "Using sudo...............[No]"
+  Info "Using Sudo...............[No]"
   for buildDir in ldview povray; do
      case ${buildDir} in
      ldview)
@@ -913,7 +980,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
      esac
   done
   Info "Checking for X11 (xquartz) at /usr/X11..."
-  if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
+  if [[ -d "/usr/X11/lib" && -d "/usr/X11/include" ]]; then
     Info "Good to go - X11 found."
     depsList="X11"
   else
@@ -927,7 +994,6 @@ if [ "$OS_NAME" = "Darwin" ]; then
     fi
     MACOS_POVRAY_NO_XWINDOW="true"
   fi
-  depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
     [ -n "$depsList" ] && depsList="$depsList $brewDeps" || :
     Info "Dependencies List........[${depsList} boost]"
@@ -951,9 +1017,6 @@ if [ "$OS_NAME" = "Darwin" ]; then
   fi
   # Set povray --without-optimiz flag on macOS High Sierra 10.13
   [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || :
-  # set dependency profiler and nubmer of CPUs
-  LDD_EXEC="otool -L"
-  CPU_CORES=$(sysctl -n hw.ncpu)
 fi
 
 # List 'PLATFORM_*', 'build_*' and 'LP3D_*' environment variables
@@ -966,9 +1029,11 @@ Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line
 Info
 
 # =======================================
-# Main loop
+# Main Loop
 # =======================================
-for buildDir in ldglite ldview povray; do
+
+renderers=(ldglite ldview povray)
+for buildDir in "${renderers[@]}"; do
   buildDirUpper="$(echo ${buildDir} | awk '{print toupper($0)}')"
   artefactVer="VER_${buildDirUpper}"
   artefactBinary="LP3D_${buildDirUpper}"
@@ -981,7 +1046,7 @@ for buildDir in ldglite ldview povray; do
     linesAfter="2"
     buildCommand="BuildLDGLite"
     validSubDir="app"
-    validExe="${validSubDir}/${buildArch}/ldglite"
+    validExe="${validSubDir}/${BUILD_ARCH}/ldglite"
     buildType="release"
     displayLogLines=10
     ;;
@@ -991,7 +1056,7 @@ for buildDir in ldglite ldview povray; do
     linesAfter="6"
     buildCommand="BuildLDView"
     validSubDir="OSMesa"
-    validExe="${validSubDir}/${buildArch}/ldview"
+    validExe="${validSubDir}/${BUILD_ARCH}/ldview"
     buildType="release"
     displayLogLines=100
     ;;
@@ -1039,19 +1104,19 @@ for buildDir in ldglite ldview povray; do
     # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
     Info && Info "Setup ${!artefactVer} source files..."
     Info "----------------------------------------------------"
-    if [ ! -d "${buildDir}/${validSubDir}" ]; then      
+    if [ ! -d "${buildDir}/${validSubDir}" ]; then
       # Check if tarball archive exist...
       Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
       if [ ! -f ${buildDir}.tar.gz ]; then
         Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+        curl $CURL_OPTS ${curlCommand} -o ${buildDir}.tar.gz
       fi
       [ -f ${buildDir}.tar.gz ] && ExtractArchive ${buildDir} ${validSubDir} || Info "ERROR - Failed to download ${buildDir}.tar.gz"
     else
-      cd ${buildDir}
+      cd "${buildDir}" || :
     fi
     # Install build dependencies - even if binary exists...
-    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$LP3D_NO_DEPS" = "true" ]]; then
+    if [[ "$OS_NAME" != "Darwin" && "$OBS" != "true" && "$LP3D_NO_DEPS" != "true" ]]; then
       Info && Info "Install ${!artefactVer} build dependencies..."
       Info "----------------------------------------------------"
       InstallDependencies ${buildDir}
@@ -1086,7 +1151,7 @@ for buildDir in ldglite ldview povray; do
     Msg="Renderer artefact binary for ${!artefactVer} exists - build skipped."
     Info && Info $Msg && Info && Info $Msg >> $buildLog 2>&1
   fi
-  cd ${WD}
+  cd "${WD}" || :
 done
 # Package renderers as a deliverable
 if [[ "${canPackageRenderers}" = "true"  ]]; then
@@ -1096,6 +1161,6 @@ else
   Info "Cannot package renderers."
 fi
 # Restore ld_library_path
-export LD_LIBRARY_PATH=$LP3D_LD_LIBRARY_PATH_SAVED
+[ -n "${LP3D_LD_LIBRARY_PATH_SAVED}" ] && export LD_LIBRARY_PATH=$LP3D_LD_LIBRARY_PATH_SAVED || :
 
 exit 0
