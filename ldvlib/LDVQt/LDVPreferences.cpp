@@ -36,10 +36,10 @@
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDrawModelViewer.h>
 #include <LDVWidgetDefaultKeys.h>
-#ifdef WIN32
+#if defined(WIN32) && !defined(_OSMESA)
 #include <TCFoundation/TCTypedValueArray.h>
 #include <LDVExtensionsSetup.h>
-#endif // WIN32
+#endif // defined(WIN32) && !defined(_OSMESA)
 
 #include "LDVPreferences.h"
 #include "LDVWidget.h"
@@ -224,7 +224,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	connect( highContrastButton, SIGNAL(clicked()), this, SLOT(automateEdgeColor()) );
 
 	loadSettings();
-#ifdef WIN32
+#if defined(WIN32) && !defined(_OSMESA)
 	setupAntialiasing();
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
@@ -236,7 +236,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	fsaaModeLabel->hide();
 	havePixelBufferButton->hide();
 	updatesWindowsproxyButton->hide();
-#endif // WIN32
+#endif // defined(WIN32) && !defined(_OSMESA)
 
 	ldPrefs->applySettings();
 
@@ -2346,7 +2346,7 @@ void LDVPreferences::disableProxyServer(void)
 	portEdit->setEnabled(false);
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_OSMESA)
 
 int LDVPreferences::getFSAAFactor(void)
 {
@@ -2472,8 +2472,7 @@ void LDVPreferences::fsaaModeBoxChanged(const QString &controlString)
 	ldPrefs->setFsaaMode(fsaaMode);
 	enableApply();
 }
-
-#endif // WIN32
+#endif // defined(WIN32) && !defined(_OSMESA)
 
 void LDVPreferences::setupDefaultRotationMatrix(void)
 {
@@ -2724,6 +2723,11 @@ void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString 
 		textField->setText(dir = selectedfile);
 		applyButton->setEnabled(true);
 	}
+}
+
+QString LDVPreferences::getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename)
+{
+	return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str());
 }
 
 void LDVPreferences::enableStudStyleCombo()

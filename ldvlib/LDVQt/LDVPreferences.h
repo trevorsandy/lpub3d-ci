@@ -110,13 +110,16 @@ public:
 	void populateExtraSearchDirs(void);
 	static TCStringArray* extraSearchDirs;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_OSMESA)
 	int getFSAAFactor(void);
 	bool getUseNvMultisampleFilter(void);
 	void setupAntialiasing(void);
-#endif
+#endif // defined(WIN32) && !defined(_OSMESA)
 
 public slots:
+#if defined(WIN32) && !defined(_OSMESA)
+	void fsaaModeBoxChanged(const QString&);
+#endif // defined(WIN32) && !defined(_OSMESA)
 	void doApply(void);
 	void doOk(void);
 	void enableApply(void);
@@ -158,10 +161,6 @@ public slots:
 	void doDrawLightDats();
 	void doSaveDefaultViewAngle();
 	void doLibraryCheckForUpdates();
-
-#ifdef WIN32
-	void fsaaModeBoxChanged(const QString&);
-#endif // WIN32
 	void snapshotSaveDirBoxChanged();
 	void partsListsSaveDirBoxChanged();
 	void exportsListsSaveDirBoxChanged();
