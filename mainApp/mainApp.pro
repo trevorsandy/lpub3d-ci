@@ -82,6 +82,8 @@ win32 {
             QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
         }
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+    } else: msys {
+        QMAKE_LFLAGS += -Wl,--allow-multiple-definition
     }
 } else {
     macx: \
