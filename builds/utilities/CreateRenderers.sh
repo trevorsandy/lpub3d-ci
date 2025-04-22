@@ -444,6 +444,7 @@ function BuildLDGLite()
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_FREEGLUT_LOCAL"
   fi
   BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
+  [ "${MSYS2}" = 1 ] && BUILD_CONFIG="PREFIX=${MINGW_PREFIX} ${BUILD_CONFIG} CONFIG+=msys" || :
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
@@ -505,6 +506,11 @@ function BuildLDView()
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
   BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
+  if [ "${MSYS2}" = 1 ]; then
+    [ "${LP3D_LDVIEW_CUI_OPT}" = "Qt" ] && BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_QT" || \
+    [ "${LP3D_LDVIEW_CUI_OPT}" = "WGL" ] && BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_WINDIB" || :
+    BUILD_CONFIG="PREFIX=${MINGW_PREFIX} ${BUILD_CONFIG} CONFIG+=msys"
+  fi
   # Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} ${BUILD_CONFIG}
@@ -579,8 +585,8 @@ function BuildPOVRay()
 # Package the renderers
 function PackageRenderers()
 {
-  if [[ "${OBS}" = "true" || -n "${SNAP}" ]]; then
-    Info "Cannot create renderer package under OBS or SNAP builds"
+  if [[ "${OBS}" = "true" || -n "${SNAP}" || -n "${MSYS2}" ]]; then
+    Info "Cannot create renderer package under OBS, SNAP or MSYS builds"
     return
   fi
   if [ -d "/out" ]; then
@@ -706,14 +712,14 @@ if [ "${TARGET_CPU}" = "aarch64" ]; then
 fi
 
 # Initialize OBS if not in command line input - FlatPak does not call this script
-if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${CI}" = "" && "${SNAP}" = "" ]]; then
+if [[ -z "${OBS}" && -z "${DOCKER}" && -z "${CI}" && -z "${SNAP}" && -z "${MSYS2}" ]]; then
   OBS=true
 fi
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
 
 # Expose GitHub Actions variables
-if [[ -n "$CD" || -n "${GITHUB}" ]]; then      
+if [[ -n "$CD" || -n "${GITHUB}" ]]; then
   Info
   [ -n "$CI" ] && Info "CI.......................${CI}" || :
   [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
@@ -734,8 +740,21 @@ if [ "$OS_NAME" = "Darwin" ]; then
   platform_ver=$(echo `sw_vers -productVersion`)
 else
   platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
-  platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
-  platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
+  [[ "${platform_id}" == "msys2" && -z "${MSYS2}" ]] && MSYS2=1 || :
+  if [[ -n "${MSYS2}" && -n "${PLATFORM_PRETTY}" ]]; then
+    platform_pretty=${PLATFORM_PRETTY}
+  else
+    platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
+  fi
+  if [ -n "${MSYS2}" ]; then
+    if [ -n "${PLATFORM_VER}" ]; then
+      platform_ver=${PLATFORM_VER}
+    else
+      platform_ver=$(echo `uname -a` | awk '{print $3}')
+    fi
+  else
+    platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo `uname -a`)
+  fi
   if [ "${OBS}" = "true" ]; then
     if [ "$RPM_BUILD" = "true" ]; then
       Info "OBS Build Family.........[RPM_BUILD]"
@@ -820,7 +839,7 @@ Info "Working Directory (WD)...[$WD]"
 Info "Log Path.................[${LP3D_LOG_PATH}]"
 
 # Check GitHub commit for version tag to trigger create package renderers
-if [[ -n "${GITHUB}" && "$GITHUB_REF" == "refs/tags/"* ]] ; then 
+if [[ -n "${GITHUB}" && "$GITHUB_REF" == "refs/tags/"* ]] ; then
   if [ "$(echo "$GITHUB_REF_NAME" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')" = "yes" ]; then
     [ -z "${LP3D_PACKAGE_RENDERERS}" ] && LP3D_PACKAGE_RENDERERS=${LP3D_PACKAGE_RENDERERS:-true} || :
     [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-true} || :
@@ -830,7 +849,7 @@ else
 fi
 Info "Package Renderers........[${LP3D_PACKAGE_RENDERERS}]"
 
-# Include LDView libraries in packaged renderers 
+# Include LDView libraries in packaged renderers
 if [ "${LP3D_PACKAGE_RENDERERS}" == "true" ]; then
   [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-false} || :
   Info "Package LDVQt Dev Assets.[${LP3D_PACKAGE_LDVQT_DEV}]"
@@ -841,6 +860,8 @@ DIST_DIR=${LP3D_3RD_DIST_DIR:-}
 if [ -z "$DIST_DIR" ]; then
   if [ "$OS_NAME" = "Darwin" ]; then
     DIST_DIR=lpub3d_macos_3rdparty
+  elif [ -n "${MSYS2}" ]; then
+    DIST_DIR=lpub3d_msys_3rdparty
   else
     DIST_DIR=lpub3d_linux_3rdparty
   fi
@@ -865,18 +886,27 @@ if [ "$OS_NAME" = "Darwin" ]; then
   LDD_EXEC="otool -L"
   CPU_CORES=$(sysctl -n hw.ncpu)
 else
-  # Qt setup - Linux
-  if [ -f $LP3D_QT5_BIN/qmake ] ; then
-    QMAKE_EXEC=$LP3D_QT5_BIN/qmake
-  else
-    export QT_SELECT=qt5
-    if [ -x /usr/bin/qmake-qt5 ] ; then
-      QMAKE_EXEC=/usr/bin/qmake-qt5
+  if [ -n "${MSYS2}" ]; then
+    # Qt setup - MinGW
+    if [ -f "${LP3D_QT5_BIN}/qmake.exe" ] ; then
+      QMAKE_EXEC=${LP3D_QT5_BIN}/qmake.exe
     else
-      QMAKE_EXEC=qmake
+      QMAKE_EXEC=${MINGW_PREFIX}/bin/qmake.exe
+    fi
+  else
+    # Qt setup - Linux
+    if [ -f "${LP3D_QT5_BIN}/qmake" ] ; then
+      QMAKE_EXEC=$LP3D_QT5_BIN/qmake
+    else
+      export QT_SELECT=qt5
+      if [ -x "/usr/bin/qmake-qt5" ] ; then
+        QMAKE_EXEC=/usr/bin/qmake-qt5
+      else
+        QMAKE_EXEC=qmake
+      fi
     fi
   fi
-  # set dependency profiler and nubmer of CPUs
+  # Set nubmer of CPU cores
   LDD_EXEC=ldd
   if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
     CPU_CORES=1
@@ -888,6 +918,16 @@ else
     fi
   fi
 fi
+
+case ${LP3D_LDVIEW_CUI_OPT} in
+ldviewqt)
+  LP3D_LDVIEW_CUI_OPT=Qt ;;
+ldviewosmesa)
+  LP3D_LDVIEW_CUI_OPT=OSMesa ;;
+ldviewwgl)
+  LP3D_LDVIEW_CUI_OPT=WGL ;;
+esac
+Info "LDView CUI Graphics......[${LP3D_LDVIEW_CUI_OPT}]"
 
 Info "Target CPU...............[${TARGET_CPU}]"
 Info "Number Of CPU Cores......[${CPU_CORES}]"
@@ -962,15 +1002,25 @@ if [ "$OS_NAME" = "Darwin" ]; then
   # Qt setup - MacOS
   QMAKE_EXEC=qmake
 else
-  # Qt setup - Linux
-  if [ -f $LP3D_QT5_BIN/qmake ] ; then
-    QMAKE_EXEC=$LP3D_QT5_BIN/qmake
-  else
-    export QT_SELECT=qt5
-    if [ -x /usr/bin/qmake-qt5 ] ; then
-      QMAKE_EXEC=/usr/bin/qmake-qt5
+
+  if [ -n "${MSYS2}" ]; then
+    # Qt setup - MinGW
+    if [ -f "${LP3D_QT5_BIN}/qmake.exe" ] ; then
+      QMAKE_EXEC=${LP3D_QT5_BIN}/qmake.exe
     else
-      QMAKE_EXEC=qmake
+      QMAKE_EXEC=${MINGW_PREFIX}/bin/qmake.exe
+    fi
+  else
+    # Qt setup - Linux
+    if [ -f "${LP3D_QT5_BIN}/qmake" ] ; then
+      QMAKE_EXEC=$LP3D_QT5_BIN/qmake
+    else
+      export QT_SELECT=qt5
+      if [ -x "/usr/bin/qmake-qt5" ] ; then
+        QMAKE_EXEC=/usr/bin/qmake-qt5
+      else
+        QMAKE_EXEC=qmake
+      fi
     fi
   fi
   # set dependency profiler and nubmer of CPUs
@@ -1012,9 +1062,10 @@ VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.6
 VER_POVRAY=lpub3d_trace_cui-3.8
 # Renderer paths
-LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU_QMAKE}/ldglite
-LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${TARGET_CPU_QMAKE}/ldview
-LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui
+[ -n "${MSYS2}" ] && Extn=".exe" || :
+LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU_QMAKE}/ldglite${Extn}
+LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${TARGET_CPU_QMAKE}/ldview${Extn}
+LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui${Extn}
 
 # Install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -1042,7 +1093,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
     Info "X11 found."
     depsList="X11"
   else
-    Msg="X11 not found." 
+    Msg="X11 not found."
     Info $Msg && Info $Msg > $depsLog 2>&1
     Msg "LPub3D_Trace(POVRay) will not build the XWindow display."
     Info $Msg && Info $Msg > $depsLog 2>&1
@@ -1106,7 +1157,7 @@ for buildDir in "${renderers[@]}"; do
     linesAfter="2"
     buildCommand="BuildLDGLite"
     validSubDir="app"
-    validExe="${validSubDir}/${BUILD_ARCH}/ldglite"
+    validExe="${validSubDir}/${BUILD_ARCH}/ldglite${Extn}"
     buildType="release"
     displayLogLines=10
     ;;
@@ -1116,7 +1167,9 @@ for buildDir in "${renderers[@]}"; do
     linesAfter="6"
     buildCommand="BuildLDView"
     validSubDir="OSMesa"
-    validExe="${validSubDir}/${BUILD_ARCH}/ldview"
+    [[ -n "${MSYS2}" && "${LP3D_LDVIEW_CUI_OPT}" == "WGL" ]] && \
+    validExe="${BUILD_ARCH}/ldview${Extn}" || \
+    validExe="${validSubDir}/${BUILD_ARCH}/ldview${Extn}"
     buildType="release"
     displayLogLines=100
     ;;
@@ -1126,7 +1179,7 @@ for buildDir in "${renderers[@]}"; do
     linesAfter="42"
     buildCommand="BuildPOVRay"
     validSubDir="unix"
-    validExe="${validSubDir}/lpub3d_trace_cui"
+    validExe="${validSubDir}/lpub3d_trace_cui${Extn}"
     buildType="release"
     displayLogLines=10
     ;;
@@ -1161,6 +1214,11 @@ for buildDir in "${renderers[@]}"; do
       OBS_RPM1315_BUILD_OPTS=1
     fi
   else
+    # POVRay build on MSYS2 (MSVCRT) is currently KO so skip for now.
+    if [[ -n "${MSYS2}" && "${buildDir}" = "povray" ]]; then
+      Info && Info "$platform_pretty detected. LPub3D_Trace(${buildDir}) will not be built."
+      continue
+    fi
     # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
     Info && Info "Setup ${!artefactVer} source files..."
     Info "----------------------------------------------------"
