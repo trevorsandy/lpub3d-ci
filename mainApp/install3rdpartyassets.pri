@@ -3,7 +3,7 @@ install3rdassets {
     win32-msvc*: THIRD_PARTY_DEST = $$LPUB3D_INS_CONTENT_PATH
     else:macx:   THIRD_PARTY_DEST = $$DESTDIR/$${TARGET}.app/Contents/3rdParty
     message("~~~ $${LPUB3D} 3RD_INSTALL FROM REPO: $$THIRD_PARTY_SRC ~~~")
-    unix:!macx {
+    if (unix|msys):!macx {
         THIRD_PARTY_DEST = $$RESOURCE_DIR/3rdParty
         message("~~~ $${LPUB3D} 3RD_INSTALL TO EXE DEST: $$THIRD_PARTY_EXEC_DIR/3rdParty ~~~")
     }
@@ -61,7 +61,7 @@ install3rdconfig {
     message("~~~ $${LPUB3D} 3RD PARTY RENDERER EXECUTABLE CONFIG FILES WILL BE INSTALLED ~~~")
 
     raytracer_install {
-        win32: \
+        win32-msvc*: \
         raytracer_ins_resources_config.files += \
             $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini \
             $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.conf
