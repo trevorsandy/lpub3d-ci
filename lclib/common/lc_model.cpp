@@ -1522,7 +1522,7 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	if (Scene->GetDrawInterface() && !Scene->GetActiveSubmodelInstance())
 	{
 		if (FocusPiece)
-			UpdateTrainTrackConnections(FocusPiece);
+			UpdateTrainTrackConnections(FocusPiece, false);
 
 		for (const std::unique_ptr<lcCamera>& Camera : mCameras)
 			if (Camera.get() != ViewCamera && Camera->IsVisible())
@@ -1541,7 +1541,7 @@ void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMat
 		if (Piece->IsVisibleInSubModel())
 		{
 			if (Piece->IsFocused())
-				UpdateTrainTrackConnections(Piece.get());
+				UpdateTrainTrackConnections(Piece.get(), false);
 
 			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive);
 		}
@@ -2747,7 +2747,7 @@ void lcModel::RotateFocusedTrainTrack(int Direction)
 	SaveCheckpoint(tr("Rotating"));
 }
 
-void lcModel::UpdateTrainTrackConnections(lcPiece* TrackPiece) const
+void lcModel::UpdateTrainTrackConnections(lcPiece* TrackPiece, bool IgnoreSelected) const
 {
 	if (!TrackPiece)
 		return;
@@ -2762,7 +2762,7 @@ void lcModel::UpdateTrainTrackConnections(lcPiece* TrackPiece) const
 
 	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
 	{
-		if (Piece.get() == TrackPiece || !Piece->mPieceInfo->GetTrainTrackInfo())
+		if (Piece.get() == TrackPiece || !Piece->mPieceInfo->GetTrainTrackInfo() || (IgnoreSelected && Piece->IsSelected()))
 			continue;
 
 		for (int ConnectionIndex = 0; ConnectionIndex < ConnectionCount; ConnectionIndex++)
@@ -5015,7 +5015,7 @@ void lcModel::InsertPieceToolClicked(const std::vector<lcPieceInfoTransform>& Pi
 	gMainWindow->UpdateTimeline(false, false);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION, false);
 
-	UpdateTrainTrackConnections(Piece);
+	UpdateTrainTrackConnections(Piece, false);
 
 	SaveCheckpoint(tr("Insert"));
 }
