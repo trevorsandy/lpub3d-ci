@@ -86,7 +86,7 @@ win32 {
 
 }
 
-unix: !macx: $$lower($$TARGET)
+if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 #~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -99,7 +99,8 @@ isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
 THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+    else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
+    else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../$$DIST_DIR )
     !exists($$THIRD_PARTY_DIST_DIR_PATH) {
@@ -112,7 +113,7 @@ VER_LDVIEW  = ldview-4.6
 # Reference LDView headers
 VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
 CONFIG(debug, debug|release) {
-    unix:             VER_LDVIEW_DEV = ldview           # change this as necessary
+    unix|msys:        VER_LDVIEW_DEV = ldview           # change this as necessary
     else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
     VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
     exists($$VER_LDVIEW_DEV_REPOSITORY): \
@@ -137,7 +138,7 @@ DEFINES += LC_DISABLE_UPDATE_CHECK=1
 equals(QT_MAJOR_VERSION, 5) {
     win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
-    } else:unix {
+    } else:unix|msys {
         greaterThan(QT_MINOR_VERSION, 11) {
             CONFIG += c++17
         } else {
@@ -153,7 +154,7 @@ contains(QT_VERSION, ^6\\..*) {
     macx {
         QMAKE_CXXFLAGS+= -std=c++17
     }
-    unix:!macx {
+    if (unix|msys):!macx {
         GCC_VERSION = $$system(g++ -dumpversion)
         greaterThan(GCC_VERSION, 5) {
             QMAKE_CXXFLAGS += -std=c++17

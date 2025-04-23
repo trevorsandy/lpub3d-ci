@@ -60,7 +60,7 @@ macx {
     LIBS += -framework CoreFoundation
 }
 
-unix: !macx: TARGET = $$lower($$TARGET)
+if(unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib: BUILD = Static

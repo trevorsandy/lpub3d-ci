@@ -90,9 +90,10 @@ win32 {
     LIBS += -framework CoreFoundation -framework CoreServices
 }
 
-unix:!macx: TARGET = lpub3d
-STG_TARGET         = $${TARGET}
-DIST_TARGET        = $${TARGET}
+if (unix|msys):!macx: \
+TARGET      = $$lower($$TARGET)
+STG_TARGET  = $${TARGET}
+DIST_TARGET = $${TARGET}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -160,6 +161,9 @@ win32-msvc*: \
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+msys: \
+SYSTEM_PREFIX_ = $${PREFIX}
+else: \
 SYSTEM_PREFIX_ = $${PREFIX}/usr/local
 macx {
     contains(QT_ARCH,arm64): \
@@ -192,6 +196,7 @@ exists($$THIRD_PARTY_DIST_DIR_PATH): \
 3RD_DIR_SOURCE = LOCAL_3RD_DIST_DIR
 else {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR )
@@ -205,24 +210,25 @@ else {
 }
 
 #~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 VER_USE_LDVIEW_DEV = False
 CONFIG(debug, debug|release) {
     # These lines requires a git extract of ldview at the same location as the lpub3d git extract
     # and defines the ldview git extract folder name, you can set as you like
-    unix: VER_LDVIEW_DEV = ldview
-    else:win32: VER_LDVIEW_DEV = ldview_vs_build
+    mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
+    else:unix|msys:      VER_LDVIEW_DEV = ldview
+    else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
     # This line defines the path of the ldview git extract relative to this project file
     VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
     exists($$VER_LDVIEW_DEV_REPOSITORY) {
         VER_USE_LDVIEW_DEV = True
         message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-    } else {
+    } else:!msys {
         message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
 }
 # Load LDView libraries for LDVQt
-LOAD_LDV_LIBS = True
+LOAD_LDV_LIBS    = True
+LDV_MESSAGES_INI = ldvMessages.ini
 !freebsd: \
 DEFINES += EXPORT_3DS
 
@@ -248,7 +254,7 @@ greaterThan(QT_MAJOR_VERSION, 4): \
 greaterThan(QT_MINOR_VERSION, 3) {
     win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
-    } else:unix {
+    } else:unix|msys {
         greaterThan(QT_MINOR_VERSION, 11) {
             CONFIG += c++17
         } else {
@@ -276,6 +282,14 @@ static {                                     # everything below takes effect wit
 # NOTE: Reminder to update MacOS library links on QuaZip and LDrawIni major version change
 #       - Files inpacted: build_checks.sh, CreateDmg.sh and macosfiledistro.pri
 
+# LDVQT Qt/OSMesa/WGL library identifiers
+ldviewqt: \
+POSTFIX  = -qt$${QT_MAJOR_VERSION}
+else:msys:ldviewwgl: \
+POSTFIX  = -wgl
+else:!win32-msvc*: \
+POSTFIX  = -osmesa
+
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
     ARCH_BLD = bit_debug
@@ -288,6 +302,14 @@ CONFIG(debug, debug|release) {
         LDVQT_LIB = LDVQtd46
         WPNGIMAGE_LIB = WPngImaged14
         WAITING_SPINNER_LIB = WaitingSpinnerd10
+        msys {
+            LDRAWINI_LIB = $$lower($$LDRAWINI_LIB)
+            QUAZIP_LIB = $$lower(lib$$QUAZIP_LIB)
+            LC_LIB = $$lower($$LC_LIB)
+            LDVQT_LIB = $$lower($$LDVQT_LIB)
+            WPNGIMAGE_LIB = $$lower($$WPNGIMAGE_LIB)
+            WAITING_SPINNER_LIB = $$lower($$WAITING_SPINNER_LIB)
+        }
     }
 
     macx {
@@ -313,6 +335,8 @@ CONFIG(debug, debug|release) {
         message("~~~ $${LPUB3D} INFO - RUNTIME PATHS USING BUILD FOLDERS ~~~")
     }
 
+    LDVQT_LIB = $${LDVQT_LIB}$${POSTFIX}
+
     # executable target name
     macx:       TARGET = $$join(TARGET,,,_debug)
     win32:      TARGET = $$join(TARGET,,,d)
@@ -333,6 +357,15 @@ CONFIG(debug, debug|release) {
         LDVQT_LIB = LDVQt46
         WPNGIMAGE_LIB = WPngImage14
         WAITING_SPINNER_LIB = WaitingSpinner10
+        msys {
+            LDRAWINI_LIB = $$lower($$LDRAWINI_LIB)
+            # Always use local QuaZip for added minizip unzOpen calls
+            QUAZIP_LIB = $$lower(lib$$QUAZIP_LIB)
+            LC_LIB = $$lower($$LC_LIB)
+            LDVQT_LIB = $$lower($$LDVQT_LIB)
+            WPNGIMAGE_LIB = $$lower($$WPNGIMAGE_LIB)
+            WAITING_SPINNER_LIB = $$lower($$WAITING_SPINNER_LIB)
+        }
     }
 
     macx {
@@ -352,6 +385,8 @@ CONFIG(debug, debug|release) {
         WPNGIMAGE_LIB = wpngimage
         WAITING_SPINNER_LIB = waitingspinner
     }
+
+    LDVQT_LIB = $${LDVQT_LIB}$${POSTFIX}
 
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
@@ -387,7 +422,7 @@ message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_
 # project additional arguments. When building from a script call, you can set
 # CONFIG+=<option> as a qmake argument. Example CONFIG additions:
 # CONFIG-=release CONFIG-=debug_and_release CONFIG+=stagerenderers CONFIG+=exe
-config_options = exe dmg deb rpm pkg api snp flp con
+config_options = exe dmg deb rpm pkg api snp flp con msys
 for(config_option, config_options) {
     contains(CONFIG, $$config_option): \
     option = $$config_option
@@ -405,6 +440,11 @@ if(!isEmpty(option)) {
     } else:contains(option, con) {
         DEFINES += LP3D_CONDA
         DISTRO_PACKAGE = Conda
+    } else:contains(option, msys) {
+        DISTRO_PACKAGE = $$(MSYSTEM)
+        DEFINES += LP3D_MSYS2
+        isEmpty(INSTALL_PREFIX): INSTALL_PREFIX = $$PREFIX
+        message("~~~ $${LPUB3D} MSYS2 INSTALL_PREFIX $${INSTALL_PREFIX} ~~~")
     } else {
         contains(option, exe): DISTRO_PACKAGE = Windows
         contains(option, dmg): DISTRO_PACKAGE = macOS
@@ -418,7 +458,7 @@ if(!isEmpty(option)) {
 
     message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ($$option) ~~~")
 
-    if (unix|install3rd) {
+    if (unix|msys|install3rd) {
         CONFIG += install3rdexe
         CONFIG += install3rdassets
         CONFIG += install3rdconfig
@@ -463,6 +503,9 @@ equals(VER_USE_LDVIEW_DEV,True) {
 # Needed to access ui header from LDVQt
 INCLUDEPATH += $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui )
 
+# System headers
+INCLUDEPATH += $${SYSTEM_PREFIX_}/include
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
@@ -500,8 +543,21 @@ LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR) -l$$WPNGIMAGE
 
 include(../ldvlib/LDVQt/LDVQtLibs.pri)
 
+msys {
+    ldviewosmesa: \
+    OPENGL_LIBS   = $${SYSTEM_PREFIX_}/lib/osmesa.dll.a \
+                    $${SYSTEM_PREFIX_}/lib/opengl32.dll.a \
+                    -L$${SYSTEM_PREFIX_}/lib -lglu32
+    else: \
+    OPENGL_LIBS   = -L$${SYSTEM_PREFIX_}/lib -lOpenGL32 $$QMAKE_LIBS_OPENGL
+    MSYS_LIBS_MS  = -lucrt -lwinmm -lcomdlg32 -lole32 -lbz2
+    MSYS_LIBS_GUI = $$QMAKE_LIBS_GUI
+} else:win32-msvc* {
+    OPENGL_LIBS   = -lopengl32 -lglu32
+}
 win32: \
-LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
+LIBS += -lshlwapi -ladvapi32 $$MSYS_LIBS_MS -lshell32 -lwininet -luser32 \
+        -lgdi32 $$QMAKE_LIBS_NETWORK $$OPENGL_LIBS $$MSYS_LIBS_GUI
 else:!macx: \
 LIBS += -lGL -lGLU
 !win32-msvc*: \

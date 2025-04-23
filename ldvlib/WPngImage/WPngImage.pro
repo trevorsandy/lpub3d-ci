@@ -64,7 +64,7 @@ win32 {
 
 }
 
-unix: !macx: TARGET = $$lower($$TARGET)
+if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib {

@@ -35,6 +35,9 @@ INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
 
+msys: \
+SYSTEM_PREFIX_ = $${PREFIX}
+else: \
 SYSTEM_PREFIX_ = $${PREFIX}/usr/local
 macx {
     contains(QT_ARCH,arm64): \
@@ -117,13 +120,24 @@ win32 {
     }
 }
 
-unix: !macx: TARGET = $$lower($$TARGET)
+if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib {
     BUILD    = Static
 } else {
     BUILD    = Shared
+}
+
+# LDVQT Qt/OSMesa/WGL library identifiers
+ldviewqt {
+    DEFINES += _QT
+    POSTFIX  = -qt$${QT_MAJOR_VERSION}
+} else:msys:ldviewwgl {
+    POSTFIX  = -wgl
+} else:!win32-msvc* {
+    DEFINES += _OSMESA
+    POSTFIX  = -osmesa
 }
 
 CONFIG(debug, debug|release) {
@@ -135,10 +149,10 @@ CONFIG(debug, debug|release) {
     unix:!macx: TARGET = $$join(TARGET,,,d)
     # The remaining lines in this block adds the LDView header and source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    VER_USE_LDVIEW_DEV = True
     # These lines defines the ldview git extract folder name, you can set as you like
-    unix: VER_LDVIEW_DEV = ldview
-    else:win32: VER_LDVIEW_DEV = ldview_vs_build
+    mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
+    else:unix|msys:      VER_LDVIEW_DEV = ldview
+    else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
     # This line defines the path of the ldview git extract relative to this project file
     VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
     exists($$VER_LDVIEW_DEV_REPOSITORY) {
@@ -147,6 +161,7 @@ CONFIG(debug, debug|release) {
         INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
     } else {
         VER_USE_LDVIEW_DEV = False
+        !msys: \
         message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
 } else {
@@ -154,6 +169,8 @@ CONFIG(debug, debug|release) {
     ARCH_BLD = bit_release
     win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
 }
+
+TARGET = $${TARGET}$${POSTFIX}
 BUILD += $$BUILD_CONF Build
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
@@ -176,14 +193,13 @@ contains(UNIX_ARM_BUILD_ARCH,True): contains(BUILD_TARGET,suse): contains(HOST_V
     message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 }
 
-PRECOMPILED_DIR = $$DESTDIR/.pch
-OBJECTS_DIR     = $$DESTDIR/.obj
-MOC_DIR         = $$DESTDIR/.moc
-RCC_DIR         = $$DESTDIR/.qrc
-UI_DIR          = $$DESTDIR/.ui
+OBJECTS_DIR     = $$DESTDIR/.obj$${POSTFIX}
+MOC_DIR         = $$DESTDIR/.moc$${POSTFIX}
+RCC_DIR         = $$DESTDIR/.qrc$${POSTFIX}
+UI_DIR          = $$DESTDIR/.ui$${POSTFIX}
 
 # USE GNU_SOURCE
-unix:!macx: DEFINES += _GNU_SOURCE
+unix|msys: DEFINES += _GNU_SOURCE
 
 # stdlib.h fix placeholder - do not remove
 
@@ -195,7 +211,7 @@ contains(USE_CPP11,NO) {
 }
 
 contains(QT_VERSION, ^5\\..*) {
-  unix:!macx {  
+  if (unix|msys):!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.8) {
       QMAKE_CXXFLAGS += -std=c++11
@@ -214,7 +230,7 @@ contains(QT_VERSION, ^6\\..*) {
   macx {
     QMAKE_CXXFLAGS+= -std=c++17
   }
-  unix:!macx {
+  if (unix|msys):!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 5) {
       QMAKE_CXXFLAGS += -std=c++17
@@ -235,11 +251,9 @@ SOURCES += \
     $$PWD/LDVMisc.cpp \
     $$PWD/LDVPreferences.cpp \
     $$PWD/LDVWidget.cpp
-
-win32-msvc* {
+win32:!contains(DEFINES, _OSMESA): \
 SOURCES += \
     $$PWD/LDVExtensionsSetup.cpp
-}
 
 HEADERS += \
     $$PWD/LDVWidgetDefaultKeys.h \
@@ -251,11 +265,9 @@ HEADERS += \
     $$PWD/LDVMisc.h \
     $$PWD/LDVPreferences.h \
     $$PWD/LDVWidget.h
-
-win32-msvc* {
+win32:!contains(DEFINES, _OSMESA): \
 HEADERS += \
     $$PWD/LDVExtensionsSetup.h
-}
 
 FORMS += \
     $$PWD/LDVExportOptionPanel.ui \

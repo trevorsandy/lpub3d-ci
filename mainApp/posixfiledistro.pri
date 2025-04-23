@@ -18,7 +18,7 @@ binarybuild {
 
 # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
 !isEmpty(option): BUILD_CODE = $$option
-if (api|snp|flp):equals(PWD, $${OUT_PWD}) {
+if (api|snp|flp|msys):equals(PWD, $${OUT_PWD}) {
     THIRD_PARTY_EXEC_DIR = $$(LP3D_3RD_EXE_DIR)
     _PLATFORM_CODE = ap
     mingw:ide_qtcreator {
@@ -198,8 +198,8 @@ ldglite_ini.path = $$RESOURCE_DIR
 
 nativexport_ini.files += $$_PRO_FILE_PWD_/extras/ldvExport.ini
 nativexport_ini.path = $$RESOURCE_DIR
-
-ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
+ 
+ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
 ldv_messages_ini.path = $$RESOURCE_DIR
 
 INSTALLS += \
@@ -242,6 +242,9 @@ api {
     if (snp|flp) {
         INSTALLS += appstream_appdata
     }
+    if (msys) {
+        EXE = .exe
+    }
 }
 
 # The package distribution settings below requires a specific dev env configuration.
@@ -265,9 +268,9 @@ api {
 isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$THIRD_PARTY_DIST_DIR_PATH
 
 # source executables - 3rd party components
-isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE           = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$BUILD_ARCH/ldglite
-isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE             = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$BUILD_ARCH/ldview
-isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE         = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$BUILD_ARCH_POVRAY/lpub3d_trace_cui
+isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE           = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$BUILD_ARCH/ldglite$$EXE
+isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE             = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$BUILD_ARCH/ldview$$EXE
+isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE         = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$BUILD_ARCH_POVRAY/lpub3d_trace_cui$$EXE
 
 # source directories - 3rd party components
 isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC           = $$THIRD_PARTY_SRC/$$VER_LDGLITE/docs
