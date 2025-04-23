@@ -1,3 +1,10 @@
+msys {
+    ldviewqt: \
+    DEFINES += _QT
+    else: \
+    DEFINES += _OSMESA
+}
+
 win32-msvc* {
     BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
     isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
@@ -24,6 +31,7 @@ contains(LOAD_LDV_HEADERS,True) {
     THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../../builds/3rdparty )
     !exists($$THIRD_PARTY_DIST_DIR_PATH) {
         unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+        else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
         else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
         else:win32: DIST_DIR      = lpub3d_windows_3rdparty
         THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../../$$DIST_DIR )
@@ -177,7 +185,14 @@ contains(LOAD_LDV_LIBS,True) {
         JPEG_SRC         = $${LDV3RDLIBDIR}/libjpeg-$${VSVER}.lib
         ZLIB_SRC         = $${LDV3RDLIBDIR}/zlib-$${VSVER}.lib
     } else {
+        # Qt/OSMesa library identifiers
+        msys:ldviewqt: \
+        POSTFIX          = -qt$${QT_MAJOR_VERSION}
+        else:msys:ldviewwgl: \
+        POSTFIX          = -wgl
+        else: \
         POSTFIX          = -osmesa
+
         # library name
         LDLIB_LIB        = -lLDLib$${POSTFIX}
         LDEXPORTER_LIB   = -lLDExporter$${POSTFIX}
@@ -188,6 +203,9 @@ contains(LOAD_LDV_LIBS,True) {
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml
         3DS_LIB          = -l3ds
+        msys: \
+        PNG_LIB          = -lpng
+        else: \
         PNG_LIB          = -lpng16
         JPEG_LIB         = -ljpeg
 
@@ -293,35 +311,35 @@ contains(LOAD_LDV_LIBS,True) {
 
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    #LDVMESSAGESINI defined in mainApp.pro
     if (mingw:ide_qtcreator)|win32-msvc* {
-        COPY_CMD        = COPY /V /Y
+        LDV_COPY_CMD    = COPY /V /Y
         LDV_CONCAT_CMD  = TYPE
     } else {
-        COPY_CMD        = cp -f
+        LDV_COPY_CMD    = cp -f
         LDV_CONCAT_CMD  = cat
     }
+    LDV_MESSAGES_INI    = ldvMessages.ini
     LDV_RESOURCE_DIR    = $$shell_path( $$absolute_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources ) )
     LDV_MESSAGES        = $$shell_path( $$absolute_path( $${LDV_RESOURCE_DIR}/LDViewMessages.ini ) )
     LDV_EXPORT_MESSAGES = $$shell_path( $$absolute_path( $${LDV_RESOURCE_DIR}/LDExportMessages.ini ) )
     LDV_WIDGET_MESSAGES = $$shell_path( $$absolute_path( $$PWD/LDVWidgetMessages.ini ) )
-    LDV_CONCAT_MESSAGES = $$shell_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
+    LDV_CONCAT_MESSAGES = $$shell_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI ) )
     #message("~~~ DEBUG_$$upper($${TARGET}) LDV_CONCAT_MESSAGES: $$LDV_CONCAT_MESSAGES ~~~ ")
     #message("~~~ DEBUG_$$upper($${TARGET}) LDV_RESOURCE_DIR: $$LDV_RESOURCE_DIR ~~~ ")
     LDV_CONCAT_MESSAGES_CMD = \
     $$LDV_CONCAT_CMD $$LDV_MESSAGES $$LDV_EXPORT_MESSAGES $$LDV_WIDGET_MESSAGES > $$LDV_CONCAT_MESSAGES
     # When compiling from QtCreator, add ldvMessages.ini to destination directory extras folder - except for macOS
     contains(DEVL_LDV_MESSAGES_INI,True) {
-        LDV_MESSAGES_DEVL = $$shell_path( $${OUT_PWD}/$${DESTDIR}/extras/$$LDVMESSAGESINI )
-        message("~~~ $${LPUB3D} COPY LDVMESSAGES.INI TO: ./$${DESTDIR}/extras/$$LDVMESSAGESINI ~~~")
+        LDV_MESSAGES_DEVL = $$shell_path( $${OUT_PWD}/$${DESTDIR}/extras/$$LDV_MESSAGES_INI )
+        message("~~~ $${LPUB3D} COPY LDVMESSAGES.INI TO: ./$${DESTDIR}/extras/$$LDV_MESSAGES_INI ~~~")
         LDV_CONCAT_MESSAGES_CMD += \
         $$escape_expand(\n\t) \
-        $$COPY_CMD \
+        $$LDV_COPY_CMD \
         $$LDV_CONCAT_MESSAGES $$LDV_MESSAGES_DEVL
     }
     #message("~~~ DEBUG_$$upper($${TARGET}) LDV_CONCAT_MESSAGES_CMD: $$LDV_CONCAT_MESSAGES_CMD ~~~ ")
     ldvmsg_concat_msg.target   = ConcatProjectMessage
-    ldvmsg_concat_msg.commands = @echo Project MESSAGE: ~~~ $${LPUB3D} Creating $${TARGET} $${LDVMESSAGESINI}... ~~~
+    ldvmsg_concat_msg.commands = @echo Project MESSAGE: ~~~ $${LPUB3D} Creating $${TARGET} $${LDV_MESSAGES_INI}... ~~~
     ldvmsg_concat.target       = ConcatenateMessages
     ldvmsg_concat.commands     = $$LDV_CONCAT_MESSAGES_CMD
     ldvmsg_concat.depends      = $${LDV_MESSAGES} \
@@ -329,7 +347,7 @@ contains(LOAD_LDV_LIBS,True) {
                                  $${LDV_WIDGET_MESSAGES} \
                                  ConcatProjectMessage
 
-    QMAKE_EXTRA_TARGETS     += ldvmsg_concat ldvmsg_concat_msg
-    PRE_TARGETDEPS          += $$LDV_CONCAT_MESSAGES
-    QMAKE_CLEAN             += $$LDV_CONCAT_MESSAGES
+    QMAKE_EXTRA_TARGETS       += ldvmsg_concat ldvmsg_concat_msg
+    PRE_TARGETDEPS            += $$LDV_CONCAT_MESSAGES
+    QMAKE_CLEAN               += $$LDV_CONCAT_MESSAGES
 } # LPub3D LOAD_LDV_LIBS,True

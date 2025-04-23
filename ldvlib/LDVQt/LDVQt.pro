@@ -34,6 +34,9 @@ INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
 
+msys: \
+SYSTEM_PREFIX_ = $${PREFIX}
+else: \
 SYSTEM_PREFIX_ = $${PREFIX}/usr/local
 macx {
     contains(QT_ARCH,arm64): \
@@ -116,7 +119,7 @@ win32 {
     }
 }
 
-unix: !macx: TARGET = $$lower($$TARGET)
+if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib {
@@ -136,10 +139,10 @@ CONFIG(debug, debug|release) {
     unix:!macx: TARGET = $$join(TARGET,,,d)
     # The remaining lines in this block adds the LDView header and source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    VER_USE_LDVIEW_DEV = True
     # These lines defines the ldview git extract folder name, you can set as you like
-    unix: VER_LDVIEW_DEV = ldview
-    else:win32: VER_LDVIEW_DEV = ldview_vs_build
+    mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
+    else:unix|msys:      VER_LDVIEW_DEV = ldview
+    else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
     # This line defines the path of the ldview git extract relative to this project file
     VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
     exists($$VER_LDVIEW_DEV_REPOSITORY) {
@@ -148,6 +151,7 @@ CONFIG(debug, debug|release) {
         INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
     } else {
         VER_USE_LDVIEW_DEV = False
+        !msys: \
         message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
 } else {
@@ -184,7 +188,7 @@ RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
 # USE GNU_SOURCE
-unix:!macx: DEFINES += _GNU_SOURCE
+unix|msys: DEFINES += _GNU_SOURCE
 
 # stdlib.h fix placeholder - do not remove
 
@@ -196,7 +200,7 @@ contains(USE_CPP11,NO) {
 }
 
 contains(QT_VERSION, ^5\\..*) {
-  unix:!macx {  
+  if (unix|msys):!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.8) {
       QMAKE_CXXFLAGS += -std=c++11
@@ -215,7 +219,7 @@ contains(QT_VERSION, ^6\\..*) {
   macx {
     QMAKE_CXXFLAGS+= -std=c++17
   }
-  unix:!macx {
+  if (unix|msys):!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 5) {
       QMAKE_CXXFLAGS += -std=c++17
