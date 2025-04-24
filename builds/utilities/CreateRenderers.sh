@@ -960,6 +960,7 @@ LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui
 
 # Install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
+  depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   Msg="Install $OS_NAME renderer build dependencies..."
   Info && Info $Msg && Info $Msg > $depsLog 2>&1
   Info "----------------------------------------------------"
@@ -993,7 +994,6 @@ if [ "$OS_NAME" = "Darwin" ]; then
     fi
     MACOS_POVRAY_NO_XWINDOW="true"
   fi
-  depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
     [ -n "$depsList" ] && depsList="$depsList $brewDeps" || :
     Info "Dependencies List........[${depsList} boost]"
