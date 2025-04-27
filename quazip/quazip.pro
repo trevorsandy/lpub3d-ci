@@ -119,8 +119,6 @@ staticlib {
     BUILD    = Static
     DEFINES += QUAZIP_STATIC
     QMAKE_LFLAGS += -static
-    QMAKE_LFLAGS += -static-libgcc
-    QMAKE_LFLAGS += -static-libstdc++
 } else {
     BUILD    = Shared
     DEFINES += QUAZIP_BUILD

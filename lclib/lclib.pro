@@ -166,8 +166,6 @@ contains(QT_VERSION, ^6\\..*) {
 staticlib {
     BUILD    = Static
     QMAKE_LFLAGS += -static
-    QMAKE_LFLAGS += -static-libgcc
-    QMAKE_LFLAGS += -static-libstdc++
     unix|msys: \
     DEFINES += _TC_STATIC
 } else {

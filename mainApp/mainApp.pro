@@ -271,8 +271,6 @@ static {                                     # everything below takes effect wit
     DEFINES += _TC_STATIC
     DEFINES += QUAZIP_STATIC
     QMAKE_LFLAGS += -static                  # same as LIBS += -static
-    QMAKE_LFLAGS += -static-libgcc
-    QMAKE_LFLAGS += -static-libstdc++
     macx:        TARGET = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
     win32-msvc*: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 } else {
