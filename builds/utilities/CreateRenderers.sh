@@ -505,13 +505,20 @@ function BuildLDView()
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
-  BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
   if [ "${MSYS2}" = 1 ]; then
-    [ "${LP3D_LDVIEW_CUI_OPT}" = "Qt" ] && BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_QT" || \
-    [ "${LP3D_LDVIEW_CUI_OPT}" = "WGL" ] && BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_WGL" || :
+    if [ "${LP3D_LDVIEW_CUI_OPT}" = "Qt" ]; then
+      LP3D_PATH="../.."
+      BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_QT"
+    elif [ "${LP3D_LDVIEW_CUI_OPT}" = "WGL" ]; then
+      BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_WGL"
+      LP3D_PATH=".."
+    fi
+    BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=${LP3D_PATH}/${DIST_DIR} ${BUILD_CONFIG}"
     BUILD_CONFIG="PREFIX=${MINGW_PREFIX} ${BUILD_CONFIG} CONFIG+=msys"
+  else
+    BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
   fi
-  # Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
+  Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
