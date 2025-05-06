@@ -540,7 +540,7 @@ msys {
                     -L$${SYSTEM_PREFIX_}/lib -lglu32
     else: \
     OPENGL_LIBS   = -L$${SYSTEM_PREFIX_}/lib -lOpenGL32 $$QMAKE_LIBS_OPENGL
-    MSYS_LIBS_MS  = -lucrt -lwinmm -lcomdlg32 -lole32 -lbz2
+    MSYS_LIBS_MS  = -lwinmm -lversion -lcomctl32 -lcomdlg32 -lole32 -lbz2
     MSYS_LIBS_GUI = $$QMAKE_LIBS_GUI
 } else:win32-msvc* {
     OPENGL_LIBS   = -lopengl32 -lglu32
