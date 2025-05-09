@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 28, 2025
+# Last Update: May 08, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -520,7 +520,7 @@ function BuildLDView()
   fi
   Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
   ${QMAKE_EXEC} -v && Info
-  ${QMAKE_EXEC} ${BUILD_CONFIG}
+  ${QMAKE_EXEC} ${BUILD_CONFIG} LDView.pro
   if [ "${OBS}" = "true" ]; then
     make -j${CPU_CORES}
     make install
