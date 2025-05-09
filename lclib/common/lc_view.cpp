@@ -1012,7 +1012,7 @@ void lcView::OnDraw()
 	if (DrawOverlays)
 		DrawAxes();
 
-	if (DrawInterface)
+	if (DrawInterface && mTrackTool != lcTrackTool::Insert)
 	{
 		lcTool Tool = gMainWindow->GetTool();
 		lcModel* ActiveModel = GetActiveModel();
@@ -2081,6 +2081,7 @@ lcCursor lcView::GetCursor() const
 		lcCursor::Select,			// lcTrackTool::RotateTrainTrackRight
 		lcCursor::Select,			// lcTrackTool::RotateTrainTrackLeft
 		lcCursor::Select,			// lcTrackTool::InsertTrainTrack
+		lcCursor::Select,			// lcTrackTool::SelectTrainTrack
 		lcCursor::Move,				// lcTrackTool::ScalePlus
 		lcCursor::Move,				// lcTrackTool::ScaleMinus
 		lcCursor::Delete,			// lcTrackTool::Eraser
@@ -2196,6 +2197,7 @@ lcTool lcView::GetCurrentTool() const
 		lcTool::Rotate,			  // lcTrackTool::RotateTrainTrackRight
 		lcTool::Rotate,			  // lcTrackTool::RotateTrainTrackLeft
 		lcTool::Insert,			  // lcTrackTool::InsertTrainTrack
+		lcTool::Select,			  // lcTrackTool::SelectTrainTrack
 		lcTool::Move,			  // lcTrackTool::ScalePlus
 		lcTool::Move,			  // lcTrackTool::ScaleMinus
 		lcTool::Eraser,			  // lcTrackTool::Eraser
@@ -2267,7 +2269,7 @@ void lcView::UpdateTrackTool()
 	case lcTool::Move:
 		{
 			mMouseDownPiece = nullptr;
-			std::tie(NewTrackTool, NewTrackSection) = mViewManipulator->UpdateSelectMove();
+			std::tie(NewTrackTool, NewTrackSection) = mViewManipulator->UpdateSelectMove(mTrackButton);
 			mTrackToolFromOverlay = NewTrackTool != lcTrackTool::MoveXYZ && NewTrackTool != lcTrackTool::Select;
 			Redraw = NewTrackTool != mTrackTool || NewTrackSection != mTrackToolSection;
 
@@ -2780,6 +2782,31 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 		}
 		break;
 
+	case lcTrackTool::SelectTrainTrack:
+		{
+			lcObject* Focus = ActiveModel->GetFocusObject();
+
+			if (!Focus || !Focus->IsPiece())
+				break;
+
+			lcPiece* Piece = (lcPiece*)Focus;
+			const lcTrainTrackInfo* TrainTrackInfo = Piece->mPieceInfo->GetTrainTrackInfo();
+
+			if (!TrainTrackInfo)
+				break;
+
+			if (mTrackToolSection < LC_PIECE_SECTION_TRAIN_TRACK_CONNECTION_FIRST)
+				break;
+
+			lcObjectSection ObjectSection;
+
+			ObjectSection.Object = Focus;
+			ObjectSection.Section = mTrackToolSection;
+
+			ActiveModel->ClearSelectionAndSetFocus(ObjectSection, true);
+		}
+		break;
+
 	case lcTrackTool::ScalePlus:
 	case lcTrackTool::ScaleMinus:
 		if (ActiveModel->AnyPiecesSelected())
@@ -3271,6 +3298,7 @@ void lcView::OnMouseMove()
 	case lcTrackTool::RotateTrainTrackRight:
 	case lcTrackTool::RotateTrainTrackLeft:
 	case lcTrackTool::InsertTrainTrack:
+	case lcTrackTool::SelectTrainTrack:
 	case lcTrackTool::Eraser:
 	case lcTrackTool::Paint:
 	case lcTrackTool::ColorPicker:
