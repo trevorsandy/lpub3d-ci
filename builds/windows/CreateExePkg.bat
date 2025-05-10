@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 15, 2025
+rem  Last Update: May 10, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -142,7 +142,7 @@ SET UTILITIES_DIR=..\utilities
 SET MAIN_APP_DIR=..\..\mainApp
 
 SET VER_LDGLITE=ldglite-1.3
-SET VER_LDVIEW=ldview-4.5
+SET VER_LDVIEW=ldview-4.6
 SET VER_LPUB3D_TRACE=lpub3d_trace_cui-3.8
 
 SET LDGLITE_EXE=ldglite
