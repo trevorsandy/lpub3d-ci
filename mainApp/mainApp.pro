@@ -547,15 +547,22 @@ include(../ldvlib/LDVQt/LDVQtLibs.pri)
 
 msys {
     ldviewosmesa: \
-    OPENGL_LIBS   = $${SYSTEM_PREFIX_}/lib/osmesa.dll.a \
-                    $${SYSTEM_PREFIX_}/lib/opengl32.dll.a \
-                    -L$${SYSTEM_PREFIX_}/lib -lglu32
+    OPENGL_LIBS    = $${SYSTEM_PREFIX_}/lib/osmesa.dll.a \
+                     $${SYSTEM_PREFIX_}/lib/opengl32.dll.a \
+                     -L$${SYSTEM_PREFIX_}/lib -lglu32
+    ldviewqt: \
+    OPENGL_LIBS    = $$QMAKE_LIBS_OPENGL
     else: \
-    OPENGL_LIBS   = -L$${SYSTEM_PREFIX_}/lib -lOpenGL32 $$QMAKE_LIBS_OPENGL
-    MSYS_LIBS_MS  = -lucrt -lwinmm -lcomdlg32 -lole32 -lbz2
-    MSYS_LIBS_GUI = $$QMAKE_LIBS_GUI
+    OPENGL_LIBS    = -L$${SYSTEM_PREFIX_}/lib -lOpenGL32 -lglu32
+    ldviewwgl: \
+    MSYS_LIBS_MS   = -lversion -lcomctl32
+    MSYS_LIBS_MS  += -lwinmm -lcomdlg32 -lole32 -lbz2
+    # MSYS_LIBS_GUI  = $$QMAKE_LIBS_GUI
 } else:win32-msvc* {
-    OPENGL_LIBS   = -lopengl32 -lglu32
+    ldviewqt: \
+    OPENGL_LIBS    = $$QMAKE_LIBS_OPENGL
+    else: \
+    OPENGL_LIBS   += -lopengl32 -lglu32
 }
 win32: \
 LIBS += -lshlwapi -ladvapi32 $$MSYS_LIBS_MS -lshell32 -lwininet -luser32 \
