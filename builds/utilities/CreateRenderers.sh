@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 20, 2025
+# Last Update: May 10, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -1009,7 +1009,7 @@ fi
 
 # Renderer versions
 VER_LDGLITE=ldglite-1.3
-VER_LDVIEW=ldview-4.5
+VER_LDVIEW=ldview-4.6
 VER_POVRAY=lpub3d_trace_cui-3.8
 # Renderer paths
 LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU_QMAKE}/ldglite
