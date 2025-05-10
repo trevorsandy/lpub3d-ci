@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 01, 2025
+# Last Update: May 10, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -211,7 +211,7 @@ DIST_DIR="$(cd ../ && echo "$PWD/lpub3d_macos_3rdparty")"
 # Check if renderers exist or were successfully built
 BUILD_RENDERERS=ok
 LDGLITE_PATH="${DIST_DIR}/LDGLite-1.3/bin/${LP3D_ARCH}"
-LDVIEW_PATH="${DIST_DIR}/LDView-4.5/bin/${LP3D_ARCH}"
+LDVIEW_PATH="${DIST_DIR}/LDView-4.6/bin/${LP3D_ARCH}"
 POVRAY_PATH="${DIST_DIR}/lpub3d_trace_cui-3.8/bin/${LP3D_RAY_ARCH}"
 if [ ! -f "${LDGLITE_PATH}/LDGLite" ]; then
   BUILD_RENDERERS=ko && echo "ERROR - LDGLite not found at ${LDGLITE_PATH}/"

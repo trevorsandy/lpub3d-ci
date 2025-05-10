@@ -107,7 +107,7 @@ THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
         THIRD_PARTY_DIST_DIR_PATH="undefined"
     }
 }
-VER_LDVIEW  = ldview-4.5
+VER_LDVIEW  = ldview-4.6
 
 # Reference LDView headers
 VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include

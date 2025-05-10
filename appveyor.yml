@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: July 03, 2021
+# Last Update: May 10, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -197,7 +197,7 @@ init:
       }
  - ps: |
       If ($env:LP3D_BUILD_LDVIEW -eq "1") {
-        $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.5"
+        $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.6"
       }
  - ps: |
       If ($env:LP3D_BUILD_POVRAY -eq "1") {

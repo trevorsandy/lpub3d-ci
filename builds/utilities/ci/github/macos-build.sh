@@ -1,6 +1,11 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 01, 2025
+# Last Update: May 10, 2025
+#
+# This script is called from .github/workflows/devops_ci_build.yml
+#
+# Run command:
+# bash -ex builds/utilities/ci/github/macos-build.sh
 
 function ShowHelp() {
     echo
@@ -233,7 +238,7 @@ cp -f ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip mainApp/extras
 
 # Trigger rebuild renderers if specified
 ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
-ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.5
+ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.6
 povray_path=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8
 [[ "${LP3D_COMMIT_MSG}" == *"ALL_RENDERERS"* ]] && \
 echo "'Build LDGLite, LDView and POV-Ray' detected." && \
