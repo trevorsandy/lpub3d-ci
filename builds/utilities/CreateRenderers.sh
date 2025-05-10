@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 10, 2025
+# Last Update: May 11, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -505,15 +505,22 @@ function BuildLDView()
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
   fi
-  BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
   if [ "${MSYS2}" = 1 ]; then
-    [ "${LP3D_LDVIEW_CUI_OPT}" = "Qt" ] && BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_QT" || \
-    [ "${LP3D_LDVIEW_CUI_OPT}" = "WGL" ] && BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_WINDIB" || :
+    if [ "${LP3D_LDVIEW_CUI_OPT}" = "Qt" ]; then
+      LP3D_PATH="../.."
+      BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_QT"
+    elif [ "${LP3D_LDVIEW_CUI_OPT}" = "WGL" ]; then
+      BUILD_CONFIG="${BUILD_CONFIG} CONFIG+=CUI_WGL"
+      LP3D_PATH=".."
+    fi
+    BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=${LP3D_PATH}/${DIST_DIR} ${BUILD_CONFIG}"
     BUILD_CONFIG="PREFIX=${MINGW_PREFIX} ${BUILD_CONFIG} CONFIG+=msys"
+  else
+    BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
   fi
-  # Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
+  Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
   ${QMAKE_EXEC} -v && Info
-  ${QMAKE_EXEC} ${BUILD_CONFIG}
+  ${QMAKE_EXEC} ${BUILD_CONFIG} LDView.pro
   if [ "${OBS}" = "true" ]; then
     make -j${CPU_CORES}
     make install
@@ -926,6 +933,8 @@ ldviewosmesa)
   LP3D_LDVIEW_CUI_OPT=OSMesa ;;
 ldviewwgl)
   LP3D_LDVIEW_CUI_OPT=WGL ;;
+*)
+  LP3D_LDVIEW_CUI_OPT=Default ;;
 esac
 Info "LDView CUI Graphics......[${LP3D_LDVIEW_CUI_OPT}]"
 
@@ -1167,9 +1176,13 @@ for buildDir in "${renderers[@]}"; do
     linesAfter="6"
     buildCommand="BuildLDView"
     validSubDir="OSMesa"
-    [[ -n "${MSYS2}" && "${LP3D_LDVIEW_CUI_OPT}" == "WGL" ]] && \
-    validExe="${BUILD_ARCH}/ldview${Extn}" || \
-    validExe="${validSubDir}/${BUILD_ARCH}/ldview${Extn}"
+    if [[ -n "${MSYS2}" && "${LP3D_LDVIEW_CUI_OPT}" == "WGL" ]]; then
+      validSubDir=
+      validExe="${BUILD_ARCH}/ldview${Extn}"
+    else
+      [ "${LP3D_LDVIEW_CUI_OPT}" == "Qt" ] && validSubDir="QT" || :
+      validExe="${validSubDir}/${BUILD_ARCH}/ldview${Extn}"
+    fi
     buildType="release"
     displayLogLines=100
     ;;
