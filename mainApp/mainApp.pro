@@ -142,7 +142,7 @@ DEFINES += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-VER_LDVIEW  = ldview-4.5
+VER_LDVIEW  = ldview-4.6
 VER_LDGLITE = ldglite-1.3
 VER_POVRAY  = lpub3d_trace_cui-3.8
 DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
@@ -283,7 +283,7 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd11
         LC_LIB = LCd233
-        LDVQT_LIB = LDVQtd45
+        LDVQT_LIB = LDVQtd46
         WPNGIMAGE_LIB = WPngImaged14
         WAITING_SPINNER_LIB = WaitingSpinnerd10
     }
@@ -328,7 +328,7 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP11
         LC_LIB = LC233
-        LDVQT_LIB = LDVQt45
+        LDVQT_LIB = LDVQt46
         WPNGIMAGE_LIB = WPngImage14
         WAITING_SPINNER_LIB = WaitingSpinner10
     }
