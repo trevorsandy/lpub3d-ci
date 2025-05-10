@@ -21,11 +21,12 @@ greaterThan(QT_MAJOR_VERSION, 5) {
 
 # The ABI version.
 VER_MAJ = 4
-VER_MIN = 5
+VER_MIN = 6
 VER_PAT = 0
 VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+VER_LDVIEW     = ldview-$$VER_MAJ"."$$VER_MIN
 
 DEPENDPATH  += .
 INCLUDEPATH += .
@@ -124,8 +125,6 @@ staticlib {
 } else {
     BUILD    = Shared
 }
-
-VER_LDVIEW = ldview-4.5
 
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
