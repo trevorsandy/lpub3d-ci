@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update November 30, 2024
+rem  Last Update: May 10, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -123,7 +123,7 @@ IF NOT EXIST "%LP3D_3RD_DIST_DIR%" (
 POPD
 
 SET LP3D_LDGLITE=%LP3D_DIST_DIR_PATH%\ldglite-1.3
-SET LP3D_LDVIEW=%LP3D_DIST_DIR_PATH%\ldview-4.5
+SET LP3D_LDVIEW=%LP3D_DIST_DIR_PATH%\ldview-4.6
 SET LP3D_POVRAY=%LP3D_DIST_DIR_PATH%\lpub3d_trace_cui-3.8
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "ALL_RENDERERS" >NUL && (
   CALL :SET_BUILD_ALL_RENDERERS

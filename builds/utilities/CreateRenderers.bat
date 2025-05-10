@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 01, 2025
+rem  Last Update: May 10, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -85,7 +85,7 @@ IF "%LP3D_VALID_7ZIP%"=="" (
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
-SET VER_LDVIEW=LDView-4.5
+SET VER_LDVIEW=LDView-4.6
 SET VER_POVRAY=lpub3d_trace_cui-3.8
 SET CAN_PACKAGE=True
 

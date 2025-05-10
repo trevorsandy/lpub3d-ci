@@ -13,6 +13,9 @@ win32-msvc* {
     }
 }
 
+isEmpty(VER_LDVIEW): \
+VER_LDVIEW = ldview-4.6
+
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # 3rd party executables, documentation and resources.
@@ -33,7 +36,6 @@ contains(LOAD_LDV_HEADERS,True) {
         }
     }
 
-    VER_LDVIEW = ldview-4.5
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Header soruce path
     equals(VER_USE_LDVIEW_DEV,True) {
