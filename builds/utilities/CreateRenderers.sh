@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 11, 2025
+# Last Update: May 14, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -682,13 +682,6 @@ if [[ "${SOURCED}" = "false" && -f "rendererVars.sh" ]]; then
   source rendererVars.sh && importedRendererVars=1
 fi
 
-# Define build architecture and cached renderer paths
-if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
-  BUILD_ARCH="64bit_release"
-else
-  BUILD_ARCH="32bit_release"
-fi
-
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
   parent_dir=${PWD##*/}
@@ -835,6 +828,15 @@ else
   Info "Platform Pretty Name.....[${platform_pretty}]"
 fi
 
+# Set build type
+[ -z "${LP3D_BUILD_CONFIG}" ] && LP3D_BUILD_CONFIG="Release" || true
+tempvar="$(echo ${LP3D_BUILD_CONFIG} | awk '{print tolower($0)}')"
+[[ "$tempvar" != "release" && "$tempvar" != "debug" ]] && \
+Info "Build Configuration......[Invalid value: ${LP3D_BUILD_CONFIG}, using 'Release']" && \
+tempvar="release" || \
+Info "Build Configuration......[${LP3D_BUILD_CONFIG}]"
+LP3D_BUILD_CONFIG="${tempvar}" && unset tempvar
+
 Info "Platform Version.........[$platform_ver]"
 Info "No Lib Dependency Load...[${LP3D_NO_DEPS:-false}]"
 Info "No Display Log Tail......[${LP3D_NO_LOG_TAIL:-true}]"
@@ -860,6 +862,13 @@ Info "Package Renderers........[${LP3D_PACKAGE_RENDERERS}]"
 if [ "${LP3D_PACKAGE_RENDERERS}" == "true" ]; then
   [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-false} || :
   Info "Package LDVQt Dev Assets.[${LP3D_PACKAGE_LDVQT_DEV}]"
+fi
+
+# Define build architecture and cached renderer paths
+if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
+  BUILD_ARCH="64bit_${LP3D_BUILD_CONFIG}"
+else
+  BUILD_ARCH="32bit_${LP3D_BUILD_CONFIG}"
 fi
 
 # Distribution directory
@@ -1167,7 +1176,7 @@ for buildDir in "${renderers[@]}"; do
     buildCommand="BuildLDGLite"
     validSubDir="app"
     validExe="${validSubDir}/${BUILD_ARCH}/ldglite${Extn}"
-    buildType="release"
+    buildType="${LP3D_BUILD_CONFIG}"
     displayLogLines=10
     ;;
   ldview)
@@ -1183,7 +1192,7 @@ for buildDir in "${renderers[@]}"; do
       [ "${LP3D_LDVIEW_CUI_OPT}" == "Qt" ] && validSubDir="QT" || :
       validExe="${validSubDir}/${BUILD_ARCH}/ldview${Extn}"
     fi
-    buildType="release"
+    buildType="${LP3D_BUILD_CONFIG}"
     displayLogLines=100
     ;;
   povray)
@@ -1193,7 +1202,7 @@ for buildDir in "${renderers[@]}"; do
     buildCommand="BuildPOVRay"
     validSubDir="unix"
     validExe="${validSubDir}/lpub3d_trace_cui${Extn}"
-    buildType="release"
+    buildType="${LP3D_BUILD_CONFIG}"
     displayLogLines=10
     ;;
   esac
