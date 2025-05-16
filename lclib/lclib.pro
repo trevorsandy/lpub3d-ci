@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET   = LC
 QT      += core
 QT      += gui
+QT      += widgets
 QT      += opengl
 QT      += network
 QT      += xml
@@ -73,9 +74,8 @@ win32 {
     }
 
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
-
     !win32-msvc*: \
-        LIBS += -lz
+    LIBS += -lz
 
 } else {
 
@@ -235,8 +235,7 @@ QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-stringop-truncation \
     -Wno-type-limits \
     -Wno-maybe-uninitialized \
-    -Wno-unused-result \
-    -Wno-cpp
+    -Wno-unused-result
 } else: \
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 } # unix|msys:!macx

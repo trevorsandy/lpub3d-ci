@@ -332,8 +332,7 @@ QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-template-id-cdtor \
     -Wno-cast-function-type \
     -Wno-class-memaccess \
-    -Wno-type-limits \
-    -Wno-cpp
+    -Wno-type-limits
 } else: \
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 } # unix|msys:!macx
