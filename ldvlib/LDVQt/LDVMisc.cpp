@@ -15,7 +15,6 @@
 #include <wchar.h>
 
 #endif
-#include <QString>
 #include <LDVMisc.h>
 
 void wcstoqstring(QString &dst, const wchar_t *src, int length /*= -1*/)
