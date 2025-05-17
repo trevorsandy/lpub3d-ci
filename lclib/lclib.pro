@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET   = LC
 QT      += core
 QT      += gui
+QT      += widgets
 QT      += opengl
 QT      += network
 QT      += xml
@@ -76,9 +77,8 @@ win32 {
     }
 
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
-
     !win32-msvc*: \
-        LIBS += -lz
+    LIBS += -lz
 
 } else {
 
