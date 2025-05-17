@@ -106,18 +106,31 @@ THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
         THIRD_PARTY_DIST_DIR_PATH="undefined"
     }
 }
+# Reference LDView headers
 VER_LDVIEW  = ldview-4.6
 
-# Reference LDView headers
-VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-CONFIG(debug, debug|release) {
-    unix|msys:        VER_LDVIEW_DEV = ldview           # change this as necessary
-    else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
-    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
-    exists($$VER_LDVIEW_DEV_REPOSITORY): \
-    VER_LDVIEW_INCLUDE = $$VER_LDVIEW_DEV_REPOSITORY
+BUILD_LDV_LIBS {
+    VER_LDVIEW_DIR_PATH = $$absolute_path( $$PWD/../ldvlib/LDVQt/LDView )
+    VER_LDVIEW_INCLUDE = \
+        $${VER_LDVIEW_DIR_PATH}/include \
+        $${VER_LDVIEW_DIR_PATH}/LDExporter \
+        $${VER_LDVIEW_DIR_PATH}/LDLib \
+        $${VER_LDVIEW_DIR_PATH}/LDLoader \
+        $${VER_LDVIEW_DIR_PATH}/TCFoundation \
+        $${VER_LDVIEW_DIR_PATH}/TRE
+    INCLUDEPATH += $$VER_LDVIEW_DIR_PATH $$VER_LDVIEW_INCLUDE
+} else {
+    VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    CONFIG(debug, debug|release) {
+        unix|msys:        VER_LDVIEW_DEV = ldview           # change this as necessary
+        else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+        exists($$VER_LDVIEW_DEV_REPOSITORY): \
+        VER_LDVIEW_INCLUDE = $$VER_LDVIEW_DEV_REPOSITORY
+    }
+    INCLUDEPATH += $$VER_LDVIEW_INCLUDE
 }
-INCLUDEPATH += $$VER_LDVIEW_INCLUDE
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -235,7 +248,8 @@ QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-stringop-truncation \
     -Wno-type-limits \
     -Wno-maybe-uninitialized \
-    -Wno-unused-result
+    -Wno-unused-result \
+    -Wno-cpp
 } else: \
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 } # unix|msys:!macx

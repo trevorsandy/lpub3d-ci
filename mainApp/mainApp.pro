@@ -198,7 +198,7 @@ else {
     else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR )
+    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../$$DIST_DIR )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
         3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
     } else {
@@ -208,23 +208,56 @@ else {
     3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
 }
 
+BUILD_LDV_LIBS {
+    # Except for MSVC (uses pre-built), always build 3rd party lib3ds
+    win32-msvc* {
+        CONFIG += BUILD_GL2PS BUILD_TINYXML
+    } else {
+        !USE_3RD_PARTY_PREBUILT_3DS: CONFIG += BUILD_3DS
+    }
+    VER_LDVIEW_DIR_PATH    = $$absolute_path( $$PWD/../ldvlib/LDVQt/LDView )
+    VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
+    VER_LDVIEW_INCLUDE = \
+        $${VER_LDVIEW_DIR_PATH}/3rdParty \
+        $${VER_LDVIEW_DIR_PATH}/include \
+        $${VER_LDVIEW_DIR_PATH}/LDExporter \
+        $${VER_LDVIEW_DIR_PATH}/LDLib \
+        $${VER_LDVIEW_DIR_PATH}/LDLoader \
+        $${VER_LDVIEW_DIR_PATH}/TCFoundation \
+        $${VER_LDVIEW_DIR_PATH}/TRE
+    LDV_LDVIEW_RESOURCE_DIR = $${VER_LDVIEW_DIR_PATH}
+    LDV_EXPORT_RESOURCE_DIR = $${VER_LDVIEW_DIR_PATH}/LDExporter
+} else {
+    VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdparty
+    LDV_LDVIEW_RESOURCE_DIR = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources
+    LDV_EXPORT_RESOURCE_DIR = $${LDV_LDVIEW_RESOURCE_DIR}
+}
+
 #~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 VER_USE_LDVIEW_DEV = False
-CONFIG(debug, debug|release) {
+CONFIG(debug, debug|release):!BUILD_LDV_LIBS {
     # These lines requires a git extract of ldview at the same location as the lpub3d git extract
     # and defines the ldview git extract folder name, you can set as you like
     mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
     else:unix|msys:      VER_LDVIEW_DEV = ldview
     else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+    BUILD_LDV_LIBS {
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../ldvlib/LDVQt/LDView )
+    } else {
+        # This line defines the path of the ldview git extract relative to this project file
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+    }
     exists($$VER_LDVIEW_DEV_REPOSITORY) {
         VER_USE_LDVIEW_DEV = True
-        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-    } else:!msys {
+    } else {
         message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
+
 }
+
 # Load LDView libraries for LDVQt
 LOAD_LDV_LIBS    = True
 LDV_MESSAGES_INI = ldvMessages.ini
@@ -236,7 +269,7 @@ DEFINES += EXPORT_3DS
 if (equals(VER_USE_LDVIEW_DEV,True)) {
     INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty
 } else {
-    INCLUDEPATH += $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include/3rdParty
+    INCLUDEPATH += $${VER_LDVIEW_THIRD_PARTY}
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -281,16 +314,17 @@ static {                                     # everything below takes effect wit
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# NOTE: Reminder to update MacOS library links on QuaZip and LDrawIni major version change
-#       - Files inpacted: build_checks.sh, CreateDmg.sh and macosfiledistro.pri
-
 # LDVQT Qt/OSMesa/WGL library identifiers
-ldviewqt: \
-POSTFIX  = -qt$${QT_MAJOR_VERSION}
-else:msys:ldviewwgl: \
-POSTFIX  = -wgl
-else:!win32-msvc*: \
-POSTFIX  = -osmesa
+ldviewqt {
+    CONFIG  += CUI_QT
+    POSTFIX  = -qt$${QT_MAJOR_VERSION}
+} else:ldviewwgl {
+    CONFIG  += CUI_WGL
+    POSTFIX  = -wgl
+} else:!win32-msvc* {
+    CONFIG  += OSMesa
+    POSTFIX  = -osmesa
+}
 
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
@@ -499,7 +533,7 @@ message("~~~ $${LPUB3D} AUTO_RESTART ENVIRONMENT VARIABLE $${AUTO_RESTART_STR} ~
 equals(VER_USE_LDVIEW_DEV,True) {
     INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY} $${VER_LDVIEW_DEV_REPOSITORY}/include
 } else {
-    INCLUDEPATH +=$${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    INCLUDEPATH += $${VER_LDVIEW_DIR_PATH} $${VER_LDVIEW_INCLUDE}
 }
 
 # Needed to access ui header from LDVQt
@@ -508,10 +542,10 @@ INCLUDEPATH += $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui )
 # System headers
 INCLUDEPATH += $${SYSTEM_PREFIX_}/include
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
 INCLUDEPATH += ../quazip
+
+#~~ extensions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32-msvc* {
     EXT_S = lib

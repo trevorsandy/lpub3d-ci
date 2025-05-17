@@ -14,7 +14,7 @@ INCLUDEPATH += $$_PRO_FILE_PWD_/../libpng
 macx: INCLUDEPATH += $$_PRO_FILE_PWD_/../libpng/MacOSX
 
 # use libpng14 or higher. Ubunu's default is libpng12
-USE_3RD_PARTY_LIBS {
+USE_LDV_3RD_PARTY_LIBS {
     PNG_LIBDIR  = ../libpng/$$DESTDIR
     copypng.target = libpng16.a
     copypng.depends = $${PNG_LIBDIR}/libpng16.a
