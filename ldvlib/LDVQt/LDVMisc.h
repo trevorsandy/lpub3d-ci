@@ -1,5 +1,12 @@
-#ifndef __MISC_H__
-#define __MISC_H__
+#ifndef __LDV_MISC_H__
+#define __LDV_MISC_H__
+
+#include <QtGlobal>
+
+#ifdef Q_OS_WIN
+#include <winsock2.h>
+#include <windows.h>
+#endif
 
 #include <string.h>
 #ifdef _AIX
@@ -8,11 +15,6 @@
 
 #include <QtCore/qstring.h>
 #include <TCFoundation/mystring.h>
-
-#ifdef Q_OS_WIN
-#include <winsock2.h>
-#include <windows.h>
-#endif
 
 void wcstoqstring(QString &dst, const wchar_t *src, int length = -1);
 QString wcstoqstring(const wchar_t *src, int length = -1);
