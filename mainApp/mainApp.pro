@@ -2,6 +2,7 @@ TEMPLATE = app
 TARGET   = LPub3D
 QT      += core
 QT      += gui
+QT      += widgets
 QT      += opengl
 QT      += network
 QT      += xml
@@ -49,6 +50,7 @@ win32 {
     QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
     RC_LANG = "English (United Kingdom)"
     RC_ICONS = "lpub3d.ico"
+    RC_CODEPAGE = 1252
 
     QMAKE_EXT_OBJ = .obj
 
@@ -78,8 +80,6 @@ win32 {
             QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
         }
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    } else: msys {
-        QMAKE_LFLAGS += -Wl,--allow-multiple-definition
     }
 } else {
     macx: \
@@ -198,7 +198,7 @@ else {
     else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR )
+    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../$$DIST_DIR )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
         3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
     } else {
@@ -279,9 +279,6 @@ static {                                     # everything below takes effect wit
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# NOTE: Reminder to update MacOS library links on QuaZip and LDrawIni major version change
-#       - Files inpacted: build_checks.sh, CreateDmg.sh and macosfiledistro.pri
 
 # LDVQT Qt/OSMesa/WGL library identifiers
 ldviewqt: \
@@ -394,7 +391,7 @@ CONFIG(debug, debug|release) {
 
 #~~build path components~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+DESTDIR         = $$join(ARCH,,,$$ARCH_BLD)
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj
@@ -402,10 +399,10 @@ MOC_DIR         = $$DESTDIR/.moc
 RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
-BUILD += $$BUILD_CONF
+BUILD          += $$BUILD_CONF
 
 #manpage
-MAN_PAGE = $$join(TARGET,,,.1)
+MAN_PAGE        = $$join(TARGET,,,.1)
 
 message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $$upper($${BUILD}) ($${TARGET}) $${CHIPSET} CHIPSET ~~~")
 
@@ -508,17 +505,22 @@ INCLUDEPATH += $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui )
 # System headers
 INCLUDEPATH += $${SYSTEM_PREFIX_}/include
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
 INCLUDEPATH += ../quazip
 
+#~~ extensions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 win32-msvc* {
     EXT_S = lib
-    EXT_D = so
+    EXT_D = dll
 } else {
     EXT_S = a
+    msys: \
     EXT_D = dll
+    else:macx: \
+    EXT_D = dylib
+    else: \
+    EXT_D = so
 }
 
 #~~ includes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -554,10 +556,6 @@ msys {
     OPENGL_LIBS    = $$QMAKE_LIBS_OPENGL
     else: \
     OPENGL_LIBS    = -L$${SYSTEM_PREFIX_}/lib -lOpenGL32 -lglu32
-    ldviewwgl: \
-    MSYS_LIBS_MS   = -lversion -lcomctl32
-    MSYS_LIBS_MS  += -lwinmm -lcomdlg32 -lole32 -lbz2
-    # MSYS_LIBS_GUI  = $$QMAKE_LIBS_GUI
 } else:win32-msvc* {
     ldviewqt: \
     OPENGL_LIBS    = $$QMAKE_LIBS_OPENGL
@@ -565,8 +563,8 @@ msys {
     OPENGL_LIBS   += -lopengl32 -lglu32
 }
 win32: \
-LIBS += -lshlwapi -ladvapi32 $$MSYS_LIBS_MS -lshell32 -lwininet -luser32 \
-        -lgdi32 $$QMAKE_LIBS_NETWORK $$OPENGL_LIBS $$MSYS_LIBS_GUI
+LIBS += -lwininet -ladvapi32 -lshell32 -lshlwapi -luser32 \
+        -lgdi32 $$QMAKE_LIBS_NETWORK $$OPENGL_LIBS
 else:!macx: \
 LIBS += -lGL -lGLU
 !win32-msvc*: \

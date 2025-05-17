@@ -16,6 +16,8 @@ win32-msvc* {
 isEmpty(VER_LDVIEW): \
 VER_LDVIEW = ldview-4.6
 
+# ==LDVQt LOAD_LDV_HEADERS=====================
+
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # 3rd party executables, documentation and resources.
@@ -74,21 +76,21 @@ contains(LOAD_LDV_HEADERS,True) {
 
     if (unix:exists(/usr/include/tinyxml.h)|exists($${SYSTEM_PREFIX_}/include/tinyxml.h)) {
         message("~~~ lib$${TARGET} system library header for tinyxml FOUND ~~~")
-    } else:exists($${LDV3RDHDRDIR}/tinyxml.h) {
+    } else:exists($${LDV3RDHDRDIR}/tinyxml.h)|exists($${LDVHDRDIR}/tinyxml.h) {
         message("~~~ lib$${TARGET} local library header for tinyxml FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for tinyxml NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX_}/include/gl2ps.h)) {
         message("~~~ lib$${TARGET} system library header for gl2ps FOUND ~~~")
-    } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
+    } else:exists($${LDV3RDHDRDIR}/gl2ps.h)|exists($${LDVHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for gl2ps FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for gl2ps NOT FOUND, using local ~~~")
     }
     if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX_}/include/lib3ds.h)) {
         message("~~~ lib$${TARGET} system library header for 3ds FOUND ~~~")
-    } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
+    } else:exists($${LDV3RDHDRDIR}/lib3ds.h)|exists($${LDVHDRDIR}/lib3ds.h) {
         message("~~~ lib$${TARGET} local library header for 3ds FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for 3ds NOT FOUND ~~~")
@@ -96,7 +98,7 @@ contains(LOAD_LDV_HEADERS,True) {
     if (unix:exists(/usr/include/minizip/unzip.h)|exists($${SYSTEM_PREFIX_}/include/minizip/unzip.h)) {
         message("~~~ lib$${TARGET} system library header for minizip FOUND ~~~")
         LDVMINIZIPFOUND=1
-    } else:exists($${LDV3RDHDR}/minizip/unzip.h) {
+    } else:exists($${LDV3RDHDR}/minizip/unzip.h)|exists($${LDVHDRDIR}/minizip/unzip.h) {
         message("~~~ lib$${TARGET} local library header for minizip FOUND ~~~")
         LDVMINIZIPFOUND=1
     } else {
@@ -105,14 +107,14 @@ contains(LOAD_LDV_HEADERS,True) {
     }
     if (unix:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX_}/include/png.h)) {
         message("~~~ lib$${TARGET} system library header for png FOUND ~~~")
-    } else:exists($${LDV3RDHDRDIR}/png.h) {
+    } else:exists($${LDV3RDHDRDIR}/png.h)|exists($${LDVHDRDIR}/png.h) {
         message("~~~ lib$${TARGET} local library header for png FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for png NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX_}/include/jpeglib.h)) {
         message("~~~ lib$${TARGET} system library header for jpeg FOUND ~~~")
-    } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
+    } else:exists($${LDV3RDHDRDIR}/gl2ps.h)|exists($${LDVHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for jpeg FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for jpeg NOT FOUND ~~~")
@@ -122,8 +124,10 @@ contains(LOAD_LDV_HEADERS,True) {
         INCLUDEPATH += $${LDV3RDHDR}
     }
 
-} # LOAD_LDV_HEADERS,True
+}
+# END LOAD_LDV_HEADERS
 
+# ==LPub3D LOAD_LDV_LIBS=====================
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
 contains(LOAD_LDV_LIBS,True) {
@@ -147,8 +151,8 @@ contains(LOAD_LDV_LIBS,True) {
     message("~~~ $${LPUB3D} ADD LDVIEW 3RDPARTY LIBRARIES PATH TO LIBS: $$LDV3RDLIBDIR ~~~ ")
     LIBS        += -L$${LDV3RDLIBDIR}
 
-#    isEmpty(LDVLIBRARY):LDVLIBRARY = $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR )
-#    message("~~~ $${LPUB3D} Library path: $$LDVLIBRARY ~~~ ")
+#isEmpty(LDVLIBRARY):LDVLIBRARY = $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$${DESTDIR} )
+#message("~~~ $${LPUB3D} Library path: $$LDVLIBRARY ~~~ ")
 
     # Set library names, source paths and local paths
     win32-msvc* {
@@ -337,4 +341,5 @@ contains(LOAD_LDV_LIBS,True) {
     QMAKE_EXTRA_TARGETS       += ldvmsg_concat ldvmsg_concat_msg
     PRE_TARGETDEPS            += $$LDV_CONCAT_MESSAGES
     QMAKE_CLEAN               += $$LDV_CONCAT_MESSAGES
-} # LPub3D LOAD_LDV_LIBS,True
+}
+# END LPub3D LOAD_LDV_LIBS

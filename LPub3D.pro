@@ -1,12 +1,11 @@
-# qmake Configuration settings
-# CONFIG+=ldviewqt      # build LDVQt LDView libs using Qt OpenGL
-# CONFIG+=ldviewwgl     # build LDVQt LDView libs using WGL OpenGL
-# CONFIG+=ldviewosmesa  # build LDVQt LDView libs using OSMesa OpenGL
+# LPub3D QMake Configuration settings
+# CONFIG+=ldviewqt           # build LDVQt LDView libs using Qt OpenGL
+# CONFIG+=ldviewwgl          # build LDVQt LDView libs using WGL OpenGL
+# CONFIG+=ldviewosmesa       # build LDVQt LDView libs using OSMesa OpenGL
 
 # LPub3D QMake directory and project file structre
 # ------------------------------------------
 # /LPub3D
-#  |
 #  |--- LPub3D.pro                 Subdirs project file
 #  |--- gitversion.pri             Construct project version
 #  |
@@ -61,12 +60,13 @@
 #  |     |--- WaitingSpinner.pri   Library declarations and directives project include
 #  |     |--- waitingspinner.pro   Library project file - consumes waitingspinner.pri
 
-TEMPLATE=subdirs
-CONFIG+=ordered # This tells Qt to compile the following SUBDIRS in order
+TEMPLATE   = subdirs
+
+CONFIG    += ordered # This tells Qt to compile the following SUBDIRS in order
 
 win32:HOST = $$system(systeminfo | findstr /B /C:\"OS Name\")
 unix:!macx:HOST = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
-macx:HOST = $$system(echo `sw_vers -productName` `sw_vers -productVersion`)
+macx:HOST  = $$system(echo `sw_vers -productName` `sw_vers -productVersion`)
 isEmpty(HOST):HOST = UNKNOWN HOST
 
 BUILD_ARCH = $$(TARGET_CPU)
@@ -81,7 +81,13 @@ CONFIG(debug, debug|release) {
     BUILD  = RELEASE BUILD
     LPUB3D = LPub3D
 }
+msys: BUILD = MSYS $$BUILD
+static|staticlib: \
+TYPE  = STATIC
+else: \
+TYPE  = SHARED
 
+# Qt/OSMesa library identifiers
 ldviewqt: \
 POSTFIX  = QT
 else:msys:ldviewwgl: \
@@ -89,20 +95,20 @@ POSTFIX  = WGL
 else:!win32-msvc*: \
 POSTFIX  = OSMesa
 
-message("~~~ $${LPUB3D} $$upper($$BUILD_ARCH) $${BUILD} ON $$upper($$HOST) ~~~")
+message("~~~ $$upper($$LPUB3D) $$upper($$BUILD_ARCH) $${TYPE} $${BUILD} ON $$upper($$HOST) ~~~")
 
-SUBDIRS = ldrawini
+SUBDIRS += ldrawini
 ldrawini.subdir   = $$PWD/ldrawini
 ldrawini.makefile = Makefile.ldrawini
 ldrawini.target   = sub-ldrawini
 ldrawini.depends  =
 
 isEmpty(quazipnobuild) {
-  SUBDIRS += quazip
-  quazip.subdir   = $$PWD/quazip
-  quazip.makefile = Makefile.quazip
-  quazip.target   = sub-quazip
-  quazip.depends  =
+    SUBDIRS += quazip
+    quazip.subdir   = $$PWD/quazip
+    quazip.makefile = Makefile.quazip
+    quazip.target   = sub-quazip
+    quazip.depends  =
 }
 
 SUBDIRS += ldvqt_$${POSTFIX}
@@ -135,12 +141,14 @@ mainApp.makefile = Makefile.mainapp
 mainApp.target   = sub-mainapp
 isEmpty(quazipnobuild): \
 mainApp.depends  = quazip
-mainApp.depends  = ldrawini
-mainApp.depends  = lclib
-mainApp.depends  = ldvqt_$${POSTFIX}
-mainApp.depends  = wpngimage
-mainApp.depends  = waitingspinner
+mainApp.depends += ldrawini
+mainApp.depends += lclib
+mainApp.depends += ldvqt_$${POSTFIX}
+mainApp.depends += wpngimage
+mainApp.depends += waitingspinner
 
 RESOURCES += \
     qsimpleupdater/etc/resources/qsimpleupdater.qrc \
     mainApp/lpub3d.qrc
+
+msys: message("~~~ MSYS2 SYSTEM_PREFIX $${PREFIX} ~~~ ")
