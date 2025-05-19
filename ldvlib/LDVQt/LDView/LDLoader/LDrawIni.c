@@ -99,9 +99,6 @@ snprintf stat strcat strchr strcmp strcpy strdup strlen strncmp strncpy ungetc
 */
 /* Naming refers to Windows platform */
 #ifdef _WIN_UTF8_PATHS
-// LPub3D Mod - Shlwapi lib declaration
-#pragma comment(lib, "Shlwapi.lib")
-// LPub3D Mod End
 #include <windows.h>
 #include <shlwapi.h>
 #endif
