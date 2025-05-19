@@ -59,7 +59,6 @@
     #pragma comment(lib, "pathcch.lib")
   #else
     #include <shlwapi.h>
-    #pragma comment(lib, "shlwapi.lib")
   #endif
 
   WCHAR* GetThisPath(WCHAR* dest, size_t destSize)
