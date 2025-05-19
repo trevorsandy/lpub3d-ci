@@ -27,6 +27,12 @@
 #include <windows.h>
 #endif
 
+#ifndef AUTO_RESTART
+#define AUTO_RESTART 1
+#endif // AUTO_RESTART
+
+#define RUN_APPLICATION 2
+
 struct lcCommandLineOptions;
 
 class InitException: public std::runtime_error
@@ -48,6 +54,9 @@ public:
     /// Creates the Application.
     Application(int& argc, char **argv);
     ~Application();
+
+    /// Initialize surface format
+    static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options);
 
     /// Returns a pointer to the current Application instance;
     static Application* instance();

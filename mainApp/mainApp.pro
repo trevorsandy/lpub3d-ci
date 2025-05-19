@@ -809,6 +809,7 @@ SOURCES += \
     lpub_object.cpp \
     lpub_preferences.cpp \
     messageboxresizable.cpp \
+    main.cpp \
     meta.cpp \
     metagui.cpp \
     metaitem.cpp \
