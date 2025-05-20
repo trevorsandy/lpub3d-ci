@@ -14,23 +14,6 @@ CONFIG          += static
 win32: CONFIG   += console
 macx:  CONFIG   -= app_bundle
 
-CUI_QT {
-contains(DEFINES, _OSMESA): \
-DEFINES        -= _OSMESA
-DEFINES        += _QT
-QT             += core
-CONFIG         += qt
-} else: CUI_WGL {
-contains(DEFINES, _OSMESA): \
-DEFINES        -= _OSMESA
-contains(DEFINES, _QT): \
-DEFINES        -= _QT
-} else {
-contains(DEFINES, _QT): \
-DEFINES        -= _QT
-DEFINES        += _OSMESA
-}
-
 include(../LDViewGlobal.pri)
 
 TARGET   = Headerize$${POSTFIX}

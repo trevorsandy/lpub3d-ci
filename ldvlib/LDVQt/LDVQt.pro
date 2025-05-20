@@ -138,16 +138,20 @@ staticlib {
 
 # LDVQT Qt/OSMesa/WGL library identifiers
 ldviewqt {
+    CONFIG  += CUI_QT
     DEFINES += _QT
     POSTFIX  = -qt$${QT_MAJOR_VERSION}
-} else:msys:ldviewwgl {
+} else:ldviewwgl {
+    CONFIG  += CUI_WGL
     POSTFIX  = -wgl
 } else:!win32-msvc* {
+    CONFIG  += OSMesa
     DEFINES += _OSMESA
     POSTFIX  = -osmesa
 }
-
+  
 CONFIG(debug, debug|release) {
+    VER_USE_LDVIEW_DEV = True
     DEFINES += QT_DEBUG_MODE
     BUILD_CONF = Debug
     ARCH_BLD = bit_debug
@@ -160,15 +164,19 @@ CONFIG(debug, debug|release) {
     mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
     else:unix|msys:      VER_LDVIEW_DEV = ldview
     else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
-    exists($$VER_LDVIEW_DEV_REPOSITORY) {
+    BUILD_LDV_LIBS {
+        VER_LDVIEW_DEV_REPOSITORY = $$PWD/LDView
+        VER_USE_LDVIEW_DEV = False
+    } else {
+        # This line defines the path of the ldview git extract relative to this project file
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
         message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+    }
+    exists($$VER_LDVIEW_DEV_REPOSITORY) {
         message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
         INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
     } else {
         VER_USE_LDVIEW_DEV = False
-        !msys: \
         message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
 } else {
