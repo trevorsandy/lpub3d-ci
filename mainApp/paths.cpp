@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include <QDir>
+#include <QString>
 #include "paths.h"
 #include "lpub_preferences.h"
 #include "version.h"
@@ -39,44 +40,39 @@
 Paths paths;
 
 QString Paths::lpubDir          = QLatin1String(VER_PRODUCTNAME_STR);
-QString Paths::tmpDir           = QString("%1%2tmp").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::assemDir         = QString("%1%2assem").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::partsDir         = QString("%1%2parts").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::bomDir           = QString("%1%2bom").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::submodelDir      = QString("%1%2submodels").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::povrayRenderDir  = QString("%1%2povray").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::blenderRenderDir = QString("%1%2blender").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
-QString Paths::htmlStepsDir     = QString("%1%2htmlsteps").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::tmpDir           = lpubDir + QDir::separator() + QLatin1String("tmp");
+QString Paths::assemDir         = lpubDir + QDir::separator() + QLatin1String("assem");
+QString Paths::partsDir         = lpubDir + QDir::separator() + QLatin1String("parts");
+QString Paths::bomDir           = lpubDir + QDir::separator() + QLatin1String("bom");
+QString Paths::submodelDir      = lpubDir + QDir::separator() + QLatin1String("submodels");
+QString Paths::povrayRenderDir  = lpubDir + QDir::separator() + QLatin1String("povray");
+QString Paths::blenderRenderDir = lpubDir + QDir::separator() + QLatin1String("blender");
+QString Paths::htmlStepsDir     = lpubDir + QDir::separator() + QLatin1String("htmlsteps");
 QString Paths::logsDir          = QLatin1String("logs");
 QString Paths::extrasDir        = QLatin1String("extras");
 QString Paths::libraryDir       = QLatin1String("libraries");
 
-QString Paths::customDir        = QString("%1custom").arg(Preferences::validLDrawLibrary);
-QString Paths::customPartDir    = QString("%1custom%2parts").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
-QString Paths::customSubDir     = QString("%1custom%2parts%2s").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
-QString Paths::customTextureDir = QString("%1custom%2parts%2textures").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
-QString Paths::customPrimDir    = QString("%1custom%2p").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
-QString Paths::customPrim8Dir   = QString("%1custom%2p%28").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
-QString Paths::customPrim48Dir  = QString("%1custom%2p%248").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
+QString Paths::customDir;
+QString Paths::customPartDir;
+QString Paths::customSubDir;
+QString Paths::customTextureDir;
+QString Paths::customPrimDir;
+QString Paths::customPrim8Dir;
+QString Paths::customPrim48Dir;
 
 QStringList Paths::customDirs;
 
 void Paths::mkPovrayDir() {
-
     QDir dir;
     dir.mkdir(povrayRenderDir);
-
 }
 
 void Paths::mkBlenderDir() {
-
     QDir dir;
     dir.mkdir(blenderRenderDir);
-
 }
 
 void Paths::mkDirs() {
-
     QDir dir;
     dir.mkdir(lpubDir);
     dir.mkdir(tmpDir);
@@ -84,39 +80,25 @@ void Paths::mkDirs() {
     dir.mkdir(assemDir);
     dir.mkdir(partsDir);
     dir.mkdir(submodelDir);
-
 }
 
 void Paths::mkCustomDirs() {
-
-  QDir dir;
-
-  QString dp = Preferences::lpubDataPath;
-  if(! dir.exists(dp + QDir::separator() + customDir))
-    dir.mkdir(dp + QDir::separator() + customDir);
-
-  if (! dir.exists(dp + QDir::separator() + customPartDir))
-    dir.mkdir(dp + QDir::separator() + customPartDir);
-
-  if (! dir.exists(dp + QDir::separator() + customSubDir))
-    dir.mkdir(dp + QDir::separator() + customSubDir);
-
-  if (! dir.exists(dp + QDir::separator() + customTextureDir))
-    dir.mkdir(dp + QDir::separator() + customTextureDir);
-
-  if (! dir.exists(dp + QDir::separator() + customPrimDir))
-    dir.mkdir(dp + QDir::separator() + customPrimDir);
-
-  if (! dir.exists(dp + QDir::separator() + customPrim8Dir))
-    dir.mkdir(dp + QDir::separator() + customPrim8Dir);
-
-  if (! dir.exists(dp + QDir::separator() + customPrim48Dir))
-    dir.mkdir(dp + QDir::separator() + customPrim48Dir);
-
-  customDirs << dp + QDir::separator() + customPartDir
-             << dp + QDir::separator() + customSubDir
-             << dp + QDir::separator() + customTextureDir
-             << dp + QDir::separator() + customPrimDir
-             << dp + QDir::separator() + customPrim8Dir
-             << dp + QDir::separator() + customPrim48Dir;
+    customDir        = Preferences::validLDrawLibrary + QLatin1String("custom");
+    customPartDir    = customDir + QDir::separator() + QLatin1String("parts");
+    customSubDir     = customPartDir + QDir::separator() + QLatin1String("s");
+    customTextureDir = customPartDir + QDir::separator() + QLatin1String("textures");
+    customPrimDir    = customDir + QDir::separator() + QLatin1String("p");
+    customPrim8Dir   = customPrimDir + QDir::separator() + QLatin1String("8");
+    customPrim48Dir  = customPrimDir + QDir::separator() + QLatin1String("48");
+    const static QString lpubDataPath = Preferences::lpubDataPath + QDir::separator();
+    customDirs << lpubDataPath + customPartDir
+               << lpubDataPath + customSubDir
+               << lpubDataPath + customTextureDir
+               << lpubDataPath + customPrimDir
+               << lpubDataPath + customPrim8Dir
+               << lpubDataPath + customPrim48Dir;
+    QDir dir;
+    for (QString &path : customDirs) {
+        if (!dir.exists(path)) dir.mkdir(path);
+    }
 }
