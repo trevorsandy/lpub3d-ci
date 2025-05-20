@@ -1,9 +1,9 @@
-INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+INCLUDEPATH += .
+DEPENDPATH += .
 HEADERS += \
-        $$PWD/ldrawini.h \
-        $$PWD/ldrawinp.h  
+        ldrawini.h \
+        ldrawinp.h
 
 SOURCES += \
-        $$PWD/ldrawini.c
+        ldrawini.c
 

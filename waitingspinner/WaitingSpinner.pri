@@ -1,10 +1,8 @@
-INCLUDEPATH += \
-    $$PWD
-DEPENDPATH += \
-    $$PWD
+INCLUDEPATH += .
+DEPENDPATH += .
 
 SOURCES += \
-    $$PWD/waitingspinnerwidget.cpp
+    waitingspinnerwidget.cpp
     
 HEADERS += \
-    $$PWD/waitingspinnerwidget.h
+    waitingspinnerwidget.h

@@ -42,13 +42,13 @@ contains(LOAD_LDV_HEADERS,True) {
     else: \
     THIRD_PARTY_DIST_DIR_PATH     = $$(LP3D_DIST_DIR_PATH)
     isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../../builds/3rdparty )
+    THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( ../../builds/3rdparty )
     !exists($$THIRD_PARTY_DIST_DIR_PATH) {
         unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
         else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
         else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
         else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-        THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../../$$DIST_DIR )
+        THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( ../../../$$DIST_DIR )
         !exists($$THIRD_PARTY_DIST_DIR_PATH) {
             message("~~~ ERROR lib$${TARGET} - THIRD_PARTY_DIST_DIR_PATH (LDVLIB) WAS NOT FOUND! ~~~ ")
             THIRD_PARTY_DIST_DIR_PATH="undefined"
@@ -56,7 +56,7 @@ contains(LOAD_LDV_HEADERS,True) {
     }
 
     BUILD_LDV_LIBS {
-        VER_LDVIEW_DIR_PATH = $$PWD/LDView
+        VER_LDVIEW_DIR_PATH = LDView
         VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DIR_PATH}
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
     } else {
@@ -436,7 +436,7 @@ contains(LOAD_LDV_LIBS,True) {
     #LDV_LDVIEW_RESOURCE_DIR, LDV_EXPORT_RESOURCE_DIR and LDV_MESSAGES_INI defined in mainApp.pro
     LDV_MESSAGES        = $$shell_path( $$absolute_path( $${LDV_LDVIEW_RESOURCE_DIR}/LDViewMessages.ini ) )
     LDV_EXPORT_MESSAGES = $$shell_path( $$absolute_path( $${LDV_EXPORT_RESOURCE_DIR}/LDExportMessages.ini ) )
-    LDV_WIDGET_MESSAGES = $$shell_path( $$absolute_path( $$PWD/LDVWidgetMessages.ini ) )
+    LDV_WIDGET_MESSAGES = $$shell_path( $$absolute_path( LDVWidgetMessages.ini ) )
     LDV_CONCAT_MESSAGES = $$shell_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI ) )
     #message("~~~ DEBUG_$$upper($${TARGET}) LDV_CONCAT_MESSAGES: $$LDV_CONCAT_MESSAGES ~~~ ")
     #message("~~~ DEBUG_$$upper($${TARGET}) LDV_LDVIEW_RESOURCE_DIR: $$LDV_LDVIEW_RESOURCE_DIR ~~~ ")
