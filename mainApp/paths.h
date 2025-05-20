@@ -19,11 +19,10 @@
 #ifndef PATHS_H
 #define PATHS_H
 
-#include <QString>
-
+class QString;
+class QStringList;
 class Paths {
 public:
-
     static void mkDirs();
     static void mkPovrayDir();
     static void mkBlenderDir();
@@ -50,6 +49,6 @@ public:
     static QStringList customDirs;
 };
 
-extern Paths paths;
+extern class Paths paths;
 
 #endif
