@@ -37,10 +37,12 @@ CONFIG(debug, debug|release) {
 BUILD += BUILD ON $$upper($$HOST)
 
 INCLUDEPATH += $$PWD
-!USE_SYSTEM_ZLIB {
-    INCLUDEPATH  += $$_PRO_FILE_PWD_/../zlib
-} else {
-    INCLUDEPATH  += $$_PRO_FILE_PWD_/../../include   # for zlib.h and zconf.h
+!equals(TARGET, z) {
+    !USE_SYSTEM_ZLIB {
+        INCLUDEPATH  += $$_PRO_FILE_PWD_/../zlib
+    } else {
+        INCLUDEPATH  += $$_PRO_FILE_PWD_/../../include   # for zlib.h and zconf.h
+    }
 }
 
 # USE GNU_SOURCE
@@ -126,7 +128,11 @@ QMAKE_CFLAGS_WARN_ON = \
                      -Wno-switch \
                      -Wno-comment \
                      -Wno-unused-result \
-                     -Wno-unused-but-set-variable
+                     -Wno-unused-but-set-variable \
+                     -Wno-unused-variable \
+                     -Wno-implicit-fallthrough \
+                     -Wno-misleading-indentation \
+                     -Wno-format-security                     
 
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 
