@@ -113,14 +113,21 @@ THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
 # Reference LDView headers
 VER_LDVIEW  = ldview-4.6
 
-    unix|msys:        VER_LDVIEW_DEV = ldview           # change this as necessary
-    else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
-    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
-    exists($$VER_LDVIEW_DEV_REPOSITORY): \
-    VER_LDVIEW_INCLUDE = $$VER_LDVIEW_DEV_REPOSITORY
+BUILD_LDV_LIBS {
+    VER_LDVIEW_DIR_PATH = $$absolute_path( $$PWD/../ldvlib/LDVQt/LDView )
+    VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DIR_PATH}/include
+    INCLUDEPATH += $$VER_LDVIEW_DIR_PATH $$VER_LDVIEW_INCLUDE
+} else {
+    VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    CONFIG(debug, debug|release) {
+        unix|msys:        VER_LDVIEW_DEV = ldview           # change this as necessary
+        else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+        exists($$VER_LDVIEW_DEV_REPOSITORY): \
+        VER_LDVIEW_INCLUDE = $$VER_LDVIEW_DEV_REPOSITORY
+    }
+    INCLUDEPATH += $$VER_LDVIEW_INCLUDE
 }
-INCLUDEPATH += $$VER_LDVIEW_INCLUDE
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
