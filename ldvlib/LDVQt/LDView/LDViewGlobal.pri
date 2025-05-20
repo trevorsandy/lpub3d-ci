@@ -22,23 +22,52 @@ static|staticlib {
 }
 
 # Qt/OSMesa/WGL library identifiers
-contains(DEFINES, _QT) {
-    POSTFIX  = -qt$${QT_MAJOR_VERSION}
-    BUILD   += QT
-} else: contains(DEFINES, _OSMESA) {
-    POSTFIX  = -osmesa
-    BUILD   += OSMESA
-    QT      -= core
-} else:CUI_WGL {
-    DEFINES += _LP3D_CUI_WGL
-    POSTFIX  = -wgl
-    BUILD   += WGL
-    QT      -= core
+ldviewqt {
+    contains(DEFINES, _OSMESA): \
+    DEFINES        -= _OSMESA
+    DEFINES        += _QT
+    QT             += core
+    CONFIG         += qt
+    CONFIG         += CUI_QT
+    POSTFIX        = -qt$${QT_MAJOR_VERSION}
+    BUILD          += QT
+} else:msys:ldviewwgl {
+    contains(DEFINES, _OSMESA): \
+    DEFINES        -= _OSMESA
+    contains(DEFINES, _QT): \
+    DEFINES        -= _QT
+    DEFINES        += _LP3D_CUI_WGL
+    QT             -= core
+    CONFIG         += CUI_WGL
+    POSTFIX         = -wgl
+    BUILD          += WGL
+} else:!win32-msvc* {
+    contains(DEFINES, _QT): \
+    DEFINES        -= _QT
+    DEFINES        += _OSMESA
+    QT             -= core
+    CONFIG         += OSMesa
+    POSTFIX         = -osmesa
+    BUILD          += OSMESA
 }
 
-# Except for MSVC (use pre-built), always build 3rd party lib3ds
-win32-msvc* {
-    CONFIG += BUILD_MINIZIP BUILD_GL2PS BUILD_TINYXML
+!USE_LDV_3RD_PARTY_LIBS:!USE_LDV_SYSTEM_LIBS {
+    CONFIG += USE_LDV_SYSTEM_LIBS
+}
+USE_LDV_3RD_PARTY_LIBS:USE_LDV_SYSTEM_LIBS {
+    message("~~~ NOTICE: 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'")
+    CONFIG -= USE_LDV_SYSTEM_LIBS
+}
+USE_LDV_3RD_PARTY_LIBS {
+    CONFIG += BUILD_3DS \
+    CONFIG += BUILD_JPEG \
+    CONFIG += BUILD_PNG \
+    CONFIG += BUILD_GL2PS \
+    CONFIG += BUILD_TINYXML \
+    CONFIG += BUILD_MINIZIP \
+    CONFIG += BUILD_ZLIB
+} else: win32-msvc* {
+    CONFIG += BUILD_GL2PS BUILD_TINYXML
 } else {
     !USE_3RD_PARTY_PREBUILT_3DS: CONFIG += BUILD_3DS
 }
@@ -61,7 +90,7 @@ BUILD_MINIZIP {
 }
 
 # Ubuntu Trusty uses libpng12 which is too old
-if (contains(HOST, Ubuntu):contains(HOST, 14.04.5):USE_SYSTEM_LIBS|BUILD_PNG) {
+if (contains(HOST, Ubuntu):contains(HOST, 14.04.5):USE_LDV_SYSTEM_LIBS|BUILD_PNG) {
     USE_3RD_PARTY_PNG = YES
 }
 
@@ -103,10 +132,10 @@ if (win32|static|staticlib) {
 # Basically, this project include file is set up to allow some options for selecting your LDView libraries.
 # The default is to select the pre-defined libraries in ../lib and headers in ../include.
 # There is an option to build all the libraries dynamically as you compile the solution.
-# This option is enabled by setting the directive CONFIG+=USE_3RD_PARTY_LIBS.
+# This option is enabled by setting the directive CONFIG+=USE_LDV_3RD_PARTY_LIBS.
 # Additionally, you have the option to use system library path(s) to access libraries
 # you may already have on your system e.g. usr/include and usr/lib. To enable this
-# option, be sure to set SYSTEM_PREFIX_ below along with the directive CONFIG+=USE_SYSTEM_LIBS
+# option, be sure to set SYSTEM_PREFIX_ below along with the directive CONFIG+=USE_LDV_SYSTEM_LIBS
 
 # 3rdParty libraries - compiled from source during build (some, not all)
 3RD_PARTY_PREFIX_  = $$_PRO_FILE_PWD_/../3rdParty
@@ -129,7 +158,7 @@ unix|msys {
     EXT_S          = a
 
     # base names
-    USE_SYSTEM_LIBS {
+    USE_LDV_SYSTEM_LIBS {
         LIB_PNG    = png
     } else {
         # MSYS2 always uses system libs
@@ -273,7 +302,7 @@ LIBS_PRI           += -l$${LIB_3DS}
 # 3rd party libreries - compiled from source
 # Be careful not to move this chunk. moving it will affect to overall logic flow.
 # ===============================
-USE_3RD_PARTY_LIBS {
+USE_LDV_3RD_PARTY_LIBS {
     # headers and static compiled libs
     GL2PS_INC       = $${3RD_PARTY_PREFIX_}/gl2ps
     GL2PS_LIBDIR    = -L$${3RD_PARTY_PREFIX_}/gl2ps/$$DESTDIR
@@ -392,7 +421,7 @@ unix|msys {
     }
 
     # ===============================
-    USE_3RD_PARTY_LIBS {
+    USE_LDV_3RD_PARTY_LIBS {
         # detect system libraries
         _LIB_PNG    = png
         USE_SYSTEM_PNG: !USE_3RD_PARTY_PNG: exists($${SYS_LIBDIR_}/lib$${_LIB_PNG}.$${EXT_D}): USE_SYSTEM_PNG_LIB = YES
@@ -464,10 +493,10 @@ unix|msys {
             ZLIB_LIBDIR   = -L$${SYS_LIBDIR_}
             ZLIB_LDLIBS   = $${SYS_LIBDIR_}/lib$${LIB_Z}.$${EXT_D}
         }
-    } # USE_3RD_PARTY_LIBS
+    } # USE_LDV_3RD_PARTY_LIBS
 
     # ===============================
-    USE_SYSTEM_LIBS {
+    USE_LDV_SYSTEM_LIBS {
         # update base names
         LIB_PNG             = png
 
@@ -599,7 +628,7 @@ unix|msys {
             # update libs path
             !contains(LIBS_INC, $${3DS_INC}): LIBS_INC += $${3DS_INC}
         }
-    } # USE_SYSTEM_LIBS
+    } # USE_LDV_SYSTEM_LIBS
 }
 
 !win32-msvc*:isEmpty(USE_3RD_PARTY_3DS):message("~~~ USING STATIC PRE-BUILT 3DS LIB ~~~")
@@ -692,7 +721,7 @@ unix {
 }
 
 # suppress warnings
-unix|msys {
+unix|msys: {
 QMAKE_CFLAGS_WARN_ON = \
                      -Wall -W \
                      -Wno-unused-parameter \
@@ -718,9 +747,14 @@ QMAKE_CFLAGS_WARN_ON += \
                      -Wno-cast-function-type \
                      -Wno-implicit-fallthrough \
                      -Wno-stringop-truncation \
-                     -Wno-calloc-transposed-args \
-                     -Wno-template-id-cdtor
-}
+                     -Wno-calloc-transposed-args
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+                     -Wno-template-id-cdtor \
+} else {
+QMAKE_CFLAGS_WARN_ON += \
+                     -Wno-clobbered
+} # msys
 macx {
 QMAKE_CFLAGS_WARN_ON += \
                      -Wno-implicit-function-declaration \
@@ -732,9 +766,6 @@ QMAKE_CFLAGS_WARN_ON += \
                      -Wno-for-loop-analysis \
                      -Wno-int-conversion \
                      -Wno-reorder
-} else {
-QMAKE_CFLAGS_WARN_ON += \
-                     -Wno-clobbered
-}
-QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+} # macx
 } # unix|msys
