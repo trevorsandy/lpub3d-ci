@@ -92,10 +92,6 @@ export LP3D_LDRAW_DIR=${LP3D_LDRAW_DIR:-${LP3D_3RD_PARTY_PATH}/ldraw}
 export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-~}
 export LDRAWDIR=${LDRAWDIR:-~/ldraw}
 
-export LP3D_VER_LDGLITE=ldglite-1.3
-export LP3D_VER_LDVIEW=ldview-4.4
-export LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
-
 export CI=${CI:-true}
 export OBS=${OBS:-false}
 export DOCKER=${DOCKER:-false}
