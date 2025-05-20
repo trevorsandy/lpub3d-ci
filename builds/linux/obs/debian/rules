@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update: April 01, 2025
+# Last Update: May 22, 2025
 # Copyright (C) 2017 - 2025 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -19,10 +19,10 @@ export TARGET_VENDOR := $(shell . /etc/os-release 2>/dev/null; [ -n "$${ID}" ] &
 export PLATFORM_VER := $(shell . /etc/os-release 2>/dev/null; [ -n "$${VERSION_ID}" ] && echo "$${VERSION_ID}" || echo 'undefined')
 
 # check if is Univention 5.0 using shameless hack because the proud creator of this OBS project added no way to correctly ID the OS
-export LP3D_UCS_5 := $(shell [ $$(which ucslint) ] && echo "5.0" || :)
+export LP3D_UCS_VER := $(shell [ $$(which ucslint) ] && echo "5.0" || :)
 
 # check if is Debian
-export LP3D_DEBIAN_10 := $(shell [ $$(echo ${TARGET_VENDOR} | awk '{print tolower($$0)}') = "debian" ] && [ ${PLATFORM_VER} = "10" ] && echo "10" || :)
+export LP3D_DEBIAN_VER := $(shell [ $$(echo ${TARGET_VENDOR} | awk '{print tolower($$0)}') = "debian" ] && [ ${PLATFORM_VER} = "10" ] && echo "10" || :)
 
 # get app version suffix
 LP3D_VER_SUFFIX := $(shell cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
@@ -54,47 +54,43 @@ configure-stamp:
 		if [ -f "$${LDrawLibFile}" ]; then \
 			if [ "$$(basename $${LDrawLibFile})" = "complete.zip" ]; then \
 				cp -f $${LDrawLibFile} ../ || \
-				echo "Error: $$(basename $${LDrawLibFile}) copy to $$(readlink -e ../) failed."; \
+				echo "ERROR: $$(basename $${LDrawLibFile}) copy to $$(readlink -e ../) failed."; \
 			fi; \
 			mv -f $${LDrawLibFile} mainApp/extras/ || \
-			echo "Error: $$(basename $${LDrawLibFile}) move to $$(readlink -e mainApp/extras) failed."; \
+			echo "ERROR: $$(basename $${LDrawLibFile}) move to $$(readlink -e mainApp/extras) failed."; \
 		else \
-			echo "Error: $${LDrawLibFile} not found."; \
+			echo "ERROR: $${LDrawLibFile} not found."; \
 		fi; \
 	done
-	# move 3rd party renderer source archives
+	# move 3rd party renderer source archives if available in SOURCES (e.g. OBS)
 	for TarballFile in \
 		../SOURCES/ldglite.tar.gz \
 		../SOURCES/ldview.tar.gz \
 		../SOURCES/povray.tar.gz; do \
 		if [ -f "$${TarballFile}" ]; then \
 			mv -f $${TarballFile} ../ || \
-			echo "Error: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
-		else \
-			echo "Error: $${TarballFile} not found."; \
+			echo "ERROR: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
 		fi; \
 	done
-	# move additional build libraries
-	if [ -n "$${LP3D_UCS_5}" ] || [ -n "$${LP3D_DEBIAN_10}" ]; then \
+	# move additional build libraries (e.g. OBS)
+	if [ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]; then \
 		for TarballFile in \
 			../SOURCES/mesa-18.3.5.tar.gz \
 			../SOURCES/glu-9.0.0.tar.bz2; do \
 			if [ -f "$${TarballFile}" ]; then \
 				mv -f $${TarballFile} ../ || \
-				echo "Error: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
+				echo "ERROR: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
 			else \
-				echo "Error: $${TarballFile} not found."; \
+				echo "ERROR: $${TarballFile} not found."; \
 			fi; \
 		done; \
 	fi
-	# copy version.info to utilities
+	# copy version.info to utilities if available in SOURCES (e.g. OBS)
 	if [ -f "../SOURCES/version.info" ]; then \
 		cp -f ../SOURCES/version.info builds/utilities; \
 		[ -f "builds/utilities/version.info" ] && \
 		echo "Copied version.info into $$(readlink -e builds/utilities)" || \
-		echo "Error: version.info not copied to $$(readlink -e builds/utilities)."; \
-	else \
-		echo "Error: ../SOURCES/version.info not found."; \
+		echo "ERROR: version.info not copied to $$(readlink -e builds/utilities)."; \
 	fi
 	BINARY_FILE_PATH=$$(readlink -e ../)
 	BINARY_FILE_LIST=builds/linux/obs/debian/source/include-binaries; \
@@ -108,10 +104,10 @@ configure-stamp:
 	export LP3D_LOG_PATH=$${LP3D_LOG_PATH:-$${WD}}; \
 	export LP3D_CPU_CORES=$${LP3D_CPU_CORES:-$$(nproc)}; \
 	export LP3D_3RD_DIST_DIR=$${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}; \
-	export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_10}" ]) && echo 1 || :); \
+	export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]) && echo 1 || :); \
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 override_dh_auto_configure:
-	# LDraw directory - for build check
+	# Set LDraw directory for build check and generate Makefiles
 	export LDRAWDIR=${HOME}/ldraw; \
 	if which qmake >/dev/null 2>/dev/null ; then \
 		qmake -v; \

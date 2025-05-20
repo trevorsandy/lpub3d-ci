@@ -293,8 +293,7 @@ RESOURCES += \
     resources.qrc
 
 OTHER_FILES += \
-    LDVWidgetMessages.ini \
-    ../../mainApp/extras/ldvMessages.ini
+    LDVWidgetMessages.ini
 
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

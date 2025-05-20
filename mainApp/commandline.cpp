@@ -466,7 +466,7 @@ int LPub::processCommandLine()
         if (ParseString(colourConfigFile, true))
         {
             colourConfigFile = QDir::toNativeSeparators(colourConfigFile);
-            if (QFileInfo(colourConfigFile).exists())
+            if (QFileInfo::exists(colourConfigFile))
             {
                 if (QDir::toNativeSeparators(Preferences::altLDConfigPath.toLower()) != colourConfigFile.toLower())
                     ColourConfigChanged = true;
