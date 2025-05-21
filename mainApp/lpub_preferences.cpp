@@ -2609,8 +2609,16 @@ void Preferences::rendererPreferences()
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui32.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #elif defined __x86_64__ || defined _M_X64
-    QFileInfo ldviewInfo(QString("%1/%2/bin/LDView64.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
-    QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui64.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
+    static const bool msys2 =
+    #if defined LP3D_MSYS2
+        true;
+    #else
+        false;
+    #endif
+    static const QString ldviewexe = msys2 ? QString("ldview.exe") : QString("LDView64.exe");
+    static const QString povrayexe = msys2 ? QString("lpub3d_trace_cui.exe") : QString("lpub3d_trace_cui64.exe");
+    QFileInfo ldviewInfo(QString("%1/%2/bin/%3").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR, ldviewexe));
+    QFileInfo povrayInfo(QString("%1/%2/bin/%3").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR, povrayexe));
 #endif
 #elif defined Q_OS_MAC
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
@@ -2966,8 +2974,8 @@ void Preferences::rendererPreferences()
             Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
         blenderImportModule.clear();
     }
-	
-	// Blender addon version check
+
+    // Blender addon version check
     QString const blenderAddonVersionCheckKey("BlenderAddonVersionCheck");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderAddonVersionCheckKey))) {
         QVariant eValue(blenderAddonVersionCheck);
