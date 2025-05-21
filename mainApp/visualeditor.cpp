@@ -3886,7 +3886,7 @@ void Gui::ReloadVisualEditor() {
 
                          PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), lcGetActiveProject(), true, true);
 
-                         float* Matrix = IncludeTransform;
+                         float* Matrix = IncludeTransform.GetFloats();
                          lcMatrix44 Transform(lcVector4( Matrix[0],  Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8],  Matrix[10], -Matrix[9],  0.0f),
                                               lcVector4(-Matrix[4], -Matrix[6],  Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
@@ -4104,7 +4104,7 @@ void Gui::ReloadVisualEditor() {
 
                              Stream << QLatin1String(LPMeta + " SYNTH CONTROL_POINT");
 
-                             const float* FloatMatrix = ControlPoint.Transform;
+                             const float* FloatMatrix = ControlPoint.Transform.GetFloats();
                              float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
 
                              for (int NumberIdx = 0; NumberIdx < 13; NumberIdx++)
