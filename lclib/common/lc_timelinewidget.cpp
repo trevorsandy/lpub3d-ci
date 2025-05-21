@@ -319,7 +319,6 @@ void lcTimelineWidget::UpdateCurrentStepItem()
 			QFont Font = mCurrentStepItem->font(0);
 			Font.setBold(false);
 			mCurrentStepItem->setFont(0, Font);
-			setCurrentItem(CurrentStepItem);
 		}
 
 		if (CurrentStepItem)
@@ -327,6 +326,7 @@ void lcTimelineWidget::UpdateCurrentStepItem()
 			QFont Font = CurrentStepItem->font(0);
 			Font.setBold(true);
 			CurrentStepItem->setFont(0, Font);
+			setCurrentItem(CurrentStepItem);
 		}
 
 		mCurrentStepItem = CurrentStepItem;
@@ -344,7 +344,7 @@ void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel) {
 
 		QImage Image(Size, Size, QImage::Format_ARGB32);
 		Image.fill(0);
-		float* Color = gColorList[ColorIndex].Value;
+		const lcVector4& Color = gColorList[ColorIndex].Value;
 		QPainter Painter(&Image);
 		Painter.setPen(Qt::darkGray);
 		Painter.setBrush(QColor::fromRgbF(Color[0], Color[1], Color[2]));
