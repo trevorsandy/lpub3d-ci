@@ -1929,7 +1929,7 @@ std::vector<PieceInfo*> lcPiecesLibrary::GetVisibleTrainTrackParts(const lcTrain
 	{
 		lcTrainTrackInfo* TrainTrackInfo = Info->GetTrainTrackInfo();
 
-		if (TrainTrackInfo && TrainTrackInfo->IsVisible() && TrainTrackInfo->CanConnectTo(ConnectionType))
+		if (TrainTrackInfo && TrainTrackInfo->IsVisible() && TrainTrackInfo->CanConnectTo(ConnectionType, true))
 			Parts.emplace_back(Info);
 	}
 
