@@ -1410,7 +1410,7 @@ void lcContext::FlushState()
 			if (mWorldMatrixDirty)
 			{
 				if (Program.WorldMatrixLocation != -1)
-					glUniformMatrix4fv(Program.WorldMatrixLocation, 1, false, mWorldMatrix);
+					glUniformMatrix4fv(Program.WorldMatrixLocation, 1, false, mWorldMatrix.GetFloats());
 			}
 
 			if (mViewMatrixDirty)
@@ -1421,14 +1421,14 @@ void lcContext::FlushState()
 				if (Program.LightPositionLocation != -1)
 				{
 					lcVector3 LightPosition = ViewPosition + lcMul30(lcVector3(300.0f, 300.0f, 0.0f), InverseViewMatrix);
-					glUniform3fv(Program.LightPositionLocation, 1, (float*)LightPosition);
+					glUniform3fv(Program.LightPositionLocation, 1, LightPosition.GetFloats());
 				}
 
 				if (Program.EyePositionLocation != -1)
-					glUniform3fv(Program.EyePositionLocation, 1, (float*)ViewPosition);
+					glUniform3fv(Program.EyePositionLocation, 1, ViewPosition.GetFloats());
 			}
 
-			glUniformMatrix4fv(Program.WorldViewProjectionMatrixLocation, 1, false, lcMul(mWorldMatrix, mViewProjectionMatrix));
+			glUniformMatrix4fv(Program.WorldViewProjectionMatrixLocation, 1, false, lcMul(mWorldMatrix, mViewProjectionMatrix).GetFloats());
 			mWorldMatrixDirty = false;
 			mViewMatrixDirty = false;
 			mProjectionMatrixDirty = false;
@@ -1436,20 +1436,20 @@ void lcContext::FlushState()
 
 		if (mColorDirty && Program.MaterialColorLocation != -1)
 		{
-			glUniform4fv(Program.MaterialColorLocation, 1, (float*)mColor);
+			glUniform4fv(Program.MaterialColorLocation, 1, mColor.GetFloats());
 			mColorDirty = false;
 		}
 
 		if (mHighlightParamsDirty && Program.HighlightParamsLocation != -1)
 		{
-			glUniform4fv(Program.HighlightParamsLocation, 4, (float*)mHighlightParams[0]);
+			glUniform4fv(Program.HighlightParamsLocation, 4, mHighlightParams[0].GetFloats());
 			mHighlightParamsDirty = false;
 		}
 	}
 	else
 	{
 #if LC_FIXED_FUNCTION
-		glColor4fv((float*)mColor);
+		glColor4fv(mColor.GetFloats());
 
 		if (mWorldMatrixDirty || mViewMatrixDirty)
 		{
@@ -1459,7 +1459,7 @@ void lcContext::FlushState()
 				mMatrixMode = GL_MODELVIEW;
 			}
 
-			glLoadMatrixf(lcMul(mWorldMatrix, mViewMatrix));
+			glLoadMatrixf(lcMul(mWorldMatrix, mViewMatrix).GetFloats());
 			mWorldMatrixDirty = false;
 			mViewMatrixDirty = false;
 		}
@@ -1472,7 +1472,7 @@ void lcContext::FlushState()
 				mMatrixMode = GL_PROJECTION;
 			}
 
-			glLoadMatrixf(mProjectionMatrix);
+			glLoadMatrixf(mProjectionMatrix.GetFloats());
 			mProjectionMatrixDirty = false;
 		}
 #endif
