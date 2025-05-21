@@ -298,7 +298,7 @@ void lcPropertiesWidget::FloatChanged()
 
 		lcVector3 Distance = Position - Center;
 
-		Model->MoveSelectedObjects(Distance, Distance, false, true, true, true);
+		Model->MoveSelectedObjects(Distance, false, false, true, true, true);
 	}
 	else if (PropertyId == lcObjectPropertyId::ObjectRotationX || PropertyId == lcObjectPropertyId::ObjectRotationY || PropertyId == lcObjectPropertyId::ObjectRotationZ)
 	{
@@ -347,7 +347,7 @@ void lcPropertiesWidget::FloatChanged()
 		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
-			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
 /*** LPub3D Mod end ***/
 	}
 	else if (PropertyId == lcObjectPropertyId::CameraTargetX || PropertyId == lcObjectPropertyId::CameraTargetY || PropertyId == lcObjectPropertyId::CameraTargetZ)
@@ -370,7 +370,7 @@ void lcPropertiesWidget::FloatChanged()
 		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
-			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
 /*** LPub3D Mod end ***/
 	}
 	else if (PropertyId == lcObjectPropertyId::CameraUpX || PropertyId == lcObjectPropertyId::CameraUpY || PropertyId == lcObjectPropertyId::CameraUpZ)
@@ -393,7 +393,7 @@ void lcPropertiesWidget::FloatChanged()
 		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
-			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
 	}
 	else if (PropertyId == lcObjectPropertyId::CameraLatitude || PropertyId == lcObjectPropertyId::CameraLongitude /*|| PropertyId == lcObjectPropertyId::CameraDistance*/)
 	{

@@ -350,7 +350,7 @@ bool lcPiece::FileLoad(lcFile& file)
 					{
 						lcVector3 Translation;
 						float Rotation[3];
-						file.ReadFloats(Translation, 3);
+						file.ReadFloats((float*)Translation, 3);
 						file.ReadFloats(Rotation, 3);
 						ModelWorld = lcMatrix44Translation(Translation);
 						ModelWorld = lcMul(lcMatrix44RotationZ(Rotation[2] * LC_DTOR), lcMul(lcMatrix44RotationY(Rotation[1] * LC_DTOR), lcMul(lcMatrix44RotationX(Rotation[0] * LC_DTOR), ModelWorld)));
@@ -371,7 +371,7 @@ bool lcPiece::FileLoad(lcFile& file)
 			{
 				lcVector3 Translation;
 				float Rotation[3];
-				file.ReadFloats(Translation, 3);
+				file.ReadFloats((float*)Translation, 3);
 				file.ReadFloats(Rotation, 3);
 				lcMatrix44 ModelWorld = lcMatrix44Translation(Translation);
 				ModelWorld = lcMul(lcMatrix44RotationZ(Rotation[2] * LC_DTOR), lcMul(lcMatrix44RotationY(Rotation[1] * LC_DTOR), lcMul(lcMatrix44RotationX(Rotation[0] * LC_DTOR), ModelWorld)));
