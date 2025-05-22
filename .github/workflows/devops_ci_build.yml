@@ -26,18 +26,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - BUILD: ubuntu-amd64
-            OS: ubuntu-latest
-          - BUILD: fedora-amd64
-            OS: ubuntu-latest
           - BUILD: archlinux-amd64
             OS: ubuntu-latest
-          - BUILD: ubuntu-amd64-appimage
-            OS: ubuntu-latest
-          - BUILD: ubuntu-arm64
-            OS: ubuntu-24.04-arm
-          - BUILD: ubuntu-arm64-appimage
-            OS: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -83,7 +73,7 @@ jobs:
           if-no-files-found: ignore
 
   build-macos:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Build macOS ${{ matrix.runner-version }}
     runs-on: macos-${{ matrix.runner-version }}
     strategy:
@@ -132,7 +122,7 @@ jobs:
           if-no-files-found: ignore
 
   build-windows:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Build Windows 2022
     runs-on: windows-2022
     steps:
@@ -224,6 +214,7 @@ jobs:
   build-deploy:
     # add "${{ false }} && # remove to enable" after pipe to disable
     if: |
+      ${{ false }} &&
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
       (contains(github.event.head_commit.message, 'RELEASE_BUILD') ||
