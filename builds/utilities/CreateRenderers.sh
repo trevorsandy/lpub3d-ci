@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 24, 2025
+# Last Update: May 22, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -965,12 +965,14 @@ if [ -z "$LDRAWDIR" ]; then
 fi
 
 declare -r l=Log
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
 if [ "$OBS" != "true" ]; then
+  LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
   if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
     Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "complete.zip" ]; then
       Info -n "Downloading complete.zip..."
-      curl $CURL_OPTS https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o ${DIST_PKG_DIR}/complete.zip && \
+      curl $CURL_OPTS ${LP3D_LIBS_BASE}/complete.zip -o ${DIST_PKG_DIR}/complete.zip && \
       Info "Ok." || Info "Failed."
     else
       ldrawlib=$(echo $PWD/complete.zip)
@@ -983,7 +985,7 @@ if [ "$OBS" != "true" ]; then
     Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "${EXTRAS_DIR}/lpub3dldrawunf.zip" ]; then
       Info -n "Downloading lpub3dldrawunf.zip..."
-      curl $CURL_OPTS https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip && \
+      curl $CURL_OPTS ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip && \
       Info "Ok." || Info "Failed."
     else
       ldrawlib=$(echo ${EXTRAS_DIR}/lpub3dldrawunf.zip)
@@ -1171,7 +1173,7 @@ for buildDir in "${renderers[@]}"; do
   linesBefore=1
   case ${buildDir} in
   ldglite)
-    curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
+    curlCommand="${LP3D_GITHUB_URL}/ldglite/archive/master.tar.gz"
     checkString="LDGLite Output"
     linesAfter="2"
     buildCommand="BuildLDGLite"
@@ -1181,7 +1183,7 @@ for buildDir in "${renderers[@]}"; do
     displayLogLines=10
     ;;
   ldview)
-    curlCommand="https://github.com/trevorsandy/ldview/archive/lpub3d-build.tar.gz"
+    curlCommand="${LP3D_GITHUB_URL}/ldview/archive/lpub3d-build.tar.gz"
     checkString="LDView.*LPub3D Edition Image Output"
     linesAfter="6"
     buildCommand="BuildLDView"
@@ -1197,7 +1199,7 @@ for buildDir in "${renderers[@]}"; do
     displayLogLines=100
     ;;
   povray)
-    curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
+    curlCommand="${LP3D_GITHUB_URL}/povray/archive/lpub3d/raytracer-cui.tar.gz"
     checkString="Render Statistics"
     linesAfter="42"
     buildCommand="BuildPOVRay"
