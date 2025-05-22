@@ -32,7 +32,7 @@ OTHER_FILES += \
     $$PWD/../builds/check/build_checks.sh \
     $$PWD/../builds/check/build_checks.mpd \
     $$PWD/../builds/linux/CreateDeb.sh \
-    $$PWD/../builds/linux/CreateLinuxMulitArch.sh \
+    $$PWD/../builds/linux/CreateLinux.sh \
     $$PWD/../builds/linux/CreatePkg.sh \
     $$PWD/../builds/linux/CreateRpm.sh \
     $$PWD/../builds/linux/docker-compose/docker-compose-cibuild-linux.yml \

@@ -238,7 +238,7 @@ tar -czf ../${WORK_DIR}.tar.gz \
         --exclude="builds/linux/docker-compose" \
         --exclude="builds/linux/standard" \
         --exclude="builds/linux/CreateDeb.sh" \
-        --exclude="builds/linux/CreateLinuxMulitArch.sh" \
+        --exclude="builds/linux/CreateLinux.sh" \
         --exclude="builds/linux/CreateRpm.sh" \
         --exclude="builds/windows" \
         --exclude="builds/macx" \
