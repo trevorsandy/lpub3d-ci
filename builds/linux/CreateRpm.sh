@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 02, 2025
+# Last Update: June 12, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -73,8 +73,10 @@ XSERVER=${XSERVER:-}
 PRESERVE=${PRESERVE:-} # preserve cloned repository
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 LP3D_BASE=${LP3D_BASE:-fedora}
+BUILD_BRANCH=${BUILD_BRANCH:-master}
 LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
 LP3D_3RD_EXE_PREFIX=${INSTALL_PREFIX:-/usr}/bin/lpub3d/3rdParty
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
 LP3D_TARGET_ARCH=`uname -m`
 
 export OBS # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by lpub3d.spec
@@ -120,10 +122,10 @@ echo "Start $ME execution at $CWD..."
 
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo "   LPUB3D BUILD BRANCH....${BUILD_BRANCH}"
 if [ "$LOCAL" = "true" ]; then
     echo "   LPUB3D BUILD TYPE......Local"
     echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
-    echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
         echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
     else
@@ -133,6 +135,7 @@ if [ "$LOCAL" = "true" ]; then
 else
     echo "   LPUB3D BUILD TYPE......CI"
 fi
+echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
 
 echo "1. create working directories BUILD, RPMS, SRPMS, SOURCES, and SPECS in rpmbuild/..."
 if [ ! -d rpmbuild ]
@@ -142,6 +145,7 @@ fi
 
 cd rpmbuild
 
+l=Log
 BUILD_DIR=$PWD
 for DIR in {BUILD,RPMS,SRPMS,SOURCES,SPECS}
 do
@@ -151,39 +155,43 @@ do
     fi
 done
 
-cd ${BUILD_DIR}/SOURCES
+SOURCE_DIR=${BUILD_DIR}/SOURCES
+cd ${SOURCE_DIR}
 
 WORK_DIR=${LPUB3D}-git
 
 if [ "${TRAVIS}" != "true" ]; then
     if [ -d "/in" ]; then
-        echo "2. copy input source to rpmbuild/SOURCES/${LPUB3D}..."
+        echo "2. copy input source to ${SOURCE_DIR}/${LPUB3D}..."
         mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D}" ]]; then
             if [ "$LOCAL" = "true" ]; then
-                echo "2. copy LOCAL ${LPUB3D} source to rpmbuild/SOURCES/..."
+                echo "2. copy LOCAL ${LPUB3D} source to ${SOURCE_DIR}/..."
                 cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}
-                echo "2a.copy LOCAL ${LPUB3D} renderer source to rpmbuild/SOURCES/..."
-                cp -rf ${LOCAL_RESOURCE_PATH}/povray.tar.gz .
-                cp -rf ${LOCAL_RESOURCE_PATH}/ldglite.tar.gz .
-                cp -rf ${LOCAL_RESOURCE_PATH}/ldview.tar.gz .
+                echo "2a.copy LOCAL ${LPUB3D} renderer source to ${SOURCE_DIR}/..."
+                for renderer in ldglite ldview povray; do
+                    cp -rf ${LOCAL_RESOURCE_PATH}/${renderer}.tar.gz .
+                done
             else
-                echo "2. download ${LPUB3D} source to rpmbuild/SOURCES/..."
+                echo "2. download ${LPUB3D} source to ${SOURCE_DIR}/..."
                 if [ -d "${WORK_DIR}" ]; then
                     rm -rf ${WORK_DIR}
                 fi
-                git clone https://github.com/trevorsandy/${LPUB3D}.git
+                echo -n "2a.cloning ${LPUB3D} ${BUILD_BRANCH} branch into ${LPUB3D}..."
+                (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
+                if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
             fi
         else
-            echo "2. preserve ${LPUB3D} source in rpmbuild/SOURCES/..."
+            echo "2. preserve ${LPUB3D} source in ${SOURCE_DIR}/..."
             if [ -d "${WORK_DIR}" ]; then
+                echo "2a. move ${WORK_DIR} to ${LPUB3D} in ${SOURCE_DIR}/"
                 mv -f ${WORK_DIR} ${LPUB3D}
             fi
         fi
     fi
 else
-    echo "2. copy ${LPUB3D} source to rpmbuild/SOURCES/..."
+    echo "2. copy ${LPUB3D} source to ${SOURCE_DIR}/..."
     cp -rf "../../${LPUB3D}" .
 fi
 
@@ -213,22 +221,22 @@ _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
-    echo "4. move ${LPUB3D}/ to rpmbuild/SOURCES/${LPUB3D}-git..."
+    echo "4. move ${LPUB3D}/ to ${SOURCE_DIR}/${LPUB3D}-git..."
     if [ -d ${WORK_DIR} ]; then
         rm -rf ${WORK_DIR}
     fi
     mv -f ${LPUB3D} ${WORK_DIR}
 else
     if [ "$LOCAL" = "true" ]; then
-        echo "4. overwrite ${LPUB3D}-git/ with ${LPUB3D}/ in rpmbuild/SOURCES/..."
+        echo "4. overwrite ${LPUB3D}-git/ with ${LPUB3D}/ in ${SOURCE_DIR}/..."
         cp -TRf ${LPUB3D}/ ${WORK_DIR}/
         rm -rf ${LPUB3D}
     else
-        echo "4. preserve ${LPUB3D}-git/ in rpmbuild/SOURCES/..."
+        echo "4. preserve ${LPUB3D}-git/ in ${SOURCE_DIR}/..."
     fi
 fi
 
-echo "6. copy lpub3d.xpm icon to rpmbuild/SOURCES/"
+echo "6. copy lpub3d.xpm icon to ${SOURCE_DIR}/"
 cp -f ${WORK_DIR}/mainApp/resources/lpub3d.xpm .
 
 echo "7. copy ${LPUB3D}.spec to SPECS/"
@@ -237,37 +245,68 @@ cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ${BUILD_DIR}/SPECS
 echo "8. copy ${LPUB3D}-rpmlintrc to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ${BUILD_DIR}/SPECS
 
-if [ "$LOCAL" = "true" ]; then
-    echo "9. copy LOCAL LDraw archive libraries to rpmbuild/SOURCES/..."
-    [ ! -f lpub3dldrawunf.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip .
-
-    # Place a copy of the unofficial library at ./rpmbuild/BUILD
-    [ ! -f ../lpub3dldrawunf.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip ../BUILD
-
-    [ ! -f complete.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/complete.zip .
-
-    [ ! -f tenteparts.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/tenteparts.zip .
-
-    [ ! -f vexiqparts.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/vexiqparts.zip .
-else
-    echo "9. download LDraw archive libraries to rpmbuild/SOURCES/..."
-    [ ! -f lpub3dldrawunf.zip ] && \
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip || :
-
-    [ ! -f complete.zip ] && \
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip || :
-
-    [ ! -f tenteparts.zip ] && \
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :
-
-    [ ! -f vexiqparts.zip ] && \
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip || :
+# LDraw library archives
+ldrawLibFiles=(complete.zip lpub3dldrawunf.zip tenteparts.zip vexiqparts.zip)
+if [[ "$LOCAL" = "true" || "$PRESERVE" = "true" ]]; then
+    LOCAL_LDRAW_PATH=${LOCAL_RESOURCE_PATH}/ldraw-libraries
+    [ ! -d "${LOCAL_LDRAW_PATH}" ] && unset LOCAL_LDRAW_PATH || :
 fi
+if [ -n "${LOCAL_LDRAW_PATH}" ]; then
+    echo "9. copy LDraw archive libraries to ${SOURCE_DIR}/..."
+    for libFile in "${ldrawLibFiles[@]}"; do
+        if [ ! -f "${libFile}" ]; then
+            echo -n "   copying ${libFile} into ${SOURCE_DIR}..."
+            (cp -rf ${LOCAL_LDRAW_PATH}/${libFile} .) >$l.out 2>&1 && rm $l.out
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        fi
+    done
+else
+    echo "9. download LDraw archive libraries to ${SOURCE_DIR}/..."
+    LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
+    for libFile in "${ldrawLibFiles[@]}"; do
+        if [ ! -f "${libFile}" ]; then
+            echo -n "   downloading ${libFile} into ${SOURCE_DIR}..."
+            (curl $curlopts ${LP3D_LIBS_BASE}/${libFile} -o ${libFile}) >$l.out 2>&1 && rm $l.out
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        fi
+    done
+fi
+
+# download 3rd party packages defined as source in pkgbuild/
+dwMsgShown=0
+packageFiles=(ldglite ldview povray)
+for pkgFile in "${packageFiles[@]}"; do
+    if [ ! -f "${pkgFile}.${ext}" ]; then
+        if [ "$LOCAL" = "true" ]; then
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "10.copy ${LPUB3D} package source to ${SOURCE_DIR}/" || :
+            cp -f ${LOCAL_RESOURCE_PATH}/${pkgFile}.${ext} .
+        elif [[ "$PRESERVE" = "true" && -f ../${pkgFile}.${ext} ]]; then
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "10.copy ${LPUB3D} package source to ${SOURCE_DIR}/" || :
+            cp -f ../${pkgFile}.${ext} .
+        else
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "10.download ${LPUB3D} package source to ${SOURCE_DIR}/" || :
+            ext=tar.gz
+            case "${pkgFile}" in
+                ldglite)
+                    curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/master.${ext}"
+                    ;;
+                ldview)
+                    curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/lpub3d-build.${ext}"
+                    ;;
+                povray)
+                    curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/raytracer-cui.${ext}"
+                    ;;
+            esac
+            echo -n "   $(echo ${pkgFile} | awk '{print toupper($0)}') tarball ${pkgFile}.${ext} does not exist. Downloading..."
+            (curl $curlopts ${curlCommand} -o ${pkgFile}.${ext}) >$l.out 2>&1 && rm $l.out
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        fi
+        dwMsgShown=1
+    fi
+done
 
 # file copy and downloads above must happen before we make the tarball
 echo "11. create tarball SOURCES/${WORK_DIR}.tar.gz from SOURCES/${WORK_DIR}/..."
@@ -414,7 +453,7 @@ then
         echo "17-2. cleanup build assets..."
         rm -f ./*.rpm* 2>/dev/null || :
         if [[ "${GITHUB}" != "true" ]]; then
-            echo "17-3. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
+            echo "17-3. cleanup cloned ${LPUB3D} repository from ${SOURCE_DIR}/ and rpmbuild/BUILD/..."
             rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
         fi
         exit 0

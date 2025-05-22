@@ -3,7 +3,7 @@
 # Build all libOSMesa and libGLU libraries
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update November 06, 2022
+#  Last Update May 22, 2025
 #  Copyright (C) 2018 - 2025 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -41,6 +41,9 @@ CC="gcc"
 CXX="g++"
 CFLAGS="-O2"
 CXXFLAGS="-O2 -std=c++11"
+# lpub3d library repository
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
+LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
 
 # grab te script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -147,7 +150,7 @@ Info "Building OSMesa..."
 if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
   if [ "$OBS" != "true" ]; then
     Info "downloading Mesa ${mesaversion}..."
-    curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-${mesaversion}.tar.gz"
+    curl $curlopts -O "${LP3D_LIBS_BASE}/mesa-${mesaversion}.tar.gz"
   else
     Info "ERROR - archive file mesa-${mesaversion}.tar.gz was not found. $ME will terminate."
     exit 1
@@ -279,7 +282,7 @@ fi
 if [ ! -f "glu-${gluversion}.tar.bz2" ]; then
   if [ "$OBS" != "true" ]; then
     Info "* downloading GLU ${gluversion}..."
-    curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-${gluversion}.tar.bz2"
+    curl $curlopts -O "${LP3D_LIBS_BASE}/glu-${gluversion}.tar.bz2"
   else
     Info "ERROR - archive file glu-${gluversion}.tar.bz2 was not found."
   fi

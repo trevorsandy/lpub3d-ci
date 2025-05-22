@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: May 10, 2025
+# Last Update: May 24, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -77,6 +77,8 @@ echo "Start $ME execution at $CWD..."
 LPUB3D="${LPUB3D:-lpub3d-ci}"
 LP3D_ARCH="${LP3D_ARCH:-$(uname -m)}"
 LP3D_CPU_CORES="${LP3D_CPU_CORES:-$(nproc)}"
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
+BUILD_BRANCH=${BUILD_BRANCH:-master}
 
 echo && echo "   LPUB3D BUILD ARCH......[${LP3D_ARCH}]"
 echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
@@ -91,11 +93,13 @@ else
   echo "   BUILD OPTION...........[build package]"
 fi
 echo "   CPU CORES..............[${LP3D_CPU_CORES}]"
+echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not writing log")]" && echo
+echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not writing log")]" && echo
+declare -r l=Log
 
 # when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
@@ -144,7 +148,7 @@ then
   if [ -d ${LPUB3D} ]; then
     rm -rf ${LPUB3D}
   fi
-  git clone https://github.com/trevorsandy/${LPUB3D}.git
+  git clone ${LP3D_GITHUB_URL}/${LPUB3D}.git
 elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ] || [ ! -d ${LPUB3D} ]
 then
   echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild/)..."
@@ -153,8 +157,9 @@ then
     if [ -d ${LPUB3D} ]; then
        rm -rf ${LPUB3D}
     fi
-    echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
-    git clone https://github.com/trevorsandy/${LPUB3D}.git
+    echo -n "-  cloning ${LPUB3D} ${BUILD_BRANCH} branch into $(realpath dmgbuild/)..."
+    (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
+    if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
   else
     cp -rf ../${LPUB3D}/ ./${LPUB3D}/
   fi
@@ -233,6 +238,7 @@ if [ "$BUILD_OPT" = "renderers" ]; then
 fi
 
 # Copy LDraw archive libraries to mainApp/extras
+LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
   if [ -f "${DIST_DIR}/complete.zip" ]
@@ -240,8 +246,9 @@ then
     echo "-  copy ldraw official library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/complete.zip" "mainApp/extras/complete.zip"
   else
-    echo "-  download ldraw official library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -o mainApp/extras/complete.zip
+    echo -n "-  downloading complete.zip into $(realpath mainApp/extras/)..."
+    (curl -O $curlopts ${LP3D_LIBS_BASE}/complete.zip -o mainApp/extras/complete.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
   echo "-  ldraw official library exist. skipping download"
@@ -253,8 +260,9 @@ then
     echo "-  copy unofficial library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras/lpub3dldrawunf.zip"
   else
-    echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
+    echo -n "-  downloading lpub3dldrawunf.zip to $(realpath mainApp/extras/)..."
+    (curl $curlopts ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
   echo "-  ldraw unofficial library exist. skipping download"
@@ -266,8 +274,9 @@ then
     echo "-  copy Tente library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/tenteparts.zip" "mainApp/extras/tenteparts.zip"
   else
-    echo "-  download ldraw Tente library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -o mainApp/extras/tenteparts.zip
+    echo -n "-  downloading tenteparts.zip into $(realpath mainApp/extras/)..."
+    (curl -O $curlopts ${LP3D_LIBS_BASE}/tenteparts.zip -o mainApp/extras/tenteparts.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
   echo "-  TENTE library exist. skipping download"
@@ -280,8 +289,9 @@ then
     echo "-  copy VEXIQ library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/vexiqparts.zip" "mainApp/extras/vexiqparts.zip"
   else
-    echo "-  download ldraw VEXIQ library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -o mainApp/extras/vexiqparts.zip
+    echo -n "-  downloading vexiqparts.zip into $(realpath mainApp/extras/)..."
+    (curl -O $curlopts ${LP3D_LIBS_BASE}/vexiqparts.zip -o mainApp/extras/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
   echo "-  VEXIQ library exist. skipping download"
