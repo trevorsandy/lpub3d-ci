@@ -251,7 +251,7 @@ tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz \
         --exclude="builds/utilities/nsis-scripts" \
         --exclude="builds/linux/docker-compose" \
         --exclude="builds/linux/standard" \
-        --exclude="builds/linux/CreateLinuxMulitArch.sh" \
+        --exclude="builds/linux/CreateLinux.sh" \
         --exclude="builds/linux/CreatePkg.sh" \
         --exclude="builds/linux/CreateRpm.sh" \
         --exclude="builds/windows" \
