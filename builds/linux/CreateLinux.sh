@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 17, 2025
+# Last Update May 24, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -137,6 +137,7 @@ export DOCKER=${DOCKER:-true}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
 export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
 
 [ -n "${BUILD_OPT}" ] && Info "BUILD OPTION.......${BUILD_OPT}" || :
 [ -n "${LPUB3D}" ] && Info "SOURCE DIR.........${LPUB3D}" || :
@@ -155,16 +156,30 @@ else
 fi
 
 # Download LDraw library archive files if not available
+declare -r l=Log
 Info && Info "Checking LDraw archive libraries..."
+LP3D_LIBS_BASE="${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1"
 [[ ! -L "$/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
-[ ! -f "/dist/lpub3dldrawunf.zip" ] && \
-wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O /dist/lpub3dldrawunf.zip || :
-[ ! -f "/dist/complete.zip" ] && \
-wget https://library.ldraw.org/library/updates/complete.zip -O /dist/complete.zip || :
-[ ! -f "/dist/tenteparts.zip" ] && \
-wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O /dist/tenteparts.zip || :
-[ ! -f "/dist/vexiqparts.zip" ] && \
-wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O /dist/vexiqparts.zip || :
+if [ ! -f "/dist/lpub3dldrawunf.zip" ]; then
+  echo -n "downloading lpub3dldrawunf.zip into ${BUILD_DIR}..."
+  (wget ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O /dist/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "/dist/complete.zip" ]; then
+  echo -n "downloading complete.zip into ${BUILD_DIR}..."
+  (wget ${LP3D_LIBS_BASE}/complete.zip -O /dist/complete.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "/dist/tenteparts.zip" ]; then
+  echo -n "downloading tenteparts.zip into ${BUILD_DIR}..."
+  (wget ${LP3D_LIBS_BASE}/tenteparts.zip -O /dist/tenteparts.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "/dist/vexiqparts.zip" ]; then
+  echo -n "downloading vexiqparts.zip into ${BUILD_DIR}..."
+  (wget ${LP3D_LIBS_BASE}/vexiqparts.zip -O /dist/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
 
 # If not AppImage build, source package build script and exit
 if [[ "${LP3D_APPIMAGE}" != "true" ]]; then
@@ -236,7 +251,7 @@ if [ "${TRAVIS}" != "true" ]; then
      cp -rf /in/. .
    else
      Info "Download source to ${BUILD_DIR}/..."
-     git clone https://github.com/trevorsandy/${LPUB3D}.git
+     git clone ${LP3D_GITHUB_URL}/${LPUB3D}.git
      mv -f ./${LPUB3D}/.[!.]* . && mv -f ./${LPUB3D}/* . && rm -rf ./${LPUB3D}
    fi
 else
