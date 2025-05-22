@@ -3,9 +3,13 @@
 # Travis-ci build [install] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: April 01, 2025
+# Last Update: May 22, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
+
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
+LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
+
 cd $LP3D_BUILD_FOLDER
 
 # source update_config_files.sh"
@@ -112,15 +116,15 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
        mkdir -p "${LP3D_DIST_DIR_PATH}"
     fi
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
+    wget ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
     if [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ]; then
-       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -O ${LP3D_DIST_DIR_PATH}/complete.zip
+       wget ${LP3D_LIBS_BASE}/complete.zip -O ${LP3D_DIST_DIR_PATH}/complete.zip
     fi
     if [ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ]; then
-       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/tenteparts.zip
+       wget ${LP3D_LIBS_BASE}/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/tenteparts.zip
     fi
     if [ ! -f "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" ]; then
-       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/vexiqparts.zip
+       wget ${LP3D_LIBS_BASE}/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/vexiqparts.zip
     fi
     if [ ! -d "../AppDir" ]; then
        mkdir -p ../AppDir
@@ -134,10 +138,10 @@ if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     echo "Force linking to 'keg-only' instance of Qt..."
     brew link --force qt5
     echo "Downloading archive libraries..."
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras/vexiqparts.zip
+    wget ${LP3D_LIBS_BASE}/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras
+    wget ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
+    wget ${LP3D_LIBS_BASE}/tenteparts.zip -O mainApp/extras/tenteparts.zip
+    wget ${LP3D_LIBS_BASE}/vexiqparts.zip -O mainApp/extras/vexiqparts.zip
     if [ ! -d ${HOME}/Library/ldraw ]; then
       ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
       if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi

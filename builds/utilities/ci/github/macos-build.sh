@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: May 10, 2025
+# Last Update: May 24, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -126,6 +126,7 @@ fi
 
 export WRITE_LOG
 export LP3D_LOG_PATH
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
 
 # make sure we're in the repository root directory
 cd "${GITHUB_WORKSPACE}"
@@ -214,27 +215,61 @@ else
 fi
 
 # Download LDraw library archive files
+declare -r l=Log
 echo "Downloading archive libraries..."
-[[ "${GITHUB}" = "true" && ! -f "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" ]] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip || :
-[ ! -f "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" ] && \
-ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" || :
-cp -f ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip mainApp/extras
-[ ! -f "${LP3D_3RD_PARTY_PATH}/complete.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip || :
-[ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ] && \
-ln -sf "${LP3D_3RD_PARTY_PATH}/complete.zip" "${LP3D_DIST_DIR_PATH}/complete.zip" || :
-cp -f ${LP3D_3RD_PARTY_PATH}/complete.zip mainApp/extras
-[ ! -f "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_3RD_PARTY_PATH}/tenteparts.zip || :
-[ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ] && \
-ln -sf "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" "${LP3D_DIST_DIR_PATH}/tenteparts.zip" || :
-cp -f ${LP3D_3RD_PARTY_PATH}/tenteparts.zip mainApp/extras
-[ ! -f "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip || :
-[ ! -f "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" ] && \
-ln -sf "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" || :
-cp -f ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip mainApp/extras
+LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
+if [[ "${GITHUB}" = "true" && ! -f "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" ]]; then
+  echo -n "downloading lpub3dldrawunf.zip into third_party/..."
+  (wget -q ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" ]; then
+  echo -n "linking lpub3dldrawunf.zip from third_party/ to third_party/macos/..."
+  (ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip") >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+echo -n "copying lpub3dldrawunf.zip to mainApp/extras..."
+(cp -f ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+if [ ! -f "${LP3D_3RD_PARTY_PATH}/complete.zip" ]; then
+  echo -n "downloading complete.zip into third_party/..."
+  (wget -q ${LP3D_LIBS_BASE}/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ]; then
+  echo -n "linking complete.zip from third_party/ to third_party/macos/..."
+  (ln -sf "${LP3D_3RD_PARTY_PATH}/complete.zip" "${LP3D_DIST_DIR_PATH}/complete.zip") >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+echo -n "copying complete.zip to mainApp/extras..."
+(cp -f ${LP3D_3RD_PARTY_PATH}/complete.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+if [ ! -f "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" ]; then
+  echo -n "downloading tenteparts.zip into third_party/..."
+  (wget -q ${LP3D_LIBS_BASE}/tenteparts.zip -O ${LP3D_3RD_PARTY_PATH}/tenteparts.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ]; then
+  echo -n "linking tenteparts.zip from third_party/ to third_party/macos/..."
+  (ln -sf "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" "${LP3D_DIST_DIR_PATH}/tenteparts.zip") >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+echo -n "copying tenteparts.zip to mainApp/extras..."
+(cp -f ${LP3D_3RD_PARTY_PATH}/tenteparts.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+if [ ! -f "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" ]; then
+  echo -n "downloading vexiqparts.zip into third_party/..."
+  (wget -q ${LP3D_LIBS_BASE}/vexiqparts.zip -O ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" ]; then
+  echo -n "linking vexiqparts.zip from third_party/ to third_party/macos/..."
+  (ln -sf "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" "${LP3D_DIST_DIR_PATH}/vexiqparts.zip") >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+echo -n "copying vexiqparts.zip to mainApp/extras..."
+(cp -f ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
 # Trigger rebuild renderers if specified
 ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3

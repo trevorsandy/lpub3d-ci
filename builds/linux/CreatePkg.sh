@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 01, 2025
+# Last Update: June 12, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -73,6 +73,8 @@ XSERVER=${XSERVER:-}
 PRESERVE=${PRESERVE:-} # preserve cloned repository
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 LP3D_BASE=${LP3D_BASE:-arch}
+BUILD_BRANCH=${BUILD_BRANCH:-master}
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
 LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
 
 export OBS # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by PKGBUILD
@@ -118,12 +120,12 @@ echo "Start $ME execution at $CWD..."
 
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo "   LPUB3D BUILD BRANCH....${BUILD_BRANCH}"
 echo "   LPUB3D BUILD PLATFORM..$([ "$DOCKER" = "true" ] && echo "DOCKER" || echo "HOST RUNNER")"
 if [ "$LOCAL" = "true" ]; then
     echo "   LPUB3D BUILD TYPE......Local"
     echo "   LPUB3D BUILD DISPLAY...$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
     echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
-    echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
         echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
     else
@@ -133,43 +135,49 @@ if [ "$LOCAL" = "true" ]; then
 else
     echo "   LPUB3D BUILD TYPE......CI"
 fi
+echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
 
 echo "1. create PKG working directories in pkgbuild/"
-if [ ! -d pkgbuild/upstream ]
+UPSTREAM_DIR=pkgbuild/upstream
+if [ ! -d "${UPSTREAM_DIR}" ]
 then
-  mkdir -p pkgbuild/upstream
+  mkdir -p "${UPSTREAM_DIR}"
 fi
 
+l=Log
 cd pkgbuild/
 BUILD_DIR=$PWD
 cd ${BUILD_DIR}/upstream
 
 if [ "${TRAVIS}" != "true" ]; then
     if [ -d "/in" ]; then
-        echo "2. copy input source to upstream/${LPUB3D}..."
+        echo "2. copy input source to ${UPSTREAM_DIR}/${LPUB3D}..."
         mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
         LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
             if [ "$LOCAL" = "true" ]; then
-                echo "2. copy LOCAL ${LPUB3D} source to upstream/..."
+                echo "2. copy LOCAL ${LPUB3D} source to ${UPSTREAM_DIR}/..."
                 cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}
             else
-                echo "2. download ${LPUB3D} source to upstream/..."
+                echo "2. download ${LPUB3D} source to ${UPSTREAM_DIR}/..."
                 if [ -d "${LPUB3D_REPO}" ]; then
                     rm -rf ${LPUB3D_REPO}
                 fi
-                git clone https://github.com/trevorsandy/${LPUB3D}.git
+                echo -n "2a.cloning ${LPUB3D} ${BUILD_BRANCH} branch into ${LPUB3D}..."
+                (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
+                if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
             fi
         else
-            echo "2. preserve ${LPUB3D} source in upstream/..."
+            echo "2. preserve ${LPUB3D} source in ${UPSTREAM_DIR}/..."
             if [ -d "${LPUB3D_REPO}" ]; then
+                echo "2a. move ${LPUB3D_REPO} to ${LPUB3D} in ${UPSTREAM_DIR}/"
                 mv -f ${LPUB3D_REPO} ${LPUB3D}
             fi
         fi
     fi
 else
-    echo "2. copy ${LPUB3D} source to upstream/..."
+    echo "2. copy ${LPUB3D} source to ${UPSTREAM_DIR}/..."
     cp -rf "../../${LPUB3D}" .
 fi
 
@@ -199,18 +207,18 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 WORK_DIR=${LPUB3D}-git
 if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
-    echo "3. move ${LPUB3D}/ to ${LPUB3D}-git/ in upstream/..."
+    echo "3. move ${LPUB3D}/ to ${LPUB3D}-git/ in ${UPSTREAM_DIR}/..."
     if [ -d ${WORK_DIR} ]; then
         rm -rf ${WORK_DIR}
     fi
     mv -f ${LPUB3D} ${WORK_DIR}
 else
     if [ "$LOCAL" = "true" ]; then
-        echo "3. overwrite ${LPUB3D}-git/ with ${LPUB3D}/ in upstream/..."
+        echo "3. overwrite ${LPUB3D}-git/ with ${LPUB3D}/ in ${UPSTREAM_DIR}/..."
         cp -TRf ${LPUB3D}/ ${WORK_DIR}/
         rm -rf ${LPUB3D}
     else
-        echo "3. preserve ${LPUB3D}-git/ in upstream/..."
+        echo "3. preserve ${LPUB3D}-git/ in ${UPSTREAM_DIR}/..."
     fi
 fi
 
@@ -257,59 +265,82 @@ sed -i -e "s;^	export LP3D_LOG_PATH=.*;	export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\
        -e "s;^	export LP3D_3RD_DIST_DIR=.*;	export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
        "PKGBUILD" || :
 
-if [ "$LOCAL" = "true" ]; then
-    echo "6. copy LOCAL LDraw archive libraries to pkgbuild/..."
-    [ ! -f lpub3dldrawunf.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip .
-
-    [ ! -f complete.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/complete.zip .
-
-    [ ! -f tenteparts.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/tenteparts.zip .
-
-    [ ! -f vexiqparts.zip ] && \
-    cp -rf ${LOCAL_RESOURCE_PATH}/vexiqparts.zip .
+# LDraw library archives
+ldrawLibFiles=(complete.zip lpub3dldrawunf.zip tenteparts.zip vexiqparts.zip)
+if [[ "$LOCAL" = "true" || "$PRESERVE" = "true" ]]; then
+    LOCAL_LDRAW_PATH=${LOCAL_RESOURCE_PATH}/ldraw-libraries
+    [ ! -d "${LOCAL_LDRAW_PATH}" ] && unset LOCAL_LDRAW_PATH || :
+fi
+if [ -n "${LOCAL_LDRAW_PATH}" ]; then
+    echo "6. copy LDraw archive libraries to ${BUILD_DIR}/..."
+    for libFile in "${ldrawLibFiles[@]}"; do
+        if [ ! -f "${libFile}" ]; then
+            echo -n "   copying ${libFile} into ${BUILD_DIR}/..."
+            (cp -rf ${LOCAL_LDRAW_PATH}/${libFile} .) >$l.out 2>&1 && rm $l.out
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        fi
+    done
 else
-    echo "6. download LDraw archive libraries to pkgbuild/..."
-    [ ! -f lpub3dldrawunf.zip ] && \
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip || :
-
-    [ ! -f complete.zip ] && \
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip || :
-
-    [ ! -f tenteparts.zip ] && \
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :
-
-    [ ! -f vexiqparts.zip ] && \
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip || :
+    echo "6. download LDraw archive libraries to ${BUILD_DIR}/..."
+    LP3D_LIBS_BASE="${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1"
+    for libFile in "${ldrawLibFiles[@]}"; do
+        if [ ! -f "${libFile}" ]; then
+            echo -n "   downloading ${libFile} into ${BUILD_DIR}..."
+            (curl $curlopts ${LP3D_LIBS_BASE}/${libFile} -o ${libFile}) >$l.out 2>&1 && rm $l.out
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        fi
+    done
 fi
 
 # download 3rd party packages defined as source in pkgbuild/
-if [ "$LOCAL" = "true" ]; then
-    echo "7. LOCAL ${LPUB3D} renderer source to pkgbuild/..."
-    cp -rf ${LOCAL_RESOURCE_PATH}/povray.tar.gz .
-    cp -rf ${LOCAL_RESOURCE_PATH}/ldglite.tar.gz .
-    cp -rf ${LOCAL_RESOURCE_PATH}/ldview.tar.gz .
-else
-    echo "7. download ${LPUB3D} renderer source to pkgbuild/..."
-fi
-for buildDir in ldglite ldview povray; do
-  case ${buildDir} in
-  ldglite)
-    curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
-    ;;
-  ldview)
-    curlCommand="https://github.com/trevorsandy/ldview/archive/lpub3d-build.tar.gz"
-    ;;
-  povray)
-    curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
-    ;;
-  esac
-  if [ ! -f ${buildDir}.tar.gz ]; then
-    Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
-    curl $curlopts -o ${buildDir}.tar.gz ${curlCommand}
-  fi
+dwMsgShown=0
+packageFiles=(\
+ldglite \
+ldview \
+povray \
+mesa-21.3.9 \
+glu-9.0.1 \
+zstd-1.5.7\
+)
+for pkgFile in "${packageFiles[@]}"; do
+    renderer=1
+    ext=tar.gz
+    case "${pkgFile}" in
+        ldglite)
+            curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/master.${ext}"
+            ;;
+        ldview)
+            curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/lpub3d-build.${ext}"
+            ;;
+        povray)
+            curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/raytracer-cui.${ext}"
+            ;;
+        *) renderer=0 ;;
+    esac
+    if [ "${renderer}" -eq 1 ]; then
+        curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/${buildBranch}.${ext}"
+    else
+        [ "${pkgFile}" != "zstd-1.5.7" ] && ext=tar.xz || :
+        curlCommand="${LP3D_LIBS_BASE}/${pkgFile}.${ext}"
+    fi
+    if [ ! -f "${pkgFile}.${ext}" ]; then
+        if [ "$LOCAL" = "true" ]; then
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "7. copy ${LPUB3D} package source to ${BUILD_DIR}/" || :
+            cp -f ${LOCAL_RESOURCE_PATH}/${pkgFile}.${ext} .
+        elif [[ "$PRESERVE" = "true" && -f ../${pkgFile}.${ext} ]]; then
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "7. copy ${LPUB3D} package source to ${BUILD_DIR}/" || :
+            cp -f ../${pkgFile}.${ext} .
+        else
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "7. download ${LPUB3D} package source to ${BUILD_DIR}/" || :
+            echo -n "   $(echo ${pkgFile} | awk '{print toupper($0)}') tarball ${pkgFile}.${ext} does not exist. Downloading..."
+            (curl $curlopts ${curlCommand} -o ${pkgFile}.${ext}) >$l.out 2>&1 && rm $l.out
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        fi
+        dwMsgShown=1
+    fi
 done
 
 echo "8-1. build LPub3D PKG application package..."
