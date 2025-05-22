@@ -3490,8 +3490,9 @@ void lcModel::RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool
 					Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
 					Piece->UpdatePosition(mCurrentStep);
 /*** LPub3D Mod - Build Modification ***/
+					IsPiece = true;
 					if (!Rotated)
-						Rotated = IsPiece = true;
+						Rotated = IsPiece;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 					Piece->SetPieceModified(Rotated);
@@ -3534,12 +3535,37 @@ void lcModel::RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool
 					Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RelativeRotationMatrix, Center, WorldToFocusMatrix);
 					Piece->UpdatePosition(mCurrentStep);
 /*** LPub3D Mod - Build Modification ***/
+					IsPiece = true;
 					if (!Rotated)
-						Rotated = IsPiece = true;
+						Rotated = IsPiece;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 					Piece->SetPieceModified(Rotated);
 /*** LPub3D Mod end ***/
+				}
+				else if (Object->IsCamera())
+				{
+					lcCamera* Camera = (lcCamera*)Object;
+
+					const lcVector3 Center = Camera->GetRotationCenter();
+					lcMatrix33 WorldToFocusMatrix;
+					lcMatrix33 RelativeRotationMatrix;
+
+					if (Relative)
+					{
+						const lcMatrix33 RelativeRotation = Camera->GetRelativeRotation();
+						WorldToFocusMatrix = lcMatrix33AffineInverse(RelativeRotation);
+						RelativeRotationMatrix = lcMul(RotationMatrix, RelativeRotation);
+					}
+					else
+					{
+						WorldToFocusMatrix = lcMatrix33Identity();
+						RelativeRotationMatrix = RotationMatrix;
+					}
+
+					Camera->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
+					Camera->UpdatePosition(mCurrentStep);
+					Rotated = true;
 				}
 				else if (Object->IsLight())
 				{
@@ -5163,8 +5189,8 @@ void lcModel::UpdateFreeMoveTool(lcPiece* MousePiece, const lcMatrix44& StartTra
 				Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), Distance);
 				Camera->UpdatePosition(mCurrentStep);
 
-//				Camera->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
-//				Camera->UpdatePosition(mCurrentStep);
+				Camera->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
+				Camera->UpdatePosition(mCurrentStep);
 			}
 			else if (Object->IsLight())
 			{
