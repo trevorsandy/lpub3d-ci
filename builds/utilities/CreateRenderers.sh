@@ -1242,19 +1242,22 @@ for buildDir in "${renderers[@]}"; do
       Info && Info "$platform_pretty detected. LPub3D_Trace(${buildDir}) will not be built."
       continue
     fi
-    # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
-    Info && Info "Setup ${!artefactVer} source files..."
-    Info "----------------------------------------------------"
-    if [ ! -d "${buildDir}/${validSubDir}" ]; then
-      # Check if tarball archive exist...
-      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-      if [ ! -f ${buildDir}.tar.gz ]; then
-        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-        curl $CURL_OPTS ${curlCommand} -o ${buildDir}.tar.gz
+    # Check if build folder exist - donwload tarball and extract if no binary exists or to generate dependency list
+    if [[ ! -f "${!artefactBinary}" || "$LP3D_NO_DEPS" != "true" ]]; then
+      Info && Info "Setup ${!artefactVer} source files..."
+      Info "----------------------------------------------------"
+      if [ ! -d "${buildDir}/${validSubDir}" ]; then
+        # Check if tarball archive exist...
+        Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+        if [ ! -f ${buildDir}.tar.gz ]; then
+          Info -n "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+          (curl $CURL_OPTS ${curlCommand} -o ${buildDir}.tar.gz) >$l.out 2>&1 && rm $l.out
+          [ -f $l.out ] && Info "Failed." && tail -20 $l.out || Info "Ok"
+        fi
+        [ -f ${buildDir}.tar.gz ] && ExtractArchive ${buildDir} ${validSubDir} || Info "ERROR - Failed to download ${buildDir}.tar.gz"
+      else
+        cd "${buildDir}" || :
       fi
-      [ -f ${buildDir}.tar.gz ] && ExtractArchive ${buildDir} ${validSubDir} || Info "ERROR - Failed to download ${buildDir}.tar.gz"
-    else
-      cd "${buildDir}" || :
     fi
     # Install build dependencies - even if binary exists...
     if [[ "$OS_NAME" != "Darwin" && "$OBS" != "true" && "$LP3D_NO_DEPS" != "true" ]]; then
