@@ -328,7 +328,6 @@ for buildDir in ldglite ldview povray; do
 done
 
 echo "8-1. build LPub3D PKG application package..."
-updpkgsums && \
 makepkg --syncdeps --noconfirm --needed || exit 1
 
 DISTRO_FILE=$(ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.zst)
