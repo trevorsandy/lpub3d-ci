@@ -140,6 +140,7 @@ SET SIGN_UTILITY="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
 
 SET UTILITIES_DIR=..\utilities
 SET MAIN_APP_DIR=..\..\mainApp
+SET LPUB3D_DIR=lpub3d-ci
 
 SET VER_LDGLITE=ldglite-1.3
 SET VER_LDVIEW=ldview-4.6
