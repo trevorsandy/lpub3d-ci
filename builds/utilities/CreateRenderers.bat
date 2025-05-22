@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 10, 2025
+rem  Last Update: May 22, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -88,6 +88,7 @@ SET VER_LDGLITE=LDGLite-1.3
 SET VER_LDVIEW=LDView-4.6
 SET VER_POVRAY=lpub3d_trace_cui-3.8
 SET CAN_PACKAGE=True
+SET LP3D_GITHUB_URL=https://github.com/trevorsandy
 
 rem Check if invalid platform flag
 IF NOT [%1]==[] (
@@ -223,7 +224,7 @@ IF EXIST "%LP3D_LDGLITE%" (
 SET BUILD_DIR=ldglite
 SET VALID_SDIR=app
 SET ARCHIVE_FILE_DIR=ldglite-master
-SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
+SET WebNAME=%LP3D_GITHUB_URL%/ldglite/archive/master.zip
 CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDGLITE_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDGLITE%" (
@@ -259,7 +260,7 @@ IF EXIST "%LP3D_LDVIEW%" (
 SET BUILD_DIR=ldview
 SET VALID_SDIR=OSMesa
 SET ARCHIVE_FILE_DIR=ldview-lpub3d-build
-SET WebNAME=https://github.com/trevorsandy/ldview/archive/lpub3d-build.zip
+SET WebNAME=%LP3D_GITHUB_URL%/ldview/archive/lpub3d-build.zip
 CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDVIEW_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDVIEW%" (
@@ -290,7 +291,7 @@ IF EXIST "%LP3D_POVRAY%" (
 SET BUILD_DIR=povray
 SET VALID_SDIR=windows
 SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
-SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.zip
+SET WebNAME=%LP3D_GITHUB_URL%/povray/archive/lpub3d/raytracer-cui.zip
 CALL :CONFIGURE_BUILD_ENV
 CD /D %VALID_SDIR%\vs2015
 CALL autobuild.cmd %POVRAY_BUILD_ARGS%
@@ -355,6 +356,7 @@ EXIT /b
 :CHECK_LDRAW_LIB
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
+SET LP3D_LIBS_BASE=%LP3D_GITHUB_URL%/lpub3d_libs/releases/download/v1.0.1
 SET BUILD_OUTPUT_PATH_SAVE=%BUILD_OUTPUT_PATH%
 IF "%BUILD_WORKER%"=="True" (
   SET BUILD_OUTPUT_PATH=%LP3D_3RD_PARTY_PATH%
@@ -368,7 +370,7 @@ SET ARCHIVE_FILE_DIR=%LDRAW_DIR%
 SET ARCHIVE_FILE=complete.zip
 SET VALID_SDIR=parts
 SET WebCONTENT="%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip
+SET WebNAME=%LP3D_LIBS_BASE%/complete.zip
 IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.

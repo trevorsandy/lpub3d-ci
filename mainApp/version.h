@@ -205,7 +205,7 @@
 #define VER_SOURCE_GITHUB_STR               VER_GITHUB_USER_STR "/lpub3d/"
 #define VER_BLENDER_ADDON_STR               VER_GITHUB_USER_STR "/blenderldrawrender/"
 #define VER_BLENDER_ADDON_API_STR           VER_GITHUB_API_STR "/blenderldrawrender/"
-
+#define VER_LPUB3D_LIBRARIES_STR            VER_GITHUB_USER_STR "/lpub3d_libs/releases/download/v1.0.1/"
 #define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
 
 #define VER_QT_URL                          "https://www.qt.io/product"
@@ -224,6 +224,7 @@
 #endif
 #define VER_REBRICKABLE_KEYS_JSON_URL       VER_HOMEPAGE_GITHUB_STR "assets/resources/rebrickablekeys.json"
 #define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_HOMEPAGE_GITHUB_STR "assets/resources/codes.txt"
+#define VER_LPUB3D_LIBRARY_BLCODES_URL      VER_LPUB3D_LIBRARIES_STR "codes.txt"
 #define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_HOMEPAGE_GITHUB_STR "assets/resources/missingimage.png"
 #define VER_BLENDER_ADDON_URL               VER_BLENDER_ADDON_STR "releases/latest/download/" VER_BLENDER_ADDON_FILE
 #define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: May 10, 2025
+# Last Update: May 22, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -63,6 +63,8 @@ FinishElapsedTime() {
 }
 
 trap FinishElapsedTime EXIT
+
+LP3D_GITHUB_URL="https://github.com/trevorsandy"
 
 build_base="${BUILD:-$(. /etc/os-release 2>/dev/null && echo $ID)}"
 build_arch="${ARCH:-`uname -m`}"
@@ -223,16 +225,30 @@ mkdir -p ${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH} || :
 base_path="${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}"
 
 # prepare ldraw directory
+declare -r l=Log
 dist_path="${LP3D_3RD_PARTY_PATH}"
 ldraw_path="${dist_path}/ldraw"
-[ ! -f "${dist_path}/lpub3dldrawunf.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O ${dist_path}/lpub3dldrawunf.zip || :
-[ ! -f "${dist_path}/complete.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/complete.zip -O ${dist_path}/complete.zip || :
-[ ! -f "${dist_path}/tenteparts.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${dist_path}/tenteparts.zip || :
-[ ! -f "${dist_path}/vexiqparts.zip" ] && \
-wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O ${dist_path}/vexiqparts.zip || :
+LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
+if [ ! -f "${dist_path}/lpub3dldrawunf.zip" ]; then
+    echo -n "downloading lpub3dldrawunf.zip into third_party/..."
+    (wget -q ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O ${dist_path}/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${dist_path}/complete.zip" ]; then
+    echo -n "downloading complete.zip into third_party/..."
+    (wget -q ${LP3D_LIBS_BASE}/complete.zip -O ${dist_path}/complete.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${dist_path}/tenteparts.zip" ]; then
+    echo -n "downloading tenteparts.zip into third_party/..."
+    (wget -q ${LP3D_LIBS_BASE}/tenteparts.zip -O ${dist_path}/tenteparts.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
+if [ ! -f "${dist_path}/vexiqparts.zip" ]; then
+    echo -n "downloading vexiqparts.zip into third_party/..."
+    (wget -q ${LP3D_LIBS_BASE}/vexiqparts.zip -O ${dist_path}/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+fi
 if [ ! -d "${ldraw_path}/parts" ]; then
     [ ! -d "${ldraw_path}" ] && mkdir -p ${ldraw_path} || :
     (cd ${dist_path} && unzip -od ./ -q complete.zip)

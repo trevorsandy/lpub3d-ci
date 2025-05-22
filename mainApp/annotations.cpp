@@ -2085,7 +2085,7 @@ bool Annotations::overwriteFile(const QString &file)
         outstream << "# in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
         outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
         outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "# " << VER_LPUB3D_LIBRARY_BLCODES_URL << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
@@ -2158,7 +2158,7 @@ bool Annotations::exportBLColorsFile() {
         outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
         outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
         outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "# " << VER_LPUB3D_LIBRARY_BLCODES_URL << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
@@ -2231,7 +2231,7 @@ bool Annotations::exportLD2BLColorsXRefFile() {
         outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
         outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
         outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "# " << VER_LPUB3D_LIBRARY_BLCODES_URL << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
@@ -2305,7 +2305,7 @@ bool Annotations::exportLD2BLCodesXRefFile() {
         outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
         outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
         outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "# " << VER_LPUB3D_LIBRARY_BLCODES_URL << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
@@ -2586,7 +2586,7 @@ bool Annotations::exportAnnotationStyleFile() {
         outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
         outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
         outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "# " << VER_LPUB3D_LIBRARY_BLCODES_URL << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
