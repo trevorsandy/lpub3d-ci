@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 10, 2025
+rem  Last Update: May 22, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -276,9 +276,11 @@ SET LP3D_AVAILABLE_VERSIONS_api=unknown
 SET LP3D_AVAILABLE_VERSIONS_snp=unknown
 SET LP3D_AVAILABLE_VERSIONS_flp=unknown
 
-SET LP3D_GITHUB_BASE=https://github.com/trevorsandy/%LPUB3D_DIR%
+SET LP3D_GITHUB_URL=https://github.com/trevorsandy
+SET LP3D_GITHUB_BASE=%LP3D_GITHUB_URL%/%LPUB3D_DIR%
 SET LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net
 SET LP3D_SOURCEFORGE_UPDATE_BASE=https://lpub3d.sourceforge.io
+SET LP3D_LIBS_BASE=%LP3D_GITHUB_URL%/lpub3d_libs/releases/download/v1.0.1
 SET LP3D_DEB=jammy
 SET LP3D_FCV=fc36
 
@@ -1289,7 +1291,7 @@ EXIT /b
 
 :GET_OPENSSL_LIB
 SET WebCONTENT="%OutputPATH%\%OpensslCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%OpensslCONTENT%
+SET WebNAME=%LP3D_LIBS_BASE%/%OpensslCONTENT%
 
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
@@ -1396,7 +1398,7 @@ EXIT /b
 
 :GET_MSVC_REDIST
 SET WebCONTENT="%OutputPATH%\%RedistCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%RedistCONTENT%
+SET WebNAME=%LP3D_LIBS_BASE%/%RedistCONTENT%
 
 ECHO.
 ECHO - MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable: %WebCONTENT%...
@@ -1507,7 +1509,7 @@ EXIT /b
 
 :GET_OFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%OfficialCONTENT%
+SET WebNAME=%LP3D_LIBS_BASE%/%OfficialCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...
@@ -1521,7 +1523,7 @@ EXIT /b
 
 :GET_TENTE_LIBRARY
 SET WebCONTENT="%OutputPATH%\%TenteCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%TenteCONTENT%
+SET WebNAME=%LP3D_LIBS_BASE%/%TenteCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...
@@ -1535,7 +1537,7 @@ EXIT /b
 
 :GET_VEXIQ_LIBRARY
 SET WebCONTENT="%OutputPATH%\%VexiqCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%VexiqCONTENT%
+SET WebNAME=%LP3D_LIBS_BASE%/%VexiqCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...
@@ -1549,7 +1551,7 @@ EXIT /b
 
 :GET_UNOFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%LPub3DCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%LPub3DCONTENT%
+SET WebNAME=%LP3D_LIBS_BASE%/%LPub3DCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...
