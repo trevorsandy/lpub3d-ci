@@ -1217,7 +1217,7 @@ for buildDir in "${renderers[@]}"; do
     # POVRay build on MSYS2 (MSVCRT) is currently KO so skip for now.
     if [[ -n "${MSYS2}" && "${buildDir}" = "povray" ]]; then
       Info && Info "$platform_pretty detected. LPub3D_Trace(${buildDir}) will not be built."
-      break
+      continue
     fi
     # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
     Info && Info "Setup ${!artefactVer} source files..."
