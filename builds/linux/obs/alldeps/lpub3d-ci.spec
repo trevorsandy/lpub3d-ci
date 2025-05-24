@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: April 02, 2025
+# Last Update: May 24, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -155,6 +155,7 @@ BuildRequires: hostname
 BuildRequires: OpenEXR-devel
 %if 0%{?centos_version}!=800
 BuildRequires: mesa-libOSMesa-devel
+BuildRequires: libglvnd-devel
 %endif
 %endif
 %if 0%{?local_freeglut}
@@ -224,6 +225,7 @@ BuildRequires: freeglut-devel
 %endif
 BuildRequires: libqt5-qtbase-devel
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
+BuildRequires: Mesa-libEGL-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
@@ -251,7 +253,7 @@ BuildRequires: -post-build-checks
 %define prebuilt_3ds 1
 #BuildRequires: qttools5
 %ifarch x86_64
-BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel
+BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64glvnd-devel, lib64mesaglu1-devel, lib64freeglut-devel
 BuildRequires: lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: lib64openexr-devel
@@ -263,7 +265,7 @@ BuildRequires: lib64openssl-devel
 %endif
 %endif
 %else
-BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel
+BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel,libglvnd-devel, libmesaglu1-devel, freeglut-devel
 BuildRequires: libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: libopenexr-devel

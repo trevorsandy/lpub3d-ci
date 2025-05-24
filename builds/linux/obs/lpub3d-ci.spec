@@ -95,8 +95,11 @@ Source10: lpub3d-ci-rpmlintrc
 %if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %if ( 0%{?centos_version}<=600 || 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
 %define build_qt5 0
+BuildRequires: mesa-libOSMesa-devel
+BuildRequires: libglvnd-devel
 %else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
+BuildRequires: mesa-libGLU-devel
 %endif
 %if 0%{?fedora}
 BuildRequires: hostname
@@ -119,6 +122,7 @@ BuildRequires: libverto-libevent
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel
 BuildRequires: update-desktop-files
+BuildRequires: Mesa-devel, Mesa-libEGL-devel
 BuildRequires: zlib-devel
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
@@ -126,14 +130,16 @@ BuildRequires: -post-build-checks
 %endif
 
 %if 0%{?mageia}
-BuildRequires: qtbase5-devel, qttools5
+BuildRequires: qttools5
 %ifarch x86_64
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
+BuildRequires: lib64qt5base5-devel, lib64osmesa-devel, lib64glvnd-devel
 %endif
 %else
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
+BuildRequires: libqt5base5-devel, libosmesa-devel, libglvnd-devel
 %endif
 %endif
 %endif
