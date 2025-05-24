@@ -887,8 +887,9 @@ if [ ! -d "${DIST_PKG_DIR}" ]; then
   mkdir -p ${DIST_PKG_DIR}
 fi
 export DIST_PKG_DIR="${DIST_PKG_DIR}"
-
 Info "Dist Package Directory...[${DIST_PKG_DIR}]"
+EXTRAS_DIR=${PWD}/mainApp/extras
+Info "Extras Directory.........[${EXTRAS_DIR}]"
 
 # Change to Working directory
 # Travis: /home/travis/build/trevorsandy
@@ -980,12 +981,12 @@ if [ "$OBS" != "true" ]; then
   fi
   if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
     Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}."
-    if [ ! -f "lpub3dldrawunf.zip" ]; then
+    if [ ! -f "${EXTRAS_DIR}/lpub3dldrawunf.zip" ]; then
       Info -n "Downloading lpub3dldrawunf.zip..."
       curl $CURL_OPTS https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip && \
       Info "Ok." || Info "Failed."
     else
-      ldrawlib=$(echo $PWD/lpub3dldrawunf.zip)
+      ldrawlib=$(echo ${EXTRAS_DIR}/lpub3dldrawunf.zip)
       Info -n "Linking lpub3dldrawunf.zip..."
       (cd "${DIST_PKG_DIR}" && ln -sf "${ldrawlib}" lpub3dldrawunf.zip || :) >$l.out 2>&1 && rm $l.out
       [ -f $l.out ] && Info "Failed." && tail -20 $l.out || Info "Ok"
