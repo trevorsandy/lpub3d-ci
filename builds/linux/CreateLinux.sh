@@ -159,7 +159,7 @@ fi
 declare -r l=Log
 Info && Info "Checking LDraw archive libraries..."
 LP3D_LIBS_BASE="${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1"
-[[ ! -L "$/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
+[[ ! -L "/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
 if [ ! -f "/dist/lpub3dldrawunf.zip" ]; then
   echo -n "downloading lpub3dldrawunf.zip into ${BUILD_DIR}..."
   (wget ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O /dist/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
