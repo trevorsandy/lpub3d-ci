@@ -38,7 +38,7 @@ function ShowHelp() {
     echo "in the command console."
     echo
     echo "RUN_CREATE=$0"
-    echo "RUN_CREATE_DIR=\${SCRIPT_DIR:-$HOME/resources/lpub3d-ci}"
+    echo "RUN_CREATE_DIR=\${SCRIPT_DIR:-$HOME/projects/lpub3d-ci}"
     echo "cd ~/ && cp -f \${RUN_CREATE_DIR}/builds/utilities/$RUN_CREATE . \\"
     echo "&& chmod a+x $RUN_CREATE && ./$RUN_CREATE"
     echo
@@ -103,7 +103,7 @@ done
 
 echo && echo "Run $0 at $PWD..."
 
-LOCAL=${LOCAL:-true}
+LOCAL=${LOCAL:-false}
 DOCKER=${DOCKER:-true}
 LPUB3D=${LPUB3D:-lpub3d-ci}
 WORK_DIR=${WORK_DIR:-$HOME}
@@ -113,8 +113,8 @@ XSERVER=${XSERVER:-false}
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 SKIP_CLEANUP=${SKIP_CLEANUP:-}
 DEB_EXT=${DEB_EXTENSION:-$LP3D_ARCH.Deb}
-BUILD_BRANCH=${BUILD_BRANCH:-master}
-LOCAL_PATH=${LOCAL_RESOURCE_PATH:-$HOME/resources}
+BUILD_BRANCH=${BUILD_BRANCH:-MSYS2_BUILDS}
+LOCAL_PATH=${LOCAL_RESOURCE_PATH:-$HOME/projects}
 
 if ! test "$1"; then
   os=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo "$ID")
