@@ -346,10 +346,7 @@ function InstallDependencies()
         pkgbuildFile="$PWD/obs/PKGBUILD"
         ;;
       ldview)
-        cp -f QT/PKGBUILD QT/OBS/PKGBUILD
-        pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
-        sed -e "s/pkgname=('ldview' 'ldview-osmesa')/pkgname=('ldview')/g" \
-            -e "s/'mesa-libgl'/'mesa-libgl' 'tinyxml'/g" -i $pkgbuildFile
+        pkgbuildFile="$PWD/QT/PKGBUILD"
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
