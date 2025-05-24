@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: April 01, 2025
+#  Last Update: May 24, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d-ci
 pkgver=2.4.9.4373
@@ -9,7 +9,7 @@ url="https://trevorsandy.github.io/lpub3d"
 arch=('x86_64' 'i686')
 license=('GPL3')
 makedepends=('glu' 'gcc' 'make')
-depends=('unzip' 'qt5-tools' 'qt5-base' 'libjpeg-turbo' 'mesa-libgl' 'gl2ps' 'tinyxml' 'minizip' 'llvm' 'mesa')
+depends=('unzip' 'qt5-tools' 'qt5-base' 'libjpeg-turbo' 'gl2ps' 'tinyxml' 'minizip' 'llvm' 'mesa-amber')
 conflicts=()
 replaces=()
 backup=()
