@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 14, 2025
+# Last Update: May 24, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -1240,6 +1240,11 @@ for buildDir in "${renderers[@]}"; do
     # POVRay build on MSYS2 (MSVCRT) is currently KO so skip for now.
     if [[ -n "${MSYS2}" && "${buildDir}" = "povray" ]]; then
       Info && Info "$platform_pretty detected. LPub3D_Trace(${buildDir}) will not be built."
+      continue
+    fi
+    HOST_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo "$ID")
+    if [[ "${HOST_ID}" = "arch" && "${buildDir}" = "ldglite" ]]; then
+      Info && Info "$platform_pretty detected. LDGLite build skipped. OSMesa is not available."
       continue
     fi
     # Check if build folder exist - donwload tarball and extract if no binary exists or to generate dependency list
