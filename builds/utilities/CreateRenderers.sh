@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 22, 2025
+# Last Update: June 4, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -97,109 +97,8 @@ function ExtractArchive()
   fi
 }
 
-function BuildMesaLibs()
-{
-  mesaUtilsDir="$CALL_DIR/builds/utilities/mesa"
-  if [ "${OBS}" != "true" ]; then
-    mesaDepsLog=${LP3D_LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
-    mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
-  fi
-  if [ -z "$2" ]; then
-    useSudo=
-  else
-    useSudo=$2
-  fi
-
-  Info "Update OSMesa.......[Yes]"
-  if [ "${OBS}" != "true" ]; then
-    case ${platform_id} in
-    fedora)
-      mesaBuildDeps="See ${mesaDepsLog}..."
-      Info "Fedora OSMesa Dependencies.[${mesaBuildDeps}]"
-      Info "GLU Spec File.......[${mesaUtilsDir}/glu.spec]"
-      Info
-      $useSudo dnf builddep -y mesa >> $mesaDepsLog 2>&1
-      Info "Fedora Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
-      $useSudo dnf builddep -y "${mesaUtilsDir}/glu.spec" >> $mesaDepsLog 2>&1
-      Info "Fedora GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
-      ;;
-    arch)
-      pkgbuildFile="${mesaUtilsDir}/PKGBUILD"
-      mesaBuildDeps="$(echo `grep -wr 'depends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'` \
-                            `grep -wr 'makedepends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'`)"
-      Info "Arch Linux OSMesa Dependencies.[${mesaBuildDeps}]"
-      Info "PKGBUILD File.......[$pkgbuildFile]"
-      Info
-      $useSudo pacman -S --noconfirm --needed $mesaBuildDeps >> $mesaDepsLog 2>&1
-      Info "Arch Linux OSMesa and GLU dependencies installed."  && DisplayLogTail $mesaDepsLog 15
-      ;;
-    esac
-  fi
-  Info && Info "Build OSMesa and GLU static libraries..."
-  chmod a+x "${mesaUtilsDir}/build_osmesa.sh"
-  if [ "${OBS}" = "true" ]; then
-    Info "Using sudo..........[No]"
-    if [[ ("${platform_id}" = "redhat" && ${platform_ver} = 28) || \
-          ("${platform_id}" = "debian" && ${platform_ver} = 10) || \
-           "${platform_id}" = "arch" || -n "${LP3D_UCS_VER}" ]]; then
-      osmesa_version=18.3.5
-    else
-      osmesa_version=17.2.6
-    fi
-    Info "Building OSMesa.....[${osmesa_version}]"
-    env \
-    OBS=${OBS} \
-    RPM_BUILD=${RPM_BUILD} \
-    LLVM_CONFIG=$(which llvm-config) \
-    NO_GALLIUM=${no_gallium} \
-    OSMESA_VERSION=${osmesa_version} \
-    OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
-    ${mesaUtilsDir}/build_osmesa.sh &
-    PID=$!
-  else
-    osmesa_version=17.2.6
-    Info "Building OSMesa.....[${osmesa_version}]"
-    Info "OSMesa Build Log....[${mesaBuildLog}]"
-    Info
-    env \
-    OSMESA_VERSION=${osmesa_version} \
-    OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
-    ${mesaUtilsDir}/build_osmesa.sh >> $mesaBuildLog 2>&1 &
-    PID=$!
-  fi
-
-  TreatLongProcess $PID 60 "OSMesa and GLU build"
-
-  local return_code=$?
-  if [[ $return_code != 0 ]]; then
-    OSMesaBuildAttempt=1
-    return $return_code
-  fi
-
-  if [[ -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libOSMesa32.a" && \
-        -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libGLU.a" ]]; then
-    if [ "${OBS}" != "true" ]; then
-      Info && Info "OSMesa and GLU build check..."
-      DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
-      DisplayLogTail $mesaBuildLog 20
-    fi
-    return_code=0
-    OSMesaBuildAttempt=1
-  else
-    if [ ! -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libOSMesa32.a" ]; then
-      Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built."
-    fi
-    if [ ! -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libGLU.a" ]; then
-      Info && Info "ERROR - libGLU not found. Binary was not successfully built."
-    fi
-    if [ "${OBS}" != "true" ]; then
-      Info "------------------Build Log-------------------------"
-      cat $mesaBuildLog
-    fi
-    return_code=1
-  fi
-  Info && Info "${1} library OSMesa build finished."
-  return $return_code
+function Version_GT() {
+    test "$(printf '%s\n' "$@" | $SORT -V | head -n 1)" != "$1";
 }
 
 # Args: $1 = <log file>, $2 = <position>
@@ -291,6 +190,11 @@ function InstallDependencies()
 {
   if [ "$OS_NAME" = "Linux" ]; then
     Msg="Install $1 build dependencies for target platform: [$platform_id]..."
+    if [ "$LP3D_BUILD_OS" = "appimage" ]; then
+      depsLog=${LP3D_LOG_PATH}/${ME}_AppImage_deps_${1}.log
+    else
+      depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_${1}.log
+    fi
     Info && Info $Msg && Info $Msg >> $depsLog 2>&1
     useSudo="sudo"
     Info "Using sudo..........[Yes]"
@@ -303,11 +207,6 @@ function InstallDependencies()
       Info $Msg && Info $Msg >> $depsLog 2>&1
       ;;
     esac
-    if [ "$LP3D_BUILD_OS" = "appimage" ]; then
-      depsLog=${LP3D_LOG_PATH}/${ME}_AppImage_deps_${1}.log
-    else
-      depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_${1}.log
-    fi
     Info "Platform_id.........[${platform_id}]"
     case ${platform_id} in
     fedora|centos)
@@ -328,7 +227,7 @@ function InstallDependencies()
       rpmbuildDeps=$(rpmbuild --nobuild ${specFile} 2>&1 | grep 'needed by'| awk ' {print $1}')
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
-      if [[ -n "$build_osmesa" && "$OSMesaBuildAttempt" != 1 ]]; then
+      if [[ -n "$build_osmesa" && "$MesaBuildAttempt" != 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info
@@ -357,13 +256,14 @@ function InstallDependencies()
       esac;
       pkgbuildDeps="$(echo `grep -wr 'depends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'` \
                            `grep -wr 'makedepends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'`)"
+      pkgbuildDeps="inetutils ${pkgbuildDeps}"
       Info "PKGBUILD File.......[${pkgbuildFile}]"
       Info "Dependencies List...[${pkgbuildDeps}]"
       Info
       $useSudo pacman -Syy --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
-      if [[ -n "$build_osmesa" && "$OSMesaBuildAttempt" != 1 ]]; then
+      if [[ -n "$build_osmesa" && "$MesaBuildAttempt" != 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Msg="${1} dependencies installed."
@@ -414,9 +314,176 @@ function InstallDependencies()
 # Args: <none>
 function ApplyLDViewStdlibHack()
 {
-  Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
-  sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
+  Info -n "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || :)..."
+  (sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
+  ) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && Info "Failed." && tail -20 $l.out || Info "Ok"
   Info
+}
+
+# Args: 1 = <build folder>, 2 = <sudo>
+function BuildMesaLibs()
+{
+  return_code=0
+  lib_ext=a
+  lib_file=OSMesa32
+  build_label="${lib_file} and GLU"
+  mesaUtilsDir="$CALL_DIR/builds/utilities/mesa"
+
+  Info && Info "Build ${lib_file} libraries..." && Info
+  if [[ "${OBS}" != "true" && "$LP3D_NO_DEPS" != "true" ]]; then
+    Info "Using sudo............[$([ -n "$2" ] && echo "Yes" || echo "No")]"
+    mesaDepsLog=${LP3D_LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
+
+    if [ -z "$2" ]; then
+      useSudo=
+    else
+      useSudo=$2
+    fi
+
+    case ${platform_id} in
+    fedora|redhat|centos|suse|mageia|openeuler)
+      mesaBuildDeps="See ${mesaDepsLog}..."
+      Info "RPM ${lib_file} Dependencies.[${mesaBuildDeps}]"
+      Info "GLU Spec File.......[${mesaUtilsDir}/glu.spec]"
+      Info
+      $useSudo dnf builddep -y mesa >> $mesaDepsLog 2>&1
+      Info "RPM Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
+      $useSudo dnf builddep -y "${mesaUtilsDir}/glu.spec" >> $mesaDepsLog 2>&1
+      Info "RPM GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
+      ;;
+    arch)
+      pkgbuildFile="${mesaUtilsDir}/PKGBUILD"
+      mesaBuildDeps="$(echo `grep -wr 'depends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'` \
+                            `grep -wr 'makedepends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'`)"
+      Info "PKG Linux ${lib_file} Dependencies.[${mesaBuildDeps}]"
+      Info "PKGBUILD File.......[$pkgbuildFile]"
+      Info
+      $useSudo pacman -S --noconfirm --needed $mesaBuildDeps >> $mesaDepsLog 2>&1
+      Info "PKG Linux ${lib_file} and GLU dependencies installed."  && DisplayLogTail $mesaDepsLog 15
+      ;;
+    debian|ubuntu)
+      controlFile="${mesaUtilsDir}/control"
+      mesaBuildDeps="$(grep Build-Depends $controlFile | cut -d: -f2| sed 's/(.*)//g' | tr -d ,)"
+      Info "DEB Linux ${lib_file} Dependencies.[${mesaBuildDeps}]"
+      Info "Control File.......[$controlFile]"
+      Info
+      $useSudo apt-get update -qq >> $mesaDepsLog 2>&1
+      $useSudo apt-get build-dep -y mesa >> $mesaDepsLog 2>&1
+      #$useSudo apt-get install -y $mesaBuildDeps >> $mesaDepsLog 2>&1
+      Info "DEB Linux ${lib_file} and GLU dependencies installed."  && DisplayLogTail $mesaDepsLog 15
+      ;;
+    esac
+  fi
+
+  # build OSMesa from Mesa-amber on Arch Linux
+  if [ "${platform_id}" = "arch" ]; then
+    mesa_version=21.3.9
+    glu_version=9.0.1
+    llvm_not_used=1
+    build_label="${lib_file}, GLU and ZStd"
+  else
+    mesa_version=17.2.6
+    glu_version=9.0.0
+    llvm_not_used=0   
+  fi
+  if [ "${OBS}" = "true" ]; then
+    Info "Using sudo...............[No]"
+    if [[ ("${platform_id}" = "redhat" && ${platform_ver} = 28) || \
+          ("${platform_id}" = "debian" && ${platform_ver} = 10) || \
+           "${LP3D_UCS_VER}" != "" ]]; then
+      mesa_version=18.3.5
+    fi
+  else
+    mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
+  fi
+
+  Info "Building ${lib_file}........[${mesa_version}]"
+  mesa_prefix=${DIST_PKG_DIR}/mesa/${platform_id}
+
+  # This block will support future use case to build LLVM
+  if Version_GT 21.3.0 "$mesa_version"; then
+    if [ -f "${llvm_config}" ]; then
+      Info "Installed LLVM version...[${llvm_version}]"
+      llvm_max_ver=14.99
+      if Version_GT "${llvm_version}" "${llvm_max_ver}"; then
+        Info "Installed LLVM ${llvm_version} exceeds the maximum supported version ${llvm_max_ver}."
+        if Version_GT 18.0.0 "$mesa_version"; then
+          Info "LLVM 4.0.1 is the best option for Mesa 17.x."
+        elif Version_GT 19.0.0 "$mesa_version"; then
+          Info "LLVM 6.0.1 is the best option for Mesa 18.x."
+          Info "LLVM 15 and greater will NOT work, because of:"
+          Info " https://discourse.llvm.org/t/rfc-remove-most-constant-expressions/63179/11 (LLVM 15)"
+          Info " https://llvm.org/docs/OpaquePointers.html#frontends (LLVM 16)"
+        fi
+        exit 1 # Exit until build LLVM module is added to build_mesa.sh
+        Info "Building LLVM version....[${llvm_max_ver}]"
+        unset llvm_config
+        llvm_build=1
+        llvm_prefix=${DIST_PKG_DIR}/llvm
+        if [ ! -d "${llvm_prefix}" ]; then
+          mkdir -p "${llvm_prefix}"
+        fi
+      fi
+    fi
+  fi
+
+  MESA_OPTIONS="\
+  OBS=${OBS} \
+  RPM_BUILD=${RPM_BUILD} \
+  LLVM_NOT_USED=${llvm_not_used} \
+  LLVM_CONFIG=${llvm_config} \
+  LLVM_PREFIX=${llvm_prefix} \
+  LLVM_BUILD=${llvm_build} \
+  MESA_PREFIX=${mesa_prefix} \
+  MESA_VERSION=${mesa_version}\
+  "
+
+  chmod a+x "${mesaUtilsDir}/build_mesa.sh"
+  if [ "${OBS}" = "true" ]; then
+    Info
+    env ${MESA_OPTIONS} ${mesaUtilsDir}/build_mesa.sh
+  else
+    Info "${lib_file} Build Log.......[${mesaBuildLog}]" && Info
+    env ${MESA_OPTIONS} ${mesaUtilsDir}/build_mesa.sh > ${mesaBuildLog} 2>&1 &
+    TreatLongProcess "$!" "60" "${build_label} build"
+  fi
+
+  local return_code=$?
+  if [ "$return_code" -ne 0 ]; then
+    MesaBuildAttempt=1
+    Info && Info "ERROR - build_mesa.sh failed with return code ${return_code}. Binary was not built."
+    return $return_code
+  else
+    export PKG_CONFIG_PATH="${mesa_prefix}/lib/pkgconfig:$PKG_CONFIG_PATH"
+    export LD_LIBRARY_PATH="${mesa_prefix}/lib:$LD_LIBRARY_PATH"
+    Info "Set LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+  fi
+
+  if [ ! -f "${mesa_prefix}/lib/lib${lib_file}.${lib_ext}" ]; then
+    Info && Info "ERROR - lib${lib_file}.${lib_ext} not found. Binary was not successfully built."
+    return_code=1
+  fi
+  if [ ! -f "${mesa_prefix}/lib/libGLU.a" ]; then
+    Info "ERROR - libGLU.a not found. Binary was not successfully built."
+    return_code=2
+  fi
+
+  if [ "$return_code" -eq 0 ]; then
+    if [ "${OBS}" != "true" ]; then
+      Info && Info "${build_label} libs build check..."
+      DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
+      DisplayLogTail $mesaBuildLog 20
+    fi
+    MesaBuildAttempt=1
+  else
+    if [ "${OBS}" != "true" ]; then
+      Info "------------------Build Log-------------------------"
+      cat $mesaBuildLog
+    fi
+  fi
+  Info && Info "${lib_file} libraries build finished."
+  return $return_code
 }
 
 # Args: 1 = <build type (release|debug)>, 2 = <build log>
@@ -431,8 +498,8 @@ function BuildLDGLite()
   if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
-  if [ "$no_gallium" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
+  if [ "$llvm_not_used" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OSMESA_NO_LLVM"
   fi
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
@@ -494,10 +561,10 @@ function BuildLDView()
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
   if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
+    if [ "$llvm_not_used" = 1 ]; then
+      BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OSMESA_NO_LLVM"
+    fi
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
-  fi
-  if [ "$no_gallium" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_GALLIUM"
   fi
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
@@ -679,6 +746,12 @@ if [[ "${SOURCED}" = "false" && -f "rendererVars.sh" ]]; then
   source rendererVars.sh && importedRendererVars=1
 fi
 
+SORT=sort
+if [ "$OS_NAME" = "Darwin" ]; then
+  OS_VER=$(uname -r | awk -F . '{print $1}')
+  [ "$OS_VER" -le 10 ] && SORT=gsort || :
+fi
+
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
   parent_dir=${PWD##*/}
@@ -787,6 +860,26 @@ else
 fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
+# LLVM and Mesa configuration
+llvm_config=$(which llvm-config)
+if [ -f "${llvm_config}" ]; then
+  llvm_version="$($llvm_config --version | grep -E '^[0-9.]+')"
+  llvm_libs_msg="Use system libraries"
+else
+  llvm_libs_msg="Not available"
+fi
+if [[ "$build_osmesa" = 1 && "$get_local_libs" != 1 ]]; then
+  build_mesa_msg="Build from source"
+  # can add build_llvm flag to this condition
+  [[ "$llvm_not_used" = 1 ]] && \
+  llvm_libs_msg="Not used for default OSMesa configuration" || :
+elif [ "$get_local_libs" = 1 ]; then
+  build_mesa_msg="Use local libraries"
+  llvm_libs_msg="Use local libraries"
+else
+  build_mesa_msg="Use system libraries"
+fi
+
 # Display platform settings
 Info "Build Working Directory..[${CALL_DIR}]"
 [ -n "${LP3D_UCS_VER}" ] && \
@@ -798,11 +891,15 @@ if [ "$LP3D_BUILD_OS" = "snap" ]; then
 elif [ "$LP3D_BUILD_OS" = "appimage" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
 fi
+
+# Until LDView converts to tinyxml2, build tinyxml from source
+[ -z "$build_tinyxml" ] && build_tinyxml=1 || true
 if [ "${DOCKER}" = "true" ]; then
   Info "Platform Pretty Name.....[Docker Container - ${platform_pretty}]"
-  if [ "${platform_id}" = "arch" ]; then
-     [ -n "$build_osmesa" ] && Info "OSMesa...................[Build from source]"
-  fi
+  [ -n "$build_mesa_msg" ] && \
+  Info "OSMesa...................[${build_mesa_msg}]" || true
+  [ -n "$llvm_libs_msg" ] && \
+  Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
 elif [ "${CI}" = "true" ]; then
   Info "Platform Pretty Name.....[CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
@@ -810,17 +907,20 @@ elif [ "${OBS}" = "true" ]; then
     platform_pretty="$platform_pretty (ARM-${TARGET_CPU})"
   fi
   Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
+  [ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
   [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
-  [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "OSMesa...................[Build from source]"
-  [ -n "$no_gallium" ] && Info "Gallium Driver...........[Not available]" || true
+  [ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
+  [ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
   [ -n "$get_local_libs" ] && Info "Get Local Libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
   [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
   [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
-  [ -n "$build_gl2ps" ] && Info "GL2PS....................[Build from source]" || true
-  [ -n "$prebuilt_3ds" ] && Info "3DS......................[Use pre-built library]" || \
-                            Info "3DS......................[Build from source]"
+  [ -n "$prebuilt_3ds_msg" ] && Info "3DS......................[${prebuilt_3ds_msg}]" || true
+  if [ -n "$build_gl2ps" ]; then
+    Info "GL2PS....................[Build from source]"
+    Info "Png......................[Build from source]"
+  fi
 else
   Info "Platform Pretty Name.....[${platform_pretty}]"
 fi
@@ -1062,7 +1162,7 @@ QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 [ -n "${LD_LIBRARY_PATH}" ] && LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH || :
 
 # Initialize mesa build flag
-OSMesaBuildAttempt=0
+MesaBuildAttempt=0
 
 # Processor and linkier flags for building local libs
 if [ "$get_local_libs" = 1 ]; then
@@ -1150,12 +1250,14 @@ fi
 
 # List 'PLATFORM_*', 'build_*' and 'LP3D_*' environment variables
 Info
-if [ "$OBS" = "true" ]; then
-Info "PLATFORM* environment variables:" && compgen -v | grep PLATFORM_ | while read line; do echo $line=${!line}; done
-Info "build* environment variables:" && compgen -v | grep build_ | while read line; do echo $line=${!line}; done
+if [ "$platform_id" != "arch" ]; then
+  if [ "$OBS" = "true" ]; then
+    Info "PLATFORM* environment variables:" && compgen -v | grep PLATFORM_ | while read line; do echo $line=${!line}; done
+    Info "build* environment variables:" && compgen -v | grep build_ | while read line; do echo $line=${!line}; done
+  fi
+  Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
+  Info
 fi
-Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
-Info
 
 # =======================================
 # Main Loop
@@ -1215,12 +1317,10 @@ for buildDir in "${renderers[@]}"; do
       Msg="ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
       Info && Info $Msg && Info $Msg >> $buildLog 2>&1
     fi
-    if [[ -n "$build_osmesa" && -z "$get_local_libs" && "$OSMesaBuildAttempt" != 1 ]]; then
-
-      BuildMesaLibs
-
+    if [[ -n "$build_osmesa" && -z "$get_local_libs" && "$MesaBuildAttempt" != 1 ]]; then
+      BuildMesaLibs ${buildDir}
+      MesaBuildAttempt=1
       if [[ $? != 0 ]]; then
-        OSMesaBuildAttempt=1
         Msg="Build OSMesa failed with return code $?. $ME will terminate."
         Info && Info $Msg && Info $Msg >> $buildLog 2>&1
         exit 1
@@ -1259,11 +1359,14 @@ for buildDir in "${renderers[@]}"; do
       fi
     fi
     # Install build dependencies - even if binary exists...
-    if [[ "$OS_NAME" != "Darwin" && "$OBS" != "true" && "$LP3D_NO_DEPS" != "true" ]]; then
-      Info && Info "Install ${!artefactVer} build dependencies..."
-      Info "----------------------------------------------------"
-      InstallDependencies ${buildDir}
-      sleep .5
+    if [[ "$OS_NAME" != "Darwin" && "$OBS" != "true" ]]; then
+      if [ "$LP3D_NO_DEPS" != "true" ]; then
+        Msg="Install ${!artefactVer} build dependencies..."
+        Info && Info $Msg && Info $Msg >> $buildLog 2>&1
+        Info "----------------------------------------------------"
+        InstallDependencies ${buildDir}
+        sleep .5
+      fi
     fi
   fi
 

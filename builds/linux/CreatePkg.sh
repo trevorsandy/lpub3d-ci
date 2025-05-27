@@ -181,6 +181,7 @@ if [ "${TRAVIS}" != "true" ]; then
         else
             echo "2. preserve ${LPUB3D} source in upstream/..."
             if [ -d "${LPUB3D_REPO}" ]; then
+                echo "2a. move ${LPUB3D_REPO} to ${LPUB3D} in upstream/"
                 mv -f ${LPUB3D_REPO} ${LPUB3D}
             fi
         fi

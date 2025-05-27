@@ -195,6 +195,7 @@ if [ "${TRAVIS}" != "true" ]; then
         else
             echo "2. preserve ${LPUB3D} source in rpmbuild/SOURCES/..."
             if [ -d "${WORK_DIR}" ]; then
+                echo "2a. move ${WORK_DIR} to ${LPUB3D} in rpmbuild/SOURCES/"
                 mv -f ${WORK_DIR} ${LPUB3D}
             fi
         fi
