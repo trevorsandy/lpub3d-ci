@@ -329,72 +329,137 @@ void lcPropertiesWidget::FloatChanged()
 
 	if (PropertyId == lcObjectPropertyId::CameraPositionX || PropertyId == lcObjectPropertyId::CameraPositionY || PropertyId == lcObjectPropertyId::CameraPositionZ)
 	{
-		lcVector3 Center = Camera->mPosition;
-		lcVector3 Position = Center;
+		quint32 FocusSection = LC_CAMERA_SECTION_INVALID;
+		lcVector3 Start;
+
+		if (Camera)
+		{
+			FocusSection = Camera->GetFocusSection();
+			Camera->SetFocused(FocusSection, false);
+			Camera->SetFocused(LC_CAMERA_SECTION_POSITION, true);
+
+			Start = Camera->mPosition;
+		}
+		else
+		{
+			Start = lcVector3(0.0f, 0.0f, 0.0f);
+		}
+
+		lcVector3 End = Start;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 		if (PropertyId == lcObjectPropertyId::CameraPositionX)
-			Position[X] = Value;
+			End[X] = Value;
 		else if (PropertyId == lcObjectPropertyId::CameraPositionY)
-			Position[Z] = -Value;
+			End[Z] = -Value;
 		else if (PropertyId == lcObjectPropertyId::CameraPositionZ)
-			Position[Y] = Value;
+			End[Y] = Value;
 /*** LPub3D Mod end ***/
 
-		lcVector3 Distance = Position - Center;
+		lcVector3 Distance = End - Start;
 
-/*** LPub3D Mod - Camera Globe  ***/
+/*** LPub3D Mod - Camera Globe, Set default camera ***/
 		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
 /*** LPub3D Mod end ***/
+
+		if (Camera)
+		{
+			Camera->SetFocused(LC_CAMERA_SECTION_POSITION, false);
+			Camera->SetFocused(FocusSection, true);
+		}
 	}
 	else if (PropertyId == lcObjectPropertyId::CameraTargetX || PropertyId == lcObjectPropertyId::CameraTargetY || PropertyId == lcObjectPropertyId::CameraTargetZ)
 	{
-		lcVector3 Center = Camera->mTargetPosition;
-		lcVector3 Position = Center;
+		quint32 FocusSection = LC_CAMERA_SECTION_INVALID;
+		lcVector3 Start;
+
+		if (Camera)
+		{
+			FocusSection = Camera->GetFocusSection();
+			Camera->SetFocused(FocusSection, false);
+			Camera->SetFocused(LC_CAMERA_SECTION_TARGET, true);
+
+			Start = Camera->mTargetPosition;
+		}
+		else
+		{
+			Start = lcVector3(0.0f, 0.0f, 0.0f);
+		}
+
+		lcVector3 End = Start;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 		if (PropertyId == lcObjectPropertyId::CameraTargetX)
-			Position[X] = Value;
+			End[X] = Value;
 		else if (PropertyId == lcObjectPropertyId::CameraTargetY)
-			Position[Z] = -Value;
+			End[Z] = -Value;
 		else if (PropertyId == lcObjectPropertyId::CameraTargetZ)
-			Position[Y] = Value;
+			End[Y] = Value;
 /*** LPub3D Mod end ***/
 
-		lcVector3 Distance = Position - Center;
+		lcVector3 Distance = End - Start;
 
-/*** LPub3D Mod - Camera Globe, camera name ***/
+/*** LPub3D Mod - Camera Globe, Set default camera ***/
 		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
 /*** LPub3D Mod end ***/
+
+		if (Camera)
+		{
+			Camera->SetFocused(LC_CAMERA_SECTION_TARGET, false);
+			Camera->SetFocused(FocusSection, true);
+		}
 	}
 	else if (PropertyId == lcObjectPropertyId::CameraUpX || PropertyId == lcObjectPropertyId::CameraUpY || PropertyId == lcObjectPropertyId::CameraUpZ)
 	{
-		lcVector3 Center = Camera->mUpVector;
-		lcVector3 Position = Center;
+		quint32 FocusSection = LC_CAMERA_SECTION_INVALID;
+		lcVector3 Start;
+
+		if (Camera)
+		{
+			FocusSection = Camera->GetFocusSection();
+			Camera->SetFocused(FocusSection, false);
+			Camera->SetFocused(LC_CAMERA_SECTION_UPVECTOR, true);
+
+			Start = Camera->mUpVector;
+		}
+		else
+		{
+			Start = lcVector3(0.0f, 0.0f, 0.0f);
+		}
+
+		lcVector3 End = Start;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 		if (PropertyId == lcObjectPropertyId::CameraUpX)
-			Position[X] = Value;
+			End[X] = Value;
 		else if (PropertyId == lcObjectPropertyId::CameraUpY)
-			Position[Z] = -Value;
+			End[Z] = -Value;
 		else if (PropertyId == lcObjectPropertyId::CameraUpZ)
-			Position[Y] = Value;
+			End[Y] = Value;
 /*** LPub3D Mod end ***/
 
-		lcVector3 Distance = Position - Center;
+		lcVector3 Distance = End - Start;
 
-/*** LPub3D Mod - Camera Globe  ***/
+/*** LPub3D Mod - Camera Globe, Set default camera ***/
 		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
+/*** LPub3D Mod end ***/
+
+		if (Camera)
+		{
+			Camera->SetFocused(LC_CAMERA_SECTION_UPVECTOR, false);
+			Camera->SetFocused(FocusSection, true);
+		}
 	}
+/*** LPub3D Mod - Camera Globe ***/
 	else if (PropertyId == lcObjectPropertyId::CameraLatitude || PropertyId == lcObjectPropertyId::CameraLongitude /*|| PropertyId == lcObjectPropertyId::CameraDistance*/)
 	{
 		QStringList ValueList = QString(Widget->text()).trimmed().split(" ",SkipEmptyParts);
