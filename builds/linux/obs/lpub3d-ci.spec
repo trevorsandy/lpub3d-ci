@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: April 02, 2025
+# Last Update: June 3, 2025
 # Copyright © 2018 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -98,9 +98,7 @@ Source10: lpub3d-ci-rpmlintrc
 %else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %endif
-%if 0%{?fedora}
 BuildRequires: hostname
-%endif
 BuildRequires: gcc-c++, make
 %if 0%{?buildservice}!=1
 BuildRequires: git
@@ -118,7 +116,7 @@ BuildRequires: libverto-libevent
 
 %if 0%{?suse_version}
 BuildRequires: libqt5-qtbase-devel
-BuildRequires: update-desktop-files
+BuildRequires: update-desktop-files hostname
 BuildRequires: zlib-devel
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
