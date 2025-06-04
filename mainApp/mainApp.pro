@@ -220,7 +220,15 @@ CONFIG(debug, debug|release) {
     }
 }
 # Load LDView libraries for LDVQt
-LOAD_LDV_LIBS = True
+LDVIEW_EXE = LDView
+unix:!macx: LDVIEW_EXE = $$lower($${LDVIEW_EXE})
+exists($${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/bin/$${QT_ARCH}/$${LDVIEW_EXE}) {
+    LOAD_LDV_LIBS = True
+} else {
+    message("~~~ FATAL_ LDVIEW IS NOT AVAILABLE - CANNOT LOAD LDV LIBRARIES ~~~ ")
+    LOAD_LDV_LIBS = False
+}
+LDV_MESSAGES_INI = ldvMessages.ini
 !freebsd: \
 DEFINES += EXPORT_3DS
 
