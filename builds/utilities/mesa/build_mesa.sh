@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Build Mesa and GLU libraries
+# Build Mesa, GLU and ZStandard libraries
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update May 30, 2025
+#  Last Update June 4, 2025
 #  Copyright (C) 2018 - 2025 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/build_mesa.sh
@@ -20,6 +20,8 @@ mesa_version="${MESA_VERSION:-21.3.9}"
 glu_version="${GLU_VERSION:-9.0.1}"
 # specify llvm not supported - deprecated (this is the old RHEL no_gallium flag)
 llvm_not_supported=0
+# specify the libzstd version
+zstd_version="${ZSTD_VERSION:-1.5.7}"
 # specify llvm is not used for default OSMesa configuration
 llvm_not_used="${LLVM_NOT_USED:-1}"
 # specify llvm will be built from source
@@ -145,6 +147,8 @@ fi
 # $mesa_version is greater than 21.3.0
 if version_gt "$mesa_version" 21.3.0; then
   mesa_package="${mesa_package}-amber"
+else
+  unset zstd_version
 fi
 
 # Check for required 'WD' variable
@@ -164,6 +168,8 @@ Info "Script Directory.........[${script_dir}]"
 Info "Install Prefix...........[${mesa_prefix}]"
 Info "Mesa Version.............[${mesa_version}]"
 Info "GLU Version..............[${glu_version}]"
+[ -n "$zstd_version" ] && \
+Info "ZStandard Version........[${zstd_version}]" || :
 Info "Library File.............[lib${lib_file}.${lib_ext}]"
 Info "Build System.............[${mesa_build_sys}]"
 Info "Build Library............[$([ "${static_build}" -eq 1 ] && echo "Static" || echo "Shared")]"
@@ -428,6 +434,8 @@ fi
 
 # update version in config file
 if  [ -f "${mesa_prefix}/osmesa-config" ]; then
+  [ -z "$zstd_version" ] && \
+  sed -e 's; -lzstd;;g' -e 's; \${libdir}/libzstd.a;;g' -i ${mesa_prefix}/osmesa-config || :
   sed '/    --version)/{n;s/.*/      echo '"${mesa_version}"'/}' -i ${mesa_prefix}/osmesa-config
   Info "osmesa-config version updated"
   sed -n '26,27p;28q' ${mesa_prefix}/osmesa-config
@@ -502,7 +510,54 @@ if [ ! -f "${mesa_prefix}/lib/libGLU.${lib_ext}" ]; then
 else
   Info "library GLU exist - build skipped."
 fi
-cd $WD
+
+if [ -n "$zstd_version" ]; then
+  Info && Info "----------------------------------------------------"
+  Info "Building ZStandard..."
+
+  cd $WD
+  arch_suffix=gz
+  if [[ -d "zstd-${zstd_version}" && ${clean_build} -eq 1 ]]; then
+    Info "cleanup old zstd-${zstd_version}..."
+    rm -rf "zstd-${zstd_version}"
+    if [ -d "${mesa_prefix}" ]; then
+      rm -rf "${mesa_prefix}"
+    fi
+  fi
+
+  if [ ! -f "zstd-${zstd_version}.tar.${arch_suffix}" ]; then
+    if [ "$OBS" != "true" ]; then
+      Info "* downloading ZSTD ${zstd_version}..."
+      curl $curl_opts -O "${LP3D_LIBS_BASE}/zstd-${zstd_version}.tar.${arch_suffix}"
+    else
+      Info "ERROR - archive file zstd-${zstd_version}.tar.${arch_suffix} was not found."
+    fi
+  fi
+
+  # ZStandard source directory
+  if [ ! -d "zstd-${zstd_version}" ]; then
+    Info -n "extracting ZStandard (tar.${arch_suffix})..."
+    [ "${arch_suffix}" = "gz" ] && z_cat="gzip -dc" || :
+    ($z_cat zstd-${zstd_version}.tar.${arch_suffix} | tar xf -) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && Info "Failed." && tail -20 $l.out || Info "Ok"
+  fi
+
+  # ZStandard build directory
+  if [ ! -d "${mesa_prefix}" ]; then
+    Info "create install prefix..."
+    mkdir -p "${mesa_prefix}"
+  fi
+
+  cd zstd-${zstd_version}/lib
+
+  if [ ! -f "${mesa_prefix}/lib/libzstd.${lib_ext}" ]; then
+    Info "build and install ZStandard..."
+    # use 'make install ...' to build and install both shared and static libs
+    make install-pc install-includes install-static prefix=${mesa_prefix}
+  else
+    Info "library ZStandard exist - build skipped."
+  fi
+fi
 
 # elapsed execution time
 ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"

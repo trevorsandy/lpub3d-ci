@@ -48,19 +48,19 @@ while test $# -gt 0; do
       echo -lpthread -lm -ldl
       ;;
     --ldlibs)
-      echo -l@mesa@ -lGLU
+      echo -l@mesa@ -lGLU -lzstd
       ;;
     --libs)
-      echo -L${libdir} -l@mesa@ -lGLU
+      echo -L${libdir} -l@mesa@ -lGLU -lzstd
       ;;
     --libs-explicit)
-      echo ${libdir}/lib@mesa@.a ${libdir}/libGLU.a
+      echo ${libdir}/lib@mesa@.a ${libdir}/libGLU.a ${libdir}/libzstd.a
       ;;
     --static-libs)
-      echo -L${libdir} -l@mesa@ -GLU -lpthread -lm -ldl
+      echo -L${libdir} -l@mesa@ -GLU -lzstd -lpthread -lm -ldl
       ;;
     --static-libs-explicit)
-      echo ${libdir}/lib@mesa@.a ${libdir}/libGLU.a -lpthread -lm -ldl
+      echo ${libdir}/lib@mesa@.a ${libdir}/libGLU.a ${libdir}/libzstd.a -lpthread -lm -ldl
       ;;
     *)
       echo "${usage}" 1>&2

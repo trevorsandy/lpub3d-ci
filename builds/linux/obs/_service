@@ -138,6 +138,12 @@
   <service name="download_url">
    <param name="protocol">https</param>
    <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/zstd-1.5.7.tar.gz</param>
+   <param name="filename">zstd-1.5.7.tar.gz</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip</param>
    <param name="filename">tenteparts.zip</param>
   </service>

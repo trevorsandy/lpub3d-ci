@@ -380,11 +380,13 @@ function BuildMesaLibs()
   if [ "${platform_id}" = "arch" ]; then
     mesa_version=21.3.9
     glu_version=9.0.1
+    zstd_version=1.5.7
     llvm_not_used=1
     build_label="${lib_file}, GLU and ZStd"
   else
     mesa_version=17.2.6
     glu_version=9.0.0
+    unset zstd_version
     llvm_not_used=0   
   fi
   if [ "${OBS}" = "true" ]; then
@@ -436,7 +438,9 @@ function BuildMesaLibs()
   LLVM_PREFIX=${llvm_prefix} \
   LLVM_BUILD=${llvm_build} \
   MESA_PREFIX=${mesa_prefix} \
-  MESA_VERSION=${mesa_version}\
+  MESA_VERSION=${mesa_version} \
+  GLU_VERSION=${glu_version} \
+  ZSTD_VERSION=${zstd_version}\
   "
 
   chmod a+x "${mesaUtilsDir}/build_mesa.sh"
@@ -467,6 +471,10 @@ function BuildMesaLibs()
   if [ ! -f "${mesa_prefix}/lib/libGLU.a" ]; then
     Info "ERROR - libGLU.a not found. Binary was not successfully built."
     return_code=2
+  fi
+  if [[ -n "${zstd_version}" && ! -f "${mesa_prefix}/lib/libzstd.a" ]]; then
+    Info "ERROR - libzstd.a not found. Binary was not successfully built."
+    return_code=3
   fi
 
   if [ "$return_code" -eq 0 ]; then
