@@ -1,14 +1,13 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: April 02, 2025
+# Last Update: June 3, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
-#
 
 # set packing platform
 %if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
@@ -148,9 +147,7 @@ BuildRequires: libverto-libevent
 %endif
 
 %if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
-%if 0%{?fedora_version} || 0%{?centos_version}==800
 BuildRequires: hostname
-%endif
 %if !0%{?rhel_version}
 BuildRequires: OpenEXR-devel
 %if 0%{?centos_version}!=800
@@ -206,14 +203,14 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %if 0%{?fedora_version}==25
 BuildRequires: llvm-libs
-%define build_osmesa 1
+%define build_mesa 1
 %endif
 %if 0%{?fedora_version}==26
 BuildRequires: openssl-devel, storaged
-%define build_osmesa 1
+%define build_mesa 1
 %endif
 %if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
-%define build_osmesa 1
+%define build_mesa 1
 %endif
 %endif
 %endif
@@ -225,8 +222,9 @@ BuildRequires: freeglut-devel
 BuildRequires: libqt5-qtbase-devel
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
-BuildRequires: update-desktop-files
+BuildRequires: update-desktop-files hostname
 BuildRequires: zlib-devel
+BuildRequires: Mesa-libEGL-devel
 %if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200 && 0%{?sle_version}!=150300 && 0%{?sle_version}!=150400)
 BuildRequires: gl2ps-devel
 %else
@@ -281,11 +279,12 @@ BuildRequires: libopenssl-devel
 %define build_tinyxml 1
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if 0%{osmesa_found} != 1
-%define build_osmesa 1
+%define build_mesa 1
 %endif
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
+BuildRequires: hostname
 Requires(post): desktop-file-utils
 %endif
 %if 0%{?scientificlinux_version}
@@ -349,64 +348,146 @@ BuildRequires: pkgconfig(sdl2)
 # ------------------------------
 # Build from source dependencies
 # ------------------------------
-# OSMesa and libGLU dependencies
-%if 0%{?build_osmesa}
-%define buildosmesa yes
+# Mesa and libGLU dependencies
+%if 0%{?build_mesa}
+%define buildmesa yes
 # libGLU build-from-source dependencies
 BuildRequires: gcc-c++
 BuildRequires: libtool
 BuildRequires: pkgconfig
 BuildRequires: pkgconfig(gl)
 # libMesa build-from-source dependencies
+%ifarch armv6l armv6hl
+%define _lto_cflags %{nil}
+%endif
+# ---
+%define drivers 0
+%define glamor 1
 %define _name_archive mesa
-%define _version 17.2.6
-BuildRequires: autoconf >= 2.60
-BuildRequires: automake
-BuildRequires: bison
+%define _version 21.3.9
+%define with_opencl 0
+%define with_vulkan 0
+%define with_llvm 0
+# ---
+%ifarch %{ix86} x86_64 %{arm} aarch64
+%define gallium_loader 1
+%else
+%define gallium_loader 0
+%endif
+# ---
+%define xvmc_support 0
+%define vdpau_nouveau 0
+%define vdpau_radeon 0
+# ---
+%ifarch %{ix86} x86_64 aarch64 %{arm}
+%define xvmc_support 1
+%define vdpau_nouveau 1
+%define vdpau_radeon 1
+%endif
+# ---
+%ifarch %{ix86} x86_64 %{arm} aarch64
+%define with_nine 1
+%endif
+# ---
+%if 0%{gallium_loader}
+%define with_opencl 1
+%ifarch %{ix86} x86_64
+%define with_vulkan 1
+%define vulkan_drivers swrast,amd,intel
+%endif
+%ifarch %{arm} aarch64
+%define with_vulkan 1
+%define vulkan_drivers swrast,amd,broadcom,freedreno
+%endif
+%endif
+# ---
+%ifarch aarch64 %{arm}  s390x %{ix86} x86_64
+%define with_llvm 1
+%endif
+# ---
+%if 0%{with_opencl}
+%define have_gallium 1
+%else
+%define have_gallium 0
+%endif
+# ---
+%if %{drivers}
+%define glamor 0
+%else
+# No llvm dependencies
+%define with_llvm 0
+# OpenCL requires clang (LLVM)
+%define with_opencl 0
+# nine requires at least one non-swrast gallium driver
+%define with_nine 0
+# Not built because radeon driver is not built.
+%define vdpau_radeon 0
+# Not built because nouveau driver is not built.
+%define vdpau_nouveau 0
+# Not built. (Why?)
+%define xvmc_support 0
+# Vulkan includes radv driver which requires llvm
+%define with_vulkan 0
+%endif
+# ---
 %if !0%{?rhel_version}
 BuildRequires: fdupes
 %endif
-BuildRequires: flex
-BuildRequires: gcc-c++
-BuildRequires: imake
-BuildRequires: libtool
-BuildRequires: pkgconfig
-%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-BuildRequires: python
-BuildRequires: python-libs
-BuildRequires: pkgconfig(libdrm)
+BuildRequires:  bison
+BuildRequires:  fdupes
+BuildRequires:  flex
+BuildRequires:  gcc-c++
+BuildRequires:  glslang-devel
+BuildRequires:  imake
+BuildRequires:  libtool
+BuildRequires:  memory-constraints
+BuildRequires:  meson
+BuildRequires:  pkgconfig
+BuildRequires:  python3-base
+%if 0%{?suse_version} > 1320
+BuildRequires:  python3-mako
 %else
-BuildRequires: python-xml
-BuildRequires: python-base
-BuildRequires: pkgconfig(libdrm) >= 2.4.75
+BuildRequires:  python3-Mako
 %endif
-BuildRequires: python-mako
-BuildRequires: pkgconfig(dri2proto)
-BuildRequires: pkgconfig(dri3proto)
-BuildRequires: pkgconfig(expat)
-BuildRequires: pkgconfig(glproto)
-BuildRequires: pkgconfig(libkms) >= 1.0.0
-BuildRequires: pkgconfig(libudev) > 151
-BuildRequires: pkgconfig(openssl)
-BuildRequires: pkgconfig(presentproto)
-%if !0%{?rhel_version}
-BuildRequires: pkgconfig(libva)
-BuildRequires: pkgconfig(vdpau) >= 1.1
-BuildRequires: pkgconfig(xcb-dri3)
-BuildRequires: pkgconfig(xcb-present)
-BuildRequires: pkgconfig(xshmfence)
-BuildRequires: pkgconfig(xvmc)
+BuildRequires:  python3-xml
+BuildRequires:  pkgconfig(dri2proto)
+BuildRequires:  pkgconfig(dri3proto)
+BuildRequires:  pkgconfig(expat)
+BuildRequires:  pkgconfig(glproto)
+BuildRequires:  pkgconfig(libdrm) >= 2.4.75
+BuildRequires:  pkgconfig(libdrm_amdgpu) >= 2.4.95
+BuildRequires:  pkgconfig(libdrm_nouveau) >= 2.4.66
+BuildRequires:  pkgconfig(libdrm_radeon) >= 2.4.71
+BuildRequires:  pkgconfig(libglvnd) >= 0.1.0
+%ifarch aarch64 %{ix86} x86_64 ppc64le s390x
+BuildRequires:  pkgconfig(valgrind)
 %endif
-BuildRequires: pkgconfig(x11)
-BuildRequires: pkgconfig(x11-xcb)
-BuildRequires: pkgconfig(xcb-dri2)
-BuildRequires: pkgconfig(xcb-glx)
-BuildRequires: pkgconfig(xdamage)
-BuildRequires: pkgconfig(xext)
-BuildRequires: pkgconfig(xfixes)
-BuildRequires: pkgconfig(xxf86vm)
-BuildRequires: pkgconfig(zlib)
-%ifarch x86_64 %ix86
+BuildRequires:  pkgconfig(libkms) >= 1.0.0
+BuildRequires:  pkgconfig(libva)
+BuildRequires:  pkgconfig(presentproto)
+%if %{drivers}
+BuildRequires:  pkgconfig(vdpau) >= 1.1
+%endif
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(x11-xcb)
+BuildRequires:  pkgconfig(xcb-dri2)
+BuildRequires:  pkgconfig(xcb-dri3)
+BuildRequires:  pkgconfig(xcb-glx)
+BuildRequires:  pkgconfig(xcb-present)
+BuildRequires:  pkgconfig(xdamage)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(xrandr)
+BuildRequires:  pkgconfig(xshmfence)
+BuildRequires:  pkgconfig(xvmc)
+BuildRequires:  pkgconfig(xxf86vm)
+BuildRequires:  pkgconfig(zlib)
+%ifarch %{arm} aarch64
+BuildRequires:  pkgconfig(libdrm_etnaviv) >= 2.4.89
+BuildRequires:  pkgconfig(libdrm_freedreno) >= 2.4.74
+BuildRequires:  pkgconfig(libelf)
+%endif
+%ifarch x86_64 %{ix86}
 %if 0%{?fedora_version} || 0%{?rhel_version}
 BuildRequires: elfutils
 BuildRequires: elfutils-libelf-devel
@@ -416,21 +497,43 @@ BuildRequires: libelf-devel
 BuildRequires: pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %else
+%if 0%{with_opencl}
+BuildRequires:  libelf-devel
 %endif
-%if 0%{?suse_version}>1320 || (0%{?sle_version}>=120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version}==700
-# needed by gtk3
+%endif
+# Requirements for wayland bumped up from 17.0
 %if 0%{?scientificlinux_version}==700
 BuildRequires: wayland-devel
 %endif
-BuildRequires: pkgconfig(wayland-client) >= 1.11
-BuildRequires: pkgconfig(wayland-protocols) >= 1.8
-BuildRequires: pkgconfig(wayland-server) >= 1.11
+BuildRequires:  pkgconfig(wayland-client) >= 1.11
+BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
+BuildRequires:  pkgconfig(wayland-server) >= 1.11
+%if 0%{with_llvm}
+%if 0%{?suse_version} >= 1550
+BuildRequires:  llvm-devel
+%else
+%if 0%{?sle_version} >= 150300
+BuildRequires:  llvm11-devel
+%else
+BuildRequires:  llvm9-devel
+%endif
 %endif
 %ifarch %ix86 x86_64
-%if !0%{?rhel_version} && !0%{?centos_version}
-BuildRequires: llvm-devel
-%endif
 BuildRequires: ncurses-devel
+%endif
+%endif
+# ---
+%if 0%{with_opencl}
+%if 0%{?suse_version} >= 1550
+BuildRequires:  clang-devel
+%else
+%if 0%{?sle_version} >= 150300
+BuildRequires:  clang11-devel
+%else
+BuildRequires:  clang9-devel
+%endif
+%endif
+BuildRequires:  libclc
 %endif
 %endif
 
@@ -587,7 +690,9 @@ for TarballFile in \
   ${SrcPath}/povray.tar.gz \
   ${SrcPath}/mesa-17.2.6.tar.gz \
   ${SrcPath}/mesa-18.3.5.tar.gz \
+  ${SrcPath}/mesa-21.3.9.tar.xz \
   ${SrcPath}/glu-9.0.0.tar.bz2 \
+  ${SrcPath}/glu-9.0.1.tar.xz \
   ${SrcPath}/qt5-5.9.3-gcc_64-el.tar.gz \
   ${SrcPath}/locallibs.el.x86_64.tar.gz; do
   LibFile="$(basename ${TarballFile})"
@@ -653,13 +758,14 @@ export PLATFORM_CODE="mga"
 export PLATFORM_VER=${PLATFORM_VER_OBS}
 set +x
 # 3rd-party renderers build-from-source requirements
-%if 0%{?build_osmesa}
+%if 0%{?build_mesa}
 echo "Build OSMesa from source.......yes"
-export build_osmesa=%{build_osmesa}
+export build_mesa=%{build_mesa}
 %endif
-%if 0%{?no_gallium}
-echo "Gallium driver not available...yes"
-export no_gallium=%{no_gallium}
+# LLVM not needed for default Mesa 21.3.9 configuration
+%if !0%{?with_llvm}
+echo "LLVM not needed for Mesa.......yes"
+export mesa_no_llvm=1
 %endif
 %if 0%{?build_sdl2}
 echo "Build SDL2 from source.........yes"
