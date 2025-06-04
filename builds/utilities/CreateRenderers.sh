@@ -228,7 +228,7 @@ function InstallDependencies()
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
       if [[ -n "$build_osmesa" && "$MesaBuildAttempt" != 1 ]]; then
-        BuildMesaLibs $1 $useSudo
+        BuildMesaLibs $useSudo
       fi
       Info
       if [ "${platform_id}" = "fedora" ]; then
@@ -264,7 +264,7 @@ function InstallDependencies()
       $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
       if [[ -n "$build_osmesa" && "$MesaBuildAttempt" != 1 ]]; then
-        BuildMesaLibs $1 $useSudo
+        BuildMesaLibs $useSudo
       fi
       Msg="${1} dependencies installed."
       Info $Msg && DisplayLogTail $depsLog 10 && Info $Msg >> $depsLog 2>&1
@@ -321,7 +321,7 @@ function ApplyLDViewStdlibHack()
   Info
 }
 
-# Args: 1 = <build folder>, 2 = <sudo>
+# Args: 1 = <sudo>
 function BuildMesaLibs()
 {
   return_code=0
@@ -335,10 +335,10 @@ function BuildMesaLibs()
     Info "Using sudo............[$([ -n "$2" ] && echo "Yes" || echo "No")]"
     mesaDepsLog=${LP3D_LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
 
-    if [ -z "$2" ]; then
+    if [ -z "$1" ]; then
       useSudo=
     else
-      useSudo=$2
+      useSudo=$1
     fi
 
     case ${platform_id} in
@@ -395,7 +395,7 @@ function BuildMesaLibs()
       mesa_version=18.3.5
     fi
   else
-    mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
+    mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild.log
   fi
 
   Info "Building ${lib_file}........[${mesa_version}]"
@@ -810,6 +810,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
   platform_ver=$(echo `sw_vers -productVersion`)
 else
   platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
+  [ "${platform_id}" = "arch" ] && build_osmesa=1 || :
   [[ "${platform_id}" == "msys2" && -z "${MSYS2}" ]] && MSYS2=1 || :
   if [[ -n "${MSYS2}" && -n "${PLATFORM_PRETTY}" ]]; then
     platform_pretty=${PLATFORM_PRETTY}
@@ -1315,7 +1316,7 @@ for buildDir in "${renderers[@]}"; do
       Info && Info $Msg && Info $Msg >> $buildLog 2>&1
     fi
     if [[ -n "$build_osmesa" && -z "$get_local_libs" && "$MesaBuildAttempt" != 1 ]]; then
-      BuildMesaLibs ${buildDir}
+      BuildMesaLibs
       MesaBuildAttempt=1
       if [[ $? != 0 ]]; then
         Msg="Build OSMesa failed with return code $?. $ME will terminate."
@@ -1362,6 +1363,14 @@ for buildDir in "${renderers[@]}"; do
         Info && Info $Msg && Info $Msg >> $buildLog 2>&1
         Info "----------------------------------------------------"
         InstallDependencies ${buildDir}
+        sleep .5
+      fi
+      if [[ -n "$build_osmesa" && "$MesaBuildAttempt" != 1 ]]; then
+        Msg="Install ${buildDir} Mesa build dependencies..."
+        Info && Info $Msg && Info $Msg >> $buildLog 2>&1
+        Info "----------------------------------------------------"
+        BuildMesaLibs "sudo"
+        MesaBuildAttempt=1
         sleep .5
       fi
     fi
