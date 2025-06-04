@@ -15,12 +15,8 @@ binarybuild {
 # These defines point LPub3D to the platform-specific content
 # when performing 'check for update' downloads
 # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|snp|flp|dmg> accordingly
-
-# <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
-!isEmpty(option): BUILD_CODE = $$option
-if (api|snp|flp):equals(PWD, $${OUT_PWD}) {
+if (api|snp|flp|msys):equals(PWD, $${OUT_PWD}) {
     THIRD_PARTY_EXEC_DIR = $$(LP3D_3RD_EXE_DIR)
-    _PLATFORM_CODE = ap
     mingw:ide_qtcreator {
         NOT_EXISTS_CMD = IF NOT EXIST
         COPY_CMD = COPY /V /Y
@@ -78,6 +74,8 @@ if (api|snp|flp):equals(PWD, $${OUT_PWD}) {
                                    $${LIB_VEXIQ}
 }
 
+# <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
+!isEmpty(option): BUILD_CODE = $$option
 _PLATFORM_ID = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo \"$ID\")
 if (contains(_PLATFORM_ID, ubuntu)|contains(_PLATFORM_ID, debian)) {
    contains(_PLATFORM_ID, ubuntu): _PLATFORM_CODE = ubu
@@ -85,6 +83,7 @@ if (contains(_PLATFORM_ID, ubuntu)|contains(_PLATFORM_ID, debian)) {
    contains(QT_ARCH, x86_64): _TARGET_CPU = amd64
    else: _TARGET_CPU = $$QT_ARCH
 } else {
+   msys: _PLATFORM_CODE = ap
    isEmpty(_PLATFORM_CODE): _PLATFORM_CODE = $$(PLATFORM_CODE)
    _TARGET_CPU = $${BUILD_ARCH}
    contains(BUILD_ARCH, UNKNOWN ARCH): _TARGET_CPU =
@@ -198,8 +197,8 @@ ldglite_ini.path = $$RESOURCE_DIR
 
 nativexport_ini.files += $$_PRO_FILE_PWD_/extras/ldvExport.ini
 nativexport_ini.path = $$RESOURCE_DIR
-
-ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
+ 
+ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
 ldv_messages_ini.path = $$RESOURCE_DIR
 
 INSTALLS += \
@@ -242,6 +241,9 @@ api {
     if (snp|flp) {
         INSTALLS += appstream_appdata
     }
+    if (msys) {
+        EXE = .exe
+    }
 }
 
 # The package distribution settings below requires a specific dev env configuration.
@@ -265,9 +267,9 @@ api {
 isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$THIRD_PARTY_DIST_DIR_PATH
 
 # source executables - 3rd party components
-isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE           = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$BUILD_ARCH/ldglite
-isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE             = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$BUILD_ARCH/ldview
-isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE         = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$BUILD_ARCH_POVRAY/lpub3d_trace_cui
+isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE           = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$BUILD_ARCH/ldglite$$EXE
+isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE             = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$BUILD_ARCH/ldview$$EXE
+isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE         = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$BUILD_ARCH_POVRAY/lpub3d_trace_cui$$EXE
 
 # source directories - 3rd party components
 isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC           = $$THIRD_PARTY_SRC/$$VER_LDGLITE/docs

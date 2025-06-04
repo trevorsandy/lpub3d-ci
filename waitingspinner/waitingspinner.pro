@@ -33,9 +33,10 @@ win32 {
     QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
 
     QMAKE_EXT_OBJ = .obj
-    CONFIG += windows
 
     win32-msvc* {
+
+        CONFIG += windows
         CONFIG  += force_debug_info
         DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         QMAKE_CFLAGS_WARN_ON -= -W3
@@ -57,7 +58,7 @@ win32 {
     }
 }
 
-unix: !macx: TARGET = $$lower($$TARGET)
+if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 # Indicate build type
 staticlib: BUILD = Static
