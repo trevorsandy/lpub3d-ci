@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: April 01, 2025
+#  Last Update: June 3, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d-ci
 pkgver=2.4.9.4373
@@ -13,17 +13,41 @@ depends=('unzip' 'qt5-tools' 'qt5-base' 'libjpeg-turbo' 'mesa-libgl' 'gl2ps' 'ti
 conflicts=()
 replaces=()
 backup=()
-source=('lpub3d-ci-git.tar.gz' 'complete.zip' 'lpub3dldrawunf.zip' 'tenteparts.zip' 'vexiqparts.zip' 'povray.tar.gz' 'ldview.tar.gz' 'ldglite.tar.gz')
-noextract=('complete.zip' 'lpub3dldrawunf.zip' 'tenteparts.zip' 'vexiqparts.zip' 'povray.tar.gz' 'ldview.tar.gz' 'ldglite.tar.gz')
+source=(
+	'lpub3d-ci-git.tar.gz'
+	'povray.tar.gz'
+	'ldview.tar.gz'
+	'ldglite.tar.gz'
+	'mesa-21.3.9.tar.xz'
+	'glu-9.0.1.tar.xz'
+	'zstd-1.5.7.tar.gz'
+	'complete.zip'
+	'lpub3dldrawunf.zip'
+	'tenteparts.zip'
+	'vexiqparts.zip')
+noextract=(
+	'povray.tar.gz'
+	'ldview.tar.gz'
+	'ldglite.tar.gz'
+	'mesa-21.3.9.tar.xz'
+	'glu-9.0.1.tar.xz'
+	'zstd-1.5.7.tar.gz'
+	'complete.zip'
+	'lpub3dldrawunf.zip'
+	'tenteparts.zip'
+	'vexiqparts.zip')
 sha256sums=(
 	SKIP
+	'2793182e702750daa9c3dea19b167c78d004846e44c4ad73b9c3ec34566e1dcb'
+	'4ac3e2371d3143b308b245c79ab374dc2af66c4ab383453be831c2b60ad2b26c'
+	'c2ad5e45bc391db634db6d0ed47d317c0268dccf4d1aa37ff5c780731ff5a8ca'
+	'91fe6f20339884e37a7c47bfba42fb1cd397512c9ed5ad423de369f047cd8b5c'
+	'fb5a4c2dd6ba6d1c21ab7c05129b0769544e1d68e1e3b0ffecb18e73c93055bc'
+	'eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3'
 	'a4ab15366d22ae0589901ec15bcc465fd5bb5b6057661b91b89b810f98a56c06'
 	'a22da755a9c10cecf37928f4c951be00be9149146914de2a2b7a526906fdfd0e'
 	'95b65664c455f4895f480ab8e3ed9e96046ca69ee1b296922d76a369e2cf2846'
-	'e2f4114c8ff6bfe7e5a43b6c88fb47f32328ddb147578456ec0825aa76803b20'
-	'2793182e702750daa9c3dea19b167c78d004846e44c4ad73b9c3ec34566e1dcb'
-	'97d2be96258695dd66304e38f298062b9427ddd3cad71b433441ffd4ee00c28c'
-	'a45d36b1f1be24586989fd468ecdeb2591d4dfa8fe001a76882432a2f6c1c0b9')
+	'e2f4114c8ff6bfe7e5a43b6c88fb47f32328ddb147578456ec0825aa76803b20')
 
 prepare() {
 	# location is ../src
@@ -48,6 +72,10 @@ prepare() {
 			${LIB_CMD} -f ${LDrawLibFile} mainApp/extras/
 		fi
 	done
+	# Build Mesa-amber 21.3.9
+	export build_osmesa=1
+	# LLVM not needed for default Mesa 21.3.9 configuration
+	export llvm_not_used=1
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# location is ../src/${pkgname}-git
 	export QT_SELECT=qt5

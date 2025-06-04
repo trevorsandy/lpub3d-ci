@@ -25,7 +25,7 @@
       <param name="exclude">.gitignore</param>
       <param name="exclude">.gitattributes</param>
       <param name="exclude">.github</param>
-      <param name="exclude">.travis.yml</param>      
+      <param name="exclude">.travis.yml</param>
       <param name="exclude">LPub3D.pro.user</param>
       <param name="exclude">README.md</param>
       <param name="exclude">appveyor.yml</param>
@@ -132,8 +132,20 @@
   <service name="download_url">
    <param name="protocol">https</param>
    <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-21.3.9.tar.xz</param>
+   <param name="filename">mesa-21.3.9.tar.xz</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-9.0.0.tar.bz2</param>
    <param name="filename">glu-9.0.0.tar.bz2</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-9.0.1.tar.xz</param>
+   <param name="filename">glu-9.0.1.tar.xz</param>
   </service>
   <service name="download_url">
    <param name="protocol">https</param>
