@@ -124,9 +124,6 @@ cd $BUILD_DIR || exit 1
 export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_PATH:-/dist/${LP3D_BASE}_${LP3D_ARCH}}
 export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}
 export LPUB3D=${LPUB3D:-lpub3d-ci}
-export LP3D_VER_LDGLITE=ldglite-1.3
-export LP3D_VER_LDVIEW=ldview-4.5
-export LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
 export LDRAWDIR_ROOT=~
 export LDRAWDIR=~/ldraw
 export WD=$PWD
