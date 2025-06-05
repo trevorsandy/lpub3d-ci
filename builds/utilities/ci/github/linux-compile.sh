@@ -92,10 +92,6 @@ export LP3D_LDRAW_DIR=${LP3D_LDRAW_DIR:-${LP3D_3RD_PARTY_PATH}/ldraw}
 export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-~}
 export LDRAWDIR=${LDRAWDIR:-~/ldraw}
 
-export LP3D_VER_LDGLITE=ldglite-1.3
-export LP3D_VER_LDVIEW=ldview-4.4
-export LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
-
 export CI=${CI:-true}
 export OBS=${OBS:-false}
 export DOCKER=${DOCKER:-false}
@@ -164,7 +160,7 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
       cp -f builds/linux/obs/alldeps/lpub3d-ci.spec .
       sed -e 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' \
           -e 's/<B_CNT>/1/' -i lpub3d-ci.spec
-      sudo dnf install -y git wget unzip rsync which rpmlint ccache dnf-plugins-core > ${LIBS_LOG} 2>&1
+      sudo dnf install -y git wget unzip rsync which rpmlint ccache dnf-plugins-core hostname > ${LIBS_LOG} 2>&1
       sudo dnf builddep -y ./lpub3d-ci.spec >> ${LIBS_LOG} 2>&1
       ;;
     "archlinux")

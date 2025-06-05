@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update: June 4, 2025
+# Last Update: June 05, 2025
 # Copyright (C) 2017 - 2025 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -8,6 +8,9 @@ export DH_VERBOSE=1
 
 # use Qt5
 export QT_SELECT=qt5
+
+# get include-binaries path prefix
+export BINARY_FILE_PATH := $(shell readlink -e ../)
 
 # get CPU arch - DEB_BUILD_ARCH returns amd64 for x86_64, arm for armv7l or arm64 for aarch64
 export TARGET_CPU=${DEB_BUILD_ARCH}
@@ -18,134 +21,117 @@ export TARGET_VENDOR := $(shell . /etc/os-release 2>/dev/null; [ -n "$${ID}" ] &
 # get OS version
 export PLATFORM_VER := $(shell . /etc/os-release 2>/dev/null; [ -n "$${VERSION_ID}" ] && echo "$${VERSION_ID}" || echo 'undefined')
 
-# check if is Univention 5.0 using shameless hack because the proud creator of this OBS project added no way to correctly ID the OS
-export LP3D_UCS_5 := $(shell [ $$(which ucslint) ] && echo "5.0" || :)
+# check if is Univention 5.0 using shameless hack because the proud creator of this OBS project did not add a way to correctly ID the OS
+export LP3D_UCS_VER := $(shell [ $$(which ucslint) ] && echo 5.0 || :)
 
-# check if is Debian
-export LP3D_DEBIAN_10 := $(shell [ $$(echo ${TARGET_VENDOR} | awk '{print tolower($$0)}') = "debian" ] && [ ${PLATFORM_VER} = "10" ] && echo "10" || :)
+# check if is Debian 10
+export LP3D_DEBIAN_VER := $(shell [ $$(echo ${TARGET_VENDOR} | awk '{print tolower($$0)}') = "debian" ] && [ ${PLATFORM_VER} = "10" ] && echo 10 || :)
 
 # get app version suffix
 LP3D_VER_SUFFIX := $(shell cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
 
 # get release directory name
-LP3D_RELEASE_DIR := $(shell [ ${TARGET_CPU} = amd64 ] || [ ${TARGET_CPU} = x86_64 ] || [ ${TARGET_CPU} = aarch64 ] || [ ${TARGET_CPU} = arm64 ] && echo "64bit_release" || echo "32bit_release")
+LP3D_RELEASE_DIR := $(shell [ ${TARGET_CPU} = amd64 ] || [ ${TARGET_CPU} = x86_64 ] || [ ${TARGET_CPU} = aarch64 ] || [ ${TARGET_CPU} = arm64 ] && echo '64bit_release' || echo '32bit_release')
+
+# set QMake flags
+LP3D_MAKE_FLAGS := $(shell [ $$(which qmake) ] && echo "LDRAWDIR=${HOME}/ldraw CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb" || :)
 
 # get lpub3d executable path
 LP3D_VALID_EXE := $(shell echo "mainApp/${LP3D_RELEASE_DIR}/lpub3d${LP3D_VER_SUFFIX}")
 
-# set compatibility level - KO, building renderers twice and failing after
-# export DH_COMPAT := $(shell [ ${PLATFORM_VER} = 10 ] && echo 10 || echo 9)
-
 %:
 	dh $@
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-
+override_dh_auto_configure:
 	# Start custom configuration commands
 	echo "Current working directory: `pwd`"
 	# move ldraw archive libraries to extras
 	for LDrawLibFile in \
-		../SOURCES/complete.zip \
-		../SOURCES/lpub3dldrawunf.zip \
-		../SOURCES/tenteparts.zip \
-		../SOURCES/vexiqparts.zip; do \
-		if [ -f "$${LDrawLibFile}" ]; then \
-			if [ "$$(basename $${LDrawLibFile})" = "complete.zip" ]; then \
-				cp -f $${LDrawLibFile} ../ || \
-				echo "Error: $$(basename $${LDrawLibFile}) copy to $$(readlink -e ../) failed."; \
-			fi; \
-			mv -f $${LDrawLibFile} mainApp/extras/ || \
-			echo "Error: $$(basename $${LDrawLibFile}) move to $$(readlink -e mainApp/extras) failed."; \
-		else \
-			echo "Error: $${LDrawLibFile} not found."; \
-		fi; \
-	done
-	# move 3rd party renderer source archives
+        ../SOURCES/complete.zip \
+        ../SOURCES/lpub3dldrawunf.zip \
+        ../SOURCES/tenteparts.zip \
+        ../SOURCES/vexiqparts.zip; do \
+        if [ -f "$${LDrawLibFile}" ]; then \
+            if [ "$$(basename $${LDrawLibFile})" = "complete.zip" ]; then \
+                cp -f $${LDrawLibFile} ../ || \
+                echo "ERROR: $$(basename $${LDrawLibFile}) copy to $$(readlink -e ../) failed."; \
+            fi; \
+            mv -f $${LDrawLibFile} mainApp/extras/ || \
+            echo "ERROR: $$(basename $${LDrawLibFile}) move to $$(readlink -e mainApp/extras) failed."; \
+        else \
+            echo "ERROR: $${LDrawLibFile} not found."; \
+        fi; \
+    done
+	# move 3rd party renderer source archives if available in SOURCES (e.g. OBS)
 	for TarballFile in \
-		../SOURCES/ldglite.tar.gz \
-		../SOURCES/ldview.tar.gz \
-		../SOURCES/povray.tar.gz; do \
-		if [ -f "$${TarballFile}" ]; then \
-			mv -f $${TarballFile} ../ || \
-			echo "Error: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
-		else \
-			echo "Error: $${TarballFile} not found."; \
-		fi; \
-	done
-	# move additional build libraries
-	if [ -n "$${LP3D_UCS_5}" ] || [ -n "$${LP3D_DEBIAN_10}" ]; then \
-		for TarballFile in \
-			../SOURCES/mesa-17.2.6.tar.gz \
-			../SOURCES/mesa-18.3.5.tar.gz \
-			../SOURCES/mesa-21.3.9.tar.xz \
-			../SOURCES/glu-9.0.0.tar.bz2 \
-			../SOURCES/glu-9.0.1.tar.xz \
-			../SOURCES/zstd-1.5.7.tar.gz; do \
-			if [ -f "$${TarballFile}" ]; then \
-				mv -f $${TarballFile} ../ || \
-				echo "Error: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
-			else \
-				echo "Error: $${TarballFile} not found."; \
-			fi; \
-		done; \
-	fi
-	# copy version.info to utilities
+        ../SOURCES/ldglite.tar.gz \
+        ../SOURCES/ldview.tar.gz \
+        ../SOURCES/povray.tar.gz; do \
+        if [ -f "$${TarballFile}" ]; then \
+            mv -f $${TarballFile} ../ || \
+            echo "ERROR: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
+        fi; \
+    done
+	# move additional build libraries (e.g. OBS)
+	if [ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]; then \
+        for TarballFile in \
+            ../SOURCES/mesa-17.2.6.tar.gz \
+            ../SOURCES/mesa-18.3.5.tar.gz \
+            ../SOURCES/mesa-21.3.9.tar.xz \
+            ../SOURCES/glu-9.0.0.tar.bz2 \
+            ../SOURCES/glu-9.0.1.tar.xz \
+            ../SOURCES/zstd-1.5.7.tar.gz; do \
+            if [ -f "$${TarballFile}" ]; then \
+                mv -f $${TarballFile} ../ || \
+                echo "ERROR: $$(basename $${TarballFile}) move to $$(readlink -e ../) failed."; \
+            else \
+                echo "ERROR: $${TarballFile} not found."; \
+            fi; \
+        done; \
+    fi
+	# copy version.info to utilities if available in SOURCES (e.g. OBS)
 	if [ -f "../SOURCES/version.info" ]; then \
-		cp -f ../SOURCES/version.info builds/utilities; \
-		[ -f "builds/utilities/version.info" ] && \
-		echo "Copied version.info into $$(readlink -e builds/utilities)" || \
-		echo "Error: version.info not copied to $$(readlink -e builds/utilities)."; \
-	else \
-		echo "Error: ../SOURCES/version.info not found."; \
-	fi
-	BINARY_FILE_PATH=$$(readlink -e ../)
+        cp -f ../SOURCES/version.info builds/utilities; \
+        [ -f "builds/utilities/version.info" ] && \
+        echo "Copied version.info into $$(readlink -e builds/utilities)" || \
+        echo "ERROR: version.info not copied to $$(readlink -e builds/utilities)."; \
+    fi
+	# update include-binaries
 	BINARY_FILE_LIST=builds/linux/obs/debian/source/include-binaries; \
-	sed -i -e "s/__path__/$${BINARY_FILE_PATH}/g" "$${BINARY_FILE_LIST}" \
-		   -e "s/__arch__/${TARGET_CPU}/g" "$${BINARY_FILE_LIST}"; \
-	echo "Updated `pwd`/$${BINARY_FILE_LIST}:\n`cat $${BINARY_FILE_LIST}`"
+    sed -e "s,__path__,${BINARY_FILE_PATH},g" \
+        -e "s,__arch__,${TARGET_CPU},g" \
+        -i "$${BINARY_FILE_LIST}"; \
+    echo "Updated `pwd`/$${BINARY_FILE_LIST}:\n`cat $${BINARY_FILE_LIST}`"
 	# build 3rd-party renderers
 	export LPUB3D=lpub3d-ci; \
-	export WD=$$(readlink -e ../); \
-	export LDRAWDIR=${HOME}/ldraw; \
-	export LP3D_LOG_PATH=$${LP3D_LOG_PATH:-$${WD}}; \
-	export LP3D_CPU_CORES=$${LP3D_CPU_CORES:-$$(nproc)}; \
-	export LP3D_3RD_DIST_DIR=$${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}; export build_tinyxml=1; \
-	export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]) && echo 1 || :); \
-	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-override_dh_auto_configure:
-	# LDraw directory - for build check
-	export LDRAWDIR=${HOME}/ldraw; \
+    export WD=$$(readlink -e ../); \
+    export LDRAWDIR=${HOME}/ldraw; \
+    export LP3D_LOG_PATH=$${LP3D_LOG_PATH:-$${WD}}; \
+    export LP3D_CPU_CORES=$${LP3D_CPU_CORES:-$$(nproc)}; \
+    export LP3D_3RD_DIST_DIR=$${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}; export build_tinyxml=1; \
+    export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]) && echo 1 || :); \
+    chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+	# evaluate QMake
 	if which qmake >/dev/null 2>/dev/null ; then \
-		qmake -v; \
-		qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb; \
-	else \
-		echo "ERROR - qmake not found"; \
-	fi
+        qmake -v; \
+    else \
+        echo "ERROR - qmake not found"; \
+    fi;
 	# End custom configuration commands
-	touch configure-stamp
+	dh_auto_configure -- ${LP3D_MAKE_FLAGS}
 
-build: configure-stamp
 override_dh_auto_test:
 	# Start custom test commands
 	[ -f "${LP3D_VALID_EXE}" ] && echo "LDD check lpub3d${LP3D_VER_SUFFIX}..." && ldd ${LP3D_VALID_EXE} 2>/dev/null || \
-	echo "ERROR - LDD check failed for $$(realpath ${LP3D_VALID_EXE})"
+    echo "ERROR - LDD check failed for $$(realpath ${LP3D_VALID_EXE})"
 	# End custom test commands
 	dh_auto_test
 
-# override and shut down shared library dependency checks
+# calculate shared library dependencies
 override_dh_shlibdeps:
+	# Ignore missing shared library dependencies
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
 
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f configure-stamp
-	dh_lintian
-
-	dh_clean
-
+# strip non-deterministic information such as timestamps and filesystem ordering
 override_dh_strip_nondeterminism:
-
-.PHONY: configure build clean
+	# Do nothing
