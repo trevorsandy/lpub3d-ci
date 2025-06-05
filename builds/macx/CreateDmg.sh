@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 3, 2025
+# Last Update: June 14, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -99,7 +99,7 @@ echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES;
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-declare -r l=Log
+l=Log
 
 # when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
@@ -133,7 +133,7 @@ else
   cd ../
 fi
 
-echo "-  create DMG build working directory $(realpath dmgbuild/)..."
+echo "-  create DMG build working directory $(realpath dmgbuild/)"
 if [ ! -d dmgbuild ]
 then
   mkdir dmgbuild
@@ -144,24 +144,29 @@ cd dmgbuild
 if [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
   echo "-  you selected download LPub3D source."
-  echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
   if [ -d ${LPUB3D} ]; then
+    echo "-  remove old ${LPUB3D} from dmgbuild/"
     rm -rf ${LPUB3D}
   fi
-  git clone ${LP3D_GITHUB_URL}/${LPUB3D}.git
+  echo -n "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  (git clone ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ] || [ ! -d ${LPUB3D} ]
 then
-  echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild/)"
   if [ ! -d ../${LPUB3D} ]; then
     echo "-  NOTICE - Could not find folder $(realpath ../${LPUB3D}/)"
     if [ -d ${LPUB3D} ]; then
-       rm -rf ${LPUB3D}
+      echo "-  remove old ${LPUB3D} from dmgbuild/"
+      rm -rf ${LPUB3D}
     fi
     echo -n "-  cloning ${LPUB3D} ${BUILD_BRANCH} branch into $(realpath dmgbuild/)..."
     (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
-    if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   else
-    cp -rf ../${LPUB3D}/ ./${LPUB3D}/
+    echo -n "2. copy ${LPUB3D} source to dmgbuild/..."
+    (cp -rf ../${LPUB3D}/ ./${LPUB3D}/) >$l.out 2>&1 && rm $l.out
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
   echo "-  ${LPUB3D}/ exist. skipping download"
@@ -176,7 +181,7 @@ export WD=$PWD
 export OBS=false
 export LPUB3D=${LPUB3D}
 
-echo "-  source update_config_files.sh..." && echo
+echo "-  source update_config_files.sh" && echo
 
 _PRO_FILE_PWD_=${WD}/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
@@ -189,7 +194,7 @@ case ${LP3D_ARCH} in
     release="32bit_release" ;;
 esac
 
-echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
+echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)"
 
 cd ${LPUB3D}
 
@@ -233,66 +238,26 @@ if [ "$BUILD_OPT" = "renderers" ]; then
 fi
 
 # Copy LDraw archive libraries to mainApp/extras
+EXTRAS_DIR=$(realpath mainApp/extras)
 LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
-if [ ! -f "mainApp/extras/complete.zip" ]
-then
-  if [ -f "${DIST_DIR}/complete.zip" ]
-  then
-    echo "-  copy ldraw official library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
-    cp -f "${DIST_DIR}/complete.zip" "mainApp/extras/complete.zip"
+ldrawLibFiles=(complete.zip lpub3dldrawunf.zip tenteparts.zip vexiqparts.zip)
+for libFile in "${ldrawLibFiles[@]}"; do
+  if [ ! -f "${EXTRAS_DIR}/${libFile}" ]; then
+    if [ -f "${DIST_DIR}/${libFile}" ]; then
+      echo -n "-  copying ${libFile} from ${DIST_DIR}/ to ${EXTRAS_DIR}/..."
+      (cp -f "${DIST_DIR}/${libFile}" "${EXTRAS_DIR}/${libFile}") >$l.out 2>&1 && rm $l.out
+      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+    else
+      echo -n "-  downloading ${libFile} into ${EXTRAS_DIR}/..."
+      (curl $curlopts ${LP3D_LIBS_BASE}/${libFile} -o ${libFile}) >$l.out 2>&1 && rm $l.out
+      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+    fi
   else
-    echo -n "-  downloading complete.zip into $(realpath mainApp/extras/)..."
-    (curl -O $curlopts ${LP3D_LIBS_BASE}/complete.zip -o mainApp/extras/complete.zip) >$l.out 2>&1 && rm $l.out
-    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+    echo "-  ${libFile} exist. skipping download"
   fi
-else
-  echo "-  ldraw official library exist. skipping download"
-fi
-if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
-then
-  if [ -f "${DIST_DIR}/lpub3dldrawunf.zip" ]
-  then
-    echo "-  copy unofficial library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
-    cp -f "${DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras/lpub3dldrawunf.zip"
-  else
-    echo -n "-  downloading lpub3dldrawunf.zip to $(realpath mainApp/extras/)..."
-    (curl $curlopts ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
-    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
-  fi
-else
-  echo "-  ldraw unofficial library exist. skipping download"
-fi
-if [ ! -f "mainApp/extras/tenteparts.zip" ]
-then
-  if [ -f "${DIST_DIR}/tenteparts.zip" ]
-  then
-    echo "-  copy Tente library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
-    cp -f "${DIST_DIR}/tenteparts.zip" "mainApp/extras/tenteparts.zip"
-  else
-    echo -n "-  downloading tenteparts.zip into $(realpath mainApp/extras/)..."
-    (curl -O $curlopts ${LP3D_LIBS_BASE}/tenteparts.zip -o mainApp/extras/tenteparts.zip) >$l.out 2>&1 && rm $l.out
-    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
-  fi
-else
-  echo "-  TENTE library exist. skipping download"
-fi
+done
 
-if [ ! -f "mainApp/extras/vexiqparts.zip" ]
-then
-  if [ -f "${DIST_DIR}/vexiqparts.zip" ]
-  then
-    echo "-  copy VEXIQ library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
-    cp -f "${DIST_DIR}/vexiqparts.zip" "mainApp/extras/vexiqparts.zip"
-  else
-    echo -n "-  downloading vexiqparts.zip into $(realpath mainApp/extras/)..."
-    (curl -O $curlopts ${LP3D_LIBS_BASE}/vexiqparts.zip -o mainApp/extras/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
-    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
-  fi
-else
-  echo "-  VEXIQ library exist. skipping download"
-fi
-
-echo && echo "-  configure and build source from $(realpath .)..."
+echo && echo "-  configure and build source from $(realpath .)"
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 echo && qmake -v && echo
 qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=sdk_no_version_check CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
@@ -304,9 +269,10 @@ if [ ! -f "mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D" ]; then
   exit 1
 else
   # run otool -L on LPub3D.app
-  echo && echo "otool -L check LPub3D.app/Contents/MacOS/LPub3D..." && \
-  otool -L mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null || \
-  echo "ERROR - oTool check failed for $(realpath mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D)"
+  LPUB3D_OTOOL="$(realpath mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D)"
+  echo && echo -n "-  otool -L check ${LPUB3D_OTOOL}..."
+  (otool -L ${LPUB3D_OTOOL} 2>/dev/null) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   # Stop here if we are only compiling
   if [ "$BUILD_OPT" = "compile" ]; then
     exit 0
@@ -317,7 +283,7 @@ fi
 #
 cd builds/macx
 
-echo "- generate README file..."
+echo "- generate README file"
 cat <<EOF >README
 Thank you for installing LPub3D v${LP3D_APP_VERSION} for macOS.
 
@@ -428,33 +394,38 @@ The Homebrew plist keys are:
 Cheers,
 EOF
 
-echo "- copy README to LPub3D.app/Contents/Resources/README_macOS.txt..."
-cp -f README ../../mainApp/$release/LPub3D.app/Contents/Resources/README_macOS.txt
+echo -n "- copy README to LPub3D.app/Contents/Resources/README_macOS.txt..."
+(cp -f README ../../mainApp/$release/LPub3D.app/Contents/Resources/README_macOS.txt) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
-echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
-cp -rf ../../mainApp/$release/LPub3D.app .
+echo -n "- copy ${LPUB3D} bundle components to $(realpath .)..."
+(cp -rf ../../mainApp/$release/LPub3D.app .) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
-echo "- bundle LPub3D.app with Qt framework and plugins..."
-macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
+echo -n "- bundle LPub3D.app with Qt framework and plugins..."
+(macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
-echo "- replace LPub3D.app bundle signature..."
-/usr/bin/codesign --force --deep --sign - LPub3D.app
+echo -n "- replace LPub3D.app bundle signature..."
+(/usr/bin/codesign --force --deep --sign - LPub3D.app) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
-echo "- verify LPub3D.app bundle signature..."
-/usr/bin/codesign --verify --deep --verbose LPub3D.app
+echo -n "- verify LPub3D.app bundle signature..."
+(/usr/bin/codesign --verify --deep --verbose LPub3D.app) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
 # build checks
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
   echo "- skipping ${LPUB3D_EXE} build check."
 else
-  echo "- build checks..."
+  echo "- build checks"
   # Check if exe exist - here we use the executable name
   if [ -f "${LPUB3D_EXE}" ]; then
     echo "- Build package: $PWD/${LPUB3D_EXE}"
     # Check commands
     SOURCE_DIR=../..
-    echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})..."
+    echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})"
     source ${SOURCE_DIR}/builds/check/build_checks.sh
     # Stop here if we are only verifying
     if [ "$BUILD_OPT" = "verify" ]; then
@@ -465,35 +436,45 @@ else
   fi
 fi
 
-echo "- setup dmg source dir $(realpath DMGSRC/)..."
+echo "- setup dmg source dir $(realpath DMGSRC/)"
 if [ -d DMGSRC ]
 then
   rm -f -R DMGSRC
 fi
 mkdir DMGSRC
 
-echo "- move LPub3D.app to $(realpath DMGSRC/)..."
-mv -f LPub3D.app DMGSRC/LPub3D.app
+echo -n "- move LPub3D.app to $(realpath DMGSRC/)..."
+(mv -f LPub3D.app DMGSRC/LPub3D.app) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
-echo "- setup dmg output directory $(realpath ../../../DMGS/)..."
+echo "- setup dmg output directory $(realpath ../../../DMGS/)"
 DMGDIR=../../../DMGS
 if [ -d ${DMGDIR} ]
 then
   rm -f -R ${DMGDIR}
 fi
-mkdir -p ${DMGDIR} && \
-echo "- created dmg output directory $(realpath $DMGDIR)"
+echo -n "- created dmg output directory $(realpath $DMGDIR)..."
+(mkdir -p ${DMGDIR}) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
 # pos: builds/macx
-echo "- copy ${LPUB3D} package assets to to $(realpath .)..."
-cp -f ../utilities/icons/setup.icns .
-cp -f ../utilities/icons/lpub3dbkg.png .
-cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
+echo "- copy ${LPUB3D} package assets to to $(realpath .)"
+PACKAGE_ASSETS=(setup.icns lpub3dbkg.png COPYING_BRIEF)
+for asset in "${PACKAGE_ASSETS[@]}"; do
+  if [ "${asset}" = "COPYING_BRIEF" ]; then
+    COPY_CMD="../../mainApp/docs/${asset} .COPYING"
+  else
+    COPY_CMD="../utilities/icons/${asset} ."
+  fi
+  echo -n "- copying ${asset}..."
+  (cp -f ${COPY_CMD}) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+done
 
-echo "- set create-dmg build scrpt permissions..."
+echo "- set create-dmg build scrpt permissions"
 chmod +x ../utilities/dmg-utils/create-dmg
 
-echo "- generate make dmg script..."
+echo "- generate make dmg script"
 LP3D_DMG="LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
 cat <<EOF >makedmg
 #!/bin/bash
@@ -514,7 +495,7 @@ cat <<EOF >makedmg
 DMGSRC/
 EOF
 
-echo "- create LPub3D dmg package in $(realpath $DMGDIR/)..."
+echo "- create LPub3D dmg package in $(realpath $DMGDIR/)"
 [[ -f LPub3D-Installer.dmg ]] && rm LPub3D-Installer.dmg
 if [ -d DMGSRC/LPub3D.app ]; then
    chmod +x makedmg && ./makedmg
@@ -527,11 +508,11 @@ fi
 if [ -f "${DMGDIR}/${LP3D_DMG}" ]; then
 echo "      Distribution package.: ${LP3D_DMG}"
   echo "      Package path.........: $PWD/${LP3D_DMG}"
-  echo "- cleanup..."
+  echo "- cleanup"
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 else
-echo "- ${DMGDIR}/${LP3D_DMG} was not found."
+  echo "- ${DMGDIR}/${LP3D_DMG} was not found."
   echo "- $ME Failed."
 fi
 

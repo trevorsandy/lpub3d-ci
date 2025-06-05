@@ -171,29 +171,34 @@ cd ${BUILD_DIR}/SOURCES
 
 if [ "${TRAVIS}" != "true" ]; then
     if [ -d "/in" ]; then
-        echo "2. copy input source to ${SOURCE_DIR}/${LPUB3D}..."
-        mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
+        echo -n "2. copy input source to ${SOURCE_DIR}/${LPUB3D}..."
+        (mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/) >$l.out 2>&1 && rm $l.out
+		[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
     else
         LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
             if [ "$LOCAL" = "true" ]; then
-                echo "2. copy LOCAL ${LPUB3D} source to ${SOURCE_DIR}/..."
-                cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}
-                echo "2a.copy LOCAL ${LPUB3D} renderer source to ${SOURCE_DIR}/..."
+                echo -n "2. copy LOCAL ${LPUB3D} source to ${SOURCE_DIR}/..."
+                (cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}) >$l.out 2>&1 && rm $l.out
+				[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+                echo "2a.copy LOCAL ${LPUB3D} renderer source to ${SOURCE_DIR}/"
                 for renderer in ldglite ldview povray; do
-                    cp -rf ${LOCAL_RESOURCE_PATH}/${renderer}.tar.gz .
+				    echo -n "   copy LOCAL ${renderer} source..."
+                    (cp -rf ${LOCAL_RESOURCE_PATH}/${renderer}.tar.gz .) >$l.out 2>&1 && rm $l.out
+					[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
                 done
             else
-                echo "2. download ${LPUB3D} source to ${SOURCE_DIR}/..."
+                echo "2. download ${LPUB3D} source to ${SOURCE_DIR}/"
                 if [ -d "${LPUB3D_REPO}" ]; then
+				    echo "2. remove old ${LPUB3D_REPO} from ${SOURCE_DIR}/"
                     rm -rf ${LPUB3D_REPO}
                 fi
                 echo -n "2a.cloning ${LPUB3D} ${LPUB3D_BRANCH} branch into ${LPUB3D}..."
                 (git clone -b ${LPUB3D_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
-                if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
+                [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
             fi
         else
-            echo "2. preserve ${LPUB3D} source in ${SOURCE_DIR}/..."
+            echo "2. preserve ${LPUB3D} source in ${SOURCE_DIR}/"
             if [ -d "${LPUB3D_REPO}" ]; then
                 echo "2a. move ${LPUB3D_REPO} to ${LPUB3D} in ${SOURCE_DIR}/"
                 mv -f ${LPUB3D_REPO} ${LPUB3D}
@@ -201,8 +206,9 @@ if [ "${TRAVIS}" != "true" ]; then
         fi
     fi
 else
-    echo "2. copy ${LPUB3D} source to ${SOURCE_DIR}/..."
-    cp -rf "../../${LPUB3D}" .
+    echo -n "2. copy ${LPUB3D} source to ${SOURCE_DIR}/..."
+    (cp -rf "../../${LPUB3D}" .) >$l.out 2>&1 && rm $l.out
+	[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
 
 # For Docker build, check if there is a tag after the last commit
@@ -218,32 +224,35 @@ if [ "$DOCKER" = "true" ]; then
        BUILD_TAG_TIME=$($GIT_CMD log -1 --format=%ai $BUILD_TAG 2> /dev/null)
        #3. Get the latest commit datetime from the build branch
        GIT_COMMIT_TIME=$($GIT_CMD log -1 --format=%ai 2> /dev/null)
-           #4. If tag is newer than commit, check out the tag
+       #4. If tag is newer than commit, check out the tag
        if [ $(date -d "$GIT_COMMIT_TIME" +%s) -lt $(date -d "$BUILD_TAG_TIME" +%s) ]; then
-           echo "2a. checking out build tag $BUILD_TAG..."
-           $GIT_CMD checkout -qf $BUILD_TAG
+           echo -n "2a. checking out newer build tag $BUILD_TAG..."
+           ($GIT_CMD checkout -qf $BUILD_TAG) >$l.out 2>&1 && rm $l.out
+           [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
        fi
    fi
 fi
 
-echo "3. source update_config_files.sh..."
+echo "3. source update_config_files.sh"
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 WORK_DIR=${LPUB3D}-${LP3D_APP_VERSION}
 if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
-    echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in ${SOURCE_DIR}/..."
     if [ -d ${WORK_DIR} ]; then
+	    echo "2. remove old ${WORK_DIR} from ${SOURCE_DIR}/"
         rm -rf ${WORK_DIR}
     fi
+	echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in ${SOURCE_DIR}/"
     mv -f ${LPUB3D} ${WORK_DIR}
 else
     if [ "$LOCAL" = "true" ]; then
-        echo "4. overwrite ${LPUB3D}-${LP3D_APP_VERSION}/ with ${LPUB3D}/ in ${SOURCE_DIR}/..."
-        cp -TRf ${LPUB3D}/ ${WORK_DIR}/
-        rm -rf ${LPUB3D}
+        echo -n "4. overwrite ${LPUB3D}-${LP3D_APP_VERSION}/ with ${LPUB3D}/ in ${SOURCE_DIR}/..."
+        (cp -TRf ${LPUB3D}/ ${WORK_DIR}/ && \
+        rm -rf ${LPUB3D}) >$l.out 2>&1 && rm $l.out
+        [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
     else
-        echo "4. preserve ${LPUB3D}-${LP3D_APP_VERSION}/ in ${SOURCE_DIR}/..."
+        echo "4. preserve ${LPUB3D}-${LP3D_APP_VERSION}/ in ${SOURCE_DIR}/"
     fi
 fi
 
@@ -286,7 +295,7 @@ if [[ "$LOCAL" = "true" || "$PRESERVE" = "true" ]]; then
     [ ! -d "${LOCAL_LDRAW_PATH}" ] && unset LOCAL_LDRAW_PATH || :
 fi
 if [ -n "${LOCAL_LDRAW_PATH}" ]; then
-    echo "6. copy LDraw archive libraries to ${SOURCE_DIR}/..."
+    echo "6. copy LDraw archive libraries to ${SOURCE_DIR}/"
     for libFile in "${ldrawLibFiles[@]}"; do
         if [ ! -f "${libFile}" ]; then
             echo -n "   copying ${libFile} into ${SOURCE_DIR}/..."
@@ -295,7 +304,7 @@ if [ -n "${LOCAL_LDRAW_PATH}" ]; then
         fi
     done
 else
-    echo "6. download LDraw archive libraries to ${SOURCE_DIR}/..."
+    echo "6. download LDraw archive libraries to ${SOURCE_DIR}/"
     LP3D_LIBS_BASE="${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1"
     for libFile in "${ldrawLibFiles[@]}"; do
         if [ ! -f "${libFile}" ]; then
@@ -307,7 +316,7 @@ else
 fi
 
 if [ -d ../lpub3d_linux_3rdparty ]; then
-    echo "6a.linking LDraw archive libraries in 3rdParty folder..."
+    echo "6a.linking LDraw archive libraries in 3rdParty folder"
     for libFile in ${libFile} complete.zip; do
         echo -n "   linking ${libFile}..."
         (cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/${libFile} ${libFile}) >$l.out 2>&1 && rm $l.out
@@ -319,15 +328,20 @@ fi
 dwMsgShown=0
 packageFiles=(ldglite ldview povray)
 for pkgFile in "${packageFiles[@]}"; do
+    package="$(echo ${pkgFile} | awk '{print toupper($0)}')"
     if [ ! -f "${pkgFile}.${ext}" ]; then
         if [ "$LOCAL" = "true" ]; then
             [ "${dwMsgShown}" -eq 0 ] && \
             echo "7. copy ${LPUB3D} package source to ${SOURCE_DIR}/" || :
-            cp -f ${LOCAL_RESOURCE_PATH}/${pkgFile}.${ext} .
+			echo -n "   copying LOCAL ${package} tarball ${pkgFile}.${ext}..."
+            (cp -f ${LOCAL_RESOURCE_PATH}/${pkgFile}.${ext} .) >$l.out 2>&1 && rm $l.out
+			[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
         elif [[ "$PRESERVE" = "true" && -f ../${pkgFile}.${ext} ]]; then
             [ "${dwMsgShown}" -eq 0 ] && \
             echo "7. copy ${LPUB3D} package source to ${SOURCE_DIR}/" || :
-            cp -f ../${pkgFile}.${ext} .
+            echo -n "   copying PRESERVE ${package} tarball ${pkgFile}.${ext}..."
+            (cp -f ../${pkgFile}.${ext} .) >$l.out 2>&1 && rm $l.out
+			[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
         else
             [ "${dwMsgShown}" -eq 0 ] && \
             echo "7. download ${LPUB3D} package source to ${SOURCE_DIR}/" || :
@@ -338,7 +352,7 @@ for pkgFile in "${packageFiles[@]}"; do
                 povray) buildBranch=${POVRAY_BRANCH} ;;
             esac
             curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/${buildBranch}.${ext}"
-            echo -n "   $(echo ${pkgFile} | awk '{print toupper($0)}') tarball ${pkgFile}.${ext} does not exist. Downloading..."
+            echo -n "   downloading ${package} tarball ${pkgFile}.${ext}..."
             (curl $curlopts ${curlCommand} -o ${pkgFile}.${ext}) >$l.out 2>&1 && rm $l.out
             [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
         fi
@@ -346,7 +360,7 @@ for pkgFile in "${packageFiles[@]}"; do
     fi
 done
 
-echo "7a. extract ${WORK_DIR}/ to debbuild/..."
+echo "7a.extract ${WORK_DIR}/ to debbuild/"
 cd ${BUILD_DIR}/
 if [  -d ${LPUB3D}-${LP3D_APP_VERSION} ]
 then
@@ -354,8 +368,17 @@ then
 fi
 tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
-echo "8. copy debian/ configuration directory to ${WORK_DIR}/..."
-cp -rf ${WORK_DIR}/builds/linux/obs/debian ${WORK_DIR}
+echo -n "8. copy debian/ configuration directory to ${WORK_DIR}/..."
+(cp -rf ${WORK_DIR}/builds/linux/obs/debian ${WORK_DIR}) >$l.out 2>&1 && rm $l.out
+[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+
+LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
+LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
+LP3D_DEBIAN_VER=$([ $(echo ${LP3D_PLATFORM_ID} | awk '{print tolower($$0)}') = "debian" ] && [ "${LP3D_PLATFORM_VER}" = "10" ] && echo 10 || :)
+if [[ "${LP3D_DEBIAN_VER}" -eq 10 || "$([ $(which ucslint) ] && echo 5 || :)" -eq 5 ]]; then
+  echo "8a. set debian/compat to 9"
+  echo 9 > ${WORK_DIR}/debian/compat
+fi
 
 cd "${BUILD_DIR}/${WORK_DIR}/"
 
@@ -386,10 +409,10 @@ if [[ -f ${DISTRO_FILE} ]]
 then
     echo "10-2. build package: $PWD/${DISTRO_FILE}"
     if [[ -n "$LP3D_SKIP_BUILD_CHECK" ]]; then
-        echo "11. skipping ${DISTRO_FILE} build check."
+        echo "11. skipping ${DISTRO_FILE} build check"
     else
         if [[ -n "$LP3D_PRE_PACKAGE_CHECK" ]]; then
-            echo "11-1. pre-package build check LPub3D..."
+            echo "11-1. perform ${LPUB3D} pre-package build check"
             export LP3D_BUILD_OS=
             export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
             export LP3D_CHECK_LDD="1"
@@ -405,21 +428,20 @@ then
         else
             echo "11-1. build check ${DISTRO_FILE}"
             if [[ ! -f "/usr/bin/update-desktop-database" ]]; then
-                echo "      Program update-desktop-database not found. Installing..."
+                echo "   install program update-desktop-database not found"
                 sudo apt-get install -y desktop-file-utils
             fi
             # Install package - here we use the distro file name
-            echo "      Build check install ${LPUB3D}..."
+            echo "   install ${LPUB3D}..."
             sudo dpkg -i ${DISTRO_FILE}
             # Check if exe exist - here we use the executable name
             LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
             SOURCE_DIR=${WORK_DIR}
             if [[ -f "/usr/bin/${LPUB3D_EXE}" ]]; then
                 # Check commands
-                LP3D_CHECK_LDD="1"
                 source ${WORK_DIR}/builds/check/build_checks.sh
                 # Cleanup - here we use the package name
-                echo "      Build check uninstall ${LPUB3D}..."
+                echo "   uninstall ${LPUB3D}..."
                 sudo dpkg -r ${LPUB3D}
             else
                 echo "11-2. WARNING - build check failed - /usr/bin/${LPUB3D_EXE} not found."
@@ -430,7 +452,7 @@ then
     echo "12. lintian check ${DISTRO_FILE}..."
     lintian ${DISTRO_FILE} ${WORK_DIR}/${LPUB3D}.dsc
 
-    echo "13-1. moving ${LP3D_BASE} ${LP3D_ARCH} assets to output folder..."
+    echo "13-1. moving ${LP3D_BASE} ${LP3D_ARCH} assets to output folder"
     mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
     mv -f ${CWD}/*.log /out/ 2>/dev/null || :
     mv -f ./*.log /out/ 2>/dev/null || :
@@ -439,15 +461,13 @@ then
 
     # Stop here if build option is verification only
     if [[ "$BUILD_OPT" = "verify" ]]; then
-        echo "13-2. cleanup build assets..."
+        echo "13-2. cleanup build assets"
         rm -f ./*.deb* 2>/dev/null || :
         rm -f ./*.xz 2>/dev/null || :
         exit 0
     fi
 
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
-    LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
-    LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
     case ${LP3D_PLATFORM_ID} in
     ubuntu)
         case ${LP3D_PLATFORM_VER} in
@@ -491,7 +511,7 @@ then
     LP3D_DEB_APP_VERSION_LONG="${LP3D_APP_VERSION_LONG}-ubuntu"
     LP3D_DEB_FILE="LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
 
-    echo "13-2. create package ${LP3D_DEB_FILE}..."
+    echo "13-2. create package ${LP3D_DEB_FILE}"
     mv -f "${DISTRO_FILE}" "${LP3D_DEB_FILE}"
     if [[ -f "${LP3D_DEB_FILE}" ]]; then
         declare -r t=Trace
