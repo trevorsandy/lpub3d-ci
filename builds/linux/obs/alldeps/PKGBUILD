@@ -82,8 +82,10 @@ prepare() {
 	# Until LDView converts to tinyxml2, build tinyxml from source 
 	export build_tinyxml=1	
 	# copy version.info to utilities
-	[ -f "../version.info" ] &&	cp -f ../version.info builds/utilities/ || :
+	[ -f "../version.info" ] && cp -f ../version.info builds/utilities/ || :
+	# build 3rd-party renderers
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+	# set qmake and generate Makefiles
 	export QT_SELECT=qt5
 	if [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake

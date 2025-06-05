@@ -407,7 +407,6 @@ then
             echo "15-1. pre-package build check LPub3D..."
             export LP3D_BUILD_OS=
             export SOURCE_DIR=$(readlink -f ../../SOURCES/${WORK_DIR})
-            export LP3D_CHECK_LDD="1"
             export LP3D_CHECK_STATUS="--version --app-paths"
             case ${LP3D_ARCH} in
                 "amd64"|"arm64"|"x86_64"|"aarch64")

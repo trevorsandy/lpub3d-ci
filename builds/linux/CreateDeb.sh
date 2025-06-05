@@ -346,7 +346,7 @@ for pkgFile in "${packageFiles[@]}"; do
     fi
 done
 
-echo "7a. extract ${WORK_DIR}/ to debbuild/..."
+echo "7a.extract ${WORK_DIR}/ to debbuild/..."
 cd ${BUILD_DIR}/
 if [  -d ${LPUB3D}-${LP3D_APP_VERSION} ]
 then
@@ -356,6 +356,14 @@ tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
 echo "8. copy debian/ configuration directory to ${WORK_DIR}/..."
 cp -rf ${WORK_DIR}/builds/linux/obs/debian ${WORK_DIR}
+
+LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
+LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
+LP3D_DEBIAN_VER=$([ $(echo ${LP3D_PLATFORM_ID} | awk '{print tolower($$0)}') = "debian" ] && [ "${LP3D_PLATFORM_VER}" = "10" ] && echo 10 || :)
+if [[ "${LP3D_DEBIAN_VER}" -eq 10 || "$([ $(which ucslint) ] && echo 5 || :)" -eq 5 ]]; then
+  echo "8a. set debian/compat to 9"
+  echo 9 > ${WORK_DIR}/debian/compat
+fi
 
 cd "${BUILD_DIR}/${WORK_DIR}/"
 
@@ -416,7 +424,6 @@ then
             SOURCE_DIR=${WORK_DIR}
             if [[ -f "/usr/bin/${LPUB3D_EXE}" ]]; then
                 # Check commands
-                LP3D_CHECK_LDD="1"
                 source ${WORK_DIR}/builds/check/build_checks.sh
                 # Cleanup - here we use the package name
                 echo "      Build check uninstall ${LPUB3D}..."
@@ -446,8 +453,6 @@ then
     fi
 
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
-    LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
-    LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
     case ${LP3D_PLATFORM_ID} in
     ubuntu)
         case ${LP3D_PLATFORM_VER} in
