@@ -17,6 +17,7 @@
 #  - UPDATE_SH=false - update overwrite this script when building in local Docker
 #  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
 #  - XSERVER=false - use Docker host XMing/XSrv XServer
+#  - LP3D_LOG_PATH=~/logs - log path
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
@@ -33,6 +34,7 @@ cp -rf /user/resources/builds/linux/CreatePkg.sh . \
 && export LP3D_ARCH=amd64 \
 && export LP3D_BASE=arch \
 && export LOCAL_RESOURCE_PATH=/user/resources \
+&& export LP3D_LOG_PATH=${HOME}/logs \
 && export XSERVER=false \
 && chmod a+x CreatePkg.sh \
 && ./CreatePkg.sh \
@@ -122,20 +124,22 @@ echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
 echo "   LPUB3D BUILD BRANCH....${BUILD_BRANCH}"
 echo "   LPUB3D BUILD PLATFORM..$([ "$DOCKER" = "true" ] && echo "DOCKER" || echo "HOST RUNNER")"
+echo "   LPUB3D BUILD PLATFORM....$([ "$DOCKER" = "true" ] && echo "DOCKER" || echo "HOST RUNNER")"
 if [ "$LOCAL" = "true" ]; then
-    echo "   LPUB3D BUILD TYPE......Local"
-    echo "   LPUB3D BUILD DISPLAY...$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
-    echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
+    echo "   LPUB3D BUILD TYPE........Local"
+    echo "   LPUB3D BUILD DISPLAY.....$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
+    echo "   UPDATE BUILD SCRIPT......$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
-        echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
+        echo "   LOCAL_RESOURCE_PATH......${LOCAL_RESOURCE_PATH}"
     else
         echo "ERROR - LOCAL_RESOURCE_PATH was not specified. $ME will terminate."
         exit 1
     fi
 else
-    echo "   LPUB3D BUILD TYPE......CI"
+    echo "   LPUB3D BUILD TYPE........CI"
 fi
-echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo "   PRESERVE BUILD REPO......$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo "   LOG PATH.................${LP3D_LOG_PATH}"
 
 echo "1. create PKG working directories in pkgbuild/"
 if [ ! -d pkgbuild/upstream ]
@@ -258,14 +262,14 @@ cd ${BUILD_DIR}
 
 echo "5a. add LP3D_LOG_PATH to PKGBUILD"
 [ -f "PKGBUILD" ] && \
-sed -i -e "s;^	export LP3D_LOG_PATH=.*;	export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" \
-       -e "s;^	export LP3D_CPU_CORES=.*;	export LP3D_CPU_CORES=\"${LP3D_CPU_CORES}\";" \
-       -e "s;^	export LP3D_3RD_DIST_DIR=.*;	export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
+sed -i -e "s;^  export LP3D_LOG_PATH=.*;    export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" \
+       -e "s;^  export LP3D_CPU_CORES=.*;   export LP3D_CPU_CORES=\"${LP3D_CPU_CORES}\";" \
+       -e "s;^  export LP3D_3RD_DIST_DIR=.*;    export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
        "PKGBUILD" || :
 
 if [[ "$LOCAL" = "true" || "$PRESERVE" = "true" ]]; then
     echo "6. copy LDraw archive libraries to pkgbuild/..."
-	LOCAL_LDRAW_PATH=${LOCAL_RESOURCE_PATH}/ldraw-libraries
+    LOCAL_LDRAW_PATH=${LOCAL_RESOURCE_PATH}/ldraw-libraries
     [ ! -f lpub3dldrawunf.zip ] && \
     cp -rf ${LOCAL_LDRAW_PATH}/lpub3dldrawunf.zip .
 
@@ -305,14 +309,18 @@ fi
 # download 3rd party packages defined as source in pkgbuild/
 dwMsgShown=0
 for renderer in ldglite ldview povray; do
-    if [ ! -f ${renderer}.tar.gz ]; then
+    if [ ! -f "${renderer}.tar.gz" ]; then
         if [ "$LOCAL" = "true" ]; then
             [ "${dwMsgShown}" -eq 0 ] && \
-            echo "7. LOCAL ${LPUB3D} renderer source to pkgbuild/..." || :
+            echo "7. copy ${LPUB3D} renderer source to pkgbuild/" || :
             cp -f ${LOCAL_RESOURCE_PATH}/${renderer}.tar.gz .
+        elif [[ "$PRESERVE" = "true" && -f ../${renderer}.tar.gz ]]; then
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "7. copy ${LPUB3D} renderer source to debbuild/SOURCES/" || :
+            cp -f ../${renderer}.tar.gz .
         else
             [ "${dwMsgShown}" -eq 0 ] && \
-            echo "7. download ${LPUB3D} renderer source to pkgbuild/..." || :
+            echo "7. download ${LPUB3D} renderer source to pkgbuild/" || :
             case ${renderer} in
             ldglite)
                 curlCommand="${LP3D_GITHUB_URL}/${renderer}/archive/${LDGLITE_BRANCH}.tar.gz"

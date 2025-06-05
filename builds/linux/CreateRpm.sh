@@ -17,6 +17,7 @@
 #  - UPDATE_SH=false - update overwrite this script when building in local Docker
 #  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
 #  - XSERVER=false - use Docker host XMing/XSrv XServer
+#  - LP3D_LOG_PATH=~/logs - log path
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
@@ -33,6 +34,7 @@ cp -rf /user/resources/builds/linux/CreateRpm.sh . \
 && export LP3D_ARCH=amd64 \
 && export LP3D_BASE=fedora \
 && export LOCAL_RESOURCE_PATH=/user/resources \
+&& export LP3D_LOG_PATH=${HOME}/logs \
 && export XSERVER=false \
 && chmod a+x CreateRpm.sh \
 && ./CreateRpm.sh \
@@ -124,18 +126,19 @@ echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
 echo "   LPUB3D BUILD BRANCH....${BUILD_BRANCH}"
 if [ "$LOCAL" = "true" ]; then
-    echo "   LPUB3D BUILD TYPE......Local"
-    echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
+    echo "   LPUB3D BUILD TYPE........Local"
+    echo "   UPDATE BUILD SCRIPT......$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
-        echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
+        echo "   LOCAL_RESOURCE_PATH......${LOCAL_RESOURCE_PATH}"
     else
         echo "ERROR - LOCAL_RESOURCE_PATH was not specified. $ME will terminate."
         exit 1
     fi
 else
-    echo "   LPUB3D BUILD TYPE......CI"
+    echo "   LPUB3D BUILD TYPE........CI"
 fi
-echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo "   PRESERVE BUILD REPO......$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo "   LOG PATH.................${LP3D_LOG_PATH}"
 
 echo "1. create working directories BUILD, RPMS, SRPMS, SOURCES, and SPECS in rpmbuild/..."
 if [ ! -d rpmbuild ]
@@ -245,7 +248,7 @@ cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ${BUILD_DIR}/SPECS
 
 if [[ "$LOCAL" = "true" || "$PRESERVE" = "true" ]]; then
     echo "9. copy LDraw archive libraries to rpmbuild/SOURCES/..."
-	LOCAL_LDRAW_PATH=${LOCAL_RESOURCE_PATH}/ldraw-libraries
+    LOCAL_LDRAW_PATH=${LOCAL_RESOURCE_PATH}/ldraw-libraries
     [ ! -f lpub3dldrawunf.zip ] && \
     cp -rf ${LOCAL_LDRAW_PATH}/lpub3dldrawunf.zip .
 
@@ -289,14 +292,18 @@ fi
 # download 3rd party packages defined as source in rpmbuild/SOURCES/
 dwMsgShown=0
 for renderer in ldglite ldview povray; do
-    if [ ! -f ${renderer}.tar.gz ]; then
+    if [ ! -f "${renderer}.tar.gz" ]; then
         if [ "$LOCAL" = "true" ]; then
             [ "${dwMsgShown}" -eq 0 ] && \
-            echo "10. LOCAL ${LPUB3D} renderer source to rpmbuild/SOURCES/..." || :
+            echo "10. copy ${LPUB3D} renderer source to rpmbuild/SOURCES/" || :
             cp -f ${LOCAL_RESOURCE_PATH}/${renderer}.tar.gz .
+        elif [[ "$PRESERVE" = "true" && -f ../${renderer}.tar.gz ]]; then
+            [ "${dwMsgShown}" -eq 0 ] && \
+            echo "10. copy ${LPUB3D} renderer source to debbuild/SOURCES/" || :
+            cp -f ../${renderer}.tar.gz .
         else
             [ "${dwMsgShown}" -eq 0 ] && \
-            echo "10. download ${LPUB3D} renderer source to rpmbuild/SOURCES/..." || :
+            echo "10. download ${LPUB3D} renderer source to rpmbuild/SOURCES/" || :
             case ${renderer} in
             ldglite)
                 curlCommand="${LP3D_GITHUB_URL}/${renderer}/archive/${LDGLITE_BRANCH}.tar.gz"

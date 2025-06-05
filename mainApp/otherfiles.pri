@@ -15,6 +15,7 @@ OTHER_FILES += \
     $$PWD/extras/titleAnnotations.lst \
     $$PWD/extras/ldglite.ini \
     $$PWD/extras/ldvExport.ini \
+    $$PWD/extras/ldvMessages.ini \
     $$PWD/extras/LPub3D_Npp_UDL.xml \
     $$PWD/docs/COPYING_BRIEF \
     $$PWD/docs/CREDITS.txt \
