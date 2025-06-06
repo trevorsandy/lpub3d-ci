@@ -243,8 +243,8 @@ BUILD_LDV_LIBS {
         CONFIG += BUILD_3DS
     }
 
-    OTHER_FILES += $$PWD/ldvlib/LDVQt/LDView/LDViewMessages.ini \
-                   $$PWD/ldvlib/LDVQt/LDView/LDExporter/LDExportMessages.ini
+    OTHER_FILES += ldvlib/LDVQt/LDView/LDViewMessages.ini \
+                   ldvlib/LDVQt/LDView/LDExporter/LDExportMessages.ini
 }
 
 # Build 3rdParty Libraries'
@@ -257,49 +257,49 @@ if (USE_LDV_SYSTEM_LIBS|BUILD_GL2PS):contains(HOST, Ubuntu):contains(HOST, 14.04
 # always built (Except for MSVC) unless prebuilt instance specified...
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_ZLIB) {
     SUBDIRS += 3rdParty_zlib
-    3rdParty_zlib.file        = $$PWD/ldvlib/LDVQt/LDView/3rdParty/zlib/3rdParty_zlib.pro
+    3rdParty_zlib.file        = ldvlib/LDVQt/LDView/3rdParty/zlib/3rdParty_zlib.pro
     3rdParty_zlib.makefile    = Makefile.zlib
     3rdParty_zlib.target      = sub-3rdParty_zlib
     3rdParty_zlib.depends     =
 }
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_3DS) {
     SUBDIRS += 3rdParty_3ds
-    3rdParty_3ds.file         = $$PWD/ldvlib/LDVQt/LDView/3rdParty/lib3ds/3rdParty_3ds.pro
+    3rdParty_3ds.file         = ldvlib/LDVQt/LDView/3rdParty/lib3ds/3rdParty_3ds.pro
     3rdParty_3ds.makefile     = Makefile.3ds
     3rdParty_3ds.target       = sub-3rdParty_3ds
     3rdParty_3ds.depends      =
 }
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_JPEG) {
     SUBDIRS += 3rdParty_jpeg
-    3rdParty_jpeg.file        = $$PWD/ldvlib/LDVQt/LDView/3rdParty/libjpeg/3rdParty_jpeg.pro
+    3rdParty_jpeg.file        = ldvlib/LDVQt/LDView/3rdParty/libjpeg/3rdParty_jpeg.pro
     3rdParty_jpeg.makefile    = Makefile.jpeg
     3rdParty_jpeg.target      = sub-3rdParty_jpeg
     3rdParty_jpeg.depends     =
 }
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_PNG) {
     SUBDIRS += 3rdParty_png
-    3rdParty_png.file         = $$PWD/ldvlib/LDVQt/LDView/3rdParty/libpng/3rdParty_png.pro
+    3rdParty_png.file         = ldvlib/LDVQt/LDView/3rdParty/libpng/3rdParty_png.pro
     3rdParty_png.makefile     = Makefile.png
     3rdParty_png.target       = sub-3rdParty_png
     3rdParty_png.depends      =
 }
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_GL2PS) {
     SUBDIRS += 3rdParty_gl2ps
-    3rdParty_gl2ps.file       = $$PWD/ldvlib/LDVQt/LDView/3rdParty/gl2ps/3rdParty_gl2ps.pro
+    3rdParty_gl2ps.file       = ldvlib/LDVQt/LDView/3rdParty/gl2ps/3rdParty_gl2ps.pro
     3rdParty_gl2ps.makefile   = Makefile.gl2ps
     3rdParty_gl2ps.target     = sub-3rdParty_gl2ps
     3rdParty_gl2ps.depends    = #3rdParty_png
 }
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_TINYXML) {
     SUBDIRS += 3rdParty_tinyxml
-    3rdParty_tinyxml.file     = $$PWD/ldvlib/LDVQt/LDView/3rdParty/tinyxml/3rdParty_tinyxml.pro
+    3rdParty_tinyxml.file     = ldvlib/LDVQt/LDView/3rdParty/tinyxml/3rdParty_tinyxml.pro
     3rdParty_tinyxml.makefile = Makefile.tinyxml
     3rdParty_tinyxml.target   = sub-3rdParty_tinyxml
     3rdParty_tinyxml.depends  =
 }
 if (USE_LDV_3RD_PARTY_LIBS|BUILD_MINIZIP) {
     SUBDIRS += 3rdParty_minizip
-    3rdParty_minizip.file     = $$PWD/ldvlib/LDVQt/LDView/3rdParty/minizip/3rdParty_minizip.pro
+    3rdParty_minizip.file     = ldvlib/LDVQt/LDView/3rdParty/minizip/3rdParty_minizip.pro
     3rdParty_minizip.makefile = Makefile.minizip
     3rdParty_minizip.target   = sub-3rdParty_minizip
     3rdParty_minizip.depends  =
@@ -312,40 +312,40 @@ BUILD_LDV_LIBS {
        TCFoundation_$${POSTFIX} \
        LDLib_$${POSTFIX} \
        LDLoader_$${POSTFIX} \
-       LDExporter_$${POSTFIX} \
-       Headerize
+       LDExporter_$${POSTFIX} #\
+#       Headerize
 
-    TRE_$${POSTFIX}.file              = $$PWD/ldvlib/LDVQt/LDView/TRE/TRE_$${POSTFIX}.pro
+    TRE_$${POSTFIX}.file              = ldvlib/LDVQt/LDView/TRE/TRE_$${POSTFIX}.pro
     TRE_$${POSTFIX}.makefile          = Makefile-tre.$$lower($${POSTFIX})
     TRE_$${POSTFIX}.target            = sub-TRE_$${POSTFIX}
     if (USE_LDV_3RD_PARTY_LIBS|BUILD_GL2PS): \
     TRE_$${POSTFIX}.depends           = 3rdParty_gl2ps
 
-    TCFoundation_$${POSTFIX}.file     = $$PWD/ldvlib/LDVQt/LDView/TCFoundation/TCFoundation_$${POSTFIX}.pro
+    TCFoundation_$${POSTFIX}.file     = ldvlib/LDVQt/LDView/TCFoundation/TCFoundation_$${POSTFIX}.pro
     TCFoundation_$${POSTFIX}.makefile = Makefile-tcfoundation.$$lower($${POSTFIX})
     TCFoundation_$${POSTFIX}.target   = sub-TCFoundation_$${POSTFIX}
     USE_LDV_3RD_PARTY_LIBS: \
     TCFoundation_$${POSTFIX}.depends  = 3rdParty_minizip
 
-    LDLib_$${POSTFIX}.file            = $$PWD/ldvlib/LDVQt/LDView/LDLib/LDLib_$${POSTFIX}.pro
+    LDLib_$${POSTFIX}.file            = ldvlib/LDVQt/LDView/LDLib/LDLib_$${POSTFIX}.pro
     LDLib_$${POSTFIX}.makefile        = Makefile-ldlib.$$lower($${POSTFIX})
     LDLib_$${POSTFIX}.target          = sub-LDLib_$${POSTFIX}
     if (USE_LDV_3RD_PARTY_LIBS|BUILD_GL2PS): \
     LDLib_$${POSTFIX}.depends         = 3rdParty_gl2ps
 
-    LDLoader_$${POSTFIX}.file         = $$PWD/ldvlib/LDVQt/LDView/LDLoader/LDLoader_$${POSTFIX}.pro
+    LDLoader_$${POSTFIX}.file         = ldvlib/LDVQt/LDView/LDLoader/LDLoader_$${POSTFIX}.pro
     LDLoader_$${POSTFIX}.makefile     = Makefile-ldloader.$$lower($${POSTFIX})
     LDLoader_$${POSTFIX}.target       = sub-LDLoader_$${POSTFIX}
     LDLoader_$${POSTFIX}.depends      =
 
-    LDExporter_$${POSTFIX}.file       = $$PWD/ldvlib/LDVQt/LDView/LDExporter/LDExporter_$${POSTFIX}.pro
+    LDExporter_$${POSTFIX}.file       = ldvlib/LDVQt/LDView/LDExporter/LDExporter_$${POSTFIX}.pro
     LDExporter_$${POSTFIX}.makefile   = Makefile-ldexporter.$$lower($${POSTFIX})
     LDExporter_$${POSTFIX}.target     = sub-LDExporter_$${POSTFIX}
     if (USE_LDV_3RD_PARTY_LIBS|BUILD_TINYXML): \
     LDExporter_$${POSTFIX}.depends    = 3rdParty_tinyxml
 
     # Headerize utility
-    Headerize.file                    = $$PWD/ldvlib/LDVQt/LDView/Utilities/Headerize.pro
+    Headerize.file                    = ldvlib/LDVQt/LDView/Utilities/Headerize.pro
     Headerize.makefile                = Makefile-headerize.$$lower($${POSTFIX})
     Headerize.target                  = sub-Headerize
     Headerize.depends                 = TCFoundation_$${POSTFIX}
@@ -354,21 +354,21 @@ BUILD_LDV_LIBS {
 }
 
 SUBDIRS += ldrawini
-ldrawini.subdir   = $$PWD/ldrawini
+ldrawini.subdir   = ldrawini
 ldrawini.makefile = Makefile.ldrawini
 ldrawini.target   = sub-ldrawini
 ldrawini.depends  =
 
 isEmpty(quazipnobuild) {
     SUBDIRS += quazip
-    quazip.subdir   = $$PWD/quazip
+    quazip.subdir   = quazip
     quazip.makefile = Makefile.quazip
     quazip.target   = sub-quazip
     quazip.depends  =
 }
 
 SUBDIRS += ldvqt_$${POSTFIX}
-ldvqt_$${POSTFIX}.subdir   = $$PWD/ldvlib/LDVQt
+ldvqt_$${POSTFIX}.subdir   = ldvlib/LDVQt
 ldvqt_$${POSTFIX}.makefile = Makefile-ldvqt.$$lower($${POSTFIX})
 ldvqt_$${POSTFIX}.target   = sub-ldvqt_$${POSTFIX}
 ldvqt_$${POSTFIX}.depends  =
@@ -385,25 +385,25 @@ ldvqt_$${POSTFIX}.depends += 3rdParty_3ds
 }
 
 SUBDIRS += wpngimage
-wpngimage.subdir   = $$PWD/ldvlib/WPngImage
+wpngimage.subdir   = ldvlib/WPngImage
 wpngimage.makefile = Makefile.wpngimage
 wpngimage.target   = sub-wpngimage
 wpngimage.depends  =
 
 SUBDIRS += lclib
-lclib.subdir   = $$PWD/lclib
+lclib.subdir   = lclib
 lclib.makefile = Makefile.lclib
 lclib.target   = sub-lclib
 lclib.depends  =
 
 SUBDIRS += waitingspinner
-waitingspinner.subdir   = $$PWD/waitingspinner
+waitingspinner.subdir   = waitingspinner
 waitingspinner.makefile = Makefile.waitingspinner
 waitingspinner.target   = sub-waitingspinner
 waitingspinner.depends  =
 
 SUBDIRS += mainApp
-mainApp.subdir   = $$PWD/mainApp
+mainApp.subdir   = mainApp
 mainApp.makefile = Makefile.mainapp
 mainApp.target   = sub-mainapp
 isEmpty(quazipnobuild): \

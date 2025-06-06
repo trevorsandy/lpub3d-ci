@@ -44,7 +44,7 @@ VER_LDVIEW = ldview-4.6
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     BUILD_LDV_LIBS {
-        VER_LDVIEW_DIR_PATH = $$PWD/LDView
+        VER_LDVIEW_DIR_PATH = LDView
         VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DIR_PATH}
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
     } else {
@@ -52,7 +52,7 @@ contains(LOAD_LDV_HEADERS,True) {
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
     }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Header soruce path
+    # Header source path
     equals(VER_USE_LDVIEW_DEV,True) {
         isEmpty(LDVHDRDIR):LDVHDRDIR       = $${VER_LDVIEW_DEV_REPOSITORY}/include
         isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $$LDVHDRDIR
