@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 4, 2025
+# Last Update: June 12, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -791,13 +791,13 @@ Info && Info "Building.................[LPub3D 3rd Party Renderers]"
 # Expose GitHub Actions variables
 if [[ -n "$CD" || -n "${GITHUB}" ]]; then
   Info
-  [ -n "$CI" ] && Info "CI.......................${CI}" || :
-  [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
-  [ -n "$DOCKER" ] && Info "Docker...................${DOCKER}" || :
-  [ -n "$GITHUB" ] && Info "GitHub...................${GITHUB}" || :
-  [ -n "$LP3D_BASE" ] && Info "Build base...............${LP3D_BASE}" || :
-  [ -n "$LP3D_ARCH" ] && Info "Build Architecture.......${LP3D_ARCH}" || :
-  [ -n "$LP3D_APPIMAGE" ] && Info "AppImage.................${LP3D_APPIMAGE}" || :
+  [ -n "$CI" ] && Info "CI.......................[${CI}]" || :
+  [ -n "$OBS" ] && Info "OBS......................[${OBS}]" || :
+  [ -n "$DOCKER" ] && Info "Docker...................[${DOCKER}]" || :
+  [ -n "$GITHUB" ] && Info "GitHub...................[${GITHUB}]" || :
+  [ -n "$LP3D_BASE" ] && Info "Build base...............[${LP3D_BASE}]" || :
+  [ -n "$LP3D_ARCH" ] && Info "Build Architecture.......[${LP3D_ARCH}]" || :
+  [ -n "$LP3D_APPIMAGE" ] && Info "AppImage.................[${LP3D_APPIMAGE}]" || :
 fi
 
 [ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
@@ -860,6 +860,39 @@ else
 fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
+# Display platform settings
+Info "Build Working Directory..[${CALL_DIR}]"
+[ -n "${LP3D_UCS_VER}" ] && \
+Info "Platform ID..............[ucs]" || \
+Info "Platform ID..............[${platform_id}]"
+if [ "$LP3D_BUILD_OS" = "snap" ]; then
+  platform_pretty="Snap (using $platform_pretty)"
+  SNAP="true"
+elif [ "$LP3D_BUILD_OS" = "appimage" ]; then
+  platform_pretty="AppImage (using $platform_pretty)"
+fi
+
+# Until LDView converts to tinyxml2, build tinyxml from source
+[ -z "$build_tinyxml" ] && build_tinyxml=1 || true
+if [ "${DOCKER}" = "true" ]; then
+  Info "Platform Pretty Name.....[Docker Container - ${platform_pretty}]"
+elif [ "${CI}" = "true" ]; then
+  Info "Platform Pretty Name.....[CI - ${platform_pretty}]"
+elif [ "${OBS}" = "true" ]; then
+  if [[ "${TARGET_CPU}" = "aarch64" || "${TARGET_CPU}" = "arm7l" ]]; then
+    platform_pretty="$platform_pretty (ARM-${TARGET_CPU})"
+  fi
+  Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
+  [ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
+  [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
+  [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
+  [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
+  [ -n "$get_local_libs" ] && Info "Get Local Libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
+  [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
+else
+  Info "Platform Pretty Name.....[${platform_pretty}]"
+fi
+
 # LLVM and Mesa configuration
 llvm_config=$(which llvm-config)
 if [ -f "${llvm_config}" ]; then
@@ -879,50 +912,14 @@ elif [ "$get_local_libs" = 1 ]; then
 else
   build_mesa_msg="Use system libraries"
 fi
-
-# Display platform settings
-Info "Build Working Directory..[${CALL_DIR}]"
-[ -n "${LP3D_UCS_VER}" ] && \
-Info "Platform ID..............[ucs]" || \
-Info "Platform ID..............[${platform_id}]"
-if [ "$LP3D_BUILD_OS" = "snap" ]; then
-  platform_pretty="Snap (using $platform_pretty)"
-  SNAP="true"
-elif [ "$LP3D_BUILD_OS" = "appimage" ]; then
-  platform_pretty="AppImage (using $platform_pretty)"
-fi
-
-# Until LDView converts to tinyxml2, build tinyxml from source
-[ -z "$build_tinyxml" ] && build_tinyxml=1 || true
-if [ "${DOCKER}" = "true" ]; then
-  Info "Platform Pretty Name.....[Docker Container - ${platform_pretty}]"
-  [ -n "$build_mesa_msg" ] && \
-  Info "OSMesa...................[${build_mesa_msg}]" || true
-  [ -n "$llvm_libs_msg" ] && \
-  Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
-elif [ "${CI}" = "true" ]; then
-  Info "Platform Pretty Name.....[CI - ${platform_pretty}]"
-elif [ "${OBS}" = "true" ]; then
-  if [[ "${TARGET_CPU}" = "aarch64" || "${TARGET_CPU}" = "arm7l" ]]; then
-    platform_pretty="$platform_pretty (ARM-${TARGET_CPU})"
-  fi
-  Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
-  [ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
-  [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
-  [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
-  [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
-  [ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
-  [ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
-  [ -n "$get_local_libs" ] && Info "Get Local Libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
-  [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
-  [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
-  [ -n "$prebuilt_3ds_msg" ] && Info "3DS......................[${prebuilt_3ds_msg}]" || true
-  if [ -n "$build_gl2ps" ]; then
-    Info "GL2PS....................[Build from source]"
-    Info "Png......................[Build from source]"
-  fi
-else
-  Info "Platform Pretty Name.....[${platform_pretty}]"
+[ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
+[ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
+[ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
+[ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
+[ -n "$prebuilt_3ds_msg" ] && Info "3DS......................[${prebuilt_3ds_msg}]" || true
+if [ -n "$build_gl2ps" ]; then
+  Info "GL2PS....................[Build from source]"
+  Info "Png......................[Build from source]"
 fi
 
 # Set build type
