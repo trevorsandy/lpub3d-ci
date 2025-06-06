@@ -917,7 +917,6 @@ elif [ "${OBS}" = "true" ]; then
   fi
   Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
   [ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
-  [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
   [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
   [ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
@@ -1205,7 +1204,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
   for buildDir in ldview povray; do
      case ${buildDir} in
      ldview)
-       brewDeps="tinyxml gl2ps libjpeg minizip"
+       brewDeps="gl2ps libjpeg minizip"
        ;;
      povray)
        brewDeps="$brewDeps boost openexr sdl2 libtiff autoconf automake"

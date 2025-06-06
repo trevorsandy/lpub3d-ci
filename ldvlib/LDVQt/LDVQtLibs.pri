@@ -20,7 +20,7 @@ VER_LDVIEW = ldview-4.6
 
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Except for MSVC (uses pre-built), always build lib3ds
+    # Always build tinyxml, except for MSVC (uses pre-built), always build lib3ds
     BUILD_LDV_LIBS {
         USE_LDV_3RD_PARTY_LIBS {
             CONFIG += BUILD_3DS
@@ -31,8 +31,9 @@ contains(LOAD_LDV_HEADERS,True) {
             CONFIG += BUILD_MINIZIP
             CONFIG += BUILD_ZLIB
         } else {
+            CONFIG += BUILD_TINYXML
             win32-msvc*: \
-            CONFIG += BUILD_GL2PS BUILD_TINYXML
+            CONFIG += BUILD_GL2PS
             else:!USE_3RD_PARTY_PREBUILT_3DS: \
             CONFIG += BUILD_3DS
         }

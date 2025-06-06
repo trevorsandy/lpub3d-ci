@@ -216,7 +216,7 @@ BUILD_LDV_LIBS {
     message("~~~ LDV LIBRARIES $$upper($$BUILD_ARCH) STATIC $${BUILD} ~~~")
     message("~~~ LDV LIBRARIES USING $${POSTFIX} OPENGL AND $${WHICH_LIBS} 3RD PARTY LIBS ~~~")
 
-    # Except for MSVC (uses pre-built), always build lib3ds
+    # Always build tinyxml, except for MSVC (uses pre-built), always build lib3ds
     USE_LDV_3RD_PARTY_LIBS {
         CONFIG += BUILD_3DS
         CONFIG += BUILD_JPEG
@@ -226,8 +226,9 @@ BUILD_LDV_LIBS {
         CONFIG += BUILD_MINIZIP
         CONFIG += BUILD_ZLIB
     } else {
+        CONFIG += BUILD_TINYXML
         win32-msvc*: \
-        CONFIG += BUILD_GL2PS BUILD_TINYXML
+        CONFIG += BUILD_GL2PS
         else:!USE_3RD_PARTY_PREBUILT_3DS: \
         CONFIG += BUILD_3DS
     }

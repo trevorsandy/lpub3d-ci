@@ -63,6 +63,9 @@
 %endif
 %endif
 
+# Until LDView converts to tinyxml2, build tinyxml from source 
+%define build_tinyxml 1
+
 %if 0%{?rhel_version}
 %define build_sdl2 1
 %define get_local_libs 1
@@ -184,12 +187,11 @@ BuildRequires: libXext-devel
 %if 0%{?centos_version}==700
 %define build_sdl2 1
 %endif
-%define build_tinyxml 1
 %define build_gl2ps 1
 %endif
 
 %if 0%{?fedora_version}
-BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
+BuildRequires: libjpeg-turbo-devel, gl2ps-devel
 BuildRequires: qt5-linguist, SDL2-devel
 %if 0%{?fedora_version}>30
 BuildRequires: autoconf >= 2.69
@@ -242,7 +244,6 @@ BuildRequires: Mesa-devel
 %if 0%{?buildservice}
 BuildRequires: -post-build-checks
 %endif
-%define build_tinyxml 1
 %endif
 
 %if 0%{?mageia_version}
@@ -250,7 +251,7 @@ BuildRequires: -post-build-checks
 #BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel
-BuildRequires: lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
+BuildRequires: lib64boost-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: lib64openexr-devel
 %endif
@@ -262,7 +263,7 @@ BuildRequires: lib64openssl-devel
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel
-BuildRequires: libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
+BuildRequires: libboost-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: libopenexr-devel
 %endif
@@ -276,7 +277,6 @@ BuildRequires: libopenssl-devel
 %endif
 
 %if 0%{?sle_version}
-%define build_tinyxml 1
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if 0%{osmesa_found} != 1
 %define build_mesa 1

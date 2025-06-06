@@ -58,7 +58,7 @@ USE_LDV_3RD_PARTY_LIBS:USE_LDV_SYSTEM_LIBS {
     message("~~~ NOTICE: 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'")
     CONFIG -= USE_LDV_SYSTEM_LIBS
 }
-# Except for MSVC (uses pre-built), always build lib3ds
+# Always build tinyxml, except for MSVC (uses pre-built), always build lib3ds
 USE_LDV_3RD_PARTY_LIBS {
     CONFIG += BUILD_3DS
     CONFIG += BUILD_JPEG
@@ -68,8 +68,9 @@ USE_LDV_3RD_PARTY_LIBS {
     CONFIG += BUILD_MINIZIP
     CONFIG += BUILD_ZLIB
 } else {
+    CONFIG += BUILD_TINYXML
     win32-msvc*: \
-    CONFIG += BUILD_GL2PS BUILD_TINYXML
+    CONFIG += BUILD_GL2PS
     else:!USE_3RD_PARTY_PREBUILT_3DS: \
     CONFIG += BUILD_3DS
 }
