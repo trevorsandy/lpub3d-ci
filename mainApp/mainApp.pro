@@ -53,6 +53,9 @@ win32 {
     RC_CODEPAGE = 1252
 
     QMAKE_EXT_OBJ = .obj
+    DEFINES      +=  QUAZIP_STATIC
+    DEFINES      += _TC_STATIC
+    DEFINES      += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
 
     win32-msvc* {
 
@@ -188,7 +191,7 @@ win32 {
 }
 #   Local path
 isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../builds/3rdparty )
+THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( ../builds/3rdparty )
 exists($$THIRD_PARTY_DIST_DIR_PATH): \
 3RD_DIR_SOURCE = LOCAL_3RD_DIST_DIR
 else {
@@ -196,7 +199,7 @@ else {
     else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../$$DIST_DIR )
+    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( ../../$$DIST_DIR )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
         3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
     } else {
@@ -257,7 +260,7 @@ CONFIG(debug, debug|release) {
         VER_USE_LDVIEW_DEV = False
     } else {
         # This line defines the path of the ldview git extract relative to this project file
-        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( ../../$${VER_LDVIEW_DEV} )
         message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
         exists($$VER_LDVIEW_DEV_REPOSITORY) {
             VER_USE_LDVIEW_DEV = True
@@ -600,8 +603,6 @@ LIBS += -lwininet -ladvapi32 -lshell32 -lshlwapi -luser32 \
         -lgdi32 $$QMAKE_LIBS_NETWORK $$OPENGL_LIBS
 else:!macx: \
 LIBS += -lGL -lGLU
-!win32-msvc*: \
-LIBS += -lz
 
 #~~ update check ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

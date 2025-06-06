@@ -196,7 +196,7 @@ CONFIG(debug, debug|release) {
         VER_USE_LDVIEW_DEV = False
     } else {
         # This line defines the path of the ldview git extract relative to this project file
-        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( ../../../$${VER_LDVIEW_DEV} )
         message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
         exists($$VER_LDVIEW_DEV_REPOSITORY) {
             message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
@@ -283,43 +283,43 @@ contains(QT_VERSION, ^6\\..*) {
 #~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SOURCES += \
-    $$PWD/LDVAlertHandler.cpp \
-    $$PWD/LDViewExportOption.cpp \
-    $$PWD/LDVHtmlInventory.cpp \
-    $$PWD/LDVImageMatte.cpp \
-    $$PWD/LDViewPartList.cpp \
-    $$PWD/LDVMisc.cpp \
-    $$PWD/LDVPreferences.cpp \
-    $$PWD/LDVWidget.cpp
+    LDVAlertHandler.cpp \
+    LDViewExportOption.cpp \
+    LDVHtmlInventory.cpp \
+    LDVImageMatte.cpp \
+    LDViewPartList.cpp \
+    LDVMisc.cpp \
+    LDVPreferences.cpp \
+    LDVWidget.cpp
 win32:!contains(DEFINES, _OSMESA): \
 SOURCES += \
-    $$PWD/LDVExtensionsSetup.cpp
+    LDVExtensionsSetup.cpp
 
 HEADERS += \
-    $$PWD/LDVWidgetDefaultKeys.h \
-    $$PWD/LDVAlertHandler.h \
-    $$PWD/LDVHtmlInventory.h \
-    $$PWD/LDViewExportOption.h \
-    $$PWD/LDVImageMatte.h \
-    $$PWD/LDViewPartList.h \
-    $$PWD/LDVMisc.h \
-    $$PWD/LDVPreferences.h \
-    $$PWD/LDVWidget.h
+    LDVWidgetDefaultKeys.h \
+    LDVAlertHandler.h \
+    LDVHtmlInventory.h \
+    LDViewExportOption.h \
+    LDVImageMatte.h \
+    LDViewPartList.h \
+    LDVMisc.h \
+    LDVPreferences.h \
+    LDVWidget.h
 win32:!contains(DEFINES, _OSMESA): \
 HEADERS += \
-    $$PWD/LDVExtensionsSetup.h
+    LDVExtensionsSetup.h
 
 FORMS += \
-    $$PWD/LDVExportOptionPanel.ui \
-    $$PWD/LDVPreferencesPanel.ui \
-    $$PWD/LDVPartList.ui
+    LDVExportOptionPanel.ui \
+    LDVPreferencesPanel.ui \
+    LDVPartList.ui
 
 RESOURCES += \
-    $$PWD/resources.qrc
+    resources.qrc
 
 OTHER_FILES += \
-    $$PWD/LDVWidgetMessages.ini \
-    $$PWD/../../mainApp/extras/ldvMessages.ini
+    LDVWidgetMessages.ini \
+    ../../mainApp/extras/ldvMessages.ini
 
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
