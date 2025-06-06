@@ -1,10 +1,10 @@
-INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+INCLUDEPATH += .
+DEPENDPATH += .
 HEADERS += \
-        $$PWD/WPngImage.hh \
-        $$PWD/lodepng.h
+        WPngImage.hh \
+        lodepng.h
 
 SOURCES += \
-        $$PWD/WPngImage.cc \
-        $$PWD/WPngImage_lodepng.cc \
-        $$PWD/lodepng.cc
+        WPngImage.cc \
+        WPngImage_lodepng.cc \
+        lodepng.cc
