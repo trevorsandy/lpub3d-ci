@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 4, 2025
+# Last Update: June 14, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -793,13 +793,13 @@ Info && Info "Building.................[LPub3D 3rd Party Renderers]"
 # Expose GitHub Actions variables
 if [[ -n "$CD" || -n "${GITHUB}" ]]; then
   Info
-  [ -n "$CI" ] && Info "CI.......................${CI}" || :
-  [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
-  [ -n "$DOCKER" ] && Info "Docker...................${DOCKER}" || :
-  [ -n "$GITHUB" ] && Info "GitHub...................${GITHUB}" || :
-  [ -n "$LP3D_BASE" ] && Info "Build base...............${LP3D_BASE}" || :
-  [ -n "$LP3D_ARCH" ] && Info "Build Architecture.......${LP3D_ARCH}" || :
-  [ -n "$LP3D_APPIMAGE" ] && Info "AppImage.................${LP3D_APPIMAGE}" || :
+  [ -n "$CI" ] && Info "CI.......................[${CI}]" || :
+  [ -n "$OBS" ] && Info "OBS......................[${OBS}]" || :
+  [ -n "$DOCKER" ] && Info "Docker...................[${DOCKER}]" || :
+  [ -n "$GITHUB" ] && Info "GitHub...................[${GITHUB}]" || :
+  [ -n "$LP3D_BASE" ] && Info "Build base...............[${LP3D_BASE}]" || :
+  [ -n "$LP3D_ARCH" ] && Info "Build Architecture.......[${LP3D_ARCH}]" || :
+  [ -n "$LP3D_APPIMAGE" ] && Info "AppImage.................[${LP3D_APPIMAGE}]" || :
 fi
 
 [ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
@@ -866,26 +866,6 @@ else
 fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
-# LLVM and Mesa configuration
-llvm_config=$(which llvm-config)
-if [ -f "${llvm_config}" ]; then
-  llvm_version="$($llvm_config --version | grep -E '^[0-9.]+')"
-  llvm_libs_msg="Use system libraries"
-else
-  llvm_libs_msg="Not available"
-fi
-if [[ "$build_osmesa" = 1 && "$get_local_libs" != 1 ]]; then
-  build_mesa_msg="Build from source"
-  # can add build_llvm flag to this condition
-  [[ "$llvm_not_used" = 1 ]] && \
-  llvm_libs_msg="Not used for default OSMesa configuration" || :
-elif [ "$get_local_libs" = 1 ]; then
-  build_mesa_msg="Use local libraries"
-  llvm_libs_msg="Use local libraries"
-else
-  build_mesa_msg="Use system libraries"
-fi
-
 # Display platform settings
 Info "Build Working Directory..[${CALL_DIR}]"
 [ -n "${LP3D_UCS_VER}" ] && \
@@ -902,10 +882,6 @@ fi
 [ -z "$build_tinyxml" ] && build_tinyxml=1 || true
 if [ "${DOCKER}" = "true" ]; then
   Info "Platform Pretty Name.....[Docker Container - ${platform_pretty}]"
-  [ -n "$build_mesa_msg" ] && \
-  Info "OSMesa...................[${build_mesa_msg}]" || true
-  [ -n "$llvm_libs_msg" ] && \
-  Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
 elif [ "${CI}" = "true" ]; then
   Info "Platform Pretty Name.....[CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
@@ -917,18 +893,43 @@ elif [ "${OBS}" = "true" ]; then
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
   [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
-  [ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
-  [ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
   [ -n "$get_local_libs" ] && Info "Get Local Libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
   [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
-  [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
-  [ -n "$prebuilt_3ds_msg" ] && Info "3DS......................[${prebuilt_3ds_msg}]" || true
-  if [ -n "$build_gl2ps" ]; then
-    Info "GL2PS....................[Build from source]"
-    Info "Png......................[Build from source]"
-  fi
 else
   Info "Platform Pretty Name.....[${platform_pretty}]"
+fi
+
+# LLVM and Mesa configuration
+llvm_config=$(which llvm-config 2> /dev/null)
+if [ -f "${llvm_config}" ]; then
+  llvm_version="$($llvm_config --version | grep -E '^[0-9.]+')"
+  llvm_libs_msg="Use system libraries"
+else
+  llvm_libs_msg="Not available"
+fi
+if [[ "$build_osmesa" = 1 && "$get_local_libs" != 1 ]]; then
+  build_mesa_msg="Build from source"
+  [ "$mesa_amber" = 1 ] && \
+  build_mesa_msg="${build_mesa_msg} using Mesa-amber" || :
+  # can add build_llvm flag to this condition
+  [[ "$llvm_not_used" = 1 || "$mesa_amber" = 1 ]] && \
+  llvm_libs_msg="Not used for default OSMesa configuration" || :
+elif [ "$get_local_libs" = 1 ]; then
+  build_mesa_msg="Use local libraries"
+  llvm_libs_msg="Use local libraries"
+else
+  [ "$(which libOSMesa.so 2>/dev/null)" ] && \
+  build_mesa_msg="Use system libraries" || \
+  build_mesa_msg="Not available"
+fi
+[ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
+[ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
+[ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
+[ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
+[ -n "$prebuilt_3ds_msg" ] && Info "3DS......................[${prebuilt_3ds_msg}]" || true
+if [ -n "$build_gl2ps" ]; then
+  Info "GL2PS....................[Build from source]"
+  Info "Png......................[Build from source]"
 fi
 
 # Set build type
