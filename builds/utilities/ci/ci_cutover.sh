@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 15, 2025
+# Last Update: June 11, 2025
 # Copyright (C) 2024 by Trevor SANDY
 
 function ShowHelp() {
@@ -335,7 +335,19 @@ find . -not -name '*.log*' \
        -not -path './ldrawini/*bit_release' \
        -not -path './ldvlib/LDVQt/*bit_release' \
        -not -path './ldvlib/LDVQt/include/*' \
-       -not -path './ldvlib/WPngImage/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/LdExporter/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/LDLib/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/LDLoader/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/TCFoundation/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/TRE/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/Utilities/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/gl2ps/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/lib3ds/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/libjpeg/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/libpng/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/minizip/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/tinyxml/*bit_release' \
+       -not -path './ldvlib/LDVQt/LDView/3rdParty/zlib/*bit_release' \
        -not -path './mainApp/*bit_release' \
        -not -path './quazip/*bit_release' \
        -not -path './waitingspinner/*bit_release' \
