@@ -48,10 +48,10 @@ win32 {
     QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
 
     QMAKE_EXT_OBJ = .obj
-    CONFIG += windows
 
     win32-msvc* {
 
+        CONFIG += windows
         CONFIG += force_debug_info
         INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
         DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
@@ -79,10 +79,10 @@ win32 {
     LIBS += -lz
 }
 
-unix: !macx: $$lower($$TARGET)
+if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 contains(QT_VERSION, ^5\\..*) {
-  unix:!macx {  
+  if (unix|msys):!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.8) {
       QMAKE_CXXFLAGS += -std=c++11
@@ -101,7 +101,7 @@ contains(QT_VERSION, ^6\\..*) {
   macx {
     QMAKE_CXXFLAGS+= -std=c++17
   }    
-  unix:!macx {
+  if (unix|msys):!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 5) {
       QMAKE_CXXFLAGS += -std=c++17
