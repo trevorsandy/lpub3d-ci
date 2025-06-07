@@ -27,7 +27,9 @@
 #endif // WIN32
 
 #ifdef _QT
-#include "../QT/misc.h"
+// LPub3D Mod - change Qt to Utilities folder
+#include "../Utilities/misc.h"
+// LPub3D Mod End
 #include <QtCore/qstringlist.h>
 #endif // _QT
 

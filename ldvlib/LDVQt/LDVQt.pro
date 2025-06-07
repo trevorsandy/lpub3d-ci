@@ -45,7 +45,6 @@ macx {
 }
 INCLUDEPATH += $${SYSTEM_PREFIX_}/include
 
-DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += QT_THREAD_SUPPORT
 !freebsd: \
@@ -138,16 +137,49 @@ staticlib {
 
 # LDVQT Qt/OSMesa/WGL library identifiers
 ldviewqt {
+    CONFIG  += CUI_QT
     DEFINES += _QT
     POSTFIX  = -qt$${QT_MAJOR_VERSION}
-} else:msys:ldviewwgl {
+} else:ldviewwgl {
+    CONFIG  += CUI_WGL
     POSTFIX  = -wgl
 } else:!win32-msvc* {
+    CONFIG  += OSMesa
     DEFINES += _OSMESA
     POSTFIX  = -osmesa
 }
 
+# 3rd party executables, documentation and resources.
+!isEmpty(LP3D_3RD_DIST_DIR): \
+THIRD_PARTY_DIST_DIR_PATH     = $$LP3D_3RD_DIST_DIR
+else: \
+THIRD_PARTY_DIST_DIR_PATH     = $$(LP3D_DIST_DIR_PATH)
+isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( $$PWD/../../builds/3rdparty )
+!exists($$THIRD_PARTY_DIST_DIR_PATH) {
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
+    else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $$PWD/../../../$$DIST_DIR )
+    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        message("~~~ ERROR lib$${TARGET} - THIRD_PARTY_DIST_DIR_PATH (LDVLIB) WAS NOT FOUND! ~~~ ")
+        THIRD_PARTY_DIST_DIR_PATH="undefined"
+    }
+}
+
+!BUILD_LDV_LIBS {
+    unix|msys: \
+    LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
+    else:win32-msvc*: \
+    LIB_LDVIEW  = TCFoundation$${POSTFIX}.lib
+    LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW} 
+    !exists($${LIB_LDVIEW_PATH}): \
+    CONFIG += BUILD_LDV_LIBS
+}
+
 CONFIG(debug, debug|release) {
+    VER_USE_LDVIEW_DEV = False
     DEFINES += QT_DEBUG_MODE
     BUILD_CONF = Debug
     ARCH_BLD = bit_debug
@@ -160,16 +192,19 @@ CONFIG(debug, debug|release) {
     mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
     else:unix|msys:      VER_LDVIEW_DEV = ldview
     else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
-    exists($$VER_LDVIEW_DEV_REPOSITORY) {
-        message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-        message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-        INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
-    } else {
+    BUILD_LDV_LIBS {
         VER_USE_LDVIEW_DEV = False
-        !msys: \
-        message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+    } else {
+        # This line defines the path of the ldview git extract relative to this project file
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} )
+        message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+        exists($$VER_LDVIEW_DEV_REPOSITORY) {
+            message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+            INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
+            VER_USE_LDVIEW_DEV = True
+        } else {
+            message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        }
     }
 } else {
     BUILD_CONF = Release
@@ -183,9 +218,7 @@ DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
 #~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Load LDView headers
 LOAD_LDV_HEADERS = True
-
 include(LDVQtLibs.pri)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

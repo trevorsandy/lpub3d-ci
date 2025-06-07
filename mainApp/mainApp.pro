@@ -81,8 +81,8 @@ win32 {
         }
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
     }
-} else {
-    macx: \
+} else:macx {
+    CONFIG += sdk_no_version_check
     LIBS += -framework CoreFoundation -framework CoreServices
 }
 
@@ -153,21 +153,19 @@ DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+INCLUDEPATH += . ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
 DEPENDPATH  += .
-INCLUDEPATH += .
-INCLUDEPATH += ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
-win32-msvc*: \
-INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-msys: \
-SYSTEM_PREFIX_ = $${PREFIX}
-else: \
-SYSTEM_PREFIX_ = $${PREFIX}/usr/local
-macx {
-    contains(QT_ARCH,arm64): \
+win32 {
+    SYSTEM_PREFIX_ = $${PREFIX}
+} else {
+    # System libraries - on Unix, change to or add /usr/local if you want
+    macx:contains(QT_ARCH,arm64): \
     SYSTEM_PREFIX_ = /opt/homebrew
-    CONFIG += sdk_no_version_check
+    else: \
+    SYSTEM_PREFIX_ = $${PREFIX}/usr/local
 }
 
 #~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -208,35 +206,67 @@ else {
     3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
 }
 
+# LDVQT Qt/OSMesa/WGL library identifiers
+ldviewqt {
+    CONFIG  += CUI_QT
+    POSTFIX  = -qt$${QT_MAJOR_VERSION}
+} else:ldviewwgl {
+    CONFIG  += CUI_WGL
+    POSTFIX  = -wgl
+} else:!win32-msvc* {
+    CONFIG  += OSMesa
+    POSTFIX  = -osmesa
+}
+
+!BUILD_LDV_LIBS {
+    unix|msys: \
+    LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
+    else:win32-msvc*: \
+    LIB_LDVIEW  = TCFoundation$${POSTFIX}.lib
+    LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH}
+    !exists($${LIB_LDVIEW_PATH}): \
+    CONFIG += BUILD_LDV_LIBS
+}
+
+BUILD_LDV_LIBS {
+    VER_LDVIEW_DIR_PATH     = $$absolute_path( $$PWD/../ldvlib/LDVQt/LDView )
+    VER_LDVIEW_INCLUDE      = $${VER_LDVIEW_DIR_PATH}/include
+    VER_LDVIEW_THIRD_PARTY  = $${VER_LDVIEW_DIR_PATH}/3rdParty
+    LDV_LDVIEW_RESOURCE_DIR = $${VER_LDVIEW_DIR_PATH}
+    LDV_EXPORT_RESOURCE_DIR = $${VER_LDVIEW_DIR_PATH}/LDExporter
+} else {
+    VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdparty
+    LDV_LDVIEW_RESOURCE_DIR = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources
+    LDV_EXPORT_RESOURCE_DIR = $${LDV_LDVIEW_RESOURCE_DIR}
+}
+
 #~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-VER_USE_LDVIEW_DEV = False
+
 CONFIG(debug, debug|release) {
+    VER_USE_LDVIEW_DEV = False
     # These lines requires a git extract of ldview at the same location as the lpub3d git extract
     # and defines the ldview git extract folder name, you can set as you like
     mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
     else:unix|msys:      VER_LDVIEW_DEV = ldview
     else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
-    # This line defines the path of the ldview git extract relative to this project file
-    VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
-    exists($$VER_LDVIEW_DEV_REPOSITORY) {
-        VER_USE_LDVIEW_DEV = True
+    BUILD_LDV_LIBS {
+        VER_USE_LDVIEW_DEV = False
+    } else {
+        # This line defines the path of the ldview git extract relative to this project file
+        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} )
         message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-    } else:!msys {
-        message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        exists($$VER_LDVIEW_DEV_REPOSITORY) {
+            VER_USE_LDVIEW_DEV = True
+        } else {
+            message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        }
     }
 }
-# Load LDView libraries for LDVQt
-LOAD_LDV_LIBS = True
+
+LDV_MESSAGES_INI = ldvMessages.ini
 !freebsd: \
 DEFINES += EXPORT_3DS
-
-#~~ ldsearchDirs (uses LDView's LDrawIni)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-if (equals(VER_USE_LDVIEW_DEV,True)) {
-    INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty
-} else {
-    INCLUDEPATH += $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include/3rdParty
-}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -279,14 +309,6 @@ static {                                     # everything below takes effect wit
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# LDVQT Qt/OSMesa/WGL library identifiers
-ldviewqt: \
-POSTFIX  = -qt$${QT_MAJOR_VERSION}
-else:msys:ldviewwgl: \
-POSTFIX  = -wgl
-else:!win32-msvc*: \
-POSTFIX  = -osmesa
 
 # Always use local QuaZip for added minizip unzOpen calls
 CONFIG(debug, debug|release) {
@@ -494,10 +516,16 @@ message("~~~ $${LPUB3D} AUTO_RESTART ENVIRONMENT VARIABLE $${AUTO_RESTART_STR} ~
 
 # Specify LDView modules develpment or third party header paths
 equals(VER_USE_LDVIEW_DEV,True) {
+    INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty
     INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY} $${VER_LDVIEW_DEV_REPOSITORY}/include
 } else {
-    INCLUDEPATH +=$${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    USE_LDV_SYSTEM_LIBS:win32-msvc*: \
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+    INCLUDEPATH += $${VER_LDVIEW_THIRD_PARTY}
+    INCLUDEPATH += $${VER_LDVIEW_DIR_PATH} $${VER_LDVIEW_INCLUDE}
 }
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Needed to access ui header from LDVQt
 INCLUDEPATH += $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui )
@@ -545,6 +573,8 @@ LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR) -l$$LDVQT_LIB
 # WPngImage must follow LDVQT or else there will be compile errors
 LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR) -l$$WPNGIMAGE_LIB
 
+# Load LDView libraries for LDVQt
+LOAD_LDV_LIBS = True
 include(../ldvlib/LDVQt/LDVQtLibs.pri)
 
 msys {

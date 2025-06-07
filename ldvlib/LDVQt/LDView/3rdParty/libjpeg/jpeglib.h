@@ -978,10 +978,10 @@ EXTERN(void) jpeg_stdio_src JPP((j_decompress_ptr cinfo, FILE * infile));
 /* Data source and destination managers: memory buffers. */
 EXTERN(void) jpeg_mem_dest JPP((j_compress_ptr cinfo,
 			       unsigned char ** outbuffer,
-			       size_t * outsize));
+			       unsigned long * outsize));
 EXTERN(void) jpeg_mem_src JPP((j_decompress_ptr cinfo,
 			      const unsigned char * inbuffer,
-			      size_t insize));
+			      unsigned long insize));
 
 /* Default parameter setup for compression */
 EXTERN(void) jpeg_set_defaults JPP((j_compress_ptr cinfo));

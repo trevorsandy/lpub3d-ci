@@ -6,3 +6,4 @@ StudLogo.h
 LDViewMessages.ini
 Makefile.osmesa
 Makefile-head.osmesa
+misc.h

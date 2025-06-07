@@ -36,16 +36,50 @@ CONFIG(debug, debug|release) {
 }
 BUILD += BUILD ON $$upper($$HOST)
 
-INCLUDEPATH += $$PWD
-!USE_SYSTEM_ZLIB {
-    INCLUDEPATH  += $$_PRO_FILE_PWD_/../zlib
+# Pre-compiled library headers
+# ===============================
+LIBINC_                  = $${_PRO_FILE_PWD_}/../../include       # zlib.h and zconf.h
+LIBS_INC                 = $${LIBINC_}
+# 3rd party library headers
+# ===============================
+BUILD_ZLIB {
+    ZLIB_INC             = $${_PRO_FILE_PWD_}/../zlib
+} else: win32-msvc* {
+    ZLIB_INC             = $${LIBINC_}
+} else:unix|msys {
+    # System prefix
+    msys {
+        SYSTEM_PREFIX_   = $${PREFIX}
+    } else {
+        # System libraries
+        SYSTEM_PREFIX_   = $${PREFIX}/usr
+    }
+    # append system library paths
+    SYS_LIBINC_          = $${SYSTEM_PREFIX_}/include
+    macx {
+        contains(QT_ARCH,arm64) {
+            SYS_LIBINC_  = /opt/homebrew/include
+        } else {
+            SYS_LIBINC_  = $${SYSTEM_PREFIX_}/local/include
+        }
+    }
+    LIBS_INC            += $${SYS_LIBINC_}
+    USE_LDV_SYSTEM_LIBS {
+        # reset to system library paths
+        LIBS_INC         = $${SYS_LIBINC_}
+    }
+    ZLIB_INC             = $${SYS_LIBINC_}
 } else {
-    INCLUDEPATH  += $$_PRO_FILE_PWD_/../../include   # for zlib.h and zconf.h
+    ZLIB_INC             = $${LIBINC_}
 }
+
+INCLUDEPATH             += .
+!equals(TARGET, z): \
+INCLUDEPATH             += $${ZLIB_INC}
 
 # USE GNU_SOURCE
 unix|msys:!macx: \
-DEFINES += _GNU_SOURCE
+DEFINES                 += _GNU_SOURCE
 
 # USE CPP 11
 contains(USE_CPP11,NO) {
@@ -98,8 +132,8 @@ win32-msvc* {
         _CRT_SECURE_NO_DEPRECATE=1 \
         _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_CXXFLAGS_RELEASE += \
-        /FI winsock2.h /FI winsock.h \
-        /wd4675
+    /FI winsock2.h /FI winsock.h \
+    /wd4675
     QMAKE_LFLAGS += \
     -Wl,--allow-multiple-definition
 
@@ -107,9 +141,9 @@ win32-msvc* {
     EXT_D = dll
 }
 
-OBJECTS_DIR   = $$DESTDIR/.obj
+OBJECTS_DIR       = $${DESTDIR}/.obj
 win32: \
-QMAKE_EXT_OBJ = .obj
+QMAKE_EXT_OBJ     = .obj
 
 # suppress warnings
 unix|msys {
@@ -126,7 +160,11 @@ QMAKE_CFLAGS_WARN_ON = \
                      -Wno-switch \
                      -Wno-comment \
                      -Wno-unused-result \
-                     -Wno-unused-but-set-variable
+                     -Wno-unused-but-set-variable \
+                     -Wno-unused-variable \
+                     -Wno-implicit-fallthrough \
+                     -Wno-misleading-indentation \
+                     -Wno-format-security                     
 
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 
