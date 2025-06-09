@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: May 24, 2025
+# Last Update: June 3, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -347,9 +347,6 @@ LDView:
 - LibJPEG version 9c or above
   http://www.ijg.org
 
-- TinyXML version 2.6.2 or above
-  http://www.grinninglizard.com/tinyxml/
-
 - MiniZIP version 1.2.11 or above
   http://www.winimage.com/zLibDll/minizip.html
 
@@ -394,11 +391,11 @@ Install libraries
 =================
 For an Apple silicon or Apple Intel processor:
 - \$ brew update
-- \$ brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+- \$ brew reinstall libpng gl2ps libjpeg minizip openexr sdl2 libtiff
 - \$ brew install --cask xquartz
 
 For an x86_64 brew installation on an Apple silicon arm64 processor:
-- \$ arch -x86_64 /usr/local/homebrew/bin/brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+- \$ arch -x86_64 /usr/local/homebrew/bin/brew reinstall libpng gl2ps libjpeg minizip openexr sdl2 libtiff
 - \$ arch -x86_64 /usr/local/homebrew/bin/brew install --cask xquartz
 
 Optional - Check installed library (e.g. libpng)

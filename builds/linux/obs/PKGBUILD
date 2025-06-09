@@ -76,6 +76,8 @@ prepare() {
 	export build_osmesa=1
 	# LLVM not needed for default Mesa 21.3.9 configuration
 	export llvm_not_used=1
+	# Until LDView converts to tinyxml2, build tinyxml from source 
+	export build_tinyxml=1
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# location is ../src/${pkgname}-git
 	export QT_SELECT=qt5
