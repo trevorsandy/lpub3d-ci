@@ -674,8 +674,8 @@ void BlenderPreferences::initPathsAndSettings()
             QLineEdit *lineEdit = new QLineEdit(mSettingsBox);
             lineEdit->setProperty("ControlID",QVariant(i));
             if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT) {
-                connect(lineEdit,SIGNAL(textChanged(const QString &)),
-                        this,    SLOT  (sizeChanged(const QString &)));
+                connect(lineEdit,SIGNAL(textChanged(QString&)),
+                        this,    SLOT  (sizeChanged(QString&)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             } else if(i == LBL_DEFAULT_COLOUR) {
                 lineEdit->setReadOnly(true);
@@ -691,8 +691,8 @@ void BlenderPreferences::initPathsAndSettings()
                     lineEdit->setValidator(new QIntValidator(1,1000));
                 else
                     lineEdit->setValidator(new QDoubleValidator(0.01,100.0,2));
-                connect(lineEdit, SIGNAL(textEdited(    const QString &)),
-                        this,     SLOT  (settingChanged(const QString &)));
+                connect(lineEdit, SIGNAL(textEdited(QString&)),
+                        this,     SLOT  (settingChanged(QString&)));
             }
             lineEdit->setToolTip(BlenderPreferences::mBlenderSettings[i].tooltip);
             mLineEditList << lineEdit;
@@ -827,8 +827,8 @@ void BlenderPreferences::initPathsAndSettingsMM()
             QLineEdit *lineEdit = new QLineEdit(mSettingsBox);
             lineEdit->setProperty("ControlID",QVariant(i));
             if (i == LBL_RESOLUTION_WIDTH || i == LBL_RESOLUTION_HEIGHT) {
-                connect(lineEdit,SIGNAL(textChanged(const QString &)),
-                        this,    SLOT  (sizeChanged(const QString &)));
+                connect(lineEdit,SIGNAL(textChanged(QString&)),
+                        this,    SLOT  (sizeChanged(QString&)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             } else {
                 lineEdit->setText(BlenderPreferences::mBlenderSettingsMM[i].value);
@@ -842,8 +842,8 @@ void BlenderPreferences::initPathsAndSettingsMM()
                     lineEdit->setValidator(new QDoubleValidator(0.0,10.0,1));
                 else
                     lineEdit->setValidator(new QIntValidator(1, RENDER_IMAGE_MAX_SIZE));
-                connect(lineEdit, SIGNAL(textEdited(    const QString &)),
-                        this,     SLOT  (settingChanged(const QString &)));
+                connect(lineEdit, SIGNAL(textEdited(QString&)),
+                        this,     SLOT  (settingChanged(QString&)));
             }
             lineEdit->setToolTip(BlenderPreferences::mBlenderSettingsMM[i].tooltip);
             mLineEditList << lineEdit;
@@ -2228,17 +2228,17 @@ void BlenderPreferences::resetSettings()
             mPathLineEditList[i]->setText(paths[i].value);
         }
 
-        connect(mLineEditList[CTL_IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                this,                                SLOT  (sizeChanged(const QString &)));
-        connect(mLineEditList[CTL_IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                this,                                SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[CTL_IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(QString&)),
+                this,                                SLOT  (sizeChanged(QString&)));
+        connect(mLineEditList[CTL_IMAGE_WIDTH_EDIT], SIGNAL(textChanged(QString&)),
+                this,                                SLOT  (sizeChanged(QString&)));
 
     } else if (mImportMMActBox->isChecked()) {
 
-        disconnect(mLineEditList[CTL_RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                   this,                                     SLOT  (sizeChanged(const QString &)));
-        disconnect(mLineEditList[CTL_RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                   this,                                     SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[CTL_RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(QString&)),
+                   this,                                     SLOT  (sizeChanged(QString&)));
+        disconnect(mLineEditList[CTL_RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(QString&)),
+                   this,                                     SLOT  (sizeChanged(QString&)));
 
         for(int i = 0; i < numSettingsMM(); i++) {
             if (i < LBL_BEVEL_SEGMENTS) {
@@ -2271,10 +2271,10 @@ void BlenderPreferences::resetSettings()
             mPathLineEditList[i]->setText(paths[i].value);
         }
 
-        connect(mLineEditList[CTL_RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                this,                                     SLOT  (sizeChanged(const QString &)));
-        connect(mLineEditList[CTL_RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                this,                                     SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[CTL_RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(QString&)),
+                this,                                     SLOT  (sizeChanged(QString&)));
+        connect(mLineEditList[CTL_RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(QString&)),
+                this,                                     SLOT  (sizeChanged(QString&)));
     }
 
     emit gBlenderAddonPreferences->settingChangedSig(true/*change*/);
@@ -2771,8 +2771,8 @@ void BlenderPreferences::sizeChanged(const QString &value)
 
             change = settings[height_edit].value != height;
 
-            connect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
-                    this,                      SLOT  (sizeChanged(const QString &)));
+            connect(mLineEditList[height_edit],SIGNAL(textChanged(QString&)),
+                    this,                      SLOT  (sizeChanged(QString&)));
         }
         else if (sender() == mLineEditList[height_edit])
         {
@@ -2784,8 +2784,8 @@ void BlenderPreferences::sizeChanged(const QString &value)
 
             change = settings[height_edit].value != width;
 
-            connect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
-                    this,                     SLOT  (sizeChanged(const QString &)));
+            connect(mLineEditList[width_edit],SIGNAL(textChanged(QString&)),
+                    this,                     SLOT  (sizeChanged(QString&)));
         }
 
         // Change is provided here for consistency only as ImageWidth,
@@ -2852,10 +2852,10 @@ void BlenderPreferences::setModelSize(bool update)
     if (update)
         settingsModified(true/*update*/);
 
-    connect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
-            this,                      SLOT  (sizeChanged(const QString &)));
-    connect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
-            this,                     SLOT  (sizeChanged(const QString &)));
+    connect(mLineEditList[height_edit],SIGNAL(textChanged(QString&)),
+            this,                      SLOT  (sizeChanged(QString&)));
+    connect(mLineEditList[width_edit],SIGNAL(textChanged(QString&)),
+            this,                     SLOT  (sizeChanged(QString&)));
 }
 
 void BlenderPreferences::validateColourScheme(int index)
