@@ -917,11 +917,9 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         enum ProcEnc { PR_OK, PR_FAIL, PR_WAIT, PR_INSTALL, PR_TEST };
         QString const blenderDir         = QDir::toNativeSeparators(QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir));
         QString const blenderAddonDir    = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
-        QString const blenderSetupDir    = QDir::toNativeSeparators(QString("%1/setup").arg(blenderDir));
         QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
         QString const blenderTestString  = QLatin1String("###TEST_BLENDER###");
-        QString const allowModifyExternalPython = "yes";
         QByteArray addonPathsAndModuleNames;
         QString message, shellProgram;
         QStringList arguments;
