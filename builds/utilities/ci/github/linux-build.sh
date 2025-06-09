@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: May 22, 2025
+# Last Update: June 3, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -335,7 +335,7 @@ pbEOF
         cp -f builds/linux/obs/alldeps/PKGBUILD .
 cat << pbEOF >>${out_path}/Dockerfile
 RUN pacman -Suy --noconfirm
-RUN pacman -Sy --noconfirm git wget unzip rsync ccache base-devel binutils fakeroot tinyxml awk file inetutils
+RUN pacman -Sy --noconfirm git wget unzip rsync ccache base-devel binutils fakeroot awk file inetutils
 RUN pacman -S --noconfirm --needed xorg-server-xvfb desktop-file-utils
 RUN pacman -S --noconfirm --needed $(grep depends PKGBUILD | cut -f2 -d=|tr -d \'\(\) | tr '\n' ' ')
 RUN pacman -S --noconfirm --needed sudo \\

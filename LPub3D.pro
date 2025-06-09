@@ -16,7 +16,7 @@
 # CONFIG+=BUILD_JPEG             # override USE_LDV_SYSTEM_LIBS for libjpeg
 # CONFIG+=BUILD_PNG              # override USE_LDV_SYSTEM_LIBS for libpng
 # CONFIG+=BUILD_GL2PS            # override USE_LDV_SYSTEM_LIBS for libgl2ps - always built for MSVC
-# CONFIG+=BUILD_TINYXML          # override USE_LDV_SYSTEM_LIBS for libtinyxml
+# CONFIG+=BUILD_TINYXML          # override USE_LDV_SYSTEM_LIBS for libtinyxml - always built
 # CONFIG+=BUILD_MINIZIP          # override USE_LDV_SYSTEM_LIBS for libminizip
 # CONFIG+=BUILD_ZLIB             # override USE_LDV_SYSTEM_LIBS for libz
 
@@ -222,7 +222,7 @@ BUILD_LDV_LIBS {
     message("~~~ LDV LIBRARIES $$upper($$BUILD_ARCH) STATIC $${BUILD} ~~~")
     message("~~~ LDV LIBRARIES USING $${POSTFIX} OPENGL AND $${WHICH_LIBS} 3RD PARTY LIBS ~~~")
 
-    # Except for MSVC (uses pre-built), always build lib3ds
+    # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
     USE_LDV_3RD_PARTY_LIBS {
         CONFIG += BUILD_3DS
         CONFIG += BUILD_TINYXML
@@ -237,8 +237,9 @@ BUILD_LDV_LIBS {
         !USE_SYSTEM_ZLIB: \
         CONFIG += BUILD_ZLIB
     } else {
+        CONFIG += BUILD_TINYXML
         win32-msvc*: \
-        CONFIG += BUILD_GL2PS BUILD_TINYXML
+        CONFIG += BUILD_GL2PS
         else: \
         CONFIG += BUILD_3DS
     }

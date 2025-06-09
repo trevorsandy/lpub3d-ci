@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 14, 2025
+# Last Update June 3, 2025
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -169,7 +169,7 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
       ;;
     "archlinux")
       cp -f builds/linux/obs/alldeps/PKGBUILD .
-      sudo pacman -Sy --noconfirm git wget unzip rsync ccache base-devel binutils fakeroot tinyxml awk file inetutils > ${LIBS_LOG} 2>&1
+      sudo pacman -Sy --noconfirm git wget unzip rsync ccache base-devel binutils fakeroot awk file inetutils > ${LIBS_LOG} 2>&1
       sudo pacman -S --noconfirm --needed $(grep depends PKGBUILD | cut -f2 -d=|tr -d \'\(\) | tr '\n' ' ') >> ${LIBS_LOG} 2>&1
       ;;
     *)
