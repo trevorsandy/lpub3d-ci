@@ -1169,8 +1169,8 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             }
 
             // Main installation script
-            if (!QFileInfo(blenderInstallFile).exists()) {
-                gui->messageSig(LOG_ERROR, tr("Could not find addon install file: %1").arg(blenderInstallFile));
+            if (!QFileInfo::exists(blenderInstallFile)) {
+                emit gui->messageSig(LOG_ERROR, tr("Could not find addon install file: %1").arg(blenderInstallFile));
                 gBlenderAddonPreferences->statusUpdate(true/*addon*/,true/*error*/,tr("Not found."));
                 return;
             }
@@ -1434,7 +1434,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     // Remove old extracted addon if exist
     auto revoveBlenderAddonsDir = [&] (const QString oldBlenderAddonFile) {
-        if (QFileInfo(blenderAddonDir).exists()) {
+        if (QFileInfo::exists(blenderAddonDir)) {
             bool result = true;
             QDir dir(blenderAddonDir);
             for (QFileInfo const &info : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::DirsFirst)) {
@@ -1453,7 +1453,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon: %1").arg(blenderAddonDir));
         }
 
-        if (QFileInfo(oldBlenderAddonFile).exists()) {
+        if (QFileInfo::exists(oldBlenderAddonFile)) {
             if (!QFile::remove(oldBlenderAddonFile))
                 emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon archive:<br>%1").arg(oldBlenderAddonFile));
         }
@@ -1529,11 +1529,11 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                                                 .arg(blenderAddonFile, file.errorString()));
         }
         if (!blenderAddonValidated) {
-            if (QFileInfo(blenderAddonFile).exists())
+            if (QFileInfo::exists(blenderAddonFile))
                 if (!QFile::remove(blenderAddonFile))
                     emit gui->messageSig(LOG_NOTICE, tr("Failed to remove invalid Blender addon archive:<br>%1")
                                                          .arg(blenderAddonFile));
-            if (QFileInfo(oldBlenderAddonFile).exists())
+            if (QFileInfo::exists(oldBlenderAddonFile))
                 if (!QFile::rename(oldBlenderAddonFile, blenderAddonFile))
                     emit gui->messageSig(LOG_NOTICE, tr("Failed to restore Blender addon archive:<br>%1 from %2")
                                                          .arg(archiveFileName, oldArchiveFileName));
@@ -1548,7 +1548,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     if (!blenderAddonValidated)
         gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,tr("Download addon failed."));
 
-    if (!QDir(blenderAddonDir).exists() && QFileInfo(blenderAddonFile).exists())
+    if (!QDir(blenderAddonDir).exists() && QFileInfo::exists(blenderAddonFile))
         addonAction = ADDON_EXTRACT;
 
     return addonAction;
@@ -1659,7 +1659,7 @@ void BlenderPreferences::settingChanged(const QString &value)
         }
 
         change |= BlenderPreferences::settingsModified(false/*update*/);
-        gBlenderAddonPreferences->settingChangedSig(change);
+        emit gBlenderAddonPreferences->settingChangedSig(change);
     }
 }
 
@@ -2395,7 +2395,7 @@ void BlenderPreferences::loadSettings()
                 continue;
             QString const &key = QString("%1/%2").arg(IMPORTLDRAW, BlenderPreferences::mBlenderPaths[i].key);
             QString const &value = Settings.value(key, QString()).toString();
-            if (QFileInfo(value).exists()) {
+            if (QFileInfo::exists(value)) {
                 BlenderPreferences::mBlenderPaths[i].value = QDir::toNativeSeparators(value);
             }
         }
@@ -2405,7 +2405,7 @@ void BlenderPreferences::loadSettings()
                 continue;
             QString const &key = QString("%1/%2").arg(IMPORTLDRAWMM, BlenderPreferences::mBlenderPaths[i].key_mm);
             QString const &value = Settings.value(key, QString()).toString();
-            if (QFileInfo(value).exists()) {
+            if (QFileInfo::exists(value)) {
                 BlenderPreferences::mBlenderPaths[i].value = QDir::toNativeSeparators(value);
             }
         }
@@ -2512,7 +2512,7 @@ void BlenderPreferences::saveSettings()
 
     auto concludeSettingsGroup = [&] () {
         // write parameter file if it does not exist
-        if (!QFileInfo(parameterFile).exists())
+        if (!QFileInfo::exists(parameterFile))
             BlenderPreferences::exportParameterFile();
 
         // write current and tmp working paths to additional searh paths
