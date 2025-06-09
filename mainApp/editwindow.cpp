@@ -3321,7 +3321,7 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     popUp(nullptr),
     ac(nullptr),
     sc(nullptr),
-    lineNumberArea(new LineNumberArea(this)),
+    lineNumberArea(new TextEditorLineNumberArea(this)),
     detachedEdit(detachedEdit),
     showHardLinebreaks(false),
     _fileIsUTF8(false)

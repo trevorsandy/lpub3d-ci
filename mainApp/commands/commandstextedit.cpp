@@ -69,7 +69,7 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
     popUp(nullptr),
     ac(nullptr),
     sc(nullptr),
-    lineNumberArea(new LineNumberArea(this)),
+    lineNumberArea(new CommandsLineNumberArea(this)),
     showHardLinebreaks(false)
 {
     QPalette lineNumberPalette = lineNumberArea->palette();
