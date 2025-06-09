@@ -1437,7 +1437,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         if (QFileInfo::exists(blenderAddonDir)) {
             bool result = true;
             QDir dir(blenderAddonDir);
-            for (QFileInfo const &info : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::DirsFirst)) {
+            for (QFileInfo &info : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::DirsFirst)) {
                 if (info.isDir())
                     result &= QDir(info.absoluteFilePath()).removeRecursively();
                 else
@@ -1752,7 +1752,7 @@ void BlenderPreferences::readStdOut(const QString &stdOutput, QString &errors)
     QString const saveVersion = mBlenderVersion;
 
     int editListItems = mPathLineEditList.size();
-    for (QString const &stdOutLine : stdOutLines) {
+    for (QString &stdOutLine : stdOutLines) {
         if (stdOutLine.isEmpty())
             continue;
 
@@ -1892,7 +1892,7 @@ void BlenderPreferences::writeStdOut()
     if (file.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text))
     {
         QTextStream Out(&file);
-        for (const QString& Line : mStdOutList)
+        for (QString& Line : mStdOutList)
             Out << Line << lpub_endl;
         file.close();
         mAddonStdOutButton->setEnabled(true);
