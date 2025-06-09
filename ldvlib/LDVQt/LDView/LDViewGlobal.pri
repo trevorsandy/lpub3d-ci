@@ -130,6 +130,9 @@ win32-msvc* {
     3DS_INC     = $${3RD_PARTY_PREFIX_}/lib3ds
     LIBS_INC   += $${3DS_INC}
 }
+# Always build tinyxml
+TINYXML_INC     = $${3RD_PARTY_PREFIX_}/tinyxml
+LIBS_INC       += $${TINYXML_INC}
 
 USE_LDV_3RD_PARTY_LIBS:USE_LDV_SYSTEM_LIBS {
     message("~~~ NOTICE: 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS' ~~~")
@@ -142,7 +145,6 @@ USE_LDV_3RD_PARTY_LIBS {
     # headers
     GL2PS_INC   = $${3RD_PARTY_PREFIX_}/gl2ps
     MINIZIP_INC = $${3RD_PARTY_PREFIX_}/minizip
-    TINYXML_INC = $${3RD_PARTY_PREFIX_}/tinyxml
     3DS_INC     = $${3RD_PARTY_PREFIX_}/lib3ds
     JPEG_INC    = $${3RD_PARTY_PREFIX_}/libjpeg
     PNG_INC     = $${3RD_PARTY_PREFIX_}/libpng
@@ -178,7 +180,6 @@ unix|msys {
         LIBS_INC         = $${SYS_LIBINC_}
         # ---------------------------
         GL2PS_INC        = $${SYS_LIBINC_}
-        TINYXML_INC      = $${SYS_LIBINC_}
         MINIZIP_INC      = $${SYS_LIBINC_}
         3DS_INC          = $${SYS_LIBINC_}
         JPEG_INC         = $${SYS_LIBINC_}
@@ -190,7 +191,7 @@ unix|msys {
 
 # only launch headers found display once - during TCFoundation build
 equals(TARGET, TCFoundation) {
-    # Except for MSVC (uses pre-built), always build lib3ds
+    # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
     USE_LDV_3RD_PARTY_LIBS {
         CONFIG += BUILD_3DS
         CONFIG += BUILD_TINYXML
@@ -206,8 +207,9 @@ equals(TARGET, TCFoundation) {
         CONFIG += BUILD_ZLIB
         message("~~~ LDVQt header option - Use 3rdParty library headers ~~~")
     } else {
+        CONFIG += BUILD_TINYXML
         win32-msvc*: \
-        CONFIG += BUILD_GL2PS BUILD_TINYXML
+        CONFIG += BUILD_GL2PS
         else: \
         CONFIG += BUILD_3DS
         USE_LDV_SYSTEM_LIBS {
