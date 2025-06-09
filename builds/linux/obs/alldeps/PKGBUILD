@@ -9,7 +9,7 @@ url="https://trevorsandy.github.io/lpub3d"
 arch=('x86_64' 'i686')
 license=('GPL3')
 makedepends=('cmake' 'elfutils' 'gcc' 'glu' 'libdrm' 'libglvnd' 'libunwind' 'libx11' 'libxdamage' 'libxml2' 'libxrandr' 'libxshmfence' 'libxxf86vm' 'make' 'meson' 'python-mako' 'python-packaging' 'valgrind' 'wayland' 'wayland-protocols' 'xorgproto')
-depends=('boost' 'boost-libs' 'freeglut' 'gl2ps' 'libelf' 'libjpeg-turbo' 'libpng' 'libtiff' 'llvm' 'llvm-libs' 'mesa' 'mesa-libgl' 'minizip' 'openexr' 'qt5-base' 'qt5-tools' 'sdl2' 'tinyxml' 'unzip' 'xorg-util-macros')
+depends=('boost' 'boost-libs' 'freeglut' 'gl2ps' 'libelf' 'libjpeg-turbo' 'libpng' 'libtiff' 'llvm' 'llvm-libs' 'mesa' 'mesa-libgl' 'minizip' 'openexr' 'qt5-base' 'qt5-tools' 'sdl2' 'unzip' 'xorg-util-macros')
 conflicts=()
 replaces=()
 backup=()
@@ -79,6 +79,8 @@ prepare() {
 	export build_osmesa=1
 	# LLVM not needed for default Mesa 21.3.9 configuration
 	export llvm_not_used=1
+	# Until LDView converts to tinyxml2, build tinyxml from source 
+	export build_tinyxml=1	
 	# copy version.info to utilities
 	[ -f "../version.info" ] &&	cp -f ../version.info builds/utilities/ || :
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh

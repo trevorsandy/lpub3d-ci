@@ -13,7 +13,7 @@ win32-msvc* {
     }
 }
 
-# Except for MSVC (uses pre-built), always build lib3ds
+# Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
 BUILD_LDV_LIBS {
     USE_LDV_3RD_PARTY_LIBS {
         CONFIG += BUILD_3DS
@@ -29,8 +29,9 @@ BUILD_LDV_LIBS {
         !USE_SYSTEM_ZLIB: \
         CONFIG += BUILD_ZLIB
     } else {
+        CONFIG += BUILD_TINYXML
         win32-msvc*: \
-        CONFIG += BUILD_GL2PS BUILD_TINYXML
+        CONFIG += BUILD_GL2PS
         else: \
         CONFIG += BUILD_3DS
     }
