@@ -126,10 +126,10 @@ private:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LineNumberArea : public QWidget
+class CommandsLineNumberArea : public QWidget
 {
 public:
-    LineNumberArea(CommandsTextEdit *editor) : QWidget(editor)
+    CommandsLineNumberArea(CommandsTextEdit *editor) : QWidget(editor)
     {
         commandsTextEdit = editor;
     }
