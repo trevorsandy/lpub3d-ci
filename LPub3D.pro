@@ -1,7 +1,7 @@
 # LPub3D QMake Configuration settings
 # CONFIG+=ldviewqt               # build LDVQt LDView libs using Qt OpenGL
-# CONFIG+=ldviewwgl              # build LDVQt LDView libs using WGL OpenGL
-# CONFIG+=ldviewosmesa           # build LDVQt LDView libs using OSMesa OpenGL
+# CONFIG+=ldviewwgl              # build LDVQt LDView libs using WGL OpenGL - default for Windows
+# CONFIG+=ldviewosmesa           # build LDVQt LDView libs using OSMesa OpenGL - default for Linux and macOS
 
 # LDV Libraries QMake Configuration settings
 # CONFIG+=BUILD_LDV_LIBS         # build LDView libs from source
@@ -23,26 +23,27 @@
 # LPub3D QMake directory and project file structre
 # ------------------------------------------
 # /LPub3D
-#  |--- LPub3D.pro                 Subdirs project file
+#  |--- LPub3D.pro                 Subdirs project file - consumes common.pri
 #  |--- gitversion.pri             Construct project version
+#  |--- common.pri                 Common project declarations and directives
 #  |
 #  `--- /lclib
-#  |     |--- lclib.pro            Library project file - consumes lclib.pri
+#  |     |--- lclib.pro            Library project file - consumes common.pri, lclib.pri
 #  |     |--- lclib.pri            Library declarations and directives project include
 #  |
 #  `--- /ldrawini
 #  |     |--- ldrawini.pri         Library declarations and directives project include
-#  |     |--- Lldrawini.pro        Library project file - consumes ldrawini.pri
+#  |     |--- Lldrawini.pro        Library project file - consumes common.pri, ldrawini.pri
 #  |
 #  `--- /ldvlib
 #  |     |
 #  |     `--- /LDVQt
 #  |     |     |--- LDVQtLibs.pri  Library declarations and directives project include
-#  |     |     |--- LDVQt.pro      Library project file - consumes LDVQtLibs.pri
+#  |     |     |--- LDVQt.pro      Library project file - consumes common.pri, LDVQtLibs.pri
 #  |     |     |
 #  |     |     `--- /LDView
-#  |     |          |--- LDViewGlobal.pri                   Global declarations and directives project include
-#  |     |          |--- 3rdParty.pri                       3rdParty library declarations and directives project include
+#  |     |          |--- LDViewGlobal.pri                   Global declarations and directives project include - consumes common.pri
+#  |     |          |--- 3rdParty.pri                       3rdParty library declarations and directives project include - consumes common.pri
 #  |     |          |
 #  |     |          `--- /Utilities
 #  |     |          |     |--- Headerize.pro                Executable headerizer project file - declarations and directives - consumes LDViewGlobal.pri
@@ -95,33 +96,33 @@
 #  |     |                |     |--- 3rdParty_png.pro       3rdParty library project file - consumes 3rdParty.pri
 #  |     |                |
 #  |     |                `--- /libjpeg
-#  |     |                |    |--- 3rdParty_jpeg.pro      3rdParty library project file - consumes 3rdParty.pri
+#  |     |                |    |--- 3rdParty_jpeg.pro       3rdParty library project file - consumes 3rdParty.pri
 #  |     |                |
 #  |     |                `--- /zlib
-#  |     |                     |--- 3rdParty_zlib.pro      3rdParty library project file - consumes 3rdParty.pri
+#  |     |                     |--- 3rdParty_zlib.pro       3rdParty library project file - consumes 3rdParty.pri
 #  |     |
 #  |     `--- /WPngImage
 #  |           |--- WPngImage.pri  Library declarations and directives project include
 #  |           |--- WPngImage.pro  Library project file - consumes WPngImage.pri
 #  |
 #  `--- /mainApp
-#  |     |--- macosfiledistro.pri
-#  |     |    |--- install3rdpartyassets.pri Project include
+#  |     |--- macosfiledistro.pri            Process Unix and MSYS2 distribution project include
+#  |     |    |--- install3rdpartyassets.pri Unix and MSYS2 distributionpackaging assets project include
 #  |     |
-#  |     `--- posixfiledistro.pri
-#  |     |    |--- install3rdpartyassets.pri Project include
-#  |     |    |--- locallibsdistro.pri
+#  |     `--- posixfiledistro.pri            Process Unix and MSYS2 distribution project include
+#  |     |    |--- install3rdpartyassets.pri Unix and MSYS2 distribution packaging assets project include
+#  |     |    |--- locallibsdistro.pri       Process local libraries project include - used by legacy Linux build
 #  |     |
-#  |     |--- winfiledistro.pri
-#  |     |    |--- stageassets.pri           Project include
+#  |     |--- winfiledistro.pri              Process Windows MSVC distribution project include
+#  |     |    |--- stageassets.pri           Stage Windows MSVC distribution packaging assets project include
 #  |     |
-#  |     |--- otherfiles.pri       Project include
-#  |     |--- gitversion.pri       Project include
+#  |     |--- otherfiles.pri       Add 'other' project files project include
+#  |     |--- gitversion.pri       Process git version project include
 #  |     |--- mainApp.pri          Library declarations and directives project include
 #  |     |--- LDVQtLibs.pri        Library declarations and directives project include
 #  |     |--- QsLog.pri            Library declarations and directives project include
 #  |     |--- QSimpleUpdater.pri   Library declarations and directives project include
-#  |     |--- mainApp.pro          Library project file - consumes mainApp.pri, gitversion.pri and LDVQtLibs.pri
+#  |     |--- mainApp.pro          Library project file - consumes common.pri, gitversion.pri, mainApp.pri, and LDVQtLibs.pri
 #  |
 #  `--- /QSimpleUpdater
 #  |     |--- QSimpleUpdater.pri   Library declarations and directives project include
@@ -131,175 +132,101 @@
 #  |
 #  `--- /quazip
 #  |     |--- quazip.pri           Library declarations and directives project include
-#  |     |--- quazip.pro           Library project file - consumes quazip.pri
+#  |     |--- quazip.pro           Library project file - consumes common.pri, quazip.pri
 #  |
 #  `--- /waitingspinner
-#  |     |--- WaitingSpinner.pri   Library declarations and directives project include
-#  |     |--- waitingspinner.pro   Library project file - consumes waitingspinner.pri
+#        |--- WaitingSpinner.pri   Library declarations and directives project include
+#        |--- waitingspinner.pro   Library project file - consumes common.pri, waitingspinner.pri
 
-TEMPLATE   = subdirs
+TEMPLATE    = subdirs
 
-CONFIG    += ordered # This tells Qt to compile the following SUBDIRS in order
+CONFIG     += ordered # This tells Qt to compile the following SUBDIRS in order
 
-win32:HOST = $$system(systeminfo | findstr /B /C:\"OS Name\")
-unix:!macx:HOST = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
-macx:HOST  = $$system(echo `sw_vers -productName` `sw_vers -productVersion`)
-isEmpty(HOST):HOST = UNKNOWN HOST
+# common directives
+include(common.pri)
 
-BUILD_ARCH = $$(TARGET_CPU)
-!contains(QT_ARCH, unknown): \
-BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH): \
-BUILD_ARCH = UNKNOWN ARCH
+# build, type and opengl - postfix
 CONFIG(debug, debug|release) {
-    BUILD  = DEBUG BUILD
-    LPUB3D = LPub3Dd
+    BUILD   = $$upper($${BUILD}) DEBUG BUILD
+    LPUB3D  = LPub3Dd
 } else {
-    BUILD  = RELEASE BUILD
-    LPUB3D = LPub3D
+    BUILD   = $$upper($${BUILD}) RELEASE BUILD
+    LPUB3D  = LPub3D
 }
-msys: BUILD = MSYS $$BUILD
-static|staticlib: \
-TYPE  = STATIC
-else: \
-TYPE  = SHARED
-
-# Qt/OSMesa library identifiers
-ldviewqt {
-    POSTFIX  = QT
-    SUFFIX  = -qt$${QT_MAJOR_VERSION}
-} else:ldviewwgl {
-    POSTFIX  = WGL
-    SUFFIX  = -wgl
-} else:!win32-msvc* {
-    POSTFIX  = OSMesa
-    SUFFIX  = -osmesa
+msys {
+    BUILD   = MSYS $${BUILD}
 }
-
-message("~~~ $$upper($$LPUB3D) $$upper($$BUILD_ARCH) $${TYPE} $${BUILD} ON $$upper($$HOST) ~~~")
-
-!BUILD_LDV_LIBS {
-    #   Argument path - LP3D_3RD_DIST_DIR
-    !isEmpty(LP3D_3RD_DIST_DIR) {
-        THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
-    } else {
-    #   Environment variable path - LP3D_DIST_DIR_PATH
-        THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    }
-    #   Local path
-    isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( builds/3rdparty )
-    #   Default path
-    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-        else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
-        else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
-        else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-        THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( ../$$DIST_DIR )
-        !exists($$THIRD_PARTY_DIST_DIR_PATH): \
-        THIRD_PARTY_DIST_DIR_PATH="undefined"
-    }
-    VER_LDVIEW  = ldview-4.6
-    unix|msys: \
-    LIB_LDVIEW  = libTCFoundation$${SUFFIX}.a
-    else:win32-msvc*: \
-    LIB_LDVIEW  = TCFoundation$${SUFFIX}.lib
-    LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW}
-    !exists($${LIB_LDVIEW_PATH}) {
-        message("~~~ BUILD LDV LIBRARIES - NO LDVIEW LIBS AT $$dirname(LIB_LDVIEW_PATH) ~~~ ")
-        CONFIG += BUILD_LDV_LIBS
-    }
+static|staticlib {
+    TYPE    = STATIC
+} else {
+    TYPE    = SHARED
 }
+POSTFIX     = $${SUFFIX}
+
+message("~~~ $$upper($${LPUB3D}) $$upper($$BUILD_ARCH) $${TYPE} $${BUILD} ON $$upper($$HOST) ~~~")
 
 BUILD_LDV_LIBS {
-    USE_LDV_3RD_PARTY_LIBS:USE_LDV_SYSTEM_LIBS {
-        message("~~~ NOTICE 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'")
-        CONFIG -= USE_LDV_SYSTEM_LIBS
-    }
     USE_LDV_SYSTEM_LIBS:          WHICH_LIBS = SYSTEM
     else: USE_LDV_3RD_PARTY_LIBS: WHICH_LIBS = BUILT-FROM-SOURCE
     else:                         WHICH_LIBS = PRE-COMPILED
-    message("~~~ LDV LIBRARIES $$upper($$BUILD_ARCH) STATIC $${BUILD} ~~~")
-    message("~~~ LDV LIBRARIES USING $${POSTFIX} OPENGL AND $${WHICH_LIBS} 3RD PARTY LIBS ~~~")
-
-    # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
-    USE_LDV_3RD_PARTY_LIBS {
-        CONFIG += BUILD_3DS
-        CONFIG += BUILD_TINYXML
-        !USE_SYSTEM_JPEG: \
-        CONFIG += BUILD_JPEG
-        !USE_SYSTEM_PNG: \
-        CONFIG += BUILD_PNG
-        !USE_SYSTEM_GL2PS: \
-        CONFIG += BUILD_GL2PS
-        !USE_SYSTEM_MINIZIP: \
-        CONFIG += BUILD_MINIZIP
-        !USE_SYSTEM_ZLIB: \
-        CONFIG += BUILD_ZLIB
-    } else {
-        CONFIG += BUILD_TINYXML
-        win32-msvc*: \
-        CONFIG += BUILD_GL2PS
-        else: \
-        CONFIG += BUILD_3DS
-    }
-
-    OTHER_FILES += ldvlib/LDVQt/LDView/LDViewMessages.ini \
-                   ldvlib/LDVQt/LDView/LDExporter/LDExportMessages.ini
+    equals(NO_LDVIEW_DIST_LIBS, True): \
+    message("~~~ BUILD LDV LIBRARIES - NO LDVIEW LIBS AT $$dirname(LIB_LDVIEW_PATH) ~~~ ")
+    message("~~~ BUILD LDV LIBRARIES $$upper($${BUILD_ARCH}) STATIC $${BUILD} ~~~")
+    message("~~~ BUILD LDV LIBRARIES USING $${POSTFIX} OPENGL AND $${WHICH_LIBS} 3RD PARTY LIBS ~~~")
+    OTHER_FILES += \
+        ldvlib/LDVQt/LDView/LDViewMessages.ini \
+        ldvlib/LDVQt/LDView/LDExporter/LDExportMessages.ini
 }
-
-# Build 3rdParty Libraries'
 
 # Ubuntu Trusty uses libpng12 which is too old
 if (USE_LDV_SYSTEM_LIBS|BUILD_GL2PS):contains(HOST, Ubuntu):contains(HOST, 14.04.5) {
     CONFIG += BUILD_PNG
 }
 
-# always built (Except for MSVC) unless prebuilt instance specified...
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_ZLIB) {
-    SUBDIRS += 3rdParty_zlib
+BUILD_ZLIB {
+    SUBDIRS                  += 3rdParty_zlib
     3rdParty_zlib.file        = ldvlib/LDVQt/LDView/3rdParty/zlib/3rdParty_zlib.pro
     3rdParty_zlib.makefile    = Makefile.zlib
     3rdParty_zlib.target      = sub-3rdParty_zlib
     3rdParty_zlib.depends     =
 }
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_3DS) {
-    SUBDIRS += 3rdParty_3ds
+BUILD_3DS {
+    SUBDIRS                  += 3rdParty_3ds
     3rdParty_3ds.file         = ldvlib/LDVQt/LDView/3rdParty/lib3ds/3rdParty_3ds.pro
     3rdParty_3ds.makefile     = Makefile.3ds
     3rdParty_3ds.target       = sub-3rdParty_3ds
     3rdParty_3ds.depends      =
 }
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_JPEG) {
-    SUBDIRS += 3rdParty_jpeg
+BUILD_JPEG {
+    SUBDIRS                  += 3rdParty_jpeg
     3rdParty_jpeg.file        = ldvlib/LDVQt/LDView/3rdParty/libjpeg/3rdParty_jpeg.pro
     3rdParty_jpeg.makefile    = Makefile.jpeg
     3rdParty_jpeg.target      = sub-3rdParty_jpeg
     3rdParty_jpeg.depends     =
 }
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_PNG) {
-    SUBDIRS += 3rdParty_png
+BUILD_PNG {
+    SUBDIRS                  += 3rdParty_png
     3rdParty_png.file         = ldvlib/LDVQt/LDView/3rdParty/libpng/3rdParty_png.pro
     3rdParty_png.makefile     = Makefile.png
     3rdParty_png.target       = sub-3rdParty_png
     3rdParty_png.depends      =
 }
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_GL2PS) {
-    SUBDIRS += 3rdParty_gl2ps
+BUILD_GL2PS {
+    SUBDIRS                  += 3rdParty_gl2ps
     3rdParty_gl2ps.file       = ldvlib/LDVQt/LDView/3rdParty/gl2ps/3rdParty_gl2ps.pro
     3rdParty_gl2ps.makefile   = Makefile.gl2ps
     3rdParty_gl2ps.target     = sub-3rdParty_gl2ps
-    3rdParty_gl2ps.depends    = #3rdParty_png
+    3rdParty_gl2ps.depends    =
 }
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_TINYXML) {
-    SUBDIRS += 3rdParty_tinyxml
+BUILD_TINYXML {
+    SUBDIRS                  += 3rdParty_tinyxml
     3rdParty_tinyxml.file     = ldvlib/LDVQt/LDView/3rdParty/tinyxml/3rdParty_tinyxml.pro
     3rdParty_tinyxml.makefile = Makefile.tinyxml
     3rdParty_tinyxml.target   = sub-3rdParty_tinyxml
     3rdParty_tinyxml.depends  =
 }
-if (USE_LDV_3RD_PARTY_LIBS|BUILD_MINIZIP) {
-    SUBDIRS += 3rdParty_minizip
+BUILD_MINIZIP {
+    SUBDIRS                  += 3rdParty_minizip
     3rdParty_minizip.file     = ldvlib/LDVQt/LDView/3rdParty/minizip/3rdParty_minizip.pro
     3rdParty_minizip.makefile = Makefile.minizip
     3rdParty_minizip.target   = sub-3rdParty_minizip
@@ -308,30 +235,30 @@ if (USE_LDV_3RD_PARTY_LIBS|BUILD_MINIZIP) {
 
 # Build Qt/OSMesa/WGL LDView Libraries
 BUILD_LDV_LIBS {
-    SUBDIRS += \
-       TRE_$${POSTFIX} \
-       TCFoundation_$${POSTFIX} \
-       LDLib_$${POSTFIX} \
-       LDLoader_$${POSTFIX} \
-       LDExporter_$${POSTFIX} #\
-#       Headerize
+    SUBDIRS                          += \
+                                        TRE_$${POSTFIX} \
+                                        TCFoundation_$${POSTFIX} \
+                                        LDLib_$${POSTFIX} \
+                                        LDLoader_$${POSTFIX} \
+                                        LDExporter_$${POSTFIX} #\
+#                                        Headerize
 
     TRE_$${POSTFIX}.file              = ldvlib/LDVQt/LDView/TRE/TRE_$${POSTFIX}.pro
     TRE_$${POSTFIX}.makefile          = Makefile-tre.$$lower($${POSTFIX})
     TRE_$${POSTFIX}.target            = sub-TRE_$${POSTFIX}
-    if (USE_LDV_3RD_PARTY_LIBS|BUILD_GL2PS): \
+    BUILD_GL2PS: \
     TRE_$${POSTFIX}.depends           = 3rdParty_gl2ps
 
     TCFoundation_$${POSTFIX}.file     = ldvlib/LDVQt/LDView/TCFoundation/TCFoundation_$${POSTFIX}.pro
     TCFoundation_$${POSTFIX}.makefile = Makefile-tcfoundation.$$lower($${POSTFIX})
     TCFoundation_$${POSTFIX}.target   = sub-TCFoundation_$${POSTFIX}
-    USE_LDV_3RD_PARTY_LIBS: \
+    BUILD_MINIZIP: \
     TCFoundation_$${POSTFIX}.depends  = 3rdParty_minizip
 
     LDLib_$${POSTFIX}.file            = ldvlib/LDVQt/LDView/LDLib/LDLib_$${POSTFIX}.pro
     LDLib_$${POSTFIX}.makefile        = Makefile-ldlib.$$lower($${POSTFIX})
     LDLib_$${POSTFIX}.target          = sub-LDLib_$${POSTFIX}
-    if (USE_LDV_3RD_PARTY_LIBS|BUILD_GL2PS): \
+    BUILD_GL2PS: \
     LDLib_$${POSTFIX}.depends         = 3rdParty_gl2ps
 
     LDLoader_$${POSTFIX}.file         = ldvlib/LDVQt/LDView/LDLoader/LDLoader_$${POSTFIX}.pro
@@ -342,81 +269,77 @@ BUILD_LDV_LIBS {
     LDExporter_$${POSTFIX}.file       = ldvlib/LDVQt/LDView/LDExporter/LDExporter_$${POSTFIX}.pro
     LDExporter_$${POSTFIX}.makefile   = Makefile-ldexporter.$$lower($${POSTFIX})
     LDExporter_$${POSTFIX}.target     = sub-LDExporter_$${POSTFIX}
-    if (USE_LDV_3RD_PARTY_LIBS|BUILD_TINYXML): \
+    BUILD_TINYXML: \
     LDExporter_$${POSTFIX}.depends    = 3rdParty_tinyxml
 
-    # Headerize utility
     Headerize.file                    = ldvlib/LDVQt/LDView/Utilities/Headerize.pro
     Headerize.makefile                = Makefile-headerize.$$lower($${POSTFIX})
     Headerize.target                  = sub-Headerize
     Headerize.depends                 = TCFoundation_$${POSTFIX}
-    USE_LDV_3RD_PARTY_LIBS: \
+    BUILD_ZLIB: \
     Headerize.depends                += 3rdParty_zlib
 }
 
-SUBDIRS += ldrawini
-ldrawini.subdir   = ldrawini
-ldrawini.makefile = Makefile.ldrawini
-ldrawini.target   = sub-ldrawini
-ldrawini.depends  =
+SUBDIRS                   += ldrawini
+ldrawini.subdir            = ldrawini
+ldrawini.makefile          = Makefile.ldrawini
+ldrawini.target            = sub-ldrawini
+ldrawini.depends           =
 
-isEmpty(quazipnobuild) {
-    SUBDIRS += quazip
-    quazip.subdir   = quazip
-    quazip.makefile = Makefile.quazip
-    quazip.target   = sub-quazip
-    quazip.depends  =
-}
+SUBDIRS                   += quazip
+quazip.subdir              = quazip
+quazip.makefile            = Makefile.quazip
+quazip.target              = sub-quazip
+quazip.depends             =
 
-SUBDIRS += ldvqt_$${POSTFIX}
+SUBDIRS                   += ldvqt_$${POSTFIX}
 ldvqt_$${POSTFIX}.subdir   = ldvlib/LDVQt
 ldvqt_$${POSTFIX}.makefile = Makefile-ldvqt.$$lower($${POSTFIX})
 ldvqt_$${POSTFIX}.target   = sub-ldvqt_$${POSTFIX}
-ldvqt_$${POSTFIX}.depends  =
 BUILD_LDV_LIBS {
 ldvqt_$${POSTFIX}.depends  = TRE_$${POSTFIX} \
                              TCFoundation_$${POSTFIX} \
                              LDLib_$${POSTFIX} \
                              LDLoader_$${POSTFIX} \
-                             LDExporter_$${POSTFIX}
+                             LDExporter_$${POSTFIX} \
+                             3rdParty_tinyxml
 win32-msvc*: \
-ldvqt_$${POSTFIX}.depends += 3rdParty_gl2ps 3rdParty_tinyxml
+ldvqt_$${POSTFIX}.depends += 3rdParty_gl2ps
 else: \
 ldvqt_$${POSTFIX}.depends += 3rdParty_3ds
-}
+} # BUILD_LDV_LIBS
 
-SUBDIRS += wpngimage
-wpngimage.subdir   = ldvlib/WPngImage
-wpngimage.makefile = Makefile.wpngimage
-wpngimage.target   = sub-wpngimage
-wpngimage.depends  =
+SUBDIRS                   += wpngimage
+wpngimage.subdir           = ldvlib/WPngImage
+wpngimage.makefile         = Makefile.wpngimage
+wpngimage.target           = sub-wpngimage
+wpngimage.depends          =
 
-SUBDIRS += lclib
-lclib.subdir   = lclib
-lclib.makefile = Makefile.lclib
-lclib.target   = sub-lclib
-lclib.depends  =
+SUBDIRS                   += lclib
+lclib.subdir               = lclib
+lclib.makefile             = Makefile.lclib
+lclib.target               = sub-lclib
+lclib.depends              =
 
-SUBDIRS += waitingspinner
-waitingspinner.subdir   = waitingspinner
-waitingspinner.makefile = Makefile.waitingspinner
-waitingspinner.target   = sub-waitingspinner
-waitingspinner.depends  =
+SUBDIRS                   += waitingspinner
+waitingspinner.subdir      = waitingspinner
+waitingspinner.makefile    = Makefile.waitingspinner
+waitingspinner.target      = sub-waitingspinner
+waitingspinner.depends     =
 
-SUBDIRS += mainApp
-mainApp.subdir   = mainApp
-mainApp.makefile = Makefile.mainapp
-mainApp.target   = sub-mainapp
-isEmpty(quazipnobuild): \
-mainApp.depends  = quazip
-mainApp.depends += ldrawini
-mainApp.depends += lclib
-mainApp.depends += ldvqt_$${POSTFIX}
-mainApp.depends += wpngimage
-mainApp.depends += waitingspinner
+SUBDIRS                   += mainApp
+mainApp.subdir             = mainApp
+mainApp.makefile           = Makefile.mainapp
+mainApp.target             = sub-mainapp
+mainApp.depends            = quazip \
+                             ldrawini \
+                             lclib \
+                             ldvqt_$${POSTFIX} \
+                             wpngimage \
+                             waitingspinner
 
-RESOURCES += \
-    qsimpleupdater/etc/resources/qsimpleupdater.qrc \
-    mainApp/lpub3d.qrc
+RESOURCES                 += \
+                             qsimpleupdater/etc/resources/qsimpleupdater.qrc \
+                             mainApp/lpub3d.qrc
 
-msys: message("~~~ MSYS2 SYSTEM_PREFIX $${PREFIX} ~~~ ")
+msys: message("~~~ $$upper($${LPUB3D}) MSYS2 SYSTEM_PREFIX $${PREFIX} ~~~ ")

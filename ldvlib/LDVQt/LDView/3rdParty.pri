@@ -9,22 +9,9 @@ CONFIG  -= qt
 CONFIG  += warn_on
 CONFIG  += staticlib
 
-# fine-grained host identification
-win32:HOST = $$system(systeminfo | findstr /B /C:\"OS Name\")
-unix:!macx:HOST = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
-macx:HOST = $$system(echo `sw_vers -productName` `sw_vers -productVersion`)
-isEmpty(HOST):HOST = UNKNOWN HOST
-
-# platform switch
-BUILD_ARCH = $$(TARGET_CPU)
-isEmpty(BUILD_ARCH): \
-!contains(QT_ARCH, unknown): \
-BUILD_ARCH = $$QT_ARCH
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-    ARCH  = 64
-} else {
-    ARCH  = 32
-}
+# common directives
+COMMON = LDView
+include($${PWD}/../../../common.pri)
 
 # build type
 CONFIG(debug, debug|release) {
@@ -36,63 +23,18 @@ CONFIG(debug, debug|release) {
 }
 BUILD += BUILD ON $$upper($$HOST)
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $${PWD}
 !equals(TARGET, z) {
     !USE_SYSTEM_ZLIB {
-        INCLUDEPATH  += $$_PRO_FILE_PWD_/../zlib
+        INCLUDEPATH  += $${_PRO_FILE_PWD_}/../zlib
     } else {
-        INCLUDEPATH  += $$_PRO_FILE_PWD_/../../include   # for zlib.h and zconf.h
+        INCLUDEPATH  += $${_PRO_FILE_PWD_}/../../include   # for zlib.h and zconf.h
     }
 }
 
 # USE GNU_SOURCE
 unix|msys:!macx: \
 DEFINES += _GNU_SOURCE
-
-# USE CPP 11
-contains(USE_CPP11,NO) {
-    message("~~~ DO NOT USE CPP11 SPECIFIED ~~~")
-} else {
-    DEFINES += USE_CPP11
-}
-
-contains(QT_VERSION, ^5\\..*) {
-    unix|msys:!macx {
-        GCC_VERSION = $$system(g++ -dumpversion)
-        greaterThan(GCC_VERSION, 4.8) {
-            QMAKE_CXXFLAGS += -std=c++11
-        } else {
-            QMAKE_CXXFLAGS += -std=c++0x
-        }
-    }
-}
-
-contains(QT_VERSION, ^6\\..*) {
-    win32-msvc* {
-        QMAKE_CXXFLAGS += /std:c++17
-    }
-    macx {
-        QMAKE_CXXFLAGS+= -std=c++17
-    }
-    unix|msys:!macx {
-        GCC_VERSION = $$system(g++ -dumpversion)
-        greaterThan(GCC_VERSION, 5) {
-            QMAKE_CXXFLAGS += -std=c++17
-        } else {
-            QMAKE_CXXFLAGS += -std=c++0x
-        }
-    }
-}
-
-unix|msys {
-    EXT_S = a
-    macx: \
-    EXT_D = dylib
-    else:msys: \
-    EXT_D = dll
-    else: \
-    EXT_D = so
-}
 
 win32-msvc* {
     DEFINES += \
@@ -104,12 +46,9 @@ win32-msvc* {
         /wd4675
     QMAKE_LFLAGS += \
     -Wl,--allow-multiple-definition
-
-    EXT_S = lib
-    EXT_D = dll
 }
 
-OBJECTS_DIR   = $$DESTDIR/.obj
+OBJECTS_DIR   = $${DESTDIR}/.obj
 win32: \
 QMAKE_EXT_OBJ = .obj
 
