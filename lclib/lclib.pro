@@ -21,6 +21,9 @@ VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
+# common directives
+include(../common.pri)
+
 win32:macx: \
 GAMEPAD {
     qtHaveModule(gamepad) {
@@ -91,107 +94,21 @@ if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 #~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-VER_LDVIEW  = ldview-4.6
-
-# 3rd party libraries, executables, documentation and resources.
-!isEmpty(LP3D_3RD_DIST_DIR): \
-THIRD_PARTY_DIST_DIR_PATH     = $$LP3D_3RD_DIST_DIR
-else: \
-THIRD_PARTY_DIST_DIR_PATH     = $$(LP3D_DIST_DIR_PATH)
-isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( ../builds/3rdparty )
-!exists($$THIRD_PARTY_DIST_DIR_PATH) {
-    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-    else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
-    else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
-    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( ../../$$DIST_DIR )
-    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        message("~~~ ERROR lib$${TARGET}: - THIRD_PARTY_DIST_DIR_PATH (LCLIB) WAS NOT FOUND! ~~~ ")
-        THIRD_PARTY_DIST_DIR_PATH="undefined"
-    }
-}
-
-# LDVQT Qt/OSMesa/WGL library identifiers
-ldviewqt {
-    CONFIG  += CUI_QT
-    POSTFIX  = -qt$${QT_MAJOR_VERSION}
-} else:ldviewwgl {
-    CONFIG  += CUI_WGL
-    POSTFIX  = -wgl
-} else:!win32-msvc* {
-    CONFIG  += OSMesa
-    POSTFIX  = -osmesa
-}
-
-!BUILD_LDV_LIBS {
-    unix|msys: \
-    LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
-    else:win32-msvc*: \
-    LIB_LDVIEW  = TCFoundation$${POSTFIX}.lib
-    LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH}
-    !exists($${LIB_LDVIEW_PATH}): \
-    CONFIG += BUILD_LDV_LIBS
-}
-
 BUILD_LDV_LIBS {
     VER_LDVIEW_DIR_PATH = $$absolute_path( ../ldvlib/LDVQt/LDView )
     VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DIR_PATH}/include
     INCLUDEPATH += $$VER_LDVIEW_DIR_PATH $$VER_LDVIEW_INCLUDE
 } else {
+    equals(VER_USE_LDVIEW_DEV,True): \
+    VER_LDVIEW_INCLUDE = $${VER_LDVIEW_DEV_REPOSITORY}
+    else: \
     VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-    CONFIG(debug, debug|release) {
-        unix|msys:        VER_LDVIEW_DEV = ldview           # change this as necessary
-        else:win32-msvc*: VER_LDVIEW_DEV = ldview_vs_build  # change this as necessary
-        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( ../../$${VER_LDVIEW_DEV} )
-        exists($$VER_LDVIEW_DEV_REPOSITORY): \
-        VER_LDVIEW_INCLUDE = $$VER_LDVIEW_DEV_REPOSITORY
-    }
     INCLUDEPATH += $$VER_LDVIEW_INCLUDE
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# platform switch
-BUILD_ARCH   = $$(TARGET_CPU)
-!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-    ARCH  = 64
-} else {
-    ARCH  = 32
-}
-
 DEFINES += LC_DISABLE_UPDATE_CHECK=1
-
-equals(QT_MAJOR_VERSION, 5) {
-    win32-msvc* {
-        QMAKE_CXXFLAGS += /std:c++17
-    } else:unix|msys {
-        greaterThan(QT_MINOR_VERSION, 11) {
-            CONFIG += c++17
-        } else {
-            QMAKE_CXXFLAGS += -std=c++17
-        }
-    }
-}
-
-contains(QT_VERSION, ^6\\..*) {
-    win32-msvc* {
-        QMAKE_CXXFLAGS += /std:c++17
-    }
-    macx {
-        QMAKE_CXXFLAGS+= -std=c++17
-    }
-    if (unix|msys):!macx {
-        GCC_VERSION = $$system(g++ -dumpversion)
-        greaterThan(GCC_VERSION, 5) {
-            QMAKE_CXXFLAGS += -std=c++17
-        } else {
-            QMAKE_CXXFLAGS += -std=c++0x
-        }
-    }
-}
 
 # Indicate build type
 staticlib {

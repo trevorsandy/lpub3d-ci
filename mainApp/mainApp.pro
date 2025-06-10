@@ -29,6 +29,7 @@ greaterThan(QT_MAJOR_VERSION, 5) {
 CONFIG(debug, debug|release) { LPUB3D = $${TARGET}d } else { LPUB3D = $${TARGET} }
 
 include(../gitversion.pri)
+include(../common.pri)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -98,47 +99,8 @@ DIST_TARGET = $${TARGET}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HOST_VERSION   = $$(PLATFORM_VER)
-BUILD_TARGET   = $$(TARGET_VENDOR)
-BUILD_ARCH     = $$(TARGET_CPU)
-
-# platform architecture, name and version fallback
-!contains(QT_ARCH, unknown): BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH):   BUILD_ARCH = $$system(uname -m)
-isEmpty(BUILD_ARCH):         BUILD_ARCH = UNKNOWN ARCH
-isEmpty(BUILD_TARGET) {
-    msys:BUILD_TARGET = MSYS2
-    win32-msvc*:BUILD_TARGET = $$system(systeminfo | findstr /B /C:\"OS Name\")
-    unix:!macx:BUILD_TARGET = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
-    macx:BUILD_TARGET = $$system(echo `sw_vers -productName`)
-}
-isEmpty(HOST_VERSION) {
-    win32-msvc*:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
-    unix:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
-    macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
-    mingw:ide_qtcreator:HOST_VERSION = MinGW_2025
-    else:msys:HOST_VERSION = $$system(VER=$(echo $(uname -a) | grep -oP \"\b\d{4}-\d{2}-\d{2}\b\") && echo ${MSYSTEM}_${VER//-/.})
-}
-
 message("~~~ $${LPUB3D} $$upper($${TARGET}) $$upper($$QT_ARCH) BUILD: $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
-
-# for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-    ARCH     = 64
-    STG_ARCH = x86_64
-    LIB_ARCH = 64
-} else {
-    ARCH     = 32
-    STG_ARCH = x86
-    LIB_ARCH =
-}
-
-# define chipset
-if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)): \
-CHIPSET  = ARM
-else: \
-CHIPSET  = AMD
 
 DEFINES += VER_ARCH=\\\"$$ARCH\\\"
 DEFINES += VER_CHIPSET=\\\"$$CHIPSET\\\"
@@ -149,91 +111,18 @@ DEFINES += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-VER_LDVIEW  = ldview-4.6
-VER_LDGLITE = ldglite-1.3
-VER_POVRAY  = lpub3d_trace_cui-3.8
 DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
 DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
 DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
+!freebsd: \
+DEFINES    += EXPORT_3DS
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 INCLUDEPATH += . ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
 DEPENDPATH  += .
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32 {
-    SYSTEM_PREFIX_ = $${PREFIX}
-} else {
-    # System libraries - on Unix, change to or add /usr/local if you want
-    macx:contains(QT_ARCH,arm64): \
-    SYSTEM_PREFIX_ = /opt/homebrew
-    else: \
-    SYSTEM_PREFIX_ = $${PREFIX}/usr/local
-}
-
-#~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# - Set enviroinment variable LP3D_DIST_DIR_PATH as needed.
-# - 3rd party libraries, executables, documentation and resources.
-# - When building on macOS, it is necessary to add CONFIG+=dmg at
-#   Projects/Build Steps/Qmake/'Additional arguments' because,
-#   macOS build will also bundle all deliverables.
-
-#   Argument path - LP3D_3RD_DIST_DIR
-!isEmpty(LP3D_3RD_DIST_DIR) {
-    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
-    3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
-} else {
-#   Environment variable path - LP3D_DIST_DIR_PATH
-    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
-}
-#   Local path
-isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-THIRD_PARTY_DIST_DIR_PATH     = $$absolute_path( ../builds/3rdparty )
-exists($$THIRD_PARTY_DIST_DIR_PATH): \
-3RD_DIR_SOURCE = LOCAL_3RD_DIST_DIR
-else {
-    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-    else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
-    else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
-    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( ../../$$DIST_DIR )
-    exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
-    } else {
-        3RD_DIR_SOURCE_UNSPECIFIED = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
-        THIRD_PARTY_DIST_DIR_PATH="undefined"
-    }
-    3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
-}
-
 #~~ LDVQt paths ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# LDVQT Qt/OSMesa/WGL library identifiers
-ldviewqt {
-    CONFIG  += CUI_QT
-    POSTFIX  = -qt$${QT_MAJOR_VERSION}
-} else:ldviewwgl {
-    CONFIG  += CUI_WGL
-    POSTFIX  = -wgl
-} else:!win32-msvc* {
-    CONFIG  += OSMesa
-    POSTFIX  = -osmesa
-}
-
-!BUILD_LDV_LIBS {
-    unix|msys: \
-    LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
-    else:win32-msvc*: \
-    LIB_LDVIEW  = TCFoundation$${POSTFIX}.lib
-    LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH}
-    !exists($${LIB_LDVIEW_PATH}): \
-    CONFIG += BUILD_LDV_LIBS
-}
 
 LDV_LDVQT_DIR               = $$absolute_path( ../ldvlib/LDVQt )
 BUILD_LDV_LIBS {
@@ -249,69 +138,25 @@ BUILD_LDV_LIBS {
     LDV_EXPORT_RESOURCE_DIR = $${LDV_LDVIEW_RESOURCE_DIR}
 }
 
-#~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-CONFIG(debug, debug|release) {
-    VER_USE_LDVIEW_DEV = False
-    # These lines requires a git extract of ldview at the same location as the lpub3d git extract
-    # and defines the ldview git extract folder name, you can set as you like
-    mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
-    else:unix|msys:      VER_LDVIEW_DEV = ldview
-    else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
-    BUILD_LDV_LIBS {
-        VER_USE_LDVIEW_DEV = False
-    } else {
-        # This line defines the path of the ldview git extract relative to this project file
-        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( ../../$${VER_LDVIEW_DEV} )
-        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-        exists($$VER_LDVIEW_DEV_REPOSITORY) {
-            VER_USE_LDVIEW_DEV = True
-        } else {
-            message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-        }
-    }
-}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LDV_MESSAGES_INI = ldvMessages.ini
-!freebsd: \
-DEFINES += EXPORT_3DS
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# USE CPP 11
-contains(USE_CPP11,NO) {
-    message("NO CPP11")
-} else {
-    DEFINES += USE_CPP11
-}
-
-# Greater than or equal to Qt 5.4
-greaterThan(QT_MAJOR_VERSION, 4): \
-greaterThan(QT_MINOR_VERSION, 3) {
-    win32-msvc* {
-        QMAKE_CXXFLAGS += /std:c++17
-    } else:unix|msys {
-        greaterThan(QT_MINOR_VERSION, 11) {
-            CONFIG += c++17
-        } else {
-            QMAKE_CXXFLAGS += -std=c++17
-        }
-    }
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-static {                                     # everything below takes effect with CONFIG ''= static
+static {                                # everything below takes effect with CONFIG ''= static
     BUILD    = Static
     DEFINES += STATIC
     unix|msys: \
     DEFINES += _TC_STATIC
     DEFINES += QUAZIP_STATIC
-    QMAKE_LFLAGS += -static                  # same as LIBS += -static
-    macx:        TARGET = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
-    win32-msvc*: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
+    QMAKE_LFLAGS += -static             # same as LIBS += -static
+    macx: \
+    TARGET   = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
+    win32-msvc*: \
+    TARGET   = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 } else {
-    BUILD   = Shared
+    BUILD    = Shared
     msys: \
     CONFIG  -= static
 }
@@ -543,21 +388,6 @@ INCLUDEPATH += $${SYSTEM_PREFIX_}/include
 
 # 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
 INCLUDEPATH += ../quazip
-
-#~~ extensions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-win32-msvc* {
-    EXT_S = lib
-    EXT_D = dll
-} else {
-    EXT_S = a
-    msys: \
-    EXT_D = dll
-    else:macx: \
-    EXT_D = dylib
-    else: \
-    EXT_D = so
-}
 
 #~~ includes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
