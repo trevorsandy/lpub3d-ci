@@ -29,16 +29,9 @@ VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
-BUILD_ARCH   = $$(TARGET_CPU)
-!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-    ARCH     = 64
-    STG_ARCH = x86_64
-} else {
-    ARCH     = 32
-    STG_ARCH = x86
-}
+# common directives
+include(../common.pri)
+
 
 win32 {
 
@@ -80,36 +73,6 @@ win32 {
 }
 
 if (unix|msys):!macx: TARGET = $$lower($$TARGET)
-
-contains(QT_VERSION, ^5\\..*) {
-  if (unix|msys):!macx {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 4.8) {
-      QMAKE_CXXFLAGS += -std=c++11
-    } else {
-      QMAKE_CXXFLAGS += -std=c++0x
-    }
-  }  else {
-    CONFIG += c++11
-  }
-}
-
-contains(QT_VERSION, ^6\\..*) {
-  win32-msvc* {
-    QMAKE_CXXFLAGS += /std:c++17
-  }
-  macx {
-    QMAKE_CXXFLAGS+= -std=c++17
-  }    
-  if (unix|msys):!macx {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 5) {
-      QMAKE_CXXFLAGS += -std=c++17
-    } else {
-      QMAKE_CXXFLAGS += -std=c++0x
-    }
-  }
-}
 
 # You'll need to define this one manually if using a build system other
 # than qmake or using QuaZIP sources directly in your project.

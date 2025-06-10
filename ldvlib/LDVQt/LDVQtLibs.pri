@@ -1,55 +1,13 @@
-win32-msvc* {
-    BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
-    isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
-    lessThan(BUILD_WORKER_VERSION, 2019) {
-        VSVER=vs2015
-    } else {
-        contains(QT_ARCH,i386): VSVER=vs2017
-        else: VSVER=vs2019
-    }
-    !contains(LOAD_LDV_LIBS,True) {
-        message("~~~ lib$${TARGET} BUILD WORKER: Visual Studio $$BUILD_WORKER_VERSION ~~~")
-        message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS LIBRARY VERSION: $$VSVER ~~~")
-    }
-}
-
-# Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
-BUILD_LDV_LIBS {
-    USE_LDV_3RD_PARTY_LIBS {
-        CONFIG += BUILD_3DS
-        CONFIG += BUILD_TINYXML
-        !USE_SYSTEM_JPEG: \
-        CONFIG += BUILD_JPEG
-        !USE_SYSTEM_PNG: \
-        CONFIG += BUILD_PNG
-        !USE_SYSTEM_GL2PS: \
-        CONFIG += BUILD_GL2PS
-        !USE_SYSTEM_MINIZIP: \
-        CONFIG += BUILD_MINIZIP
-        !USE_SYSTEM_ZLIB: \
-        CONFIG += BUILD_ZLIB
-    } else {
-        CONFIG += BUILD_TINYXML
-        win32-msvc*: \
-        CONFIG += BUILD_GL2PS
-        else: \
-        CONFIG += BUILD_3DS
-    }
-}
-
-isEmpty(VER_LDVIEW): \
-VER_LDVIEW = ldview-4.6
-
 # ==LDVQt LOAD_LDV_HEADERS=====================
 
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     BUILD_LDV_LIBS {
-        VER_LDVIEW_DIR_PATH = LDView
-        VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DIR_PATH}
+        VER_LDVIEW_DIR_PATH    = LDView
+        VER_LDVIEW_INCLUDE     = $${VER_LDVIEW_DIR_PATH}
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
     } else {
-        VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+        VER_LDVIEW_INCLUDE     = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
     }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
