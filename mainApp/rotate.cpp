@@ -28,7 +28,6 @@
 #include "paths.h"
 #include "render.h"
 #include "ldrawfiles.h"
-#include <LDVQt/LDVImageMatte.h>
 
 
 /*****************************************************************************
@@ -208,7 +207,6 @@ int Render::rotateParts(
   bool ldvFunction     = option == DT_LDV_FUNCTION || Gui::m_partListCSIFile;
   bool doFadeStep      = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !Gui::suppressColourMeta();
-  bool doImageMatting  = Preferences::enableImageMatting;
   bool nativeRenderer  = option == DT_MODEL_COVER_PAGE_PREVIEW || (Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction);
   bool singleSubfile   = isSingleSubfile(parts);
   Options::Mt imageType = static_cast<Options::Mt>(type);
@@ -218,9 +216,6 @@ int Render::rotateParts(
   // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
   if (!nativeRenderer || (nativeRenderer && !singleSubfile))
       rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
-
-  // intercept rotatedParts for imageMatting
-  QStringList imageMatteParts = rotatedParts;
 
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
@@ -271,23 +266,6 @@ int Render::rotateParts(
       out << line << lpub_endl;
   }
   file.close();
-
-  // Split Image Matte ldr file
-  if (doFadeStep && doImageMatting) {
-      QString csiKey,csiFile;
-      if (!useLDViewSCall()) {
-          csiKey = modelName; // use modelName to pass in csiKey from LDView::renderCli when not SingleCall
-        } else {
-          csiFile = QString("%1/%2/%3")
-                            .arg(QDir::currentPath())
-                            .arg(Paths::assemDir)
-                            .arg(QString(QFileInfo(ldrName).fileName()).replace(".ldr",".png"));
-          csiKey = LDVImageMatte::getMatteCSIImage(csiFile);
-        }
-      if (LDVImageMatte::validMatteCSIImage(csiKey)) {
-          return splitIMParts(imageMatteParts,rotsComment,ldrName,csiKey);
-       }
-    }
 
   return 0;
 }
@@ -799,9 +777,6 @@ int Render::splitIMParts(const QStringList &rotatedParts,
        // delete files
        currLdrFile.remove();
        prevLdrFile.remove();
-
-       // remove key from LDVImageMatte
-       LDVImageMatte::removeMatteCSIImage(csiKey);
 
    } else {
 

@@ -560,47 +560,6 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
-            <item row="2" column="3">
-             <spacer name="highlightStepSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>82</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="highlightStepColorLabel">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>50</width>
-                <height>23</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::Panel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Sunken</enum>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="1" colspan="3">
              <widget class="QPushButton" name="highlightStepBtn">
               <property name="enabled">
@@ -614,13 +573,6 @@
               </property>
               <property name="text">
                <string>Highlight Color...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="4">
-             <widget class="QCheckBox" name="highlightFirstStepBox">
-              <property name="text">
-               <string>Highlight First Step</string>
               </property>
              </widget>
             </item>
@@ -650,48 +602,66 @@
               </property>
              </widget>
             </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QGroupBox" name="imageMatteGrpBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>This feature is not currently available</string>
-           </property>
-           <property name="title">
-            <string>Enable Image Matting</string>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_22">
-            <item>
-             <widget class="QCheckBox" name="imageMattingChk">
+            <item row="0" column="0" colspan="4">
+             <widget class="QCheckBox" name="highlightFirstStepBox">
+              <property name="text">
+               <string>Highlight First Step</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="highlightStepColorLabel">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="toolTip">
-               <string>Future use</string>
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>23</height>
+               </size>
               </property>
-              <property name="statusTip">
-               <string/>
+              <property name="frameShape">
+               <enum>QFrame::Panel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Sunken</enum>
               </property>
               <property name="text">
-               <string>True Fade Image Matting</string>
+               <string/>
               </property>
              </widget>
+            </item>
+            <item row="2" column="3">
+             <spacer name="highlightStepSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>82</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="2">
+             <spacer name="verticalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -3883,7 +3853,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>highlightFirstStepBox</tabstop>
   <tabstop>highlightStepBtn</tabstop>
   <tabstop>highlightStepLineWidthSpin</tabstop>
-  <tabstop>imageMattingChk</tabstop>
   <tabstop>pliControlGrpBox</tabstop>
   <tabstop>pliControlEdit</tabstop>
   <tabstop>browsePli</tabstop>

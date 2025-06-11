@@ -44,7 +44,6 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 #include "lc_application.h"
-#include <LDVQt/LDVImageMatte.h>
 
 /*********************************************************************
  *
@@ -324,6 +323,11 @@ int Step::createCsi(
       // add LDView parms to csiKey if not empty
       if (!ldviewParms.value().isEmpty())
           csiKey.append(QString("|%1").arg(ldviewParms.value()));
+      // ImageMatte was removed on 11-06-2025. The nameAndStepKey was used as the
+      // imageMatteArgsKey by LDView::renderCsi when useLdViewSCall is enabled.
+      // See Step::createCsi(...): // split snapshot and additional renderer keys
+      // I am leaving the nameAndStepKey in place because I have not confirmed
+      // that it is not used by some other renderer capability.
   }
   // add NameAndStepKey
   else {
@@ -368,13 +372,6 @@ int Step::createCsi(
       if (imagePathCritical)
           return HitAbortProcess;
   }
-
-  // add csiKey and pngName to ImageMatte repository - exclude first step
-
-  if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
-      if (!LDVImageMatte::validMatteCSIImage(nameAndStepKey))
-          LDVImageMatte::insertMatteCSIImage(nameAndStepKey, pngName);
-    }
 
   // Check if png file date modified is older than model file (on the stack) date modified
   csiOutOfDate = false;
