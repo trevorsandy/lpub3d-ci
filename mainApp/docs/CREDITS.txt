@@ -74,10 +74,6 @@ QSimpleUpdater 2.0 a3e9ef2
 https://github.com/alex-spataru/QSimpleUpdater
 Alex Spataru
 
-WPngImage 1.4.0
-https://github.com/WarpRules/WPngImage
-Juha Nieminen
-
 LDraw.ini / ldglite
 Lars C. Hassing <SP.lars@AM.hassings.dk>
 

@@ -536,7 +536,6 @@ bool    Preferences::buildModEnabled            = false;
 bool    Preferences::enableFadeSteps            = false;
 bool    Preferences::fadeStepsUseColour         = false;
 bool    Preferences::enableHighlightStep        = false;
-bool    Preferences::enableImageMatting         = false;
 
 bool    Preferences::sceneRuler                 = false;
 bool    Preferences::sceneGuides                = false;
@@ -2881,15 +2880,6 @@ void Preferences::rendererPreferences()
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
-    // Image matting [future use]
-    QString const enableImageMattingKey("EnableImageMatting");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableImageMattingKey))) {
-        QVariant uValue(enableImageMatting);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableImageMattingKey),uValue);
-    } else {
-        enableImageMatting = Settings.value(QString("%1/%2").arg(SETTINGS,enableImageMattingKey)).toBool();
-    }
-
     // Write config files
     logInfo() << qUtf8Printable(QObject::tr("Processing renderer configuration files..."));
 
@@ -3289,7 +3279,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
             // set AutoCrop=0
 //            if (line.contains(QRegExp("^AutoCrop="))) {
 //                line.clear();
-//                line = QString("AutoCrop=%1").arg((enableFadeSteps && enableImageMatting) ? 0 : 1);
+//                line = QString("AutoCrop=1");
 //            }
             logInfo() << qUtf8Printable(QObject::tr("LDView.ini OUT: %1").arg(line));
             output << line << lpub_endl;
@@ -5759,17 +5749,6 @@ bool Preferences::getPreferences()
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight First Step is %1")
                                   .arg(highlightFirstStep ? On : Off));
-        }
-
-        if ((reloadFile |= enableImageMatting != dialog->enableImageMatting()))
-        {
-            enableImageMatting = dialog->enableImageMatting();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableImageMatting"),enableImageMatting);
-            if (enableImageMatting)
-                updateLDViewIniFile(UpdateExisting);       // strip AutoCrop [disabled]
-
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Enable image matting is %1")
-                                  .arg(enableImageMatting ? On : Off));
         }
 
         if ((reloadFile |= preferCentimeters != dialog->centimeters()))

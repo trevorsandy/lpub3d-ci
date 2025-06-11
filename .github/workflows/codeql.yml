@@ -19,7 +19,6 @@ on:
       - 'lclib/docs/**'
       - 'lclib/resources/**'
       - 'ldvlib/LDVQt/resources/**'
-      - 'ldvlib/WPngImage/**'
       - 'qsimpleupdater/doc/**'
       - 'qsimpleupdater/etc/**'
 
