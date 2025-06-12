@@ -317,3 +317,87 @@ equals(QT_MAJOR_VERSION, 6) {
 	    CONFIG += c++17
     }
 }
+
+#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+win32 {
+    CONFIG                     += windows
+    CONFIG                     += force_debug_info
+    DEFINES                    += _CRT_SECURE_NO_WARNINGS \
+                                  _CRT_SECURE_NO_DEPRECATE=1 \
+                                  _CRT_NONSTDC_NO_WARNINGS=1
+win32-msvc* {
+    QMAKE_CXXFLAGS_RELEASE     += /FI winsock2.h /FI winsock.h
+    QMAKE_CFLAGS_WARN_ON       -= -W3
+    QMAKE_ADDL_MSVC_FLAGS       = -WX- -GS -Gd -fp:precise -Zc:forScope
+    CONFIG(debug, debug|release) {
+        QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
+        QMAKE_CFLAGS_WARN_ON   += -W4 -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701" -wd"4714" -wd"4305" -wd"4099"
+        QMAKE_CFLAGS_DEBUG     += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        QMAKE_CXXFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+    }
+    CONFIG(release, debug|release) {
+        QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
+        QMAKE_CFLAGS_OPTIMIZE  += -Ob1 -Oi -Ot
+        QMAKE_CFLAGS_WARN_ON   += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
+        QMAKE_CFLAGS_RELEASE   += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+    }
+    QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+} # win32-msvc*
+} # win32
+
+if (unix|msys) {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wall -W \
+    -Wno-deprecated-declarations \
+    -Wno-unknown-pragmas \
+    -Wno-unused-result
+QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-copy \
+    -Wno-overloaded-virtual
+} # unix|msys
+if (unix|msys):!macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-clobbered \
+    -Wno-comment \
+    -Wno-format \
+    -Wno-format-security \
+    -Wno-implicit-fallthrough \
+    -Wno-parentheses \
+    -Wno-return-type \
+    -Wno-sign-compare \
+    -Wno-strict-aliasing \
+    -Wno-stringop-overflow \
+    -Wno-stringop-truncation \
+    -Wno-switch \
+    -Wno-uninitialized \
+    -Wno-unused-but-set-variable \
+    -Wno-unused-parameter \
+    -Wno-unused-variable
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-class-memaccess  \
+    -Wno-type-limits    
+CUI_WGL: \
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-missing-field-initializers
+msys {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-attributes \
+    -Wno-calloc-transposed-args
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-cast-function-type \
+    -Wno-conversion-null \
+    -Wno-cpp \
+    -Wno-maybe-uninitialized \
+    -Wno-template-id-cdtor
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-implicit-function-declaration \
+    -Wno-incompatible-pointer-types \
+    -Wno-misleading-indentation
+} else {
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+} # msys
+} # unix|msys:!macx
