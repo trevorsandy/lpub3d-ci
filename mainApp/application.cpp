@@ -774,7 +774,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 m_print_output = true;
                 int rev = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fprintf(stdout, "%s", qUtf8Printable(tr("\n%1, %2 %3%4, Commit %5, SHA %6\n").arg(VER_PRODUCTNAME_STR).arg(VER_BUILD_TYPE_STR).arg(VER_PRODUCTVERSION_STR).arg(rev ? tr(", Revision %1").arg(VER_REVISION_STR) : "").arg(VER_COMMIT_STR).arg(VER_GIT_SHA_STR)));
-                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled on %1\n").arg(__DATE__)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled with Qt %1 on %2, running with Qt %3\n").arg(QT_VERSION_STR).arg(__DATE__).arg(qVersion())));
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
@@ -791,7 +791,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 m_console_mode = true;
                 m_print_output = true;
                 fprintf(stdout, "%s", qUtf8Printable(tr("Visual Editor - by LeoCAD, Version %1, SHA %2\n").arg(LC_VERSION_TEXT).arg(LC_VERSION_SHA)));
-                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled %1\n").arg(__DATE__)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled with Qt %1 on %2, running with Qt %3\n").arg(QT_VERSION_STR).arg(__DATE__).arg(qVersion())));
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
