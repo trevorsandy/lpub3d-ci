@@ -17,6 +17,7 @@
 #  - UPDATE_SH=false - update overwrite this script when building in local Docker
 #  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
 #  - XSERVER=false - use Docker host XMing/XSrv XServer
+#  - LP3D_LOG_PATH=~/logs - log path
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
@@ -33,6 +34,7 @@ cp -rf /user/resources/builds/linux/CreatePkg.sh . \
 && export LP3D_ARCH=amd64 \
 && export LP3D_BASE=arch \
 && export LOCAL_RESOURCE_PATH=/user/resources \
+&& export LP3D_LOG_PATH=${HOME}/logs \
 && export XSERVER=false \
 && chmod a+x CreatePkg.sh \
 && ./CreatePkg.sh \
@@ -110,7 +112,7 @@ fi
 export LP3D_LOG_PATH
 
 if [ "${XSERVER}" = "true" ]; then
-        if test "${LOCAL}" != "true"; then export XSERVER=; fi
+    if test "${LOCAL}" != "true"; then export XSERVER=; fi
 fi
 
 # tell curl to be silent, continue downloads and follow redirects
@@ -118,24 +120,25 @@ curlopts="-sL -C -"
 
 echo "Start $ME execution at $CWD..."
 
-echo "   LPUB3D SOURCE DIR......${LPUB3D}"
-echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
-echo "   LPUB3D BUILD BRANCH....${BUILD_BRANCH}"
-echo "   LPUB3D BUILD PLATFORM..$([ "$DOCKER" = "true" ] && echo "DOCKER" || echo "HOST RUNNER")"
+echo "   LPUB3D SOURCE DIR........${LPUB3D}"
+echo "   LPUB3D BUILD ARCH........${LP3D_ARCH}"
+echo "   LPUB3D BUILD BRANCH......${BUILD_BRANCH}"
+echo "   LPUB3D BUILD PLATFORM....$([ "$DOCKER" = "true" ] && echo "DOCKER" || echo "HOST RUNNER")"
 if [ "$LOCAL" = "true" ]; then
-    echo "   LPUB3D BUILD TYPE......Local"
-    echo "   LPUB3D BUILD DISPLAY...$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
-    echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
+    echo "   LPUB3D BUILD TYPE........Local"
+    echo "   LPUB3D BUILD DISPLAY.....$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
+    echo "   UPDATE BUILD SCRIPT......$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
-        echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
+        echo "   LOCAL_RESOURCE_PATH......${LOCAL_RESOURCE_PATH}"
     else
         echo "ERROR - LOCAL_RESOURCE_PATH was not specified. $ME will terminate."
         exit 1
     fi
 else
-    echo "   LPUB3D BUILD TYPE......CI"
+    echo "   LPUB3D BUILD TYPE........CI"
 fi
-echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo "   PRESERVE BUILD REPO......$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo "   LOG PATH.................${LP3D_LOG_PATH}"
 
 echo "1. create PKG working directories in pkgbuild/"
 UPSTREAM_DIR=pkgbuild/upstream
