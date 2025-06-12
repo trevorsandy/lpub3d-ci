@@ -12,6 +12,10 @@ UPDATE_SH=${UPDATE_SH:-true}
 XSERVER=${XSERVER:-false}
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 DEB_EXT=${DEB_EXTENSION:-$LP3D_ARCH.Deb}
+LPUB3D_BRANCH=${LPUB3D_BRANCH:-master}
+LDGLITE_BRANCH=${LDGLITE_BRANCH:-master}
+LDVIEW_BRANCH=${LDVIEW_BRANCH:-lpub3d-build}
+POVRAY_BRANCH=${POVRAY_BRANCH:-lpub3d/raytracer-cui}
 LOCAL_PATH=${LOCAL_RESOURCE_PATH:-${HOME}/resources}
 LOG_PATH=${LP3D_LOG_PATH:-${HOME}/resources/logs}
 WORK_PATH=${WORK_PATH:-${HOME}}
@@ -37,6 +41,10 @@ function ShowHelp() {
     echo " - XSERVER=$XSERVER - use Docker host XMing/XSrv XServer"
     echo " - LP3D_ARCH=$LP3D_ARCH - set build architecture"
     echo " - DEB_EXTENSION=$DEB_EXT - distribution file suffix"
+    echo " - LPUB3D_BRANCH=$LPUB3D_BRANCH - repository branch to be built"
+    echo " - LDGLITE_BRANCH=$LDGLITE_BRANCH - repository branch to be built"
+    echo " - LDVIEW_BRANCH=$LDVIEW_BRANCH - repository branch to be built"
+    echo " - POVRAY_BRANCH=$POVRAY_BRANCH - repository branch to be built"
     echo " - LOCAL_RESOURCE_PATH=$LOCAL_RESOURCE_PATH - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located"
     echo " - LP3D_LOG_PATH=$LP3D_LOG_PATH - log path"
     echo " - WORK_PATH=$WORK_PATH - work directory"
@@ -75,6 +83,10 @@ function ShowOptions ()
     echo "EXPORT_ARTIFACTS.[$([ "${EXPORT_ARTIFACTS}" -eq 1 ] && echo "Yes" || echo "No")]"
     [ "$opt" = "Deb" ] && \
     echo "DEB_EXTENSION....[${DEB_EXT}]" || :
+    echo "LPUB3D_BRANCH....[${LPUB3D_BRANCH}]"
+    echo "LDGLITE_BRANCH...[${LDGLITE_BRANCH}]"
+    echo "LDVIEW_BRANCH....[${LDVIEW_BRANCH}]"
+    echo "POVRAY_BRANCH....[${POVRAY_BRANCH}]"
     echo "WORK_PATH........[${WORK_PATH}]"
     echo "LOCAL_PATH.......[${LOCAL_PATH}]"
     echo "LOG_PATH.........[${LOG_PATH}]"
@@ -232,6 +244,10 @@ UPDATE_SH="${UPDATE_SH}" \
 XSERVER="${XSERVER}" \
 LP3D_ARCH="${LP3D_ARCH}" \
 DEB_EXTENSION="${DEB_EXT}" \
+LPUB3D_BRANCH="${LPUB3D_BRANCH}" \
+LDGLITE_BRANCH="${LDGLITE_BRANCH}" \
+LDVIEW_BRANCH="${LDVIEW_BRANCH}" \
+POVRAY_BRANCH="${POVRAY_BRANCH}" \
 LOCAL_RESOURCE_PATH="${LOCAL_PATH}" \
 LP3D_LOG_PATH="${LOG_PATH}" \
 LP3D_CPU_CORES="$(nproc)" \
