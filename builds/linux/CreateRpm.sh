@@ -17,6 +17,7 @@
 #  - UPDATE_SH=false - update overwrite this script when building in local Docker
 #  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
 #  - XSERVER=false - use Docker host XMing/XSrv XServer
+#  - LPUB3D_BRANCH=master - repository branch to be built
 #  - LP3D_LOG_PATH=~/logs - log path
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
@@ -34,6 +35,7 @@ cp -rf /user/resources/builds/linux/CreateRpm.sh . \
 && export LP3D_ARCH=amd64 \
 && export LP3D_BASE=fedora \
 && export LOCAL_RESOURCE_PATH=/user/resources \
+&& export LPUB3D_BRANCH=master \
 && export LP3D_LOG_PATH=${HOME}/logs \
 && export XSERVER=false \
 && chmod a+x CreateRpm.sh \
@@ -75,8 +77,11 @@ XSERVER=${XSERVER:-}
 PRESERVE=${PRESERVE:-} # preserve cloned repository
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 LP3D_BASE=${LP3D_BASE:-fedora}
-BUILD_BRANCH=${BUILD_BRANCH:-master}
 LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
+LPUB3D_BRANCH=${LPUB3D_BRANCH:-master}
+LDGLITE_BRANCH=${LDGLITE_BRANCH:-master}
+LDVIEW_BRANCH=${LDVIEW_BRANCH:-lpub3d-build}
+POVRAY_BRANCH=${POVRAY_BRANCH:-lpub3d/raytracer-cui}
 LP3D_3RD_EXE_PREFIX=${INSTALL_PREFIX:-/usr}/bin/lpub3d/3rdParty
 LP3D_GITHUB_URL="https://github.com/trevorsandy"
 LP3D_TARGET_ARCH=`uname -m`
@@ -124,7 +129,10 @@ echo "Start $ME execution at $CWD..."
 
 echo "   LPUB3D SOURCE DIR........${LPUB3D}"
 echo "   LPUB3D BUILD ARCH........${LP3D_ARCH}"
-echo "   LPUB3D BUILD BRANCH....${BUILD_BRANCH}"
+echo "   LPUB3D BRANCH_LPUB3D.....${LPUB3D_BRANCH}"
+echo "   LPUB3D BRANCH_LDGLITE....${LDGLITE_BRANCH}"
+echo "   LPUB3D BRANCH_LDVIEW.....${LDVIEW_BRANCH}"
+echo "   LPUB3D BRANCH_POVRAY.....${POVRAY_BRANCH}"
 if [ "$LOCAL" = "true" ]; then
     echo "   LPUB3D BUILD TYPE........Local"
     echo "   UPDATE BUILD SCRIPT......$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
@@ -181,8 +189,8 @@ if [ "${TRAVIS}" != "true" ]; then
                 if [ -d "${WORK_DIR}" ]; then
                     rm -rf ${WORK_DIR}
                 fi
-                echo -n "2a.cloning ${LPUB3D} ${BUILD_BRANCH} branch into ${LPUB3D}..."
-                (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
+                echo -n "2a.cloning ${LPUB3D} ${LPUB3D_BRANCH} branch into ${LPUB3D}..."
+                (git clone -b ${LPUB3D_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
                 if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
             fi
         else
@@ -293,16 +301,11 @@ for pkgFile in "${packageFiles[@]}"; do
             echo "10.download ${LPUB3D} package source to ${SOURCE_DIR}/" || :
             ext=tar.gz
             case "${pkgFile}" in
-                ldglite)
-                    curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/master.${ext}"
-                    ;;
-                ldview)
-                    curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/lpub3d-build.${ext}"
-                    ;;
-                povray)
-                    curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/raytracer-cui.${ext}"
-                    ;;
+                ldglite) buildBranch=${LDGLITE_BRANCH} ;;
+                ldview) buildBranch=${LDVIEW_BRANCH} ;;
+                povray) buildBranch=${POVRAY_BRANCH} ;;
             esac
+            curlCommand="${LP3D_GITHUB_URL}/${pkgFile}/archive/${buildBranch}.${ext}"
             echo -n "   $(echo ${pkgFile} | awk '{print toupper($0)}') tarball ${pkgFile}.${ext} does not exist. Downloading..."
             (curl $curlopts ${curlCommand} -o ${pkgFile}.${ext}) >$l.out 2>&1 && rm $l.out
             [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
