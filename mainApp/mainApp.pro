@@ -44,7 +44,6 @@ GAMEPAD {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
-
     QMAKE_TARGET_COMPANY = "$${TARGET} Software"
     QMAKE_TARGET_DESCRIPTION = "$${TARGET} - An LDraw Building Instruction Editor."
     QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2015 - 2025 Trevor SANDY"
@@ -56,34 +55,14 @@ win32 {
     QMAKE_EXT_OBJ = .obj
     DEFINES      +=  QUAZIP_STATIC
     DEFINES      += _TC_STATIC
-    DEFINES      += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
 
     win32-msvc* {
-
-        CONFIG  += windows
-        CONFIG  += force_debug_info
         DEFINES += _WINSOCKAPI_
         DEFINES += QT_NODLL
         DEFINES += _WIN_UTF8_PATHS
-        QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
         QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
         QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-        CONFIG(debug, debug|release) {
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701" -wd"4714" -wd"4305" -wd"4099"
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+
     } else {
         QMAKE_LFLAGS += -Wl,--stack,4194304
     }
@@ -726,48 +705,5 @@ RESOURCES += \
     ../ldvlib/LDVQt/resources.qrc \
     resources/lsynth/lsynth.qrc \
     lpub3d.qrc
-
-#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-unix|msys {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wall -W \
-    -Wno-deprecated-declarations \
-    -Wno-unknown-pragmas \
-    -Wno-overloaded-virtual
-QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
-QMAKE_CXXFLAGS_WARN_ON += \
-    -Wno-deprecated-copy
-} # unix|msys
-if (unix|msys):!macx {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-implicit-fallthrough \
-    -Wno-unused-parameter \
-    -Wno-sign-compare \
-    -Wno-strict-aliasing
-msys {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-attributes
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-misleading-indentation
-QMAKE_CXXFLAGS_WARN_ON += \
-    -Wno-template-id-cdtor \
-    -Wno-cast-function-type \
-    -Wno-class-memaccess \
-    -Wno-type-limits \
-    -Wno-maybe-uninitialized \
-    -Wno-unused-result \
-    -Wno-cpp
-} else: \
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-} # unix|msys:!macx
-macx {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-sometimes-uninitialized \
-    -Wno-self-assign \
-    -Wno-unused-result
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-}
 
 #message($$CONFIG)
