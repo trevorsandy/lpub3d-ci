@@ -100,7 +100,7 @@ OTHER_FILES += \
     $$PWD/../builds/utilities/json/complete.json \
     $$PWD/../builds/utilities/json/lpub3dldrawunf.json \
     $$PWD/../builds/utilities/json/lpub3dupdates.json \
-    $$PWD/../builds/utilities/mesa/build_osmesa.sh \
+    $$PWD/../builds/utilities/mesa/build_mesa.sh \
     $$PWD/../builds/utilities/mesa/glu.spec \
     $$PWD/../builds/utilities/mesa/Mesa.spec \
     $$PWD/../builds/utilities/mesa/osmesa-config \
