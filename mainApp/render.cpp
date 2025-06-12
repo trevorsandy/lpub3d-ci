@@ -597,13 +597,13 @@ bool Render::compareImageAttributes(
             message = QObject::tr("Attributes compare: [%1], attributesKey [%2], compareKey [%3]")
                                   .arg(result ? "No Match - usingSnapshotArgs (attributes)" : "Match" )
                                   .arg(attributesKey).arg(compareKey);
-            gui->messageSig(LOG_DEBUG, message);
+            emit gui->messageSig(LOG_DEBUG, message);
         }
     } else {
         result = false;
         message = QObject::tr("Malformed image file attributes list [%1]")
                               .arg(attributesList.join("_"));
-        gui->messageSig(LOG_NOTICE, message);
+        emit gui->messageSig(LOG_NOTICE, message);
     }
     return result;
 }
@@ -622,7 +622,7 @@ bool Render::createSnapshotsList(
 
     for (int i = 0; i < ldrNames.size(); i++) {
         QString smLine = ldrNames[i];
-        if (QFileInfo(smLine).exists()) {
+        if (QFileInfo::exists(smLine)) {
             out << smLine << lpub_endl;
             if (Preferences::debugLogging)
                 emit gui->messageSig(LOG_DEBUG, QObject::tr("Wrote %1 to PLI Snapshots list").arg(smLine));
@@ -755,7 +755,7 @@ QStringList Render::splitParms(const QString &parms)
     if (list.size() == 1) {
         values << list.first();
     } else {
-        for (const QString &item : list) {
+        for (QString &item : list) {
             if (inside) {                                       // If 's' is inside quotes ...
                 values.append(item);                            // ... get the whole string
             } else {                                            // If 's' is outside quotes ...
@@ -2172,7 +2172,7 @@ int LDView::renderCsi(
         for (int i = 0; i < ldrNames.size(); i++) {
             QString ldrName = ldrNames.at(i);
 
-            if (!QFileInfo(ldrName).exists()) {
+            if (!QFileInfo::exists(ldrName)) {
                 emit gui->messageSig(LOG_ERROR, QObject::tr("LDR file %1 not found.").arg(ldrName));
                 continue;
             }
@@ -2677,7 +2677,7 @@ int LDView::renderPli(
               cleanLdrName = QString(ldrName).replace(";", "_");
           cleanLdrNames << cleanLdrName;
 
-          if (!QFileInfo(cleanLdrName).exists()) {
+          if (!QFileInfo::exists(cleanLdrName)) {
               emit gui->messageSig(LOG_ERROR, QObject::tr("LDR file %1 not found.").arg(cleanLdrName));
               continue;
           }
@@ -2885,7 +2885,7 @@ int LDView::renderPli(
 
   // move generated PLI images to parts subfolder
   if (useLDViewSCall() && pliType != SUBMODEL) {
-      for (QString cleanLdrName : cleanLdrNames) {
+      for (QString &cleanLdrName : cleanLdrNames) {
           QString pngFileTmpPath = cleanLdrName.endsWith("_SUB.ldr") ?
                                    cleanLdrName.replace("_SUB.ldr",".png") :
                                    cleanLdrName.replace(".ldr",".png");

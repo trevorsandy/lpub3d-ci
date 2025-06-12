@@ -251,7 +251,7 @@
 
           if (gConsoleMode)
           {
-              fprintf(stdout, "%ls\n", message);
+              fprintf(stdout, "\n%ls\n", message);
               fflush(stdout);
           }
           else
@@ -745,15 +745,16 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 #ifdef Q_OS_WIN
                 if (! consoleRedirectTreated) {
                     consoleRedirectTreated = true;
-                    for (const QString &argument : arguments()) {
+                    for (QString &argument : arguments()) {
                         if (argument == QLatin1String("-ncr") ||
                             argument == QLatin1String("--no-console-redirect")) {
                             consoleRedirect = false;
                             break;
                         }
                     }
-                    if (consoleRedirect)
+                    if (consoleRedirect) {
                         RedirectIOToConsole();
+                    }
                 }
 #endif
                 fprintf(stdout, "\n");

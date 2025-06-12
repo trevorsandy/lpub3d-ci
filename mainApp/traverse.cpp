@@ -2733,7 +2733,7 @@ int Gui::drawPage(
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
                                     emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
-                                for (int buildModLevel : buildModKeys.keys()) {
+                                for (int &buildModLevel : buildModKeys.keys()) {
                                     if (buildModInsert)
                                         insertBuildModification(buildModLevel);
                                     else
@@ -3834,7 +3834,7 @@ int Gui::findPage(
                         opts.flags.parseNoStep = meta.LPub.parseNoStep.value();
                     Where current = opts.current;
                     if (lpub->mi.scanForwardNoParts(current, StepMask|StepGroupMask) == StepGroupEndRc)
-                        gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
+                        emit gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
                                            .arg(rc == BuildModRemoveRc ? QString("REMOVE") : QString("APPLY"))
                                            .arg(meta.LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
                 }
@@ -4088,7 +4088,7 @@ int Gui::findPage(
                                         emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                    opts.current, Preferences::BuildModErrors);
 
-                                    for (int buildModLevel : buildModKeys.keys())
+                                    for (int &buildModLevel : buildModKeys.keys())
                                         insertBuildModification(buildModLevel);
 
                                     buildModKeys.clear();
@@ -5995,9 +5995,9 @@ int Gui::setBuildModForNextStep(
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 } else {
                     const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                    gui->parseErrorSig(tr("Next Step BuildMod key '%1' for %2 action was not found.")
-                                          .arg(buildMod.key).arg(action),
-                                           walk,Preferences::ParseErrors,false,false);
+                    emit gui->parseErrorSig(tr("Next Step BuildMod key '%1' for %2 action was not found.")
+                                            .arg(buildMod.key).arg(action),
+                                            walk,Preferences::ParseErrors,false,false);
                 }
                 if ((Rc)buildMod.action != rc) {
                     setBuildModAction(buildMod.key, buildModStepIndex, rc);
