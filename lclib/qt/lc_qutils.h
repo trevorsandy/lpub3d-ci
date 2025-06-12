@@ -134,7 +134,9 @@ public:
 	}
 
 protected:
-	void paintEvent(QPaintEvent*)
+/*** LPub3D Mod - treat -Winconsistent-missing-override warning ***/
+	void paintEvent(QPaintEvent*) override
+/*** LPub3D Mod - end ***/
 	{
 		QStylePainter Painter(this);
 		QStyleOptionToolButton Option;
