@@ -3,10 +3,10 @@
 #~~ fine-grained host identification ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # platform architecture
-BUILD_ARCH = $$(TARGET_CPU)
-isEmpty(BUILD_ARCH): \
-!contains(QT_ARCH, unknown): \
 BUILD_ARCH = $${QT_ARCH}
+contains(BUILD_ARCH, unknown)|\
+isEmpty(BUILD_ARCH): \
+BUILD_ARCH = $$(TARGET_CPU)
 isEmpty(BUILD_ARCH): \
 BUILD_ARCH = $$system(uname -m)
 isEmpty(BUILD_ARCH): \
