@@ -43,51 +43,20 @@ INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 CONFIG += incremental precompile_header
 
 win32 {
-
     QMAKE_EXT_OBJ = .obj
     DEFINES += _TC_STATIC
-    DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     PRECOMPILED_HEADER = common/lc_global.h
     PRECOMPILED_SOURCE = common/lc_global.cpp
-
     PRECOMPILED_HEADER = common/lc_global.h
     PRECOMPILED_SOURCE = common/lc_global.cpp
     DEFINES += _WINSOCKAPI_
 
-    win32-msvc* {
-
-        CONFIG  += windows
-        CONFIG  += force_debug_info
-        DEFINES += _WINSOCKAPI_
-        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-        CONFIG(debug, debug|release) {
-            DEFINES += QT_DEBUG_MODE
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4  -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701"
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4714" -wd"4805"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    }
-
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
     !win32-msvc*: \
     LIBS += -lz
-
 } else {
-
     PRECOMPILED_HEADER = common/lc_global.h
     LIBS += -lz
-
 }
 
 if (unix|msys):!macx: TARGET = $$lower($$TARGET)
@@ -144,47 +113,3 @@ RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
 include(lclib.pri)
-
-# Suppress warnings
-unix|msys {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wall -W \
-    -Wno-deprecated-declarations \
-    -Wno-unknown-pragmas \
-    -Wno-overloaded-virtual
-QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
-QMAKE_CXXFLAGS_WARN_ON += \
-    -Wno-deprecated-copy
-} # unix|msys
-if (unix|msys):!macx {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-implicit-fallthrough \
-    -Wno-unused-parameter \
-    -Wno-sign-compare \
-    -Wno-unknown-pragmas \
-    -Wno-strict-aliasing
-msys {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-attributes
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-misleading-indentation
-QMAKE_CXXFLAGS_WARN_ON += \
-    -Wno-template-id-cdtor \
-    -Wno-class-memaccess \
-    -Wno-stringop-overflow \
-    -Wno-stringop-truncation \
-    -Wno-type-limits \
-    -Wno-maybe-uninitialized \
-    -Wno-unused-result \
-    -Wno-cpp
-} else: \
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-} # unix|msys:!macx
-macx {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wno-sometimes-uninitialized \
-    -Wno-self-assign \
-    -Wno-unused-result
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-}

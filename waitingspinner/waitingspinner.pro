@@ -18,36 +18,12 @@ else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.pa
 include(../common.pri)
 
 win32 {
-
     QMAKE_TARGET_COMPANY = "Alex Turkin"
     QMAKE_TARGET_DESCRIPTION = "Qt Waiting Spinner Widget"
     QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2015 Alex Turkin"
     QMAKE_TARGET_PRODUCT = "$${TARGET} ($$join(ARCH,,,bit))"
 
     QMAKE_EXT_OBJ = .obj
-
-    win32-msvc* {
-
-        CONFIG += windows
-        CONFIG  += force_debug_info
-        DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-        QMAKE_CFLAGS_WARN_ON -= -W3
-        QMAKE_ADDL_MSVC_FLAGS = -WX- -GS -Gd -fp:precise -Zc:forScope
-        CONFIG(debug, debug|release) {
-            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
-            QMAKE_CFLAGS_WARN_ON += -W4 
-            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
-        }
-        CONFIG(release, debug|release) {
-            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
-            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
-            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805"
-            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
-        }
-        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-    }
 }
 
 if (unix|msys):!macx: TARGET = $$lower($$TARGET)
@@ -84,14 +60,3 @@ UI_DIR          = $$DESTDIR/.ui
 
 # Input files
 include(WaitingSpinner.pri)
-
-# Suppress warnings
-unix|msys {
-QMAKE_CFLAGS_WARN_ON += \
-    -Wall -W \
-    -Wno-sign-compare \
-    -Wno-deprecated-declarations
-QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
-QMAKE_CXXFLAGS_WARN_ON += \
-    -Wno-deprecated-copy
-} # unix|msys
