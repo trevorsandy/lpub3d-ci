@@ -348,7 +348,7 @@ win32-msvc* {
 } # win32
 
 if (unix|msys) {
-QMAKE_CFLAGS_WARN_ON += \
+QMAKE_CFLAGS_WARN_ON = \
     -Wall -W \
     -Wno-deprecated-declarations \
     -Wno-unknown-pragmas \
@@ -401,3 +401,22 @@ QMAKE_CFLAGS_WARN_ON += \
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 } # msys
 } # unix|msys:!macx
+macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-for-loop-analysis \
+    -Wno-incompatible-pointer-types-discards-qualifiers \
+    -Wno-int-conversion \
+    -Wno-invalid-source-encoding \
+    -Wno-mismatched-new-delete \
+    -Wno-nullability-completeness \
+    -Wno-reorder \
+    -Wno-self-assign \
+    -Wno-sometimes-uninitialized \
+    -Wno-undefined-bool-conversion
+QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+QMAKE_CXXFLAGS_WARN_ON += \
+    -Wno-deprecated-non-prototype
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-implicit-function-declaration \
+    -Wno-incompatible-pointer-types
+} # macx
