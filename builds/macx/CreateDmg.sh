@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 3, 2025
+# Last Update: June 12, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -79,6 +79,7 @@ LP3D_ARCH="${LP3D_ARCH:-$(uname -m)}"
 LP3D_CPU_CORES="${LP3D_CPU_CORES:-$(nproc)}"
 LP3D_GITHUB_URL="https://github.com/trevorsandy"
 BUILD_BRANCH=${BUILD_BRANCH:-master}
+CMD_CNT=0
 
 echo && echo "   LPUB3D BUILD ARCH......[${LP3D_ARCH}]"
 echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
@@ -133,7 +134,7 @@ else
   cd ../
 fi
 
-echo "-  create DMG build working directory $(realpath dmgbuild/)..."
+echo "$((CMD_CNT+=1))- create DMG build working directory $(realpath dmgbuild/)..."
 if [ ! -d dmgbuild ]
 then
   mkdir dmgbuild
@@ -143,28 +144,28 @@ cd dmgbuild
 
 if [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
-  echo "-  you selected download LPub3D source."
-  echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  echo "   you selected download LPub3D source."
+  echo "$((CMD_CNT+=1))- cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
   if [ -d ${LPUB3D} ]; then
     rm -rf ${LPUB3D}
   fi
   git clone ${LP3D_GITHUB_URL}/${LPUB3D}.git
 elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ] || [ ! -d ${LPUB3D} ]
 then
-  echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  echo "$((CMD_CNT+=1))- copying ${LPUB3D}/ to $(realpath dmgbuild/)..."
   if [ ! -d ../${LPUB3D} ]; then
-    echo "-  NOTICE - Could not find folder $(realpath ../${LPUB3D}/)"
+    echo "$((CMD_CNT+=1))- NOTICE - Could not find folder $(realpath ../${LPUB3D}/)"
     if [ -d ${LPUB3D} ]; then
        rm -rf ${LPUB3D}
     fi
-    echo -n "-  cloning ${LPUB3D} ${BUILD_BRANCH} branch into $(realpath dmgbuild/)..."
+    echo -n "$((CMD_CNT+=1))- cloning ${LPUB3D} ${BUILD_BRANCH} branch into $(realpath dmgbuild/)..."
     (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
     if [ -f $l.out ]; then echo "failed." && tail -80 $l.out; else echo "ok."; fi
   else
     cp -rf ../${LPUB3D}/ ./${LPUB3D}/
   fi
 else
-  echo "-  ${LPUB3D}/ exist. skipping download"
+  echo "$((CMD_CNT+=1))- ${LPUB3D}/ exist. skipping download"
 fi
 
 if [ -z "$LDRAWDIR" ]; then
@@ -176,7 +177,7 @@ export WD=$PWD
 export OBS=false
 export LPUB3D=${LPUB3D}
 
-echo "-  source update_config_files.sh..." && echo
+echo "$((CMD_CNT+=1))- source update_config_files.sh..." && echo
 
 _PRO_FILE_PWD_=${WD}/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
@@ -189,7 +190,7 @@ case ${LP3D_ARCH} in
     release="32bit_release" ;;
 esac
 
-echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
+echo "$((CMD_CNT+=1))- execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 
 cd ${LPUB3D}
 
@@ -243,61 +244,61 @@ if [ ! -f "mainApp/extras/complete.zip" ]
 then
   if [ -f "${DIST_DIR}/complete.zip" ]
   then
-    echo "-  copy ldraw official library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    echo "$((CMD_CNT+=1))- copy ldraw official library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/complete.zip" "mainApp/extras/complete.zip"
   else
-    echo -n "-  downloading complete.zip into $(realpath mainApp/extras/)..."
+    echo -n "$((CMD_CNT+=1))- downloading complete.zip into $(realpath mainApp/extras/)..."
     (curl -O $curlopts ${LP3D_LIBS_BASE}/complete.zip -o mainApp/extras/complete.zip) >$l.out 2>&1 && rm $l.out
     [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
-  echo "-  ldraw official library exist. skipping download"
+  echo "$((CMD_CNT+=1))- ldraw official library exist. skipping download"
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
   if [ -f "${DIST_DIR}/lpub3dldrawunf.zip" ]
   then
-    echo "-  copy unofficial library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    echo "$((CMD_CNT+=1))- copy unofficial library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras/lpub3dldrawunf.zip"
   else
-    echo -n "-  downloading lpub3dldrawunf.zip to $(realpath mainApp/extras/)..."
+    echo -n "$((CMD_CNT+=1))- downloading lpub3dldrawunf.zip to $(realpath mainApp/extras/)..."
     (curl $curlopts ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
     [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
-  echo "-  ldraw unofficial library exist. skipping download"
+  echo "$((CMD_CNT+=1))- ldraw unofficial library exist. skipping download"
 fi
 if [ ! -f "mainApp/extras/tenteparts.zip" ]
 then
   if [ -f "${DIST_DIR}/tenteparts.zip" ]
   then
-    echo "-  copy Tente library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    echo "$((CMD_CNT+=1))- copy Tente library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/tenteparts.zip" "mainApp/extras/tenteparts.zip"
   else
-    echo -n "-  downloading tenteparts.zip into $(realpath mainApp/extras/)..."
+    echo -n "$((CMD_CNT+=1))- downloading tenteparts.zip into $(realpath mainApp/extras/)..."
     (curl -O $curlopts ${LP3D_LIBS_BASE}/tenteparts.zip -o mainApp/extras/tenteparts.zip) >$l.out 2>&1 && rm $l.out
     [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
-  echo "-  TENTE library exist. skipping download"
+  echo "$((CMD_CNT+=1))- TENTE library exist. skipping download"
 fi
 
 if [ ! -f "mainApp/extras/vexiqparts.zip" ]
 then
   if [ -f "${DIST_DIR}/vexiqparts.zip" ]
   then
-    echo "-  copy VEXIQ library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    echo "$((CMD_CNT+=1))- copy VEXIQ library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
     cp -f "${DIST_DIR}/vexiqparts.zip" "mainApp/extras/vexiqparts.zip"
   else
-    echo -n "-  downloading vexiqparts.zip into $(realpath mainApp/extras/)..."
+    echo -n "$((CMD_CNT+=1))- downloading vexiqparts.zip into $(realpath mainApp/extras/)..."
     (curl -O $curlopts ${LP3D_LIBS_BASE}/vexiqparts.zip -o mainApp/extras/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
     [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
 else
-  echo "-  VEXIQ library exist. skipping download"
+  echo "$((CMD_CNT+=1))- VEXIQ library exist. skipping download"
 fi
 
-echo && echo "-  configure and build source from $(realpath .)..."
+echo && echo "$((CMD_CNT+=1))- configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 echo && qmake -v && echo
 qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=sdk_no_version_check CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
