@@ -41,6 +41,16 @@
 %define suse_platform_code sle
 %define build_sdl2 1
 %else
+# openSUSE Leap Factory
+%if (0%{?suse_version}>1650 && 0%{?suse_version}<=1699 && 0%{?is_opensuse})
+%define dist .openSUSELeap%(echo %{suse_version} | sed 's/0$//')
+%define suse_dist_name %(echo openSUSE Leap Factory)
+%define suse_dist_label %(echo %{suse_dist_name}..................%{suse_version})
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
+%define suse_dist_version %{suse_version}
+%define suse_platform_code osf
+%define build_sdl2 1
+%else  
 # openSUSE Leap
 %if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && 0%{?is_opensuse})
 %define dist .openSUSELeap%(echo %{sle_version} | sed 's/0$//')
@@ -59,6 +69,7 @@
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
 %define suse_platform_code os
+%endif
 %endif
 %endif
 %endif
@@ -222,7 +233,11 @@ BuildRequires: openssl-devel, storaged
 BuildRequires: freeglut-devel
 %endif
 BuildRequires: libqt5-qtbase-devel
-BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
+# Exclude libOSMesa from openSUSE:Leap:Factory - suse_version 1699
+%if (0%{?suse_version}<=1690)
+BuildRequires: libOSMesa-devel
+%endif
+BuildRequires: glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files hostname
 BuildRequires: zlib-devel
