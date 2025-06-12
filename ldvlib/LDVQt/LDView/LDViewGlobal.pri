@@ -227,11 +227,7 @@ unix|msys:!macx: DEFINES += _GNU_SOURCE
 # Platform-specific
 win32 {
     QMAKE_EXT_OBJ = .obj
-
     win32-msvc* {
-        DEFINES  += \
-            _CRT_SECURE_NO_WARNINGS \
-            _CRT_NONSTDC_NO_WARNINGS=1
         QMAKE_CXXFLAGS += \
             /FI winsock2.h /FI winsock.h \
             /wd4675
@@ -259,54 +255,3 @@ unix {
 # Includes
 INCLUDEPATH += . .. $${LIBS_INC}
 #message("~~~ DEBUG_INCLUDE_PATHS: $$INCLUDEPATH ~~~")
-
-# suppress warnings
-unix|msys: {
-QMAKE_CFLAGS_WARN_ON = \
-                     -Wall -W \
-                     -Wno-format-security \
-                     -Wno-unused-parameter \
-                     -Wno-parentheses \
-                     -Wno-unused-variable \
-                     -Wno-deprecated-declarations \
-                     -Wno-return-type \
-                     -Wno-sign-compare \
-                     -Wno-uninitialized \
-                     -Wno-unused-result \
-                     -Wno-implicit-fallthrough \
-                     -Wno-stringop-overflow
-CUI_WGL: \
-QMAKE_CFLAGS_WARN_ON += \
-                     -Wno-missing-field-initializers \
-                     -Wno-unused-but-set-variable \
-                     -Wno-switch
-msys {
-QMAKE_CFLAGS_WARN_ON += \
-                     -Wno-attributes \
-                     -Wno-unknown-pragmas \
-                     -Wno-type-limits \
-                     -Wno-cast-function-type \
-                     -Wno-implicit-fallthrough \
-                     -Wno-stringop-truncation \
-                     -Wno-calloc-transposed-args
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-QMAKE_CXXFLAGS_WARN_ON += \
-                     -Wno-template-id-cdtor \
-} else {
-QMAKE_CFLAGS_WARN_ON += \
-                     -Wno-clobbered
-} # msys
-macx {
-QMAKE_CFLAGS_WARN_ON += \
-                     -Wno-implicit-function-declaration \
-                     -Wno-incompatible-pointer-types-discards-qualifiers \
-                     -Wno-incompatible-pointer-types \
-                     -Wno-undefined-bool-conversion \
-                     -Wno-invalid-source-encoding \
-                     -Wno-mismatched-new-delete \
-                     -Wno-for-loop-analysis \
-                     -Wno-int-conversion \
-                     -Wno-reorder
-QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
-} # macx
-} # unix|msys
