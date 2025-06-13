@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: June 3, 2025
+# Last Update: June 13, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -918,7 +918,9 @@ rm -rf $RPM_BUILD_ROOT
 #  {_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
+%if %([ "`ls -A %{_lp3d_3rd_exec_dir} 2>/dev/null`" ] && echo 1 || echo 0)
 %attr(755,-,-) %{_lp3d_3rd_exec_dir}/*
+%endif
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d/*
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
