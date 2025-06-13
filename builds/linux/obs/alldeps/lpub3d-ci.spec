@@ -918,7 +918,9 @@ rm -rf $RPM_BUILD_ROOT
 #  {_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
+%if %([ "`ls -A %{_lp3d_3rd_exec_dir}`" ] && echo 1 || echo 0)
 %attr(755,-,-) %{_lp3d_3rd_exec_dir}/*
+%endif
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d/*
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
