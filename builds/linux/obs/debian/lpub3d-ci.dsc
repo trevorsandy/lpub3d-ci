@@ -6,7 +6,7 @@ Version: 2.4.9.4373
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
 Homepage: https://trevorsandy.github.io/lpub3d-ci/
 Standards-Version: 3.9.8
-Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev, unzip
+Build-Depends: debhelper (>= 4.1.16), unzip, qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libegl-dev, libpng-dev, libjpeg-dev, zlib1g-dev, libminizip-dev
 Debtransform-Tar: lpub3d-ci-git.tar.gz
 Files:
  a64d2ce87fe9eb9d33dffce62f18d4fc 7070625 lpub3d-ci-git.tar.gz

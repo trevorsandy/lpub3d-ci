@@ -166,6 +166,7 @@ BuildRequires: hostname
 BuildRequires: OpenEXR-devel
 %if 0%{?centos_version}!=800
 BuildRequires: mesa-libOSMesa-devel
+BuildRequires: libglvnd-devel
 %endif
 %endif
 %if 0%{?local_freeglut}
@@ -265,8 +266,8 @@ BuildRequires: -post-build-checks
 %define prebuilt_3ds 1
 #BuildRequires: qttools5
 %ifarch x86_64
-BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel
-BuildRequires: lib64boost-devel, lib64gl2ps-devel, lib64tiff-devel
+BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64glvnd-devel, lib64mesaglu1-devel, lib64freeglut-devel
+BuildRequires: lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: lib64openexr-devel
 %endif
@@ -277,8 +278,8 @@ BuildRequires: lib64openssl-devel
 %endif
 %endif
 %else
-BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel
-BuildRequires: libboost-devel, libgl2ps-devel, libtiff-devel
+BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel,libglvnd-devel, libmesaglu1-devel, freeglut-devel
+BuildRequires: libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 %if 0%{?mageia_version}>5
 BuildRequires: libopenexr-devel
 %endif
