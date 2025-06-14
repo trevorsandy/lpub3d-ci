@@ -239,11 +239,19 @@ BuildRequires: openssl-devel, storaged
 BuildRequires: freeglut-devel
 %endif
 BuildRequires: libqt5-qtbase-devel
+# exclude libOSMesa from openSUSE:Leap:Factory - suse_version 1699
+%if (0%{?suse_version}==1699)
+# set platform flags that will build OSMesa from Mesa-Amber - Mesa 21.3.9
+%define build_osmesa 1
+%define mesa_amber 1
+# LLVM is not needed for default OSMesa-amber configuration
+%define with_llvm 0
+%else
+BuildRequires: libOSMesa-devel
 # update_desktop_file is deprecated
-%if (!0%{?suse_version}<1699)
 BuildRequires: update-desktop-files
 %endif
-BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
+BuildRequires: glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: hostname
 BuildRequires: zlib-devel
