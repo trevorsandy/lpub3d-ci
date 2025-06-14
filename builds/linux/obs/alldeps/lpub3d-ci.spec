@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: June 13, 2025
+# Last Update: June 14, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -30,18 +30,24 @@
 %endif
 
 # set target platform id
-# distinguish between SLE, openSUSE Leap and openSUSE
-# SUSE Linux Enterprise Server
-%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && !0%{?is_opensuse})
-%define dist .SLE%(echo %{sle_version} | sed 's/0$//')
-%define suse_dist_name %(echo SUSE Linux Enterprise Server)
-%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
-%define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
-%define suse_dist_version %{sle_version}
-%define suse_platform_code sle
-%define build_sdl2 1
+# distinguish between openSUSE Leap, openSUSE, and SUSE Linux Enterprise Server
+# openSUSE Leap Factory and versions equal to or greater than 16.0
+%if (0%{?suse_version}>1599 && 0%{?suse_version}<=1699 && 0%{?is_opensuse})
+%define dist .openSUSELeap%(echo %{suse_version} | sed 's/0$//')
+%if (0%{?suse_version}==1699)
+%define suse_dist_name %(echo openSUSE Leap Factory)
+%define suse_dist_label %(echo %{suse_dist_name}..........%{suse_version})
+%define suse_code osf
 %else
-# openSUSE Leap
+%define suse_dist_name %(echo openSUSE Leap)
+%define suse_dist_label %(echo %{suse_dist_name}..................%{suse_version})
+%define suse_code osl
+%endif
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
+%define suse_dist_version %{suse_version}
+%define suse_platform_code %{suse_code}
+%else
+# openSUSE Leap up to 15.6
 %if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && 0%{?is_opensuse})
 %define dist .openSUSELeap%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo openSUSE Leap)
@@ -59,6 +65,17 @@
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
 %define suse_platform_code os
+%else
+# SUSE Linux Enterprise Server
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && !0%{?is_opensuse})
+%define dist .SLE%(echo %{sle_version} | sed 's/0$//')
+%define suse_dist_name %(echo SUSE Linux Enterprise Server)
+%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
+%define suse_dist_version %{sle_version}
+%define suse_platform_code sle
+%define build_sdl2 1
+%endif
 %endif
 %endif
 %endif
@@ -222,9 +239,13 @@ BuildRequires: openssl-devel, storaged
 BuildRequires: freeglut-devel
 %endif
 BuildRequires: libqt5-qtbase-devel
+# update_desktop_file is deprecated
+%if (!0%{?suse_version}<1699)
+BuildRequires: update-desktop-files
+%endif
 BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
-BuildRequires: update-desktop-files hostname
+BuildRequires: hostname
 BuildRequires: zlib-devel
 BuildRequires: Mesa-libEGL-devel
 %if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200 && 0%{?sle_version}!=150300 && 0%{?sle_version}!=150400)
@@ -350,7 +371,6 @@ BuildRequires: pkgconfig(sdl2)
 # ------------------------------
 # Mesa and libGLU dependencies
 %if 0%{?build_osmesa}
-%define buildmesa yes
 # libGLU build-from-source dependencies
 BuildRequires: gcc-c++
 BuildRequires: libtool
@@ -462,7 +482,9 @@ BuildRequires:  pkgconfig(libglvnd) >= 0.1.0
 %ifarch aarch64 %{ix86} x86_64 ppc64le s390x
 BuildRequires:  pkgconfig(valgrind)
 %endif
+%if !0%{?suse_version} == 1699
 BuildRequires:  pkgconfig(libkms) >= 1.0.0
+%endif
 BuildRequires:  pkgconfig(libva)
 BuildRequires:  pkgconfig(presentproto)
 %if %{drivers}
@@ -713,6 +735,11 @@ if [ -f "${SrcPath}/version.info" ]; then
 else
   echo "Error: ${SrcPath}/version.info not found."
 fi
+%if 0%{?suse_version}
+# apply suse_update_desktop_file diff
+categories="Categories=Graphics;3DGraphics;Publishing;Engineering;Graphics;Viewer;Education;"
+sed "s/Categories=.*/${categories}/" -i mainApp/lpub3d.desktop
+%endif
 set -x
 %if 0%{?buildservice}
 # OBS Platform id and version
@@ -893,9 +920,6 @@ echo "ERROR - LDD check failed for $(realpath ${validexe})"
 
 %install
 make INSTALL_ROOT=%buildroot install
-%if 0%{?suse_version}
-%suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
-%endif
 %if 0%{?suse_version} || 0%{?sle_version}
 %fdupes %{buildroot}/%{_iconsdir}
 # skip rpath check on 3rd-party binaries to avoid 'RPATH "" ... is not allowed' fail on SUSE builds
