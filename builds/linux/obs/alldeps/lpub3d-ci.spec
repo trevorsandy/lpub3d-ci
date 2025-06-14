@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: June 14, 2025
+# Last Update: June 13, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -30,18 +30,24 @@
 %endif
 
 # set target platform id
-# distinguish between SLE, openSUSE Leap and openSUSE
-# SUSE Linux Enterprise Server
-%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && !0%{?is_opensuse})
-%define dist .SLE%(echo %{sle_version} | sed 's/0$//')
-%define suse_dist_name %(echo SUSE Linux Enterprise Server)
-%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
-%define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
-%define suse_dist_version %{sle_version}
-%define suse_platform_code sle
-%define build_sdl2 1
+# distinguish between openSUSE Leap, openSUSE, and SUSE Linux Enterprise Server
+# openSUSE Leap Factory and versions equal to or greater than 16.0
+%if (0%{?suse_version}>1599 && 0%{?suse_version}<=1699 && 0%{?is_opensuse})
+%define dist .openSUSELeap%(echo %{suse_version} | sed 's/0$//')
+%if (0%{?suse_version}==1699)
+%define suse_dist_name %(echo openSUSE Leap Factory)
+%define suse_dist_label %(echo %{suse_dist_name}..........%{suse_version})
+%define suse_code osf
 %else
-# openSUSE Leap
+%define suse_dist_name %(echo openSUSE Leap)
+%define suse_dist_label %(echo %{suse_dist_name}..................%{suse_version})
+%define suse_code osl
+%endif
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
+%define suse_dist_version %{suse_version}
+%define suse_platform_code %{suse_code}
+%else
+# openSUSE Leap up to 15.6
 %if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && 0%{?is_opensuse})
 %define dist .openSUSELeap%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo openSUSE Leap)
@@ -59,6 +65,17 @@
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
 %define suse_platform_code os
+%else
+# SUSE Linux Enterprise Server
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && !0%{?is_opensuse})
+%define dist .SLE%(echo %{sle_version} | sed 's/0$//')
+%define suse_dist_name %(echo SUSE Linux Enterprise Server)
+%define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
+%define suse_dist_version %{sle_version}
+%define suse_platform_code sle
+%define build_sdl2 1
+%endif
 %endif
 %endif
 %endif
@@ -224,7 +241,7 @@ BuildRequires: freeglut-devel
 BuildRequires: libqt5-qtbase-devel
 # exclude libOSMesa from openSUSE:Leap:Factory - suse_version 1699
 # set platforms that will build OSMesa from Mesa-Amber - Mesa 21.3.9
-%if (0%{?suse_version}>=1699)
+%if (0%{?suse_version}==1699)
 %define build_osmesa 1
 %define mesa_amber 1
 %define with_llvm 0
@@ -361,7 +378,6 @@ BuildRequires: pkgconfig(sdl2)
 # ------------------------------
 # Mesa and libGLU dependencies
 %if 0%{?build_osmesa}
-%define buildmesa yes
 # libGLU build-from-source dependencies
 BuildRequires: gcc-c++
 BuildRequires: libtool
@@ -473,7 +489,9 @@ BuildRequires:  pkgconfig(libglvnd) >= 0.1.0
 %ifarch aarch64 %{ix86} x86_64 ppc64le s390x
 BuildRequires:  pkgconfig(valgrind)
 %endif
+%if !0%{?suse_version} == 1699
 BuildRequires:  pkgconfig(libkms) >= 1.0.0
+%endif
 BuildRequires:  pkgconfig(libva)
 BuildRequires:  pkgconfig(presentproto)
 %if %{drivers}
