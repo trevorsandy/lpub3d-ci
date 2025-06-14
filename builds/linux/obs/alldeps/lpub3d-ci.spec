@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: June 3, 2025
+# Last Update: June 14, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -222,9 +222,20 @@ BuildRequires: openssl-devel, storaged
 BuildRequires: freeglut-devel
 %endif
 BuildRequires: libqt5-qtbase-devel
-BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
+# exclude libOSMesa from openSUSE:Leap:Factory - suse_version 1699
+# set platforms that will build OSMesa from Mesa-Amber - Mesa 21.3.9
+%if (0%{?suse_version}>=1699)
+%define build_osmesa 1
+%define mesa_amber 1
+%define with_llvm 0
+%else
+# update_desktop_file is deprecated
+BuildRequires: update-desktop-files
+BuildRequires: libOSMesa-devel
+%endif
+BuildRequires: glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
-BuildRequires: update-desktop-files hostname
+BuildRequires: hostname
 BuildRequires: zlib-devel
 BuildRequires: Mesa-libEGL-devel
 %if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200 && 0%{?sle_version}!=150300 && 0%{?sle_version}!=150400)
@@ -713,6 +724,11 @@ if [ -f "${SrcPath}/version.info" ]; then
 else
   echo "Error: ${SrcPath}/version.info not found."
 fi
+%if 0%{?suse_version}
+# apply suse_update_desktop_file diff
+categories="Categories=Graphics;3DGraphics;Publishing;Engineering;Graphics;Viewer;Education;"
+sed "s/Categories=.*/${categories}/" -i mainApp/lpub3d.desktop
+%endif
 set -x
 %if 0%{?buildservice}
 # OBS Platform id and version
@@ -893,9 +909,6 @@ echo "ERROR - LDD check failed for $(realpath ${validexe})"
 
 %install
 make INSTALL_ROOT=%buildroot install
-%if 0%{?suse_version}
-%suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
-%endif
 %if 0%{?suse_version} || 0%{?sle_version}
 %fdupes %{buildroot}/%{_iconsdir}
 # skip rpath check on 3rd-party binaries to avoid 'RPATH "" ... is not allowed' fail on SUSE builds
