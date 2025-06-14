@@ -209,22 +209,17 @@ DIST_DIR="$(cd ../ && echo "$PWD/lpub3d_macos_3rdparty")"
 [ "${LP3D_ARCH}" = "arm64" ] && LP3D_RAY_ARCH="aarch64" || LP3D_RAY_ARCH=${LP3D_ARCH}
 
 # Check if renderers exist or were successfully built
-BUILD_RENDERERS=ok
 LDGLITE_PATH="${DIST_DIR}/LDGLite-1.3/bin/${LP3D_ARCH}"
 LDVIEW_PATH="${DIST_DIR}/LDView-4.6/bin/${LP3D_ARCH}"
 POVRAY_PATH="${DIST_DIR}/lpub3d_trace_cui-3.8/bin/${LP3D_RAY_ARCH}"
 if [ ! -f "${LDGLITE_PATH}/LDGLite" ]; then
-  BUILD_RENDERERS=ko && echo "ERROR - LDGLite not found at ${LDGLITE_PATH}/"
+  echo "-WARNING - LDGLite not found at ${LDGLITE_PATH}/"
 fi
 if [ ! -f "${LDVIEW_PATH}/LDView" ]; then
-  BUILD_RENDERERS=ko && echo "ERROR - LDView not found at ${LDVIEW_PATH}/"
+  echo "-WARNING - LDView not found at ${LDVIEW_PATH}/"
 fi
 if [ ! -f "${POVRAY_PATH}/lpub3d_trace_cui" ]; then
-  BUILD_RENDERERS=ko && echo "ERROR - POVRay not found at ${POVRAY_PATH}/"
-fi
-if [ "${BUILD_RENDERERS}" = "ko" ]; then
-  echo "ERROR - all renderers were not successfully built, ${LPUB3D} build cannot continue."
-  exit 1
+  echo "-WARNING - POVRay not found at ${POVRAY_PATH}/"
 fi
 
 # Stop here if we are only building renderers
