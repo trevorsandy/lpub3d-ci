@@ -1,10 +1,8 @@
 # LDView library common directives
 
-# Get fine-grained host identification
-win32:HOST = $$system(systeminfo | findstr /B /C:\"OS Name\")
-unix:!macx:HOST = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
-macx:HOST = $$system(echo `sw_vers -productName` `sw_vers -productVersion`)
-isEmpty(HOST):HOST = UNKNOWN HOST
+# common directives
+COMMON = LDViewGlobal
+include($${PWD}/../../../common.pri)
 
 # The ABI version.
 VER_MAJ = 4
@@ -16,53 +14,9 @@ else:  VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.pa
 DEFINES += VERSION_INFO=\\\"$$VER_MAJ"."$$VER_MIN"."$$VER_PAT\\\"
 
 static|staticlib {
-    BUILD  = STATIC
+    BUILD  = $$upper($${BUILD}) STATIC
 } else {
-    BUILD  = SHARED
-}
-
-# Qt/OSMesa/WGL library identifiers
-ldviewqt {
-    contains(DEFINES, _OSMESA): \
-    DEFINES        -= _OSMESA
-    DEFINES        += _QT
-    QT             += core
-    CONFIG         += qt
-    CONFIG         += CUI_QT
-    POSTFIX        = -qt$${QT_MAJOR_VERSION}
-    BUILD          += QT
-} else:msys:ldviewwgl {
-    contains(DEFINES, _OSMESA): \
-    DEFINES        -= _OSMESA
-    contains(DEFINES, _QT): \
-    DEFINES        -= _QT
-    DEFINES        += _LP3D_CUI_WGL
-    QT             -= core
-    CONFIG         += CUI_WGL
-    POSTFIX         = -wgl
-    BUILD          += WGL
-} else:!win32-msvc* {
-    contains(DEFINES, _QT): \
-    DEFINES        -= _QT
-    DEFINES        += _OSMESA
-    QT             -= core
-    CONFIG         += OSMesa
-    POSTFIX         = -osmesa
-    BUILD          += OSMESA
-}
-
-# for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
-BUILD_ARCH = $$(TARGET_CPU)
-isEmpty(BUILD_ARCH): \
-!contains(QT_ARCH, unknown): \
-BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH): BUILD_ARCH = $$(TARGET_CPU)
-if (contains(BUILD_ARCH,x86_64)|contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,aarch64)) {
-    ARCH     = 64
-    LIB_ARCH = 64
-} else {
-    ARCH     = 32
-    LIB_ARCH =
+    BUILD  = $$upper($${BUILD}) SHARED
 }
 
 # build type
@@ -73,7 +27,7 @@ CONFIG(debug, debug|release) {
     BUILD += RELEASE
     DESTDIR = $$join(ARCH,,,bit_release)
 }
-BUILD  += BUILD ON $$upper($$HOST)
+BUILD  += BUILD ON $$upper($${HOST})
 
 CONFIG += incremental
 
@@ -93,10 +47,10 @@ if (win32|static|staticlib) {
 # To enable this option, set SYSTEM_PREFIX_ below along with the directive CONFIG+=USE_LDV_SYSTEM_LIBS.
 
 # 3rdParty libraries - compiled from source during build
-3RD_PARTY_PREFIX_  = $$_PRO_FILE_PWD_/../3rdParty
+3RD_PARTY_PREFIX_  = $${_PRO_FILE_PWD_}/../3rdParty
 
 # pre-compiled libraries heaers location
-LIBINC_            = $$_PRO_FILE_PWD_/../include       # zlib.h and zconf.h, glext and wglext headers
+LIBINC_            = $${_PRO_FILE_PWD_}/../include       # zlib.h and zconf.h, glext and wglext headers
 
 # You can modify paths below to match your system
 # for default settings, place headers in ../include/..
@@ -133,11 +87,6 @@ win32-msvc* {
 # Always build tinyxml
 TINYXML_INC     = $${3RD_PARTY_PREFIX_}/tinyxml
 LIBS_INC       += $${TINYXML_INC}
-
-USE_LDV_3RD_PARTY_LIBS:USE_LDV_SYSTEM_LIBS {
-    message("~~~ NOTICE: 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS' ~~~")
-    CONFIG -= USE_LDV_SYSTEM_LIBS
-}
 
 # 3rd party library headers
 # ===============================
@@ -193,25 +142,8 @@ unix|msys {
 equals(TARGET, TCFoundation) {
     # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
     USE_LDV_3RD_PARTY_LIBS {
-        CONFIG += BUILD_3DS
-        CONFIG += BUILD_TINYXML
-        !USE_SYSTEM_JPEG: \
-        CONFIG += BUILD_JPEG
-        !USE_SYSTEM_PNG: \
-        CONFIG += BUILD_PNG
-        !USE_SYSTEM_GL2PS: \
-        CONFIG += BUILD_GL2PS
-        !USE_SYSTEM_MINIZIP: \
-        CONFIG += BUILD_MINIZIP
-        !USE_SYSTEM_ZLIB: \
-        CONFIG += BUILD_ZLIB
         message("~~~ LDVQt header option - Use 3rdParty library headers ~~~")
     } else {
-        CONFIG += BUILD_TINYXML
-        win32-msvc*: \
-        CONFIG += BUILD_GL2PS
-        else: \
-        CONFIG += BUILD_3DS
         USE_LDV_SYSTEM_LIBS {
             message("~~~ LDVQt header option - Use system library headers ~~~")
         } else {
@@ -276,56 +208,17 @@ equals(TARGET, TCFoundation) {
 }
 
 # objects directory
-OBJECTS_DIR      = $$DESTDIR/.obj$${POSTFIX}
+OBJECTS_DIR      = $${DESTDIR}/.obj$${POSTFIX}
 
 # USE GNU_SOURCE
 unix|msys:!macx: DEFINES += _GNU_SOURCE
-
-# USE CPP 11
-contains(USE_CPP11,NO): \
-message("~~~ DO NOT USE CPP11 SPECIFIED ~~~")
-else: \
-DEFINES += USE_CPP11
-
-# Qt5 QMake flags
-contains(QT_VERSION, ^5\\..*) {
-    win32-msvc* {
-        QMAKE_CXXFLAGS += /std:c++17
-    }
-    unix|msys:!macx {
-        GCC_VERSION = $$system(g++ -dumpversion)
-        greaterThan(GCC_VERSION, 4.8) {
-            QMAKE_CXXFLAGS += -std=c++11
-        } else {
-            QMAKE_CXXFLAGS += -std=c++0x
-        }
-    }
-}
-
-# Qt6 QMake flags
-contains(QT_VERSION, ^6\\..*) {
-    win32-msvc* {
-        QMAKE_CXXFLAGS += /std:c++17
-    }
-    macx {
-        QMAKE_CXXFLAGS+= -std=c++17
-    }
-    unix|msys:!macx {
-        GCC_VERSION = $$system(g++ -dumpversion)
-        greaterThan(GCC_VERSION, 5) {
-            QMAKE_CXXFLAGS += -std=c++17
-        } else {
-            QMAKE_CXXFLAGS += -std=c++0x
-        }
-    }
-}
 
 # Boost
 !contains(CONFIG, USE_BOOST): {
     DEFINES     += _NO_BOOST
 } else:!msys {
-    INCLUDEPATH += $$_PRO_FILE_PWD_/../boost/include
-    LIBS        += -L$$_PRO_FILE_PWD_/../boost/lib
+    INCLUDEPATH += $${_PRO_FILE_PWD_}/../boost/include
+    LIBS        += -L$${_PRO_FILE_PWD_}/../boost/lib
 }
 
 # Platform-specific

@@ -45,38 +45,24 @@ LIBDIRS     = -L../TCFoundation/$$DESTDIR
 LDLIBS      = -lTCFoundation$${POSTFIX}
 
 win32-msvc* {
-    EXT = lib
-    BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
-    isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
-    lessThan(BUILD_WORKER_VERSION, 2019) {
-        VSVER=vs2015
-    } else {
-        contains(QT_ARCH,i386): VSVER=vs2017
-        else: VSVER=vs2019
-    }
-    LIB_REL_PATH = ../lib
-    equals(ARCH, 64): \
-    LIBDIR_      = $${LIB_REL_PATH}/x64
-    else: \
-    LIBDIR_      = $${LIB_REL_PATH}
+    LIBDIR_      = $${VER_LDVIEW_LIB_PATH}
     LIBDIRS     += -L$${LIBDIR_}
 
-    exists($${PNG_LIBDIR}/lib$${LIB_PNG}.$${EXT}): \
-    LDLIBS      += $${PNG_LIBDIR}/lib$${LIB_PNG}.$${EXT}
+    exists($${PNG_LIBDIR}/lib$${LIB_PNG}.$${EXT_S}): \
+    LDLIBS      += $${PNG_LIBDIR}/lib$${LIB_PNG}.$${EXT_S}
     else: \
     LDLIBS      += -l$${LIB_PNG}16-$${VSVER}
 
-    exists($${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT}): \
-    LDLIBS      += $${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT}
+    exists($${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT_S}): \
+    LDLIBS      += $${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT_S}
     else: \
     LDLIBS      += -l$${LIB_JPEG}-$${VSVER}
 
-    exists($${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT}): \
-    LDLIBS      += $${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT}
+    exists($${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT_S}): \
+    LDLIBS      += $${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT_S}
     else: \
-    LDLIBS      += $${LIBDIR_}/zlib-$${VSVER}
+    LDLIBS      += $${LIBDIR_}/zlib-$${VSVER}.$${EXT_S}
 } else {
-    EXT = a
     macx {                                                             # OSX
         contains(QT_ARCH,arm64): \
         LIBDIR_  = /opt/homebrew/lib
@@ -92,24 +78,23 @@ win32-msvc* {
     LIBDIRS     += -L$${LIBDIR_}
 
     !USE_SYSTEM_PNG: \
-    exists($${PNG_LIBDIR}/lib$${LIB_PNG}.$${EXT}): \
-    LDLIBS      += $${PNG_LIBDIR}/lib$${LIB_PNG}16.$${EXT}
+    exists($${PNG_LIBDIR}/lib$${LIB_PNG}.$${EXT_S}): \
+    LDLIBS      += $${PNG_LIBDIR}/lib$${LIB_PNG}16.$${EXT_S}
     else: \
     LDLIBS      += -l$${LIB_PNG}
 
     !USE_SYSTEM_JPEG: \
-    exists($${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT}): \
-    LDLIBS      += $${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT}
+    exists($${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT_S}): \
+    LDLIBS      += $${JPEG_LIBDIR}/lib$${LIB_JPEG}.$${EXT_S}
     else: \
     LDLIBS      += -l$${LIB_JPEG}
 
     !USE_SYSTEM_ZLIB: \
-    exists($${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT}): \
-    LDLIBS      += $${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT}
+    exists($${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT_S}): \
+    LDLIBS      += $${ZLIB_LIBDIR}/lib$${LIB_ZLIB}.$${EXT_S}
     else: \
     LDLIBS      += -l$${LIB_ZLIB}
 }
-
 
 INCLUDEPATH     += . .. $${LIBS_INC}
 CUI_QT: \
