@@ -327,6 +327,12 @@ win32 {
                                   _CRT_SECURE_NO_DEPRECATE=1 \
                                   _CRT_NONSTDC_NO_WARNINGS=1
 win32-msvc* {
+    # warning C4996: 'stdext::make_checked_array_iterator': warning STL4043: stdext::checked_array_iterator,
+    # stdext::unchecked_array_iterator, and related factory functions are non-Standard extensions a
+    # nd will be removed in the future. std::span (since C++20) and gsl::span can be used instead.
+    equals(QT_MAJOR_VERSION, 5):greaterThan(QMAKE_MSC_VER, 1941): \
+    DEFINES                    += _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # or
+                                 #_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
     QMAKE_CXXFLAGS_RELEASE     += /FI winsock2.h /FI winsock.h
     QMAKE_CFLAGS_WARN_ON       -= -W3
     QMAKE_ADDL_MSVC_FLAGS       = -WX- -GS -Gd -fp:precise -Zc:forScope
