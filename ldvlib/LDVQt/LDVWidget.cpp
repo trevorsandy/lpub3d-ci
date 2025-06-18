@@ -230,8 +230,7 @@ void LDVWidget::showLDVExportOptions()
 	setupLDVApplication();
 
 	LDViewExportOption *ldvExportOption = new LDViewExportOption(this, ldvParent);
-
-	if (ldvExportOption->exec() == QDialog::Accepted)
+	if (dynamic_cast<QDialog*>(ldvExportOption)->exec() == QDialog::Accepted)
 		ldvExportOption->doOk();
 	else
 		ldvExportOption->doCancel();

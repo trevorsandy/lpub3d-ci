@@ -5394,7 +5394,7 @@ bool Preferences::getPreferences()
         LDVWidget::setIniFile(copyString(ldviewIni.toLatin1().constData()));
     }
 
-    if (dialog->exec() == QDialog::Accepted) {
+    if (dynamic_cast<QDialog*>(dialog)->exec() == QDialog::Accepted) {
         QElapsedTimer timer;
         timer.start();
 
