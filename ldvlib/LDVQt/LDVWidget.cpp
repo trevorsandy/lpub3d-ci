@@ -432,7 +432,8 @@ bool LDVWidget::doCommand(QStringList &arguments)
 
 	if (!LDSnapshotTaker::doCommandLine(false, true))
 	{
-		if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1))
+		static const QRegularExpression rx("^.*-ExportFile=.*$", QRegularExpression::CaseInsensitiveOption);
+		if ((arguments.indexOf(rx, 0) != -1))
 		{
 			emit lpub->messageSig(LOG_ERROR,
 								  QString::fromWCharArray(TCLocalStrings::get(L"ExportCommandError")).arg(arguments.join(" ")));
@@ -1677,7 +1678,8 @@ void LDVWidget::displayGLExtensions()
 	int extensionCount;
 	UCSTR temp = LDrawModelViewer::getOpenGLDriverInfo(extensionCount);
 	ucstringtoqstring(openGLString, temp);
-	QStringList list = openGLString.split(QRegExp("\n|\r\n|\r"), SkipEmptyParts);
+	static const QRegularExpression rx("\n|\r\n|\r");
+	QStringList list = openGLString.split(rx, SkipEmptyParts);
 	countString = QString::number(extensionCount);
 	countString += QString::fromWCharArray((TCLocalStrings::get(L"OpenGlnExtensionsSuffix")));
 
