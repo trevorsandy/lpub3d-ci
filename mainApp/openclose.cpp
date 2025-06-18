@@ -864,7 +864,11 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
       if (saveSender) {
           QCheckBox *cb = new QCheckBox(tr("Do not show save changes on %1 message again.").arg(senderLabel));
           box.setCheckBox(cb);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+          QObject::connect(cb, &QCheckBox::checkStateChanged, [&saveSender](int state) {
+#else
           QObject::connect(cb, &QCheckBox::stateChanged, [&saveSender](int state) {
+#endif
               bool checked = true;
               if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
                   checked = false;
