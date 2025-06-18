@@ -1739,7 +1739,7 @@ void EditWindow::openFolderSelect(const QString& absoluteFilePath)
 
     const QString path = QDir::fromNativeSeparators(absoluteFilePath);
 #ifdef Q_OS_WIN
-    if (QFileInfo(path).exists()) {
+    if (QFileInfo::exists(path)) {
         // Syntax is: explorer /select, "C:\Folder1\Folder2\file_to_select"
         // Dir separators MUST be win-style slashes
 
@@ -1875,7 +1875,7 @@ bool EditWindow::maybeSave()
   if (isReadOnly)
       return false;
 
-  if (!QFileInfo(fileName).exists())
+  if (!QFileInfo::exists(fileName))
       return false;
 
   bool rc = true;
@@ -2705,7 +2705,7 @@ void EditWindow::displayFile(
         editCommandAct->setVisible(false);
     }
 
-    if (!ldrawFile && !QFileInfo(fileName).exists()) {
+    if (!ldrawFile && !QFileInfo::exists(fileName)) {
       _textEdit->document()->setModified(false);
       connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
               this,                  SLOT(  contentsChange(int,int,int)));
@@ -2796,7 +2796,7 @@ void EditWindow::loadFinished()
 
         if (modelFileEdit()) {
             saveAct->setStatusTip(tr("Save %1").arg(QDir::toNativeSeparators(fileName)));
-            if(QFileInfo(fileName).exists())
+            if(QFileInfo::exists(fileName))
                 fileWatcher.addPath(fileName);
         }
     } // Detached Editor
@@ -2961,7 +2961,7 @@ void EditWindow::closeEvent(QCloseEvent *_event)
     if (!modelFileEdit())
         return;
 
-    if (!QFileInfo(fileName).exists())
+    if (!QFileInfo::exists(fileName))
         return;
 
     fileWatcher.removePath(fileName);

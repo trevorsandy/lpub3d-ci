@@ -648,7 +648,7 @@ bool Preferences::checkLDrawLibrary(const QString &libPath) {
 
     for ( int i = 0; i < NumLibs; i++ )
     {
-       if (QFileInfo(QString("%1%2").arg(libPath, validLDrawParts[i])).exists()) {
+       if (QFileInfo::exists(QString("%1%2").arg(libPath, validLDrawParts[i]))) {
            validLDrawLibraryChange = validLDrawLibs[i];
            return true;
        }
@@ -1933,7 +1933,7 @@ void Preferences::ldrawPreferences(bool browse)
     ldrawLibPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey)).toString();
 
     QDir ldrawDir(ldrawLibPath);
-    if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || browse) {      // first check
+    if (! QFileInfo::exists(ldrawDir.absolutePath()+validLDrawPart) || browse) {      // first check
 
         QString returnMessage = QString();
 
@@ -1951,13 +1951,13 @@ void Preferences::ldrawPreferences(bool browse)
 
             if (portableDistribution &&
                (ldrawLibPath.isEmpty() ||
-               ! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists())){       // third check - no browse
+               ! QFileInfo::exists(ldrawDir.absolutePath()+validLDrawPart))){       // third check - no browse
                 ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath, validLDrawDir));
                 ldrawDir.setPath(ldrawLibPath);
             }
         }
 
-        if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || browse) {  // fourth check - browse & no browse
+        if (! QFileInfo::exists(ldrawDir.absolutePath()+validLDrawPart) || browse) {  // fourth check - browse & no browse
             if (! browse) {                                                            // fourth check - no browse
                 ldrawLibPath.clear();
 
@@ -1977,11 +1977,11 @@ void Preferences::ldrawPreferences(bool browse)
                 userDocumentsPath = dataPathList.first();
                 ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(homePath, validLDrawDir));
 
-                if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) {     // check user documents path
+                if ( ! QFileInfo::exists(ldrawLibPath+validLDrawPart)) {     // check user documents path
 
                     ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath, validLDrawDir));
 
-                    if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) { // check system data path
+                    if ( ! QFileInfo::exists(ldrawLibPath+validLDrawPart)) { // check system data path
 
                         dataPathList = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
 
@@ -1991,13 +1991,13 @@ void Preferences::ldrawPreferences(bool browse)
                         ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2), validLDrawDir)); /* ~/.local/share/LPub3D Software/lpub3d<ver_suffix>/<LDraw library>" */
 #endif
 
-                        if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) {     // check user data path
+                        if ( ! QFileInfo::exists(ldrawLibPath+validLDrawPart)) {     // check user data path
 
                             ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath, validLDrawDir));
 
                             QString message = QString("The %1 LDraw library was not found.").arg(validLDrawLibrary);
 
-                            if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) { // manual prompt for LDraw Library location
+                            if ( ! QFileInfo::exists(ldrawLibPath+validLDrawPart)) { // manual prompt for LDraw Library location
                                 ldrawLibPath.clear();
 
                                 const QString searchDetail = QMessageBox::tr ("\t%1\n\t%2\n\t%3\n\t%4")
@@ -4231,9 +4231,9 @@ void Preferences::userInterfacePreferences()
       arguments << LINUX_SYS_EDITOR;
 #elif defined Q_OS_WIN
       const QString systemDrive = QProcessEnvironment::systemEnvironment().value("SYSTEMDRIVE", "C:");
-      if((found = QFileInfo(systemDrive + "\\" + WINDOWS_NPP_X64).exists())) {
+      if((found = QFileInfo::exists(systemDrive + "\\" + WINDOWS_NPP_X64))) {
         systemEditor = systemDrive + "\\" + WINDOWS_NPP_X64;
-      } else if ((found = QFileInfo(systemDrive + "\\" + WINDOWS_NPP).exists())) {
+      } else if ((found = QFileInfo::exists(systemDrive + "\\" + WINDOWS_NPP))) {
         systemEditor = systemDrive + "\\" + WINDOWS_NPP;
       }
       usingNPP = found;
@@ -4806,7 +4806,7 @@ void Preferences::setBlenderExePathPreference(QString s)
 {
   QSettings Settings;
   blenderInstalled = true;
-  if (!QFileInfo(s).exists()) {
+  if (!QFileInfo::exists(s)) {
       setBlenderImportModule(s);
       setBlenderVersionPreference(s);
       blenderInstalled = false;

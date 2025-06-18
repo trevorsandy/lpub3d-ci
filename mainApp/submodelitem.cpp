@@ -309,7 +309,7 @@ int SubModel::createSubModelImage(
           }
       }
       if (!imageOutOfDate)
-          imageOutOfDate = ! QFileInfo(ldrNames.first()).exists();
+          imageOutOfDate = ! QFileInfo::exists(ldrNames.first());
   }
 
   // Populate viewerSubmodelKey variable

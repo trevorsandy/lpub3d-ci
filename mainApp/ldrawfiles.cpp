@@ -5448,7 +5448,7 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
           if (viewerStepKey.stepNum <= si->_stepKey.stepNum) {
             if (modified(getSubmodelName(viewerStepKey.modelIndex))) {
               si->_modified = true;
-              if (QFileInfo(si->_imagePath).exists()) {
+              if (QFileInfo::exists(si->_imagePath)) {
                 imageFilePaths.append(si->_imagePath);
               }
             }
@@ -5716,7 +5716,7 @@ QStringList LDrawFile::getPathsFromViewerStepKey(const QString &stepKey)
       if (viewerStepKey.stepNum <= i->_stepKey.stepNum) {
         if (modified(getSubmodelName(viewerStepKey.modelIndex))) {
           i->_modified = true;
-          if (QFileInfo(i->_imagePath).exists()) {
+          if (QFileInfo::exists(i->_imagePath)) {
             list.append(i->_imagePath);
           }
         }

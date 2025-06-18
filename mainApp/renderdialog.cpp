@@ -211,7 +211,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
             ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
 
-            if (QFileInfo(Preferences::blenderLDrawConfigFile).exists())
+            if (QFileInfo::exists(Preferences::blenderLDrawConfigFile))
             {
                 QSettings Settings(Preferences::blenderLDrawConfigFile, QSettings::IniFormat);
                 if (Settings.value(QString("%1/cropImage").arg(IMPORTLDRAW), QString()).toBool())
@@ -349,7 +349,7 @@ void RenderDialog::on_RenderButton_clicked()
         QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerStepKey);
         if (csiParts.isEmpty())
         {
-            if (!ui->InputGenerateCheck->isChecked() && QFileInfo(mModelFile).exists()) {
+            if (!ui->InputGenerateCheck->isChecked() && QFileInfo::exists(mModelFile)) {
                 csiParts = getFileContent();
                 if (csiParts.isEmpty())
                     errorEncountered = tr("Could not get LDraw content for %1.").arg(mModelFile);
@@ -635,7 +635,7 @@ void RenderDialog::on_RenderButton_clicked()
         scriptDir = configPathList.first();
 
          QFile script;
-        if (QFileInfo(scriptDir).exists()) {
+        if (QFileInfo::exists(scriptDir)) {
 
 #ifdef Q_OS_WIN
             scriptName =  QLatin1String("render_ldraw_model.bat");
@@ -1072,7 +1072,7 @@ void RenderDialog::ShowResult()
 
         lpub->getAct("blenderRenderAct.4")->setEnabled(true);
 
-        Success = QFileInfo(FileName).exists();
+        Success = QFileInfo::exists(FileName);
         if (Success) {
             setMinimumSize(100, 100);
             QImageReader reader(FileName);

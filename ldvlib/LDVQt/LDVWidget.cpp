@@ -907,7 +907,7 @@ void LDVWidget::doPartList(void)
 					}
 					else
 					{
-						if (QFileInfo(htmlFilename).exists())
+						if (QFileInfo::exists(htmlFilename))
 						{
 							QMessageBoxResizable box;
 							box.setWindowIcon(QIcon());
@@ -940,7 +940,7 @@ void LDVWidget::doPartList(void)
 					}
 				}
 			}
-			if (htmlInventory->getShowFileFlag() && QFileInfo(htmlFilename).exists())
+			if (htmlInventory->getShowFileFlag() && QFileInfo::exists(htmlFilename))
 			{
 				showDocument(htmlFilename);
 			}
@@ -953,7 +953,7 @@ void LDVWidget::doPartList(void)
 void LDVWidget::showDocument(QString &htmlFilename)
 {
 
-	if (QFileInfo(htmlFilename).exists())
+	if (QFileInfo::exists(htmlFilename))
 	{
 
 		//display completion message
@@ -1319,10 +1319,10 @@ char *LDVWidget::getLDrawZipPath(void)
 {
 	char *ldrawZip = LDVPreferences::getLDrawZipPath();
 
-	if (!QFileInfo(ldrawZip).exists())
+	if (!QFileInfo::exists(ldrawZip))
 	{
 		QString zipPath = QDir::toNativeSeparators("%1/complete.zip").arg(getLDrawDir());
-		if (QFileInfo(zipPath).exists())
+		if (QFileInfo::exists(zipPath))
 			ldrawZip = copyString(zipPath.toUtf8().constData());
 		else
 			ldrawZip = copyString("");
@@ -1333,27 +1333,33 @@ char *LDVWidget::getLDrawZipPath(void)
 char *LDVWidget::getLDrawDir(void)
 {
 	char *lDrawDir = LDVPreferences::getLDrawDir();
-
-	if (!QFileInfo(lDrawDir).exists())
+	if (!QFileInfo::exists(lDrawDir))
 	{
 		lDrawDir = copyString(getenv("LDRAWDIR"));
-		if (!QFileInfo(lDrawDir).exists())
+		if (!QFileInfo::exists(lDrawDir))
 		{
 #ifdef WIN32
-			auto getWinDir = []() {
-				QString path = QDir::toNativeSeparators("%1/LDraw").arg(getenv("USERPROFILE"));
-				if (QFileInfo(path).exists())
-					return path.toUtf8().constData();
-				path = QDir::toNativeSeparators("%1/LDraw").arg(getenv("ALLUSERSPROFILE"));
-				if (QFileInfo(path).exists())
-					return path.toUtf8().constData();
+			auto getWinDir = [&]() {
+				char *path = nullptr;
+				QString value = QDir::toNativeSeparators("%1/LDraw").arg(getenv("USERPROFILE"));
+				if (QFileInfo::exists(value)) {
+					path = value.toUtf8().data();
+					return path;
+				}
+				value = QDir::toNativeSeparators("%1/LDraw").arg(getenv("ALLUSERSPROFILE"));
+				if (QFileInfo::exists(value)) {
+					path = value.toUtf8().data();
+					return path;
+				}
 #ifdef __MINGW64__
-				path = QString("/usr/share/ldraw");
-				if (QFileInfo(path).exists())
-					return path.toUtf8().constData();
+				value = QString("/usr/share/ldraw");
+				if (QFileInfo::exists(value)) {
+					path = value.toUtf8().data();
+					return path;
+				}
 #endif
-				path = QString("C:\\LDraw");
-				return path.toUtf8().constData();
+				path = QString("C:\\LDraw").toUtf8().data();
+				return path;
 			};
 
 			lDrawDir = copyString(getWinDir());

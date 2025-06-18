@@ -1892,7 +1892,7 @@ void Gui::applyCameraSettings()
 
         if (applyUpVector) {
             clearStepCache = true;
-            if (QFileInfo(imageFileName).exists())
+            if (QFileInfo::exists(imageFileName))
                 clearStepCSICache(imageFileName);
 
             // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
@@ -1905,7 +1905,7 @@ void Gui::applyCameraSettings()
 
         if (applyTarget) {
             clearStepCache = true;
-            if (QFileInfo(imageFileName).exists())
+            if (QFileInfo::exists(imageFileName))
                 clearStepCSICache(imageFileName);
 
             // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
@@ -1918,7 +1918,7 @@ void Gui::applyCameraSettings()
 
         if (applyPosition) {
             clearStepCache = true;
-            if (QFileInfo(imageFileName).exists())
+            if (QFileInfo::exists(imageFileName))
                 clearStepCSICache(imageFileName);
 
             // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
@@ -2003,7 +2003,7 @@ void Gui::applyCameraSettings()
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraName.here(), metaString, newCommand);
         }
 
-        if (clearStepCache && QFileInfo(imageFileName).exists())
+        if (clearStepCache && QFileInfo::exists(imageFileName))
             clearStepCSICache(imageFileName);
 
         endMacro();

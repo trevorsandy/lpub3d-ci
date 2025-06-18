@@ -1517,7 +1517,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     QFileInfo lpub3dLibFileInfo(QDir::toNativeSeparators(Preferences::lpub3dLibFile));
     if (lpub3dLibFileInfo.exists())
         archiveFiles << lpub3dLibFileInfo.absoluteFilePath();
-    if (QFileInfo(QString("%1/%2").arg(lpub3dLibFileInfo.absolutePath(),_ldrawCustomArchive)).exists())
+    if (QFileInfo::exists(QString("%1/%2").arg(lpub3dLibFileInfo.absolutePath(),_ldrawCustomArchive)))
         archiveFiles << QString("%1/%2").arg(lpub3dLibFileInfo.absolutePath(),_ldrawCustomArchive);
 
     //library directories
@@ -1538,14 +1538,14 @@ void ColourPartListWorker::generateCustomColourPartsList()
     QString const lib = Preferences::validLDrawLibrary;
     QString const unoffLib = Preferences::usingDefaultLibrary ? QString("Unofficial %1").arg(lib)  : QString("%1 Custom").arg(lib);
     QString const offLib = Preferences::usingDefaultLibrary ? QString("Official %1").arg(lib) : lib;
-    for (QString const &archiveFile : archiveFiles) {
+    for (QString &archiveFile : archiveFiles) {
         QString const library = archiveFile == lpub3dLibFileInfo.absoluteFilePath() ? QString("%1 Library").arg(offLib) : QString("%1 Library").arg(unoffLib);
       _ldrawStaticColourParts  << QString("# %1. %2: %3").arg(libCount++).arg(library, archiveFile);
     }
     int dirCount = 1;
     _ldrawStaticColourParts  << QString();
     _ldrawStaticColourParts  << QLatin1String("# Library Directories:");
-    for (QString const &partTypeDir : partTypeDirs) {
+    for (QString &partTypeDir : partTypeDirs) {
       _ldrawStaticColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
     }
     _ldrawStaticColourParts  << QLatin1String("# ----------------------Do not delete above this line----------------------------------");

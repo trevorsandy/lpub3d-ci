@@ -8495,7 +8495,7 @@ void OpenWithProgramDialogGui::validateProgramEntries() {
 QIcon OpenWithProgramDialogGui::getProgramIcon(const QString &programPath) {
     const QString programName = QString("%1icon.png").arg(QFileInfo(programPath).baseName());
     const QString iconFile = QString("%1/%2").arg(QDir::tempPath(), programName);
-    if (!QFileInfo(iconFile).exists()) {
+    if (!QFileInfo::exists(iconFile)) {
         QPixmap iconPixmap(16,16);
         if (programPath.isEmpty()) {
             iconPixmap.fill(Qt::transparent);
