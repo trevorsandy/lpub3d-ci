@@ -1230,12 +1230,12 @@ void LPub::loadSnippetCollection()
 
     snippetCollection = new SnippetCollection(this);
 
-    JsonFile<Snippet>::load(":/resources/builtinsnippets.json", snippetCollection);
+    JsonFile<Snippet>::load(":/resources/builtinsnippets.json", dynamic_cast<JsonCollection<Snippet>*>(snippetCollection));
     int builtinSnippetCount = snippetCollection->count();
 
     SnippetCollection userSnippetCollection;
     const QString userSnippets = QString("%1/extras/user-snippets.json").arg(Preferences::lpubDataPath);
-    JsonFile<Snippet>::load(QDir::toNativeSeparators(userSnippets), &userSnippetCollection);
+    JsonFile<Snippet>::load(QDir::toNativeSeparators(userSnippets), &dynamic_cast<JsonCollection<Snippet>&>(userSnippetCollection));
     for (int i = 0; i < userSnippetCollection.count(); ++i) {
         Snippet userSnippet = userSnippetCollection.at(i);
         if (!snippetCollection->contains(userSnippet.trigger))
@@ -1262,13 +1262,12 @@ void LPub::loadCommandCollection()
     timer.start();
 
     commandCollection = new CommandCollection(this);
-
     const QString userCommandDescriptions = QString("%1/extras/user-command-descriptions.json").arg(Preferences::lpubDataPath);
-    JsonFile<Command>::load(QDir::toNativeSeparators(userCommandDescriptions), commandCollection);
+    JsonFile<Command>::load(QDir::toNativeSeparators(userCommandDescriptions), dynamic_cast<JsonCollection<Command>*>(commandCollection));
     int userCommandCount = commandCollection->count();
 
     CommandCollection builtinCommandCollection;
-    JsonFile<Command>::load(":/resources/builtincommanddescriptions.json", &builtinCommandCollection);
+    JsonFile<Command>::load(":/resources/builtincommanddescriptions.json", &dynamic_cast<JsonCollection<Command>&>(builtinCommandCollection));
     int builtinCommandCount = builtinCommandCollection.count();
 
     QStringList commands;
