@@ -709,7 +709,7 @@ void Gui::exportAsHtml()
     // setup snapshot image generation arguments
     QStringList arguments;
     QString snapshot    = QDir::toNativeSeparators(ldrBaseFile+"_snapshot.ldr");
-    if (QFileInfo(snapshot).exists()) {
+    if (QFileInfo::exists(snapshot)) {
         // always use LDView settings regardless of preferred renderer
         noCA = Preferences::applyCALocally || meta.rotStep.value().type.toUpper() == QLatin1String("ABS");
         // setup camera globe (latitude, longitude) using LDView default camera distance
