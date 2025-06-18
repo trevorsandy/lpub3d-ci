@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include <LDVMisc.h>
+
 #ifdef WIN32
 
 #if defined(_MSC_VER) && _MSC_VER >= 1400 && defined(_DEBUG)
@@ -15,7 +17,6 @@
 #include <wchar.h>
 
 #endif
-#include <LDVMisc.h>
 
 void wcstoqstring(QString &dst, const wchar_t *src, int length /*= -1*/)
 {
