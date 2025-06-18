@@ -480,7 +480,11 @@ CycleDialog::CycleDialog(
   if (isEditor) {
       QCheckBox *cb = new QCheckBox(tr("Remember Choice and do not show this again."));
       grid->addWidget(cb);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+      QObject::connect(cb, &QCheckBox::checkStateChanged, this, [&](int state) {
+#else
       QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
+#endif
           if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
              Preferences::setEditorCyclePagesOnUpdateDialog(false);
              rememberEditorCycleChoice = true;

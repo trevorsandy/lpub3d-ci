@@ -3082,7 +3082,11 @@ void EditWindow::preferences()
     editorCyclePagesOnUpdateDialogChkBox->setEnabled(!Preferences::buildModEnabled);
     editorCyclePagesOnUpdateDialogChkBox->setChecked(editorCyclePagesOnUpdateDialog);
     editorCyclePagesOnUpdateDialogSubform->addRow(editorCyclePagesOnUpdateDialogChkBox);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+    QObject::connect(editorCyclePagesOnUpdateDialogChkBox, &QCheckBox::checkStateChanged, [](int state) {
+#else
     QObject::connect(editorCyclePagesOnUpdateDialogChkBox, &QCheckBox::stateChanged, [](int state) {
+#endif
         if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Unchecked) {
             QString const message = Preferences::editorCyclePagesOnUpdate
                     ? tr("Keep cycle pages as the default action ?")
