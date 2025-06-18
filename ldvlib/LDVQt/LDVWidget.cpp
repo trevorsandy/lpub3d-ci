@@ -1408,12 +1408,15 @@ void LDVWidget::checkForLibraryUpdates(void)
 		mb.addButton(QMessageBox::No);
 		mb.setIcon(QMessageBox::Icon::Question);
 		mb.setDefaultButton(QMessageBox::No);
-#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
 		QCheckBox *cb = new QCheckBox(QString::fromWCharArray(TCLocalStrings::get(L"DoNotShowMessage")));
 		mb.setCheckBox(cb);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+		QObject::connect(cb, &QCheckBox::checkStateChanged, [&](Qt::CheckState state) {
+		showLDrawZipMsg = (state != Qt::CheckState::Checked); });
+#else
 		QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
 		showLDrawZipMsg = (static_cast<Qt::CheckState>(state) != Qt::CheckState::Checked); });
-#endif
+#endif // !QT_VERSION >= QT_VERSION_CHECK(6,9,0)
 		mb.exec();
 		TCUserDefaults::setBoolForKey(showLDrawZipMsg, LDRAW_ZIP_SHOW_WARNING_KEY, false);
 		if (mb.result()==QMessageBox::No) { return; }

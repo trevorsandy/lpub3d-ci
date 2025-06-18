@@ -2461,7 +2461,11 @@ FadeStepsGui::FadeStepsGui(
 
   grid->addWidget(fadeOpacitySlider,5,1);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+  emit fadeCheck->checkStateChanged(fadeCheck->isChecked() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+#else
   emit fadeCheck->stateChanged(fadeCheck->isChecked());
+#endif
 
   setupModified = false;
   lpubFadeModified = false;
@@ -2695,7 +2699,11 @@ HighlightStepGui::HighlightStepGui(
     setLayout(grid);
   }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+  emit highlightCheck->checkStateChanged(highlightCheck->isChecked() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+#else
   emit highlightCheck->stateChanged(highlightCheck->isChecked());
+#endif
 
   setupModified = false;
   lpubHighlightModified = false;

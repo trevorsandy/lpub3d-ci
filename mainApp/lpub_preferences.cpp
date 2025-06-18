@@ -4460,7 +4460,11 @@ int  Preferences::showMessage(
     if (!abort && !override) {
         QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(msgType));
         box.setCheckBox(cb);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+        QObject::connect(cb, &QCheckBox::checkStateChanged, [&message, &msgID](int state) {
+#else
         QObject::connect(cb, &QCheckBox::stateChanged, [&message, &msgID](int state) {
+#endif
             if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
                 messagesNotShown.append(QString(msgID.toString() + "|" + message));
         });

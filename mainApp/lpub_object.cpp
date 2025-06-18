@@ -1700,7 +1700,11 @@ void LPub::removeLPubFormatting(int option)
           box.setDefaultButton(QMessageBox::No);
           QCheckBox *cb1 = new QCheckBox(tr ("Preserve GLOBAL header lines ?"));
           box.setCheckBox(cb1);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+          QObject::connect(cb1, &QCheckBox::checkStateChanged, [&](int state) {
+#else
           QObject::connect(cb1, &QCheckBox::stateChanged, [&](int state) {
+#endif
               if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
                   preserveGlobalHeaders = true;
           });

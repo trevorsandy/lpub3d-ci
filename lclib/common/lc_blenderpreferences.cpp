@@ -455,9 +455,15 @@ lcBlenderPreferences::lcBlenderPreferences(int Width, int Height, double Scale, 
 
 	QCheckBox* AddonVersionCheck = new QCheckBox(tr("Prompt to download new addon version when available"), BlenderAddonVersionBox);
 	AddonVersionCheck->setChecked(lcGetProfileInt(LC_PROFILE_BLENDER_ADDON_VERSION_CHECK));
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+	QObject::connect(AddonVersionCheck, &QCheckBox::checkStateChanged, [](Qt::CheckState State)
+	{
+		 const bool VersionCheck = State == Qt::CheckState::Checked;
+#else
 	QObject::connect(AddonVersionCheck, &QCheckBox::stateChanged, [](int State)
 	{
 		 const bool VersionCheck = static_cast<Qt::CheckState>(State) == Qt::CheckState::Checked;
+#endif
 		 lcSetProfileInt(LC_PROFILE_BLENDER_ADDON_VERSION_CHECK, (int)VersionCheck);
 	});
 	mAddonGridLayout->addWidget(AddonVersionCheck,0,0,1,4);
