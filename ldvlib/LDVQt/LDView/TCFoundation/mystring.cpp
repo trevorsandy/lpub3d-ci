@@ -1,11 +1,11 @@
 #include "mystring.h"
-#if !defined (WIN32) || defined (__MINGW64__)
+#if !defined (WIN32) || defined (__MINGW64__) || (defined (WIN32) && defined (_QT) && QT_VERSION >= QT_VERSION_CHECK(6,9,0))
 #ifdef USE_UTF8_LOCALE
 #include <clocale>
 #else
 // ConvertUTF supposedly has issues, so if we are on a platform that supports a
-// UTF-8 CTYPE locale, use that instead of ConvertUTF. On Windows we have
-// Windows-specific code to use instead of ConvertUTF.
+// UTF-8 CTYPE locale, use that instead of ConvertUTF. On Windows, except if Qt6,
+// we have Windows-specific code to use instead of ConvertUTF.
 #include "ConvertUTF.h"
 #endif // !USE_UTF8_LOCALE
 #endif // !WIN32
