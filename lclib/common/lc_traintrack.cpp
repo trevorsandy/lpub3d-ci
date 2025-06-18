@@ -67,8 +67,13 @@ void lcTrainTrackInfo::Initialize(lcPiecesLibrary* Library)
 				ConnectionSleeper = lcTrainTrackConnectionSleeper::HasSleeper;
 				ConnectionGroup = ConnectionGroup.mid(1);
 			}
-
+/*** LPub3D Mod - Qt6 non-constant expression cannot be narrowed message ***/
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+			Connections.emplace_back(lcTrainTrackConnection{ lcMatrix44(lcMatrix33RotationZ(Rotation), Position), { static_cast<quint32>(qHash(ConnectionGroup)), ConnectionSleeper } });
+#else
 			Connections.emplace_back(lcTrainTrackConnection{ lcMatrix44(lcMatrix33RotationZ(Rotation), Position), { qHash(ConnectionGroup), ConnectionSleeper } });
+#endif
+/*** LPub3D Mod end ***/
 		}
 
 		int Color = JsonPiece["Color"].toInt(16);
