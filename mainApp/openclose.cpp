@@ -285,7 +285,7 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
 
     const QString path = QDir::fromNativeSeparators(absoluteFilePath);
 #ifdef Q_OS_WIN
-    if (QFileInfo(path).exists()) {
+    if (QFileInfo::exists(path)) {
         // Syntax is: explorer /select, "C:\Folder1\Folder2\file_to_select"
         // Dir separators MUST be win-style slashes
 
@@ -321,7 +321,7 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
         openPath(path.left(path.lastIndexOf("/")));
     }
 #elif defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    if (QFileInfo(path).exists()) {
+    if (QFileInfo::exists(path)) {
         QProcess proc;
         QString output;
         proc.start("xdg-mime", QStringList() << "query" << "default" << "inode/directory");
@@ -384,7 +384,7 @@ void Gui::updateOpenWithActions()
       {
         const QString programName = QString("%1icon.png").arg(QFileInfo(programPath).baseName());
         const QString iconFile = QString("%1/%2").arg(QDir::tempPath(), programName);
-        if (!QFileInfo(iconFile).exists()) {
+        if (!QFileInfo::exists(iconFile)) {
           QFileInfo programInfo(programPath);
           QFileSystemModel *fsModel = new QFileSystemModel;
           fsModel->setRootPath(programInfo.path());
