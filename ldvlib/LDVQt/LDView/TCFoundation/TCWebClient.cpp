@@ -33,6 +33,8 @@
 
 #endif // !USE_CPP11
 
+#include <TCFoundation/mystring.h>
+
 #ifdef WIN32
 //#define sleep(sec) Sleep((sec) * 1000)
 #endif // WIN32
@@ -43,7 +45,7 @@
 #endif // _DEBUG
 #endif // WIN32
 
-#include <TCFoundation/mystring.h>
+//#include <TCFoundation/mystring.h>
 
 //#define BUFFER_SIZE 1
 #define BUFFER_SIZE 1024
