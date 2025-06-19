@@ -3384,7 +3384,11 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
 
     QAction * actionComplete = new QAction(tr("Snippet Completer"), this);
     actionComplete->setObjectName("snippetCompleterAct.2");
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    actionComplete->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space));
+#else
     actionComplete->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Space));
+#endif
     lpub->actions.insert(actionComplete->objectName(), Action("Edit.Snippet Completer", actionComplete));
     connect(actionComplete, SIGNAL(triggered()),
             this,           SLOT(  performCompletion()));
