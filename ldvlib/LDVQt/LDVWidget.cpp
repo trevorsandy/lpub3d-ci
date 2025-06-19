@@ -24,7 +24,14 @@
 #include <QByteArray>
 #include <QApplication>
 #include <QErrorMessage>
+#include <QWindow>
+#include <QtGlobal>
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+#include <QScreen>
+#else
+#include <QGLContext>
 #include <QDesktopWidget>
+#endif
 #include <QDesktopServices>
 #include <QFile>
 #include <QTextStream>
@@ -33,8 +40,6 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <QTimer>
-#include <QWindow>
-#include <QGLContext>
 
 #include <string>
 #include <assert.h>
