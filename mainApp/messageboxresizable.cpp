@@ -155,7 +155,11 @@ MessageBoxDetailsText::MessageBoxDetailsText(QWidget *parent)
     , copyAvailable(false)
 {
     QVBoxLayout *layout = new QVBoxLayout;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    layout->setContentsMargins(0,0,0,0);
+#else
     layout->setMargin(0);
+#endif
     QFrame *line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);

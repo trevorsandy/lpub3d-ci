@@ -105,7 +105,11 @@ void LGraphicsView::setSceneRuler() {
         } else {
             mGridLayout = new QGridLayout();
             mGridLayout->setSpacing(0);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            mGridLayout->setContentsMargins(0,0,0,0);
+#else
             mGridLayout->setMargin(0);
+#endif
         }
 
         setViewportMargins(RULER_BREADTH,RULER_BREADTH,0,0);
