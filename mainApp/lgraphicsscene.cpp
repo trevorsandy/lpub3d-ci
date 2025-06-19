@@ -318,7 +318,12 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
         QString t = QString("%1x%2 pixels")
                 .arg(QString::number(mGuidePos.x(),'f',0),
                      QString::number(mGuidePos.y(),'f',0));
-        qreal w = fm.width(t);
+        qreal w =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        fm.horizontalAdvance(t);
+#else
+        fm.width(t);
+#endif
         QPointF p;
         qreal ver = mBaseItem->boundingRect().height()/2;
         qreal hor = mBaseItem->boundingRect().width()/2;
