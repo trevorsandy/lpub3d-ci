@@ -113,11 +113,15 @@ const QString iniFlagNames [] =
 };
 
 LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+		: QOpenGLWidget(parent),
+#else
 		: QGLWidget(parent),
+		ldvContext(nullptr),
+#endif
 		iniFlag(iniflag),
 		forceIni(forceIni),
 		darkTheme(Preferences::darkTheme),
-		ldvContext(nullptr),
 		ldvParent(parent),
 		ldPrefs(nullptr),
 		modelViewer(nullptr),
@@ -149,7 +153,9 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
 	setupLDVFormat();
 
+#if (QT_VERSION < 0x50400)
 	setupLDVContext();
+#endif
 
 	if (!setIniFile())
 		return;
@@ -455,14 +461,21 @@ bool LDVWidget::getUseFBO()
 		return false;
 }
 
+
 void LDVWidget::setupLDVFormat(void)
 {
 	// Specify the format and create platform-specific surface
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+	int Samples = QSurfaceFormat::defaultFormat().samples();
+	ldvFormat.setSamples(Samples > 0 ? Samples : 1);
+	QSurfaceFormat::setDefaultFormat(ldvFormat);
+#else
 	int Samples = (QGLFormat::defaultFormat().sampleBuffers()) ? QGLFormat::defaultFormat().samples() : 1;
 	ldvFormat.setSamples(Samples);
 	ldvFormat.setAlpha(true);
 	ldvFormat.setStencil(true);
 	QGLFormat::setDefaultFormat(ldvFormat);
+#endif
 }
 
 void LDVWidget::setupLDVContext()
@@ -484,7 +497,11 @@ void LDVWidget::setupLDVContext()
 
 	if (needsInitialize)
 	{
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+		initializeOpenGLFunctions();
+#else
 		initializeGLFunctions();
+#endif
 		//displayGLExtensions();
 	}
 }
@@ -504,7 +521,11 @@ bool LDVWidget::grabImage(int &imageWidth,
 	else
 	{
 		setupSnapshotBackBuffer(imageWidth, imageHeight);
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+		// add code for renderPixmap functionality
+#else
 		renderPixmap(imageWidth, imageHeight);
+#endif
 	}
 	return ok;
 }
