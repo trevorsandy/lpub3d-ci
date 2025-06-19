@@ -621,10 +621,11 @@ void Gui::saveDisplayedPage()
 void Gui::nextPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+).*$");
-  if (string.contains(rx)) {
+  static QRegularExpression rx("^(\\d+).*$");
+  QRegularExpressionMatch match = rx.match(string);
+  if (match.hasMatch()) {
     bool ok;
-    int inputPageNum = rx.cap(1).toInt(&ok);
+    int inputPageNum = match.captured(1).toInt(&ok);
     if (ok && (inputPageNum != Gui::displayPageNum)) { // numbers are different so jump to page
       gui->countPages();
       if (inputPageNum <= Gui::maxPages) {
@@ -714,11 +715,12 @@ void Gui::nextPageContinuous()
 void Gui::previousPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+).*$");
-  if (string.contains(rx)) {
+  static QRegularExpression rx("^(\\d+).*$");
+  QRegularExpressionMatch match = rx.match(string);
+  if (match.hasMatch()) {
     bool ok;
     int inputPageNum;
-    inputPageNum = rx.cap(1).toInt(&ok);
+    inputPageNum = match.captured(1).toInt(&ok);
     if (ok && (inputPageNum != Gui::displayPageNum)) { // numbers are different so jump to page
       countPages();
       if (inputPageNum >= 1 + Gui::pa && inputPageNum != Gui::displayPageNum) {
@@ -1176,9 +1178,9 @@ bool Gui::continuousPageDialog(PageDirection d)
           if (Gui::messageList.size()) {
               int errorSet = 0;
               int warnSet  = 0;
-              QRegExp errorRx(">ERROR<");
-              QRegExp fatalRx(">FATAL<");
-              QRegExp warnRx(">WARNING<");
+              static QRegularExpression errorRx(">ERROR<");
+              static QRegularExpression fatalRx(">FATAL<");
+              static QRegularExpression warnRx(">WARNING<");
               for (QString &item : Gui::messageList)
                   if (item.contains(errorRx) || item.contains(fatalRx))
                       errorSet++;
@@ -1213,14 +1215,17 @@ bool Gui::processPageRange(const QString &range)
       int rangeMin = 0, rangeMax = 0;
       bool ok[2] = {false, false};
       bool multiRange = range.contains(',');
-      bool ofPages = range.contains("of",Qt::CaseInsensitive);
-      QRegExp startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", Qt::CaseInsensitive);
-      QRegExp endRx("(?:[^\\w\\-\\,\\s]*)(\\d+)$", Qt::CaseInsensitive);
-      QString cleanRange = range.trimmed().replace(QRegExp("of|to",Qt::CaseInsensitive),"-").replace(" ", "");
-      if (cleanRange.contains(startRx)) {
-          rangeMin = startRx.cap(1).toInt(&ok[0]);
-          if (cleanRange.contains(endRx))
-              rangeMax = endRx.cap(1).toInt(&ok[1]);
+      bool ofPages = range.contains("of", Qt::CaseInsensitive);
+      static QRegularExpression startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", QRegularExpression::CaseInsensitiveOption);
+      static QRegularExpression endRx("(?:[^\\w\\-\\,\\s]*)(\\d+)$", QRegularExpression::CaseInsensitiveOption);
+      static QRegularExpression ofToRx("of|to", QRegularExpression::CaseInsensitiveOption);
+      QString cleanRange = range.trimmed().replace(ofToRx,"-").replace(" ", "");
+      QRegularExpressionMatch match = startRx.match(cleanRange);
+      if (match.hasMatch()) {
+          rangeMin = match.captured(1).toInt(&ok[0]);
+          match = endRx.match(cleanRange);
+          if (match.hasMatch())
+              rangeMax = match.captured(1).toInt(&ok[1]);
           if (ok[0] && ok[1] && rangeMin > rangeMax)
               Gui::pageDirection = PAGE_BACKWARD;
       }
@@ -1298,10 +1303,11 @@ void Gui::lastPage()
 void Gui::setPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+).*$");
-  if (string.contains(rx)) {
+  static QRegularExpression rx("^(\\d+).*$");
+  QRegularExpressionMatch match = rx.match(string);
+  if (match.hasMatch()) {
     bool ok;
-    const int inputPageNum = rx.cap(1).toInt(&ok);
+    const int inputPageNum = match.captured(1).toInt(&ok);
     if (ok) {
       gui->countPages();
       if (inputPageNum <= Gui::maxPages && inputPageNum != Gui::displayPageNum) {
