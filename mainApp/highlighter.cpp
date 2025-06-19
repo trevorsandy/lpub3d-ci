@@ -1058,11 +1058,13 @@ Highlighter::Highlighter(QTextDocument *parent)
 void Highlighter::highlightBlock(const QString &text)
 {
     // apply the predefined rules
+    QRegularExpressionMatchIterator matchIterator;
+    QRegularExpressionMatch match;
     const QVector<HighlightingRule> rules = highlightingRules;
     for (const HighlightingRule &rule : rules) {
-        QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+        matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
-            QRegularExpressionMatch match = matchIterator.next();
+            match = matchIterator.next();
             setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
     }
@@ -1075,7 +1077,7 @@ void Highlighter::highlightBlock(const QString &text)
         startIndex = text.indexOf(LDrawMultiLineCommentStartExpression);
 
     while (startIndex >= 0) {
-        QRegularExpressionMatch match = LDrawMultiLineCommentEndExpression.match(text, startIndex);
+        match = LDrawMultiLineCommentEndExpression.match(text, startIndex);
         int endIndex = match.capturedStart();
         int commentLength = 0;
         if (endIndex == -1) {
@@ -1094,8 +1096,8 @@ void Highlighter::highlightBlock(const QString &text)
     // 3 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3
     // 4 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
     // 5 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
-    QRegularExpression typeRx("^([1-5])\\s+");
-    QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)");
+    static QRegularExpression typeRx("^([1-5])\\s+");
+    static QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)");
     QRegularExpressionMatch typeMatch = typeRx.match(text);
     int index = -1;
     bool texmap = false, type1_5 = false, type1 = false, type2_5 = false;
