@@ -1608,7 +1608,11 @@ bool LDrawFile::loadIncludeFile(const QString &mcFileName)
     emit lpub->messageSig(LOG_TRACE, QObject::tr("Loading include file '%1'...").arg(mcFileName));
 
     QTextStream in(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    in.setEncoding(_currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
     in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
 
     static QRegularExpression subRx("^0\\s+!?(?:LPUB)*\\s?(PLI BEGIN SUB|PART BEGIN IGN|PLI END|PART END)[^\n]*");
 
@@ -1873,7 +1877,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     /* Read it in the first time to put into fileList in order of appearance */
 
     QTextStream in(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    in.setEncoding(_currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
     in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
 
     while ( ! in.atEnd()) {
         QString smLine = in.readLine(0);
@@ -2488,7 +2496,11 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         /* Read it in the first time to put into fileList in order of appearance */
 
         QTextStream in(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        in.setEncoding(_currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
         in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
         bool checked = false;
         while ( ! in.atEnd()) {
             smLine = in.readLine(0);
@@ -3886,7 +3898,11 @@ bool LDrawFile::saveModelFile(const QString &fileName)
     bool newLineIinserted = false;
 
     QTextStream out(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    out.setEncoding(_currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
     out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
 
     for (int i = 0; i < _subFileOrder.size(); i++) {
 
@@ -3923,7 +3939,11 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                                      .arg(_mpd ? "MPD" : "LDR", writeFileName));
 
                 QTextStream out(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                out.setEncoding(_currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
                 out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
             }
 
             if (addFILEMeta) {
@@ -4051,7 +4071,11 @@ bool LDrawFile::saveIncludeFile(const QString &fileName) {
         }
 
         QTextStream out(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        out.setEncoding(_currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
         out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
 
         for (int j = 0; j < f.value()._contents.size(); j++) {
           out << f.value()._contents[j] << lpub_endl;

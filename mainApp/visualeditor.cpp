@@ -2872,7 +2872,11 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
             QFile vf(ModelFile);
             if (vf.open(QFile::ReadOnly | QFile::Text)) {
                 QTextStream in(&vf);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                in.setEncoding(QStringConverter::Utf8);
+#else
                 in.setCodec(QTextCodec::codecForName("UTF-8"));
+#endif
                 QStringList vcl;
                 QLatin1String lpubMeta("0 !LPUB ");
                 while ( ! in.atEnd()) {
@@ -2885,7 +2889,11 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
                 QFile rf(ModelFile);
                 if (rf.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text)) {
                     QTextStream out(&rf);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                    out.setEncoding(QStringConverter::Utf8);
+#else
                     out.setCodec(QTextCodec::codecForName("UTF-8"));
+#endif
                     QStringList const scl = lpub->ldrawFile.getViewerStepRotatedContents(currentStep->viewerStepKey);
                     static QRegularExpression insertRx("^0 // ROTSTEP ");
                     bool inserted = false;

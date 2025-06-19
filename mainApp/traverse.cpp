@@ -5649,7 +5649,11 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             emit gui->messageSig(LOG_TRACE, tr("Loading include file '%1'...").arg(filePath));
 
             QTextStream in(&file);
-            in.setCodec(lpub->ldrawFile._currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+           in.setEncoding(lpub->ldrawFile._currFileIsUTF8 ? QStringConverter::Utf8 : QStringConverter::System);
+#else
+           in.setCodec(lpub->ldrawFile._currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
 
             /* Read it in to put into subFiles in order of appearance */
             while ( ! in.atEnd()) {
