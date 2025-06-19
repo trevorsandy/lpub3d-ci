@@ -3832,7 +3832,12 @@ void LDrawFile::recountParts()
     int loadedItems = _loadedItems.size();
     for (int i = loadedItems - 1; i >= 0; i--) {
         QString const &item = _loadedItems.at(i);
-        LoadMsgType mt = static_cast<LoadMsgType>(item.leftRef(item.indexOf('|')).toInt());
+        LoadMsgType mt =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        static_cast<LoadMsgType>(QStringView{item}.left(item.indexOf('|')).toInt());
+#else
+        static_cast<LoadMsgType>(item.leftRef(item.indexOf('|')).toInt());
+#endif
         if (mt <= MISSING_PART_LOAD_MSG)
             _loadedItems.removeAt(i);
     }

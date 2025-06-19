@@ -4413,7 +4413,11 @@ void Preferences::messageBoxAdjustWidth(QMessageBox *box, const QString &title, 
             int fixedWidth = text.length() * fontWidth;
             if (fixedWidth == minimumWidth) {
                 int index = (minimumWidth / fontWidth) - 1;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                if (!QStringView{text}.mid(index, 1).isEmpty()) {
+#else
                 if (!text.midRef(index, 1).isEmpty()) {
+#endif
                     fixedWidth = text.indexOf(" ", index);
                 }
             } else if (fixedWidth < minimumWidth) {
