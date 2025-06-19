@@ -3129,7 +3129,11 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
 
             // get content and set codec
             QTextStream in(&file);
-            in.setCodec(QTextCodec::codecForName("UTF-8"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+           in.setEncoding(QStringConverter::Utf8);
+#else
+           in.setCodec(QTextCodec::codecForName("UTF-8"));
+#endif
             content = in.readAll();
             contentList = content.split("\n");
 

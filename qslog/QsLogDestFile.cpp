@@ -156,7 +156,11 @@ QsLogging::FileDestination::FileDestination(const QString& filePath, RotationStr
         std::cerr << "QsLog: could not open log file " << qPrintable(filePath);
     }
     mOutputStream.setDevice(&mFile);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    mOutputStream.setEncoding(QStringConverter::Utf8);
+#else
     mOutputStream.setCodec(QTextCodec::codecForName("UTF-8"));
+#endif
 
     mRotationStrategy->setInitialInfo(mFile);
 }
@@ -173,7 +177,11 @@ void QsLogging::FileDestination::write(const QString& message, Level)
         }
         mRotationStrategy->setInitialInfo(mFile);
         mOutputStream.setDevice(&mFile);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        mOutputStream.setEncoding(QStringConverter::Utf8);
+#else
         mOutputStream.setCodec(QTextCodec::codecForName("UTF-8"));
+#endif
     }
 
     mOutputStream << message << QString("\n");
