@@ -425,7 +425,11 @@ BlenderPreferences::BlenderPreferences(
 
     QCheckBox* addonVersionCheck = new QCheckBox(tr("Prompt to download new addon version when available"), blenderAddonVersionBox);
     addonVersionCheck->setChecked(Preferences::blenderAddonVersionCheck);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+    QObject::connect(addonVersionCheck, &QCheckBox::checkStateChanged, [](int State)
+#else
     QObject::connect(addonVersionCheck, &QCheckBox::stateChanged, [](int State)
+#endif
     {
          const bool Enabled = static_cast<Qt::CheckState>(State) == Qt::CheckState::Checked;
          Preferences::setBlenderAddonVersionCheck(Enabled);
@@ -3352,7 +3356,11 @@ int BlenderPreferences::showMessage(
     if (downloadRequest) {
         QCheckBox* addonVersionCheck = new QCheckBox(tr("Do not show download new addon version message again."));
         box.setCheckBox(addonVersionCheck);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+        QObject::connect(addonVersionCheck, &QCheckBox::checkStateChanged, [](int State)
+#else
         QObject::connect(addonVersionCheck, &QCheckBox::stateChanged, [](int State)
+#endif
         {
             bool enanbled = true;
             if (static_cast<Qt::CheckState>(State) == Qt::CheckState::Checked)
