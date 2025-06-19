@@ -3087,6 +3087,7 @@ void Preferences::setLDGLiteIniParams()
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut;
+    static QRegularExpression rx("^__NOTE:");
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, VER_LDGLITE_INI_FILE));
     if (!resourceFile.exists()) {
@@ -3103,7 +3104,7 @@ void Preferences::setLDGLiteIniParams()
             {
                 QString line = input.readLine();
                 // Remove Template note from used instance
-                if (line.contains(QRegExp("^__NOTE:"))) {
+                if (line.contains(rx)) {
                     continue;
                 }
                 output << line << lpub_endl;
@@ -3123,11 +3124,12 @@ void Preferences::setLDGLiteIniParams()
     if (confFileIn.open(QIODevice::ReadOnly))
     {
         ldgliteParms.clear();
+        rx.setPattern("^-.*");
         QTextStream input(&confFileIn);
         while (!input.atEnd())
         {
             QString line = input.readLine();
-            if (line.contains(QRegExp("^-.*")))
+            if (line.contains(rx))
             {
                 //logDebug() << qUtf8Printable(QObject::tr("Line PARAM: %1").arg(line));
                 ldgliteParms << line;
@@ -3153,6 +3155,7 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
+    static QRegularExpression rx;
 
     resourceFile.setFile(QString("%1/%2").arg(lpub3dLDVConfigDir, VER_NATIVE_EXPORT_INI_FILE));
     if (resourceFile.exists())
@@ -3182,22 +3185,26 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
         {
             QString line = input.readLine();
             // Remove Template note from used instance
-            if (line.contains(QRegExp("^__NOTE:"))) {
+            rx.setPattern("^__NOTE:");
+            if (line.contains(rx)) {
                 continue;
             }
             // strip EdgeThickness because set in renderer parameters
-            if (line.contains(QRegExp("^EdgeThickness="))) {
+            rx.setPattern("^EdgeThickness=");
+            if (line.contains(rx)) {
                 continue;
             }
             //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
             // set ldraw dir
-            if (line.contains(QRegExp("^LDrawDir=")))
+            rx.setPattern("^LDrawDir=");
+            if (line.contains(rx))
             {
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
             }
             // set lgeo paths as required
-            if (line.contains(QRegExp("^XmlMapPath=")))
+            rx.setPattern("^XmlMapPath=");
+            if (line.contains(rx))
             {
                 line.clear();
                 if (lgeoPath.isEmpty())
@@ -3236,6 +3243,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
+    static QRegularExpression rx;
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE));
     if (resourceFile.exists())
@@ -3265,18 +3273,21 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
         {
             QString line = input.readLine();
             // strip EdgeThickness because set in renderer parameters
-            if (line.contains(QRegExp("^EdgeThickness="))) {
+            rx.setPattern("^EdgeThickness=");
+            if (line.contains(rx)) {
                 continue;
             }
             //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
             // set ldraw dir
-            if (line.contains(QRegExp("^LDrawDir=")))
+            rx.setPattern("^LDrawDir=");
+            if (line.contains(rx))
             {
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
             }
             // set AutoCrop=0
-//            if (line.contains(QRegExp("^AutoCrop="))) {
+//            rx.setPattern("^AutoCrop=");
+//            if (line.contains(rx)) {
 //                line.clear();
 //                line = QString("AutoCrop=1");
 //            }
@@ -3309,6 +3320,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
+    static QRegularExpression rx;
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE));
     if (resourceFile.exists())
@@ -3338,18 +3350,21 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
         {
             QString line = input.readLine();
             // strip EdgeThickness because set in renderer parameters
-            if (line.contains(QRegExp("^EdgeThickness="))) {
+            rx.setPattern("^EdgeThickness=");
+            if (line.contains(rx)) {
               continue;
             }
             //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
             // set ldraw dir
-            if (line.contains(QRegExp("^LDrawDir=")))
+            rx.setPattern("^LDrawDir=");
+            if (line.contains(rx))
             {
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
             }
             // set lgeo paths as required
-            if (line.contains(QRegExp("^XmlMapPath=")))
+            rx.setPattern("^XmlMapPath=");
+            if (line.contains(rx))
             {
                 line.clear();
                 if (lgeoPath.isEmpty())
@@ -3388,6 +3403,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
+    static QRegularExpression rx;
 
     // POV-Ray Conf
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR ,VER_POVRAY_CONF_FILE));
@@ -3422,21 +3438,25 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
         {
             QString line = input.readLine();
             //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
-            if (line.contains(QRegExp("^read* =")) && oldFile.exists())
+            rx.setPattern("^read* =");
+            if (line.contains(rx) && oldFile.exists())
             {
                 if (lgeoPath != "")
                 {
-                    if (line.contains(QRegExp("[\\/|\\\\]ar")))
+                    rx.setPattern("[\\/|\\\\]ar");
+                    if (line.contains(rx))
                     {
                         line.clear();
                         line = QString("read* = \"%1\"").arg(QDir::toNativeSeparators(QString("%1/ar").arg(lgeoPath)));
                     }
-                    if (line.contains(QRegExp("[\\/|\\\\]lg")))
+                    rx.setPattern("[\\/|\\\\]lg");
+                    if (line.contains(rx))
                     {
                         line.clear();
                         line = QString("read* = \"%1\"").arg(QDir::toNativeSeparators(QString("%1/lg").arg(lgeoPath)));
                     }
-                    if (lgeoStlLib && line.contains(QRegExp("[\\/|\\\\]stl")))
+                    rx.setPattern("[\\/|\\\\]stl");
+                    if (lgeoStlLib && line.contains(rx))
                     {
                         line.clear();
                         line = QString("read* = \"%1\"").arg(QDir::toNativeSeparators(QString("%1/stl").arg(lgeoPath)));
@@ -4227,7 +4247,8 @@ void Preferences::userInterfacePreferences()
         findProcess.start(command, arguments);
         findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
         if(findProcess.waitForFinished()) {
-          systemEditor = QString(findProcess.readAll()).split(QRegExp("\n|\r\n|\r")).first().trimmed();
+          static QRegularExpression rx("\n|\r\n|\r");
+          systemEditor = QString(findProcess.readAll()).split(rx).first().trimmed();
           systemEditorInfo.setFile(systemEditor);
         }
       }
@@ -6732,7 +6753,8 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
     int dirNum = 0;
     bool foundExtraSearchDirs = false;
     bool inExtraSearchDirsSection = false;
-    QRegExp prefSetRx("^(Native POV|Native STL|Native 3DS|Native Part List|POV-Ray Render)",Qt::CaseInsensitive);
+    static QRegularExpression prefSetRx("^(Native POV|Native STL|Native 3DS|Native Part List|POV-Ray Render)", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match;
 
     logInfo() << qUtf8Printable(QObject::tr("Updating LDV ExtraSearchDirs in %1").arg(iniFile));
 
@@ -6762,7 +6784,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
                     contentList.append(line);                // at next section
                 inExtraSearchDirsSection = false;
             }
-        } else if (line.contains(prefSetRx)) {               // session preference set
+        } else if (match.hasMatch()) {               // session preference set
             if (line.contains("_SessionPlaceholder")) {      // insert search dirs before session placeholder
                 dirNum = 0;
                 QString nativePath;
@@ -6775,7 +6797,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
                         nativePath = QDir::toNativeSeparators(searchDir);
 #endif
                         if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
-                            QString formattedSearchDir = QString("%1/ExtraSearchDirs/Dir%2=%3").arg(prefSetRx.cap(1)).arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
+                            QString formattedSearchDir = QString("%1/ExtraSearchDirs/Dir%2=%3").arg(match.captured(1)).arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                             contentList += formattedSearchDir;
 //                            if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
 //                                logInfo() << qUtf8Printable(QObject::tr("ExtraSearchDirs OUT: %1").arg(formattedSearchDir));
@@ -6802,6 +6824,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
                 if (!contentList.contains(line,Qt::CaseInsensitive))
                     contentList.append(line);
             } else {
+                match = prefSetRx.match(line);
                 processContent(line);
             }
         }  // atEnd
@@ -6818,6 +6841,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
                     if (line.left(13) == QLatin1String("[PovExporter]")) {
                         inExtraSearchDirsSection = true;
                         contentList.append(QLatin1String("[ExtraSearchDirs]"));
+                        match = prefSetRx.match(line);
                         processContent(line);
                     } else {
                         contentList.append(line);

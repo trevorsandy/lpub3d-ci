@@ -64,13 +64,13 @@ class CommandCollection;
 class SnippetCollection;
 QT_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QRegExp::PatternSyntax)
+Q_DECLARE_METATYPE(RegExp)
 
 class FilterLineEdit : public QLineEdit
 {
     Q_OBJECT
     Q_PROPERTY(Qt::CaseSensitivity caseSensitivity READ caseSensitivity WRITE setCaseSensitivity)
-    Q_PROPERTY(QRegExp::PatternSyntax patternSyntax READ patternSyntax WRITE setPatternSyntax)
+    Q_PROPERTY(RegExp pattern READ pattern WRITE setPattern)
 public:
     explicit FilterLineEdit(CommandCollection *collection, QWidget *parent = nullptr);
     explicit FilterLineEdit(SnippetCollection *collection, QWidget *parent = nullptr);
@@ -78,8 +78,8 @@ public:
     Qt::CaseSensitivity caseSensitivity() const;
     void setCaseSensitivity(Qt::CaseSensitivity);
 
-    QRegExp::PatternSyntax patternSyntax() const;
-    void setPatternSyntax(QRegExp::PatternSyntax);
+    RegExp pattern() const;
+    void setPattern(RegExp);
 
 signals:
     void filterChanged();

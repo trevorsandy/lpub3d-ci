@@ -45,10 +45,10 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
 	QValidator *validator = new QIntValidator(10, 5000, this);
 	snapshotWidthEdit->setValidator(validator);
 	snapshotHeightEdit->setValidator(validator);
-	snapshotEdit->setValidator(new QRegExpValidator(
-		   QRegExp("^.*\\.png$",Qt::CaseInsensitive), this));
-	rebrickableKeyEdit->setValidator(new QRegExpValidator(
-		   QRegExp("^[\\p{L}0-9]*$",Qt::CaseInsensitive), this));
+	snapshotEdit->setValidator(new QRegularExpressionValidator(
+								   QRegularExpression("^.*\\.png$",QRegularExpression::CaseInsensitiveOption), this));
+	rebrickableKeyEdit->setValidator(new QRegularExpressionValidator(
+										 QRegularExpression("^[\\p{L}0-9]*$",QRegularExpression::CaseInsensitiveOption), this));
 
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);

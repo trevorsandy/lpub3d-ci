@@ -1296,10 +1296,12 @@ Annotations::Annotations()
     returnString = QString();
     AnnotationErrors.clear();
 
+    static QRegularExpression rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
+    static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+    QRegularExpressionMatch match;
     QString message, title;
     if (titleAnnotations.size() == 0) {
         QString titleAnnotationsFile = Preferences::titleAnnotationsFile;
-        QRegExp rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
         if (QFileInfo::exists(titleAnnotationsFile)) {
             QFile file(titleAnnotationsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1312,12 +1314,12 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file if exist;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "TitleAnnotations RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "TitleAnnotations RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1326,8 +1328,9 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString annotation = rx.cap(2);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString annotation = match.captured(2);
                     titleAnnotations << annotation;
                 }
             }
@@ -1342,8 +1345,9 @@ Annotations::Annotations()
                     QChar comment = sLine.at(0);
                     if (comment == '#')
                         continue;
-                    if (sLine.contains(rx)) {
-                        QString annotation = rx.cap(2);
+                    match = rx.match(sLine);
+                    if (match.hasMatch()) {
+                        QString annotation = match.captured(2);
                         titleAnnotations << annotation;
                     }
                 }
@@ -1353,7 +1357,7 @@ Annotations::Annotations()
 
     if (freeformAnnotations.size() == 0) {
         QString const freeformAnnotationsFile = Preferences::freeformAnnotationsFile;
-        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         if (QFileInfo::exists(freeformAnnotationsFile)) {
             QFile file(freeformAnnotationsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1366,12 +1370,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "FreeFormAnnotations RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "FreeFormAnnotations RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1380,9 +1385,10 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString parttype = rx.cap(1);
-                    QString annotation = rx.cap(2);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString parttype = match.captured(1);
+                    QString annotation = match.captured(2);
                     freeformAnnotations[parttype.toLower()] = annotation;
                 }
             }
@@ -1391,7 +1397,7 @@ Annotations::Annotations()
 
     if (annotationStyles.size() == 0) {
         QString const annotationStyleFile = Preferences::annotationStyleFile;
-        QRegExp rx("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+)?.*$");
+        rx.setPattern("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+)?.*$");
         if (QFileInfo::exists(annotationStyleFile)) {
             QFile file(annotationStyleFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1404,12 +1410,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "AnnotationStyle RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "AnnotationStyle RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1418,11 +1425,12 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString parttype = rx.cap(1);
-                    QString style = rx.cap(2).isEmpty() ? QString() : rx.cap(2);
-                    QString category = rx.cap(3).isEmpty() ? QString() : rx.cap(3);
-                    QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4).replace("\"", "");
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString parttype = match.captured(1);
+                    QString style = match.captured(2).isEmpty() ? QString() : match.captured(2);
+                    QString category = match.captured(3).isEmpty() ? QString() : match.captured(3);
+                    QString annotation = match.captured(4).isEmpty() ? QString() : match.captured(4).replace("\"", "");
                     annotationStyles[parttype.toLower()] << style << category << annotation;
                     //logDebug() << QString("AnnotationStyle: Type [%1], Style [%2], Annotation [%3], Category [%4]")
                     //                      .arg(parttype).arg(style).arg(annotation).arg(category);
@@ -1438,11 +1446,12 @@ Annotations::Annotations()
                 int Equals = sLine.indexOf('=');
                 if (Equals == -1)
                     continue;
-                if (sLine.contains(rx)) {
-                    QString parttype = rx.cap(1);
-                    QString style = rx.cap(2).isEmpty() ? QString() : rx.cap(2);
-                    QString category = rx.cap(3).isEmpty() ? QString() : rx.cap(3);
-                    QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4).replace("\"", "");
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString parttype = match.captured(1);
+                    QString style = match.captured(2).isEmpty() ? QString() : match.captured(2);
+                    QString category = match.captured(3).isEmpty() ? QString() : match.captured(3);
+                    QString annotation = match.captured(4).isEmpty() ? QString() : match.captured(4).replace("\"", "");
                     annotationStyles[parttype.toLower()] << style << category << annotation;
                     //logDebug() << QString("AnnotationStyle: Type [%1], Style [%2], Annotation [%3], Category [%4]")
                     //                      .arg(parttype).arg(style).arg(annotation).arg(category);
@@ -1453,7 +1462,7 @@ Annotations::Annotations()
 
     if (blColors.size() == 0) {
         QString blColorsFile = Preferences::blColorsFile;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (QFileInfo::exists(blColorsFile)) {
             QFile file(blColorsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1466,12 +1475,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "Bricklink Colors RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "Bricklink Colors RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1480,9 +1490,10 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString colorid = rx.cap(1);
-                    QString colorname = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString colorid = match.captured(1);
+                    QString colorname = match.captured(2).trimmed();
                     blColors[colorname.toLower()] = colorid;
                 }
             }
@@ -1496,9 +1507,10 @@ Annotations::Annotations()
                 QChar comment = sLine.at(0);
                 if (comment == '#' || comment == ' ')
                     continue;
-                if (sLine.contains(rx)) {
-                    QString colorid = rx.cap(1);
-                    QString colorname = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString colorid = match.captured(1);
+                    QString colorname = match.captured(2).trimmed();
                     blColors[colorname.toLower()] = colorid;
                 }
             }
@@ -1507,7 +1519,7 @@ Annotations::Annotations()
 
     if (ld2blColorsXRef.size() == 0) {
         QString ld2blColorsXRefFile = Preferences::ld2blColorsXRefFile;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (QFileInfo::exists(ld2blColorsXRefFile)) {
             QFile file(ld2blColorsXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1520,12 +1532,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "LD2BL ColorsXRef RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "LD2BL ColorsXRef RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1534,9 +1547,10 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldcolorid = rx.cap(1);
-                    QString blcolorid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldcolorid = match.captured(1);
+                    QString blcolorid = match.captured(2).trimmed();
                     ld2blColorsXRef[ldcolorid.toLower()] = blcolorid;
                 }
             }
@@ -1550,9 +1564,10 @@ Annotations::Annotations()
                 QChar comment = sLine.at(0);
                 if (comment == '#' || comment == ' ')
                     continue;
-                if (sLine.contains(rx)) {
-                    QString ldcolorid = rx.cap(1);
-                    QString blcolorid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldcolorid = match.captured(1);
+                    QString blcolorid = match.captured(2).trimmed();
                     ld2blColorsXRef[ldcolorid.toLower()] = blcolorid;
                 }
             }
@@ -1561,7 +1576,7 @@ Annotations::Annotations()
 
     if (ld2blCodesXRef.size() == 0) {
         QString ld2blCodesXRefFile = Preferences::ld2blCodesXRefFile;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (QFileInfo::exists(ld2blCodesXRefFile)) {
             QFile file(ld2blCodesXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1574,12 +1589,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "LD2BL CodesXRef RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "LD2BL CodesXRef RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1588,9 +1604,10 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString blitemid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldpartid = match.captured(1);
+                    QString blitemid = match.captured(2).trimmed();
                     ld2blCodesXRef[ldpartid.toLower()] = blitemid;
                 }
             }
@@ -1604,9 +1621,10 @@ Annotations::Annotations()
                 QChar comment = sLine.at(0);
                 if (comment == '#' || comment == ' ')
                     continue;
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString blitemid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldpartid = match.captured(1);
+                    QString blitemid = match.captured(2).trimmed();
                     ld2blCodesXRef[ldpartid.toLower()] = blitemid;
                 }
             }
@@ -1617,7 +1635,7 @@ Annotations::Annotations()
 
     if (ld2rbColorsXRef.size() == 0) {
         QString ld2rbColorsXRefFile = Preferences::ld2rbColorsXRefFile;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (QFileInfo::exists(ld2rbColorsXRefFile)) {
             QFile file(ld2rbColorsXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1630,12 +1648,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "LD2RB ColorsXRef RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "LD2RB ColorsXRef RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1644,9 +1663,10 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldcolorid = rx.cap(1);
-                    QString rbcolorid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldcolorid = match.captured(1);
+                    QString rbcolorid = match.captured(2).trimmed();
                     ld2rbColorsXRef[ldcolorid.toLower()] = rbcolorid;
                 }
             }
@@ -1660,9 +1680,10 @@ Annotations::Annotations()
                 QChar comment = sLine.at(0);
                 if (comment == '#' || comment == ' ')
                     continue;
-                if (sLine.contains(rx)) {
-                    QString ldcolorid = rx.cap(1);
-                    QString rbcolorid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldcolorid = match.captured(1);
+                    QString rbcolorid = match.captured(2).trimmed();
                     ld2rbColorsXRef[ldcolorid.toLower()] = rbcolorid;
                 }
             }
@@ -1671,7 +1692,7 @@ Annotations::Annotations()
 
     if (ld2rbCodesXRef.size() == 0) {
         QString ld2rbCodesXRefFile = Preferences::ld2rbCodesXRefFile;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (QFileInfo::exists(ld2rbCodesXRefFile)) {
             QFile file(ld2rbCodesXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1684,12 +1705,13 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "LD2RB CodesXRef RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "LD2RB CodesXRef RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1698,9 +1720,10 @@ Annotations::Annotations()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString rbitemid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldpartid = match.captured(1);
+                    QString rbitemid = match.captured(2).trimmed();
                     ld2rbCodesXRef[ldpartid.toLower()] = rbitemid;
                 }
             }
@@ -1714,9 +1737,10 @@ Annotations::Annotations()
                 QChar comment = sLine.at(0);
                 if (comment == '#' || comment == ' ')
                     continue;
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString rbitemid = rx.cap(2).trimmed();
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldpartid = match.captured(1);
+                    QString rbitemid = match.captured(2).trimmed();
                     ld2rbCodesXRef[ldpartid.toLower()] = rbitemid;
                 }
             }
@@ -1731,7 +1755,8 @@ bool Annotations::loadBLCodes() {
     if (blCodes.size() == 0) {
         QString message;
         QString blCodesFile = Preferences::blCodesFile;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        static QRegularExpression rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        QRegularExpressionMatch match;
         if (QFileInfo::exists(blCodesFile)) {
             QFile file(blCodesFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1752,10 +1777,11 @@ bool Annotations::loadBLCodes() {
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString blitemid = rx.cap(1);
-                    QString blcolorid = getBLColorID(rx.cap(2));
-                    QString elementid = rx.cap(3);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString blitemid = match.captured(1);
+                    QString blcolorid = getBLColorID(match.captured(2));
+                    QString elementid = match.captured(3);
                     blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
 // DEBUG -->>>
 //                    Stream << QString("Key: %1 Value[0]: %2 Value[1]: %3")
@@ -1779,7 +1805,8 @@ bool Annotations::loadBLCodes() {
 bool Annotations::loadBLCodes(QByteArray &Buffer) {
     if (blCodes.size() == 0) {
         QString message;
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        static QRegularExpression rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        QRegularExpressionMatch match;
         QTextStream instream(Buffer);
 
         instream.seek(0);
@@ -1790,10 +1817,11 @@ bool Annotations::loadBLCodes(QByteArray &Buffer) {
             QChar comment = sLine.at(0);
             if (comment == '#' || comment == ' ')
                 continue;
-            if (sLine.contains(rx)) {
-                QString blitemid = rx.cap(1);
-                QString blcolorid = getBLColorID(rx.cap(2));
-                QString elementid = rx.cap(3);
+            match = rx.match(sLine);
+            if (match.hasMatch()) {
+                QString blitemid = match.captured(1);
+                QString blcolorid = getBLColorID(match.captured(2));
+                QString elementid = match.captured(3);
                 blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
             }
         }
@@ -1847,7 +1875,8 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
         // kept localElements for backwards compatability
         if (!fileFound)
             userElementsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE);
-        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        static QRegularExpression rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        QRegularExpressionMatch match;
         if (fileFound || QFileInfo::exists(userElementsFile)) {
             QFile file(userElementsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1860,12 +1889,13 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
-                    //logDebug() << "User part elements RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
+                    //logDebug() << "User part elements RegExp Pattern: " << match.captured(1);
                     break;
                 }
             }
@@ -1874,10 +1904,11 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString ldcolorid = useLDrawKey ? rx.cap(2) : getBLColorID(rx.cap(2));
-                    QString elementid = rx.cap(3);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString ldpartid = match.captured(1);
+                    QString ldcolorid = useLDrawKey ? match.captured(2) : getBLColorID(match.captured(2));
+                    QString elementid = match.captured(3);
                     userElements[QString(ldpartid+ldcolorid).toLower()] = elementid;
                     //qDebug() << qPrintable(QString("LOAD: %1=%2").arg(QString(ldpartid+ldcolorid).toLower(), elementid));
                 }

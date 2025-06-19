@@ -65,34 +65,40 @@ TextItem::TextItem(InsertMeta meta,
   setDefaultTextColor(color);
 
   // unformat text - remove quote escapte
-  QStringList list = data.text.split("\\n");
+  QChar esc('\\');
+  QStringList text;
 
-  QStringList list2;
-
-  Q_FOREACH (QString string, list) {
-    string = string.trimmed();
-    QRegExp rx2("\"");
+  static QRegularExpression rx("\"");
+  QRegularExpressionMatch match;
+  QRegularExpressionMatchIterator matchIt;
+  const QStringList goodsList = data.text.split("\\n");
+  for (const QString &item : goodsList) {
+    QString string = item.trimmed();
     int pos = 0;
-    QChar esc('\\');
-    while ((pos = rx2.indexIn(string, pos)) != -1) {
+    int adj = 0;
+    matchIt = rx.globalMatch(string);
+    while(matchIt.hasNext())
+    {
+      match = matchIt.next();
+      pos = match.capturedStart() + adj;
       if (pos < string.size()) {
         QChar ch = string.at(pos-1);
         if (ch == esc) {
           string.remove(pos-1,1);
-          pos += rx2.matchedLength() - 1;
+          adj--;
         }
       }
     }
-    // if last character is \, append space ' ' so not to escape closing string double quote
-    if (string.at(string.size()-1) == QChar('\\'))
+    // if last character is esc \, append space ' ' so not to escape closing string double quote
+    if (string.at(string.size()-1) == esc)
       string.append(QChar(' '));
-    list2 << string;
-
-    if (richText)
-      setHtml(list2.join("\n"));
-    else
-      setPlainText(list2.join("\n"));
+    text << string;
   }
+
+  if (richText)
+    setHtml(text.join("\n"));
+  else
+    setPlainText(text.join("\n"));
 
   margin.setValues(0.0,0.0);
 
@@ -112,31 +118,36 @@ TextItem::TextItem(InsertMeta meta,
 
 void TextItem::formatText(const QString &input, QString &output)
 {
-    QStringList list = input.split("\n");
+    QChar esc('\\');
+    QStringList text;
 
-    QStringList list2;
-    Q_FOREACH (QString string, list) {
-      string = string.trimmed();
-      QRegExp rx2("\"");
+    static QRegularExpression rx("\"");
+    QRegularExpressionMatch match;
+    QRegularExpressionMatchIterator matchIt;
+    const QStringList textList = input.split("\n");
+    for (const QString &item : textList) {
+      QString string = item.trimmed();
       int pos = 0;
-      QChar esc('\\');
-      while ((pos = rx2.indexIn(string, pos)) != -1) {
-        pos += rx2.matchedLength();
+      int adj = 0;
+      matchIt = rx.globalMatch(string);
+      while(matchIt.hasNext()) {
+        match = matchIt.next();
+        pos = match.capturedStart() + adj;
         if (pos < string.size()) {
-          QChar ch = string.at(pos-1);
+          QChar ch = string.at(pos);
           if (ch != esc) {
-            string.insert(pos-1,&esc,1);
-            pos++;
+            string.insert(pos,&esc,1);
+            adj++;
           }
         }
       }
-      // if last character is \, append space ' ' so not to escape closing string double quote
-      if (string.at(string.size()-1) == QChar('\\'))
+      // if last character is esc \, append space ' ' so not to escape closing string double quote
+      if (string.at(string.size()-1) == esc)
         string.append(QChar(' '));
-      list2 << string;
+      text << string;
     }
 
-   output = list2.join("\\n");
+   output = text.join("\\n");
 }
 
 void TextItem::contextMenuEvent(

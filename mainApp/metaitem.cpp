@@ -1420,9 +1420,10 @@ void MetaItem::convertToPart(Meta *meta)
   if (tokens.size() == 15) {
     //check for spaces in model name and wrap in quotes if yes
     QString modelName = tokens[14];
-    if (modelName.contains(QRegExp("\\s+"))) {
+    static QRegularExpression rx("\\s+");
+    if (modelName.contains(rx)) {
         modelName = "\"" + modelName + "\"";
-      }
+    }
     beginMacro("submodelIsPart");
     insertMeta(here,      "0 !LPUB PART END");
     insertMeta(here,      "0 !LPUB PLI END");
@@ -2066,31 +2067,35 @@ void MetaItem::setRendererArguments(const Where &top,
     bool ok = TextEditDialog::getText(arguments,rendererLabel/*QString("%1 Renderer Arguments").arg(renderer)*/);
 
     if (ok && !arguments.isEmpty()) {
-
-        QStringList list = arguments.split("\n");
-
-        QStringList list2;
-        Q_FOREACH (QString string, list) {
-          string = string.trimmed();
-          QRegExp rx2("\"");
-          int pos = 0;
-          QChar esc('\\');
-          while ((pos = rx2.indexIn(string, pos)) != -1) {
-            pos += rx2.matchedLength();
-            if (pos < string.size()) {
-              QChar ch = string.at(pos-1);
-              if (ch != esc) {
-                string.insert(pos-1,&esc,1);
-                pos++;
-              }
+        QChar esc('\\');
+        QStringList list;
+        static QRegularExpression rx("\"");
+        QRegularExpressionMatch match;
+        QRegularExpressionMatchIterator matchIt;
+        const QStringList textList = arguments.split("\n");
+        for (const QString &item : textList) {
+            QString string = item.trimmed();
+            int pos = 0;
+            int adj = 0;
+            matchIt = rx.globalMatch(string);
+            while(matchIt.hasNext())
+            {
+                match = matchIt.next();
+                pos = match.capturedStart() + adj;
+                if (pos < string.size()) {
+                    QChar ch = string.at(pos);
+                    if (ch != esc) {
+                        string.insert(pos,&esc,1);
+                        adj++;
+                    }
+                }
             }
-          }
-          // if last character is \, append space ' ' so not to escape closing string double quote
-          if (string.at(string.size()-1) == QChar('\\'))
-            string.append(QChar(' '));
-          list2 << string;
+            // if last character is esc \, append space ' ' so not to escape closing string double quote
+            if (string.at(string.size()-1) == esc)
+                string.append(QChar(' '));
+            list << string;
         }
-        rendererArguments->setValue(list2.join("\\n"));
+        rendererArguments->setValue(list.join("\\n"));
 
         if (ok) {
             setMeta(top,bottom,rendererArguments,useTop,append,local);
@@ -2859,14 +2864,14 @@ void MetaItem::insertCoverPage()
 
 bool MetaItem::frontCoverPageExist()
 {
-  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
+  static QRegularExpression rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
   Where here(lpub->ldrawFile.topLevelFile(), 0, 0); //start at top of file 
   return Gui::stepContains(here, rx);
 }
 
 bool MetaItem::backCoverPageExist()
 {
-  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
+  static QRegularExpression rx("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
   int end = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
   Where here(lpub->ldrawFile.topLevelFile(), 0, end); //start at bottom of file
   if (!here.lineNumber)
@@ -3256,49 +3261,54 @@ void MetaItem::updateText(
 
     stepOk = TextEditDialog::getText(text,_editFont,_editFontColor,_isRichText,windowTitle,true);
     if (stepOk && !text.isEmpty()) {
-
-    QStringList list = text.split("\n");
-    QStringList list2;
-    Q_FOREACH (QString string, list) {
-      string = string.trimmed();
-      QRegExp rx2("\"");
-      int pos = 0;
-      QChar esc('\\');
-      while ((pos = rx2.indexIn(string, pos)) != -1) {
-        pos += rx2.matchedLength();
-        if (pos < string.size()) {
-          QChar ch = string.at(pos-1);
-          if (ch != esc) {
-            string.insert(pos-1,&esc,1);
-            pos++;
-          }
+        QChar esc('\\');
+        QStringList list;
+        static QRegularExpression rx("\"");
+        QRegularExpressionMatch match;
+        QRegularExpressionMatchIterator matchIt;
+        const QStringList textList = text.split("\n");
+        for (const QString &item : textList) {
+            QString string = item.trimmed();
+            int pos = 0;
+            int adj = 0;
+            matchIt = rx.globalMatch(string);
+            while(matchIt.hasNext())
+            {
+                match = matchIt.next();
+                pos = match.capturedStart() + adj;
+                if (pos < string.size()) {
+                    QChar ch = string.at(pos);
+                    if (ch != esc) {
+                        string.insert(pos,&esc,1);
+                        adj++;
+                    }
+                }
+            }
+            // if last character is esc \, append space ' ' so not to escape closing string double quote
+            if (string.at(string.size()-1) == esc)
+                string.append(QChar(' '));
+            list << string;
         }
-      }
-      // if last character is \, append space ' ' so not to escape closing string double quote
-      if (string.at(string.size()-1) == QChar('\\'))
-        string.append(QChar(' '));
-      list2 << string;
-    }
 
-    QString strMeta;
-    if (_isRichText)
-      strMeta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
-                        .arg(list2.join("\\n")) .arg(textPlacement ? "" : offset);
-    else
-      strMeta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
-                        .arg(list2.join("\\n")) .arg(_editFont) .arg(_editFontColor) .arg(textPlacement ? "" : offset);
+        QString strMeta;
+        if (_isRichText)
+            strMeta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
+                              .arg(list.join("\\n")) .arg(textPlacement ? "" : offset);
+        else
+            strMeta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
+                              .arg(list.join("\\n")) .arg(_editFont) .arg(_editFontColor) .arg(textPlacement ? "" : offset);
 
-    beginMacro("UpdateText");
-    if (append)
-      appendMeta(insertPosition,strMeta);
-    else
-      replaceMeta(insertPosition,strMeta);
-    if (textPlacement && initialAdd) {
-      Where walkFwd = insertPosition + 1;
-      appendMeta(walkFwd,placementStr);
+        beginMacro("UpdateText");
+        if (append)
+            appendMeta(insertPosition,strMeta);
+        else
+            replaceMeta(insertPosition,strMeta);
+        if (textPlacement && initialAdd) {
+            Where walkFwd = insertPosition + 1;
+            appendMeta(walkFwd,placementStr);
+        }
+        endMacro();
     }
-    endMacro();
-  }
 }
 
 void MetaItem::insertText()
@@ -3442,11 +3452,12 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
         saveHere = Where();
       }
     } else {                                                 //else keep walking back until 1_5 or substitute line
+      static QRegularExpression rx("^0 !?LPUB PLI END\\s*$");
       QStringList args;
       split(line,args);
       bool validLine = args.size() && args[0] >= '0' && args[0] <= '1';
       bool partLine = validLine && args[0] >= '1';
-      bool substitutePartLine = validLine && line.contains(QRegExp("^0 !?LPUB PLI END\\s*$"));
+      bool substitutePartLine = validLine && line.contains(rx);
       if (partLine || substitutePartLine) {                 //part line detected so no back final model
         if (saveHere.lineNumber) {
 /* DEBUG - COMMENT TO ENABLE
@@ -3473,7 +3484,8 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
 
 void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
 {
-    bool isNotFinalStep = lpub->ldrawFile.readLine(here.modelName,here.lineNumber).contains(QRegExp("^0 STEP$"));
+    static QRegularExpression rx("^0 STEP$");
+    bool isNotFinalStep = lpub->ldrawFile.readLine(here.modelName,here.lineNumber).contains(rx);
     if (!isNotFinalStep)
         isNotFinalStep = here.lineNumber < lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()) - 1; //adjust lineNumber for zero-start index
 
@@ -3573,7 +3585,7 @@ bool MetaItem::deleteFinalModelStep(bool force) {
   } else return foundFinalModel;
 
   if (foundFinalModel && (rc == StepRc || rc == RotStepRc || rc == EndOfFileRc)) {
-    QRegExp rx("^\\s*0\\s+\\/\\/\\s*These 6 command lines were auto-generated for (?:fade previous steps(?: and)? highlight current step).$",Qt::CaseInsensitive);
+    static QRegularExpression rx("^\\s*0\\s+\\/\\/\\s*These 6 command lines were auto-generated for (?:fade previous steps(?: and)? highlight current step).$", QRegularExpression::CaseInsensitiveOption);
     bool eof = rc == EndOfFileRc;
     int disclaimerTextLines = eof ? 4 : 3;                        //if EOF (final step), account for 0 STEP command before insert INSERT MODEL
     for (int i = 0; i < disclaimerTextLines; i++) {
@@ -3606,9 +3618,9 @@ bool MetaItem::deleteFinalModelStep(bool force) {
 
 QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepCheck)
 {
-    QRegExp bufExLoadRx("^0 BUFEXCHG \\S+ RETRIEVE$");                   // _bfx
-    QRegExp dispModelRx("^0 !?LPUB INSERT DISPLAY_MODEL$");              // _dm
-    QRegExp buildModActRx("^0 !?LPUB BUILD_MOD (?:REMOVE|APPLY) \\S+$"); // _bm
+    static QRegularExpression bufExLoadRx("^0 BUFEXCHG \\S+ RETRIEVE$");                   // _bfx
+    static QRegularExpression dispModelRx("^0 !?LPUB INSERT DISPLAY_MODEL$");              // _dm
+    static QRegularExpression buildModActRx("^0 !?LPUB BUILD_MOD (?:REMOVE|APPLY) \\S+$"); // _bm
     Where here;
     bool partsAdded = false;
     bool hasDispModel = false;
@@ -3667,9 +3679,9 @@ void MetaItem::changePreferredRenderer(
 
   if (ok && _meta.value().renderer != meta->value().renderer) {
 //    bool reloadFile = false;
-    QRegExp calloutRx("CALLOUT BEGIN");
+    static QRegularExpression rx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = !Gui::stepContains(here,calloutRx);
+    bool useTop = !Gui::stepContains(here, rx);
 //    beginMacro("PreferredRenderer");
     meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
@@ -3698,9 +3710,9 @@ QString         title,
   bool ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
   if (ok) {
     bool reloadFile = false;
-    QRegExp calloutRx("CALLOUT BEGIN");
+    static QRegularExpression rx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = !Gui::stepContains(here,calloutRx);
+    bool useTop = !Gui::stepContains(here, rx);
     beginMacro("SetFadeSteps");
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
@@ -3742,9 +3754,9 @@ void MetaItem::setHighlightStep(
   bool ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
   if (ok) {
     bool reloadFile = false;
-    QRegExp calloutRx("CALLOUT BEGIN");
+    static QRegularExpression rx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = (append = !Gui::stepContains(here,calloutRx));
+    bool useTop = (append = !Gui::stepContains(here, rx));
     beginMacro("SetHighlightStep");
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
@@ -3883,10 +3895,10 @@ void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand) {
   Where walk = topOfStep + 1;                                     // advance past STEP meta
   int numLines = lpub->ldrawFile.size(topOfStep.modelName);
   scanPastGlobal(topOfStep);
-  QRegExp rotateIconMeta("^\\s*0\\s+!LPUB\\s+.*"+metaCommand);
+  static QRegularExpression rx("^\\s*0\\s+!LPUB\\s+.*"+metaCommand);
   for ( ; walk < numLines; walk++) {
       QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-      if (line.contains(rotateIconMeta)) {
+      if (line.contains(rx)) {
           deleteMeta(walk);
           walk--;                                                 // compensate for deleted line
         } else {
@@ -3916,12 +3928,12 @@ void MetaItem::scanPastLPubMeta(
   int  numLines  = lpub->ldrawFile.size(walk.modelName);
   if (walk < numLines) {
     QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-    QRegExp lpubLine("^\\s*0\\s+!LPUB\\s+.*");
-    if (line.contains(lpubLine) || isHeader(line) || isComment(line)) {
+    static QRegularExpression rx("^\\s*0\\s+!LPUB\\s+.*");
+    if (line.contains(rx) || isHeader(line) || isComment(line)) {
       for ( ++walk; walk < numLines; ++walk) {
         line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
         //logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
-        if ( ! line.contains(lpubLine) && ! isHeader(line) && ! isComment(line)) {
+        if ( ! line.contains(rx) && ! isHeader(line) && ! isComment(line)) {
           topOfStep = walk - 1;
           break;
         }
@@ -4099,7 +4111,7 @@ void MetaItem::endMacro()
 void MetaItem::scanPastGlobal(
   Where &topOfStep)
 {
-  QRegExp globalLine(GLOBAL_META_RX);
+  static QRegularExpression globalLine(GLOBAL_META_RX);
   Gui::scanPast(topOfStep,globalLine);
 }
 
@@ -4305,11 +4317,11 @@ void MetaItem::addCalloutMetas(
   if (! assembled) {
     numLines = lpub->ldrawFile.size(modelName);
     walk.lineNumber = numLines - 1;
-    QRegExp ms("^\\s*0\\s+\\!*LPUB\\s+MULTI_STEP\\s+");
+    static QRegularExpression rx("^\\s*0\\s+\\!*LPUB\\s+MULTI_STEP\\s+");
 
     do {
       QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-      if (line.contains(ms)) {
+      if (line.contains(rx)) {
         deleteMeta(walk);
       }
     } while (--walk >= 0);
@@ -4957,7 +4969,7 @@ void MetaItem::removeCallout(
     }
   } while (rc != EndOfFileRc);
 
-  QRegExp callout("^\\s*0\\s+\\!*LPUB\\s+CALLOUT");
+  static QRegularExpression callout("^\\s*0\\s+\\!*LPUB\\s+CALLOUT");
   for (walk = bottomOfCallout;
        walk >= topOfCallout.lineNumber;
        walk--)
@@ -5041,8 +5053,7 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
      deleteMeta(here);
   } else {
      Where walk = here;
-     QString pattern = QString("^.*(POINTER_ATTRIBUTE (LINE|BORDER)).*$");
-     QRegExp rx(pattern);
+     static QRegularExpression rx("^.*(POINTER_ATTRIBUTE (LINE|BORDER)).*$");
      QString line = lpub->ldrawFile.readLine(walk.modelName,++walk.lineNumber); // advance 1 line
      if (line.contains(rx)) {
          deleteMeta(walk);                 // check first line
@@ -5568,20 +5579,23 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
       bool bmMeta = false;
       bool bmLine = false;
       bool bomIns = false;
+      static QRegularExpression rx;
+      QRegularExpressionMatch match;
 
       for (Where walk = bottom; walk >= top.lineNumber; walk--) {
-          QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+          const QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
           if (!line.size())
               continue;
           switch (line.toLatin1()[0])
           {
               case '0':
                   if (Preferences::buildModEnabled && option != RLPF_BOM) {
-                      QRegExp bmRx("(BUILD_MOD_ENABLED|BUILD_MOD BEGIN|BUILD_MOD END_MOD|BUILD_MOD END)");
-                      if ((bmMeta = line.contains(bmRx))) {
-                          if (bmRx.cap(1).endsWith("END_MOD"))
+                      rx.setPattern("(BUILD_MOD_ENABLED|BUILD_MOD BEGIN|BUILD_MOD END_MOD|BUILD_MOD END)");
+                      match = rx.match(line);
+                      if ((bmMeta = match.hasMatch())) {
+                          if (match.captured(1).endsWith("END_MOD"))
                               bmLine = true;
-                          else if (bmRx.cap(1).endsWith("BEGIN"))
+                          else if (match.captured(1).endsWith("BEGIN"))
                               bmLine = false;
                           bmMeta = !Preferences::removeBuildModFormat && option != RLPF_DOCUMENT;
                       }
@@ -5589,11 +5603,12 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
                   split(line,argv);
                   if (argv.size() > 2 && (argv[1] == "!LPUB" || argv[1] == "LPUB") && !bmMeta) {
                       if (option == RLPF_BOM) {
-                          QRegExp bomRx("(INSERT BOM|INSERT PAGE|BOM PART_GROUP| BOM )");
-                          if (line.contains(bomRx)) {
-                              if (bomRx.cap(1) == "INSERT BOM")
+                          rx.setPattern("(INSERT BOM|INSERT PAGE|BOM PART_GROUP| BOM )");
+                          match = rx.match(line);
+                          if (match.hasMatch()) {
+                              if (match.captured(1) == "INSERT BOM")
                                   bomIns = true;
-                              if (bomRx.cap(1) == "INSERT PAGE") {
+                              if (match.captured(1) == "INSERT PAGE") {
                                   if (!bomIns)
                                       continue;
                                   else

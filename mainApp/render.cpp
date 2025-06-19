@@ -556,10 +556,11 @@ const QStringList Render::getImageAttributes(const QString &pngName)
         cleanStringList[nType].replace(";", "_");
 
     // treat parts with renderer index prefix
-    QRegExp renderIdRx("-([0-3])$");
-    int rendererIndex = cleanStringList.at(nType).lastIndexOf(renderIdRx);
+    static QRegularExpression renderIdRx("-([0-3])$");
+    QRegularExpressionMatch match;
+    int rendererIndex = cleanStringList.at(nType).lastIndexOf(renderIdRx, -1, &match);
     if (rendererIndex > -1) {
-        int rendererId = renderIdRx.cap(1).toInt();
+        int rendererId = match.captured(1).toInt();
         bool rendererSuffix = rendererId == getRenderer();
         // get type name without renderer index
         if (rendererSuffix) {
@@ -745,7 +746,7 @@ QStringList Render::splitParms(const QString &parms)
     QStringList values;
     if (parms.isEmpty())
         return values;
-    QRegExp quoteRx("\"|'");
+    static QRegularExpression quoteRx("\"|'");
     bool quoted = QString(parms.at(0)).contains(quoteRx);      // true if the first character is " or '
     if (!quoted)
         return parms.split(' ');                               // if not quoted split on space
@@ -1649,7 +1650,7 @@ int LDGLite::   renderCsi(
 
   // Add ini arguments if not already in additional parameters
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
-      if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
+      if (list.indexOf(QRegularExpression("^" + QRegularExpression::escape(Preferences::ldgliteParms[i]))) < 0) {
         addArgument(arguments, Preferences::ldgliteParms[i], QString(), 0/*POVGen*/, list.size());
       }
   }
@@ -1830,7 +1831,7 @@ int LDGLite::renderPli(
 
   // Add ini parms if not already added from meta
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
-      if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
+      if (list.indexOf(QRegularExpression("^" + QRegularExpression::escape(Preferences::ldgliteParms[i]))) < 0) {
         addArgument(arguments, Preferences::ldgliteParms[i], QString(), 0/*POVGen*/, list.size());
       }
   }
@@ -4129,9 +4130,10 @@ bool Render::isSingleSubfile(const QStringList &partLines)
         singleSubfile = lpub->ldrawFile.isSingleSubfileLine(partLines.first());
     } else {
         int partCount = 0;
+        static QRegularExpression rx("^[1-5]\\s+");
         for (int i = 0; i < partLines.count(); i++) {
             const QString &partLine = partLines[i];
-            if (!partLine.contains(QRegExp("^[1-5]\\s+")))
+            if (!partLine.contains(rx))
                 partCount++;
             if (partCount > 1)
                 return false;

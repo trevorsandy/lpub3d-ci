@@ -718,7 +718,7 @@ int Step::createCsi(
             if (lightList.size()) {
                 QStringList pl;
                 if (!meta.LPub.assem.ldviewParms.value().isEmpty()) {
-                    QRegExp quotedRx("\"|'");
+                    static QRegularExpression quotedRx("\"|'");
                     pl = meta.LPub.assem.ldviewParms.value().split(' ');
                     for (int i = 0; i < pl.size(); i++) {
                         if (QString(pl.at(i)).contains(quotedRx))
@@ -962,7 +962,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade opacity value is invalid [%1] ").arg(argv[2]));
             } else
             if (argv.size() == 4) {
-              QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
+              static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
               if (argv[3].contains(hexRx)) {
                 QColor colour(argv[3]);
                 if (colour.isValid())
@@ -1066,7 +1066,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
             {
               QStringList const &contents = lpub->ldrawFile.contents(submodelName);
               if (contents.size()) {
-                QRegExp invalidMetaRx("^0 STEP|^0 ROTSTEP|^0 !?FADE|^0 !?SILHOUETTE|^0 !?LPUB (?:MULTI_STEP|CALLOUT|INSERT (?:PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE))");
+                static QRegularExpression invalidMetaRx("^0 STEP|^0 ROTSTEP|^0 !?FADE|^0 !?SILHOUETTE|^0 !?LPUB (?:MULTI_STEP|CALLOUT|INSERT (?:PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE))");
                 for (int i = 0; i < contents.size(); i++) {
                   QString const &line = contents.at(i);
                   if(line.isEmpty())
@@ -1388,11 +1388,12 @@ int Step::setCsiAnnotationMetas(Meta &_meta, int &_adjust, bool force)
 
             if (part->annotateText) {
                 QString typeName = QFileInfo(part->type).completeBaseName();
-                QRegExp rx(QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$"));
                 Where walk = start;
                 line = gui->readLine(++walk); // check next line - skip if meta exist
-                if (((line.contains(rx) && typeName == rx.cap(2)) ||
-                     (rx.cap(2) == "HIDDEN" || rx.cap(2) == "HIDE")) && ! force)
+                static QRegularExpression rx(QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$"));
+                QRegularExpressionMatch match = rx.match(line);
+                if (((match.hasMatch() && typeName == match.captured(2)) ||
+                     (match.captured(2) == "HIDDEN" || match.captured(2) == "HIDE")) && ! force)
                     continue;
 
                 bool display = false;

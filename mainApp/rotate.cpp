@@ -631,10 +631,10 @@ int Render::splitIMParts(const QStringList &rotatedParts,
       isFadeMeta = false,
       isHeaderMeta = false,
       isColComment = false;
-  QRegExp reColComment(QString("^0\\s+\\/\\/\\s+%1\\s+(?:step\\s+|part\\s+|)custom\\s+colours\\s*$").arg(VER_PRODUCTNAME_STR),Qt::CaseInsensitive);
-  QRegExp reCustColour(QString("^0\\s+!COLOUR\\s+%1_.*$").arg(VER_PRODUCTNAME_STR),Qt::CaseInsensitive);
-  QRegExp rePartMeta("^[1|2|3|4|5]\\s+.*$",Qt::CaseInsensitive);
-  QRegExp reFadeMeta("^0\\s+!FADE\\s*.*$",Qt::CaseInsensitive);
+  static QRegularExpression reColComment(QString("^0\\s+\\/\\/\\s+%1\\s+(?:step\\s+|part\\s+|)custom\\s+colours\\s*$").arg(VER_PRODUCTNAME_STR), QRegularExpression::CaseInsensitiveOption);
+  static QRegularExpression reCustColour(QString("^0\\s+!COLOUR\\s+%1_.*$").arg(VER_PRODUCTNAME_STR), QRegularExpression::CaseInsensitiveOption);
+  static QRegularExpression rePartMeta("^[1|2|3|4|5]\\s+.*$", QRegularExpression::CaseInsensitiveOption);
+  static QRegularExpression reFadeMeta("^0\\s+!FADE\\s*.*$", QRegularExpression::CaseInsensitiveOption);
 
   QString im_prev_ldr_ext = QString(".%1").arg(LPUB3D_IM_BASE_LDR_EXT);
   QString im_curr_ldr_ext = QString(".%1").arg(LPUB3D_IM_OVERLAY_LDR_EXT);

@@ -1105,8 +1105,8 @@ public:
   void configureMpdCombo();
   Qt::CaseSensitivity comboCaseSensitivity() const;
   void setComboCaseSensitivity(Qt::CaseSensitivity);
-  QRegExp::PatternSyntax comboPatternSyntax() const;
-  void setComboPatternSyntax(QRegExp::PatternSyntax);
+  RegExp comboPattern() const;
+  void setComboPattern(RegExp);
 
   static bool suppressColourMeta()
   {
@@ -1126,10 +1126,10 @@ public:
   void beginMacro (QString name);
   void endMacro();
 
-  static void scanPast(    Where &here, const QRegExp &lineRx);
+  static void scanPast(    Where &here, const QRegularExpression &lineRx);
   static bool stepContains(Where &here, const QString &value);
-  static bool stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp = 0, bool displayModel = false);
-  static bool stepContains(Where &here, QRegExp &lineRx, bool displayModel = false);
+  static bool stepContains(Where &here, const QRegularExpression &lineRx, QString &result, int capGrp = 0, bool displayModel = false);
+  static bool stepContains(Where &here, QRegularExpression &lineRx, bool displayModel = false);
 
   static QString elapsedTime(const qint64 &duration, bool pretty = true);
 

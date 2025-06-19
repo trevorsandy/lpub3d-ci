@@ -220,11 +220,11 @@ void Gui::cleanChanged(bool cleanState)
       visualEditUndoRedoText.clear();
 }
 
-void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
+void Gui::scanPast(Where &topOfStep, const QRegularExpression &lineRx)
 {
   const bool isScanPastGlobal = lineRx.pattern() == QStringLiteral(GLOBAL_META_RX);
   const bool onStepMeta = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber) == QStringLiteral("0 STEP");
-  QRegExp endRx("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP");
+  static QRegularExpression endRx("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP");
   if (isScanPastGlobal) {
     if (onStepMeta)
       return;
@@ -269,39 +269,44 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
 }
 
 // special case - return specified capture group in result
-bool Gui::stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp, bool displayModel) {
-    QRegExp rx = lineRx;
+bool Gui::stepContains(Where &here, const QRegularExpression &lineRx, QString &result, int capGrp, bool displayModel) {
+    static QRegularExpression rx = lineRx;
     bool found = Gui::stepContains(here,rx,displayModel);
-    if (found && capGrp)
-        result = rx.cap(capGrp).trimmed();
+    if (found && capGrp) {
+        LDrawFile &ldrawFile = lpub->ldrawFile;
+        const QString line = ldrawFile.readLine(here.modelName,here.lineNumber);
+        result = rx.match(line).captured(capGrp).trimmed();
+    }
     return found;
 }
 
 // general case string
 bool Gui::stepContains(Where &topOfStep, const QString &value)
 {
-    QRegExp lineRx(value, Qt::CaseInsensitive);
+    static QRegularExpression lineRx(value, QRegularExpression::CaseInsensitiveOption);
     return Gui::stepContains(topOfStep, lineRx);
 }
 
 // general case regex
-bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx, bool displayModel)
+bool Gui::stepContains(Where &topOfStep, QRegularExpression &lineRx, bool displayModel)
 {
   bool found = false;
   Where walk = topOfStep;
   LDrawFile &ldrawFile = lpub->ldrawFile;
   int  numLines = ldrawFile.size(walk.modelName);
-  QRegExp endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+!DATA");
+  static QRegularExpression endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+!DATA");
+  QRegularExpressionMatch match;
   for (; walk < numLines; ++walk) {
-    QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
+    const QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
+    match = lineRx.match(line);
     if (displayModel) {
-      if (line.contains(lineRx)) {
+      if (match.hasMatch()) {
         // Can consolidate multiple illegal displayModel commands in a single Rx
-        if ((found = lineRx.cap(1).contains("BEGIN SUB"))) {
+        if ((found = match.captured(1).contains("BEGIN SUB"))) {
           topOfStep = walk;
         }
       }
-    } else if ((found = line.contains(lineRx))) {
+    } else if ((found = match.hasMatch())) {
       topOfStep = walk;
     }
     if (found || line.contains(endRx)) {

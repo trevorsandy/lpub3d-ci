@@ -306,7 +306,7 @@ void TextEditDialog::on_actionBold_triggered()
                                   ui->textEdit->setFontWeight(QFont::Normal);
 }
 
-// get text - simple
+// get text - simple (always plainText), called by MetaItem::setRendererArguments(...)
 bool TextEditDialog::getText(
       QString &goods,
       QString  windowTitle)
@@ -336,7 +336,7 @@ bool TextEditDialog::getText(
     return ok;
 }
 
-// get text - rich text
+// get text - full (plain and rich text), called by MetaItem::updateText(...)
 bool TextEditDialog::getText(
       QString &goods,
       QString &editFont,
@@ -351,27 +351,35 @@ bool TextEditDialog::getText(
     QEventLoop loop;
     QString unformattedGoods = goods;
     if (!goods.isEmpty()) {
+        QChar esc('\\');
         QStringList list;
-        Q_FOREACH (QString string, QStringList(goods.split("\\n"))) {
-            string = string.trimmed();
-            QRegExp rx2("\"");
+        static QRegularExpression rx("\"");
+        QRegularExpressionMatch match;
+        QRegularExpressionMatchIterator matchIt;
+        const QStringList goodsList = goods.split("\\n");
+        for (const QString &item : goodsList) {
+            QString string = item.trimmed();
             int pos = 0;
-            QChar esc('\\');
-            while ((pos = rx2.indexIn(string, pos)) != -1) {
+            int adj = 0;
+            matchIt = rx.globalMatch(string);
+            while(matchIt.hasNext())
+            {
+                match = matchIt.next();
+                pos = match.capturedStart() + adj;
                 if (pos < string.size()) {
                     QChar ch = string.at(pos-1);
                     if (ch == esc) {
                         string.remove(pos-1,1);
-                        pos += rx2.matchedLength() - 1;
+                        adj--;
                     }
                 }
             }
-            // if last character is \, append space ' ' so not to escape closing string double quote
-            if (string.at(string.size()-1) == QChar('\\'))
+            // if last character is esc \, append space ' ' so not to escape closing string double quote
+            if (string.at(string.size()-1) == esc)
                 string.append(QChar(' '));
             list << string;
         }
-        unformattedGoods = list.join(" ");
+        unformattedGoods = list.join("\n");
     }
 
     tedit->initialize(unformattedGoods, editFont, editFontColor, windowTitle, richText, fontActions);

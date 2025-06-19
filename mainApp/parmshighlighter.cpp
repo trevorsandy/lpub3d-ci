@@ -40,9 +40,9 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
     QBrush br03; // Custom  blue
     QBrush br04; // Custom  orange/violet
 
-    QBrush br05; //
-    QBrush br06; //
-    QBrush br07; //
+    QBrush br05;
+    QBrush br06;
+    QBrush br07;
 
     if (Preferences::displayTheme == THEME_DEFAULT) {
         br01 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_INI_FILE_COMMENT]));
@@ -71,28 +71,28 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
     // INI Header
     LPubParmsHdrFormat.setForeground(br02);
     LPubParmsHdrFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("^\\[.*[^\n]\\]$");
+    rule.pattern = QRegularExpression("^\\[.*[^\n]\\]$");
     rule.format = LPubParmsHdrFormat;
     highlightingRules.append(rule);
 
     // Right side value
     LPubParmsValueFormat.setForeground(br04);
     LPubParmsValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("\\=(.*)");
+    rule.pattern = QRegularExpression("\\=(.*)");
     rule.format = LPubParmsValueFormat;
     highlightingRules.append(rule);
 
     // Equal sign
     LPubParmsEqualFormat.setForeground(br03);
     LPubParmsEqualFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("=");
+    rule.pattern = QRegularExpression("=");
     rule.format = LPubParmsEqualFormat;
     highlightingRules.append(rule);
 
     // Comment
     LPubParmsCommentFormat.setForeground(br01);
     LPubParmsCommentFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^[#|;][^\n]*");
+    rule.pattern = QRegularExpression("^[#|;][^\n]*");
     rule.format = LPubParmsCommentFormat;
     highlightingRules.append(rule);
 
@@ -118,14 +118,15 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
 void ParmsHighlighter::highlightBlock(const QString &text)
 {
-    Q_FOREACH (HighlightingRule rule, highlightingRules) {
-        QRegExp expression(rule.pattern);
-
-        int index = text.indexOf(expression);
-        while (index >= 0) {
-            int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
-            index = text.indexOf(expression, index + length);
+    static QRegularExpression rx;
+    QRegularExpressionMatch match;
+    QRegularExpressionMatchIterator matchIterator;
+    const QVector<HighlightingRule> rules = highlightingRules;
+    for (const HighlightingRule &rule : rules) {
+        matchIterator = rule.pattern.globalMatch(text);
+        while (matchIterator.hasNext()) {
+            match = matchIterator.next();
+            setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
     }
 
@@ -155,12 +156,13 @@ void ParmsHighlighter::highlightBlock(const QString &text)
     case 1:
     {
         // VER_PLI_SUBSTITUTE_PARTS_FILE
-        QRegExp rx1("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
-        if (text.contains(rx1)) {
+        rx.setPattern("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
+        match = rx.match(text);
+        if (match.hasMatch()) {
             tokens
-            << rx1.cap(1).trimmed()
-            << "\""+rx1.cap(2).trimmed()+"\""
-            << rx1.cap(3).trimmed();
+            << match.captured(1).trimmed()
+            << "\""+match.captured(2).trimmed()+"\""
+            << match.captured(3).trimmed();
             lineFormats.append(LPubVal2Format);
             lineFormats.append(LPubVal3Format);
         }
@@ -169,11 +171,12 @@ void ParmsHighlighter::highlightBlock(const QString &text)
     case 2:
     {
         // VER_TITLE_ANNOTATIONS_FILE
-        QRegExp rx2("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
-        if (text.contains(rx2)) {
+        rx.setPattern("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
+        match = rx.match(text);
+        if (match.hasMatch()) {
             tokens
-            << rx2.cap(1).trimmed()
-            << rx2.cap(2).trimmed();
+            << match.captured(1).trimmed()
+            << match.captured(2).trimmed();
             lineFormats.append(LPubVal3Format);
         }
     }
@@ -181,11 +184,12 @@ void ParmsHighlighter::highlightBlock(const QString &text)
     case 3:
     {
         // VER_FREEFOM_ANNOTATIONS_FILE
-        QRegExp rx3("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-        if (text.contains(rx3)) {
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        match = rx.match(text);
+        if (match.hasMatch()) {
             tokens
-            << rx3.cap(1).trimmed()
-            << rx3.cap(2).trimmed();
+            << match.captured(1).trimmed()
+            << match.captured(2).trimmed();
             lineFormats.append(LPubVal3Format);
         }
     }
@@ -193,11 +197,12 @@ void ParmsHighlighter::highlightBlock(const QString &text)
     case 4:
     {
         // VER_EXCLUDED_PARTS_FILE
-        QRegExp rx4("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-        if (text.contains(rx4)) {
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        match = rx.match(text);
+        if (match.hasMatch()) {
             tokens
-            << rx4.cap(1).trimmed()
-            << rx4.cap(2).trimmed();
+            << match.captured(1).trimmed()
+            << match.captured(2).trimmed();
             lineFormats.append(LPubVal3Format);
         }
     }
@@ -205,11 +210,12 @@ void ParmsHighlighter::highlightBlock(const QString &text)
     case 5:
     {
         // VER_STICKER_PARTS_FILE
-        QRegExp rx4("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-        if (text.contains(rx4)) {
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        match = rx.match(text);
+        if (match.hasMatch()) {
             tokens
-            << rx4.cap(1).trimmed()
-            << rx4.cap(2).trimmed();
+            << match.captured(1).trimmed()
+            << match.captured(2).trimmed();
             lineFormats.append(LPubVal3Format);
         }
     }
@@ -217,12 +223,13 @@ void ParmsHighlighter::highlightBlock(const QString &text)
     case 6:
     {
         // VER_LPUB3D_COLOR_PARTS
-        QRegExp rx5("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");
-        if (text.contains(rx5)) {
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");
+        match = rx.match(text);
+        if (match.hasMatch()) {
             tokens
-            << rx5.cap(1).trimmed()
-            << rx5.cap(2).trimmed()
-            << rx5.cap(3).trimmed();
+            << match.captured(1).trimmed()
+            << match.captured(2).trimmed()
+            << match.captured(3).trimmed();
             lineFormats.append(LPubVal2Format);
             lineFormats.append(LPubVal3Format);
         }

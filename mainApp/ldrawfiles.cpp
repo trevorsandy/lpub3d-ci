@@ -55,12 +55,12 @@
 #include "lc_previewwidget.h"
 
 QStringList LDrawFile::_itemsLoaded; 
-QList<QRegExp> LDrawFile::_fileRegExp; 
-QList<QRegExp> LDrawHeaderRegExp; 
-QList<QRegExp> LDrawUnofficialPartRegExp; 
-QList<QRegExp> LDrawUnofficialSubPartRegExp; 
-QList<QRegExp> LDrawUnofficialPrimitiveRegExp; 
-QList<QRegExp> LDrawUnofficialShortcutRegExp;
+QList<QRegularExpression> LDrawFile::_fileRegExp; 
+QList<QRegularExpression> LDrawHeaderRegExp; 
+QList<QRegularExpression> LDrawUnofficialPartRegExp; 
+QList<QRegularExpression> LDrawUnofficialSubPartRegExp; 
+QList<QRegularExpression> LDrawUnofficialPrimitiveRegExp; 
+QList<QRegularExpression> LDrawUnofficialShortcutRegExp;
 const QString LDrawUnofficialType[UNOFFICIAL_NUM] =
 {
     QLatin1String("Unofficial Submodel"),      // UNOFFICIAL_SUBMODEL
@@ -1045,7 +1045,7 @@ QString LDrawFile::getSubmodelName(int submodelIndx, bool lower)
 
 int LDrawFile::getSubmodelIndex(const QString &mcFileName)
 {
-    return _subFileOrder.indexOf(QRegExp(mcFileName,Qt::CaseInsensitive));
+    return _subFileOrder.indexOf(QRegularExpression(mcFileName, QRegularExpression::CaseInsensitiveOption));
 }
 
 /* marshall subFile 'child' indexes */
@@ -1607,7 +1607,7 @@ bool LDrawFile::loadIncludeFile(const QString &mcFileName)
     QTextStream in(&file);
     in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
 
-    QRegExp subRx("^0\\s+!?(?:LPUB)*\\s?(PLI BEGIN SUB|PART BEGIN IGN|PLI END|PART END)[^\n]*");
+    static QRegularExpression subRx("^0\\s+!?(?:LPUB)*\\s?(PLI BEGIN SUB|PART BEGIN IGN|PLI END|PART END)[^\n]*");
 
     auto isValidLine = [&] (const int lineNumber, const QString &smLine) {
         if (smLine.isEmpty())
@@ -1844,6 +1844,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     QByteArray dataFile;
     QString subfileName, subFile, smLine, datafileName;
     QStringList stagedContents, stagedSubfiles, contents, tokens, searchPaths;
+    QRegularExpressionMatch match;
 
     if (Preferences::searchLDrawSearchDirs)
         searchPaths = Preferences::ldSearchDirs;
@@ -1901,15 +1902,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         if (smLine.isEmpty())
             continue;
-
         bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
         bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
 
         // load LDCad groups
         if (!ldcadGroupsLoaded) {
             if (smLine.contains(_fileRegExp[LDG_RX])) {
-                insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
-                insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
+                match = _fileRegExp[LDG_RX].match(smLine);
+                insertLDCadGroup(match.captured(3),match.captured(1).toInt());
+                insertLDCadGroup(match.captured(2),match.captured(1).toInt());
             } else if (smLine.contains("0 STEP") || smLine.contains("0 ROTSTEP")) {
                 ldcadGroupsLoaded = true;
             }
@@ -1965,23 +1966,23 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     modelHeaderFinished = false;/* set model header flag */
                 // One time populate top level file name
                 if (topFileNotFound) {
-                    if (_fileRegExp[SOF_RX].cap(1).isEmpty()) {    /* we have a FILE key without a value */
+                    match = _fileRegExp[SOF_RX].match(smLine);
+                    if (match.captured(1).isEmpty()) {    /* we have a FILE key without a value */
                         const QString topFile = QString("Model-%1-%2").arg(randomFour()).arg(fileInfo.fileName());
                         smLine = QString("0 FILE %1").arg(topFile);
-                        smLine.contains(_fileRegExp[SOF_RX]);
                         const QString message = QObject::tr("MPD %1 '%2' header 'FILE %3' was added by %4 (file: %5, line: %6).")
                                                             .arg(fileType()).arg(fileInfo.fileName()).arg(topFile)
                                                             .arg(VER_PRODUCTNAME_STR).arg(fileInfo.fileName()).arg(lineIndx + 1);
                         const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(fileInfo.fileName()).arg(message);
                         loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
                     }
-                    _file = QFileInfo(_fileRegExp[SOF_RX].cap(1)).baseName().trimmed();
+                    _file = QFileInfo(match.captured(1)).baseName().trimmed();
                     topFileNotFound = false;
                 }
             } else {
                 if (hdrDescNotFound && lineIndx == hdrDescLine) {
                     if (smLine.contains(_fileRegExp[DES_RX]) && ! isHeader(smLine)) {
-                        _description = _fileRegExp[DES_RX].cap(1);
+                        _description = _fileRegExp[DES_RX].match(smLine).captured(1);
                         if (topLevelModel)
                             Preferences::publishDescription = _description;
                         hdrDescNotFound = false;
@@ -1992,7 +1993,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (hdrNameNotFound && !hdrNameKey) {
                     if (smLine.contains(_fileRegExp[NAM_RX])) {
                         if (topLevelModel)
-                            _name = _fileRegExp[NAM_RX].cap(1);
+                            _name = _fileRegExp[NAM_RX].match(smLine).captured(1);
                         hdrNameNotFound = false;
                     } else if (smLine.contains(_fileRegExp[NAK_RX])) {
                         hdrNameKey = true;
@@ -2004,7 +2005,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (hdrAuthorNotFound && !hdrAuthorKey) {
                     if (smLine.contains(_fileRegExp[AUT_RX])) {
                         if (topLevelModel) {
-                            _author = _fileRegExp[AUT_RX].cap(1);
+                            _author = _fileRegExp[AUT_RX].match(smLine).captured(1);
                             Preferences::defaultAuthor = _author;
                         }
                         hdrAuthorNotFound = false;
@@ -2019,7 +2020,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (hdrCategNotFound) {
                     if (smLine.contains(_fileRegExp[CAT_RX])) {
                         if (topLevelModel)
-                            _category = _fileRegExp[CAT_RX].cap(1);
+                            _category = _fileRegExp[CAT_RX].match(smLine).captured(1);
                         hdrCategNotFound = false;
                     }
                 }
@@ -2034,7 +2035,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
                 // Check for include file
                 if (smLine.contains(_fileRegExp[INC_RX])) {
-                    const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
+                    const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].match(smLine).captured(1));
                     QFileInfo inclFileInfo(inclFilePath);
                     if (inclFileInfo.isReadable()) {
                         if (loadIncludeFile(inclFilePath)) {
@@ -2097,7 +2098,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         // processing base 64 data lines
         if (isDatafile) {
             if (smLine.contains(_fileRegExp[B64_RX])) {
-                dataFile.append(_fileRegExp[B64_RX].cap(1).toUtf8());
+                dataFile.append(_fileRegExp[B64_RX].match(smLine).captured(1).toUtf8());
             } else if (! sosf) {
                 eosf = true;
                 saveDatafile(datafileName, dataFile);
@@ -2165,11 +2166,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     hdrAuthorNotFound = true;
                     hdrFILENotFound   = false; /* we are at the beginning of an LDraw submodel */
                     modelHeaderFinished = false;
-                    subfileName = _fileRegExp[SOF_RX].cap(1).trimmed();
+                    subfileName = _fileRegExp[SOF_RX].match(smLine).captured(1).trimmed();
                 } else/*sosf*/ {
                     hdrNameNotFound = sosf = false;
                     partHeaderFinished = isDatafile ? true : false;
-                    subfileName = isDatafile ? _fileRegExp[DAT_RX].cap(1).trimmed() : _fileRegExp[NAM_RX].cap(1);
+                    subfileName = isDatafile
+                                    ?  _fileRegExp[DAT_RX].match(smLine).captured(1).trimmed()
+                                    : _fileRegExp[NAM_RX].match(smLine).captured(1);
                     contents << smLine;
                 }
                 unofficialPart = isDatafile ? UNOFFICIAL_DATA : UNOFFICIAL_UNKNOWN;
@@ -2457,6 +2460,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
         QString subfileName, subFile, smLine;
         QStringList stagedContents, stagedSubfiles, contents, tokens, searchPaths;
+        QRegularExpressionMatch match;
 
         if (Preferences::searchLDrawSearchDirs)
             searchPaths = Preferences::ldSearchDirs;
@@ -2535,7 +2539,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if ((eosf = smLine.contains(_fileRegExp[NAM_RX]))) {
                     const QString &lastLine = contents.last();
                     if (lastLine.contains(_fileRegExp[DES_RX])) {
-                        _description = _fileRegExp[DES_RX].cap(1); // for inline files
+                        _description = _fileRegExp[DES_RX].match(smLine).captured(1); // for inline files
                     }
                 } else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
                     contents << smLine;                            // for external files
@@ -2544,8 +2548,9 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             // load LDCad groups
             if (!ldcadGroupsLoaded) {
                 if(smLine.contains(_fileRegExp[LDG_RX])) {
-                    insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
-                    insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
+                    match = _fileRegExp[LDG_RX].match(smLine);
+                    insertLDCadGroup(match.captured(3),match.captured(1).toInt());
+                    insertLDCadGroup(match.captured(2),match.captured(1).toInt());
                 } else if (smLine.contains("0 STEP") || smLine.contains("0 ROTSTEP")) {
                     ldcadGroupsLoaded = true;
                 }
@@ -2613,7 +2618,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if (!sosf || !partHeaderFinished) {
                     if (hdrDescNotFound && lineIndx == hdrDescLine) {
                         if (smLine.contains(_fileRegExp[DES_RX]) && ! isHeader(smLine)) {
-                            _description = _fileRegExp[DES_RX].cap(1);
+                            _description = _fileRegExp[DES_RX].match(smLine).captured(1);
                             if (topLevelModel)
                                 Preferences::publishDescription = _description;
                             hdrDescNotFound = false;
@@ -2624,7 +2629,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     if (hdrNameNotFound) {
                         if (smLine.contains(_fileRegExp[NAM_RX])) {
                             if (topLevelModel)
-                                _name = _fileRegExp[NAM_RX].cap(1);
+                                _name = _fileRegExp[NAM_RX].match(smLine).captured(1);
                             hdrNameNotFound = false;
                         } else if (smLine.contains(_fileRegExp[NAK_RX]))
                             hdrNameKey = true;
@@ -2635,7 +2640,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     if (hdrAuthorNotFound) {
                         if (smLine.contains(_fileRegExp[AUT_RX])) {
                             if (topLevelModel) {
-                                _author = _fileRegExp[AUT_RX].cap(1);
+                                _author = _fileRegExp[AUT_RX].match(smLine).captured(1);
                                 Preferences::defaultAuthor = _author;
                             }
                             hdrAuthorNotFound = false;
@@ -2649,7 +2654,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     if (hdrCategNotFound) {
                         if (smLine.contains(_fileRegExp[CAT_RX])) {
                             if (topLevelModel)
-                                _category = _fileRegExp[CAT_RX].cap(1);
+                                _category = _fileRegExp[CAT_RX].match(smLine).captured(1);
                             hdrCategNotFound = false;
                         }
                     }
@@ -2664,7 +2669,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
                     // Check for include file
                     if (smLine.contains(_fileRegExp[INC_RX])) {
-                        const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
+                        const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].match(smLine).captured(1));
                         QFileInfo inclFileInfo(inclFilePath);
                         if (inclFileInfo.isReadable()) {
                             if (loadIncludeFile(inclFilePath)) {
@@ -2761,7 +2766,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     unofficialPart  = UNOFFICIAL_UNKNOWN;
                     hdrNameNotFound = sosf = false;
                     partHeaderFinished = subfileFound ? true : false;
-                    subfileName = _fileRegExp[NAM_RX].cap(1);
+                    subfileName = _fileRegExp[NAM_RX].match(smLine).captured(1);
                     contents << smLine;
                     if (! alreadyLoaded)
                         emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading '%1'...").arg(subfileName));
@@ -3542,7 +3547,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                            ? QObject::tr("Recounting")
                                            : QObject::tr("Counting")).arg(top.modelName);
 
-    QRegExp texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)\\s+(\\b\\w+\\b)");
+    static QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)\\s+(\\b\\w+\\b)");
 
     LDrawUnofficialFileType subFileType;
     std::function<void(Where&)> countModelParts;
@@ -3606,7 +3611,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             }
                             if (!_lpubFadeHighlight) {
                                 if ((_lpubFadeHighlight = line.contains(_fileRegExp[LFH_RX]))) { // LPub Fade or LPub Highlight
-                                    if (_fileRegExp[LFH_RX].cap(1) == "LPUB_FADE")
+                                    if (_fileRegExp[LFH_RX].match(line).captured(1) == "LPUB_FADE")
                                         lpubFade = true;
                                     else
                                         lpubHighlight = true;
@@ -3648,7 +3653,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                         if (line.contains(texmapRx)) {
                             QStringList argv = line.split(" ");
                             int t = 13; // PLANAR
-                            QString const method = texmapRx.cap(1).toUpper();
+                            QString const method = texmapRx.match(line).captured(1).toUpper();
                             if (method == "CYLINDRICAL")
                                 t += 1;
                             else if (method == "SPHERICAL")
@@ -3921,6 +3926,8 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                 _savedLines++;
             }
 
+            static QRegularExpression newLineBeforeRx("^\\s*0\\s+\\/\\/\\s*(Segments| Segment |Start cap |End cap |Fixed color segments)[^\n]*", QRegularExpression::CaseInsensitiveOption);
+            static QRegularExpression newLineAfterRx("^\\s*0\\s+\\/\\/\\s*( The path is approx | License: )[^\n]*", QRegularExpression::CaseInsensitiveOption);
             for (int j = 0; j < f.value()._contents.size(); j++) {
 
                 _savedLines++;
@@ -3947,10 +3954,8 @@ bool LDrawFile::saveModelFile(const QString &fileName)
 
                 if (!newLineIinserted) {
                     if (isLDCadContent) {
-                        QRegExp newLineBeforeRx("^\\s*0\\s+\\/\\/\\s*(Segments| Segment |Start cap |End cap |Fixed color segments)[^\n]*",Qt::CaseSensitive);
                         insertNewLineBefore = line.contains(newLineBeforeRx) && (j ? !f.value()._contents.at(j-1).startsWith("0 //Segments",Qt::CaseSensitive) : true);
                         if (!insertNewLineBefore) {
-                            QRegExp newLineAfterRx("^\\s*0\\s+\\/\\/\\s*( The path is approx | License: )[^\n]*",Qt::CaseSensitive);
                             insertNewLineAfter  = line.startsWith("0 BFC ");
                             insertNewLineAfter |= line.contains(newLineAfterRx);
                         }
@@ -4349,7 +4354,7 @@ QList<QVector<int> > LDrawFile::getBuildModStepActions(
     QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.find(modStepIndex);
     while (i != _buildModSteps.end() && i.key() == modStepIndex) {
         QVector<int> modAction = { BM_INVALID_INDEX, BM_INIT, BM_INIT };
-        QRegExp buildModKeyRx(i.value()._buildModKey, Qt::CaseInsensitive);
+        static QRegularExpression buildModKeyRx(i.value()._buildModKey, QRegularExpression::CaseInsensitiveOption);
         int modBeginStepIndex = getBuildModStepIndex(i.value()._buildModKey);
         modAction[BM_ACTION_KEY_INDEX] = _buildModList.indexOf(buildModKeyRx);
         if (modBeginStepIndex == modStepIndex) {        // step index has BuildModBeginRc
@@ -4461,7 +4466,7 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
     if (i != _buildMods.end()) {
         _buildMods.erase(i);
         if (_buildModList.contains(buildModKey, Qt::CaseInsensitive)) {
-            QRegExp buildModKeyRx(buildModKey, Qt::CaseInsensitive);
+            static QRegularExpression buildModKeyRx(buildModKey, QRegularExpression::CaseInsensitiveOption);
             const int buildModListIndex = _buildModList.indexOf(buildModKeyRx);
             if (buildModListIndex > -1)
                 _buildModList.removeAt(buildModListIndex);
@@ -5502,12 +5507,12 @@ void LDrawFile::setBuildModsCount(const QString &mcFileName, const int value)
 bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buildModKey)
 {
     QString fileName = mcFileName.toLower();
-    QRegExp buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
+    static QRegularExpression buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
     for(const QString &line : lpub->ldrawFile.contents(fileName)) {
         if (line[0] == '1')
             continue;
         if (line.contains(buildModBeginRx))
-            if (line.contains(buildModKey,Qt::CaseInsensitive))
+            if (line.contains(buildModKey, Qt::CaseInsensitive))
                 return true;
     }
     return false;
@@ -5516,7 +5521,7 @@ bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buil
 bool LDrawFile::buildModContains(const QString &buildModKey)
 {
   QString modKey = buildModKey;
-  return _buildModList.contains(modKey,Qt::CaseInsensitive);
+  return _buildModList.contains(modKey, Qt::CaseInsensitive);
 }
 
 QStringList LDrawFile::getBuildModsList()
@@ -6102,99 +6107,99 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
 {
   {
     _fileRegExp
-        << QRegExp("^0\\s+FILE\\s?(.*)$",Qt::CaseInsensitive)       // SOF_RX - Start of File
-        << QRegExp("^0\\s+!?DATA\\s+(.*)$",Qt::CaseInsensitive)     // DAT_RX - Imbedded Image Data
-        << QRegExp("^0\\s+!:\\s+(.*)$",Qt::CaseInsensitive)         // B64_RX - Base 64 Image Data Line
-        << QRegExp("^0\\s+NOFILE\\s*$",Qt::CaseInsensitive)         // EOF_RX - End of File
-        << QRegExp("^1\\s+.*$",Qt::CaseInsensitive)                 // LDR_RX - LDraw File
-        << QRegExp("^0\\s+(.*)$",Qt::CaseInsensitive)               // DES_RX - Model Description
-        << QRegExp("^0\\s+NAME:\\s+(.*)$",Qt::CaseInsensitive)      // NAM_RX - Name Header
-        << QRegExp("^0\\s+NAME:\\s*$",Qt::CaseInsensitive)          // NAK_RX - Name Header Key
-        << QRegExp("^0\\s+AUTHOR:\\s+(.*)$",Qt::CaseInsensitive)    // AUT_RX - Author Header
-        << QRegExp("^0\\s+AUTHOR:\\s*$",Qt::CaseInsensitive)        // AUK_RX - Author Header Key
-        << QRegExp("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive) // CAT_RX - Category Header
-        << QRegExp("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$",Qt::CaseInsensitive)                          // INC_RX - Include File
-        << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) // LDG_RX - LDCad Group
-        << QRegExp("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
-        << QRegExp("^[0-5]\\s+!?(?:LPUB)*\\s?(?:STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|ROTATION|\\d)[^\n]*")               // EOH_RX - End of Header
-        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")                                              // DMS_RX - Display Model Step
-        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*")                                        // LDS_RX - LDraw Step boundry
-        << QRegExp("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(SETUP|ENABLED)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")              // FHE_RX - Fade or Highlight Enabled (or Setup)
-        << QRegExp("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(LPUB_FADE|LPUB_HIGHLIGHT)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")   // LFH_RX - LPub Fade or LPub Highlight
+        << QRegularExpression("^0\\s+FILE\\s?(.*)$", QRegularExpression::CaseInsensitiveOption)       // SOF_RX - Start of File
+        << QRegularExpression("^0\\s+!?DATA\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)     // DAT_RX - Imbedded Image Data
+        << QRegularExpression("^0\\s+!:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)         // B64_RX - Base 64 Image Data Line
+        << QRegularExpression("^0\\s+NOFILE\\s*$", QRegularExpression::CaseInsensitiveOption)         // EOF_RX - End of File
+        << QRegularExpression("^1\\s+.*$", QRegularExpression::CaseInsensitiveOption)                 // LDR_RX - LDraw File
+        << QRegularExpression("^0\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)               // DES_RX - Model Description
+        << QRegularExpression("^0\\s+NAME:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)      // NAM_RX - Name Header
+        << QRegularExpression("^0\\s+NAME:\\s*$", QRegularExpression::CaseInsensitiveOption)          // NAK_RX - Name Header Key
+        << QRegularExpression("^0\\s+AUTHOR:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)    // AUT_RX - Author Header
+        << QRegularExpression("^0\\s+AUTHOR:\\s*$", QRegularExpression::CaseInsensitiveOption)        // AUK_RX - Author Header Key
+        << QRegularExpression("^0\\s+!?CATEGORY\\s+(.*)$", QRegularExpression::CaseInsensitiveOption) // CAT_RX - Category Header
+        << QRegularExpression("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$", QRegularExpression::CaseInsensitiveOption)                          // INC_RX - Include File
+        << QRegularExpression("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$", QRegularExpression::CaseInsensitiveOption) // LDG_RX - LDCad Group
+        << QRegularExpression("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
+        << QRegularExpression("^[0-5]\\s+!?(?:LPUB)*\\s?(?:STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|ROTATION|\\d)[^\n]*")               // EOH_RX - End of Header
+        << QRegularExpression("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")                                              // DMS_RX - Display Model Step
+        << QRegularExpression("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*")                                        // LDS_RX - LDraw Step boundry
+        << QRegularExpression("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(SETUP|ENABLED)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")              // FHE_RX - Fade or Highlight Enabled (or Setup)
+        << QRegularExpression("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(LPUB_FADE|LPUB_HIGHLIGHT)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")   // LFH_RX - LPub Fade or LPub Highlight
         ;
   }
 
   {
     LDrawHeaderRegExp
-        << QRegExp("^0\\s+FILE\\s+(.+)$",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+AUTHOR:?[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+BFC[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?CATEGORY[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+CLEAR[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?COLOUR[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?CMDLINE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?HELP[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?HISTORY[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?KEYWORDS[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?LDRAW_ORG[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+!?LICENSE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+NAME:?[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+OFFICIAL[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+ORIGINAL\\s+LDRAW[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+PAUSE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+PRINT[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+ROTATION[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+SAVE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+UNOFFICIAL[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+UN-OFFICIAL[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+WRITE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+~MOVED\\s+TO[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^0\\s+NOFILE\\s*$",Qt::CaseInsensitive)
+        << QRegularExpression("^0\\s+FILE\\s+(.+)$", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+AUTHOR:?[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+BFC[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?CATEGORY[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+CLEAR[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?COLOUR[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?CMDLINE[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?HELP[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?HISTORY[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?KEYWORDS[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?LDRAW_ORG[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+!?LICENSE[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+NAME:?[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+OFFICIAL[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+ORIGINAL\\s+LDRAW[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+PAUSE[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+PRINT[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+ROTATION[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+SAVE[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+UNOFFICIAL[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+UN-OFFICIAL[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+WRITE[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+~MOVED\\s+TO[^\n]*", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+NOFILE\\s*$", QRegularExpression::CaseInsensitiveOption)
            ;
   }
 
   {
       LDrawUnofficialPartRegExp
-              << QRegExp("^0\\s+!?UNOFFICIAL\\s+PART[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Alias)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical Colour)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Alias)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical Colour)[^\n]*",Qt::CaseInsensitive)
+              << QRegularExpression("^0\\s+!?UNOFFICIAL\\s+PART[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Alias)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical_Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Alias)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical_Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
               ;
   }
 
   {
       LDrawUnofficialSubPartRegExp
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Subpart)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Subpart)[^\n]*",Qt::CaseInsensitive)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Subpart)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Subpart)[^\n]*", QRegularExpression::CaseInsensitiveOption)
                  ;
   }
 
   {
       LDrawUnofficialPrimitiveRegExp
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Primitive)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_8_Primitive)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_48_Primitive)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Primitive)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial 8_Primitive)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial 48_Primitive)[^\n]*",Qt::CaseInsensitive)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Primitive)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_8_Primitive)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_48_Primitive)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Primitive)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial 8_Primitive)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial 48_Primitive)[^\n]*", QRegularExpression::CaseInsensitiveOption)
               ;
   }
 
   {
       LDrawUnofficialShortcutRegExp
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical Colour)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical Colour)[^\n]*",Qt::CaseInsensitive)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Alias)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical_Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Alias)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical_Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
+              << QRegularExpression("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical Colour)[^\n]*", QRegularExpression::CaseInsensitiveOption)
               ;
   }
 }
@@ -6223,7 +6228,7 @@ bool isHeader(const QString &line)
 }
 
 bool isComment(const QString &line) {
-  QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
+  static QRegularExpression commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
   if (line.contains(commentLine))
     return true;
   return false;
@@ -6248,9 +6253,10 @@ QString joinLine(const QStringList &argv)
  */
 bool isSubstitute(const QString &line, QString &lineOut)
 {
-  QRegExp substitutePartRx("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})",Qt::CaseInsensitive);
-  if (line.contains(substitutePartRx)) {
-    lineOut = substitutePartRx.cap(1);
+  static QRegularExpression substitutePartRx("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})", QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch match = substitutePartRx.match(line);
+  if (match.hasMatch()) {
+    lineOut = match.captured(1);
     return true;
   }
   return false;
@@ -6264,8 +6270,9 @@ bool isSubstitute(const QString &line)
 
 bool isGhost(const QString &line)
 {
-  QRegExp ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
-  if (line.contains(ghostMeta))
+  static QRegularExpression ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
+  QRegularExpressionMatch match = ghostMeta.match(line);
+  if (match.hasMatch())
       return true;
   return false;
 }
@@ -6304,7 +6311,9 @@ QStringList asynchronous(const QFuture<QStringList> &future)
 
 int getUnofficialFileType(QString &line)
 {
-  if (line.contains(QRegExp("^0\\s+!?(LDCAD GENERATED)[^\n]*"))) {
+  static QRegularExpression unnoffTypeRx("^0\\s+!?(LDCAD GENERATED)[^\n]*");
+  QRegularExpressionMatch match = unnoffTypeRx.match(line);
+  if (match.hasMatch()) {
     return UNOFFICIAL_GENERATED_PART;
   }
   int size = LDrawUnofficialPartRegExp.size();

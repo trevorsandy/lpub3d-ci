@@ -118,12 +118,13 @@ void Gui::remove_group(
 
   auto parseGroupMeta = [&line](Rc &grpType)
   {
-    QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
+    QHash<Rc, QRegularExpression>::const_iterator i = groupRegExMap.constBegin();
+    QRegularExpressionMatch match;
     while (i != groupRegExMap.constEnd()) {
-      QRegExp rx(i.value());
-      if (line.contains(rx)) {
+      match = i.value().match(line);
+      if (match.hasMatch()) {
         grpType = i.key();
-        return rx.cap(rx.captureCount());
+        return match.captured(i.value().captureCount());
       }
       ++i;
     }
@@ -429,7 +430,7 @@ int Gui::drawPage(
 
     LGraphicsView *view = opts.printing ? &gui->KexportView : gui->KpageView;
 
-    QRegExp partTypeLineRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)");
+    static QRegularExpression partTypeLineRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)");
     QStringList configuredCsiParts; // fade and highlight configuration
     QString  line;
     Callout *callout         = nullptr;
@@ -526,7 +527,7 @@ int Gui::drawPage(
                                                             Qt::ElideRight, charWidth * 30/*characters*/);
         Where where = topOfStep;
         bool fin = status == end;
-        QRegExp multiStepRx(" MULTI_STEP BEGIN$");
+        static QRegularExpression multiStepRx(" MULTI_STEP BEGIN$");
         bool stepGroup = fin ? multiStep : Gui::stepContains(where, multiStepRx);
         QString const message = tr("%1 %2 draw-page for page %3, step %4, model '%5'%6")
                 .arg(fin ? tr("Processed") : tr("Processing")).arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"))
@@ -1683,12 +1684,13 @@ int Gui::drawPage(
                 QString message = tr("%1 command must be preceded by 0 [ROT]STEP before part (type 1 - 5) at line");
                 if (includeFileFound)
                     message = message.arg(QLatin1String("INCLUDE command containing %1"));
-                QRegExp rx("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
-                if (line.contains(rx) && rx.cap(1) == "BACK") {
+                static QRegularExpression rx("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
+                QRegularExpressionMatch match = rx.match(line);
+                if (match.hasMatch() && match.captured(1) == "BACK") {
                     lpub->page.backCover  = true;
                     lpub->page.frontCover = false;
                     message = message.arg(QLatin1String("INSERT COVER_PAGE BACK"));
-                } else if (line.contains(rx) && rx.cap(1) == "FRONT") {
+                } else if (match.hasMatch() && match.captured(1) == "FRONT") {
                     lpub->page.frontCover = true;
                     lpub->page.backCover  = false;
                     message = message.arg(QLatin1String("INSERT COVER_PAGE FRONT"));
@@ -6079,7 +6081,7 @@ int Gui::setBuildModForNextStep(
                         } else {
                             bool buildModFound = false;
                             if (walk.modelIndex == topOfNextStep.modelIndex) {
-                                QRegExp buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
+                                static QRegularExpression buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
                                 if ((buildModFound = Gui::stepContains(walk, buildModBeginRx)))
                                     walk--; // Adjust for line increment
                             }

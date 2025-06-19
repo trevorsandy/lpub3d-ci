@@ -234,8 +234,8 @@ protected:
     void configureMpdCombo();
     Qt::CaseSensitivity comboCaseSensitivity() const;
     void setComboCaseSensitivity(Qt::CaseSensitivity);
-    QRegExp::PatternSyntax comboPatternSyntax() const;
-    void setComboPatternSyntax(QRegExp::PatternSyntax);
+    RegExp comboPattern() const;
+    void setComboPattern(RegExp);
 
     void closeEvent(QCloseEvent*_event) override;
 

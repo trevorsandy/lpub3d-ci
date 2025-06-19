@@ -52,8 +52,10 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     mViewerStepKey = lpub->viewerStepKey;
 
+    static QRegularExpression valRx("^.*\\.png$", QRegularExpression::CaseInsensitiveOption);
+
     ui->OutputEdit->setText(Render::getRenderImageFile(renderType));
-    ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
+    ui->OutputEdit->setValidator(new QRegularExpressionValidator(valRx));
     ui->RenderOutputButton->setEnabled(false);
 
     mCsiKeyList = QString(lpub->ldrawFile.getViewerConfigKey(mViewerStepKey).split(";").last()).split("_");
@@ -728,6 +730,8 @@ void RenderDialog::on_RenderButton_clicked()
 #endif
             if (mProcess)
             {
+                static QRegularExpression errorRx("(?:\\w)*ERROR: ", QRegularExpression::CaseInsensitiveOption);
+                static QRegularExpression warningRx("(?:\\w)*WARNING: ", QRegularExpression::CaseInsensitiveOption);
                 mProcess->kill();
                 CloseProcess();
                 if (mStdOutList.size())
@@ -742,8 +746,8 @@ void RenderDialog::on_RenderButton_clicked()
                         if (log.open(QFile::ReadOnly | QFile::Text))
                         {
                             QByteArray ba = log.readAll();
-                            bool const error = QString(ba).contains(QRegExp("(?:\\w)*ERROR: ", Qt::CaseInsensitive));
-                            bool const warning = QString(ba).contains(QRegExp("(?:\\w)*WARNING: ", Qt::CaseInsensitive));
+                            bool const error = QString(ba).contains(errorRx);
+                            bool const warning = QString(ba).contains(warningRx);
                             if (error || warning)
                             {
                                 QMessageBox::Icon icon = error ? QMessageBox::Critical : QMessageBox::Warning;
@@ -801,6 +805,7 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
     DWORD ppID       = DWORD(ppid);
     HANDLE hSnapshot = INVALID_HANDLE_VALUE, hProcess = INVALID_HANDLE_VALUE;
     PROCESSENTRY32 pe32;
+    static QRegularExpression rx("^(?:cmd\\.exe|conhost\\.exe|blender\\.exe)$", QRegularExpression::CaseInsensitiveOption);
 
     if ((hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, ppID)) == INVALID_HANDLE_VALUE) {
         emit gui->messageSig(LOG_ERROR, QString("%1 failed: %1").arg("CreateToolhelp32Snapshot").arg(GetLastError()));
@@ -813,7 +818,7 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
         return -2;
     }
     do {
-        if (QString::fromWCharArray(pe32.szExeFile).contains(QRegExp("^(?:cmd\\.exe|conhost\\.exe|blender\\.exe)$", Qt::CaseInsensitive))) {
+        if (QString::fromWCharArray(pe32.szExeFile).contains(rx)) {
             if ((pe32.th32ProcessID == pID && pe32.th32ParentProcessID == ppID) || // parent:   cmd.exe
                 (pe32.th32ParentProcessID == pID)) {                      // children: conhost.exe, blender.exe
                 if ((hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe32.th32ProcessID)) == INVALID_HANDLE_VALUE) {
@@ -889,6 +894,7 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
     hasError = mRenderType == BLENDER_RENDER ? false : true;
     QFile file;
     QStringList returnLines;
+    static QRegularExpression rx("^POV-Ray finished$", QRegularExpression::CaseInsensitiveOption);
 
     file.setFileName(GetLogFileName(false/*stdOut*/));
 
@@ -906,7 +912,7 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
         QString line = in.readLine(0);
         returnLines << line.trimmed() + "<br>";
         if (mRenderType == POVRAY_RENDER) {
-            if (line.contains(QRegExp("^POV-Ray finished$", Qt::CaseSensitive)))
+            if (line.contains(rx))
                 hasError = false;
         } else if (mRenderType == BLENDER_RENDER) {
             if (!hasError && !line.isEmpty())

@@ -2880,7 +2880,7 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
                     QTextStream out(&rf);
                     out.setCodec(QTextCodec::codecForName("UTF-8"));
                     QStringList const scl = lpub->ldrawFile.getViewerStepRotatedContents(currentStep->viewerStepKey);
-                    QRegExp insertRx("^0 // ROTSTEP ");
+                    static QRegularExpression insertRx("^0 // ROTSTEP ");
                     bool inserted = false;
                     for (QString const &sl : scl) {
                         if (!inserted) {
@@ -3357,7 +3357,7 @@ void Gui::ReloadVisualEditor() {
                           ModStepKeys;
 
              bool FadeSteps        = Preferences::enableFadeSteps;
-			 bool HighlightStep    = Preferences::enableHighlightStep && !Gui::suppressColourMeta();
+             bool HighlightStep    = Preferences::enableHighlightStep && !Gui::suppressColourMeta();
 
              int CurrentStep       = 1;
              int AddedPieces       = 0;
@@ -3407,6 +3407,8 @@ void Gui::ReloadVisualEditor() {
 
              const QByteArray LPMeta("0 !LPUB");
 
+             static QRegularExpression rx("(\\r\\n)|\\r|\\n");
+
              // Check that the the build mod and current step shares the same submodel
              if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
                  emit gui->messageSig(LOG_ERROR, tr("%1 BuildMod model (%2) '%3' and current Step model (%4) are not the same")
@@ -3438,7 +3440,7 @@ void Gui::ReloadVisualEditor() {
              }
 
              // Check if there is an existing build modification in this Step
-             QRegExp lineRx("^0 !?LPUB BUILD_MOD BEGIN ");
+             static QRegularExpression lineRx("^0 !?LPUB BUILD_MOD BEGIN ");
              if (Gui::stepContains(currentStep->top, lineRx) && !Update) {
 
                  QMessageBox box;
@@ -3489,8 +3491,7 @@ void Gui::ReloadVisualEditor() {
                      return;
 
                  if (!Stream.string()->isEmpty()) {
-
-                     QStringList ModLines = Stream.string()->split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
+                     QStringList ModLines = Stream.string()->split(rx, SkipEmptyParts);
                      QString PartLine = ModLines.last();
 
                      QStringList argv;
@@ -3599,7 +3600,7 @@ void Gui::ReloadVisualEditor() {
 
                  QString ULine = lpub->ldrawFile.getViewerStepContentLine(ModStepKey, PieceLineIndex, false/*rotated*/);
                  QString RLine = lpub->ldrawFile.getViewerStepContentLine(ModStepKey, PieceLineIndex);
-                 QString VLine = QString(PieceString).replace(QRegExp("(\\r\\n)|\\r|\\n"),"");
+                 QString VLine = QString(PieceString).replace(rx,"");
 
                  QStringList UTokens, RTokens, VTokens;
 
@@ -4174,7 +4175,7 @@ void Gui::ReloadVisualEditor() {
                      Light->SaveLDraw(Stream);
 
              // Set step stream (of lines) to content list
-             ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
+             ViewerModContents = QString(ViewerModContentsString).split(rx, SkipEmptyParts);
 
              int BuildModPieces = ViewerModContents.size();
 /* DEBUG - COMMENT TO ENABLE

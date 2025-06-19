@@ -49,7 +49,7 @@
  */
 
 QHash<QString, int> tokenMap;
-QHash<Rc, QRegExp> groupRegExMap;
+QHash<Rc, QRegularExpression> groupRegExMap;
 
 bool AbstractMeta::reportErrors = false;
 
@@ -169,8 +169,9 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
       offset = local || global;
 
       if (index + offset < size) {
+        static QRegularExpression rx;
         for (i = list.begin(); i != list.end(); i++) {
-          QRegExp rx(i.key());
+          rx.setPattern(i.key());
           if (argv[index + offset].contains(rx)) {
             /* Now parse the rest of the argvs */
             i.value()->pushed = local;
@@ -656,7 +657,7 @@ void StringListMeta::doc(QStringList &out, QString preamble)
 
 Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
 {
-  QRegExp rx("^(TRUE|FALSE)$");
+  static QRegularExpression rx("^(TRUE|FALSE)$");
   if (index == argv.size() - 1 && argv[index].contains(rx)) {
       _value[pushed] = argv[index] == "TRUE";
       _here[pushed] = here;
@@ -850,7 +851,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
   PlacementType _relativeTo; //_value[pushed].relativeTo;
   QString placement, justification, preposition, relativeTo;
 
-  QRegExp rx("^(TOP|BOTTOM)$");
+  static QRegularExpression rx("^(TOP|BOTTOM)$");
   if (argv[index].contains(rx)) {
     placement = argv[index++];
 
@@ -1503,11 +1504,13 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index, Where &here)
 
 PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv, const Where &here, const int indx, int &arge, Rc &rc)
 {
-  QRegularExpression rx("^(LINE|BORDER|TIP)$");
+  static QRegularExpression rx;
+  QRegularExpressionMatch match;
   int index = indx;
+  rx.setPattern("^(LINE|BORDER|TIP)$");
   if (!index)
     index = argv.indexOf(rx);
-  QRegularExpressionMatch match = rx.match(argv[index]);
+  match = rx.match(argv[index]);
   rx.setPattern("^(GLOBAL|LOCAL)$");
   bool scoped = argv[index-1].contains(rx);
   rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
@@ -1584,7 +1587,7 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv, c
   int tip_idIndex = -1, idIndex = -1;
 
   if (argv.size() > sizeIndex+1) {
-    QRegularExpression rx("^(HIDE_TIP|ID)$");
+    rx.setPattern("^(HIDE_TIP|ID)$");
     bool tip_idKey = argv[sizeIndex+1].contains(rx);
     tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
     if (tip_idKey) {                       // if line (hide tip or id), else if border or tip (id)
@@ -1859,7 +1862,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
                 ;
 #endif
 //*/
-    QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
+    static QRegularExpression rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
     // legacy single-segment pattern - base included
     if (argv[index].contains(rx) && n_tokens == 4) {
@@ -2056,7 +2059,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 
 QString PointerMeta::format(bool local, bool global)
 {
-  QRegExp rx("^\\s*0.*\\s+(PAGE POINTER|PAGE_POINTER)\\s+.*$");
+  static QRegularExpression rx("^\\s*0.*\\s+(PAGE POINTER|PAGE_POINTER)\\s+.*$");
   bool pagePointer = preamble.contains(rx);
   QString foo;
   switch(_value[pushed].placement) {
@@ -2161,8 +2164,9 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 //*/
   CsiAnnotationIconData annotationData;
   Rc rc = FailureRc;
+  static QRegularExpression rx;
   if (argv.size() - index == 1) {
-      QRegExp rx("^(HIDE|HIDDEN)$");
+      rx.setPattern("^(HIDE|HIDDEN)$");
       if (argv[index].contains(rx)) {
           annotationData.hidden = true;
           rc = OkRc;
@@ -2170,7 +2174,7 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
   }
   else
   if (argv.size() - index >= 10) {
-    QRegExp rx("^(TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)$");
+    rx.setPattern("^(TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)$");
     QStringList entries;
     if (argv[index].contains(rx)) {
       entries << QString::number(PlacementEnc(tokenMap[argv[index]]));
@@ -2431,7 +2435,7 @@ Rc FreeFormMeta::parse(QStringList &argv, int index,Where &here)
     rc = OkRc;
   } else if (argv.size() - index == 2) {
     _value[pushed].mode = true;
-    QRegExp rx("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
+    static QRegularExpression rx("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
     if (argv[index].contains(rx)) {
       rx.setPattern("^(LEFT|RIGHT|TOP|BOTTOM|CENTER)$");
       if (argv[index+1].contains(rx)) {
@@ -2446,6 +2450,7 @@ Rc FreeFormMeta::parse(QStringList &argv, int index,Where &here)
   }
   return rc;
 }
+
 QString FreeFormMeta::format(bool local, bool global)
 {
   QString foo;
@@ -2478,7 +2483,7 @@ Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
   bool ok;
-  QRegExp rx;
+  static QRegularExpression rx;
   switch(argv.size() - index) {
     case 1:
       rx.setPattern("^(AREA|SQUARE)$");
@@ -2560,7 +2565,7 @@ AllocMeta::AllocMeta() : LeafMeta()
 
 Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(HORIZONTAL|VERTICAL)$");
+  static QRegularExpression rx("^(HORIZONTAL|VERTICAL)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed] = AllocEnc(tokenMap[argv[index]]);
       _here[pushed] = here;
@@ -2604,7 +2609,7 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
   using namespace Options;
   using namespace CameraViews;
   QString message = QObject::tr("The specified latitude %1 or longitude %2 value is not within the mininum %3 or maximum %4 allowed \"%5\".");
-  QRegExp rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
+  static QRegularExpression rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
   if (argv.size() - index == 1) {
     if (argv[index].contains(rx)) {
       float latitude  = 30.0f;
@@ -2754,7 +2759,7 @@ FillMeta::FillMeta() : LeafMeta()
 
 Rc FillMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(ASPECT|STRETCH|TILE)$");
+  static QRegularExpression rx("^(ASPECT|STRETCH|TILE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed] = FillEnc(tokenMap[argv[index]]);
       _here[pushed] = here;
@@ -2799,7 +2804,7 @@ JustifyStepMeta::JustifyStepMeta() : LeafMeta()
 }
 Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)$");
+  static QRegularExpression rx("^(JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)$");
   if (argv[index].contains(rx)) {
     if (argv.size() - index >= 1)
       _value[pushed].type = JustifyStepEnc(tokenMap[argv[index]]);
@@ -2855,7 +2860,7 @@ PageOrientationMeta::PageOrientationMeta() : LeafMeta()
 }
 Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(PORTRAIT|LANDSCAPE)$");
+  static QRegularExpression rx("^(PORTRAIT|LANDSCAPE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     type[pushed] = OrientationEnc(tokenMap[argv[index]]);
     _here[pushed] = here;
@@ -2902,7 +2907,7 @@ CountInstanceMeta::CountInstanceMeta() : LeafMeta()
 
 Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)$");
+  static QRegularExpression rx("^(AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed]  = CountInstanceEnc(countInstanceMap[argv[index]]);;
       _here[pushed] = here;
@@ -2959,7 +2964,7 @@ ContStepNumMeta::ContStepNumMeta() : LeafMeta()
 
 Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(TRUE|FALSE)$");
+  static QRegularExpression rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     type[pushed]  = ContStepNumEnc(contStepNumMap[argv[index]]);;
     _here[pushed] = here;
@@ -3009,7 +3014,7 @@ BuildModEnabledMeta::BuildModEnabledMeta() : LeafMeta()
 
 Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(TRUE|FALSE)$");
+  static QRegularExpression rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     type[pushed]  = BuildModEnabledEnc(buildModEnabledMap[argv[index]]);
     _here[pushed] = here;
@@ -3061,7 +3066,7 @@ FinalModelEnabledMeta::FinalModelEnabledMeta() : LeafMeta()
 
 Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(TRUE|FALSE)$");
+  static QRegularExpression rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed]  = FinalModelEnabledEnc(finalModelEnabledMap[argv[index]]);
       _here[pushed] = here;
@@ -3111,7 +3116,7 @@ void PageSizeMeta::init(
 }
 Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
 {
-  QRegExp rx("^(PORTRAIT|LANDSCAPE)$");
+  static QRegularExpression rx("^(PORTRAIT|LANDSCAPE)$");
   bool ok[2];
   bool sizeIDFound = false;
   bool sizeWandHFound = false;
@@ -3304,7 +3309,7 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
     }
   } else
   if (argv.size() - index == 6) {
-    QRegExp rx("CUSTOM|CUSTOM_LENGTH"); // legacy
+    static QRegularExpression rx("CUSTOM|CUSTOM_LENGTH"); // legacy
     if (argv[index].contains(rx)) {
       argv[index+1].toFloat(&good);
       argv[index+2].toFloat(&ok);
@@ -3422,7 +3427,7 @@ void SepMeta::metaKeywords(QStringList &out, QString preamble)
 
 Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QRegExp rx("^(BRING_TO_FRONT|SEND_TO_BACK)$");
+  static QRegularExpression rx("^(BRING_TO_FRONT|SEND_TO_BACK)$");
   if (argv.size() - index == 3 && argv[index].contains(rx)) {
     bool good, ok;
     float x = argv[index+1].toFloat(&good);
@@ -3487,7 +3492,7 @@ StudStyleMeta::StudStyleMeta() : LeafMeta()
 Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
-  QRegExp rx("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
+  static QRegularExpression rx("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
   if (argv.size() - index == 1) {
     if (!argv[index].contains(rx)) {
       bool ok;
@@ -3569,7 +3574,7 @@ Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
   if (argv.size() - index == 1) {
-    QRegExp hexRx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
+    static QRegularExpression hexRx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
     QColor color;
     if (argv[index].contains(hexRx)) {
       color = QColor(argv[index]);
@@ -3701,11 +3706,14 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       Where start(here.modelName,here.modelIndex,here.lineNumber);
       Where top(here.modelName,here.modelIndex,0);
       lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
-      QRegExp errorRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
+      static QRegularExpression errorRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
+      static QRegularExpression stepRx("0 STEP|0 ROTSTEP");
+      QRegularExpressionMatch match;
       for (; start.lineNumber > top.lineNumber; start--) {
         line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
-        if (line.contains(errorRx)) {
-          errorFound = !errorRx.cap(3).contains(QRegExp("0 STEP|0 ROTSTEP"));
+        match = errorRx.match(line);
+        if (match.hasMatch()) {
+          errorFound = !match.captured(3).contains(stepRx);
           break;
         }
       }
@@ -3720,8 +3728,8 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           errorFound = Gui::stepContains(start, errorRx, line, 1, displayModel/*allow type 1-5 lines if display model*/);
         } else {
           top = start;
-          QRegExp dispModRx("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
-          if (! Gui::stepContains(top,dispModRx)) {           // Check if step contain display model
+          static QRegularExpression dispModRx("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
+          if (! Gui::stepContains(top, dispModRx)) {           // Check if step contain display model
             line = QObject::tr("type 1-5 line");
             errorFound = Gui::stepContains(start, errorRx); // check for type 1-5 parts
           }
@@ -4462,7 +4470,7 @@ void SceneItemMeta::init(BranchMeta *parent, QString name)
 Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  QRegExp rx("^(TRUE|FALSE)$");
+  static QRegularExpression rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
@@ -4523,7 +4531,7 @@ void EnableMeta::metaKeywords(QStringList &out, QString preamble)
 Rc LPubFaHiMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  QRegExp rx("^(TRUE|FALSE)$");
+  static QRegularExpression rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
@@ -4584,11 +4592,12 @@ void LPubFaHiMeta::metaKeywords(QStringList &out, QString preamble)
 Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  QRegExp hexRx("^(0x|#)([\\da-fA-F]+)$");
+  static QRegularExpression hexRx("^(0x|#)([\\da-fA-F]+)$");
   if (argv.size() - index >= 1) {
     QColor parsedColor = QColor();
-    if (argv[index].contains(hexRx))
-      parsedColor = QColor(QString("#%1").arg(hexRx.cap(2)));
+    QRegularExpressionMatch match = hexRx.match(argv[index]);
+    if (match.hasMatch())
+      parsedColor = QColor(QString("#%1").arg(match.captured(2)));
     if (parsedColor.isValid()) {
       _value[pushed].color = argv[index];
       rc = OkRc;
@@ -4803,7 +4812,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   int argc = argv.size() - index;
   QString originalColor;
   QString attributes = "undefined;";
-  QRegExp rx("^(ABS|REL|ADD)$");
+  static QRegularExpression rx("^(ABS|REL|ADD)$");
   if (argc > 0) {
     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")) {
       // the last item is an ldrawType - specified when substitute is a generated part
@@ -5051,7 +5060,7 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       _value.rots[0] = rotX;
       _value.rots[1] = rotY;
       _value.rots[2] = rotZ;
-      QRegExp rx("^(ABS|REL|ADD)$");
+      static QRegularExpression rx("^(ABS|REL|ADD)$");
       if (argv.size() == index+4 && argv[index+3].contains(rx))
          _value.type   = argv[index+3];
       _value.populated = !(_value.rots[0] == 0 && _value.rots[1] == 0 && _value.rots[2] == 0);
@@ -5098,8 +5107,8 @@ void RotStepMeta::metaKeywords(QStringList &out, QString preamble)
 Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (index + 2 == argv.size()) {
-    QRegExp b("^[A-Z]$");
-    QRegExp t("^(STORE|RETRIEVE)$");
+    static QRegularExpression b("^[A-Z]$");
+    static QRegularExpression t("^(STORE|RETRIEVE)$");
     if (argv[index].contains(b) && argv[index+1].contains(t)) {
       _value.buffer = argv[index];
       _here[0] = here;
@@ -5139,7 +5148,7 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
   QString missingMeta;
-  QRegExp actionRx("^(BEGIN|END_MOD|END|APPLY|REMOVE)$");
+  static QRegularExpression actionRx("^(BEGIN|END_MOD|END|APPLY|REMOVE)$");
   if (index + 1 == argv.size()) {
     if (argv[index].contains(actionRx)) {
       if (argv[index] == "BEGIN")
@@ -5157,7 +5166,7 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
       _here[1] = here;
     }
   } else if (index + 2 == argv.size()) {
-    QRegExp keyRx("^.*$",Qt::CaseInsensitive);
+    static QRegularExpression keyRx("^.*$", QRegularExpression::CaseInsensitiveOption);
     if (argv[index].contains(actionRx) && argv[index + 1].contains(keyRx)) {
       if (argv[index] == "BEGIN")
         rc = BuildModBeginRc;
@@ -7177,10 +7186,10 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
   if (groupRegExMap.size() == 0)
   {
-    groupRegExMap[MLCadGroupRc] = QRegExp("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
-    groupRegExMap[LDCadGroupRc] = QRegExp("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
-    groupRegExMap[LeoCadGroupBeginRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
-    groupRegExMap[LeoCadGroupEndRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$");
+    groupRegExMap[MLCadGroupRc] = QRegularExpression("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
+    groupRegExMap[LDCadGroupRc] = QRegularExpression("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
+    groupRegExMap[LeoCadGroupBeginRc] = QRegularExpression("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$", QRegularExpression::CaseInsensitiveOption);
+    groupRegExMap[LeoCadGroupEndRc] = QRegularExpression("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$");
   }
 }
 
@@ -7190,11 +7199,11 @@ Rc Meta::parse( QString &line,Where &here, bool reportErrors)
 
   auto parseGroupMeta = [&line]()
   {
-    QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
+    QHash<Rc, QRegularExpression>::const_iterator i = groupRegExMap.constBegin();
     while (i != groupRegExMap.constEnd()) {
-      QRegExp rx(i.value());
-      if (line.contains(rx))
-        return QStringList() << rx.cap(1) << rx.cap(2) << rx.cap(3);
+      QRegularExpressionMatch match = i.value().match(line);
+      if (match.hasMatch())
+        return QStringList() << match.captured(1) << match.captured(2) << match.captured(3);
       ++i;
     }
     return QStringList();
@@ -7358,36 +7367,37 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {
-  QRegExp parseRx("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
-  if (!line.contains(parseRx))
+  static QRegularExpression parseRx("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
+  QRegularExpressionMatch match = parseRx.match(line);
+  if (!match.hasMatch())
     return;
 
   /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
-  else if (parseRx.cap(1) == QLatin1String("VIEW_ANGLE")) {
-    line.replace(parseRx.cap(1),"CAMERA_ANGLES");
+  else if (match.captured(1) == QLatin1String("VIEW_ANGLE")) {
+    line.replace(match.captured(1),"CAMERA_ANGLES");
     return;
   }
 
   /* Legacy LPub backward compatibilty. Replace MODEL_PIECES with MODEL_PARTS */
-  else if (parseRx.cap(1) == QLatin1String("MODEL_PIECES")) {
-    line.replace(parseRx.cap(1),"MODEL_PARTS");
+  else if (match.captured(1) == QLatin1String("MODEL_PIECES")) {
+    line.replace(match.captured(1),"MODEL_PARTS");
     return;
   }
 
   /* LPub LeoCAD light compatibilty. Replace _DIRECTIONAL_ with _SUN_ */
-  else if (parseRx.cap(1) == QLatin1String("BLENDER_DIRECTIONAL_ANGLE")) {
-    line.replace(parseRx.cap(1),"BLENDER_SUN_ANGLE");
+  else if (match.captured(1) == QLatin1String("BLENDER_DIRECTIONAL_ANGLE")) {
+    line.replace(match.captured(1),"BLENDER_SUN_ANGLE");
     return;
   }
 
   /* LPub LeoCAD light compatibilty. Replace COLOR_RGB with COLOR */
-  else if (parseRx.cap(1) == QLatin1String("COLOR_RGB")) {
-    line.replace(parseRx.cap(1),"COLOR");
+  else if (match.captured(1) == QLatin1String("COLOR_RGB")) {
+    line.replace(match.captured(1),"COLOR");
     return;
   }
 
   /* Native camera distance deprecated. Command ignored if not GLOBAL */
-  else if (parseRx.cap(1) == QLatin1String("CAMERA_DISTANCE_NATIVE")) {
+  else if (match.captured(1) == QLatin1String("CAMERA_DISTANCE_NATIVE")) {
     if (Gui::parsedMessages.contains(here)) {
       line = "0 // IGNORED";
     } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {

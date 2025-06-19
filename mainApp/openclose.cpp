@@ -84,17 +84,17 @@ void Gui::configureMpdCombo()
     comboFilterMenu->addSeparator();
     gui->mComboPatternGroup->setExclusive(true);
     QAction *patternAction = comboFilterMenu->addAction("Fixed String");
-    patternAction->setData(QVariant(int(QRegExp::FixedString)));
+    patternAction->setData(QVariant(int(RegExp::FixedString)));
     patternAction->setCheckable(true);
     patternAction->setChecked(true);
     gui->mComboPatternGroup->addAction(patternAction);
     patternAction = comboFilterMenu->addAction("Regular Expression");
     patternAction->setCheckable(true);
-    patternAction->setData(QVariant(int(QRegExp::RegExp2)));
+    patternAction->setData(QVariant(int(RegExp::RegularExpression)));
     gui->mComboPatternGroup->addAction(patternAction);
     patternAction = comboFilterMenu->addAction("Wildcard");
     patternAction->setCheckable(true);
-    patternAction->setData(QVariant(int(QRegExp::Wildcard)));
+    patternAction->setData(QVariant(int(RegExp::Wildcard)));
     gui->mComboPatternGroup->addAction(patternAction);
     gui->connect(gui->mComboPatternGroup, &QActionGroup::triggered, gui, &Gui::comboFilterChanged);
 
@@ -135,10 +135,27 @@ void Gui::comboFilterTextChanged(const QString& Text)
             gui->mComboFilterAction->setIcon(QIcon(":/resources/filter.png"));
             gui->mComboFilterAction->setToolTip(tr(""));
         }
-        QRegExp comboFilterRx(gui->mpdCombo->lineEdit()->text(),
-                              gui->comboCaseSensitivity(),
-                              gui->comboPatternSyntax());
-        gui->mComboFilterModel->setFilterRegExp(comboFilterRx);
+        const QString comboText = gui->mpdCombo->lineEdit()->text().toLatin1();
+        gui->mComboFilterModel->setFilterCaseSensitivity(gui->comboCaseSensitivity());
+        if (gui->comboPattern() == RegExp::FixedString) {
+            gui->mComboFilterModel->setFilterFixedString(comboText);
+        } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+            const QString comboPattern = gui->comboPattern() == RegExp::Wildcard
+                                         ? QRegularExpression::wildcardToRegularExpression(comboText)
+                                         : comboText;
+            QRegularExpression::PatternOption comboPatternOption = gui->comboCaseSensitivity() == Qt::CaseSensitive
+                                                                   ? QRegularExpression::NoPatternOption
+                                                                   : QRegularExpression::CaseInsensitiveOption;
+            QRegularExpression comboRxFilter(comboPattern, comboPatternOption);
+            gui->mComboFilterModel->setFilterRegularExpression(comboRxFilter);
+#else
+            bool comboWildcardFilter = this->comboPattern() == RegExp::Wildcard;
+            QRegExp::PatternSyntax comboRxPatternSyntax = comboWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+            QRegExp comboRxFilter = QRegExp(comboText, this->comboCaseSensitivity(), comboRxPatternSyntax);
+            mComboFilterModel->setFilterRegExp(comboRxFilter);
+#endif
+        }
     }
 }
 
@@ -163,21 +180,21 @@ void Gui::setComboCaseSensitivity(Qt::CaseSensitivity cs)
     gui->mComboCaseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
 }
 
-static inline QRegExp::PatternSyntax patternSyntaxFromAction(const QAction *a)
+static inline RegExp patternFromAction(const QAction *a)
 {
-    return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
+    return static_cast<RegExp>(a->data().toInt());
 }
 
-QRegExp::PatternSyntax Gui::comboPatternSyntax() const
+RegExp Gui::comboPattern() const
 {
-    return patternSyntaxFromAction(gui->mComboPatternGroup->checkedAction());
+    return patternFromAction(gui->mComboPatternGroup->checkedAction());
 }
 
-void Gui::setComboPatternSyntax(QRegExp::PatternSyntax s)
+void Gui::setComboPattern(RegExp o)
 {
     const QList<QAction*> actions = gui->mComboPatternGroup->actions();
     for (QAction *a : actions) {
-        if (patternSyntaxFromAction(a) == s) {
+        if (patternFromAction(a) == o) {
             a->setChecked(true);
             break;
         }
@@ -467,7 +484,7 @@ void Gui::openWithSetup()
 
 void Gui::setOpenWithProgramAndArgs(QString &program, QStringList &arguments)
 {
-    QRegExp quoteRx("\"|'");
+    static QRegularExpression quoteRx("\"|'");
     QString valueAt0 = program.at(0);
     bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
     QStringList list = program.split(quoteRx, SkipEmptyParts);            // Split by " or '
