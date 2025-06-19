@@ -1942,7 +1942,9 @@ bool EditWindow::saveFile()
         }
 
         QTextDocumentWriter writer(fileName, "plaintext");
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
         rc = writer.write(_textEdit->document());
 
         if (rc) {
@@ -2003,7 +2005,9 @@ bool EditWindow::saveFileCopy()
       }
 
       QTextDocumentWriter writer(fileCopyName, "plaintext");
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
       writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+#endif
       bool rc = writer.write(_textEdit->document());
 
       if (rc)
