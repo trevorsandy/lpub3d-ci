@@ -74,7 +74,11 @@ void PlacementCsiPart::toggleOutline()
 }
 void PlacementCsiPart::setOutline(QPainter *painter)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
+#else
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+#endif
     int ibt = int(1.0f/32.0f);
 
     /* BORDER */
@@ -365,8 +369,11 @@ void CsiAnnotationItem::sizeIt()
 void CsiAnnotationItem::setAnnotationStyle(QPainter *painter)
 {
     // set painter and render hints
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
+#else
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
-
+#endif
     // set the background then set the border and paint both in one go.
 
     /* BACKGROUND */
