@@ -469,7 +469,11 @@ void LRuler::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    painter.setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
+#else
     painter.setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+#endif
     QPen pen(mRulerTickPen);
     pen.setCosmetic(true);
     painter.setPen(pen);
