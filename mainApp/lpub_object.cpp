@@ -648,7 +648,7 @@ bool LPub::setFadeStepsFromCommand()
   QString result;
   Where top(ldrawFile.topLevelFile(),0,0);
   Where topLevelModel(top);
-  QRegExp fadeRx = QRegExp("FADE_STEPS LPUB_FADE\\s*(GLOBAL)?\\s*TRUE");
+  static QRegularExpression fadeRx("FADE_STEPS LPUB_FADE\\s*(GLOBAL)?\\s*TRUE");
   bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   bool lpubFade = Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (lpubFade) {
@@ -753,7 +753,7 @@ bool LPub::setHighlightStepFromCommand()
   QString result;
   Where top(ldrawFile.topLevelFile(),0,0);
   Where topLevelModel(top);
-  QRegExp highlightRx = QRegExp("HIGHLIGHT_STEP LPUB_HIGHLIGHT\\s*(GLOBAL)?\\s*TRUE");
+  static QRegularExpression highlightRx("HIGHLIGHT_STEP LPUB_HIGHLIGHT\\s*(GLOBAL)?\\s*TRUE");
   bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   bool lpubHighlight = Gui::stepContains(topLevelModel,highlightRx,result,1);
   if (lpubHighlight) {
@@ -822,7 +822,9 @@ bool LPub::setHighlightStepFromCommand()
   topLevelModel = top;
   highlightRx.setPattern("HIGHLIGHT_STEP COLOR\\s*(?:GLOBAL)?\\s*(\")?(0x|#)([\\da-fA-F]+)(?(1)\1|)[^\n]*");
   if (Gui::stepContains(topLevelModel,highlightRx,result)) {
-    result = QString("%1%2").arg(highlightRx.cap(1),highlightRx.cap(3));
+    LDrawFile &ldrawFile = lpub->ldrawFile;
+    const QString line = ldrawFile.readLine(topLevelModel.modelName,topLevelModel.lineNumber);
+    result = QString("%1%2").arg(highlightRx.match(line).captured(1),highlightRx.match(line).captured(3));
     QColor ParsedColor = QColor(result);
     QString highlightStepColourCompare = Preferences::highlightStepColour;
     Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
@@ -1273,11 +1275,13 @@ void LPub::loadCommandCollection()
     QStringList commands;
     meta.doc(commands);
 
-    QRegExp rx("^([^\\[\\(<\\\n]*)");
+    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
+    QRegularExpressionMatch match;
     Q_FOREACH(QString command, commands) {
         QString preamble;
-        if (command.contains(rx))
-            preamble = rx.cap(1).trimmed();
+        match = rx.match(command);
+        if (match.hasMatch())
+            preamble = match.captured(1).trimmed();
         else {
             logTrace() << QString("Preamble mis-match for command [%1]").arg(command);
             continue;

@@ -43,14 +43,16 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     connect(setLineEditResetAct, SIGNAL(triggered()), this, SLOT(lineEditPageRangeReset()));
     bool ok[2] = {false, false};
     QString const cleanRange = gui->setPageLineEdit->displayText().trimmed().replace(" ", "");
-    QRegExp startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", Qt::CaseInsensitive);
-    QRegExp endRx("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
     bool multiRange = cleanRange.contains(',');
     bool ofPages = cleanRange.contains("of",Qt::CaseInsensitive);
-    if (cleanRange.contains(startRx)) {
-        rangeMin = startRx.cap(1).toInt(&ok[0]);
-        if (cleanRange.contains(endRx))
-            rangeMax = endRx.cap(1).toInt(&ok[1]);
+    static QRegularExpression startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression endRx("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
+    QRegularExpressionMatch match = startRx.match(cleanRange) ;
+    if (match.hasMatch()) {
+        rangeMin = match.captured(1).toInt(&ok[0]);
+        match = endRx.match(cleanRange);
+        if (match.hasMatch())
+            rangeMax = match.captured(1).toInt(&ok[1]);
         if (ok[0] && ok[1] && rangeMin > rangeMax)
             Gui::pageDirection = PAGE_BACKWARD;
     }

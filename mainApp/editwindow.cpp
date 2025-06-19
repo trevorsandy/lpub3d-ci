@@ -1176,6 +1176,7 @@ bool EditWindow::setValidPartLine()
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
     const int lineNumber = cursor.blockNumber();
     const bool stepSet = modelFileEdit() ? false : setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
+    static QRegularExpression rxBeginSub("\\sBEGIN\\sSUB\\s");
 
     Step *currentStep = lpub->currentStep;
     if (currentStep) isDisplayType = currentStep->displayStep != DT_DEFAULT;
@@ -1214,7 +1215,7 @@ bool EditWindow::setValidPartLine()
         for (int i = 14; i < list.size(); i++)
             partType += (list[i]+" ");
 
-    } else if (selection.contains(QRegExp("\\sBEGIN\\sSUB\\s"))) {
+    } else if (selection.contains(rxBeginSub)) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", SkipEmptyParts);
@@ -2471,17 +2472,17 @@ void EditWindow::configureMpdCombo()
     comboFilterMenu->addSeparator();
     mComboPatternGroup->setExclusive(true);
     QAction *patternAction = comboFilterMenu->addAction("Fixed String");
-    patternAction->setData(QVariant(int(QRegExp::FixedString)));
+    patternAction->setData(QVariant(int(RegExp::FixedString)));
     patternAction->setCheckable(true);
     patternAction->setChecked(true);
     mComboPatternGroup->addAction(patternAction);
     patternAction = comboFilterMenu->addAction("Regular Expression");
     patternAction->setCheckable(true);
-    patternAction->setData(QVariant(int(QRegExp::RegExp2)));
+    patternAction->setData(QVariant(int(RegExp::RegularExpression)));
     mComboPatternGroup->addAction(patternAction);
     patternAction = comboFilterMenu->addAction("Wildcard");
     patternAction->setCheckable(true);
-    patternAction->setData(QVariant(int(QRegExp::Wildcard)));
+    patternAction->setData(QVariant(int(RegExp::Wildcard)));
     mComboPatternGroup->addAction(patternAction);
     connect(mComboPatternGroup, &QActionGroup::triggered, this, &EditWindow::comboFilterChanged);
 
@@ -2522,10 +2523,27 @@ void EditWindow::comboFilterTextChanged(const QString& Text)
             mComboFilterAction->setIcon(QIcon(":/resources/filter.png"));
             mComboFilterAction->setToolTip(tr(""));
         }
-        QRegExp comboFilterRx(mpdCombo->lineEdit()->text(),
-                              comboCaseSensitivity(),
-                              comboPatternSyntax());
-        mComboFilterModel->setFilterRegExp(comboFilterRx);
+        const QString comboText = mpdCombo->lineEdit()->text().toLatin1();
+        mComboFilterModel->setFilterCaseSensitivity(comboCaseSensitivity());
+        if (this->comboPattern() == RegExp::FixedString) {
+            mComboFilterModel->setFilterFixedString(comboText);
+        } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+            const QString comboPattern = this->comboPattern() == RegExp::Wildcard
+                                         ? QRegularExpression::wildcardToRegularExpression(comboText)
+                                         : comboText;
+            QRegularExpression::PatternOption comboPatternOption = this->comboCaseSensitivity() == Qt::CaseSensitive
+                                                                   ? QRegularExpression::NoPatternOption
+                                                                   : QRegularExpression::CaseInsensitiveOption;
+            QRegularExpression comboRxFilter(comboPattern, comboPatternOption);
+            mComboFilterModel->setFilterRegularExpression(comboRxFilter);
+#else
+            bool comboWildcardFilter = this->comboPattern() == RegExp::Wildcard;
+            QRegExp::PatternSyntax comboRxPatternSyntax = comboWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+            QRegExp comboRxFilter = QRegExp(comboText, this->comboCaseSensitivity(), comboRxPatternSyntax);
+            mComboFilterModel->setFilterRegExp(comboRxFilter);
+#endif
+        }
     }
 }
 
@@ -2550,21 +2568,21 @@ void EditWindow::setComboCaseSensitivity(Qt::CaseSensitivity cs)
     mComboCaseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
 }
 
-static inline QRegExp::PatternSyntax patternSyntaxFromAction(const QAction *a)
+static inline RegExp patternFromAction(const QAction *a)
 {
-    return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
+    return static_cast<RegExp>(a->data().toInt());
 }
 
-QRegExp::PatternSyntax EditWindow::comboPatternSyntax() const
+RegExp EditWindow::comboPattern() const
 {
-    return patternSyntaxFromAction(mComboPatternGroup->checkedAction());
+    return patternFromAction(mComboPatternGroup->checkedAction());
 }
 
-void EditWindow::setComboPatternSyntax(QRegExp::PatternSyntax s)
+void EditWindow::setComboPattern(RegExp o)
 {
     const QList<QAction*> actions = mComboPatternGroup->actions();
     for (QAction *a : actions) {
-        if (patternSyntaxFromAction(a) == s) {
+        if (patternFromAction(a) == o) {
             a->setChecked(true);
             break;
         }
@@ -2608,9 +2626,10 @@ void EditWindow::setPagedContent(const QStringList & content)
 void EditWindow::setPlainText(const QString &content)
 {
 #ifdef QT_DEBUG_MODE
+    static QRegularExpression rx("\\r\\n?|\\n");
     emit lpub->messageSig(LOG_DEBUG,QString("Set plain text line count: %1, content size %2")
                                .arg(lineCount)
-                               .arg(content.count(QRegExp("\\r\\n?|\\n")) + 1));
+                               .arg(content.count(rx) + 1));
 #endif
     _textEdit->setPlainText(content);
 }
@@ -3428,7 +3447,8 @@ QStringList TextEditor::extractDistinctWordsFromDocument() const
 
 QStringList TextEditor::retrieveAllWordsFromDocument() const
 {
-    return toPlainText().split(QRegExp("\\W+"), SkipEmptyParts);
+    static QRegularExpression rx("\\W+");
+    return toPlainText().split(rx, SkipEmptyParts);
 }
 
 template <class UnaryPredicate>

@@ -314,17 +314,26 @@ void FindReplaceCtrls::findInTextAll() {
         QTextCharFormat colorFormat = plainFormat;
         colorFormat.setBackground(Qt::yellow);
 
-        QRegExp reg;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        static QRegularExpression rxToSearch;
         if (useRegExp) {
-            reg = QRegExp(toSearch,
-                         (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
+            QRegularExpression::PatternOption comboPatternOption = checkboxCase->isChecked()
+                                                                   ? QRegularExpression::NoPatternOption
+                                                                   : QRegularExpression::CaseInsensitiveOption;
+            rxToSearch = QRegularExpression(toSearch, comboPatternOption);
         }
-
+#else
+        static QRegExp rxToSearch;
+        if (useRegExp) {
+            Qt::CaseSensitivity caseSensitive = checkboxCase->isChecked()
+                                                ? Qt::CaseSensitive
+                                                : Qt::CaseInsensitive;
+            rxToSearch = QRegExp(toSearch, caseSensitive);
+        }
+#endif
         while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
-
-            highlightCursor = useRegExp ? _textEdit->document()->find(reg, highlightCursor, flags) :
+            highlightCursor = useRegExp ? _textEdit->document()->find(rxToSearch, highlightCursor, flags) :
                                           _textEdit->document()->find(toSearch, highlightCursor, flags);
-
             if (!highlightCursor.isNull()) {
                 result = true;
                 highlightCursor.movePosition(QTextCursor::WordRight,
@@ -355,6 +364,7 @@ void FindReplaceCtrls::find(int direction) {
     }
 
     const QString &toSearch = textFind->text();
+    bool useRegExp = checkboxRegExp->isChecked();
 
     // undo previous change (if any)
     if (_findall) {
@@ -385,10 +395,21 @@ void FindReplaceCtrls::find(int direction) {
              _textEdit->moveCursor(QTextCursor::Start);
         }
 
-        if (checkboxRegExp->isChecked()) {
-            QRegExp reg(toSearch,
-                        (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-            textCursor = _textEdit->document()->find(reg, textCursor, flags);
+        if (useRegExp) {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            static QRegularExpression rxToSearch;
+            QRegularExpression::PatternOption comboPatternOption = checkboxCase->isChecked()
+                                                                   ? QRegularExpression::NoPatternOption
+                                                                   : QRegularExpression::CaseInsensitiveOption;
+            rxToSearch = QRegularExpression(toSearch, comboPatternOption);
+#else
+            static QRegExp rxToSearch;
+            Qt::CaseSensitivity caseSensitive = checkboxCase->isChecked()
+                                                ? Qt::CaseSensitive
+                                                : Qt::CaseInsensitive;
+            rxToSearch = QRegExp(toSearch, caseSensitive);
+#endif
+            textCursor = _textEdit->document()->find(rxToSearch, textCursor, flags);
             _textEdit->setTextCursor(textCursor);
             result = (!textCursor.isNull());
         } else {
@@ -459,13 +480,25 @@ void FindReplaceCtrls::replaceInTextAll() {
             flags |= QTextDocument::FindCaseSensitively;
         if (checkboxWord->isChecked())
             flags |= QTextDocument::FindWholeWords;
+        bool useRegExp = checkboxRegExp->isChecked();
 
         while (true)
         {
-            if (checkboxRegExp->isChecked()) {
-                QRegExp reg(toSearch,
-                            (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-                newCursor = _textEdit->document()->find(reg, newCursor, flags);
+            if (useRegExp) {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                static QRegularExpression rxToSearch;
+                QRegularExpression::PatternOption comboPatternOption = checkboxCase->isChecked()
+                                                                       ? QRegularExpression::NoPatternOption
+                                                                       : QRegularExpression::CaseInsensitiveOption;
+                rxToSearch = QRegularExpression(toSearch, comboPatternOption);
+#else
+                static QRegExp rxToSearch;
+                Qt::CaseSensitivity caseSensitive = checkboxCase->isChecked()
+                                                    ? Qt::CaseSensitive
+                                                    : Qt::CaseInsensitive;
+                rxToSearch = QRegExp(toSearch, caseSensitive);
+#endif
+                newCursor = _textEdit->document()->find(rxToSearch, newCursor, flags);
             } else {
                 newCursor = _textEdit->document()->find(toSearch, newCursor, flags);
             }
@@ -501,14 +534,23 @@ void FindReplaceCtrls::validateRegExp(const QString &text) {
         labelMessage->clear();
         return; // nothing to validate
     }
-
-    QRegExp reg(text,
-                (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-
-    if (reg.isValid()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                static QRegularExpression rxText;
+                QRegularExpression::PatternOption comboPatternOption = checkboxCase->isChecked()
+                                                                       ? QRegularExpression::NoPatternOption
+                                                                       : QRegularExpression::CaseInsensitiveOption;
+                rxText = QRegularExpression(text, comboPatternOption);
+#else
+                static QRegExp rxText;
+                Qt::CaseSensitivity caseSensitive = checkboxCase->isChecked()
+                                                    ? Qt::CaseSensitive
+                                                    : Qt::CaseInsensitive;
+                rxText = QRegExp(text, caseSensitive);
+#endif
+    if (rxText.isValid()) {
         showError("");
     } else {
-        showError(reg.errorString());
+        showError(rxText.errorString());
     }
 }
 

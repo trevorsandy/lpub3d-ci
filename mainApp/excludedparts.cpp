@@ -33,9 +33,10 @@ ExcludedParts::ExcludedParts()
     qRegisterMetaType<ExcludedPartType>("ExcludedPartType");
     if (excludedParts.size() == 0) {
         QString excludedPartsFile = Preferences::excludedPartsFile;
-        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-        QRegExp helperRx("^Helper", Qt::CaseInsensitive);
-        QRegExp lsynthRx("^~?LSynth",Qt::CaseInsensitive);
+        static QRegularExpression rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        static QRegularExpression helperRx("^Helper", QRegularExpression::CaseInsensitiveOption);
+        static QRegularExpression lsynthRx("^~?LSynth", QRegularExpression::CaseInsensitiveOption);
+        QRegularExpressionMatch match;
         if (!excludedPartsFile.isEmpty()) {
             QFile file(excludedPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -45,7 +46,7 @@ ExcludedParts::ExcludedParts()
                                 "Edit Parameter Files menu.<br>%2")
                                 .arg(excludedPartsFile, file.errorString()));
                 if (Preferences::modeGUI) { 
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message); 
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"), message);
                 } else { 
                     logWarning() << qPrintable(message.replace("<br>"," "));
                 }
@@ -54,11 +55,12 @@ ExcludedParts::ExcludedParts()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                   rx.setPattern(rxin.cap(1));
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                   rx.setPattern(match.captured(1));
                    //logDebug() << "ExcludedParts RegExp Pattern: " << rxin.cap(1);
                    break;
                 }
@@ -68,13 +70,14 @@ ExcludedParts::ExcludedParts()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    ExcludedPartType type = rx.cap(2).contains(helperRx)
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    ExcludedPartType type = match.captured(2).contains(helperRx)
                             ? EP_HELPER
-                            : rx.cap(2).contains(lsynthRx)
+                            : match.captured(2).contains(lsynthRx)
                               ? EP_LSYNTH
                               : EP_STANDARD;
-                    Part excludedPart(rx.cap(1), type);
+                    Part excludedPart(match.captured(1), type);
                     excludedParts.append(excludedPart);
                     //logDebug() << "** ExcludedPartName: " << excludedPartID.id;
                 }
@@ -89,13 +92,14 @@ ExcludedParts::ExcludedParts()
                 QChar comment = sLine.at(0);
                 if (comment == '#' || comment == ' ')
                     continue;
-                if (sLine.contains(rx)) {
-                    ExcludedPartType type = rx.cap(2).contains(helperRx)
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    ExcludedPartType type = match.captured(2).contains(helperRx)
                             ? EP_HELPER
-                            : rx.cap(2).contains(lsynthRx)
+                            : match.captured(2).contains(lsynthRx)
                               ? EP_LSYNTH
                               : EP_STANDARD;
-                    Part excludedPart(rx.cap(1), type);
+                    Part excludedPart(match.captured(1), type);
                     excludedParts.append(excludedPart);
                 }
             }
@@ -140,19 +144,21 @@ int ExcludedParts::isExcludedSupportPart(const QString &part)
 
 bool ExcludedParts::lineHasExcludedPart(const QString &line)
 {
-    QRegExp typeRx("^([1-5]) ");
-    if (!line.contains(typeRx))
+    static QRegularExpression rx("^([1-5]) ");
+    QRegularExpressionMatch match = rx.match(line);
+    if (!match.hasMatch())
         return false;
 
     QString part;
-    QString type = typeRx.cap(1);
+    QString type = match.captured(1);
     QStringList le = line.split(" ", SkipEmptyParts);
 
     // treat parts with spaces in the name
     int i = 0;
+    rx.setPattern("4|5");
     if (le.size() >= 15 && type == "1")
         i = 14;
-    else if (le.size() >= 14 && type.contains(QRegExp("4|5")))
+    else if (le.size() >= 14 && type.contains(rx))
         i = 13;
     else if (le.size() >= 11 && type == "3")
         i = 10;
@@ -162,9 +168,10 @@ bool ExcludedParts::lineHasExcludedPart(const QString &line)
         return false;
 
     for (; i < le.size(); i++)
-        part += (le.at(i)+" ");
+        part += (le.at(i) + " ");
 
-    return isExcludedPart(part.replace(QRegExp("[\"']"),""));
+    rx.setPattern("[\"']");
+    return isExcludedPart(part.replace(rx,""));
 }
 
 void ExcludedParts::loadExcludedParts(QByteArray &Buffer)

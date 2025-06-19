@@ -33,6 +33,9 @@ PliSubstituteParts::PliSubstituteParts()
 {
     if (substituteParts.size() == 0) {
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
+        static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+        static QRegularExpression rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
+        QRegularExpressionMatch match;
         if (!substitutePartsFile.isEmpty()) {
             QFile file(substitutePartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -51,12 +54,11 @@ PliSubstituteParts::PliSubstituteParts()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                    rx.setPattern(rxin.cap(1));
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                    rx.setPattern(match.captured(1));
                     //logDebug() << "SubstituteParts RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
@@ -66,9 +68,10 @@ PliSubstituteParts::PliSubstituteParts()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString modeledPartID = rx.cap(1);
-                    QString substitutePartID = rx.cap(2);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString modeledPartID = match.captured(1);
+                    QString substitutePartID = match.captured(2);
                     substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
                     //logDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
                 }

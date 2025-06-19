@@ -4159,6 +4159,6 @@ extern const QString prepositionNames[];
 extern const QString placementOptions[][3];
 extern int placementDecode[][3];
 extern QHash<QString, int> tokenMap;
-extern QHash<Rc, QRegExp> groupRegExMap;
+extern QHash<Rc, QRegularExpression> groupRegExMap;
 
 #endif

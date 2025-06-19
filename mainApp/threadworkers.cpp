@@ -1755,6 +1755,7 @@ void ColourPartListWorker::processChildren() {
     emit progressMessageSig("Processing Child Color Parts...");
     emit progressRangeSig(1, _partList.size());
     emit gui->messageSig(LOG_INFO,tr("Processing Child Color Parts - Count: %1").arg(_partList.size()));
+    static QRegularExpression rx;
 
     QString     filePath = "";
     for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++) {
@@ -1783,8 +1784,8 @@ void ColourPartListWorker::processChildren() {
                     QString childFileString = tokens[tokens.size()-1];                     // child part name in parent part
                     // check childFileName in _ldrawStaticColourParts list
                     for (int j = 0; j < _ldrawStaticColourParts.size() && ! gotoMainLoop && endThreadNotRequested(); ++j) {
-
-                        if (_ldrawStaticColourParts.at(j).contains(childFileString) && _ldrawStaticColourParts.at(j).contains(QRegExp("\\b"+childFileString.replace("\\","\\\\")+"[^\n]*"))) {
+                        rx.setPattern("\\b"+childFileString.replace("\\","\\\\")+"[^\n]*");
+                        if (_ldrawStaticColourParts.at(j).contains(childFileString) && _ldrawStaticColourParts.at(j).contains(rx)) {
                              if (libFilePath != filePath) {
                                  fileSectionHeader(FADESTEP_COLOUR_CHILDREN_PARTS_HEADER, QString("# Library path: %1").arg(libFilePath));
                                  filePath = libFilePath;
@@ -3137,10 +3138,12 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
         }
 
         QStringList subFiles;
-        QRegExp sofRx("^0\\s+FILE\\s+(.*)$");  //start of file
+        static QRegularExpression sofRx("^0\\s+FILE\\s+(.*)$");  //start of file
+        QRegularExpressionMatch match;
         for (int i = 0; i < contentList.size(); i++) {
-             if(contentList.at(i).contains(sofRx))
-                 subFiles.append(sofRx.cap(1));
+             match = sofRx.match(contentList.at(i));
+             if(match.hasMatch())
+                 subFiles.append(match.captured(1));
         }
         setSubFiles(subFiles);
     }

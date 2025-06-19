@@ -629,7 +629,7 @@ void Gui::exportAsHtml()
     pagePos.lineNumber = gui->subFileSize(pagePos.modelName);
     pagePos--;     //adjust to start at absolute bottom of file
     int numLines = gui->subFileSize(pagePos.modelName);
-    QRegExp type15LineRx("^[1-5]\\s.*$");
+    static QRegularExpression type15LineRx("^[1-5]\\s.*$");
 
     // traverse backwards until we find an inserted model or part line
     for (; pagePos < numLines && pagePos > 0 && ! modelFound; --pagePos) {
@@ -688,7 +688,8 @@ void Gui::exportAsHtml()
     // create partList key
     bool noCA = Preferences::applyCALocally || meta.rotStep.value().type.toUpper() == QLatin1String("ABS");
     float partListModelScale = meta.LPub.bom.modelScale.value();
-    bool suffix = QFileInfo(Gui::getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
+    static QRegularExpression rx("(dat|ldr|mpd)$", QRegularExpression::CaseInsensitiveOption);
+    bool suffix = QFileInfo(Gui::getCurFile()).suffix().contains(rx);
     QString partListKey = QString("%1_%2_%3_%4_%5_%6_%7.%8")
                                   .arg(lpub->pageSize(meta.LPub.page, 0))
                                   .arg(double(resolution()))
@@ -1418,9 +1419,9 @@ void Gui::exportAsPdf()
       if (messageList.size()) {
           int errorSet = 0;
           int warnSet  = 0;
-          QRegExp errorRx(">ERROR<");
-          QRegExp fatalRx(">FATAL<");
-          QRegExp warnRx(">WARNING<");
+          static QRegularExpression errorRx(">ERROR<");
+          static QRegularExpression fatalRx(">FATAL<");
+          static QRegularExpression warnRx(">WARNING<");
           for (const QString &item : Gui::messageList)
               if (item.contains(errorRx) || item.contains(fatalRx))
                   errorSet++;
@@ -1898,9 +1899,9 @@ void Gui::exportAs(const QString &_suffix)
       if (Gui::messageList.size()) {
           int errorSet = 0;
           int warnSet  = 0;
-          QRegExp errorRx(">ERROR<");
-          QRegExp fatalRx(">FATAL<");
-          QRegExp warnRx(">WARNING<");
+          static QRegularExpression errorRx(">ERROR<");
+          static QRegularExpression fatalRx(">FATAL<");
+          static QRegularExpression warnRx(">WARNING<");
           for (const QString &item : Gui::messageList)
             if (item.contains(errorRx) || item.contains(fatalRx))
                 errorSet++;
@@ -2403,9 +2404,9 @@ void Gui::showExportedFile()
     if (Gui::messageList.size()) {
       int errorSet = 0;
       int warnSet  = 0;
-      QRegExp errorRx(">ERROR<");
-      QRegExp fatalRx(">FATAL<");
-      QRegExp warnRx(">WARNING<");
+      static QRegularExpression errorRx(">ERROR<");
+      static QRegularExpression fatalRx(">FATAL<");
+      static QRegularExpression warnRx(">WARNING<");
       for (const QString &item : Gui::messageList)
         if (item.contains(errorRx) || item.contains(fatalRx))
             errorSet++;
