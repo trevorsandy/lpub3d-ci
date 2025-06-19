@@ -489,12 +489,15 @@ void ParmsWindow::displayParmsFile(
     }
 
     // check file encoding
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    bool isUTF8 = LDrawFile::_currFileIsUTF8;
-    _textEdit->setIsUTF8(isUTF8);
+    _textEdit->setIsUTF8(LDrawFile::_currFileIsUTF8);
 
     QTextStream in(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    in.setEncoding(_textEdit->getIsUTF8() ? QStringConverter::Utf8 : QStringConverter::System);
+#else
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
     in.setCodec(_textEdit->getIsUTF8() ? codec : QTextCodec::codecForName("System"));
+#endif
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
