@@ -158,35 +158,55 @@ void LdrawFilesLoad::createActions()
 
     deselectAct = new QAction(QIcon(":/resources/clearselection.png"), tr("Clear Selection"), contextMenu);
     deselectAct->setToolTip(tr("Clear selected tableview content"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    deselectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+#else
     deselectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+#endif
     ui->messagesView->addAction(deselectAct);
     connect(deselectAct, SIGNAL(triggered()), ui->messagesView, SLOT(clearSelection()));
     connect(deselectAct, SIGNAL(triggered()), this, SLOT(enableActions()));
 
     expandAct = new QAction(QIcon(":/resources/expandselection.png"), tr("Expand All"), contextMenu);
     expandAct->setToolTip(tr("Expand tableview content"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    expandAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+#else
     expandAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
+#endif
     ui->messagesView->addAction(expandAct);
     connect(expandAct, SIGNAL(triggered()), ui->messagesView, SLOT(expandAll()));
     connect(expandAct, SIGNAL(triggered()), this, SLOT(enableActions()));
 
     collapseAct = new QAction(QIcon(":/resources/collapseselection.png"), tr("Collapse All"), contextMenu);
     collapseAct->setToolTip(tr("Collapse tableview content"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    collapseAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
+#else
     collapseAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+#endif
     ui->messagesView->addAction(collapseAct);
     connect(collapseAct, SIGNAL(triggered()), ui->messagesView, SLOT(collapseAll()));
     connect(collapseAct, SIGNAL(triggered()), this, SLOT(enableActions()));
 
     ungroupAct = new QAction(QIcon(":/resources/ungroupitems.png"), tr("Ungroup Parts"), contextMenu);
     ungroupAct->setToolTip(tr("Show individual part and submodel occurrence"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    ungroupAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
+#else
     ungroupAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
+#endif
     ui->messagesView->addAction(ungroupAct);
     connect(ungroupAct, SIGNAL(triggered()), this, SLOT(ungroupItems()));
     connect(ungroupAct, SIGNAL(triggered()), this, SLOT(enableActions()));
 
     groupAct = new QAction(QIcon(":/resources/ungroupitems.png"), tr("Group Parts"), contextMenu);
     groupAct->setToolTip(tr("Group part and submodel occurrence"));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    groupAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
+#else
     groupAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+#endif
     ui->messagesView->addAction(groupAct);
     connect(groupAct, SIGNAL(triggered()), this, SLOT(groupItems()));
     connect(groupAct, SIGNAL(triggered()), this, SLOT(enableActions()));

@@ -2557,7 +2557,11 @@ void Gui::enableVisualBuildModEditAction()
     if (buildModStepAction == BuildModBeginRc) {
         disconnect(BuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
         connect(BuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        BuildModShortcut = QKeySequence(Qt::SHIFT | Qt::Key_K);
+#else
         BuildModShortcut = QKeySequence(Qt::SHIFT + Qt::Key_K);
+#endif
         BuildModIcon.addFile(":/resources/buildmodupdate.png");
         BuildModIcon.addFile(":/resources/buildmodupdate16.png");
         BuildModAct->setText(tr("Update Build Modification"));
@@ -2566,7 +2570,11 @@ void Gui::enableVisualBuildModEditAction()
     } else {
         disconnect(BuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
         connect(BuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        BuildModShortcut = QKeySequence(Qt::SHIFT | Qt::Key_J);
+#else
         BuildModShortcut = QKeySequence(Qt::SHIFT + Qt::Key_J);
+#endif
         BuildModIcon.addFile(":/resources/buildmodcreate.png");
         BuildModIcon.addFile(":/resources/buildmodcreate16.png");
         if (buildModEnabled) {

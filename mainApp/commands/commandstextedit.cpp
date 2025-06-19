@@ -116,7 +116,11 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
 
     QAction * actionComplete = new QAction(tr("Snippet Completer"), this);
     actionComplete->setObjectName("snippetCompleterAct.7");
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    actionComplete->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space));
+#else
     actionComplete->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Space));
+#endif
     lpub->actions.insert(actionComplete->objectName(), Action(QStringLiteral("Edit.Snippet Completer"), actionComplete));
     addAction(actionComplete);
     connect(actionComplete, SIGNAL(triggered()),
