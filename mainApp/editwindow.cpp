@@ -424,7 +424,7 @@ void EditWindow::updateOpenWithActions()
 
 void EditWindow::setOpenWithProgramAndArgs(QString &program, QStringList &arguments)
 {
-    QRegExp quoteRx("\"|'");
+    static QRegularExpression quoteRx("\"|'");
     QString valueAt0 = program.at(0);
     bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
     QStringList list = program.split(quoteRx, SkipEmptyParts);            // Split by " or '
@@ -965,7 +965,11 @@ void EditWindow::createToolBars()
         mpdCombo = new QComboBox(this);
         mpdCombo->setMinimumContentsLength(25);
         mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
+#else
         mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+#endif
         mpdCombo->setToolTip(tr("Go to submodel"));
         mpdCombo->setStatusTip("Use dropdown to go to submodel");
         connect(mpdCombo,SIGNAL(activated(int)),

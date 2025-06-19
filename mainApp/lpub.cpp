@@ -3432,7 +3432,11 @@ Gui::Gui()
         mpdCombo = new SeparatorComboBox(this);
         mpdCombo->setMinimumContentsLength(MPD_COMBO_MIN_ITEMS_DEFAULT);
         mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
+#else
         mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+#endif
         mpdCombo->setToolTip(tr("Current Submodel"));
         mpdCombo->setStatusTip("Use dropdown to select submodel");
         mpdCombo->setEnabled(false);
@@ -3440,7 +3444,11 @@ Gui::Gui()
         setGoToPageCombo = new QComboBox(this);
         setGoToPageCombo->setMinimumContentsLength(GO_TO_PAGE_MIN_ITEMS_DEFAULT);
         setGoToPageCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
+#else
         setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+#endif
         setGoToPageCombo->setToolTip(tr("Current Page"));
         setGoToPageCombo->setStatusTip("Use dropdown to select page");
         setGoToPageCombo->setEnabled(false);
