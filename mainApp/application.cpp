@@ -1175,7 +1175,11 @@ QString distribution = tr("Installed");
         Locale = QLocale(Language);
 
     QTranslator QtTranslator;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    if (QtTranslator.load(Locale, "qt", "_", QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+#else
     if (QtTranslator.load(Locale, "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+#endif
         m_application.installTranslator(&QtTranslator);
 #ifdef Q_OS_WIN
     else if (QtTranslator.load(Locale, "qt", "_", qApp->applicationDirPath() + "/translations"))
@@ -1183,7 +1187,11 @@ QString distribution = tr("Installed");
 #endif
 
     QTranslator QtBaseTranslator;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    if (QtBaseTranslator.load("qtbase_" + Locale.name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+#else
     if (QtBaseTranslator.load("qtbase_" + Locale.name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+#endif
         m_application.installTranslator(&QtBaseTranslator);
 #ifdef Q_OS_WIN
     else if (QtBaseTranslator.load("qtbase_" + Locale.name(), qApp->applicationDirPath() + "/translations"))
