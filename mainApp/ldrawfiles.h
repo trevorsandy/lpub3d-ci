@@ -43,11 +43,11 @@
 #include "excludedparts.h"
 #include "lpub_qtcompat.h"
 
-extern QList<QRegExp> LDrawHeaderRegExp;
-extern QList<QRegExp> LDrawUnofficialPartRegExp;
-extern QList<QRegExp> LDrawUnofficialSubPartRegExp;
-extern QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
-extern QList<QRegExp> LDrawUnofficialOtherRegExp;
+extern QList<QRegularExpression> LDrawHeaderRegExp;
+extern QList<QRegularExpression> LDrawUnofficialPartRegExp;
+extern QList<QRegularExpression> LDrawUnofficialSubPartRegExp;
+extern QList<QRegularExpression> LDrawUnofficialPrimitiveRegExp;
+extern QList<QRegularExpression> LDrawUnofficialOtherRegExp;
 extern const QString  LDrawUnofficialType[];
 
 class ConfiguredSubFile {
@@ -344,32 +344,32 @@ class LDrawFile {
       _loadedItems.clear();
     }
 
-    static QStringList          _subFileOrder;
-    static QStringList          _includeFileOrder;
-    static QStringList          _subFileOrderNoUnoff;
-    static QStringList          _displayModelList;
-    static QStringList          _buildModList;
-    static QList<HiarchLevel*>  _currentLevels;
-    static QList<HiarchLevel*>  _allLevels;
-    static QStringList          _loadedItems;
-    static QStringList          _processedSubfiles;
-    static QString              _file;
-    static QString              _description;
-    static QString              _name;
-    static QString              _author;
-    static QString              _category;
-    static QString              _modelFile;
-    static bool                 _currFileIsUTF8;
-    static int                  _partCount;
-    static int                  _displayModelPartCount;
-    static int                  _helperPartCount;
-    static int                  _uniquePartCount;
-    static int                  _loadIssues;
-    static bool                 _loadAborted;
-    static bool                 _loadBuildMods;
-    static bool                 _loadUnofficialParts;
-    static bool                 _hasUnofficialParts;
-    static QList<QRegExp>       _fileRegExp;
+    static QStringList               _subFileOrder;
+    static QStringList               _includeFileOrder;
+    static QStringList               _subFileOrderNoUnoff;
+    static QStringList               _displayModelList;
+    static QStringList               _buildModList;
+    static QList<HiarchLevel*>       _currentLevels;
+    static QList<HiarchLevel*>       _allLevels;
+    static QStringList               _loadedItems;
+    static QStringList               _processedSubfiles;
+    static QString                   _file;
+    static QString                   _description;
+    static QString                   _name;
+    static QString                   _author;
+    static QString                   _category;
+    static QString                   _modelFile;
+    static bool                      _currFileIsUTF8;
+    static int                       _partCount;
+    static int                       _displayModelPartCount;
+    static int                       _helperPartCount;
+    static int                       _uniquePartCount;
+    static int                       _loadIssues;
+    static bool                      _loadAborted;
+    static bool                      _loadBuildMods;
+    static bool                      _loadUnofficialParts;
+    static bool                      _hasUnofficialParts;
+    static QList<QRegularExpression> _fileRegExp;
 
     int savedLines() {
       return _savedLines;

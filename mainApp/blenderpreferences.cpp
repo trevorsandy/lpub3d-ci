@@ -1738,15 +1738,16 @@ void BlenderPreferences::getStandardOutput()
 
 void BlenderPreferences::readStdOut(const QString &stdOutput, QString &errors)
 {
-    QRegExp rxInfo("^INFO: ");
-    QRegExp rxData("^DATA: ");
-    QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
-    QRegExp rxWarning("^(?:\\w)*WARNING: ", Qt::CaseInsensitive);
-    QRegExp rxAddonVersion("^ADDON VERSION: ", Qt::CaseInsensitive);
+    static QRegularExpression rxInfo("^INFO: ");
+    static QRegularExpression rxData("^DATA: ");
+    static QRegularExpression rxError("^(?:\\w)*ERROR: ", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression rxWarning("^(?:\\w)*WARNING: ", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression rxAddonVersion("^ADDON VERSION: ", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression rxNewLine("\n|\r\n|\r");
 
     bool errorEncountered = false;
     QStringList items, errorList;
-    QStringList stdOutLines = stdOutput.split(QRegExp("\n|\r\n|\r"));
+    QStringList stdOutLines = stdOutput.split(rxNewLine);
 
     QString const saveAddonVersion = mAddonVersion;
     QString const saveVersion = mBlenderVersion;
@@ -1828,9 +1829,9 @@ void BlenderPreferences::readStdOut()
 
     mStdOutList.append(StdOut);
 
-    QRegExp rxInfo("^INFO: ");
-    QRegExp rxError("(?:\\w)*ERROR: ", Qt::CaseInsensitive);
-    QRegExp rxWarning("(?:\\w)*WARNING: ", Qt::CaseInsensitive);
+    static QRegularExpression rxInfo("^INFO: ");
+    static QRegularExpression rxError("(?:\\w)*ERROR: ", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression rxWarning("(?:\\w)*WARNING: ", QRegularExpression::CaseInsensitiveOption);
 
     bool const hasError = StdOut.contains(rxError);
     bool const hasWarning = StdOut.contains(rxWarning);

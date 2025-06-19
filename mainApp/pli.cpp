@@ -772,12 +772,16 @@ void Pli::getAnnotation(
         }
       if (titleAnnotations.size() > 0) {
           QString annotation,sClean;
+          static QRegularExpression rx;
+          QRegularExpressionMatch match;
           for (int i = 0; i < titleAnnotations.size(); i++) {
               annotation = titleAnnotations[i];
-              QRegExp rx(annotation);
-              if (annotateStr.contains(rx)) {
-                  sClean = rx.cap(1);
-                  sClean.remove(QRegExp("\\s"));            //remove spaces
+              rx.setPattern(annotation);
+              match = rx.match(annotateStr);
+              if (match.hasMatch()) {
+                  sClean = match.captured(1);
+                  rx.setPattern("\\s");
+                  sClean.remove(rx);            //remove spaces
                   annotateStr = sClean;
                   return;
                 }
@@ -1591,11 +1595,12 @@ void Pli::partClass(
   pclass = description;
 
   if (pclass.length()) {
-      QRegExp rx("^(\\w+)\\s+([0-9a-zA-Z]+).*$");
-      if (pclass.contains(rx)) {
-          pclass = rx.cap(1);
-          if (rx.captureCount() == 2 && rx.cap(1) == "Technic") {
-              pclass += rx.cap(2);
+      static QRegularExpression rx("^(\\w+)\\s+([0-9a-zA-Z]+).*$");
+      QRegularExpressionMatch match = rx.match(description);
+      if (match.hasMatch()) {
+          pclass = match.captured(1);
+          if (rx.captureCount() == 2 && match.captured(1).contains("Technic", Qt::CaseInsensitive)) {
+              pclass += match.captured(2);
           }
         } else {
           pclass = "NoCat";

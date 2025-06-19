@@ -107,17 +107,17 @@ void FilterLineEdit::initialize()
     menu->addSeparator();
     m_patternGroup->setExclusive(true);
     QAction *patternAction = menu->addAction("Fixed String");
-    patternAction->setData(QVariant(int(QRegExp::FixedString)));
+    patternAction->setData(QVariant(int(RegExp::FixedString)));
     patternAction->setCheckable(true);
     patternAction->setChecked(true);
     m_patternGroup->addAction(patternAction);
     patternAction = menu->addAction("Regular Expression");
     patternAction->setCheckable(true);
-    patternAction->setData(QVariant(int(QRegExp::RegExp2)));
+    patternAction->setData(QVariant(int(RegExp::RegularExpression)));
     m_patternGroup->addAction(patternAction);
     patternAction = menu->addAction("Wildcard");
     patternAction->setCheckable(true);
-    patternAction->setData(QVariant(int(QRegExp::Wildcard)));
+    patternAction->setData(QVariant(int(RegExp::Wildcard)));
     m_patternGroup->addAction(patternAction);
     connect(m_patternGroup, &QActionGroup::triggered, this, &FilterLineEdit::filterChanged);
 
@@ -207,21 +207,21 @@ void FilterLineEdit::setCaseSensitivity(Qt::CaseSensitivity cs)
     m_caseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
 }
 
-static inline QRegExp::PatternSyntax patternSyntaxFromAction(const QAction *a)
+static inline RegExp patternFromAction(const QAction *a)
 {
-    return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
+    return static_cast<RegExp>(a->data().toInt());
 }
 
-QRegExp::PatternSyntax FilterLineEdit::patternSyntax() const
+RegExp FilterLineEdit::pattern() const
 {
-    return patternSyntaxFromAction(m_patternGroup->checkedAction());
+    return patternFromAction(m_patternGroup->checkedAction());
 }
 
-void FilterLineEdit::setPatternSyntax(QRegExp::PatternSyntax s)
+void FilterLineEdit::setPattern(RegExp o)
 {
     const QList<QAction*> actions = m_patternGroup->actions();
     for (QAction *a : actions) {
-        if (patternSyntaxFromAction(a) == s) {
+        if (patternFromAction(a) == o) {
             a->setChecked(true);
             break;
         }

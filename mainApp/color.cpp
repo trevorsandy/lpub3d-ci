@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -200,15 +200,16 @@ QColor LDrawColor::color(const QString& argument)
 {
   //qDebug() << qUtf8Printable(QString("RECEIVED Color ARGUMENT [%1] for LDrawColor::color").arg(argument));
   QString key(argument.toLower());
-  QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
-  bool isHexRGB = key.contains(hexRx);
+  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch match = hexRx.match(key);
+  bool isHexRGB = match.hasMatch();
   bool isVexColour = Preferences::validLDrawLibrary == VEXIQ_LIBRARY;
   bool isValidName = false;
   bool isCode = false;
   QColor color;
 
   if (isHexRGB) {
-    color = QColor(QString("#%1").arg(hexRx.cap(2)));
+    color = QColor(QString("#%1").arg(match.captured(2)));
   } else {
     if (isVexColour) {
       key.prepend("vex_");
@@ -226,7 +227,10 @@ QColor LDrawColor::color(const QString& argument)
   }
 
   if (color.isValid()) {
-    //qDebug() << qUtf8Printable(QString("RETURNED Color OBJECT   [%1] ALPHA [%2] for %3 [%4]").arg(color.name(QColor::HexRgb).toUpper()).arg(color.alpha()).arg(isHexRGB ? QString("HEX(%1) VALUE").arg(hexRx.cap(1)) : isCode ? "CODE" : "NAME").arg(argument));
+    //qDebug() << qUtf8Printable(QString("RETURNED Color OBJECT [%1] ALPHA [%2] for %3 [%4]").arg(color.name(QColor::HexRgb).toUpper())
+    //                                   .arg(color.alpha())
+    //                                   .arg(isHexRGB ? QString("HEX(%1) VALUE").arg(match.captured(1)) : isCode ? "CODE" : "NAME",
+    //                                        argument));
     return color;
   }
 
@@ -247,13 +251,14 @@ QColor LDrawColor::color(const QString& argument)
 QString LDrawColor::name(const QString &codeorvalue)
 {
   QString key(codeorvalue.toLower());
-  QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
-  bool isHexRGB = key.contains(hexRx);
+  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch match = hexRx.match(key);
+  bool isHexRGB = match.hasMatch();
   //qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::name").arg(isHexRGB ? "VALUE" : "CODE").arg(codeorvalue));
 
   if (isHexRGB) {                                // RECEIVED VALUE
     QString name;
-    key = hexRx.cap(2).size() == 8 ? hexRx.cap(2).left(6).toLower() : hexRx.cap(2).toLower();
+    key = match.captured(2).size() == 8 ? match.captured(2).left(6).toLower() : match.captured(2).toLower();
     if (value2code.contains(key)) {
       QList<int> codes = value2code.values(key);
       if (codes.size() > 1) {
@@ -290,7 +295,7 @@ QString LDrawColor::name(const QString &codeorvalue)
 QStringList LDrawColor::names()
 {
   QStringList colorNames;
-  QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
+  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
   for (QString &key : color2name.keys()) {
     if (! key.contains(hexRx))
       colorNames << color2name[key];
@@ -341,12 +346,13 @@ QString LDrawColor::value(const QString& code)
 QString LDrawColor::code(const QString& name)
 {
   QString key(name.toLower());
-  QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
-  bool isHexRGB = key.contains(hexRx);
+  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch match = hexRx.match(key);
+  bool isHexRGB = match.hasMatch();
   //qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::code").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
-  bool isHexARGB = hexRx.cap(2).size() == 8;
+  bool isHexARGB = match.captured(2).size() == 8;
   if (isHexARGB)
-    key = QString("#%1").arg(hexRx.cap(2).right(6).toLower());
+    key = QString("#%1").arg(match.captured(2).right(6).toLower());
 
   if (ldname2ldcolor.contains(key)) {
     //qDebug() << qUtf8Printable(QString("RETURNED Color CODE [%1] for NAME [%2]").arg(ldname2ldcolor[key]).arg(name));
@@ -370,13 +376,13 @@ QString LDrawColor::code(const QString& name)
   }
 
   if (isHexRGB) {
-    QColor color = QColor(QString("#%1").arg(hexRx.cap(2)));
+    QColor color = QColor(QString("#%1").arg(match.captured(2)));
     if (color.isValid()) {
-      //qDebug() << qUtf8Printable(QString("CREATED Color OBJECT [%1] ALPHA [%2] for valid HEX(%3) VALUE [%4]").arg(color.name(QColor::HexRgb).toUpper()).arg(color.alpha()).arg(hexRx.cap(1)).arg(name));
+      //qDebug() << qUtf8Printable(QString("CREATED Color OBJECT [%1] ALPHA [%2] for valid HEX(%3) VALUE [%4]").arg(color.name(QColor::HexRgb).toUpper()).arg(color.alpha()).arg(match.captured(1)).arg(name));
       QString const code = QString::number(*std::max_element(value2code.begin(), value2code.end()) + 1);
       QString const edge = QLatin1String("#333333");
       AddColor(color, name, code, edge, false /*native*/);
-      //qDebug() << qUtf8Printable(QString("RETURNED Color CODE [%1] for valid HEX(%2) VALUE [%3]").arg(code).arg(hexRx.cap(1)).arg(name));
+      //qDebug() << qUtf8Printable(QString("RETURNED Color CODE [%1] for valid HEX(%2) VALUE [%3]").arg(code).arg(match.captured(1)).arg(name));
       return code;
     }
   }

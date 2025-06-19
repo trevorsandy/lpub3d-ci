@@ -34,13 +34,15 @@ bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
     QTextStream in(&file);
 
     // Load RegExp from file;
-    QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$"); // 3 groups (file, libtype, desc)
-    QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+    static QRegularExpression rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$"); // 3 groups (file, libtype, desc)
+    static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+    QRegularExpressionMatch match;
     while ( ! in.atEnd()) {
         QString sLine = in.readLine(0);
-        if (sLine.contains(rxin)) {
-           rx.setPattern(rxin.cap(1));
-           //logDebug() << "LDrawColourParts RegExp Pattern: " << rxin.cap(1);
+        match = rxin.match(sLine);
+        if (match.hasMatch()) {
+           rx.setPattern(match.captured(1));
+           //logDebug() << "LDrawColourParts RegExp Pattern: " << match.captured(1);
            break;
         }
     }
@@ -48,9 +50,10 @@ bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
     // Load input values
     while ( ! in.atEnd()) {
         QString sLine = in.readLine(0);
-        if (sLine.contains(rx)) {
-            QString partFile = rx.cap(1).toLower().trimmed();
-            QString partLibType = rx.cap(2).toLower().trimmed();
+        match = rx.match(sLine);
+        if (match.hasMatch()) {
+            QString partFile = match.captured(1).toLower().trimmed();
+            QString partLibType = match.captured(2).toLower().trimmed();
             ldrawColourParts.insert(partFile, QString("%1:::%2").arg(partLibType, partFile));
             //qDebug() << "** Color part loaded: " << partFile << " Lib: " << QString("%1:::%2").arg(partLibType).arg(partFile);
         }

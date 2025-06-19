@@ -34,7 +34,9 @@ StickerParts::StickerParts()
 {
     if (stickerParts.size() == 0) {
         QString stickerPartsFile = Preferences::stickerPartsFile;
-        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+        static QRegularExpression rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        QRegularExpressionMatch match;
         if (!stickerPartsFile.isEmpty()) {
             QFile file(stickerPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -53,12 +55,13 @@ StickerParts::StickerParts()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
-                   rx.setPattern(rxin.cap(1));
-                   //logDebug() << "StickerParts RegExp Pattern: " << rxin.cap(1);
+                match = rxin.match(sLine);
+                if (match.hasMatch()) {
+                   rx.setPattern(match.captured(1));
+                   //logDebug() << "StickerParts RegExp Pattern: " << match.captured(1);
                    break;
                 }
             }
@@ -67,8 +70,9 @@ StickerParts::StickerParts()
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString stickerPartID = rx.cap(1);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString stickerPartID = match.captured(1);
                     stickerParts.append(stickerPartID.toLower().trimmed());
                     //logDebug() << "** StickerPartID: " << stickerPartID.toLower();
                 }
@@ -83,8 +87,9 @@ StickerParts::StickerParts()
                 int Equals = sLine.indexOf('=');
                 if (Equals == -1)
                     continue;
-                if (sLine.contains(rx)) {
-                    QString stickerPartID = rx.cap(1);
+                match = rx.match(sLine);
+                if (match.hasMatch()) {
+                    QString stickerPartID = match.captured(1);
                     stickerParts.append(stickerPartID.toLower().trimmed());
                 }
             }

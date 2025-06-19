@@ -321,11 +321,27 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
 
 void CommandsDialog::commandFilterEditChanged()
 {
-  QRegExp regExp(commandFilterEdit->text(),
-                 commandFilterEdit->caseSensitivity(),
-                 commandFilterEdit->patternSyntax());
-
-  commandsProxyTableModel->setFilterRegExp(regExp);
+  const QString commandsText = commandFilterEdit->text().toLatin1();
+  commandsProxyTableModel->setFilterCaseSensitivity(commandFilterEdit->caseSensitivity());
+  if (commandFilterEdit->pattern() == RegExp::FixedString) {
+    commandsProxyTableModel->setFilterFixedString(commandsText);
+  } else {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const QString commandsPattern = commandFilterEdit->pattern() == RegExp::Wildcard
+                                    ? QRegularExpression::wildcardToRegularExpression(commandsText)
+                                    : commandsText;
+    QRegularExpression::PatternOption commandsPatternOption = commandFilterEdit->caseSensitivity() == Qt::CaseSensitive
+                                    ? QRegularExpression::NoPatternOption
+                                    : QRegularExpression::CaseInsensitiveOption;
+    QRegularExpression commandsRxFilter(commandsPattern, commandsPatternOption);
+    commandsProxyTableModel->setFilterRegularExpression(commandsRxFilter);
+#else
+    bool commandsWildcardFilter = commandFilterEdit->pattern() == RegExp::Wildcard;
+    QRegExp::PatternSyntax commandsRxPatternSyntax = commandsWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+    QRegExp commandsRxFilter = QRegExp(commandsText, snippetFilterEdit->caseSensitivity(), commandsRxPatternSyntax);
+    commandsProxyTableModel->setFilterRegExp(commandsRxFilter);
+#endif
+  }
 }
 
 void CommandsDialog::currentCommandChanged(const QModelIndex &current, const QModelIndex &)
@@ -347,9 +363,10 @@ void CommandsDialog::commandTextChanged()
     const QString commandStr = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
     QString description = commandTextEdit->toPlainText();
 
-    QRegExp rx("^([^\\[\\(<\\\n]*)");
-    if (description != commandStr && commandStr.contains(rx)) {
-      Command command = commandCollection->command(rx.cap(1).trimmed());
+    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
+    QRegularExpressionMatch match = rx.match(commandStr);
+    if (description != commandStr && match.hasMatch()) {
+      Command command = commandCollection->command(match.captured(1).trimmed());
       command.description = commandTextEdit->toPlainText();
       command.modified = Command::Pending;
       commandCollection->update(command);
@@ -365,9 +382,10 @@ void CommandsDialog::resetCommandButtonClicked()
     const QString commandStr = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
     const QString description = commandTextEdit->toPlainText();
 
-    QRegExp rx("^([^\\[\\(<\\\n]*)");
-    if (description != commandStr && commandStr.contains(rx)) {
-      Command command = commandCollection->command(rx.cap(1).trimmed());
+    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
+    QRegularExpressionMatch match = rx.match(commandStr);
+    if (description != commandStr && match.hasMatch()) {
+      Command command = commandCollection->command(match.captured(1).trimmed());
       command.description = command.command;
       command.modified = Command::Pending;
       commandCollection->update(command);
@@ -457,11 +475,27 @@ void CommandsDialog::snippetFilterEditChanged()
   addSnippetButton->setEnabled(canAdd);
   addSnippetButton->setToolTip(canAdd ? TIP : TIP + NOFILTER);
 
-  QRegExp regExp(snippetFilterEdit->text(),
-                 snippetFilterEdit->caseSensitivity(),
-                 snippetFilterEdit->patternSyntax());
-
-  snippetsProxyTableModel->setFilterRegExp(regExp);
+  const QString snippetsText = snippetFilterEdit->text().toLatin1();
+  snippetsProxyTableModel->setFilterCaseSensitivity(snippetFilterEdit->caseSensitivity());
+  if (snippetFilterEdit->pattern() == RegExp::FixedString) {
+    snippetsProxyTableModel->setFilterFixedString(snippetsText);
+  } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    const QString snippetsPattern = snippetFilterEdit->pattern() == RegExp::Wildcard
+                                    ? QRegularExpression::wildcardToRegularExpression(snippetsText)
+                                    : snippetsText;
+    QRegularExpression::PatternOption snippetsPatternOption = snippetFilterEdit->caseSensitivity() == Qt::CaseSensitive
+                                    ? QRegularExpression::NoPatternOption
+                                    : QRegularExpression::CaseInsensitiveOption;
+    QRegularExpression snippetsRxFilter = QRegularExpression(snippetsPattern, snippetsPatternOption);
+    snippetsProxyTableModel->setFilterRegularExpression(snippetsRxFilter);
+#else
+    bool snippetsWildcardFilter = commandFilterEdit->pattern() == RegExp::Wildcard;
+    QRegExp::PatternSyntax snippetsRxPatternSyntax = snippetsWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+    QRegExp snippetsRxFilter = QRegExp(snippetsText, snippetFilterEdit->caseSensitivity(), snippetsRxPatternSyntax);
+    snippetsProxyTableModel->setFilterRegExp(snippetsRxFilter);
+#endif
+  }
 }
 
 void CommandsDialog::currentSnippetChanged(const QModelIndex &current, const QModelIndex &)
