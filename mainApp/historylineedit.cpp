@@ -172,8 +172,13 @@ int HistoryLineEdit::word_start() const
 {
     // lastIndexOf returns the index of the last space or -1 if there are no spaces
     // so that + 1 returns the index of the character starting the word or 0
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    int after_space = QStringView{text()}.left(cursorPosition()).lastIndexOf(' ') + 1;
+    if ( QStringView{text()}.right(text().size()-after_space).startsWith(completion_prefix) )
+#else
     int after_space = text().leftRef(cursorPosition()).lastIndexOf(' ') + 1;
     if ( text().rightRef(text().size()-after_space).startsWith(completion_prefix) )
+#endif
         after_space += completion_prefix.size();
     return after_space;
 }

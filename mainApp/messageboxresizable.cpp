@@ -57,7 +57,11 @@ void QMessageBoxResizable::setInformativeText(const QString &text) {
     // ensure we break at a space
     if (fixedWidth/fontWidth == characterLimit) {
         int index = characterLimit - 1;
-        if (!text.midRef(index,1).isEmpty())
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        if (!QStringView{text}.mid(index, 1).isEmpty())
+#else
+        if (!text.midRef(index, 1).isEmpty())
+#endif
             fixedWidth = text.indexOf(" ", index);
     }
     QMessageBox::setInformativeText(text);
