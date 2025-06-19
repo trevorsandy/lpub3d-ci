@@ -346,7 +346,12 @@ int LdrawFilesLoad::countItems(const LoadMsgType lmt, const QString item)
 
     for (const QString &loadedItem : loadedItems)
     {
-        LoadMsgType mt = static_cast<LoadMsgType>(loadedItem.leftRef(loadedItem.indexOf('|')).toInt(&ok));
+        LoadMsgType mt =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        static_cast<LoadMsgType>(QStringView{loadedItem}.left(loadedItem.indexOf('|')).toInt(&ok));
+#else
+        static_cast<LoadMsgType>(loadedItem.leftRef(loadedItem.indexOf('|')).toInt(&ok));
+#endif
         if (ok && mt == lmt) {
             if (!item.isEmpty()) {
                 QString const current = loadedItem.split("|").at(ITEM);
@@ -460,7 +465,12 @@ void LdrawFilesLoad::populate(bool groupItems)
         QString item;
         for (const QString &loadedItem : loadedItems)
         {
-            LoadMsgType mt = static_cast<LoadMsgType>(loadedItem.leftRef(loadedItem.indexOf('|')).toInt(&ok));
+            LoadMsgType mt =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            static_cast<LoadMsgType>(QStringView{loadedItem}.left(loadedItem.indexOf('|')).toInt(&ok));
+#else
+            static_cast<LoadMsgType>(loadedItem.leftRef(loadedItem.indexOf('|')).toInt(&ok));
+#endif
             if (ok && mt == lmt) {
                 QStringList columns = loadedItem.split("|");
                 QString const toolTip = columns[DESC];
