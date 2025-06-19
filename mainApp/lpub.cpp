@@ -3233,7 +3233,10 @@ void Gui::preferences()
  *
  ******************************************************************************/
 
-Gui::Gui() : pageMutex(QMutex::Recursive)
+Gui::Gui()
+#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
+  : pageMutex(QMutex::Recursive)
+#endif
 {
     emit Application::instance()->splashMsgSig(tr("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 

@@ -2139,7 +2139,12 @@ bool ExtractWorker::removeFile(QStringList listFile) {
     return ret;
 }
 
-QMutex countMutex(QMutex::Recursive);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    QRecursiveMutex countMutex;
+#else
+    QMutex countMutex(QMutex::Recursive);
+#endif
 
 int CountPageWorker::countPage(
     Meta            *meta,
