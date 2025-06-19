@@ -12,6 +12,10 @@ CONFIG  += staticlib
 CONFIG  += warn_on
 CONFIG  += skip_target_version_ext
 
+greaterThan(QT_MAJOR_VERSION, 5) {
+    QT += openglwidgets
+}
+
 # The ABI version.
 # REMINDER: Update LC_LIB = LC233 in mainApp.pro on version change
 VER_MAJ = 23

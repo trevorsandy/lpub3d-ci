@@ -18,9 +18,21 @@
 #define LDVWIDGET_H
 
 #include <QWindow>
+#include <QtGlobal>
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+#include <QtOpenGL>
+#include <QWidget>
+#else
 #include <QGLContext>
+#endif
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#else
 #include <QGLWidget>
 #include <QGLFunctions>
+#endif
+
 #include <QtGui>
 #include <QProgressDialog>
 
@@ -50,7 +62,11 @@ class TCProgressAlert;
 class lcHttpReply;
 class lcHttpManager;
 
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+class LDVWidget : public QOpenGLWidget, protected QOpenGLFunctions
+#else
 class LDVWidget : public QGLWidget, protected QGLFunctions
+#endif
 {
 
   Q_OBJECT
@@ -121,8 +137,7 @@ protected:
 	bool setStudLogo(void);
 	void setSession(bool savedSession = false);
 	bool setupPartList(void);
-	void setupLDVFormat(void);
-	void setupLDVContext(void);
+
 	bool setupLDVApplication(void);
 	void displayGLExtensions(void);
 
@@ -140,12 +155,20 @@ protected:
 	void libraryUpdateProgress(TCProgressAlert *alert);
 	void setLibraryUpdateProgress(float progress);
 	LDSnapshotTaker::ImageType getSaveImageType(void);
+	void setupLDVFormat(void);
+	void setupLDVContext(void);
+
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+	QOpenGLContext        *ldvContext;
+	QSurfaceFormat         ldvFormat;
+#else
+	QGLContext            *ldvContext;
+	QGLFormat              ldvFormat;
+#endif
 
 	IniFlag                iniFlag;
 	bool                   forceIni;
 	int                    darkTheme;
-	QGLFormat              ldvFormat;
-	QGLContext            *ldvContext;
 	QWidget               *ldvParent;
 
 	LDPreferences         *ldPrefs;
