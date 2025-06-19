@@ -1273,11 +1273,13 @@ void LPub::loadCommandCollection()
     QStringList commands;
     meta.doc(commands);
 
-    QRegExp rx("^([^\\[\\(<\\\n]*)");
+    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
+    QRegularExpressionMatch match;
     Q_FOREACH(QString command, commands) {
         QString preamble;
-        if (command.contains(rx))
-            preamble = rx.cap(1).trimmed();
+        match = rx.match(command);
+        if (match.hasMatch())
+            preamble = match.captured(1).trimmed();
         else {
             logTrace() << QString("Preamble mis-match for command [%1]").arg(command);
             continue;
