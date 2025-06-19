@@ -635,8 +635,11 @@ ShadeWidget::ShadeWidget(ShadeType type, QWidget *parent)
         setPalette(pal);
 
     } else {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        setAttribute(Qt::WA_TranslucentBackground);
+#else
         setAttribute(Qt::WA_NoBackground);
-
+#endif
     }
 
     QPolygonF points;
