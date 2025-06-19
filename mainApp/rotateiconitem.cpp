@@ -281,7 +281,11 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   // draw icon rectangle - background and border
   if (borderData.type == BorderData::BdrRound) {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    painter.drawRoundedRect(irect,int(rx),int(ry));
+#else
     painter.drawRoundRect(irect,int(rx),int(ry));
+#endif
   } else {
     painter.drawRect(irect);
   }
