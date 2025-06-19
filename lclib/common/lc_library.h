@@ -253,7 +253,11 @@ protected:
 
 	std::vector<std::unique_ptr<lcLibrarySource>> mSources;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+	QRecursiveMutex mLoadMutex;
+#else
 	QMutex mLoadMutex;
+#endif
 	QList<QFuture<void>> mLoadFutures;
 	QList<PieceInfo*> mLoadQueue;
 

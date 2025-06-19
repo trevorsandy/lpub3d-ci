@@ -6111,7 +6111,10 @@ int validSoQ(const QString &line, int soq) {
   return soq;
 }
 
-LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
+LDrawFile::LDrawFile()
+#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
+  : ldrawMutex(QMutex::Recursive)
+#endif
 {
   {
     _fileRegExp

@@ -1710,8 +1710,12 @@ private:
   QLabel                *progressLabelPerm;  // 
   WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
-  
-  QMutex                 pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    QRecursiveMutex      pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
+#else
+    QMutex               pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
+#endif
   QMutex                 writeMutex;         // non-recursive write to temp working directory and countPage mutex 
 
   QTimer                 updateTimer;        // keep UI responsive when exporting or using continuous page processing

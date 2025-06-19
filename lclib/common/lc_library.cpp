@@ -38,7 +38,9 @@
 /*** LPub3D Mod end ***/
 
 lcPiecesLibrary::lcPiecesLibrary()
+#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
 	: mLoadMutex(QMutex::Recursive)
+#endif
 {
 	mThumbnailManager = std::unique_ptr<lcThumbnailManager>(new lcThumbnailManager(this));
 /*** LPub3D Mod - cache path ***/
