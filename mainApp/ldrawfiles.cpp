@@ -2380,8 +2380,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 #ifdef QT_DEBUG_MODE
     if (!stagedSubfiles.size())
         emit gui->messageSig(LOG_DEBUG, QString("All '%1' staged subfiles processed.").arg(subfileName));
-
+#if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
+    QMultiHashIterator<QString, int> i(_ldcadGroups);
+#else
     QHashIterator<QString, int> i(_ldcadGroups);
+#endif
     while (i.hasNext()) {
         i.next();
         emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
@@ -2952,7 +2955,11 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         if (!stagedSubfiles.size())
             emit gui->messageSig(LOG_DEBUG, QString("All '%1' staged subfiles processed.").arg(subfileName));
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
+        QMultiHashIterator<QString, int> i(_ldcadGroups);
+#else
         QHashIterator<QString, int> i(_ldcadGroups);
+#endif
         while (i.hasNext()) {
             i.next();
             emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
@@ -4190,7 +4197,7 @@ void LDrawFile::tempCacheCleared()
 
 void LDrawFile::insertLDCadGroup(const QString &name, int lid)
 {
-  QHash<QString, int>::const_iterator i = _ldcadGroups.constBegin();
+  QMultiHash<QString, int>::const_iterator i = _ldcadGroups.constBegin();
   while (i != _ldcadGroups.constEnd()) {
     if (i.key() == name && i.value() == lid)
       return;
@@ -5386,7 +5393,7 @@ QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lin
 QString LDrawFile::getBuildModKey(const QString &modelName, const int &lineNumber)
 {
     int stepIndex = getStepIndex(modelName, lineNumber);
-    QMap<int, BuildModStep>::iterator i = _buildModSteps.find(stepIndex);
+    QMultiMap<int, BuildModStep>::iterator i = _buildModSteps.find(stepIndex);
     while (i != _buildModSteps.end()) {
         if (i.key() == stepIndex && i.value()._buildModStepIndex == stepIndex)
             return i.value()._buildModKey;
