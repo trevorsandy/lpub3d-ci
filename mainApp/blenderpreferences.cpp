@@ -1493,7 +1493,11 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 int readSize = qMin(imageSize, bufferSize);
                 while (readSize > 0 && (bytesRead = file.read(buf, readSize)) > 0) {
                     imageSize -= bytesRead;
+#if QT_VERSION >= QT_VERSION_CHECK(6,4,0)
+                    sha256Hash.addData(QByteArrayView(buf));
+#else
                     sha256Hash.addData(buf, bytesRead);
+#endif
                     readSize = qMin(imageSize, bufferSize);
                 }
                 file.close();
