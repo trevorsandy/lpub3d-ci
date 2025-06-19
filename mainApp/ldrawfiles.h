@@ -322,7 +322,11 @@ class LDrawFile {
     void processMetaCommand(const QStringList &tokens);
   
   protected:
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    QRecursiveMutex ldrawMutex;
+#else
     QMutex ldrawMutex; // recursive
+#endif
 
   public:
     LDrawFile();
