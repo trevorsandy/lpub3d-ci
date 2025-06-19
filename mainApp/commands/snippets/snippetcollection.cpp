@@ -65,7 +65,11 @@ const Snippet SnippetCollection::snippet(const QString &trigger) const
 
 const Snippet &SnippetCollection::at(int offset) const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    return std::next(snippets.constBegin(), offset).value();
+#else
     return (snippets.begin() + offset).value();
+#endif
 }
 
 QStringList SnippetCollection::triggerList() const

@@ -65,7 +65,11 @@ const Command CommandCollection::command(const QString &preamble) const
 
 const Command &CommandCollection::at(int offset) const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    return std::next(commands.constBegin(), offset).value();
+#else
     return (commands.begin() + offset).value();
+#endif
 }
 
 QStringList CommandCollection::preambleList() const
