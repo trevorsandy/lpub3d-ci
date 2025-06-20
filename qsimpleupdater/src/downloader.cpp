@@ -40,7 +40,9 @@
 #include <QNetworkReply>
 #include <QDesktopServices>
 #include <QNetworkAccessManager>
-
+// LPub3D Mod
+#include <QStandardPaths>
+// Mod End
 #include <math.h>
 #include <JlCompress.h>
 

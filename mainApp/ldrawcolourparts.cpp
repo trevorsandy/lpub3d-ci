@@ -17,6 +17,7 @@
 #include <QTextStream>
 #include "lpub_preferences.h"
 #include "QsLog.h"
+#include "lpub_qtcompat.h"
 
 QHash<QString, QString>  LDrawColourParts::ldrawColourParts;
 

@@ -33,6 +33,8 @@
 #include <QSyntaxHighlighter>
 #include <QHash>
 
+#include "lpub_qtcompat.h"
+
 class QTextDocument;
 
 class ParmsHighlighter : public QSyntaxHighlighter

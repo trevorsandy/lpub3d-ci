@@ -9,11 +9,20 @@
 
 // Legacy encodings are still everywhere, but the Qt team decided we
 // don't need them anymore and moved them out of Core in Qt 6.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#  include <QtCore5Compat/QTextCodec>
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+#if defined(QT_CORE5COMPAT_LIB)
+#include <QtCore5Compat/QTextCodec>
 #else
-#  include <QtCore/QTextCodec>
+#include <QtCore/QString>
 #endif
+#else
+#include <QtCore/QTextCodec>
+#endif
+
+// While we're here set include for regular expression compatibility
+// and add this RegExp enum for a 'neutral' filter flag.
+#include <QRegularExpression>
+enum RegExp { FixedString, RegularExpression, Wildcard };
 
 // this is yet another stupid move and deprecation
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)

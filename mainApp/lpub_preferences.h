@@ -18,15 +18,14 @@
 #define LPUB_PREFERENCES_H
 
 #include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QMessageBox>
 
 enum UpdateFlag { UpdateExisting, SkipExisting };
 #ifdef Q_OS_MAC
 enum LibFlag { LibValid, LibMissing, LibInvalid, LibChkError };
 #endif
-
-class QString;
-class QStringList;
-class QMessageBox;
 
 class Preferences
 {
@@ -57,7 +56,7 @@ class Preferences
         }
         QString keyToString() const
         {
-            return QString(msgKey);
+            return QString("%1").arg(msgKey);
         }
     };
 

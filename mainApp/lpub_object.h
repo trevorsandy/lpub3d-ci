@@ -16,6 +16,7 @@
 #define LPUB_OBJECT_H
 
 #include <QObject>
+#include <QStringList>
 
 #include "declarations.h"
 #include "ldrawfiles.h"

@@ -41,6 +41,7 @@
 #include <QFuture>
 
 #include "excludedparts.h"
+#include "lpub_qtcompat.h"
 
 extern QList<QRegExp> LDrawHeaderRegExp;
 extern QList<QRegExp> LDrawUnofficialPartRegExp;

@@ -42,6 +42,8 @@
 
 #include "declarations.h"
 
+#include "lpub_qtcompat.h"
+
 class QAbstractItemModel;
 class QCompleter;
 class QComboBox;

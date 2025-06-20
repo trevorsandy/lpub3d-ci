@@ -39,7 +39,6 @@
 
 #include <QMessageBox>
 #include <QFile>
-#include <QRegExp>
 #include <QHash>
 #include <functional>
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))

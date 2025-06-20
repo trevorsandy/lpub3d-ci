@@ -54,7 +54,7 @@
 #define FILTERLINEEDIT_H
 
 #include <QLineEdit>
-#include <QRegExp>
+#include "lpub_qtcompat.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;

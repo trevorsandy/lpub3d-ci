@@ -18,8 +18,8 @@
 #ifndef RX_H
 #define RX_H
 
-class QString;
-class QStringList;
+#include <QString>
+#include <QStringList>
 
 void split(const QString &line,QStringList &argv);
 
