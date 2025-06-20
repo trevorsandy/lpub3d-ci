@@ -27,7 +27,9 @@
 #include <QMessageBox>
 #include <QFontDialog>
 #include <QColorDialog>
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0) || defined(QT_CORE5COMPAT_LIB)
 #include <QTextCodec>
+#endif
 #include <QDebug>
 
 #include "texteditdialog.h"
@@ -162,8 +164,13 @@ void TextEditDialog::initialize(
                 tedit,        &TextEditDialog::currentCharFormatChanged);
 
         QByteArray data = text.toUtf8();
+        QString content;
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0) || defined(QT_CORE5COMPAT_LIB)
         QTextCodec *codec = Qt::codecForHtml(data);
-        QString content = codec->toUnicode(data);
+        content = codec->toUnicode(data);
+#else
+        content = text;
+#endif
         if (richText && Qt::mightBeRichText(content)) {
             ui->textEdit->setHtml(content);
         } else {

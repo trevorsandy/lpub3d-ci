@@ -24,7 +24,9 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "QsLogDestFile.h"
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0) || defined(QT_CORE5COMPAT_LIB)
 #include <QTextCodec>
+#endif
 #include <QDateTime>
 #include <QString>
 #include <QtGlobal>

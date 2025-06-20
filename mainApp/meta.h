@@ -42,7 +42,6 @@
 #include <QStringList>
 #include <QList>
 #include <QHash>
-#include <QRegExp>
 #include <float.h>
 #include <QMessageBox>
 #include "where.h"
@@ -52,7 +51,6 @@
 
 class Meta;
 class BranchMeta;
-class QStringList;
 
 enum Rc {
          InvalidLDrawLineRc = -3,
