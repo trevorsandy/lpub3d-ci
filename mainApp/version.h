@@ -230,6 +230,11 @@
 #define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"
 #define VER_BLENDER_ADDON_SHA_HASH_URL      VER_BLENDER_ADDON_URL ".sha256"
 
+#ifdef Q_OS_MAC
+#define VER_HOMEBREW_PATH_PREFIX            "/usr/local/opt"
+#define VER_HOMEBREW_PATH_INSERT            "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin:"
+#endif
+
 // ~~~~~~ LeoCAD Version ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LC_VERSION_TEXT                 "23.03"

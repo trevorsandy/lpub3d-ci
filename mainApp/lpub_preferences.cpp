@@ -412,8 +412,8 @@ QString Preferences::sceneRulerTrackingColor    = defaultThemeColors[THEME_DEFAU
 QString Preferences::sceneGuideColor            = defaultThemeColors[THEME_DEFAULT_GUIDE_PEN].color;
 
 #ifdef Q_OS_MAC
-QString Preferences::homebrewPathPrefix         = QStringLiteral("/usr/local/opt");
-QString Preferences::homebrewPathInsert         = QStringLiteral("PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin:");
+QString Preferences::homebrewPathPrefix         = VER_HOMEBREW_PATH_PREFIX;
+QString Preferences::homebrewPathInsert         = VER_HOMEBREW_PATH_INSERT;
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_MACOS;
 #elif defined Q_OS_LINUX
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_LINUX;
