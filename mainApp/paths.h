@@ -19,8 +19,9 @@
 #ifndef PATHS_H
 #define PATHS_H
 
-class QString;
-class QStringList;
+#include <QString>
+#include <QStringList>
+
 class Paths {
 public:
     static void mkDirs();

@@ -28,10 +28,10 @@
 #ifndef RENDER_H
 #define RENDER_H
 
+#include <QString>
+#include <QStringList>
 #include "options.h"
 
-class QString;
-class QStringList;
 class Meta;
 class AssemMeta;
 class LPubMeta;

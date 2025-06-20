@@ -19,7 +19,6 @@
 #include <QList>
 #include <QMap>
 #include <QObject>
-#include <QRegExp>
 #include <QElapsedTimer>
 #include <QThread>
 #include <QFuture>

@@ -30,6 +30,7 @@
 #include <QStyleFactory>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QStringList>
 #include <QMessageBox>
 #include <QColorDialog>
 #include <TCFoundation/TCLocalStrings.h>

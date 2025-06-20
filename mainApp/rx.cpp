@@ -16,8 +16,6 @@
 ****************************************************************************/
 
 #include "rx.h"
-#include <QString>
-#include <QStringList>
 #include "lpub_qtcompat.h"
 
 //  30/11/2014 Generating "multiple definition of split" compile error:
