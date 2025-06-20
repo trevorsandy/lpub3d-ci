@@ -794,11 +794,17 @@ ParmEditor::ParmEditor(QWidget *parent) :
     lineNumberPalette.setCurrentColorGroup(QPalette::Active);
     lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
     lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
+    QPalette::ColorRole colorRole =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QPalette::Window;
+#else
+    QPalette::Background;
+#endif
     if (Preferences::darkTheme) {
         lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
-        lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
+        lineNumberPalette.setColor(colorRole,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
     } else
-        lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
+        lineNumberPalette.setColor(colorRole,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
 
     lineNumberArea->setPalette(lineNumberPalette);
 
@@ -920,8 +926,13 @@ void ParmEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     int selEnd = textCursor().selectionEnd();
 
     QPalette palette = lineNumberArea->palette();
-
-    painter.fillRect(event->rect(), palette.color(QPalette::Background));
+    QPalette::ColorRole colorRole =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QPalette::Window;
+#else
+    QPalette::Background;
+#endif
+    painter.fillRect(event->rect(), palette.color(colorRole));
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
