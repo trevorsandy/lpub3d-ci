@@ -353,12 +353,12 @@ QString Preferences::defaultURL;
 QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 //Static page attributes
-QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group,\n"
-                                                                          "which does not sponsor, endorse, or authorize these\n"
-                                                                          "instructions or the model they depict.\n"));
-QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1").arg(QDate::currentDate().toString("yyyy")));
+QString Preferences::disclaimer                 = QString(QObject::tr("LEGO® is a registered trademark of the LEGO Group,\n"
+                                                                      "which does not sponsor, endorse, or authorize these\n"
+                                                                      "instructions or the model they depict.\n"));
+QString Preferences::copyright                  = QString(QObject::tr("Copyright © %1").arg(QDate::currentDate().toString("yyyy")));
 QString Preferences::plugImage                  = QString(":/resources/LPub64.png");
-QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2\nDownload %1 at %3\n")
+QString Preferences::plug                       = QString(QObject::tr("Instructions configured and generated using %1 %2\nDownload %1 at %3\n")
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                QString::fromLatin1(VER_FILEVERSION_STR).replace("\"",""),
                                                                QString::fromLatin1(VER_HOMEPAGE_GITHUB_STR)));
