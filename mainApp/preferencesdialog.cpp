@@ -1349,7 +1349,11 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
         box.setInformativeText (information);
         QCheckBox *cb = new QCheckBox(tr("Do not show this renderer message again."));
         box.setCheckBox(cb);
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+        QObject::connect(cb, &QCheckBox::checkStateChanged, [&](int state) {
+#else
         QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
+#endif
             if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
                 Preferences::messagesNotShown.append(msgID.toString() + "|" + message);
         });
