@@ -1210,7 +1210,12 @@ void SubModel::getLeftEdge(
   QImage     &image,
   QList<int> &edge)
 {
-  QImage alpha = image.alphaChannel();
+  QImage alpha =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+      image.convertToFormat(QImage::Format_Grayscale8);
+#else
+      image.alphaChannel();
+#endif
 
   for (int y = 0; y < alpha.height(); y++) {
     int x;
@@ -1231,7 +1236,12 @@ void SubModel::getRightEdge(
   QImage     &image,
   QList<int> &edge)
 {
-  QImage alpha = image.alphaChannel();
+  QImage alpha =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+      image.convertToFormat(QImage::Format_Grayscale8);
+#else
+      image.alphaChannel();
+#endif
 
   for (int y = 0; y < alpha.height(); y++) {
     int x;
