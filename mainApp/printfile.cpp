@@ -1102,8 +1102,8 @@ void Gui::exportAsPdf()
               }
 
               // store the rendered page
-              QMap<int, PdfPage>::iterator i = pages.find(Gui::displayPageNum);
-              if (i != pages.end())
+              QMap<int, PdfPage>::const_iterator i = pages.constFind(Gui::displayPageNum);
+              if (i != pages.constEnd())
                   pages.erase(i);
               pages.insert(Gui::displayPageNum,pdfPage);
 
@@ -1326,8 +1326,8 @@ void Gui::exportAsPdf()
               }
 
               // store the rendered page
-              QMap<int, PdfPage>::iterator i = pages.find(Gui::displayPageNum);
-              if (i != pages.end())
+              QMap<int, PdfPage>::const_iterator i = pages.constFind(Gui::displayPageNum);
+              if (i != pages.constEnd())
                   pages.erase(i);
               pages.insert(Gui::displayPageNum,pdfPage);
 
