@@ -4304,8 +4304,8 @@ int LDrawFile::getBuildModStepAction(const QString &modelName,
     int modStepIndex = getBuildModStepIndex(modelIndex, lineNumber);
     int modBeginStepIndex = BuildModInvalidIndexRc;
 
-    QMap<int, BuildModStep>::const_iterator i = _buildModSteps.find(modStepIndex);
-    if (i != _buildModSteps.end()) {
+    QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.constFind(modStepIndex);
+    if (i != _buildModSteps.constEnd()) {
         modAction = i.value()._buildModAction;
         modBeginStepIndex = getBuildModStepIndex(i.value()._buildModKey);
         if(modBeginStepIndex == modStepIndex)
@@ -4358,8 +4358,8 @@ QList<QVector<int> > LDrawFile::getBuildModStepActions(
 #ifdef QT_DEBUG_MODE
     int stepModCount = 1;
 #endif
-    QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.find(modStepIndex);
-    while (i != _buildModSteps.end() && i.key() == modStepIndex) {
+    QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.constFind(modStepIndex);
+    while (i != _buildModSteps.constEnd() && i.key() == modStepIndex) {
         QVector<int> modAction = { BM_INVALID_INDEX, BM_INIT, BM_INIT };
         static QRegularExpression buildModKeyRx(i.value()._buildModKey, QRegularExpression::CaseInsensitiveOption);
         int modBeginStepIndex = getBuildModStepIndex(i.value()._buildModKey);
