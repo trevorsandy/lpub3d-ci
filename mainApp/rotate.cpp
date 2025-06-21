@@ -22,7 +22,6 @@
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
-#include <QRegExp>
 #include <math.h>
 
 #include "paths.h"

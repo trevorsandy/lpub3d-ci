@@ -42,7 +42,6 @@
 #include <QStringList>
 #include <QList>
 #include <QHash>
-#include <QRegExp>
 #include <float.h>
 #include <QMessageBox>
 #include "where.h"
