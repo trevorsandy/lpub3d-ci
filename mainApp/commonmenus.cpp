@@ -5065,18 +5065,6 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
-        // WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE
-        {
-            QObject::tr(
-            "  This feature is not curently available.%1<br>")
-            .arg(
-#ifdef QT_DEBUG_MODE
-                 QLatin1String("<br><br>  WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE")
-#else
-                 ""
-#endif
-                )
-        },
         // WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT
         {
             QObject::tr(

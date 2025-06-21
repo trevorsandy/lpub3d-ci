@@ -38,72 +38,68 @@
 #  `--- /ldvlib
 #  |     |
 #  |     `--- /LDVQt
-#  |     |     |--- LDVQtLibs.pri  Library declarations and directives project include
-#  |     |     |--- LDVQt.pro      Library project file - consumes common.pri, LDVQtLibs.pri
-#  |     |     |
-#  |     |     `--- /LDView
-#  |     |          |--- LDViewGlobal.pri                   Global declarations and directives project include - consumes common.pri
-#  |     |          |--- 3rdParty.pri                       3rdParty library declarations and directives project include - consumes common.pri
-#  |     |          |
-#  |     |          `--- /Utilities
-#  |     |          |     |--- Headerize.pro                Executable headerizer project file - declarations and directives - consumes LDViewGlobal.pri
-#  |     |          |
-#  |     |          `--- /LDLib
-#  |     |          |     |--- LDLib.pri                    Library declarations and directives project include - consumes LDViewGlobal.pri
-#  |     |          |     |--- LDLib_QT.pro                 Library Qt project file - consumes LDLib.pri
-#  |     |          |     |--- LDLib_WGL.pro                Library WGL project file - consumes LDLib.pri
-#  |     |          |     |--- LDLib_OSMesa.pro             Library OSMesa project file - consumes LDLib.pri
-#  |     |          |
-#  |     |          `--- /TRE
-#  |     |          |     |--- TRE.pri                      Library declarations and directives project include - consumes LDViewGlobal.pri
-#  |     |          |     |--- TRE_QT.pro                   Library Qt project file - consumes TRE.pri
-#  |     |          |     |--- TRE_WGL.pro                  Library WGL project file - consumes TRE.pri
-#  |     |          |     |--- TRE_OSMesa.pro               Library OSMesa project file - consumes TRE.pri
-#  |     |          |
-#  |     |          `--- /TCFoundation
-#  |     |          |     |--- TCFoundation.pri             Library declarations and directives project include - consumes LDViewGlobal.pri
-#  |     |          |     |--- TCFoundation_QT.pro          Library Qt project file - consumes TCFoundation.pri
-#  |     |          |     |--- TCFoundation_WGL.pro         Library WGL project file - consumes TCFoundation.pri
-#  |     |          |     |--- TCFoundation_OSMesa.pro      Library OSMesa project file - consumes TCFoundation.pri
-#  |     |          |
-#  |     |          `--- /LDLoader
-#  |     |          |     |--- LDLoader.pri                 Library declarations and directives project include - consumes LDViewGlobal.pri
-#  |     |          |     |--- LDLoader_QT.pro              Library Qt project file - consumes LDLoader.pri
-#  |     |          |     |--- LDLoader_WGL.pro             Library WGL project file - consumes LDLoader.pri
-#  |     |          |     |--- LDLoader_OSMesa.pro          Library OSMesa project file - consumes LDLoader.pri
-#  |     |          |
-#  |     |          `--- /LDExporter
-#  |     |          |     |--- LDExporter.pri               Library declarations and directives project include - consumes LDViewGlobal.pri
-#  |     |          |     |--- LDExporter_QT.pro            Library Qt project file - consumes LDExporter.pri
-#  |     |          |     |--- LDExporter_WGL.pro           Library WGL project file - consumes LDExporter.pri
-#  |     |          |     |--- LDExporter_OSMesa.pro        Library OSMesa project file - consumes LDExporter.pri
-#  |     |          |
-#  |     |          `--- /3rdParty
-#  |     |                |
-#  |     |                `--- /tinyxml
-#  |     |                |     |--- 3rdParty_tinyxml.pro   3rdParty library project file - consumes 3rdParty.pri
-#  |     |                |
-#  |     |                `--- /gl2ps
-#  |     |                |     |--- 3rdParty_gl2ps.pro     3rdParty library project file - consumes 3rdParty.pri
-#  |     |                |
-#  |     |                `--- /minizip
-#  |     |                |     |--- 3rdParty_minizip.pro   3rdParty library project file - consumes 3rdParty.pri
-#  |     |                |
-#  |     |                `--- /lib3ds
-#  |     |                |     |--- 3rdParty_3ds.pro       3rdParty library project file - consumes 3rdParty.pri
-#  |     |                |
-#  |     |                `--- /libpng
-#  |     |                |     |--- 3rdParty_png.pro       3rdParty library project file - consumes 3rdParty.pri
-#  |     |                |
-#  |     |                `--- /libjpeg
-#  |     |                |    |--- 3rdParty_jpeg.pro       3rdParty library project file - consumes 3rdParty.pri
-#  |     |                |
-#  |     |                `--- /zlib
-#  |     |                     |--- 3rdParty_zlib.pro       3rdParty library project file - consumes 3rdParty.pri
-#  |     |
-#  |     `--- /WPngImage
-#  |           |--- WPngImage.pri  Library declarations and directives project include
-#  |           |--- WPngImage.pro  Library project file - consumes WPngImage.pri
+#  |           |--- LDVQtLibs.pri  Library declarations and directives project include
+#  |           |--- LDVQt.pro      Library project file - consumes common.pri, LDVQtLibs.pri
+#  |           |
+#  |           `--- /LDView
+#  |                |--- LDViewGlobal.pri                   Global declarations and directives project include - consumes common.pri
+#  |                |--- 3rdParty.pri                       3rdParty library declarations and directives project include - consumes common.pri
+#  |                |
+#  |                `--- /Utilities
+#  |                |     |--- Headerize.pro                Executable headerizer project file - declarations and directives - consumes LDViewGlobal.pri
+#  |                |
+#  |                `--- /LDLib
+#  |                |     |--- LDLib.pri                    Library declarations and directives project include - consumes LDViewGlobal.pri
+#  |                |     |--- LDLib_QT.pro                 Library Qt project file - consumes LDLib.pri
+#  |                |     |--- LDLib_WGL.pro                Library WGL project file - consumes LDLib.pri
+#  |                |     |--- LDLib_OSMesa.pro             Library OSMesa project file - consumes LDLib.pri
+#  |                |
+#  |                `--- /TRE
+#  |                |     |--- TRE.pri                      Library declarations and directives project include - consumes LDViewGlobal.pri
+#  |                |     |--- TRE_QT.pro                   Library Qt project file - consumes TRE.pri
+#  |                |     |--- TRE_WGL.pro                  Library WGL project file - consumes TRE.pri
+#  |                |     |--- TRE_OSMesa.pro               Library OSMesa project file - consumes TRE.pri
+#  |                |
+#  |                `--- /TCFoundation
+#  |                |     |--- TCFoundation.pri             Library declarations and directives project include - consumes LDViewGlobal.pri
+#  |                |     |--- TCFoundation_QT.pro          Library Qt project file - consumes TCFoundation.pri
+#  |                |     |--- TCFoundation_WGL.pro         Library WGL project file - consumes TCFoundation.pri
+#  |                |     |--- TCFoundation_OSMesa.pro      Library OSMesa project file - consumes TCFoundation.pri
+#  |                |
+#  |                `--- /LDLoader
+#  |                |     |--- LDLoader.pri                 Library declarations and directives project include - consumes LDViewGlobal.pri
+#  |                |     |--- LDLoader_QT.pro              Library Qt project file - consumes LDLoader.pri
+#  |                |     |--- LDLoader_WGL.pro             Library WGL project file - consumes LDLoader.pri
+#  |                |     |--- LDLoader_OSMesa.pro          Library OSMesa project file - consumes LDLoader.pri
+#  |                |
+#  |                `--- /LDExporter
+#  |                |     |--- LDExporter.pri               Library declarations and directives project include - consumes LDViewGlobal.pri
+#  |                |     |--- LDExporter_QT.pro            Library Qt project file - consumes LDExporter.pri
+#  |                |     |--- LDExporter_WGL.pro           Library WGL project file - consumes LDExporter.pri
+#  |                |     |--- LDExporter_OSMesa.pro        Library OSMesa project file - consumes LDExporter.pri
+#  |                |
+#  |                `--- /3rdParty
+#  |                      |
+#  |                      `--- /tinyxml
+#  |                      |     |--- 3rdParty_tinyxml.pro   3rdParty library project file - consumes 3rdParty.pri
+#  |                      |
+#  |                      `--- /gl2ps
+#  |                      |     |--- 3rdParty_gl2ps.pro     3rdParty library project file - consumes 3rdParty.pri
+#  |                      |
+#  |                      `--- /minizip
+#  |                      |     |--- 3rdParty_minizip.pro   3rdParty library project file - consumes 3rdParty.pri
+#  |                      |
+#  |                      `--- /lib3ds
+#  |                      |     |--- 3rdParty_3ds.pro       3rdParty library project file - consumes 3rdParty.pri
+#  |                      |
+#  |                      `--- /libpng
+#  |                      |     |--- 3rdParty_png.pro       3rdParty library project file - consumes 3rdParty.pri
+#  |                      |
+#  |                      `--- /libjpeg
+#  |                      |    |--- 3rdParty_jpeg.pro       3rdParty library project file - consumes 3rdParty.pri
+#  |                      |
+#  |                      `--- /zlib
+#  |                           |--- 3rdParty_zlib.pro       3rdParty library project file - consumes 3rdParty.pri
 #  |
 #  `--- /mainApp
 #  |     |--- macosfiledistro.pri            Process Unix and MSYS2 distribution project include
@@ -309,12 +305,6 @@ else: \
 ldvqt_$${POSTFIX}.depends += 3rdParty_3ds
 } # BUILD_LDV_LIBS
 
-SUBDIRS                   += wpngimage
-wpngimage.subdir           = ldvlib/WPngImage
-wpngimage.makefile         = Makefile.wpngimage
-wpngimage.target           = sub-wpngimage
-wpngimage.depends          =
-
 SUBDIRS                   += lclib
 lclib.subdir               = lclib
 lclib.makefile             = Makefile.lclib
@@ -335,7 +325,6 @@ mainApp.depends            = quazip \
                              ldrawini \
                              lclib \
                              ldvqt_$${POSTFIX} \
-                             wpngimage \
                              waitingspinner
 
 RESOURCES                 += \
