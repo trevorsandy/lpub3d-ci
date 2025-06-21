@@ -551,7 +551,7 @@ bool Gui::exportAsDialog(ExportMode m)
         gui->exportAs(".obj");
       break;
       case EXPORT_POVRAY:
-        gui->setExportingObjectsSig(true);
+        emit gui->setExportingObjectsSig(true);
         gui->exportAs(".pov");
       break;
       default:
@@ -2021,7 +2021,7 @@ void Gui::Print(QPrinter* Printer)
   }
 
   // send signal to halt Visual Editor
-  setExportingSig(true);
+  emit setExportingSig(true);
 
   gui->KexportScene = LGraphicsScene(gui);
   gui->KexportView = LGraphicsView(&gui->KexportScene);
@@ -2365,7 +2365,7 @@ void Gui::Print(QPrinter* Printer)
   }
 
   // release Visual Editor
-  setExportingSig(false);
+  emit setExportingSig(false);
 
   // return to whatever page we were viewing before output
   Gui::displayPageNum = Gui::prevDisplayPageNum;
