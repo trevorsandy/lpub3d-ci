@@ -34,7 +34,6 @@
 #include "lc_previewwidget.h"
 #include "waitingspinnerwidget.h"
 
-#include <LDVQt/LDVImageMatte.h>
 
 enum FileOpts {
     OPT_NONE,
@@ -1128,8 +1127,6 @@ int Gui::setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep)
   }
 
   if (setupFadeSteps && !Gui::m_fadeStepsSetup) {
-    if (Preferences::enableImageMatting)
-      LDVImageMatte::clearMatteCSIImages();
     gui->partWorkerLDSearchDirs.setDoFadeStep(true);
     gui->processFadeColourParts(true/*overwrite*/, setupFadeSteps);
     Gui::m_fadeStepsSetup = true;

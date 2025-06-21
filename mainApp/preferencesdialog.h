@@ -134,7 +134,6 @@ class PreferencesDialog : public QDialog
     bool          enableFadeSteps();
     bool          fadeStepsUseColour();
     bool          enableHighlightStep();
-    bool          enableImageMatting();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
     bool          enableLDViewSnaphsotList();

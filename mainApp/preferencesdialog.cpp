@@ -138,7 +138,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.fadeStepGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEPS, ui.fadeStepGrpBox->title()));
   ui.generalSettingsGrpBox->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS, tr("General Settings")));
   ui.highlightStepGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP, ui.highlightStepGrpBox->title()));
-  ui.imageMatteGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE, ui.imageMatteGrpBox->title()));
   ui.KeyboardShortcutGroup->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT, ui.KeyboardShortcutGroup->title()));
   ui.KeyboardShortcutTableGroup->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT_TABLE, ui.KeyboardShortcutTableGroup->title()));
   ui.ldgliteGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE, ui.ldgliteGrpBox->title()));
@@ -261,10 +260,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   // set log path to read only
   ui.logPathEdit->setReadOnly(true);
   ui.logPathEdit->setPalette(readOnlyPalette);
-
-  // [WIP] - Experimental
-  ui.imageMatteGrpBox->setEnabled(false);
-  ui.imageMattingChk->setEnabled(false);
 
   //search directories
   ui.lineEditIniFile->setReadOnly(true);
@@ -628,10 +623,6 @@ void PreferencesDialog::setPreferences()
   colorPix.fill(QColor(sceneGuideColorStr));
   ui.sceneGuideColorButton->setIcon(colorPix);
   ui.sceneGuideColorButton->setToolTip(tr("Set scene guides line color (%1)").arg(sceneGuideColorStr.toUpper()));
-
-  /* [Experimental] LDView Image Matting */
-  ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
-  ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && Preferences::enableFadeSteps);
 
   int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
   QString version = qApp->applicationVersion();
@@ -1273,9 +1264,6 @@ void PreferencesDialog::on_fadeStepGrpBox_clicked(bool checked)
   ui.fadeStepsColoursCombo->setEnabled(checked);
   ui.fadeStepsOpacityGrpBox->setEnabled(checked);
   ui.fadeStepsOpacitySlider->setEnabled(checked);
-
-  /* [Experimental] LDView Image Matting */
-  ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && checked);
 }
 
 void PreferencesDialog::on_fadeStepsUseColourGrpBox_clicked(bool checked)
@@ -1399,9 +1387,6 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
   bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == QLatin1String("Perspective");
   ui.applyCALocallyRadio->setChecked(! applyCARenderer);
   ui.applyCARendererRadio->setChecked(applyCARenderer);
-
-  /* [Experimental] LDView Image Matting */
-  //ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
 }
 
 void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
@@ -2143,11 +2128,6 @@ int PreferencesDialog::highlightStepLineWidth()
 bool PreferencesDialog::highlightFirstStep()
 {
   return ui.highlightFirstStepBox->isChecked();
-}
-
-bool PreferencesDialog::enableImageMatting()
-{
-  return ui.imageMattingChk->isChecked();
 }
 
 bool PreferencesDialog::centimeters()
