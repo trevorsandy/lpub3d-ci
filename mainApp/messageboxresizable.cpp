@@ -197,13 +197,20 @@ QSize DetailPushButton::sizeHint() const {
     QStyleOptionButton opt;
     initStyleOption(&opt);
     const QFontMetrics fm = fontMetrics();
+    const QSize minSize =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            minimumSize();
+#else
+            QApplication::globalStrut();
+#endif
     opt.text = label(ShowLabel);
     QSize sz = fm.size(Qt::TextShowMnemonic, opt.text);
     QSize ret = style()->sizeFromContents(QStyle::CT_PushButton, &opt, sz, this).
-                  expandedTo(QApplication::globalStrut());
+                  expandedTo(minSize);
+
     opt.text = label(HideLabel);
     sz = fm.size(Qt::TextShowMnemonic, opt.text);
     ret = ret.expandedTo(style()->sizeFromContents(QStyle::CT_PushButton, &opt, sz, this).
-                  expandedTo(QApplication::globalStrut()));
+                  expandedTo(minSize));
     return ret;
 }
