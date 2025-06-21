@@ -222,11 +222,9 @@ void BranchMeta::doc(QStringList &out, QString preamble)
  */
 void BranchMeta::metaKeywords(QStringList &out, QString preamble)
 {
-
-  QString key;
   QStringList keys = list.keys();
   keys.sort();
-  Q_FOREACH (key, keys) {
+  Q_FOREACH (const QString &key, keys) {
     list[key]->metaKeywords(out, preamble + " " + key);
   }
 }
@@ -596,7 +594,6 @@ Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index >= 1) {  // changed operator from == to >= for LightMeta
     //_value[pushed] = argv[index].replace("\\""","""");
-    QString foo = argv[index];
     _value[pushed] = argv[index];
     _here[pushed] = here;
     return rc;
@@ -789,7 +786,6 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
 {
   float _offsets[2];
   Rc rc = FailureRc;
-  QString foo;
   int argc = argv.size();
   QString relativeTos = "^(PAGE|ASSEM|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT|PAGE_NUMBER|"
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
@@ -1736,7 +1732,7 @@ void PointerAttribMeta::setOtherDataInches(PointerAttribData pointerAttribData)
 
 QString PointerAttribMeta::format(bool local, bool global)
 {
-  QString foo,bar;
+  QString foo;
   switch (_value[pushed].attribType)
   {
   case PointerAttribData::Tip:
