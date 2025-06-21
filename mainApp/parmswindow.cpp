@@ -972,7 +972,6 @@ void ParmEditor::showCharacters(
     cursor.movePosition(QTextCursor::Start);
 
     QTextCursor newCursor = cursor;
-    quint64 count = 0;
 
     QTextDocument::FindFlags options;
 
@@ -987,7 +986,6 @@ void ParmEditor::showCharacters(
                 if (newCursor.hasSelection())
                 {
                     newCursor.insertText(replaceString);
-                    count++;
                 }
             }
             else
