@@ -346,8 +346,8 @@ void ParmsWindow::systemEditor()
         QProcess::startDetached(Preferences::systemEditor, arguments, workingDirectory, &pid);
         emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
                               .arg(QFileInfo(fileName).fileName()).arg(pid)
-                              .arg(QFileInfo(program).fileName())
-                              .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+                              .arg(QFileInfo(program).fileName(),
+                                   arguments.size() ? " "+arguments.join(" ") : ""));
     } else {
         QDesktopServices::openUrl(QUrl("file:///"+fileName, QUrl::TolerantMode));
     }
@@ -482,8 +482,7 @@ void ParmsWindow::displayParmsFile(
         QMessageBox::warning(nullptr,
                  QMessageBox::tr("Parameter Editor"),
                  QMessageBox::tr("Cannot read parameter file %1:\n%2.")
-                 .arg(fileName)
-                 .arg(file.errorString()));
+                 .arg(fileName, file.errorString()));
 
         _textEdit->document()->clear();
         return;
@@ -566,8 +565,7 @@ bool ParmsWindow::saveFile(bool force)
                                  QMessageBox::tr("%1 Editor")
                                  .arg(title),
                                  QMessageBox::tr("Cannot write file %1:\n%2.")
-                                 .arg(fileName)
-                                 .arg(file.errorString()));
+                                 .arg(fileName, file.errorString()));
             return rc;
         }
 
@@ -603,7 +601,7 @@ bool ParmsWindow::saveCopyAsFile()
     bool rc = false;
     // provide a file name
     QFileInfo fileInfo(fileName);
-    QString saveCopyAsName = QString("%1/%2_%3.txt").arg(fileInfo.absolutePath()).arg(fileInfo.completeBaseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmss")));
+    QString saveCopyAsName = QString("%1/%2_%3.txt").arg(fileInfo.absolutePath(), fileInfo.completeBaseName(), QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmss")));
     QString filter(QFileDialog::tr("All Files (*.*)"));
     QString saveCopyAsAbsoluteFilePath = QFileDialog::getSaveFileName(
                                                        nullptr,
