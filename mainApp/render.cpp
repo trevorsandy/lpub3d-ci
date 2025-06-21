@@ -303,7 +303,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
          QString smi(SUBMODEL_IMAGE_BASENAME);
          baseName = baseName.append(QString("-%1").arg(smi.toUpper()));
          if (appendNameHeader)
-            modelName = fileInfo.baseName().append(QString("-%1.%2").arg(smi.toUpper()).arg(fileInfo.suffix()));
+            modelName = fileInfo.baseName().append(QString("-%1.%2").arg(smi.toUpper(), fileInfo.suffix()));
     }
 
     // case where PLI is an MPD - i.e. LDCad generated part, append name to workaround Visual Editor abend
@@ -391,8 +391,7 @@ bool Render::clipImage(QString const &pngName) {
                                                      .arg(clipMsg));
     } else {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to save clipped image '%1': %2")
-                                                    .arg(clipMsg)
-                                                    .arg(Writer.errorString()));
+                                                    .arg(clipMsg, Writer.errorString()));
         return false;
     }
     return true;
@@ -595,8 +594,8 @@ bool Render::compareImageAttributes(
         result = compareKey != attributesKey;
         if (Preferences::debugLogging) {
             message = QObject::tr("Attributes compare: [%1], attributesKey [%2], compareKey [%3]")
-                                  .arg(result ? "No Match - usingSnapshotArgs (attributes)" : "Match" )
-                                  .arg(attributesKey).arg(compareKey);
+                                  .arg(result ? "No Match - usingSnapshotArgs (attributes)" : "Match",
+                                       attributesKey, compareKey);
             emit gui->messageSig(LOG_DEBUG, message);
         }
     } else {
@@ -638,10 +637,10 @@ int Render::executeLDViewProcess(QStringList &arguments, QStringList &environmen
 
   QString const render = module == Options::CSI ? "CSI" : "PLI";
   QString const message = QObject::tr("LDView %1 %2 Arguments: %3 %4")
-                                      .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
-                                      .arg(render)
-                                      .arg(Preferences::ldviewExe)
-                                      .arg(arguments.join(" "));
+                                      .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)",
+                                           render,
+                                           Preferences::ldviewExe,
+                                           arguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
@@ -686,9 +685,9 @@ int Render::executeLDViewProcess(QStringList &arguments, QStringList &environmen
       QFile outputImageFile(arguments.last());
       if (! outputImageFile.exists()) {
           emit gui->messageSig(LOG_ERROR,QObject::tr("LDView %1 image generation failed for %2 with message %3")
-                               .arg(module == Options::CSI ? "CSI" : "PLI")
-                               .arg(outputImageFile.fileName())
-                               .arg(outputImageFile.errorString()));
+                               .arg(module == Options::CSI ? "CSI" : "PLI",
+                                    outputImageFile.fileName(),
+                                    outputImageFile.errorString()));
           return -1;
       }
   }
@@ -912,11 +911,11 @@ int POVRay::renderCsi(
           QString _sz;
           if (useImageSize && _mc.isEmpty())
               _sz = QString(" -SaveZoomToFit=1");
-          cg = QString("%1%2 %3%4").arg(_mc.isEmpty() ? "" : _mc).arg(_dl).arg(_dz).arg(_sz.isEmpty() ? "" : _sz);
+          cg = QString("%1%2 %3%4").arg(_mc.isEmpty() ? "" : _mc, _dl, _dz, _sz.isEmpty() ? "" : _sz);
       } else {
           cg = pp ? pl ? QString("-DefaultLatLong=%1 %2")
-                                 .arg(dl)
-                                 .arg(dz)                         // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                                 .arg(dl,
+                                      dz)                         // replace Camera Globe with DefaultLatLon and add DefaultZoom
                        : QString("-cg%1,%2,%3")
                                  .arg(double(cameraAngleX))
                                  .arg(double(cameraAngleY))
@@ -1026,7 +1025,7 @@ int POVRay::renderCsi(
 
       emit gui->messageSig(LOG_STATUS, QObject::tr("LDView CSI POV file generation..."));
 
-      message = QObject::tr("LDView CSI POV file generation CSI arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      message = QObject::tr("LDView CSI POV file generation CSI arguments: %1 %2").arg(Preferences::ldviewExe, arguments.join(" "));
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
@@ -1115,7 +1114,7 @@ int POVRay::renderCsi(
   emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Executing POVRay %1 CSI render - please wait...")
                                                     .arg(pp ? "Perspective" : "Orthographic"));
 
-  message = QString("POVRay CSI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+  message = QString("POVRay CSI Arguments: %1 %2").arg(Preferences::povrayExe, povArguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
@@ -1291,11 +1290,11 @@ int POVRay::renderPli(
           QString _sz;
           if (useImageSize && _mc.isEmpty())
               _sz = QString(" -SaveZoomToFit=1");
-          cg = QString("%1%2 %3%4").arg(_mc.isEmpty() ? "" : _mc).arg(_dl).arg(_dz).arg(_sz.isEmpty() ? "" : _sz);
+          cg = QString("%1%2 %3%4").arg(_mc.isEmpty() ? "" : _mc, _dl, _dz, _sz.isEmpty() ? "" : _sz);
       } else {
           cg = pp ? pl ? QString("-DefaultLatLong=%1 %2")
-                                 .arg(dl)
-                                 .arg(dz)                         // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                                 .arg(dl,
+                                      dz)                         // replace Camera Globe with DefaultLatLon and add DefaultZoom
                        : QString("-cg%1,%2,%3")
                                  .arg(double(cameraAngleX))
                                  .arg(double(cameraAngleY))
@@ -1404,7 +1403,7 @@ int POVRay::renderPli(
 
       emit gui->messageSig(LOG_STATUS, QObject::tr("LDView PLI POV file generation..."));
 
-      message = QObject::tr("LDView PLI POV File Generation PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      message = QObject::tr("LDView PLI POV File Generation PLI Arguments: %1 %2").arg(Preferences::ldviewExe, arguments.join(" "));
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
@@ -1494,7 +1493,7 @@ int POVRay::renderPli(
   emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Executing POVRay %1 PLI render - please wait...")
                                                     .arg(pp ? "Perspective" : "Orthographic"));
 
-  message = QObject::tr("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+  message = QObject::tr("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe, povArguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
@@ -1689,7 +1688,7 @@ int LDGLite::   renderCsi(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  QString message = QObject::tr("LDGLite CSI Arguments: %1 %2").arg(Preferences::ldgliteExe).arg(arguments.join(" "));
+  QString message = QObject::tr("LDGLite CSI Arguments: %1 %2").arg(Preferences::ldgliteExe, arguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
@@ -1708,7 +1707,7 @@ int LDGLite::   renderCsi(
   QFile outputImageFile(pngName);
   if (! outputImageFile.exists()) {
       emit gui->messageSig(LOG_ERROR,QObject::tr("LDGLite CSI image generation failed for %1 with message %2")
-                           .arg(outputImageFile.fileName()).arg(outputImageFile.errorString()));
+                           .arg(outputImageFile.fileName(), outputImageFile.errorString()));
       return -1;
   }
 
@@ -1868,7 +1867,7 @@ int LDGLite::renderPli(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  QString message = QObject::tr("LDGLite PLI Arguments: %1 %2").arg(Preferences::ldgliteExe).arg(arguments.join(" "));
+  QString message = QObject::tr("LDGLite PLI Arguments: %1 %2").arg(Preferences::ldgliteExe, arguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
@@ -1887,7 +1886,7 @@ int LDGLite::renderPli(
   QFile outputImageFile(cleanPngName);
   if (! outputImageFile.exists()) {
       emit gui->messageSig(LOG_ERROR,QObject::tr("LDGLite PLI image generation failed for %1 with message %2")
-                           .arg(outputImageFile.fileName()).arg(outputImageFile.errorString()));
+                           .arg(outputImageFile.fileName(), outputImageFile.errorString()));
       return -1;
   }
 
@@ -2073,11 +2072,11 @@ int LDView::renderCsi(
             QString _sz;
             if (useImageSize && _mc.isEmpty())
                 _sz = QString(" -SaveZoomToFit=1");
-            cg = QString("%1%2 %3%4").arg(_mc.isEmpty() ? "" : _mc).arg(_dl).arg(_dz).arg(_sz.isEmpty() ? "" : _sz);
+            cg = QString("%1%2 %3%4").arg(_mc.isEmpty() ? "" : _mc, _dl, _dz, _sz.isEmpty() ? "" : _sz);
         } else {
             cg = pp ? pl ? QString("-DefaultLatLong=%1 %2")
-                                   .arg(dl)
-                                   .arg(dz)                         // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                                   .arg(dl,
+                                        dz)                         // replace Camera Globe with DefaultLatLon and add DefaultZoom
                          : QString("-cg%1,%2,%3")
                                    .arg(double(cameraAngleX))
                                    .arg(double(cameraAngleY))
@@ -2193,7 +2192,7 @@ int LDView::renderCsi(
                 compareKey          = attributes.join("_");
 
                 if (!snapshotArgsChanged) {
-                    snapshotArgs = QString("%1 %2").arg(CA).arg(cg);
+                    snapshotArgs = QString("%1 %2").arg(CA, cg);
                 }
             } else {
                 getRendererSettings(CA, cg, ldviewParmsArgs);
@@ -2204,7 +2203,7 @@ int LDView::renderCsi(
             if (!usingDefaultArgs) {
 
                 QString saveArgs = QString("-SaveSnapShots=1 %1").arg(ldrName);
-                saveArgs.prepend(QString("%1 %2 ").arg(CA).arg(cg));
+                saveArgs.prepend(QString("%1 %2 ").arg(CA, cg));
                 snapShotsListArgs.append(QString(" %1").arg(saveArgs));
             }
         }
@@ -2366,7 +2365,7 @@ int LDView::renderCsi(
     if (useLDViewSCall()) {
         Q_FOREACH (QString ldrName, ldrNames) {
             QString pngFileTmpPath = ldrName.replace(".ldr",".png");
-            QString pngFilePath = QString("%1/%2").arg(assemPath).arg(QFileInfo(pngFileTmpPath).fileName());
+            QString pngFilePath = QString("%1/%2").arg(assemPath, QFileInfo(pngFileTmpPath).fileName());
             QFile destinationFile(pngFilePath);
             QFile sourceFile(pngFileTmpPath);
             if (! destinationFile.exists() || destinationFile.remove()) {
@@ -2528,11 +2527,11 @@ int LDView::renderPli(
           QString _sz;
           if (useImageSize && _mc.isEmpty())
               _sz = QString(" -SaveZoomToFit=1");
-          cg = QString("%1 %2 %3%4").arg(_mc).arg(_dl).arg(_dz).arg(_sz.isEmpty() ? "" : _sz);
+          cg = QString("%1 %2 %3%4").arg(_mc, _dl, _dz, _sz.isEmpty() ? "" : _sz);
       } else {
           cg = pp ? pl ? QString("-DefaultLatLong=%1 %2")
-                         .arg(dl)
-                         .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                         .arg(dl,
+                              dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
                        : QString("-cg%1,%2,%3")
                          .arg(double(cameraAngleX))
                          .arg(double(cameraAngleY))
@@ -2624,7 +2623,7 @@ int LDView::renderPli(
               compareKey          = attributes.join("_");
 
               if (!snapshotArgsChanged)
-                  snapshotArgs = QString("%1 %2").arg(CA).arg(cg);
+                  snapshotArgs = QString("%1 %2").arg(CA, cg);
 
           } else {
               getRendererSettings(CA,cg);
@@ -2637,7 +2636,7 @@ int LDView::renderPli(
              cleanPngName = cleanLdrName.replace("_SUB.ldr",".png");
 
              // use command list as pngName and ldrName must be specified
-             subSnapShotsListArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(cleanPngName).arg(cleanLdrName));
+             subSnapShotsListArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA, cg, cleanPngName, cleanLdrName));
 
           } else {
 
@@ -2645,7 +2644,7 @@ int LDView::renderPli(
              if (!usingDefaultArgs) {
 
                  const QString saveArgs = QString("-SaveSnapShots=1 %1").arg(cleanLdrName);
-                 snapShotsListArgs.append(QString("%1 %2 %3").arg(CA).arg(cg).arg(saveArgs));
+                 snapShotsListArgs.append(QString("%1 %2 %3").arg(CA, cg, saveArgs));
              }
           }
 
@@ -2977,13 +2976,14 @@ int Native::renderCsi(
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QObject::tr("Render CSI using viewer step key '%1' for image '%2'.")
-                                               .arg(viewerStepKey)
-                                               .arg(QFileInfo(pngName).fileName()));
+                                               .arg(viewerStepKey, QFileInfo(pngName).fileName()));
 #endif
   } else {
     emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve CSI render options %1 for image '%2'.")
-                                               .arg(viewerStepKey.isEmpty() ? "and viewer step key" : QString("using viewer step key '%1'").arg(viewerStepKey))
-                                               .arg(QFileInfo(pngName).fileName()));
+                                               .arg(viewerStepKey.isEmpty()
+                                                   ? QObject::tr("and viewer step key")
+                                                   : QObject::tr("using viewer step key '%1'").arg(viewerStepKey),
+                                                    QFileInfo(pngName).fileName()));
     return -1;
   }
 
@@ -3160,7 +3160,7 @@ int Native::renderPli(
       cleanPngName.replace(";", "_");
       attributes = getImageAttributes(pngName);
       if (attributes.size() >= nColorCode)
-          nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
+          nameKey = QString("%1_%2").arg(attributes.at(nType), attributes.at(nColorCode));
   }
 
   // Process substitute part attributes
@@ -3193,7 +3193,7 @@ int Native::renderPli(
   case BOM:
       if (!nameKey.isEmpty()) {
         Options = lpub->page.pli.viewerOptsList[nameKey]; 
-        viewerStepKey = QString("%1;%2;0").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
+        viewerStepKey = QString("%1;%2;0").arg(attributes.at(nType), attributes.at(nColorCode));
       }
       break;
   }
@@ -3241,15 +3241,17 @@ int Native::renderPli(
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QObject::tr("Render %1 using viewer step key '%2' for image '%3'.")
-                                               .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI")
-                                               .arg(viewerStepKey)
-                                               .arg(QFileInfo(cleanPngName).fileName()));
+                                               .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI",
+                                                    viewerStepKey,
+                                                    QFileInfo(cleanPngName).fileName()));
 #endif
   } else {
     emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve %1 render options %2 for image '%3'.")
-                                               .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI")
-                                               .arg(viewerStepKey.isEmpty() ? "and viewer step key" : QString("using viewer step key '%1'").arg(viewerStepKey))
-                                               .arg(QFileInfo(cleanPngName).fileName()));
+                                               .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI",
+                                                    viewerStepKey.isEmpty()
+                                                        ? QObject::tr("and viewer step key")
+                                                        : QObject::tr("using viewer step key '%1'").arg(viewerStepKey),
+                                                    QFileInfo(cleanPngName).fileName()));
     return -1;
   }
 
@@ -3445,8 +3447,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 ActiveModel->RemoveCameraIndex(CameraIndex);
                 QStringList const keys = O->ViewerStepKey.split(";");
                 emit gui->messageSig(LOG_NOTICE, QObject::tr("Existing camera %1%2 was removed.")
-                                     .arg(O->CameraName)
-                                     .arg(keys.size() > 2 ? QObject::tr(" in step %1").arg(keys.at(2)) : ""));
+                                     .arg(O->CameraName, keys.size() > 2 ? QObject::tr(" in step %1").arg(keys.at(2)) : ""));
                 break;
             }
             else
@@ -3567,23 +3568,23 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
             {
                 QString const message = QObject::tr("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
-                                            .arg(ImageType)
-                                            .arg((O->ExportMode == EXPORT_PDF ||
+                                            .arg(ImageType,
+                                                 (O->ExportMode == EXPORT_PDF ||
                                                   O->ExportMode == EXPORT_PNG ||
                                                   O->ExportMode == EXPORT_JPG ||
                                                   O->ExportMode == EXPORT_BMP)
                                                      ? QObject::tr("image")
                                                      : QObject::tr("%1 object")
-                                                         .arg(nativeExportNames[O->ExportMode]))
-                                            .arg(O->OutputFileName)
-                                            .arg(Writer.errorString());
+                                                         .arg(nativeExportNames[O->ExportMode]),
+                                                  O->OutputFileName,
+                                                  Writer.errorString());
                 emit gui->messageSig(LOG_ERROR,message);
                 return false;
             }
             else
             {
                 emit gui->messageSig(LOG_INFO,QObject::tr("Native %1 image file rendered '%2'")
-                                     .arg(ImageType).arg(O->OutputFileName));
+                                     .arg(ImageType, O->OutputFileName));
             }
 
             lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
@@ -3720,9 +3721,9 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             arguments.last().chop(1);
 
         QString message = QObject::tr("%1 %2 Arguments: %3%4")
-                                      .arg(RenderImage ? QObject::tr("Native Renderer") : QObject::tr("Visual Editor"))
-                                      .arg(ImageType)
-                                      .arg(arguments.join(" "));
+                                      .arg(RenderImage ? QObject::tr("Native Renderer") : QObject::tr("Visual Editor"),
+                                           ImageType,
+                                           arguments.join(" "));
 #ifdef QT_DEBUG_MODE
       qDebug() << qUtf8Printable(message.arg(QLatin1String(".\r\n")));
 #else
@@ -3759,8 +3760,7 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
     Loaded = lpub->OpenProject(Options, NATIVE_IMAGE, true/*UseFile*/);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use File]")
-                                                    .arg(Options->ViewerStepKey)
-                                                    .arg(QFileInfo(Options->InputFileName).fileName()));
+                                                    .arg(Options->ViewerStepKey, QFileInfo(Options->InputFileName).fileName()));
     }
 
     return Loaded;
@@ -3781,7 +3781,7 @@ bool Render::LoadViewer(const NativeOptions *Options) {
     if (!keyMatch) {
         QString const currentStepKey = lpub->currentStep->viewerStepKey;
         emit gui->messageSig(LOG_ERROR, QObject::tr("The specified step key: '%1' does not match the current step key: '%2'")
-                                                    .arg(Options->ViewerStepKey).arg(currentStepKey));
+                                                    .arg(Options->ViewerStepKey, currentStepKey));
         if (Gui::abortProcess())
             return Loaded;
     }
@@ -3801,7 +3801,7 @@ bool Render::LoadViewer(const NativeOptions *Options) {
             QString message = QObject::tr("High contrast stud and edge color settings are ignored when automate edge color is enabled.");
             if (Preferences::getShowMessagePreference(Preferences::ParseErrors)) {
                 Where file(QFileInfo(lpub->ldrawFile.getViewerStepFilePath(Options->ViewerStepKey)).fileName());
-                QString parseMessage = QString("%1<br>(file: %2)").arg(message).arg(file.modelName);
+                QString parseMessage = QString("%1<br>(file: %2)").arg(message, file.modelName);
                 Preferences::MsgID msgID(Preferences::AnnotationErrors,file.nameToString());
                 Preferences::showMessage(msgID, parseMessage, "Model File", QObject::tr("parse model file warning"));
             } else {
@@ -3814,8 +3814,7 @@ bool Render::LoadViewer(const NativeOptions *Options) {
     Loaded = lpub->OpenProject(Options);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use Key]")
-                                                    .arg(Options->ViewerStepKey)
-                                                    .arg(QFileInfo(Options->InputFileName).fileName()));
+                                                    .arg(Options->ViewerStepKey, QFileInfo(Options->InputFileName).fileName()));
     }
 
     return Loaded;
@@ -3872,9 +3871,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
         if (!Exported) {
             emit gui->messageSig(LOG_ERROR, QObject::tr("Could not open Loader for ViewerStepKey: '%1', Export: %2, FileName: '%3', [Use File]")
-                                                        .arg(Options->ViewerStepKey)
-                                                        .arg(mode)
-                                                        .arg(QFileInfo(Options->InputFileName).fileName()));
+                                                        .arg(Options->ViewerStepKey, mode, QFileInfo(Options->InputFileName).fileName()));
             return Exported;
         }
     }
@@ -3888,9 +3885,9 @@ bool Render::NativeExport(const NativeOptions *Options) {
     {
         Exported = lcGetActiveProject()->ExportCSV(Options->ExportFileName);
         if (Exported) {
-            emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed.").arg(mode).arg(mode));
+            emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed.").arg(mode, mode));
         } else {
-            emit gui->messageSig(LOG_ERROR, QObject::tr("%1 export failed!").arg(mode).arg(mode));
+            emit gui->messageSig(LOG_ERROR, QObject::tr("%1 export failed!").arg(mode, mode));
         }
     }
     else
@@ -3909,8 +3906,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
         Exported = lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
         if (Exported) {
             emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed. File: '%2'")
-                                                   .arg(mode)
-                                                   .arg(Options->ExportFileName));
+                                                   .arg(mode, Options->ExportFileName));
         } else {
             emit gui->messageSig(LOG_ERROR, QObject::tr("%1 export failed!"));
         }
@@ -3921,8 +3917,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
         Exported = lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
         if (Exported) {
            emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed. File: '%2'")
-                                                  .arg(mode)
-                                                  .arg(Options->ExportFileName));
+                                                  .arg(mode, Options->ExportFileName));
         } else {
             emit gui->messageSig(LOG_ERROR, QObject::tr("%1 export failed!").arg(mode));
         }
@@ -3945,8 +3940,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
                 gui->showExportedFile();
             } else {
                 emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed. Index: '%2'")
-                                                                  .arg(mode)
-                                                                  .arg(htmlIndex));
+                                                                  .arg(mode, htmlIndex));
             }
         } else {
             emit gui->messageSig(LOG_ERROR, QObject::tr("%1 export failed!").arg(mode));
@@ -4014,8 +4008,7 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag) 
     const QString workingDirectory = QDir::currentPath();
     const QString mode = nativeExportNames[exportMode];
     emit gui->messageSig(LOG_TRACE, QObject::tr("Native %1 Export for command: %2")
-                                                .arg(mode)
-                                                .arg(arguments.join(" ")));
+                                                .arg(mode, arguments.join(" ")));
 
     ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
 
@@ -4024,15 +4017,13 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag) 
 
     if (! ldvWidget->doCommand(arguments))  {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to generate %1 Export for command: %2")
-                                                    .arg(mode)
-                                                    .arg(arguments.join(" ")));
+                                                    .arg(mode, arguments.join(" ")));
         rc = false;
     }
 
     if (! QDir::setCurrent(workingDirectory)) {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to restore %1 export working directory: %2")
-                                                    .arg(mode)
-                                                    .arg(workingDirectory));
+                                                    .arg(mode, workingDirectory));
         rc = false;
     }
 
@@ -4073,8 +4064,8 @@ const QString Render::getPovrayRenderQuality(int quality)
 
 const QString Render::getRenderImageFile(int renderType)
 {
-    QDir renderDir(QString("%1/%2").arg(QDir::currentPath())
-                   .arg(renderType == POVRAY_RENDER ? Paths::povrayRenderDir : Paths::blenderRenderDir));
+    QDir renderDir(QString("%1/%2").arg(QDir::currentPath(),
+                           renderType == POVRAY_RENDER ? Paths::povrayRenderDir : Paths::blenderRenderDir));
     if (!renderDir.exists()) {
         if (renderType == POVRAY_RENDER)
             Paths::mkPovrayDir();
@@ -4090,8 +4081,7 @@ const QString Render::getRenderImageFile(int renderType)
     }
 
     QString imageFile = QDir::toNativeSeparators(QString("%1/%2.png")
-                       .arg(renderDir.absolutePath())
-                       .arg(fileName));
+                       .arg(renderDir.absolutePath(), fileName));
 
     return imageFile;
 
@@ -4365,8 +4355,7 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
           QFile ldrfile(ldrName);
           if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
               emit gui->messageSig(LOG_ERROR,QString("Could not read submodel file %1: %2")
-                                   .arg(ldrName)
-                                   .arg(ldrfile.errorString()));
+                                   .arg(ldrName, ldrfile.errorString()));
               return -1;
           }
 
