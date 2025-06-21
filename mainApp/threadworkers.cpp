@@ -2637,11 +2637,11 @@ int CountPageWorker::countPage(
                       if ((Rc)buildMod.action != rc) {
 /*
 #ifdef QT_DEBUG_MODE
-                      const QString message = tr("Jump forward Build Mod Reset Setup - Key: '%1', Current Action: %2, Next Action: %3") 
-                                                 .arg(buildMod.key) 
-                                                 .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)") 
+                      const QString message = tr("Jump forward Build Mod Reset Setup - Key: '%1', Current Action: %2, Next Action: %3")
+                                                 .arg(buildMod.key)
+                                                 .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
                                                  .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)");
-                      emit gui->messageSig(LOG_NOTICE, message); 
+                      emit gui->messageSig(LOG_NOTICE, message);
 #endif
 //*/
                           // get the viewerStepKey for the current step
@@ -2653,8 +2653,8 @@ int CountPageWorker::countPage(
 
                           // set BuildMod action for step if exists
                           if (lpub->ldrawFile.setViewerStepHasBuildModAction(viewerStepKey, true))
-                              ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc); 
- 
+                              ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
+
                       }
                       buildMod.state = BM_NONE;
                   } // opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM
