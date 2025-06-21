@@ -397,6 +397,7 @@ public:
    */
   QHash<QString, AbstractMeta *> list;
   BranchMeta() : AbstractMeta() {}
+  BranchMeta (const BranchMeta &rhs);
   virtual ~BranchMeta();
 
   virtual Rc parse(QStringList &argv, int index, Where &here);
@@ -406,19 +407,12 @@ public:
   virtual void pop();
   BranchMeta &operator= (const BranchMeta &rhs)
   {
-    Q_FOREACH (const QString &key, list.keys())
-    {
+    const QStringList keys = list.keys();
+    Q_FOREACH (const QString &key, keys)  {
       *list[key] = *rhs.list[key];
     }
     preamble = rhs.preamble;
     return *this;
-  }
-  BranchMeta (const BranchMeta &rhs) : AbstractMeta(rhs)
-  {
-    Q_FOREACH (const QString &key, list.keys())
-    {
-      *list[key] = *rhs.list[key];
-    }
   }
 };
 
