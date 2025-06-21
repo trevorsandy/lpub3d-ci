@@ -184,7 +184,7 @@ class SubModel : public Placement {
     void positionChildren(int height, qreal scaleX, qreal scaleY);
     int  addSubModel (int, QGraphicsItem *);
     void placeCols(QList<QString> &);
-    int  createSubModelImage(QString &, QString &, QString &, QPixmap*);
+    int  createSubModelImage(const QString &, QString &, QString &, QPixmap*);
 
     void operator= (SubModel& from)
     {
