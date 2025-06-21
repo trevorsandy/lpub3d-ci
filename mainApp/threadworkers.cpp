@@ -1825,14 +1825,14 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append) {
                 QString partNumber      = cpLine.section(":::",0,0);
                 QString library         = cpLine.section(":::",1,1);
                 QString partDescription = cpLine.section(":::",2,2);
-                out << left << qSetFieldWidth(_colWidthFileName+1)    << partNumber
-                            << qSetFieldWidth(9) << library
-                            << partDescription   << qSetFieldWidth(0) << lpub_endl;
+                out << Qt::left << qSetFieldWidth(_colWidthFileName+1)    << partNumber
+                                << qSetFieldWidth(9) << library
+                                << partDescription   << qSetFieldWidth(0) << lpub_endl;
 
             } else if (cpLine.section(":::",0,0) == QLatin1String("# File Name")) {
-                out << left << qSetFieldWidth(_colWidthFileName+1)    << cpLine.section(":::",0,0)
-                            << qSetFieldWidth(9)           << cpLine.section(":::",1,1)
-                            << cpLine.section(":::",2,2)   << qSetFieldWidth(0) << lpub_endl;
+                out << Qt::left << qSetFieldWidth(_colWidthFileName+1)    << cpLine.section(":::",0,0)
+                                << qSetFieldWidth(9)           << cpLine.section(":::",1,1)
+                                << cpLine.section(":::",2,2)   << qSetFieldWidth(0) << lpub_endl;
 
             } else {
                 out << cpLine << lpub_endl;
