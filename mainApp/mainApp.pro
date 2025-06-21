@@ -153,14 +153,12 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIPd14
         LC_LIB = LCd233
         LDVQT_LIB = LDVQtd46
-        WPNGIMAGE_LIB = WPngImaged14
         WAITING_SPINNER_LIB = WaitingSpinnerd10
         msys {
             LDRAWINI_LIB = $$lower($$LDRAWINI_LIB)
             QUAZIP_LIB = $$lower(lib$$QUAZIP_LIB)
             LC_LIB = $$lower($$LC_LIB)
             LDVQT_LIB = $$lower($$LDVQT_LIB)
-            WPNGIMAGE_LIB = $$lower($$WPNGIMAGE_LIB)
             WAITING_SPINNER_LIB = $$lower($$WAITING_SPINNER_LIB)
         }
     }
@@ -170,7 +168,6 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = libQuaZIP_debug
         LC_LIB = LC_debug
         LDVQT_LIB = LDVQt_debug
-        WPNGIMAGE_LIB = WPngImage_debug
         WAITING_SPINNER_LIB = WaitingSpinner_debug
     }
 
@@ -179,7 +176,6 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = libquazipd
         LC_LIB = lcd
         LDVQT_LIB = ldvqtd
-        WPNGIMAGE_LIB = wpngimaged
         WAITING_SPINNER_LIB = waitingspinnerd
 
         # For Linux builds, simplify debug ops by using runtime content in build folders
@@ -207,14 +203,12 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP14
         LC_LIB = LC233
         LDVQT_LIB = LDVQt46
-        WPNGIMAGE_LIB = WPngImage14
         WAITING_SPINNER_LIB = WaitingSpinner10
         msys {
             LDRAWINI_LIB = $$lower($$LDRAWINI_LIB)
             QUAZIP_LIB = $$lower(lib$$QUAZIP_LIB)
             LC_LIB = $$lower($$LC_LIB)
             LDVQT_LIB = $$lower($$LDVQT_LIB)
-            WPNGIMAGE_LIB = $$lower($$WPNGIMAGE_LIB)
             WAITING_SPINNER_LIB = $$lower($$WAITING_SPINNER_LIB)
         }
     }
@@ -224,7 +218,6 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = libQuaZIP
         LC_LIB = LC
         LDVQT_LIB = LDVQt
-        WPNGIMAGE_LIB = WPngImage
         WAITING_SPINNER_LIB = WaitingSpinner
     }
 
@@ -233,7 +226,6 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = libquazip
         LC_LIB = lc
         LDVQT_LIB = ldvqt
-        WPNGIMAGE_LIB = wpngimage
         WAITING_SPINNER_LIB = waitingspinner
     }
 
@@ -386,9 +378,6 @@ LIBS += -L$$absolute_path($$OUT_PWD/../waitingspinner/$$DESTDIR) -l$$WAITING_SPI
 LIBS += -L$$absolute_path($$OUT_PWD/../lclib/$$DESTDIR) -l$$LC_LIB
 
 LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR) -l$$LDVQT_LIB
-
-# WPngImage must follow LDVQT or else there will be compile errors
-LIBS += -L$$absolute_path($$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR) -l$$WPNGIMAGE_LIB
 
 # Load LDView libraries for LDVQt
 LOAD_LDV_LIBS = True

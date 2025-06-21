@@ -148,10 +148,6 @@ Copyright:
  2009-2018 Peter Bartfai
 License: GPL-2
 
-Files: ldvlib/WPngImage/*
-Copyright: 2016 Juha Nieminen
-License: MIT
-
 Files: ldrawini/*
 Copyright: 2004-2008 Lars C. Hassing <SP.lars@AM.hassings.dk>
 License: MIT

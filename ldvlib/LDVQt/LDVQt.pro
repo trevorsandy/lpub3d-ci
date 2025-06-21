@@ -34,7 +34,6 @@ VER_LDVIEW     = ldview-$$VER_MAJ"."$$VER_MIN
 
 DEPENDPATH  += .
 INCLUDEPATH += .
-INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
@@ -124,7 +123,6 @@ SOURCES += \
     LDVAlertHandler.cpp \
     LDViewExportOption.cpp \
     LDVHtmlInventory.cpp \
-    LDVImageMatte.cpp \
     LDViewPartList.cpp \
     LDVMisc.cpp \
     LDVPreferences.cpp \
@@ -138,7 +136,6 @@ HEADERS += \
     LDVAlertHandler.h \
     LDVHtmlInventory.h \
     LDViewExportOption.h \
-    LDVImageMatte.h \
     LDViewPartList.h \
     LDVMisc.h \
     LDVPreferences.h \

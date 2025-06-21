@@ -46,7 +46,6 @@
 #include "application.h"
 
 #include <LDVQt/LDVWidget.h>
-#include <LDVQt/LDVImageMatte.h>
 
 #include "paths.h"
 
@@ -2143,28 +2142,15 @@ int LDView::renderCsi(
 
     /* Create the CSI DAT file(s) */
 
-    QString f, snapshotArgsKey, imageMatteArgsKey;
+    QString f, snapshotArgsKey;
     bool usingListCmdArg     = false;
     bool usingDefaultArgs    = true;
     bool usingSingleSetArgs  = false;
     bool snapshotArgsChanged = false;
-    bool enableIM            = false;
-    QStringList ldrNames, ldrNamesIM, snapshotLdrs;
+    QStringList ldrNames, snapshotLdrs;
     if (useLDViewSCall()) {  // Use LDView SingleCall
         // populate ldrNames
-        if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
-            enableIM = true;
-            Q_FOREACH (QString csiEntry, csiParts){           // csiParts are ldrNames under LDViewSingleCall
-                QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
-                if (LDVImageMatte::validMatteCSIImage(csiFile)) {
-                    ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
-                } else {
-                    ldrNames << csiEntry;                     // ldrName entries that ARE NOT IM
-                }
-            }
-        } else {                                              // ldrName entries (IM off)
-            ldrNames = csiParts;
-        }
+        ldrNames = csiParts;
 
         // process part attributes
         QString snapshotsCmdLineArgs,snapshotArgs;
@@ -2177,10 +2163,16 @@ int LDView::renderCsi(
                 continue;
             }
 
-            // split snapshot, imageMatte and additional renderer keys,
+            // split snapshot and additional renderer keys
             keys              = csiKeys.at(i).split("|");
             snapshotArgsKey   = keys.at(0); // using compareKey - keyPart2 and rotStep
-            imageMatteArgsKey = keys.at(1); // using nameAndStepKey - csi_name, nameExtension, renderer index
+            // ImageMatte was removed on 11-06-2025. This remnant was
+            // left behind to provide info on key element at index 1.
+            // I have left the nameAndStepKey in place because I have not confirmed
+            // that it is not used by some other renderer capability. As a result,
+            // the keys will remain with 3 elements when useLdViewSCall is enabled.
+            // See Step::createCsi(...): // populate csiKey - Add CompareKey and NameAndStepKey if LDView Single Call
+            // imageMatteArgsKey = keys.at(1); // using nameAndStepKey - csi_name (csiName + nameExtension + renderer index), step_number
             if (keys.size() == 3)
                 ldviewParmslist = keys.at(2).split(" ");
 
@@ -2281,11 +2273,6 @@ int LDView::renderCsi(
 
         int rc;
         QString csiKey = QString();
-        if (Preferences::enableFadeSteps && Preferences::enableImageMatting &&
-                LDVImageMatte::validMatteCSIImage(csiKeys.first())) {                    // ldrName entries (IM ON)
-            enableIM = true;
-            csiKey = csiKeys.first();
-        }
 
         ldrNames << QDir::fromNativeSeparators(tempPath + "/csi.ldr");
 
@@ -2299,17 +2286,12 @@ int LDView::renderCsi(
         if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("LDView CSI rotate parts failed!"));
             return rc;
-        } else
-          // recheck csiKey - may have been deleted by rotateParts if IM files not created.
-          if (enableIM) {
-            enableIM = LDVImageMatte::validMatteCSIImage(csiKeys.first());
         }
 
         f  = QString("-SaveSnapShot=%1") .arg(pngName);
     }
 
     bool haveLdrNames   = !ldrNames.isEmpty();
-    bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
     QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
     getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
@@ -2375,65 +2357,8 @@ int LDView::renderCsi(
 
         // execute LDView process
         QStringList environment = splitParms(meta.LPub.assem.ldviewEnvVars.value());
-        if (executeLDViewProcess(arguments, environment, Options::CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
+        if (executeLDViewProcess(arguments, environment, Options::CSI) != 0) // ldrName entries exist - e.g. first step
             return -1;
-    }
-
-    // Build IM arguments and process IM [Not implemented - not updated with perspective 'pp' routines]
-    QStringList im_arguments;
-    if (enableIM && haveLdrNamesIM) {
-        QString a  = QString("-AutoCrop=0");
-        im_arguments << CA;                         // 00. Camera FOV in degrees
-        im_arguments << cg.split(" ");              // 01. Camera globe
-        im_arguments << a;                          // 02. AutoCrop off - to create same size IM pair files
-        im_arguments << w;                          // 03. SaveWidth
-        im_arguments << h;                          // 04. SaveHeight
-        im_arguments << f;                          // 05. SaveSnapshot/SaveSnapshots/SaveSnapshotsList
-        im_arguments << l;                          // 06. LDrawDir
-        im_arguments << o;                          // 07. HaveStdOut
-        im_arguments << v;                          // 09. Verbose
-        for (int i = 0; i < ldviewParmslist.size(); i++) {
-            if (ldviewParmslist[i] != "" &&
-                    ldviewParmslist[i] != " ") {
-                im_arguments << ldviewParmslist[i]; // 10. ldviewParms [usually empty]
-            }
-        }
-        if (!ini.isEmpty())
-            im_arguments << ini;                    // 11. LDView.ini
-
-        if (!altldc.isEmpty())
-            im_arguments << altldc;                 // 12.Alternate LDConfig
-
-        removeEmptyStrings(arguments);
-
-        if (useLDViewSCall()) {
-
-            if (enableIM) {
-                if (haveLdrNamesIM) {
-                    // IM each ldrNameIM file
-                    emit gui->messageSig(LOG_STATUS, "Executing LDView render Image Matte CSI - please wait...");
-
-                    Q_FOREACH (QString ldrNameIM, ldrNamesIM) {
-                        QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(ldrNameIM).replace(".ldr",".png")).fileName()));
-                        QString csiKey = LDVImageMatte::getMatteCSIImage(pngFileInfo.absoluteFilePath());
-                        if (!csiKey.isEmpty()) {
-                            if (!LDVImageMatte::matteCSIImage(im_arguments, csiKey))
-                                return -1;
-                        }
-                    }
-                }
-            }
-
-        } else {
-
-            // image matte - LDView Native csiKeys.first()
-            if (enableIM) {
-                QString csiFile = LDVImageMatte::getMatteCSIImage(csiKeys.first());
-                if (!csiFile.isEmpty())
-                    if (!LDVImageMatte::matteCSIImage(im_arguments, csiFile))
-                        return -1;
-            }
-        }
     }
 
     // move generated CSI images to assem subfolder
