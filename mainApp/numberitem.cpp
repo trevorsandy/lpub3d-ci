@@ -68,8 +68,9 @@ void NumberItem::setAttributes(
   qfont.fromString(_number.font.valueFoo());
   setFont(qfont);
 
-  QString foo;
-  foo.sprintf(_format,_value);
+  char buf[128];
+  sprintf(buf, _format, _value);
+  const QString foo(buf);
   setPlainText(foo);
   setDefaultTextColor(LDrawColor::color(color->value()));
   setToolTip(toolTip);
@@ -158,8 +159,9 @@ void NumberPlacementItem::setAttributes(
   qfont.fromString(_number.font.valueFoo());
   setFont(qfont);
 
-  QString foo;
-  foo.sprintf(_format,_value);
+  char buf[128];
+  sprintf(buf, _format, _value);
+  const QString foo(buf);
   setPlainText(foo);
   setDefaultTextColor(LDrawColor::color(color.value()));
 
