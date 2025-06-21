@@ -4424,7 +4424,11 @@ void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
     QPixmap *pixmap = new QPixmap(int(styleRect.width()),int(styleRect.height()));
 
     // set painter and render hints
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
+#else
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+#endif
 
     // set the background then set the border and paint both in one go.
 
