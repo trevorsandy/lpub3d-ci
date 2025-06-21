@@ -334,7 +334,7 @@ void Pli::setParts(
 
           QString baseName = info.completeBaseName();
 
-          QString key = QString("%1_%2").arg(baseName).arg(color);
+          QString key = QString("%1_%2").arg(baseName, color);
 
           // extract the substitute original or ldraw type
           bool isSubstitute       = segments.size() > 2;
@@ -344,7 +344,7 @@ void Pli::setParts(
 
           if (lpub->ldrawFile.isMissingItem(type)) {
               emit lpub->messageSig(LOG_WARNING, QObject::tr("%1 [%2] was not found! See Load Status for details")
-                                                             .arg(isSubstitute ? QObject::tr("Substitute part") : QObject::tr("Part")).arg(type));
+                                                             .arg(isSubstitute ? QObject::tr("Substitute part") : QObject::tr("Part"), type));
               continue;
           }
 
@@ -522,34 +522,34 @@ void Pli::setParts(
                   }
                   if (subType > PliBeginSub5Rc) {
                       subAddAttributes = QString("_%1_%2_%3")
-                                         .arg(attributes.at(sTargetX+sAdj))
-                                         .arg(attributes.at(sTargetY+sAdj))
-                                         .arg(attributes.at(sTargetZ+sAdj));
+                                         .arg(attributes.at(sTargetX+sAdj),
+                                              attributes.at(sTargetY+sAdj),
+                                              attributes.at(sTargetZ+sAdj));
                   }
                   if (subType > PliBeginSub6Rc) {
                       subAddAttributes = QString("_%1_%2_%3_%4")
-                                         .arg(attributes.at(sRotX+sAdj))
-                                         .arg(attributes.at(sRotY+sAdj))
-                                         .arg(attributes.at(sRotZ+sAdj))
-                                         .arg(attributes.at(sTransform+sAdj));
+                                         .arg(attributes.at(sRotX+sAdj),
+                                              attributes.at(sRotY+sAdj),
+                                              attributes.at(sRotZ+sAdj),
+                                              attributes.at(sTransform+sAdj));
                   }
                   if (subType > PliBeginSub7Rc) {
                       subAddAttributes = QString("_%1_%2_%3_%4_%5_%6_%7")
-                                         .arg(attributes.at(sTargetX+sAdj))
-                                         .arg(attributes.at(sTargetY+sAdj))
-                                         .arg(attributes.at(sTargetZ+sAdj))
-                                         .arg(attributes.at(sRotX+sAdj))
-                                         .arg(attributes.at(sRotY+sAdj))
-                                         .arg(attributes.at(sRotZ+sAdj))
-                                         .arg(attributes.at(sTransform+sAdj));
+                                         .arg(attributes.at(sTargetX+sAdj),
+                                              attributes.at(sTargetY+sAdj),
+                                              attributes.at(sTargetZ+sAdj),
+                                              attributes.at(sRotX+sAdj),
+                                              attributes.at(sRotY+sAdj),
+                                              attributes.at(sRotZ+sAdj),
+                                              attributes.at(sTransform+sAdj));
                   }
               }
           }
 
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-              .arg(QString("%1-%2").arg(baseName).arg(Preferences::preferredRenderer)) // 0
-              .arg(color)                                              // 1
+              .arg(QString("%1-%2").arg(baseName).arg(Preferences::preferredRenderer), // 0
+                   color)                                              // 1
               .arg(useImageSize ? double(pliMeta.imageSize.value(0)) :
                                   lpub->pageSize(meta.LPub.page, 0))   // 2
               .arg(double(resolution()))                               // 3
@@ -847,8 +847,7 @@ QString Pli::orient(QString &color, QString type)
               file.close();
           } else {
               emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to open PLI control file: %1:<br>%2")
-                                   .arg(filePath)
-                                   .arg(file.errorString()));
+                                   .arg(filePath, file.errorString()));
           }
       }
   } else {
@@ -901,7 +900,7 @@ int Pli::createSubModelIcons()
 
         QString baseName = info.completeBaseName();
 
-        QString key = QString("%1_%2").arg(baseName).arg(color);
+        QString key = QString("%1_%2").arg(baseName, color);
 
         float modelScale  = pliMeta.modelScale.value();
 
@@ -911,8 +910,8 @@ int Pli::createSubModelIcons()
 
         // assemble icon name key
         QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-                .arg(baseName)
-                .arg(color)
+                .arg(baseName,
+                     color)
                 .arg(lpub->pageSize(meta->LPub.page, 0))
                 .arg(double(resolution()))
                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
@@ -1018,10 +1017,10 @@ int Pli::createPartImage(
     QString rotStep;
     if ((hr = nameKeys.size() == nHasRotstep) || nameKeys.size() == nHasTargetAndRotstep) {
         rotStep = QString("_%1_%2_%3_%4")
-                          .arg(nameKeys.at(hr ? nRotX : nRot_X))          // rotX
-                          .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
-                          .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
-                          .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
+                          .arg(nameKeys.at(hr ? nRotX : nRot_X),          // rotX
+                               nameKeys.at(hr ? nRotY : nRot_Y),          // rotY
+                               nameKeys.at(hr ? nRotZ : nRot_Z),          // rotZ
+                               nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
         if (Preferences::debugLogging)
             emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
     }
@@ -1030,9 +1029,9 @@ int Pli::createPartImage(
     QString targetPosition;
     if (nameKeys.size() >= nHasTarget) {
         targetPosition = QString("_%1_%2_%3")
-                        .arg(nameKeys.at(nTargetX))                       // targetX
-                        .arg(nameKeys.at(nTargetY))                       // targetY
-                        .arg(nameKeys.at(nTargetZ));                      // targetZ
+                        .arg(nameKeys.at(nTargetX),                       // targetX
+                             nameKeys.at(nTargetY),                       // targetY
+                             nameKeys.at(nTargetZ));                      // targetZ
 
         if (Preferences::debugLogging)
             emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
@@ -1057,17 +1056,17 @@ int Pli::createPartImage(
         ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : color;
 
         // assemble Visual Editor name key - create unique file when a value that impacts the image changes
-        QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
+        QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT], ia.partColor[pT]); /*baseName + colour*/
 
         QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                                    .arg(stepNumber)
-                                   .arg(nameKeys.at(nPageWidth))     // pageSizeP
-                                   .arg(nameKeys.at(nResolution))    // resolution
-                                   .arg(nameKeys.at(nResType))       // resolutionType - "DPI" : "DPCM"
-                                   .arg(nameKeys.at(nModelScale))    // modelScale
-                                   .arg(nameKeys.at(nCameraFoV))     // cameraFoV
-                                   .arg(nameKeys.at(nCameraAngleXX)) // cameraAngles.value(X)
-                                   .arg(nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
+                                   .arg(nameKeys.at(nPageWidth),     // pageSizeP
+                                        nameKeys.at(nResolution),    // resolution
+                                        nameKeys.at(nResType),       // resolutionType - "DPI" : "DPCM"
+                                        nameKeys.at(nModelScale),    // modelScale
+                                        nameKeys.at(nCameraFoV),     // cameraFoV
+                                        nameKeys.at(nCameraAngleXX), // cameraAngles.value(X)
+                                        nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
 
         if (!targetPosition.isEmpty())
             keyPart2.append(QString("%1").arg(targetPosition));
@@ -1080,18 +1079,18 @@ int Pli::createPartImage(
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
         QString imageDir = isSubModel ? Paths::submodelDir : partsDir;
-        ldrNames  = QStringList() << QDir::toNativeSeparators(QString("%1/%2/pli.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir));
-        imageName = QDir::toNativeSeparators(QString("%1/%2/%3%4.png").arg(QDir::currentPath()).arg(imageDir).arg(nameKey).arg(ptn[pT].typeName));
+        ldrNames  = QStringList() << QDir::toNativeSeparators(QString("%1/%2/pli.ldr").arg(QDir::currentPath(), Paths::tmpDir));
+        imageName = QDir::toNativeSeparators(QString("%1/%2/%3%4.png").arg(QDir::currentPath(), imageDir, nameKey, ptn[pT].typeName));
         QString renderImageName = imageName;
         if (keySub || bom)
-            renderImageName = QDir::toNativeSeparators(QString("%1/%2/%3%4.png").arg(QDir::currentPath()).arg(imageDir).arg(altNameKey).arg(ptn[pT].typeName));
+            renderImageName = QDir::toNativeSeparators(QString("%1/%2/%3%4.png").arg(QDir::currentPath(), imageDir, altNameKey, ptn[pT].typeName));
 
         QFile part(imageName);
 
         // Populate viewerPliPartiKey variable
         viewerPliPartKey = QString("%1;%2;%3")
-                                  .arg(ia.baseName[pT])
-                                  .arg(ia.partColor[pT])
+                                  .arg(ia.baseName[pT],
+                                       ia.partColor[pT])
                                   .arg(stepNumber);
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
@@ -1204,7 +1203,7 @@ int Pli::createPartImage(
 
             // unrotated part
             QStringList pliFileU = QStringList()
-                    << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(typeName.toLower());
+                    << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color, typeName.toLower());
 
             // rotated part - without header
             QStringList pliFileR;
@@ -1219,7 +1218,7 @@ int Pli::createPartImage(
                 keyPart2.append(QString("_0_0_0"));
             if (rotStep.isEmpty())
                 keyPart2.append(QString("_0_0_0_REL"));
-            QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+            QString pliPartKey = QString("%1;%3").arg(keyPart1, keyPart2);
             lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileR,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
             if (! rc && ! part.exists()) {
@@ -1229,8 +1228,7 @@ int Pli::createPartImage(
 
                 if ( ! part.open(QIODevice::WriteOnly)) {
                     emit gui->messageSig(LOG_ERROR,QObject::tr("Cannot open file for writing %1:\n%2.")
-                                         .arg(ldrNames.first())
-                                         .arg(part.errorString()));
+                                         .arg(ldrNames.first(), part.errorString()));
                     continue;
                 }
 
@@ -1242,9 +1240,9 @@ int Pli::createPartImage(
                 // feed DAT to renderer
                 if ((renderer->renderPli(ldrNames,renderImageName,*meta,pliType,keySub) != 0)) {
                     emit gui->messageSig(LOG_ERROR,QObject::tr("%1 PLI [%2] render failed for<br>[%3]")
-                                         .arg(rendererNames[Render::getRenderer()])
-                                         .arg(PartTypeNames[pT])
-                                         .arg(imageName));
+                                         .arg(rendererNames[Render::getRenderer()],
+                                              PartTypeNames[pT],
+                                              imageName));
                     imageName = QString(":/resources/missingimage.png");
                     ptRc = -1;
                 }
@@ -1255,16 +1253,16 @@ int Pli::createPartImage(
         QString colourCode, imageKey;
         if (pT != NORMAL_PART) {
             colourCode = QString("%1").arg(pT == FADE_PART ?
-                                           QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(Preferences::fadeStepsUseColour ? fadeColour : ia.partColor[pT]) :
-                                           QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ia.partColor[pT]));
+                                           QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, Preferences::fadeStepsUseColour ? fadeColour : ia.partColor[pT]) :
+                                           QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, ia.partColor[pT]));
             if (isSubModel || isColorPart) {
-                imageKey = QString("%1%2_%3").arg(ia.baseName[pT]).arg(ptn[pT].typeName).arg(colourCode);
+                imageKey = QString("%1%2_%3").arg(ia.baseName[pT], ptn[pT].typeName, colourCode);
             } else {
-                imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
+                imageKey = QString("%1_%2").arg(ia.baseName[pT], colourCode);
             }
         } else {
             colourCode = ia.partColor[pT];
-            imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
+            imageKey = QString("%1_%2").arg(ia.baseName[pT], colourCode);
         }
 
         if (Preferences::modeGUI)
@@ -1276,10 +1274,10 @@ int Pli::createPartImage(
         if (showElapsedTime) {
             if (!ptRc) {
                 emit gui->messageSig(LOG_INFO,QObject::tr("%1 PLI [%2] render took %3 to render image [%4].")
-                                                          .arg(rendererNames[Render::getRenderer()])
-                                                          .arg(PartTypeNames[pT])
-                                                          .arg(Gui::elapsedTime(timer.elapsed(),false))
-                                                          .arg(imageName));
+                                                          .arg(rendererNames[Render::getRenderer()],
+                                                               PartTypeNames[pT],
+                                                               Gui::elapsedTime(timer.elapsed(),false),
+                                                               imageName));
             } else {
                rc = ptRc;
             }
@@ -1512,13 +1510,13 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
     QStringList out;
 
     if (fadeSteps && (pT == FADE_PART)) {
-        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ia.partColor[pT]);
+        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
         out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
     }
     if (highlightStep && (pT == HIGHLIGHT_PART)) {
-        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(ia.partColor[pT]);
+        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
         out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !SILHOUETTE %1 %2")
@@ -1542,9 +1540,9 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
             if (!good) {
                 emit gui->messageSig(LOG_NOTICE,QObject::tr("Malformed ROTSTEP values from nameKey [%1], using '0 0 0'.")
                                      .arg(QString("%1_%2_%3")
-                                     .arg(nameKeys.at(hr ? nRotX : nRot_X))
-                                     .arg(nameKeys.at(hr ? nRotY : nRot_Y))
-                                     .arg(nameKeys.at(hr ? nRotZ : nRot_Z))));
+                                     .arg(nameKeys.at(hr ? nRotX : nRot_X),
+                                          nameKeys.at(hr ? nRotY : nRot_Y),
+                                          nameKeys.at(hr ? nRotZ : nRot_Z))));
                 rotStepData.rots[0] = 0.0f;
                 rotStepData.rots[1] = 0.0f;
                 rotStepData.rots[2] = 0.0f;
@@ -1561,7 +1559,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         good &= ok;
         if (!good) {
             emit gui->messageSig(LOG_NOTICE,QObject::tr("Malformed Camera Angle values from nameKey [%1], using 'latitude 30', 'longitude -45'.")
-                                 .arg(QString("%1 %2").arg(nameKeys.at(nCameraAngleXX)).arg(nameKeys.at(nCameraAngleYY))));
+                                 .arg(QString("%1 %2").arg(nameKeys.at(nCameraAngleXX), nameKeys.at(nCameraAngleYY))));
             latitude = 30.0; longitude = -45.0;
         }
         FloatPairMeta cameraAngles;
@@ -2525,10 +2523,10 @@ int Pli::partSizeLDViewSCall() {
             QString rotStep;
             if ((hr = nameKeys.size() == nHasRotstep) || nameKeys.size() == nHasTargetAndRotstep) {
                 rotStep = QString("_%1_%2_%3_%4")
-                                  .arg(nameKeys.at(hr ? nRotX : nRot_X))          // rotX
-                                  .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
-                                  .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
-                                  .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
+                                  .arg(nameKeys.at(hr ? nRotX : nRot_X),          // rotX
+                                       nameKeys.at(hr ? nRotY : nRot_Y),          // rotY
+                                       nameKeys.at(hr ? nRotZ : nRot_Z),          // rotZ
+                                       nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
                 if (Preferences::debugLogging)
                     emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
             }
@@ -2537,9 +2535,9 @@ int Pli::partSizeLDViewSCall() {
             QString targetPosition;
             if (nameKeys.size() >= nHasTarget) {
                 targetPosition = QString("_%1_%2_%3")
-                                .arg(nameKeys.at(nTargetX))                       // targetX
-                                .arg(nameKeys.at(nTargetY))                       // targetY
-                                .arg(nameKeys.at(nTargetZ));                      // targetZ
+                                .arg(nameKeys.at(nTargetX),                       // targetX
+                                     nameKeys.at(nTargetY),                       // targetY
+                                     nameKeys.at(nTargetZ));                      // targetZ
                 if (Preferences::debugLogging)
                     emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
             }
@@ -2561,17 +2559,17 @@ int Pli::partSizeLDViewSCall() {
                 ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : pliPart->color;
 
                 // assemble Visual Editor name key - create unique file when a value that impacts the image changes
-                QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
+                QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT], ia.partColor[pT]); /*baseName + colour*/
 
                 QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                                            .arg(stepNumber)
-                                           .arg(nameKeys.at(nPageWidth))     // pageSizeP
-                                           .arg(nameKeys.at(nResolution))    // resolution
-                                           .arg(nameKeys.at(nResType))       // resolutionType - "DPI" : "DPCM"
-                                           .arg(nameKeys.at(nModelScale))    // modelScale
-                                           .arg(nameKeys.at(nCameraFoV))     // cameraFoV
-                                           .arg(nameKeys.at(nCameraAngleXX)) // cameraAngles.value(X)
-                                           .arg(nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
+                                           .arg(nameKeys.at(nPageWidth),     // pageSizeP
+                                                nameKeys.at(nResolution),    // resolution
+                                                nameKeys.at(nResType),       // resolutionType - "DPI" : "DPCM"
+                                                nameKeys.at(nModelScale),    // modelScale
+                                                nameKeys.at(nCameraFoV),     // cameraFoV
+                                                nameKeys.at(nCameraAngleXX), // cameraAngles.value(X)
+                                                nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
 
                 if (!targetPosition.isEmpty())
                     keyPart2.append(QString("_%1").arg(targetPosition));
@@ -2582,29 +2580,29 @@ int Pli::partSizeLDViewSCall() {
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
                 QString altKey = !ptn[pT].typeName.isEmpty() ? altNameKey + ptn[pT].typeName : altNameKey;
-                QString ldrName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(key));
-                QString ldrAltName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(altKey));
+                QString ldrName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath(), Paths::tmpDir, key));
+                QString ldrAltName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath(), Paths::tmpDir, altKey));
                 QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
                 QString imageDir = isSubModel ? Paths::submodelDir : partsDir;
                 // remove _SUB for imageName
                 if (keySub && key.endsWith("_SUB"))
                     key.replace("_SUB","");
-                QString imageName = QDir::toNativeSeparators(QString("%1/%2/%3.png").arg(QDir::currentPath()).arg(imageDir).arg(key));
+                QString imageName = QDir::toNativeSeparators(QString("%1/%2/%3.png").arg(QDir::currentPath(), imageDir, key));
 
                 // create icon path key - using actual color code
                 QString colourCode, imageKey;
                 if (pT != NORMAL_PART) {
                     colourCode = QString("%1").arg(pT == FADE_PART ?
-                                                   QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ia.partColor[pT]) :
-                                                   QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ia.partColor[pT]));
+                                                   QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, ia.partColor[pT]) :
+                                                   QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, ia.partColor[pT]));
                     if (isSubModel || isColorPart) {
-                        imageKey = QString("%1%2_%3").arg(ia.baseName[pT]).arg(ptn[pT].typeName).arg(colourCode);
+                        imageKey = QString("%1%2_%3").arg(ia.baseName[pT], ptn[pT].typeName, colourCode);
                     } else {
-                        imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
+                        imageKey = QString("%1_%2").arg(ia.baseName[pT], colourCode);
                     }
                 } else {
                     colourCode = ia.partColor[pT];
-                    imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
+                    imageKey = QString("%1_%2").arg(ia.baseName[pT], colourCode);
                 }
 
                 // store imageName
@@ -2615,8 +2613,8 @@ int Pli::partSizeLDViewSCall() {
 
                 // Populate viewerPliPartiKey variable
                 viewerPliPartKey = QString("%1;%2;%3")
-                                           .arg(ia.baseName[pT])
-                                           .arg(ia.partColor[pT])
+                                           .arg(ia.baseName[pT],
+                                                ia.partColor[pT])
                                            .arg(stepNumber);
 
 #ifdef QT_DEBUG_MODE
@@ -2630,9 +2628,9 @@ int Pli::partSizeLDViewSCall() {
                                                  "StepNumber: %4], "
                                                  "Type: [%5], "
                                                  "StepsLineNumber: [%6]")
-                                     .arg(viewerPliPartKey)
-                                     .arg(ia.baseName[pT])
-                                     .arg(ia.partColor[pT])
+                                     .arg(viewerPliPartKey,
+                                          ia.baseName[pT],
+                                          ia.partColor[pT])
                                      .arg(stepNumber)
                                      .arg(stepType)
                                      .arg(stepTypeLineNum));
@@ -2728,7 +2726,7 @@ int Pli::partSizeLDViewSCall() {
 
                     // unrotated part
                     QStringList pliFileU = QStringList()
-                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
+                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode, typeName.toLower());
 
                     // rotated part - without header
                     QStringList pliFileR;
@@ -2743,7 +2741,7 @@ int Pli::partSizeLDViewSCall() {
                         keyPart2.append(QString("_0_0_0"));
                     if (rotStep.isEmpty())
                         keyPart2.append(QString("_0_0_0_REL"));
-                    QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+                    QString pliPartKey = QString("%1;%3").arg(keyPart1, keyPart2);
                     lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileR,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
                     if (! rc && ! part.exists()) {
@@ -2752,7 +2750,7 @@ int Pli::partSizeLDViewSCall() {
                         part.setFileName(ldrName);
                         if ( ! part.open(QIODevice::WriteOnly)) {
                             emit gui->messageSig(LOG_ERROR,QObject::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
-                                                                       .arg(ldrName).arg(part.errorString()));
+                                                                       .arg(ldrName, part.errorString()));
                             return -1;
                         }
 
@@ -2819,10 +2817,10 @@ int Pli::partSizeLDViewSCall() {
         if (!ia.ldrNames[pT].isEmpty()) {
             if (!ptRc) {
                 emit gui->messageSig(LOG_INFO, QObject::tr("%1 PLI (Single Call) for [%2] render took %3 to render %4.")
-                                                           .arg(rendererNames[Render::getRenderer()])
-                                                           .arg(PartTypeNames[pT])
-                                                           .arg(Gui::elapsedTime(timer.elapsed(),false))
-                                                           .arg(QString("%1 %2")
+                                                           .arg(rendererNames[Render::getRenderer()],
+                                                                PartTypeNames[pT],
+                                                                Gui::elapsedTime(timer.elapsed(),false),
+                                                                QString("%1 %2")
                                                                 .arg(ia.ldrNames[pT].size())
                                                                 .arg(ia.ldrNames[pT].size() == 1 ? QObject::tr("image") : QObject::tr("images"))));
             } else {
@@ -3259,12 +3257,12 @@ QString PGraphicsPixmapItem::pliToolTip(
 
   QString toolTip =
           QObject::tr("%1 (%2) %3 \"%4\" - right-click to modify")
-                      .arg(LDrawColor::name(color))
-                      .arg(color)
-                      .arg(type)
-                      .arg(QString("%1%2")
-                      .arg(part->description)
-                      .arg(originalType));
+                      .arg(LDrawColor::name(color),
+                           color,
+                           type,
+                           QString("%1%2")
+                           .arg(part->description,
+                                originalType));
   return toolTip;
 }
 
@@ -3977,12 +3975,12 @@ void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (!Preferences.mPreviewEnabled) {
             if (gui->saveBuildModification()) {
                 QString type = QFileInfo(part->type).completeBaseName();
-                QString viewerPliPartKey        = QString("%1;%2;%3")
-                        .arg(type).arg(part->color)
+                QString viewerPliPartKey = QString("%1;%2;%3")
+                        .arg(type, part->color)
                         .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
                 QString partKey = gui->getViewerStepKey();
                 bool havePartKey = !partKey.isEmpty();
-                QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+                QString viewerOptKey = QString("%1_%2").arg(type, part->color);
                 pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
                 pli->viewerOptions->ImageWidth  = part->pixmapWidth;
                 pli->viewerOptions->ImageHeight = part->pixmapHeight;
@@ -4157,7 +4155,7 @@ void PGraphicsPixmapItem::contextMenuEvent(
       if (!Preferences.mPreviewEnabled) {
           if (gui->saveBuildModification()) {
               QString type = QFileInfo(part->type).completeBaseName();
-              QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+              QString viewerOptKey = QString("%1_%2").arg(type, part->color);
               lpub->saveVisualEditorTransformSettings();
               pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
               pli->viewerOptions->ImageWidth  = part->pixmapWidth;
@@ -4307,11 +4305,11 @@ AnnotateTextItem::AnnotateTextItem(
       color      = _pli->pliMeta.elementStyle.color;
       margin     = _pli->pliMeta.elementStyle.margin;
       toolTip = tr("%1 Element Annotation %2 %3 (%4) \"%5\" - right-click to modify")
-                       .arg(_pli->pliMeta.partElements.legoElements.value() ? tr("LEGO") : tr("BrickLink"))
-                       .arg(_part->type)
-                       .arg(LDrawColor::name(_part->color))
-                       .arg(_part->color)
-                       .arg(_part->description);
+                       .arg(_pli->pliMeta.partElements.legoElements.value() ? tr("LEGO") : tr("BrickLink"),
+                            _part->type,
+                            LDrawColor::name(_part->color),
+                            _part->color,
+                            _part->description);
   } else {
       border     = _part->styleMeta.border;
       background = _part->styleMeta.background;
@@ -4321,11 +4319,11 @@ AnnotateTextItem::AnnotateTextItem(
       margin     = _part->styleMeta.margin;
       styleSize  = _part->styleMeta.size;
       toolTip    = tr("%1 Part Annotation %2 %3 (%4) \"%5\" - right-click to modify")
-                      .arg(_pli->bom ? tr("BOM") : tr("PLI"))
-                      .arg(_part->type)
-                      .arg(LDrawColor::name(_part->color))
-                      .arg(_part->color)
-                      .arg(_part->description);
+                      .arg(_pli->bom ? tr("BOM") : tr("PLI"),
+                           _part->type,
+                           LDrawColor::name(_part->color),
+                           _part->color,
+                           _part->description);
   }
 
   canSetAnnotationStyle.setValue(background.value().type != BackgroundData::BgTransparent ||
