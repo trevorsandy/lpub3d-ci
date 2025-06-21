@@ -2445,8 +2445,15 @@ void EditWindow::configureMpdCombo()
     for (int i = 0; i < _subFileList.count(); i++) {
         const QString &subFile = _subFileList.at(i);
         mpdCombo->addItem(subFile);
-        if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
-            mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
+        if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA) {
+            int role =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            Qt::ForegroundRole;
+#else
+            Qt::TextColorRole;
+#endif
+            mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), role);
+        }
     }
     if(_saveSubfileIndex) {
         mpdCombo->setCurrentIndex(_saveSubfileIndex);

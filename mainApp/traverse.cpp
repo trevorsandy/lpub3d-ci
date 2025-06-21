@@ -5611,7 +5611,13 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             }
             gui->mpdCombo->addItem(includeFile, fileName);
             comboIndex++;
-            gui->mpdCombo->setItemData(comboIndex, QBrush(Preferences::darkTheme ? Qt::cyan : Qt::blue), Qt::TextColorRole);
+            int role =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            Qt::ForegroundRole;
+#else
+            Qt::TextColorRole;
+#endif
+            gui->mpdCombo->setItemData(comboIndex, QBrush(Preferences::darkTheme ? Qt::cyan : Qt::blue), role);
             return true;
         }
         return false;
