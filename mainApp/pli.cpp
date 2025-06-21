@@ -4502,7 +4502,11 @@ void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
                     ry /= dy;
                 }
             }
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            painter->drawRoundedRect(bgRect,int(rx),int(ry));
+#else
             painter->drawRoundRect(bgRect,int(rx),int(ry));
+#endif
         } else {
             painter->drawRect(bgRect);
         }
