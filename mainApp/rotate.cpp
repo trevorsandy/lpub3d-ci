@@ -219,7 +219,7 @@ int Render::rotateParts(
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file %1 for writing: %2")
-                         .arg(ldrName) .arg(file.errorString()));
+                         .arg(ldrName, file.errorString()));
     return -1;
   }
 
@@ -644,7 +644,7 @@ int Render::splitIMParts(const QStringList &rotatedParts,
   QFile currLdrFile(QString(ldrName).replace(ext,im_curr_ldr_ext));
   if ( ! currLdrFile.open(QFile::WriteOnly | QFile::Text)) {
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open currLdrFile %1 for writing: %2")
-                           .arg(currLdrFile.fileName()) .arg(currLdrFile.errorString()));
+                           .arg(currLdrFile.fileName(), currLdrFile.errorString()));
       return -1;
     }
   QTextStream currLdrOut(&currLdrFile);
@@ -653,7 +653,7 @@ int Render::splitIMParts(const QStringList &rotatedParts,
   QFile prevLdrFile(QString(ldrName).replace(ext,im_prev_ldr_ext));
   if ( ! prevLdrFile.open(QFile::WriteOnly | QFile::Text)) {
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open prevLdrFile %1 for writing: %2")
-                           .arg(prevLdrFile.fileName()) .arg(prevLdrFile.errorString()));
+                           .arg(prevLdrFile.fileName(), prevLdrFile.errorString()));
       return -1;
     }
   QTextStream prevLdrOut(&prevLdrFile);
