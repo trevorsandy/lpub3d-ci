@@ -243,7 +243,6 @@ DividerItem::DividerItem(
 
   /* Size the divider length */
 
-  QString dividerType = QString("%1").arg(parentStep->dividerType == StepDivider ? "Step" : "Range");
   int separatorLength, separatorWidthX, separatorHeightY, spacingWidthX, spacingHeightY;
   if(parentStep->dividerType == StepDivider) {// Step divider
     if (sepData.type != SepData::Default)
@@ -257,6 +256,7 @@ DividerItem::DividerItem(
   /* Size the rectangle around the divider */
 
 //#ifdef QT_DEBUG_MODE
+//  QString dividerType = QString("%1").arg(parentStep->dividerType == StepDivider ? "Step" : "Range");
 //          logDebug() << "\n" << dividerType << " Divider Attributes for Step [" << _step->stepNumber.number << "]:"
 //                     << "\nseparatorLength    [" << separatorLength << "]"
 //                     << "\nallocEnc           [" << (allocEnc == Vertical ? "Vertical" : "Horizontal") << "]"
