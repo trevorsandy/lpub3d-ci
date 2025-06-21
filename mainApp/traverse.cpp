@@ -5027,7 +5027,11 @@ void Gui::countPages()
 
       LDrawFile::_currentLevels.clear();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &lpub->ldrawFile, std::ref(opts), empty);
+#else
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &lpub->ldrawFile, opts, empty);
+#endif
       future.waitForFinished();
 
       pagesCounted();
@@ -5254,7 +5258,11 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
 
         auto countPage = [&] (int modelStackCount)
         {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, std::ref(opts), addLine);
+#else
             QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage,&lpub->meta,&lpub->ldrawFile,opts,addLine);
+#endif
             if (Gui::exporting() || Gui::ContinuousPage() || Gui::countWaitForFinished() || Gui::suspendFileDisplay || modelStackCount) {
 /*
 #ifdef QT_DEBUG_MODE
