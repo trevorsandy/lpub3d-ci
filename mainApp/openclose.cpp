@@ -52,8 +52,15 @@ void Gui::configureMpdCombo()
     for (int i = 0; i < lpub->ldrawFile.subFileOrder().count(); i++) {
         const QString &subFile = lpub->ldrawFile.subFileOrder().at(i);
         gui->mpdCombo->addItem(subFile);
-        if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
-            gui->mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
+        if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA) {
+            int role =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            Qt::ForegroundRole;
+#else
+            Qt::TextColorRole;
+#endif
+            gui->mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), role);
+        }
     }
 
     gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
