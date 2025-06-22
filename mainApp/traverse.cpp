@@ -5697,7 +5697,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
     return static_cast<int>(rc);
 }
 
-static Where dummy;
+Where Gui::dummy;
 
 Where &Gui::topOfPage()
 {

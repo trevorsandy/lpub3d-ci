@@ -2156,6 +2156,8 @@ private:
   QSlider           *zoomSliderWidget;
   QSlider           *viewerZoomSliderWidget;
 
+  static Where dummy;
+
   friend class PartWorker;
   friend class DialogExportPages;
 };
