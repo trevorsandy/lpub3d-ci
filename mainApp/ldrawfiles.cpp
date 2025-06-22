@@ -55,12 +55,12 @@
 #include "pieceinf.h"
 #include "lc_previewwidget.h"
 
-QList<QRegExp> LDrawFile::_fileRegExp;
-static QStringList itemsLoaded;
-QList<QRegExp> LDrawHeaderRegExp;
-QList<QRegExp> LDrawUnofficialPartRegExp;
-QList<QRegExp> LDrawUnofficialSubPartRegExp;
-QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
+QStringList LDrawFile::_itemsLoaded; 
+QList<QRegExp> LDrawFile::_fileRegExp; 
+QList<QRegExp> LDrawHeaderRegExp; 
+QList<QRegExp> LDrawUnofficialPartRegExp; 
+QList<QRegExp> LDrawUnofficialSubPartRegExp; 
+QList<QRegExp> LDrawUnofficialPrimitiveRegExp; 
 QList<QRegExp> LDrawUnofficialShortcutRegExp;
 const QString LDrawUnofficialType[UNOFFICIAL_NUM] =
 {
@@ -3480,12 +3480,12 @@ void LDrawFile::loadStatusEntry(const int messageType,
 
   bool alreadyLoaded = false, emitStatusMessage = true;
 
-  if (itemsLoaded.contains(type)) {
+  if (_itemsLoaded.contains(type)) {
     emitStatusMessage = false;
     if (msgType < MPD_SUBMODEL_LOAD_MSG)
       alreadyLoaded = true;
   } else {
-    itemsLoaded.append(type);
+    _itemsLoaded.append(type);
   }
 
   if (!alreadyLoaded) {
@@ -3527,7 +3527,7 @@ void LDrawFile::loadStatusEntry(const int messageType,
 
 void LDrawFile::countParts(const QString &fileName, bool recount) {
 
-    itemsLoaded.clear();
+    _itemsLoaded.clear();
     displayModel       = false;
     bool lpubFade      = false;
     bool lpubHighlight = false;

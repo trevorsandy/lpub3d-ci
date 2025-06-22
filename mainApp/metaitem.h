@@ -571,6 +571,14 @@ public:
   void clearTempCache() const;
   void reloadCurrentPage(bool savePrompt = false) const;
   void restartApplication(bool changeLibrary = false, bool prompt = false) const;
+protected:
+  static const QString calloutDividerMetaCmd;
+  static const QString stepGroupBeginMetaCmd;
+  static const QString stepGroupDividerMetaCmd;
+  static const QString stepGroupEndMetaCmd;
+  static const QString stepMetaCmd;
+  static const QString monoColor[];
+  static const QString monoColorCode[];
 };
 
 #endif
