@@ -44,9 +44,9 @@
 //#define PAGE_PRINT_DEBUG
 #endif
 
-static bool exportPdf    = true;
-static bool exportPreview = true;
-static QString exportTime;
+bool    Gui::exportPdf = true;
+bool    Gui::exportPreview = true;
+QString Gui::exportTime;
 
 // Compare two variants.
 bool lessThan(const int &v1, const int &v2)

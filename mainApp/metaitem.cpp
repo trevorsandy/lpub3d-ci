@@ -76,8 +76,14 @@
 
 enum AppendType { AppendNoOption, AppendAtModel, AppendAtPage, AppendAtSubmodel };
 enum MonoColors { Blue, TransWhite, NumColors };
-const QString monoColor[NumColors]     = { "blue", "transwhite" };
-const QString monoColorCode[NumColors] = { "1", "11015"};
+const QString MetaItem::monoColor[NumColors]     = { "blue", "transwhite" };
+const QString MetaItem::monoColorCode[NumColors] = { "1", "11015"};
+
+const QString MetaItem::calloutDividerMetaCmd    = "0 !LPUB CALLOUT DIVIDER";
+const QString MetaItem::stepGroupBeginMetaCmd    = "0 !LPUB MULTI_STEP BEGIN";
+const QString MetaItem::stepGroupDividerMetaCmd  = "0 !LPUB MULTI_STEP DIVIDER";
+const QString MetaItem::stepGroupEndMetaCmd      = "0 !LPUB MULTI_STEP END";
+const QString MetaItem::stepMetaCmd              = "0 STEP";
 
 void MetaItem::setGlobalMeta(
   QString  &topLevelFile,
@@ -94,11 +100,6 @@ void MetaItem::setGlobalMeta(
     insertMeta(here,newMeta);
   }
 }
-
-const QString stepGroupBegin   = "0 !LPUB MULTI_STEP BEGIN";
-const QString stepGroupDivider = "0 !LPUB MULTI_STEP DIVIDER";
-const QString stepGroupEnd     = "0 !LPUB MULTI_STEP END";
-const QString step             = "0 STEP";
 
 Rc MetaItem::scanForwardStepGroup(Where &here, bool &partsAdded)
 {
@@ -217,9 +218,9 @@ int MetaItem::removeFirstStep(
           }
         } else {
           if (divider.lineNumber) {
-            replaceMeta(divider,stepGroupBegin);
+            replaceMeta(divider,stepGroupBeginMetaCmd);
           } else {
-            appendMeta(secondStep,stepGroupBegin);
+            appendMeta(secondStep,stepGroupBeginMetaCmd);
           }
         }
         deleteMeta(begin); --sum;
@@ -829,7 +830,7 @@ void MetaItem::addNextStepsMultiStep(
         // check if encountered last step in model
         if (rc1 == EndOfFileRc && partsAdded) {
             lastStep = true;
-            insertMeta(walk,step);
+            insertMeta(walk,stepMetaCmd);
         }
 
         // increment to next step in number of steps to append
@@ -854,7 +855,7 @@ void MetaItem::addNextStepsMultiStep(
             else if (rc1 == StepGroupEndRc) {
                 finalTopOfSteps = walk+1;
                 if (lastStep)
-                    appendMeta(walk,stepGroupBegin);
+                    appendMeta(walk,stepGroupBeginMetaCmd);
             }
             // did not encounter STEP or MULTI_STEP at top of step
             else  {
@@ -862,7 +863,7 @@ void MetaItem::addNextStepsMultiStep(
                 scanPastGlobal(walk);
                 finalTopOfSteps = walk+1;
                 if (lastStep)
-                    appendMeta(walk,stepGroupBegin);
+                    appendMeta(walk,stepGroupBeginMetaCmd);
             }
         }
 
@@ -875,7 +876,7 @@ void MetaItem::addNextStepsMultiStep(
             if (!amendGroup) {
                 scanForward(endStep,StepMask);
             }
-            appendMeta(endStep,stepGroupEnd);
+            appendMeta(endStep,stepGroupEndMetaCmd);
         }
     }
     endMacro();
@@ -926,9 +927,9 @@ void MetaItem::addNextMultiStep(
     beginMacro("addNextStep2");
   }
   if (rc1 == EndOfFileRc && partsAdded) {
-    insertMeta(walk,step);
+    insertMeta(walk,stepMetaCmd);
   }
-  appendMeta(walk,stepGroupEnd);
+  appendMeta(walk,stepGroupEndMetaCmd);
   if (end.lineNumber) {
     deleteMeta(end);
   } else {
@@ -936,12 +937,12 @@ void MetaItem::addNextMultiStep(
     rc1 = scanForward(walk,StepMask|StepGroupMask);
     if (rc1 == StepGroupEndRc) {
       finalTopOfSteps = walk+1;
-      appendMeta(walk,stepGroupBegin);
+      appendMeta(walk,stepGroupBeginMetaCmd);
     } else {
       walk = topOfSteps;
       scanPastGlobal(walk);
       finalTopOfSteps = walk+1;
-      appendMeta(walk,stepGroupBegin);
+      appendMeta(walk,stepGroupBeginMetaCmd);
     }
   }
   //movePageToEndOfStepGroup(finalTopOfSteps);
@@ -1076,10 +1077,10 @@ int MetaItem::removeLastStep(
               --sum;
               deleteMeta(begin);
             } else if (divider2.lineNumber) {
-              replaceMeta(divider2,stepGroupEnd);
+              replaceMeta(divider2,stepGroupEndMetaCmd);
             } else {
               ++sum;
-              appendMeta(lastStep,stepGroupEnd);
+              appendMeta(lastStep,stepGroupEndMetaCmd);
             }
           }
         }
@@ -1162,10 +1163,10 @@ void MetaItem::addPrevMultiStep(
 
   // Handle end of step/group
   if (rc1 == EndOfFileRc && partsAdded)
-    insertMeta(walk,step);
+    insertMeta(walk,stepMetaCmd);
 
   if (begin.lineNumber == 0)
-    appendMeta(walk,stepGroupEnd);
+    appendMeta(walk,stepGroupEndMetaCmd);
 
   Where prevStep = topOfSteps - 1;
   scanBackward(prevStep,StepMask);
@@ -1178,7 +1179,7 @@ void MetaItem::addPrevMultiStep(
     prevStep.lineNumber += rc1 == StepGroupEndRc;
   }
 
-  appendMeta(prevStep,stepGroupBegin);
+  appendMeta(prevStep,stepGroupBeginMetaCmd);
   ++prevStep;
   movePageToBeginOfStepGroup(prevStep);
 
@@ -1265,8 +1266,6 @@ void MetaItem::deleteLastMultiStep(
  *
  **********************************************************************/
 
-const QString calloutDivider = "0 !LPUB CALLOUT DIVIDER";
-
 void MetaItem::addToNext(
   PlacementType parentRelativeType,
   const Where &topOfStep)
@@ -1292,7 +1291,7 @@ void MetaItem::calloutAddToNext(
       beginMacro("moveStepPrev");
       deleteMeta(walk);
       if (rc != EndOfFileRc && rc2 != CalloutDividerRc && rc2 != EndOfFileRc) {
-        appendMeta(topOfStep,calloutDivider);
+        appendMeta(topOfStep,calloutDividerMetaCmd);
       }
       endMacro();
     }
@@ -1316,7 +1315,7 @@ void MetaItem::stepGroupAddToNext(
       beginMacro("moveStepPrev");
       deleteMeta(walk);
       if (divider.lineNumber == 0) {
-        appendMeta(topOfStep,stepGroupDivider);
+        appendMeta(topOfStep,stepGroupDividerMetaCmd);
       }
       endMacro();
     }
@@ -1358,7 +1357,7 @@ void MetaItem::calloutAddToPrev(
       rc = scanForward(walk,StepMask|CalloutMask);
       beginMacro("moveStepNext");
       if (rc != EndOfFileRc && rc != CalloutDividerRc) {
-        appendMeta(lastStep,calloutDivider);
+        appendMeta(lastStep,calloutDividerMetaCmd);
       }
       deleteMeta(divider);
       endMacro();
@@ -1387,7 +1386,7 @@ void MetaItem::stepGroupAddToPrev(
       rc = scanForward(walk,StepMask|StepGroupMask);
       beginMacro("moveStepNext");
       if (rc != StepGroupEndRc && rc != StepGroupDividerRc) {
-        appendMeta(nextStep,stepGroupDivider);
+        appendMeta(nextStep,stepGroupDividerMetaCmd);
       }
       deleteMeta(divider);
       endMacro();
@@ -2841,7 +2840,7 @@ void MetaItem::insertCoverPage()
           break;
       } else if (rc == StepGroupBeginRc) {
           insertMeta(here,meta);                //MULTI-STEP BEGIN is here, so (insert) meta just before
-          appendMeta(here,step);                //then (append) step just after
+          appendMeta(here,stepMetaCmd);         //then (append) step just after
           break;
       } else {                                  //NO STEP to start so...
           QStringList tokens;                   //check for non-zero line
@@ -2850,7 +2849,7 @@ void MetaItem::insertCoverPage()
                tokens[0] >= "1" && tokens[0] <= "5";
           if (token_1_5) {                      //non-zero line detected so insert cover page here
               insertMeta(here,meta);            //(insert) meta
-              appendMeta(here,step);            //then (append) step just after
+              appendMeta(here,stepMetaCmd);     //then (append) step just after
               break;
           }
       }
@@ -2894,7 +2893,7 @@ void MetaItem::appendCoverPage()
       here++;
       insertMeta(here,meta);
    } else {
-      appendMeta(here,step);                          //NO STEP, 'append' one before appending meta
+      appendMeta(here,stepMetaCmd);                  //NO STEP, 'append' one before appending meta
       here++;
       appendMeta(here,meta);
    }
@@ -3505,15 +3504,15 @@ void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
          appendMeta(here,modelInsertMeta);
       }
       appendMeta(++here,pageMeta);
-      appendMeta(++here,step);
+      appendMeta(++here,stepMetaCmd);
     } else /*insert final step*/ {
       if (finalModel) {
          appendMeta(here,disclaimerText1);
          appendMeta(++here,disclaimerText2);
          appendMeta(++here,disclaimerText3);
-         appendMeta(++here,step);
+         appendMeta(++here,stepMetaCmd);
       } else /*displayModel*/ {
-         appendMeta(here,step);
+         appendMeta(here,stepMetaCmd);
       }
       appendMeta(++here,modelInsertMeta);
       appendMeta(++here,pageMeta);
@@ -3580,7 +3579,7 @@ bool MetaItem::deleteFinalModelStep(bool force) {
     for (int i = 0; i < disclaimerTextLines; i++) {
       here.lineNumber -= 1;                                       //return to disclaimer text before insert model meta command line
       QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-      if (isComment(line) || line.contains(rx) || (eof ? line == step : true))
+      if (isComment(line) || line.contains(rx) || (eof ? line == stepMetaCmd : true))
         continue;
       else
         break;

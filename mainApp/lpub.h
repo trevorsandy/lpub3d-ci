@@ -1716,8 +1716,11 @@ private:
 
   QTimer                 updateTimer;        // keep UI responsive when exporting or using continuous page processing
 
+  static QString         exportTime;             // the export elapsed time stamp
   static QString         curFile;                // the file name for MPD, or top level file
   static QString         curSubFile;             // whats being displayed in the edit window
+  static bool            exportPdf;              // export PDF file flag
+  static bool            exportPreview;          // export content preview flag
   static bool            m_exportingContent;     // indicate export/printing underway
   static bool            m_exportingObjects;     // indicate exporting non-image object file content
   static bool            m_contPageProcessing;   // indicate continuous page processing underway
@@ -2155,6 +2158,8 @@ private:
 
   QSlider           *zoomSliderWidget;
   QSlider           *viewerZoomSliderWidget;
+
+  static Where dummy;
 
   friend class PartWorker;
   friend class DialogExportPages;
