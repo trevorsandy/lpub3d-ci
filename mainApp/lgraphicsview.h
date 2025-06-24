@@ -76,7 +76,7 @@ signals:
     void setSnapToGridSig(bool);
     void setGridSizeSig(int);
     void setResolutionSig(float);
-    void setShowCoordinates(bool,bool);
+    void setShowCoordinatesSig(bool,bool);
 
 protected:
     // toggle ruler
