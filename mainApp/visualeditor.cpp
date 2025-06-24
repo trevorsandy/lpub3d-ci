@@ -1510,7 +1510,7 @@ void Gui::applyLightSettings()
             }
 
             // Populate existing settings
-            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->GetName());
+            const QString lightKey = QString("%1 %2").arg(Type, Light->GetName());
             if (currentStep->lightList.contains(lightKey))
                 lightMeta.setValue(currentStep->lightList[lightKey]);
 
@@ -2206,19 +2206,18 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
         }
     }
 
-    const QString bannerFileName = QString("%1 %2.ldr").arg(banner).arg(VISUAL_BANNER_SUFFIX);
+    const QString bannerFileName = QString("%1 %2.ldr").arg(banner, VISUAL_BANNER_SUFFIX);
 
     bannerData << "0";
     bannerData.prepend("0 Name: " + bannerFileName);
     bannerData.prepend("0 " + description + " " + VISUAL_BANNER_SUFFIX);
 
-    const QString bannerFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(bannerPath).arg(bannerFileName));
+    const QString bannerFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(bannerPath, bannerFileName));
 
     QFile bannerFile(bannerFilePath);
     if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
         emit gui->messageSig(LOG_ERROR,tr("Could not open banner file '%1' for writing:\n%2")
-                             .arg(bannerFilePath)
-                             .arg(bannerFile.errorString()));
+                             .arg(bannerFilePath, bannerFile.errorString()));
         return false;
     }
     QTextStream out(&bannerFile);
@@ -2728,7 +2727,7 @@ QStringList Gui::get3DViewerPOVLightList() const
                 break;
             }
 
-            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->GetName());
+            const QString lightKey = QString("%1 %2").arg(Type, Light->GetName());
             if (currentStep->lightList.contains(lightKey))
                 lightData = currentStep->lightList[lightKey];
 
@@ -2895,11 +2894,11 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
                     rf.close();
                 } else {
                     emit gui->messageSig(LOG_ERROR, tr("Cannot write render file: [%1]<br>%2.")
-                                         .arg(ModelFile).arg(rf.errorString()));
+                                         .arg(ModelFile, rf.errorString()));
                 }
             } else {
                 emit gui->messageSig(LOG_ERROR, tr("Cannot read viewer file: [%1]<br>%2.")
-                                     .arg(ModelFile).arg(vf.errorString()));
+                                     .arg(ModelFile, vf.errorString()));
             }
         }
 
@@ -3047,11 +3046,11 @@ void Gui::SetRotStepCommand()
 void Gui::ShowStepRotationStatus()
 {
     QString rotLabel = QString("%1 X: %2 Y: %3 Z: %4 Transform: %5")
-                               .arg(lcGetPreferences().mBuildModificationEnabled ? QLatin1String("Rotate Build Modification") : QLatin1String("ROTSTEP"))
-                               .arg(QString::number(double(mRotStepAngleX), 'f', 2))
-                               .arg(QString::number(double(mRotStepAngleY), 'f', 2))
-                               .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
-                               .arg(mRotStepType.toUpper() == QLatin1String("REL") ? QLatin1String("Relative") :
+                               .arg(lcGetPreferences().mBuildModificationEnabled ? QLatin1String("Rotate Build Modification") : QLatin1String("ROTSTEP"),
+                                    QString::number(double(mRotStepAngleX), 'f', 2),
+                                    QString::number(double(mRotStepAngleY), 'f', 2),
+                                    QString::number(double(mRotStepAngleZ), 'f', 2),
+                                    mRotStepType.toUpper() == QLatin1String("REL") ? QLatin1String("Relative") :
                                     mRotStepType.toUpper() == QLatin1String("ABS") ? QLatin1String("Absolute") :
                                                               QLatin1String("None"));
     statusBarMsg(rotLabel);
@@ -3076,9 +3075,9 @@ void Gui::ReloadVisualEditor() {
       Where topOfStep = currentStep->topOfStep();
       Gui::showLine(topOfStep);
       const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
-      const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
+      const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath(), Paths::tmpDir, fileName));
       if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
-        emit gui->messageSig(LOG_WARNING, tr("Could not reload cover page preview (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+        emit gui->messageSig(LOG_WARNING, tr("Could not reload cover page preview (%1) file '%2'.").arg(topOfStep.modelName, modelFileName));
     } else if (currentStep->viewerOptions) {
       Render::LoadViewer(currentStep->viewerOptions);
     }
@@ -3413,7 +3412,7 @@ void Gui::ReloadVisualEditor() {
              if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
                  emit gui->messageSig(LOG_ERROR, tr("%1 BuildMod model (%2) '%3' and current Step model (%4) are not the same")
                                                     .arg(Action)
-                                                    .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
+                                                    .arg(ModelIndex).arg(ModelName, ModStepKeys[BM_STEP_MODEL_KEY]));
 
              if (Gui::abortProcess()) {
                  showLine(currentStep->topOfStep());
@@ -3594,7 +3593,7 @@ void Gui::ReloadVisualEditor() {
                      return PieceString;
 
                  if (PieceLineIndex == BM_INVALID_INDEX) {
-                     emit lpub->messageSig(LOG_WARNING, tr("%1 BuildMod invalid piece line index for piece string %1").arg(Action).arg(PieceString));
+                     emit lpub->messageSig(LOG_WARNING, tr("%1 BuildMod invalid piece line index for piece string %1").arg(Action, PieceString));
                      return PieceString;
                  }
 
@@ -3982,10 +3981,10 @@ void Gui::ReloadVisualEditor() {
                  {
                      const QString message =
                              QString("%1 BuildMod Viewer Piece - LineIndex [%2], ID [%3], Name [%4], LineNumber [%5], Modified: [%6]")
-                                     .arg(Action)
-                                     .arg(LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex))
-                                     .arg(Piece->GetID())
-                                     .arg(Piece->GetName())
+                                     .arg(Action,
+                                          LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex),
+                                          Piece->GetID(),
+                                          Piece->GetName())
                                      .arg(LineNumber)
                                      .arg(PieceModified ? QLatin1String("Yes") : QLatin1String("No"));
                      emit gui->messageSig(LOG_DEBUG, message);
@@ -4347,8 +4346,8 @@ void Gui::ReloadVisualEditor() {
                                  .arg(ModelIndex)                     // 08 - 5 BM_MODEL_NAME_INDEX
                                  .arg(ModStepLineNum)                 // 09 - 6 BM_MODEL_LINE_NUM
                                  .arg(ModStepNum)                     // 10 - 7 BM_MODEL_STEP_NUM
-                                 .arg(ModStepKey)                     // 11
-                                 .arg(BuildModKey);                   // 12
+                                 .arg(ModStepKey,                     // 11
+                                      BuildModKey);                   // 12
                  emit gui->messageSig(LOG_DEBUG, message);
              }
 
@@ -4409,7 +4408,7 @@ void Gui::applyBuildModification()
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
         text  = tr("Build modification '%1' was created after this step (%2), model '%3', at line %4.<br>"
                    "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>")
-                   .arg(buildModKey).arg(step).arg(model).arg(line);
+                   .arg(buildModKey, step, model, line);
         type  = tr("apply build modification error message");
         title = tr("Build Modification");
 
@@ -4421,7 +4420,7 @@ void Gui::applyBuildModification()
     } else if (getBuildModStepKey(buildModKey) == currentStep->viewerStepKey) {
         text  = tr("Build modification '%1' was created in this step (%2), model '%3', at line %4.<br>"
                    "It was automatically applied to the step it was created in.<br><br>No action taken.<br>")
-                   .arg(buildModKey).arg(step).arg(model).arg(line);
+                   .arg(buildModKey, step, model, line);
         type  = tr("apply build modification error message");
         title = tr("Build Modification");
 
@@ -4432,7 +4431,7 @@ void Gui::applyBuildModification()
 
     } else if (buildModAction == BuildModApplyRc) {
         text  = tr("Build modification '%1' was already applied to step (%2), model '%3'.<br><br>No action taken.<br>")
-                .arg(buildModKey).arg(step).arg(model);
+                .arg(buildModKey, step, model);
         type  = tr("apply build modification error message");
         title = tr("Build Modification");
 
@@ -4444,7 +4443,7 @@ void Gui::applyBuildModification()
     } /* else {
         text  = tr("This action will apply build modification '%1' "
                    "beginning at step (%2), in model '%3'.<br><br>Are you sure ?<br>")
-                   .arg(buildModKey).arg(step).arg(model);
+                   .arg(buildModKey, step, model);
         type  = tr("apply build modification message");
         title = tr("Build Modification");
 
@@ -4539,7 +4538,7 @@ void Gui::removeBuildModification()
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
         text  = tr("Build modification '%1' was created after this step (%2), model '%3', at line %4.<br>"
                    "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>")
-                   .arg(buildModKey).arg(step).arg(model).arg(line);
+                   .arg(buildModKey, step, model, line);
         type  = tr("remove build modification error message");
         title = tr("Build Modification");
 
@@ -4551,7 +4550,7 @@ void Gui::removeBuildModification()
         text  = tr("Build modification '%1' was created in this step (%2), in model '%3' at line %4.<br><br>"
                    "It cannot be removed from the step it was created in.<br><br>"
                    "Select 'Delete Build Modification' to delete from '%3', step %2 at line %4")
-                   .arg(buildModKey).arg(step).arg(model).arg(line);
+                   .arg(buildModKey, step, model, line);
         type  = tr("remove build modification error message");
         title = tr("Build Modification");
 
@@ -4562,7 +4561,7 @@ void Gui::removeBuildModification()
 
     } else if (buildModAction == BuildModRemoveRc) {
         text  = tr("Build modification '%1' was already removed from step (%2), model '%3.<br><br>No action taken.<br>")
-                   .arg(buildModKey).arg(step).arg(model);
+                   .arg(buildModKey, step, model);
         type  = tr("remove build modification error message");
         title = tr("Build Modification");
 
@@ -4574,7 +4573,7 @@ void Gui::removeBuildModification()
     } /* else {
         text  = tr("This action will remove build modification '%1' "
                    "beginning at step (%2) in model '%3'.<br><br>Are you sure ?<br>")
-                   .arg(buildModKey).arg(step).arg(model);
+                   .arg(buildModKey, step, model);
         type  = tr("remove build modification message");
         title = tr("Build Modification");
 
@@ -4696,7 +4695,7 @@ void Gui::deleteBuildModificationAction()
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
             text  = tr("Build modification '%1' was created after this step (%2), model '%3', at line %4.<br>"
                        "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>")
-                       .arg(buildModKey).arg(step).arg(model).arg(line);
+                       .arg(buildModKey, step, model, line);
             type  = tr("remove build modification error message");
             title = tr("Build Modification");
 
@@ -4709,7 +4708,7 @@ void Gui::deleteBuildModificationAction()
                    "It cannot be removed from the step it was created in.<br><br>"
                    "Select 'Delete Build Modification' to delete from '%3', "
                    "step %2 at line %4")
-                   .arg(buildModKey).arg(step).arg(model).arg(line);
+                   .arg(buildModKey, step, model, line);
         type  = tr("remove build modification error message");
         title = tr("Build Modification");
 
@@ -4741,7 +4740,7 @@ void Gui::deleteBuildModificationAction()
         endMacro();
 
         emit gui->messageSig(LOG_INFO_STATUS, tr("Build modification '%1' %2 action deleted at step %1")
-                                            .arg(buildModKey).arg(actionString.toLower()).arg(lpub->currentStep->stepNumber.number));
+                                            .arg(buildModKey, actionString.toLower()).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -5019,7 +5018,7 @@ void Gui::deleteBuildModification()
     const QString title = tr("Build Modification Image");
     const QString text = tr("Click 'Submodel',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? tr(" 'Page',") : "");
 
-    box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+    box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR, title));
     box.setText (tr("Delete build modification <b>%1</b><br><br>"
                     "Select your option to reset the image cache.").arg(buildModKey));
     box.setInformativeText(text);
@@ -5425,7 +5424,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                                  .arg(modelName);
                 } else if (validLine) {
                     Message = tr("Selected %1 part modelName [%2] lineNumber: [%3] at step line index [%4]")
-                                 .arg(fromSource).arg(modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
+                                 .arg(fromSource, modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
                 } else {
                     fromSource = indexes.size() ? QLatin1String("VIEWER_OUT_OF_BOUNDS (-1)") : QLatin1String("VIEWER_INVALID (-1)");
                     Message = tr("%1 part lineNumber [%2] for step line index [%3]")
@@ -5434,7 +5433,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                 }
             } else if (validLine) { // valid and not from viewer
                 Message = tr("Selected %1 part modelName [%2] lineNumber: [%3] at step line index [%4]")
-                             .arg(fromSource).arg(modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
+                             .arg(fromSource, modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
             } else {                // invalid and not from viewer
                 fromSource = indexes.size() ? QLatin1String("OUT_OF_BOUNDS (-1)") : QLatin1String("INVALID (-1)");
                 Message = tr("%1 part lineNumber [%2] for step line index [%3]") // index and number flipped
