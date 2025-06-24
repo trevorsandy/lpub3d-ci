@@ -141,7 +141,11 @@ void TextEditDialog::initialize(
         font = textFont;
     else
         font.fromString(editFont);
+#if QT_VERSION >= QT_VERSION_CHECK(6,4,0)
+    fontColor = QColor::fromString(editFontColor.isEmpty() ? "Black" : editFontColor);
+#else
     fontColor.setNamedColor(editFontColor.isEmpty() ? "Black" : editFontColor);
+#endif
 
     // Suppress font actions - used for adding renderer arguments
     if (!fontActions && !richText)
