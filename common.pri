@@ -306,6 +306,9 @@ equals(QT_MAJOR_VERSION, 5) {
     win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
+        system("g++ --help -v 2>/dev/null| grep -q std=c++17") {
+            message("~~~ C++17 feature found ~~~")
+        }
         # Greater than or equal to Qt 5.11
         greaterThan(QT_MINOR_VERSION, 11) {
             CONFIG += c++17
@@ -319,7 +322,10 @@ equals(QT_MAJOR_VERSION, 6) {
     win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
-	    CONFIG += c++17
+        system("g++ --help -v 2>/dev/null| grep -q std=c++17"){
+            message("~~~ C++17 feature found ~~~")
+        }
+        CONFIG += c++17
     }
 }
 
