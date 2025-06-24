@@ -4201,8 +4201,8 @@ void LDrawFile::insertLDCadGroup(const QString &name, int lid)
 
 bool LDrawFile::ldcadGroupMatch(const QString &name, const QStringList &lids)
 {
-  QList<int> values = _ldcadGroups.values(name);
-  for (QString lid : lids) {
+  const QList<int> values = _ldcadGroups.values(name);
+  for (const QString &lid : lids) {
     if (values.contains(lid.toInt()))
       return true;
   }
