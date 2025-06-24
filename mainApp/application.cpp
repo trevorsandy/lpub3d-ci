@@ -773,8 +773,8 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 m_console_mode = true;
                 m_print_output = true;
                 int rev = QString::fromLatin1(VER_REVISION_STR).toInt();
-                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1, %2 %3%4, Commit %5, SHA %6\n").arg(VER_PRODUCTNAME_STR).arg(VER_BUILD_TYPE_STR).arg(VER_PRODUCTVERSION_STR).arg(rev ? tr(", Revision %1").arg(VER_REVISION_STR) : "").arg(VER_COMMIT_STR).arg(VER_GIT_SHA_STR)));
-                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled with Qt %1 on %2, running with Qt %3\n").arg(QT_VERSION_STR).arg(__DATE__).arg(qVersion())));
+                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1, %2 %3%4, Commit %5, SHA %6\n").arg(VER_PRODUCTNAME_STR, VER_BUILD_TYPE_STR, VER_PRODUCTVERSION_STR, rev ? tr(", Revision %1").arg(VER_REVISION_STR) : "", VER_COMMIT_STR, VER_GIT_SHA_STR)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled with Qt %1 on %2, running with Qt %3\n").arg(QT_VERSION_STR, __DATE__, qVersion())));
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
@@ -790,8 +790,8 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
             {
                 m_console_mode = true;
                 m_print_output = true;
-                fprintf(stdout, "%s", qUtf8Printable(tr("Visual Editor - by LeoCAD, Version %1, SHA %2\n").arg(LC_VERSION_TEXT).arg(LC_VERSION_SHA)));
-                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled with Qt %1 on %2, running with Qt %3\n").arg(QT_VERSION_STR).arg(__DATE__).arg(qVersion())));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Visual Editor - by LeoCAD, Version %1, SHA %2\n").arg(LC_VERSION_TEXT , LC_VERSION_SHA)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled with Qt %1 on %2, running with Qt %3\n").arg(QT_VERSION_STR, __DATE__, qVersion())));
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
@@ -1002,44 +1002,43 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     QStringList fileFilters = QStringList() << "lpub3d*";
     QStringList shareContents = contentsDir.entryList(fileFilters);
     if (shareContents.size() > 0) {
-        Preferences::printInfo(tr("%1 Application %2(%3)").arg(VER_PRODUCTNAME_STR,appLabel,Preferences::lpub3dAppName));
+        Preferences::printInfo(tr("%1 Application %2(%3)").arg(VER_PRODUCTNAME_STR, appLabel,Preferences::lpub3dAppName));
     } else {
         Preferences::printInfo(tr("ERROR - Application Folder Not Found."));
     }
 #endif
 #endif // NOT Q_OS_WIN
 #ifdef Q_OS_MAC
-    Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dPath)));
+    Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dPath)));
 #else // Q_OS_LINUX and Q_OS_WIN
-    Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dPath)));
-    Preferences::printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::logFilePath)));
+    Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dPath)));
+    Preferences::printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::logFilePath)));
 #endif
-    Preferences::printInfo(tr("%1 Application Data Path.(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpubDataPath)));
+    Preferences::printInfo(tr("%1 Application Data Path.(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpubDataPath)));
 #ifdef Q_OS_WIN
-    Preferences::printInfo(tr("%1 Parameters Location...(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::dataLocation)));
+    Preferences::printInfo(tr("%1 Parameters Location...(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::dataLocation)));
 #else // Q_OS_LINUX and Q_OS_MAC
     Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(QDir::toNativeSeparators(Preferences::lpub3dExtrasResourcePath)));
 #if defined Q_OS_LINUX
 #ifdef DEBUG_MODE_USE_BUILD_FOLDERS
-    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3d3rdPartyAppExeDir)));
+    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3d3rdPartyAppExeDir)));
 #else
     const QString lpub3d3rdPartyAppExeDir = QDir(QString("%1/../../%2/%3/3rdParty")
                                                          .arg(Preferences::lpub3dPath)
                                                          .arg(Preferences::installPrefix.isEmpty() ? "usr/bin" : Preferences::installPrefix + "/usr/bin")
                                                          .arg(Preferences::lpub3dAppName)).absolutePath();
-    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(lpub3d3rdPartyAppExeDir)));
+    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(lpub3d3rdPartyAppExeDir)));
 #endif // DEBUG_MODE_USE_BUILD_FOLDERS
 #endif // Q_OS_LINUX
 #endif //  Q_OS_WIN or Q_OS_LINUX and Q_OS_MAC
-    Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dConfigPath)));
-    Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dCachePath)));
+    Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dConfigPath)));
+    Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dCachePath)));
 #ifdef Q_OS_MAC
-    Preferences::printInfo(tr("%1 Homebrew Installation.(Apple %2)").arg(VER_PRODUCTNAME_STR)
-                                                                    .arg(Preferences::homebrewPathPrefix.startsWith("/opt/homebrew") ? tr("Silicon") : tr("Intel")));
-    Preferences::printInfo(tr("%1 Homebrew Path Prefix..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::homebrewPathPrefix));
+    Preferences::printInfo(tr("%1 Homebrew Installation.(Apple %2)").arg(VER_PRODUCTNAME_STR, Preferences::homebrewPathPrefix.startsWith("/opt/homebrew") ? tr("Silicon") : tr("Intel")));
+    Preferences::printInfo(tr("%1 Homebrew Path Prefix..(%2)").arg(VER_PRODUCTNAME_STR, Preferences::homebrewPathPrefix));
 #endif
-    Preferences::printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));
-    Preferences::printInfo(tr("%1 Logging Level.........(%2 (%3), Levels: [%4])").arg(VER_PRODUCTNAME_STR).arg(Preferences::loggingLevel)
+    Preferences::printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR, Preferences::validLDrawPartsLibrary));
+    Preferences::printInfo(tr("%1 Logging Level.........(%2 (%3), Levels: [%4])").arg(VER_PRODUCTNAME_STR, Preferences::loggingLevel)
                                                                   .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
                                                                   .arg(QString(VER_LOGGING_LEVELS_STR).toLower()));
     QString const enabled = tr("Enabled");
@@ -1365,7 +1364,7 @@ int Application::run()
     }
 
     ExecMessage = QString("%1 Run: Application terminated with return code %2.")
-                          .arg(QString("%1%2").arg(ExecMessage.isEmpty() ? QString() : QString("%1\n\n").arg(ExecMessage)).arg(VER_PRODUCTNAME_STR))
+                          .arg(QString("%1%2").arg(ExecMessage.isEmpty() ? QString() : QString("%1\n\n").arg(ExecMessage), VER_PRODUCTNAME_STR))
                           .arg(ExecReturn);
 
     if (Preferences::loggingEnabled) {
