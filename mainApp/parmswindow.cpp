@@ -758,7 +758,13 @@ void ParmsWindow::readSettings()
     Settings.beginGroup(PARMSWINDOW);
     restoreGeometry(Settings.value("Geometry").toByteArray());
     restoreState(Settings.value("State").toByteArray());
-    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
+    const QRect availableGeometry =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        QApplication::primaryScreen()->geometry();
+#else
+        QApplication::desktop()->availableGeometry(this);
+#endif
+    QSize size = Settings.value("Size", availableGeometry.size()*0.5).toSize();
     resize(size);
     Settings.endGroup();
 }
