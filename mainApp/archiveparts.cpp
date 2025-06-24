@@ -66,7 +66,7 @@ bool ArchiveParts::Archive(
 
   if (!zipFileInfo.exists()) {
       if (Preferences::usingDefaultLibrary) {
-          if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation).arg(zipFileInfo.fileName()),zipFileInfo.absoluteFilePath())) {
+          if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation, zipFileInfo.fileName()),zipFileInfo.absoluteFilePath())) {
               emit gui->messageSig(LOG_ERROR, tr("Archive %1 not found and could not copy new instance.").arg(zipFileInfo.fileName()));
           } else {
               emit gui->messageSig(LOG_INFO, tr("Archive %1 not found. New instance will be created.").arg(zipFileInfo.fileName()));
@@ -101,7 +101,7 @@ bool ArchiveParts::Archive(
           QString fileDir(QDir::toNativeSeparators(QFileInfo(dirFile).absolutePath()));
           bool isExcludedPath = false;
           Q_FOREACH (QString const &excludedPath, excludedPaths) {
-              QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
+              QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath, excludedPath));
               if ((isExcludedPath = (fileDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                   break;
               }
@@ -206,13 +206,13 @@ bool ArchiveParts::Archive(
           QString const subfolder = fileInfo.suffix().toLower() == QLatin1String("png")
                                         ? QLatin1String("parts/textures")
                                         : QLatin1String("parts");
-          fileNameWithCompletePath = QString("%1/%2").arg(subfolder).arg(fileNameWithRelativePath);
+          fileNameWithCompletePath = QString("%1/%2").arg(subfolder, fileNameWithRelativePath);
           //qDebug() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
 
       emit gui->messageSig(LOG_INFO, QString("%1 part #%2 %3 to %4...")
                                              .arg(partStatus).arg(archivedPartCount)
-                                             .arg(fileInfo.fileName()).arg(fileNameWithCompletePath));
+                                             .arg(fileInfo.fileName(), fileNameWithCompletePath));
 
       // insert file into archive
       inFile.setFileName(fileInfo.filePath());
@@ -367,10 +367,10 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
                               << QLatin1String("p");
 
   Q_FOREACH (QString const &file, entryList) {
-    QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
+    QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath(), file));
     bool isExcludedPath = false;
     Q_FOREACH (QString const &excludedPath, excludedPaths) {
-      QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
+      QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath, excludedPath));
       if ((isExcludedPath = (filePath.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
         break;
       }
