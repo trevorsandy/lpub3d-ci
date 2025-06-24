@@ -147,7 +147,11 @@ PagePointerItem::PagePointerItem(
 
   QColor tipPenColor(pad->lineData.color);
   if (! pad->borderData.useDefault)
+#if QT_VERSION >= QT_VERSION_CHECK(6,4,0)
+      tipPenColor = QColor::fromString(pad->borderData.color);
+#else
       tipPenColor.setNamedColor(pad->borderData.color);
+#endif
 
   if (pad->lineData.hideTip) {
       brushColor  = QColor(Qt::transparent);
