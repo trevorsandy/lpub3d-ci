@@ -188,8 +188,8 @@ class SubModel : public Placement {
 
     void operator= (SubModel& from)
     {
-      QString key;
-      Q_FOREACH (key,from.parts.keys()) {
+      const QList keys = from.parts.keys();
+      for (const QString &key : keys) {
         SubModelPart *part = from.parts[key];
         parts.insert(key,part);
       }
@@ -199,13 +199,11 @@ class SubModel : public Placement {
 
     SubModelPart *getSubmodel()
     {
-      if (parts.keys().size() == 0)
+      const QList keys = parts.keys();
+      if (keys.size() == 0)
           return nullptr;
-
       // there's only one so take first key
-      const QString key = parts.keys().first();
-
-      return parts[key];
+      return parts[keys.first()];
     }
 
     void getLeftEdge(QImage &, QList<int> &);
