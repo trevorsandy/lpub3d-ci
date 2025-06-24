@@ -4176,15 +4176,11 @@ bool Gui::installRenderer(int which)
             Preferences::lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
         } else {
             QString userLocalDataPath;
-            QStringList dataPathList;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-            dataPathList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-            dataPathList = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+            QStringList dataPathList =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
 #else
-            dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-#endif
-            userLocalDataPath = dataPathList.first();
+                QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
 #endif
             Preferences::lpub3d3rdPartyAppDir = QFileDialog::getExistingDirectory(nullptr,
                                                                                   QFileDialog::tr("Select Renderer Directory"),
