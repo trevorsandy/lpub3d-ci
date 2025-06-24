@@ -193,7 +193,14 @@ void Downloader::startRequest(const QUrl &url)
     // opened for reading which emits
     // the readyRead() signal whenever new data arrives.
     m_reply = m_manager->get (request);
-    m_startTime = QDateTime::currentDateTime().toTime_t();
+    // LPub3D Mod
+    m_startTime =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QDateTime::currentMSecsSinceEpoch();
+#else
+    QDateTime::currentDateTime().toTime_t();
+#endif
+    // Mod End
 
     // Whenever more data is received from the network,
     // this readyRead() signal is emitted
@@ -611,7 +618,15 @@ void Downloader::updateProgress (qint64 received, qint64 total)
  */
 void Downloader::calculateTimeRemaining (qint64 received, qint64 total)
 {
-    uint difference = QDateTime::currentDateTime().toTime_t() - m_startTime;
+    // LPub3D Mod
+    uint difference =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QDateTime::currentMSecsSinceEpoch() - m_startTime;
+#else
+    QDateTime::currentDateTime().toTime_t() - m_startTime;
+#endif
+    // Mod End
+
 
     if (difference > 0) {
         QString timeString;
