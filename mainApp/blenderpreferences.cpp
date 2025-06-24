@@ -2665,7 +2665,12 @@ void BlenderPreferences::colorButtonClicked(bool)
     connect(popup, SIGNAL(Selected(int)), SLOT(setDefaultColor(int)));
     popup->setMinimumSize(300, 200);
 
-    const QRect desktop = QApplication::desktop()->geometry();
+    const QRect desktop =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QApplication::primaryScreen()->geometry();
+#else
+    QApplication::desktop()->geometry();
+#endif
 
     QPoint pos = parent->mapToGlobal(parent->rect().bottomLeft());
     if (pos.x() < desktop.left())

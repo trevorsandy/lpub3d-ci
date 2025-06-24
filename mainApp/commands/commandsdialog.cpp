@@ -711,7 +711,13 @@ void CommandsDialog::readSettings()
     QSettings Settings;
     Settings.beginGroup(COMMANDSWINDOW);
     restoreGeometry(Settings.value("Geometry").toByteArray());
-    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
+    const QRect geometry =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QApplication::primaryScreen()->geometry();
+#else
+    QDesktopWidget().availableGeometry(this);
+#endif
+    QSize size = Settings.value("Size", geometry.size()*0.5).toSize();
     resize(size);
     tabWidget->setCurrentIndex(Settings.value("CurrentTab").toInt());
     snippetTableView->horizontalHeader()->restoreState(Settings.value("SnippetHeader").toByteArray());

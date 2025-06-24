@@ -2918,7 +2918,13 @@ void EditWindow::readSettings()
     Settings.beginGroup(EDITWINDOW);
     restoreGeometry(Settings.value("Geometry").toByteArray());
     restoreState(Settings.value("State").toByteArray());
-    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
+    const QRect desktopGeometry =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QApplication::primaryScreen()->geometry();
+#else
+    QDesktopWidget().availableGeometry(this);
+#endif
+    QSize size = Settings.value("Size", desktopGeometry.size()*0.5).toSize();
     resize(size);
     Settings.endGroup();
 }

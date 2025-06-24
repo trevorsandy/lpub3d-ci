@@ -114,7 +114,12 @@ void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& Vie
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 	QScreen* Screen = QGuiApplication::screenAt(pos);
-	const QRect desktop = Screen ? Screen->geometry() : QApplication::desktop()->geometry();
+	const QRect desktop = Screen ? Screen->geometry() :
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+	QApplication::primaryScreen()->geometry();
+#else
+	QApplication::desktop()->geometry();
+#endif
 #else
 	const QRect desktop = QApplication::desktop()->geometry();
 #endif
