@@ -45,7 +45,7 @@ bool JsonTranslator<T>::processDocument(const QJsonDocument &jsonDocument, JsonC
         return false;
 
     QJsonArray array = jsonDocument.object().value(collection->name()).toArray();
-    foreach (QJsonValue entry, array) {
+    for (QJsonValue entry : array) {
         T newItem = fromJsonObject(entry.toObject());
         collection->insert(newItem);
     }
