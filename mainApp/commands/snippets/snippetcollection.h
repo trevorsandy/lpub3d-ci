@@ -26,7 +26,9 @@
 class SnippetCollection : public QObject, public JsonCollection<Snippet>
 {
     Q_OBJECT
+#if QT_VERSION < QT_VERSION_CHECK(5,5,0)
     Q_ENUMS(CollectionChangedType)
+#endif
 
 public:
     enum CollectionChangedType
@@ -35,7 +37,9 @@ public:
         ItemChanged,
         ItemDeleted
     };
-
+#if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
+    Q_ENUM(CollectionChangedType)
+#endif
     explicit SnippetCollection(QObject *parent = 0);
 
     int count() const;

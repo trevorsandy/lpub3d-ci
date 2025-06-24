@@ -2145,12 +2145,16 @@ class StringListMeta;
 class SubModelColorGui : public MetaGui
 {
   Q_OBJECT
+#if QT_VERSION < QT_VERSION_CHECK(5,5,0)
   Q_ENUMS(SubModCol)
+#endif
 
 public:
 
   enum SubModCol { Level1, Level2, Level3, Level4 };
-
+#if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
+  Q_ENUM(SubModCol)
+#endif
   SubModelColorGui(
   StringListMeta *meta,
   QGroupBox  *parent = nullptr);
