@@ -107,13 +107,18 @@ private:
 class LRuler : public QWidget
 {
 Q_OBJECT
+#if QT_VERSION < QT_VERSION_CHECK(5,5,0)
 Q_ENUMS(RulerType)
+#endif
 Q_PROPERTY(qreal origin READ origin WRITE setOrigin)
 Q_PROPERTY(qreal rulerUnit READ rulerUnit WRITE setRulerUnit)
 Q_PROPERTY(qreal rulerZoom READ rulerZoom WRITE setRulerZoom)
 
 public:
   enum RulerType { Horizontal, Vertical };
+#if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
+  Q_ENUM(RulerType)
+#endif
 LRuler(LRuler::RulerType rulerType, QWidget* parent)
 : QWidget(parent),
   mRulerType(rulerType),
