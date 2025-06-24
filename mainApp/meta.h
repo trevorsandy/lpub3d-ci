@@ -51,7 +51,6 @@
 
 class Meta;
 class BranchMeta;
-class QStringList;
 
 enum Rc {
          InvalidLDrawLineRc = -3,
