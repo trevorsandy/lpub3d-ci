@@ -1410,7 +1410,7 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 	// Here we are only setting the ROTSTEP angles and transform variables
 	// mExistingTransform and mRotStepType for consumption when parts
 	// are manually user-rotated from the Visual Editor
-	QRegExp RotStepRx("ABS|REL");
+	static QRegularExpression RotStepRx("ABS|REL");
 
 	lcVector3 ExistingRotStep = mExistingTransform;
 
