@@ -751,7 +751,12 @@ void Preferences::setDistribution() {
         // Config path
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                              QCoreApplication::applicationDirPath().contains("Program Files (x86)");
-        QStringList const dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+        QStringList const dataPathList =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+#else
+            QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+#endif
         lpubDataPath = QDir::toNativeSeparators(programFolder ? dataPathList.first() : QCoreApplication::applicationDirPath());
         lpub3dConfigPath = QDir::toNativeSeparators(QString("%1/config").arg(lpubDataPath));
 
@@ -1473,7 +1478,12 @@ void Preferences::lpubPreferences()
     lpub3dConfigPath = QString("%1/config/%2").arg(lpub3dPath,QCoreApplication::organizationName());
 #else
     // Default user data path
-    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    QStringList dataPathList =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+        QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+#else
+        QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+#endif
     lpubDataPath = dataPathList.first();
 
     // Default cache path
@@ -1964,13 +1974,12 @@ void Preferences::ldrawPreferences(bool browse)
                 /* Path Checks */
                 QString homePath,userLocalDataPath,userDocumentsPath;
                 QStringList dataPathList;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
                 dataPathList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
                 homePath = dataPathList.first();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-                dataPathList = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+                QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
 #else
-                dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
 #endif
                 userLocalDataPath = dataPathList.first();
                 dataPathList = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
@@ -3525,7 +3534,12 @@ void Preferences::updatePOVRayConfigFiles() {
 #if defined Q_OS_WIN
     if (preferredRenderer == RENDERER_POVRAY) {
         QString targetFolder, destFolder, dataPath, targetFile, destFile, saveFile;
-        QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+        QStringList dataPathList =
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+            QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+#else
+            QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+#endif
         QFileInfo fileInfo, saveFileInfo;
         dataPath     = dataPathList.first();
         destFolder   = QString("%1/3rdParty/%2/config").arg(dataPath, VER_POVRAY_STR);
