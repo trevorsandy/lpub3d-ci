@@ -985,7 +985,7 @@ ConstrainGui::ConstrainGui(
   combo->addItem("Height");
   combo->addItem("Columns");
   combo->setCurrentIndex(int(constraint.type));
-  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(combo,SIGNAL(currentTextChanged(const QString&)),
           this,   SLOT(         typeChange(const QString&)));
   layout->addWidget(combo);
 
@@ -2439,7 +2439,7 @@ FadeStepsGui::FadeStepsGui(
 
   grid->addWidget(colorCombo,4,1);
 
-  connect(colorCombo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(colorCombo,SIGNAL(currentTextChanged(const QString&)),
                  this, SLOT(        colorChange(const QString&)));
 
   // fade opacity row
@@ -3021,7 +3021,7 @@ RotStepGui::RotStepGui(
   typeCombo->addItem("REL");
   typeCombo->addItem("ADD");
   typeCombo->setCurrentIndex(!data.type.isEmpty() ? typeCombo->findText(data.type) : 1);
-  connect(typeCombo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(typeCombo,SIGNAL(currentTextChanged(const QString&)),
           this,       SLOT(        typeChanged(const QString&)));
   grid->addWidget(typeCombo,1,1);
 
@@ -3512,7 +3512,7 @@ BackgroundGui::BackgroundGui(
      combo->addItem("Submodel Level Color");    //3
      combo->setCurrentIndex(background.type == 4 ? 3 : int(background.type));
   }
-  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(combo,SIGNAL(currentTextChanged(const QString&)),
           this,   SLOT(         typeChange(const QString&)));
   grid->addWidget(combo,0,0);
 
@@ -3895,7 +3895,7 @@ BorderGui::BorderGui(
   typeCombo->addItem(tr("Square Corners"));
   typeCombo->addItem(tr("Round Corners"));
   typeCombo->setCurrentIndex(int(border.type));
-  connect(typeCombo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(typeCombo,SIGNAL(currentTextChanged(const QString&)),
           this,       SLOT(         typeChange(const QString&)));
   grid->addWidget(typeCombo,0,0);
 
@@ -3935,7 +3935,7 @@ BorderGui::BorderGui(
   lineCombo->addItem(tr("Dot-Dash Line"));
   lineCombo->addItem(tr("Dot-Dot-Dash Line"));
   lineCombo->setCurrentIndex(border.line);
-  connect(lineCombo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(lineCombo,SIGNAL(currentTextChanged(const QString&)),
           this,       SLOT(         lineChange(const QString&)));
   grid->addWidget(lineCombo,1,0);
 
@@ -4403,7 +4403,7 @@ void PlacementGui::apply(QString &topLevelFile)
     lineCombo->addItem(tr("Dot-Dash Line"));
     lineCombo->addItem(tr("Dot-Dot-Dash Line"));
     lineCombo->setCurrentIndex(index); //
-    connect(lineCombo,SIGNAL(currentIndexChanged(const QString&)),
+    connect(lineCombo,SIGNAL(currentTextChanged(const QString&)),
             this,       SLOT(         lineChange(const QString&)));
     grid->addWidget(lineCombo,0,0);
     grid->setColumnStretch(0,1);
@@ -5000,7 +5000,7 @@ ResolutionGui::ResolutionGui(
   combo->addItem("Dots Per Inch");
   combo->addItem("Dots Per Centimetre");
   combo->setCurrentIndex(int(dataT));
-  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(combo,SIGNAL(currentTextChanged(const QString&)),
           this,   SLOT(        unitsChange(const QString&)));
   grid->addWidget(combo,0,1);
 
@@ -6156,7 +6156,7 @@ PliSortGui::PliSortGui(
   if (bom)
       combo->addItem(SortOptionName[PartElement]);
   combo->setCurrentIndex(currentIndex);
-  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(combo,SIGNAL(currentTextChanged(const QString&)),
           this,   SLOT(       optionChange(const QString&)));
   grid->addWidget(combo,0,1);
 
@@ -7571,7 +7571,7 @@ PageSizeGui::PageSizeGui(
   }
 
   sizeCombo->setCurrentIndex(int(getTypeIndex(dataW,dataH)));
-  connect(sizeCombo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(sizeCombo,SIGNAL(currentTextChanged(const QString&)),
           this,       SLOT(         typeChange(const QString&)));
   if (heading == "")
     grid->addWidget(sizeCombo,0,0);
@@ -7850,7 +7850,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   }
 
   typeCombo->setCurrentIndex(typeIndex);
-  connect(typeCombo,SIGNAL(currentIndexChanged(const QString&)),
+  connect(typeCombo,SIGNAL(currentTextChanged(const QString&)),
           this,       SLOT(         typeChange(const QString&)));
 
   if (heading == "")
