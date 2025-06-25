@@ -7820,9 +7820,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 //             << "\nPage: (" <<  QString::number(pageWidth, 'f', 3) << "x" <<  QString::number(pageHeight, 'f', 3) << ")";
 
     QString type = QString("%1 (%2 x %3)")
-        .arg(PageSizes::pageTypeSizeID(i))
-        .arg(QString::number(typeWidth, 'f', 1))
-        .arg(QString::number(typeHeight, 'f', 1));
+                           .arg(PageSizes::pageTypeSizeID(i), QString::number(typeWidth, 'f', 1), QString::number(typeHeight, 'f', 1));
 
     typeCombo->addItem(type);
 
@@ -7837,9 +7835,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     float pageHeight = _metaS->value(1);
 
     QString customType = QString("%1 (%2 x %3)")
-        .arg(dataS.sizeID)
-        .arg(QString::number(pageWidth,'f',1))
-        .arg(QString::number(pageHeight,'f',1));
+                                 .arg(dataS.sizeID, QString::number(pageWidth,'f',1), QString::number(pageHeight,'f',1));
     int lastItem = typeCombo->count() - 1;
 
     typeCombo->removeItem(lastItem);
@@ -7982,7 +7978,7 @@ void SizeAndOrientationGui::typeChange(const QString &typeString)
 
 #ifdef QT_DEBUG_MODE
   logDebug() << qPrintable(QString("2. NewType: %3, OldType")
-                                   .arg(_data.sizeID).arg(dataS.sizeID));
+                                   .arg(_data.sizeID, dataS.sizeID));
 #endif
 
   if ((staticType = _data.sizeID != QStringLiteral("Custom"))) {
@@ -8498,7 +8494,7 @@ void OpenWithProgramDialogGui::validateProgramEntries() {
 
 QIcon OpenWithProgramDialogGui::getProgramIcon(const QString &programPath) {
     const QString programName = QString("%1icon.png").arg(QFileInfo(programPath).baseName());
-    const QString iconFile = QString("%1/%2").arg(QDir::tempPath()).arg(programName);
+    const QString iconFile = QString("%1/%2").arg(QDir::tempPath(), programName);
     if (!QFileInfo(iconFile).exists()) {
         QPixmap iconPixmap(16,16);
         if (programPath.isEmpty()) {
@@ -8668,7 +8664,7 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
             programName = programNameEditList.at(i)->text();
             if (programName.isEmpty())
                 programName = QFileInfo(programPath).fileName();
-            QString updateEntry = QString("%1|%2").arg(programName).arg(programPath);
+            QString updateEntry = QString("%1|%2").arg(programName, programPath);
             if (updateEntry != programEntries.at(i)) {
                 programEntries.replace(i,updateEntry);
                 updateProgramEntries = true;

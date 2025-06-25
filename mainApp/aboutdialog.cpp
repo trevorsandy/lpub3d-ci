@@ -41,15 +41,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->version->setTextFormat(Qt::RichText);
 
     ui->version->setText(tr("%1 <b>%2</b> %3Build <b>%4</b> SHA <b>%5</b>")
-                         .arg(QString::fromLatin1(VER_BUILD_TYPE_STR))
-                         .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
-                         .arg(QString::fromLatin1(VER_REVISION_STR).toInt() ? tr("Revision <b>%1</b> ").arg(QString::fromLatin1(VER_REVISION_STR)) : QString())
-                         .arg(QString::fromLatin1(VER_COMMIT_STR))
-                         .arg(QString::fromLatin1(VER_GIT_SHA_STR)));
+                         .arg(QString::fromLatin1(VER_BUILD_TYPE_STR),
+                              QString::fromLatin1(VER_PRODUCTVERSION_STR),
+                              QString::fromLatin1(VER_REVISION_STR).toInt() ? tr("Revision <b>%1</b> ").arg(QString::fromLatin1(VER_REVISION_STR)) : QString(),
+                              QString::fromLatin1(VER_COMMIT_STR),
+                              QString::fromLatin1(VER_GIT_SHA_STR)));
     ui->description->setTextFormat(Qt::RichText);
     ui->description->setText(tr("<p><b>%1</b> an LDraw&trade; building instruction editor.<br><br>"
-                                "%2</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                                             .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR)));
+                                "%2</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
+                                              QString::fromLatin1(VER_LEGALCOPYRIGHT_STR)));
 
     ui->url->setTextFormat(Qt::RichText);
     ui->url->setText(tr("Homepage: <a href=\"%1\">%1</a>").arg(QString::fromLatin1(VER_HOMEPAGE_GITHUB_STR)));
@@ -75,15 +75,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                 "</td>"
                              "</tr>"
                              "</table>");
-    QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_LICENSE_INFO_STR));
+    QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
+                                    QString::fromLatin1(VER_LICENSE_INFO_STR));
 
     ui->AppInfo->setTextFormat(Qt::RichText);
     ui->AppInfo->setOpenExternalLinks(true);
     ui->AppInfo->setText(About);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    const
     QString BuildInfoFormat = tr("<table style=""width:100%"">"
                                  "<tr>"
                                    "<td>Compiled on:</td>"
@@ -116,14 +116,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                    "</td>"
                                  "</tr>"
                                "</table>");
-    QString BuildInfo = BuildInfoFormat.arg(QString::fromLatin1(VER_COMPILED_ON))
-                                       .arg(QString::fromLatin1(VER_COMPILED_FOR))
-                                       .arg(QString::fromLatin1(VER_COMPILED_WITH).replace("qtver",qVersion()))
-                                       .arg(QString::fromLatin1(VER_IDE))
-                                       .arg(tr("%1 - Commit %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
-                                                                .arg(QString::fromLatin1(LC_VERSION_SHA)))
-                                       .arg(QString::fromLatin1(VER_COMPILE_DATE_STR))
-                                       .arg(QString::fromLatin1(VER_QT_URL));
+    const
+    QString BuildInfo = BuildInfoFormat.arg(QString::fromLatin1(VER_COMPILED_ON),
+                                            QString::fromLatin1(VER_COMPILED_FOR),
+                                            QString::fromLatin1(VER_COMPILED_WITH).replace("qtver",qVersion()),
+                                            QString::fromLatin1(VER_IDE),
+                                            tr("%1 - Commit %2").arg(QString::fromLatin1(LC_VERSION_TEXT),
+                                                                     QString::fromLatin1(LC_VERSION_SHA)),
+                                            QString::fromLatin1(VER_COMPILE_DATE_STR),
+                                            QString::fromLatin1(VER_QT_URL));
 
     ui->BuildInfo->setTextFormat(Qt::RichText);
     ui->BuildInfo->setText(BuildInfo);
@@ -152,6 +153,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     osPlatform = "Cannot determine system";
 #endif
 
+    const
     QString OsInfoFormat = tr("<table style=""width:100%"">"
                               "<tr>"
                                 "<td>Name:</td>"
@@ -166,9 +168,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                 "<td>%3<br>%4 - %5</td>"
                               "</tr>"
                             "</table>");
-    QString OsInfo = OsInfoFormat.arg(osName())
-                                 .arg(osPlatform)
-                                 .arg(QString((const char*)glGetString(GL_VERSION)),
+    const
+    QString OsInfo = OsInfoFormat.arg(osName(),
+                                      osPlatform,
+                                      QString((const char*)glGetString(GL_VERSION)),
                                       QString((const char*)glGetString(GL_RENDERER)).replace("(R)", "&reg;"),
                                       QString((const char*)glGetString(GL_VENDOR)));
 
@@ -239,8 +242,8 @@ void AboutDialog::showCreditDetails(bool clicked) {
 
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
-        ui->contentEdit->setPlainText( QString("Failed to open Credits file: \n%1:\n%2")
-                                               .arg(creditsFile).arg(file.errorString()));
+        ui->contentEdit->setPlainText( tr("Failed to open Credits file: \n%1:\n%2")
+                                               .arg(creditsFile, file.errorString()));
     } else {
         QTextStream in(&file);
         ui->contentEdit->setPlainText(in.readAll());

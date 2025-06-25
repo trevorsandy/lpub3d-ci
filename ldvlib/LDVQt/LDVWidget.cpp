@@ -166,8 +166,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		return;
 
 	const QString ldvMessages = QDir::toNativeSeparators(QString("%1%2")
-												  .arg(Preferences::dataLocation)
-												  .arg(VER_LDVMESSAGESINI_FILE));
+												  .arg(Preferences::dataLocation, VER_LDVMESSAGESINI_FILE));
 	if (!TCLocalStrings::loadStringTable(copyString(ldvMessages.toUtf8().constData())))
 		emit lpub->messageSig(LOG_ERROR,
 							  QString::fromWCharArray(TCLocalStrings::get(L"LoadLDVMessagesError")).arg(ldvMessages));
@@ -399,7 +398,7 @@ bool LDVWidget::setIniFile()
 		if (!setIniFile(title))
 		{
 			emit lpub->messageSig(LOG_ERROR,
-								  QString::fromWCharArray(TCLocalStrings::get(L"IniNotSetError")).arg(getIniTitle()).arg(getIniFile()));
+								  QString::fromWCharArray(TCLocalStrings::get(L"IniNotSetError")).arg(getIniTitle(), getIniFile()));
 			return false;
 		}
 	}
@@ -1719,9 +1718,7 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 		if (LDrawPartID == utf8String)
 		{
 			emit lpub->messageSig(LOG_INFO, QString::fromWCharArray(TCLocalStrings::get(L"RebrickablePartID"))
-									   .arg(QString::fromStdString(LDrawPartID))
-									   .arg(QString(RBPartCode))
-									   .arg(QString(RBPartUrl)));
+									   .arg(QString::fromStdString(LDrawPartID), QString(RBPartCode), QString(RBPartUrl)));
 			utf8String = QString(RBPartUrl).toUtf8().constData();
 			return utf8String;
 		}
@@ -1736,9 +1733,7 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 				if (LDrawPartID == utf8String)
 				{
 					emit lpub->messageSig(LOG_INFO, QString::fromWCharArray(TCLocalStrings::get(L"RebrickableLDrawPartCode"))
-											   .arg(QString(LDPartCode))
-											   .arg(QString(RBPartCode))
-											   .arg(QString(RBPartUrl)));
+											   .arg(QString(LDPartCode), QString(RBPartCode), QString(RBPartUrl)));
 					std::string utf8String = QString(RBPartUrl).toUtf8().constData();
 					return utf8String;
 				}
@@ -1813,9 +1808,7 @@ void LDVWidget::doSetRebrickableParts(const QString &parts)
 	int KeyIndex = m_Keys.size() > 1 ? QTime::currentTime().msec() % m_Keys.size() : 0 ;
 
 	QString SearchUrl = QString("%1/parts/?part_nums=%2&key=%3")
-							.arg(VER_REBRICKABLE_API_URL)
-							.arg(partNumbers)
-							.arg(m_Keys[KeyIndex]).replace("% 2C","%2C");
+							.arg(VER_REBRICKABLE_API_URL, partNumbers, QString(m_Keys[KeyIndex]).replace("% 2C","%2C"));
 
 	m_PartsReply = m_HttpManager->DownloadFile(SearchUrl);
 

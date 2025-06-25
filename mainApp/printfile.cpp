@@ -877,8 +877,8 @@ void Gui::exportAsPdf()
 
       QString title = "<b>" + tr ("Cannot open file.") + "</b>";
       QString text = tr ("Cannot open %1 for writing:\n%2")
-          .arg(QDir::toNativeSeparators(fileName))
-          .arg(printFile.errorString());
+                         .arg(QDir::toNativeSeparators(fileName),
+                              printFile.errorString());
 
       box.setText (title);
       box.setInformativeText (text);
@@ -912,8 +912,8 @@ void Gui::exportAsPdf()
   // create a PDF pdfWriter
   QPdfWriter pdfWriter(fileName);
   pdfWriter.setCreator(QString("%1 %2")
-                       .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                       .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR)));
+                       .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
+                            QString::fromLatin1(VER_PRODUCTVERSION_STR)));
 
   // calculate device pixel ratio
   qreal dpr = Gui::exportPixelRatio;
@@ -1428,10 +1428,10 @@ void Gui::exportAsPdf()
               else if (! warnSet && item.contains(warnRx))
                   warnSet++;
           message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                            .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
-                            .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
-                            .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                            .arg(Gui::messageList.join(" ")));
+                            .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"),
+                                 errorSet ? QString("%1 %2").arg(QString::number(errorSet), errorSet == 1 ? tr("error") : tr("errors")) : "",
+                                 warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "", QString::number(warnSet ), warnSet  == 1 ? tr("warning") : tr("warnings")) : "",
+                                 Gui::messageList.join(" ")));
       }
 
       box.setWindowIcon(QIcon());
@@ -1441,7 +1441,7 @@ void Gui::exportAsPdf()
 
       QString title = "<b>" + tr ("Export to pdf completed.") + "</b>";
       QString text = tr ("%1<br><br>Do you want to open this document ?<br><br>%2")
-                         .arg(message).arg(QDir::toNativeSeparators(fileName));
+                         .arg(message, QDir::toNativeSeparators(fileName));
 
       box.setText (title);
       box.setInformativeText (text);
@@ -1589,7 +1589,7 @@ void Gui::exportAs(const QString &_suffix)
   if (Preferences::modeGUI && Gui::m_saveDirectoryName.isEmpty()) {
       directoryName = QFileDialog::getExistingDirectory(
           gui,
-          tr("Save %1 %2 to folder").arg(suffix).arg(type),
+          tr("Save %1 %2 to folder").arg(suffix, type),
           QDir::currentPath(),
           QFileDialog::ShowDirsOnly);
       if (directoryName == "") {
@@ -1615,10 +1615,10 @@ void Gui::exportAs(const QString &_suffix)
   qreal dpr = Gui::exportPixelRatio;
 
   // initialize progress dialogue
-  QString message = tr("instructions to %1 to %2...").arg(type).arg(suffix);
+  QString message = tr("instructions to %1 to %2...").arg(type, suffix);
 
   if (Preferences::modeGUI) {
-      gui->m_progressDialog->setWindowTitle(tr("Export as %1 %2").arg(suffix).arg(type));
+      gui->m_progressDialog->setWindowTitle(tr("Export as %1 %2").arg(suffix, type));
       gui->m_progressDialog->setLabelText(tr("Exporting %1").arg(message));
       gui->m_progressDialog->setBtnToCancel();
       gui->m_progressDialog->show();
@@ -1629,7 +1629,7 @@ void Gui::exportAs(const QString &_suffix)
 
   if (Gui::processOption != EXPORT_PAGE_RANGE) {
 
-      message = tr("Export %1 %2 to %3").arg(_maxPages).arg(type).arg(suffix);
+      message = tr("Export %1 %2 to %3").arg(_maxPages).arg(type, suffix);
       emit gui->messageSig(LOG_INFO_STATUS,message);
 
       if (Preferences::modeGUI) {
@@ -1642,7 +1642,7 @@ void Gui::exportAs(const QString &_suffix)
 
           if (! Gui::exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
-                            .arg(Gui::displayPageNum - 1).arg(_maxPages).arg(type).arg(Gui::elapsedTime(exportTimer.elapsed()));
+                            .arg(Gui::displayPageNum - 1).arg(_maxPages).arg(type, Gui::elapsedTime(exportTimer.elapsed()));
               emit gui->messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1655,7 +1655,7 @@ void Gui::exportAs(const QString &_suffix)
           }
 
           message = tr("Exporting %1 %2: %3 of %4...")
-                       .arg(suffix).arg(type)
+                       .arg(suffix, type)
                        .arg(Gui::displayPageNum)
                        .arg(_maxPages);
           emit gui->messageSig(LOG_INFO_STATUS,message);
@@ -1681,8 +1681,8 @@ void Gui::exportAs(const QString &_suffix)
 
               bool  ls = getPageOrientation() == Landscape;
               message = tr("Exporting %1 %2 %3 of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8, pixel ratio %9")
-                           .arg(suffix)
-                           .arg(type)
+                           .arg(suffix,
+                                type)
                            .arg(Gui::displayPageNum)
                            .arg(_maxPages)
                            .arg(adjPageWidthPx)
@@ -1737,10 +1737,10 @@ void Gui::exportAs(const QString &_suffix)
                   Writer.setFormat(qPrintable(suffix));
               if (!Writer.write(image)) {
                   message = QObject::tr("Failed to export %1 %2 file:<br>[%3].<br>Reason: %4.")
-                                        .arg(suffix)
-                                        .arg(type)
-                                        .arg(imageFile)
-                                        .arg(Writer.errorString());
+                                        .arg(suffix,
+                                             type,
+                                             imageFile,
+                                             Writer.errorString());
                   emit gui->messageSig(LOG_WARNING,message);
               }
               painter.end();
@@ -1761,7 +1761,7 @@ void Gui::exportAs(const QString &_suffix)
 
           if (! Gui::exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
-                           .arg(_pageCount).arg(printPages.count()).arg(type).arg(Gui::elapsedTime(exportTimer.elapsed()));
+                           .arg(_pageCount).arg(printPages.count()).arg(type, Gui::elapsedTime(exportTimer.elapsed()));
               emit gui->messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1776,7 +1776,7 @@ void Gui::exportAs(const QString &_suffix)
           Gui::displayPageNum = printPage;
 
           message = tr("Exporting %1 %2 %3 of range %4...")
-                       .arg(suffix).arg(type)
+                       .arg(suffix, type)
                        .arg(_pageCount++)
                        .arg(pageRanges.join(" "));
           emit gui->messageSig(LOG_INFO_STATUS,message);
@@ -1802,8 +1802,8 @@ void Gui::exportAs(const QString &_suffix)
 
               bool  ls = getPageOrientation() == Landscape;
               message = tr("Exporting %1 %2 %3 of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8, pixel ratio %9")
-                            .arg(suffix)
-                            .arg(type)
+                            .arg(suffix,
+                                 type)
                             .arg(Gui::displayPageNum)
                             .arg(_maxPages)
                             .arg(adjPageWidthPx)
@@ -1857,10 +1857,10 @@ void Gui::exportAs(const QString &_suffix)
                   Writer.setFormat(qPrintable(suffix));
               if (!Writer.write(image)) {
                   message = QObject::tr("Failed to export %1 %2 file:<br>[%3].<br>Reason: %4.")
-                                        .arg(suffix)
-                                        .arg(type)
-                                        .arg(imageFile)
-                                        .arg(Writer.errorString());
+                                        .arg(suffix,
+                                             type,
+                                             imageFile,
+                                             Writer.errorString());
                   emit gui->messageSig(LOG_WARNING,message);
               }
               painter.end();
@@ -1894,7 +1894,7 @@ void Gui::exportAs(const QString &_suffix)
     QMessageBoxResizable box;
     if (Preferences::modeGUI) {
 
-      message = tr("Your %1 export completed. %2").arg(type).arg(exportTime);
+      message = tr("Your %1 export completed. %2").arg(type, exportTime);
 
       if (Gui::messageList.size()) {
           int errorSet = 0;
@@ -1908,10 +1908,10 @@ void Gui::exportAs(const QString &_suffix)
             else if (! warnSet && item.contains(warnRx))
                 warnSet++;
           message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                             .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
-                             .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
-                             .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                             .arg(Gui::messageList.join(" ")));
+                             .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"),
+                                  errorSet ? QString("%1 %2").arg(QString::number(errorSet), errorSet == 1 ? tr("error") : tr("errors")) : "",
+                                  warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "", QString::number(warnSet ), warnSet  == 1 ? tr("warning") : tr("warnings")) : "",
+                                  Gui::messageList.join(" ")));
       }
 
       box.setWindowIcon(QIcon());
@@ -1920,11 +1920,11 @@ void Gui::exportAs(const QString &_suffix)
       box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      box.setWindowTitle(tr ("Export %1 %2").arg(suffix).arg(type));
+      box.setWindowTitle(tr ("Export %1 %2").arg(suffix, type));
 
-      QString title = "<b>" + tr ("Export %1 %2 completed.").arg(suffix).arg(type) + "</b>";
+      QString title = "<b>" + tr ("Export %1 %2 completed.").arg(suffix, type) + "</b>";
       QString text = tr ("%1<br><br>Do you want to open the %2 folder ?<br><br>%3")
-                         .arg(message).arg(type).arg(directoryName);
+                         .arg(message, type, directoryName);
 
       box.setText (title);
       box.setInformativeText (text);
@@ -1935,13 +1935,13 @@ void Gui::exportAs(const QString &_suffix)
     } else {
       LogType logType = Preferences::modeGUI ? LOG_INFO_STATUS : LOG_INFO;
       emit gui->messageSig(logType, tr("Export %1 %2 completed! %3")
-                                  .arg(suffix)
-                                  .arg(type)
-                                  .arg(exportTime));
+                                  .arg(suffix,
+                                       type,
+                                       exportTime));
       emit gui->messageSig(LOG_INFO, tr("Exported %1 %2 path: %3")
-                                   .arg(suffix)
-                                   .arg(type)
-                                   .arg(directoryName));
+                                   .arg(suffix,
+                                        type,
+                                        directoryName));
     }
 
     Gui::m_saveDirectoryName.clear();
@@ -2052,7 +2052,7 @@ void Gui::Print(QPrinter* Printer)
   QString message = preview ? tr("Generating preview %1...").arg(mode) : exportPdf ? tr("Exporting %1...").arg(mode) : tr("Printing %1...").arg(mode);
 
   if (Preferences::modeGUI) {
-    gui->m_progressDialog->setWindowTitle(QString("%1 %2").arg(action).arg(mode));
+    gui->m_progressDialog->setWindowTitle(QString("%1 %2").arg(action, mode));
     gui->m_progressDialog->setLabelText(message);
     gui->m_progressDialog->setBtnToCancel();
     gui->m_progressDialog->show();
@@ -2107,8 +2107,8 @@ void Gui::Print(QPrinter* Printer)
         }
 
         message = tr("%1 %2 page %3 of %4...")
-                     .arg(action)
-                     .arg(mode)
+                     .arg(action,
+                          mode)
                      .arg(Page)
                      .arg(ToPage);
         emit gui->messageSig(LOG_INFO_STATUS,message);
@@ -2124,8 +2124,8 @@ void Gui::Print(QPrinter* Printer)
 
         bool  ls = getPageOrientation() == Landscape;
         message = tr("%1 %2 page %3 of %4, size(in pixels) W %5 x H %6, orientation %7")
-                     .arg(action)
-                     .arg(mode)
+                     .arg(action,
+                          mode)
                      .arg(Gui::displayPageNum)
                      .arg(ToPage)
                      .arg(double(pageWidthPx))
@@ -2169,7 +2169,7 @@ void Gui::Print(QPrinter* Printer)
           }
 
           if (PageCopies > 1) {
-            message = tr("%1 %2 page copy %3 of %4...").arg(action).arg(mode).arg(PageCopy).arg(PageCopies);
+            message = tr("%1 %2 page copy %3 of %4...").arg(action, mode).arg(PageCopy).arg(PageCopies);
             emit gui->messageSig(LOG_INFO_STATUS,message);
 
             if (Preferences::modeGUI) {
@@ -2262,8 +2262,8 @@ void Gui::Print(QPrinter* Printer)
         Gui::displayPageNum = Page = printPage;
 
         message = tr("%1 %2 %3 of %4 for range %5 ")
-                     .arg(action)
-                     .arg(mode)
+                     .arg(action,
+                          mode)
                      .arg(Page)
                      .arg(printPages.count())
                      .arg(pageRanges.join(" "));
@@ -2281,14 +2281,14 @@ void Gui::Print(QPrinter* Printer)
 
         bool  ls = getPageOrientation() == Landscape;
         message = tr("%1 %2 page %3 of %4, size(pixels) W %5 x H %6, orientation %7 for range %8")
-                     .arg(action)
-                     .arg(mode)
+                     .arg(action,
+                          mode)
                      .arg(Page)
                      .arg(printPages.count())
                      .arg(double(pageWidthPx))
                      .arg(double(pageHeightPx))
-                     .arg(ls ? tr("Landscape") : tr("Portrait"))
-                     .arg(pageRanges.join(" "));
+                     .arg(ls ? tr("Landscape") : tr("Portrait"),
+                          pageRanges.join(" "));
         emit gui->messageSig(LOG_NOTICE,message);
 
         // set up the view
@@ -2327,7 +2327,7 @@ void Gui::Print(QPrinter* Printer)
             }
 
             if (PageCopies > 1) {
-              message = tr("%1 %2 page copy %3 of %4...").arg(action).arg(mode).arg(PageCopy).arg(PageCopies);
+              message = tr("%1 %2 page copy %3 of %4...").arg(action, mode).arg(PageCopy).arg(PageCopies);
               emit gui->messageSig(LOG_INFO_STATUS,message);
 
               if (Preferences::modeGUI) {
@@ -2413,10 +2413,10 @@ void Gui::showExportedFile()
         else if (! warnSet && item.contains(warnRx))
             warnSet++;
       message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                         .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
-                         .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
-                         .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                         .arg(Gui::messageList.join(" ")));
+                         .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"),
+                              errorSet ? QString("%1 %2").arg(QString::number(errorSet), errorSet == 1 ? tr("error") : tr("errors")) : "",
+                              warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "", QString::number(warnSet ), warnSet  == 1 ? tr("warning") : tr("warnings")) : "",
+                              Gui::messageList.join(" ")));
     }
 
     //display completion message
@@ -2433,7 +2433,7 @@ void Gui::showExportedFile()
 
     QString title = "<b>" + tr ("%1 %2 completed.").arg(action, mode) + "</b>";
     QString text = tr ("%1<br><br>Do you want to open this document ?<br><br>%2")
-                       .arg(message).arg(QDir::toNativeSeparators(exportedFile));
+                       .arg(message, QDir::toNativeSeparators(exportedFile));
 
     box.setText (title);
     box.setInformativeText (text);

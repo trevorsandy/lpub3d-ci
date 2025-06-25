@@ -329,8 +329,8 @@ bool StickerParts::exportStickerParts() {
     else
     {
         QString message = QString("Failed to open sticker parts file: %1:\n%2")
-                                  .arg(file.fileName())
-                                  .arg(file.errorString());
+                                  .arg(file.fileName(),
+                                       file.errorString());
         if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),message);
         } else {

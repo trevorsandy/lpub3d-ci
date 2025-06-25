@@ -213,11 +213,11 @@ void Gui::setPliIconPath(QString& key, QString& value)
     if (!mPliIconsPath.contains(key)) {
         mPliIconsPath.insert(key,value);
         emit gui->messageSig(LOG_NOTICE, QString("Icon Inserted: Key [%1] Value [%2]")
-                                                 .arg(key).arg(value));
+                                                 .arg(key, value));
         return;
     }
 //      emit gui->messageSig(LOG_DEBUG, QString("Icon Exist (Insert Ignored): Key [%1] Value [%2]")
-//                                              .arg(key).arg(value));
+//                                              .arg(key, value));
 }
 
 void Gui::fullScreenView()
@@ -389,11 +389,11 @@ void Gui::updateClipboard()
         QString efn =QFileInfo(data).fileName();
         // Text elided to 20 chars
         QString fileName = QString("%1 '%2' %3")
-                               .arg(isImage ? tr("Image") : tr("File"))
-                               .arg(efn.size() > 20 ?
+                               .arg(isImage ? tr("Image") : tr("File"),
+                                    efn.size() > 20 ?
                                         efn.left(17) + "..." +
-                                        efn.right(3) : efn)
-                               .arg(fullPath ? tr("full path") : tr("name"));
+                                        efn.right(3) : efn,
+                                    fullPath ? tr("full path") : tr("name"));
 
         emit gui->messageSig(LOG_INFO_STATUS, QString("'%1' copied to clipboard.").arg(fileName));
     }
@@ -511,8 +511,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
                                    .arg(directionName[move].toLower());
 
         CyclePageDlgType result = CycleDialog::getCycle(tr("%1 Page %2")
-                                                           .arg(VER_PRODUCTNAME_STR)
-                                                           .arg(directionName[move]), message, isEditor, nullptr);
+                                                           .arg(VER_PRODUCTNAME_STR, directionName[move]), message, isEditor, nullptr);
         if (result == CycleYes)
           cycleEachPage = true;
         else if (result == CycleNo)
@@ -1170,8 +1169,8 @@ bool Gui::continuousPageDialog(PageDirection d)
                    .arg(direction)
                    .arg(d == PAGE_NEXT ? pageCount : _maxPages)
                    .arg(_maxPages)
-                   .arg(_maxPages > 1 ? tr("pages") : tr("page"))
-                   .arg(QString(". %1").arg(Gui::elapsedTime(continuousTimer.elapsed())));
+                   .arg(_maxPages > 1 ? tr("pages") : tr("page"),
+                        QString(". %1").arg(Gui::elapsedTime(continuousTimer.elapsed())));
       emit gui->messageSig(LOG_INFO_STATUS,message);
 
       if (Preferences::modeGUI) {
@@ -1188,10 +1187,10 @@ bool Gui::continuousPageDialog(PageDirection d)
                       warnSet++;
 
               message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                             .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
-                             .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
-                             .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                             .arg(Gui::messageList.join(" ")));
+                             .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"),
+                                  errorSet ? QString("%1 %2").arg(QString::number(errorSet), errorSet == 1 ? tr("error") : tr("errors")) : "",
+                                  warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "", QString::number(warnSet ), warnSet  == 1 ? tr("warning") : tr("warnings")) : "",
+                                  Gui::messageList.join(" ")));
           }
           gui->m_progressDialog->setBtnToClose();
           gui->m_progressDialog->setLabelText(message);
@@ -1801,7 +1800,7 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
 
     QProcess::startDetached(QApplication::applicationFilePath(), args);
     emit gui->messageSig(LOG_INFO, tr("Restarted %1 with Command: %2 %3")
-                            .arg(VER_PRODUCTNAME_STR).arg(QApplication::applicationFilePath()).arg(args.join(" ")));
+                            .arg(VER_PRODUCTNAME_STR, QApplication::applicationFilePath(), args.join(" ")));
     QCoreApplication::quit();
 }
 
@@ -2042,8 +2041,8 @@ void Gui::clearCustomPartCache(bool silent)
   QMessageBox::StandardButton ret = QMessageBox::Ok;
   QString message = tr("Fade and highlight parts in %1 will be deleted. The current model parts will be regenerated. "
                        "Regenerated files will be updated in %2.")
-                       .arg(Paths::customDir)
-                       .arg(Preferences::validLDrawCustomArchive);
+                       .arg(Paths::customDir,
+                            Preferences::validLDrawCustomArchive);
   if (silent || !Preferences::modeGUI) {
       emit gui->messageSig(LOG_INFO,message);
   } else {
@@ -2055,7 +2054,7 @@ void Gui::clearCustomPartCache(bool silent)
   if (ret == QMessageBox::Cancel)
       return;
 
-  QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
+  QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath, Paths::customDir));
 
   int count = 0;
   emit gui->messageSig(LOG_INFO,tr("-Removing folder %1").arg(dirName));
@@ -2451,7 +2450,7 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
         step->pli.getParts(pliParts);
         if (pliParts.size()) {
             Q_FOREACH (PliPart* part, pliParts) {
-                QString key = QString("%1;%2;%3").arg(QFileInfo(part->type).completeBaseName()).arg(part->color).arg(step->stepNumber.number);
+                QString key = QString("%1;%2;%3").arg(QFileInfo(part->type).completeBaseName(), part->color).arg(step->stepNumber.number);
                 if (lpub->ldrawFile.viewerStepContentExist(key)) {
                     if (Render::useLDViewSCall())
                         fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
@@ -2821,10 +2820,10 @@ void Gui::editLPub3DIniFile()
     fileExt = "ini";
     if (Preferences::portableDistribution)
         lpubConfigFile = QString("%1/%2/%3.%4")
-                                 .arg(Preferences::lpub3dConfigPath)
-                                 .arg(companyName)
-                                 .arg(Preferences::lpub3dAppName)
-                                 .arg(fileExt);
+                                 .arg(Preferences::lpub3dConfigPath,
+                                      companyName,
+                                      Preferences::lpub3dAppName,
+                                      fileExt);
 #elif defined Q_OS_MACOS
     fileExt = "plist";
     lpubConfigFile = QString("%1/com.%2.%3.%4")
@@ -2849,7 +2848,7 @@ void Gui::editLPub3DIniFile()
     } else {
         displayParmsFile(lpubConfigFile);
         parmsWindow->setWindowTitle(tr("%1.%2 Edit","Edit %1 application configuration settings.")
-                                       .arg(Preferences::lpub3dAppName).arg(fileExt));
+                                       .arg(Preferences::lpub3dAppName, fileExt));
         parmsWindow->show();
     }
 }
@@ -2909,10 +2908,10 @@ void Gui::editBlenderParameters()
     bool blenderPreferences = sender() == gui->getAct("editBlenderPreferencesAct.1");
     if (blenderParameters) {
         titleLabel = tr("LDraw Parameters");
-        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
+        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir, VER_BLENDER_LDRAW_PARAMS_FILE);
     } else if (blenderPreferences) {
         titleLabel = tr("Import and Render Preferences");
-        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_ADDON_CONFIG_FILE);
+        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir, VER_BLENDER_ADDON_CONFIG_FILE);
     }
 
     QFileInfo fileInfo(blenderConfigFile);
@@ -3848,7 +3847,7 @@ void Gui::ldrawColorPartsLoad()
         QString result;
         if (!LDrawColourParts::LDrawColorPartsLoad(result)) {
             QString message = tr("Could not open the %1 LDraw color parts file [%2], Error: %3")
-                    .arg(Preferences::validLDrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+                    .arg(Preferences::validLDrawLibrary, Preferences::ldrawColourPartsFile, result);
             emit gui->messageSig(LOG_NOTICE, message);
             bool prompt = false;
             if (Preferences::modeGUI) {
@@ -3891,7 +3890,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
         if (gui->m_workerJobResult)
             entries = tr(" with %1 entries").arg(gui->m_workerJobResult);
         QString message = tr("The %1 LDraw Color Parts File has finished building%2.")
-                             .arg(Preferences::validLDrawLibrary).arg(entries);
+                             .arg(Preferences::validLDrawLibrary, entries);
         box.setText (message);
 
         bool enableFadeSteps = Gui::m_fadeStepsSetup || Preferences::enableFadeSteps;
@@ -4242,8 +4241,8 @@ bool Gui::installRenderer(int which)
     gui->m_progressDialog->setWindowFlags(gui->m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     gui->m_progressDialog->setWindowTitle(QString("Installing Renderer %1").arg(renderer));
     gui->m_progressDialog->setLabelText(QString("Extracting renderer %1 from %2...")
-                                              .arg(renderer)
-                                              .arg(QFileInfo(rendererArchive).fileName()));
+                                              .arg(renderer,
+                                                   QFileInfo(rendererArchive).fileName()));
     gui->m_progressDialog->setRange(0,items.count());
     gui->m_progressDialog->setAutoHide(true);
     gui->m_progressDialog->setModal(true);
@@ -4285,8 +4284,8 @@ bool Gui::installRenderer(int which)
         message = tr("%1 of %2 %3 renderer files installed to %4")
                      .arg(gui->m_workerJobResult)
                      .arg(items.count())
-                     .arg(renderer)
-                     .arg(destination);
+                     .arg(renderer,
+                          destination);
         emit gui->messageSig(LOG_INFO,message);
 
         result = true;
@@ -4402,8 +4401,8 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fi
       QString partsLabel = gui->m_workerJobResult == 1 ? tr("part") : tr("parts");
       message = tr("Added %1 %2 to %3 unofficial library archive.")
                    .arg(gui->m_workerJobResult)
-                   .arg(partsLabel)
-                   .arg(Preferences::validLDrawCustomArchive);
+                   .arg(partsLabel,
+                        Preferences::validLDrawCustomArchive);
       emit gui->messageSig(LOG_INFO_STATUS,message);
   }
 
@@ -4434,9 +4433,9 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fi
 
       if (fileReload)
           emit gui->messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
-                               .arg(message)
-                               .arg(QFileInfo(Gui::getCurFile()).fileName())
-                               .arg(Gui::elapsedTime(timer.elapsed())));
+                               .arg(message,
+                                    QFileInfo(Gui::getCurFile()).fileName(),
+                                    Gui::elapsedTime(timer.elapsed())));
   }
 }
 
@@ -4566,8 +4565,8 @@ void Gui::refreshLDrawUnoffParts() {
         QString partsLabel = gui->m_workerJobResult == 1 ? "part" : "parts";
         message = tr("Added %1 custom %2 into Unofficial library archive %3")
                      .arg(gui->m_workerJobResult)
-                     .arg(partsLabel)
-                     .arg(QFileInfo(newarchive).fileName());
+                     .arg(partsLabel,
+                          QFileInfo(newarchive).fileName());
         emit gui->messageSig(LOG_INFO,message);
 
         if (gui->m_workerJobResult) {
@@ -4587,7 +4586,7 @@ void Gui::refreshLDrawUnoffParts() {
 
     // Copy new archive library to user data
     QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
-    QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+    QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath, VER_LPUB3D_UNOFFICIAL_ARCHIVE));
     QFile oldFile(archive);
     QFile newFile(newarchive);
     if (! newFile.exists()) {
@@ -4699,7 +4698,7 @@ void Gui::refreshLDrawOfficialParts() {
 
     // Copy archive library to user data
     QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
-    QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE));
+    QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath, VER_LDRAW_OFFICIAL_ARCHIVE));
     QFile oldFile(archive);
     QFile newFile(newarchive);
     if (! newFile.exists()) {
@@ -7684,7 +7683,7 @@ void Gui::parseError(const QString &message,
        {"Annoatation Meta",        tr("annotation configuration error")}    //AnnotationErrors
     };
 
-    QString parseMessage = tr("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
+    QString parseMessage = tr("%1 (file: %2, line: %3)").arg(message, here.modelName).arg(here.lineNumber + 1);
 
     int abortProcess = 0;
 
@@ -7721,7 +7720,7 @@ void Gui::parseError(const QString &message,
                                      : messageIcon == QMessageBox::Icon::Critical
                                            ? "<FONT COLOR='#FF0000'>ERROR</FONT>: "
                                            : "");
-            Gui::messageList << QString("%1%2<br>").arg(status).arg(parseMessage);
+            Gui::messageList << QString("%1%2<br>").arg(status, parseMessage);
         }
     } else if (!guiEnabled) {
         Gui::setAbortProcess(abort);
@@ -8102,11 +8101,11 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   }
 
   const QString ldrawPath = Preferences::ldrawLibPath;
-  excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("parts"));
-  excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("p"));
+  excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath, "parts"));
+  excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath, "p"));
   if (Preferences::usingDefaultLibrary) {
-    excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("unofficial/parts"));
-    excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("unofficial/p"));
+    excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath, "unofficial/parts"));
+    excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath, "unofficial/p"));
   }
 
   connect(textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(buttonSetState()));
@@ -8183,7 +8182,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
       if (!invalidDirs.isEmpty()) {
         const QString message = tr("The search directory list contains excluded or invalid paths which will not be saved.");
-        QMessageBox::warning(dialog, tr("Search Directories"), QString("%1<br>%2").arg(message).arg(invalidDirs.join("<br>")));
+        QMessageBox::warning(dialog, tr("Search Directories"), QString("%1<br>%2").arg(message, invalidDirs.join("<br>")));
         emit gui->messageSig(LOG_INFO, message);
         for (QString &dir : invalidDirs) {
           emit gui->messageSig(LOG_INFO, QString("    - %1").arg(dir));
@@ -8239,7 +8238,7 @@ void LDrawSearchDirDialog::buttonClicked()
     }
   } else if (sender() == pushButtonAddDirectory) {
     const QString ldrawPath = Preferences::ldrawLibPath;
-    const QString result = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(dialog, tr("Select Parts Directory"), QString("%1/%2").arg(ldrawPath).arg("unofficial")));
+    const QString result = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(dialog, tr("Select Parts Directory"), QString("%1/%2").arg(ldrawPath, "unofficial")));
     for (QString &excludedDir : excludedSearchDirs) {
       if (result.toLower() == excludedDir.toLower()) {
           box.setIcon (QMessageBox::Warning);

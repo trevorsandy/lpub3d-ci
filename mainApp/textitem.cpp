@@ -44,7 +44,7 @@ TextItem::TextItem(InsertMeta meta,
   if (meta.value().placementCommand) {
       QString line = gui->readLine(meta.here());
       emit gui->messageSig(LOG_ERROR, tr("Text placement command must come after an 'Add Text' command.<br>Line: %1")
-                           .arg(QString("%1 %2%3").arg(meta.here().lineNumber).arg(meta.here().modelName).arg(line.isEmpty() ? "" : line)));      
+                           .arg(QString("%1 %2%3").arg(meta.here().lineNumber).arg(meta.here().modelName, line.isEmpty() ? "" : line)));
       return;
   }
 

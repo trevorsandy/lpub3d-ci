@@ -1840,9 +1840,10 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                                         .arg(item->zValue()));
                 } else {
                     emit messageSig(LOG_TRACE, tr("Overlap scene item %1 (%2) ZValue %3 is not in the "
-                                                  "%1 User Scene Object list").arg(VER_PRODUCTNAME_STR)
-                                    .arg(soMap[itemObjO]).arg(itemObjO)
-                                    .arg(item->zValue()));
+                                                  "%1 User Scene Object list")
+                                                  .arg(VER_PRODUCTNAME_STR, soMap[itemObjO])
+                                                  .arg(itemObjO)
+                                                  .arg(item->zValue()));
                 }
             }
 

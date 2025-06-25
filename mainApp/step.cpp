@@ -318,7 +318,7 @@ int Step::createCsi(
           compareKey.append(QString("_%1")
                                   .arg(rotStepMeta.value().type.isEmpty() ? "REL" :
                                        rotStepMeta.value().type));
-      csiKey = QString("CSI_%1|%2").arg(compareKey).arg(nameAndStepKey);
+      csiKey = QString("CSI_%1|%2").arg(compareKey, nameAndStepKey);
       // add LDView parms to csiKey if not empty
       if (!ldviewParms.value().isEmpty())
           csiKey.append(QString("|%1").arg(ldviewParms.value()));
@@ -338,7 +338,7 @@ int Step::createCsi(
       keyPart2.append(QString("_%1")
                      .arg(renderer->getRotstepMeta(rotStepMeta,true)));
 
-  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+  QString key = QString("%1_%2").arg(keyPart1, keyPart2);
 
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1%2%3.png").arg(csiPngFilePath, QDir::separator(), key));
@@ -361,9 +361,11 @@ int Step::createCsi(
                                           "number of characters [%2] supported by %3.<br><br>"
                                           "%4 LDraw file path and/or model names to avoid "
                                           "undefined renderer behaviour or switch to the %5 renderer.")
-                                          .arg(imagePathMessage).arg(LP3D_MAX_IMAGE_RENDER_PATH)
-                                          .arg(rendererNames[Preferences::preferredRenderer])
-                                          .arg(imagePathRequest).arg(rendererNames[RENDERER_NATIVE]);
+                                          .arg(imagePathMessage)
+                                          .arg(LP3D_MAX_IMAGE_RENDER_PATH)
+                                          .arg(rendererNames[Preferences::preferredRenderer],
+                                               imagePathRequest,
+                                               rendererNames[RENDERER_NATIVE]);
       emit gui->parseErrorSig(message, here, Preferences::ParseErrors,
                               false/*messageOption*/, false/*messageOverride*/, messageIcon,
                               QObject::tr("Renderer Path Control"),
@@ -578,7 +580,7 @@ int Step::createCsi(
               keyPart2.append(QString("_0_0_0"));
           if (!rotStepMeta.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
-          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+          QString stepKey = QString("%1;%3").arg(keyPart1, keyPart2);
           lpub->ldrawFile.insertViewerStep(viewerStepKey,rotatedParts,rotatedPartsNH,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
       }
 
@@ -659,7 +661,7 @@ int Step::createCsi(
      updateViewer = true;
 
      // populate ldr file name
-     ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key));
+     ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(csiLdrFilePath, key));
 
      // rotate parts and create the CSI file for LDView single call and Native renderering
      if (Render::useLDViewSCall() || nativeRenderer) {
@@ -753,7 +755,7 @@ int Step::createCsi(
          //    QStringList futureParts = csiParts;
              if ((/*f*/rc = renderer->renderCsi(addLine, /*futureParts*/csiParts, csiKeys, pngName, meta, nType)) != 0) {
                  emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
-                                      .arg(rendererNames[Render::getRenderer()]).arg(QFileInfo(pngName).fileName()));
+                                      .arg(rendererNames[Render::getRenderer()], QFileInfo(pngName).fileName()));
                  pngName = QString(":/resources/missingimage.png");
                  /*f*/rc = -1;
              }
@@ -767,11 +769,11 @@ int Step::createCsi(
          emit gui->messageSig(LOG_INFO,
                                   QString("%1 CSI render call took %2 "
                                           "to render %3 for %4 %5 %6 on page %7.")
-                                          .arg(rendererNames[Render::getRenderer()])
-                                          .arg(Gui::elapsedTime(timer.elapsed(),false))
-                                          .arg(pngName)
-                                          .arg(calledOut ? "called out," : "simple,")
-                                          .arg(multiStep ? "step group" : "single step")
+                                          .arg(rendererNames[Render::getRenderer()],
+                                               Gui::elapsedTime(timer.elapsed(),false),
+                                               pngName,
+                                               calledOut ? "called out," : "simple,",
+                                               multiStep ? "step group" : "single step")
                                           .arg(stepNumber.number)
                                           .arg(Gui::stepPageNum));
      }
@@ -1073,7 +1075,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                     continue;
                   else if (line.contains(invalidMetaRx)) {
                     Where where(submodelName, lpub->ldrawFile.getSubmodelIndex(submodelName), i);
-                    QString const &message = QObject::tr("Meta command not supported in STEP for display submodel '%1'.<br>Line [%2]").arg(submodelName).arg(line);
+                    QString const &message = QObject::tr("Meta command not supported in STEP for display submodel '%1'.<br>Line [%2]").arg(submodelName, line);
                     emit gui->parseErrorSig(message,where,Preferences::ParseErrors,true,false,QMessageBox::Warning);
                   } else {
                     QStringList argv;
@@ -1114,7 +1116,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 if (!Gui::colourEntryExist(stepColourList,argv[1], FADE_PART, fadeStepsUseColour))
                   stepColourList << Gui::createColourEntry(colourCode, FADE_PART, ""/*highlightColour*/, fadeColour, fadeStepsUseColour, fadeStepsOpacity);
                 // set fade color code
-                argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(colourCode);
+                argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, colourCode);
               }
               // process type 1 line part naming
               if (type_1_line) {
@@ -1123,7 +1125,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.dat").arg(FADE_SFX));
                   } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX, extension));
                   }
                 }
                 // process subfiles naming
@@ -1131,7 +1133,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
                   } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX, extension));
                   }
                 }
                 // assign fade part name
@@ -1159,7 +1161,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 if (!Gui::colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
                   stepColourList << Gui::createColourEntry(colourCode, HIGHLIGHT_PART, highlightColour, ""/*fadeColour*/);
                 // set highlight color code
-                argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(colourCode);
+                argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, colourCode);
               }
               // process type 1 line part naming
               if (type_1_line) {
@@ -1168,7 +1170,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.dat").arg(HIGHLIGHT_SFX));
                   } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX, extension));
                   }
                 }
                 // process subfiles naming
@@ -1176,7 +1178,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
                   } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX, extension));
                   }
                 }
                 // assign fade part name
@@ -1377,7 +1379,7 @@ int Step::setCsiAnnotationMetas(Meta &_meta, int &_adjust, bool force)
         split(line,argv);
 
         if (argv.size() == 15 && argv[0] == "1") {
-            QString key = QString("%1_%2").arg(QFileInfo(argv[14]).completeBaseName()).arg(argv[1]);
+            QString key = QString("%1_%2").arg(QFileInfo(argv[14]).completeBaseName(), argv[1]);
             PliPart *part = pliParts[key];
 
             if (!part)
@@ -2756,9 +2758,9 @@ void Step::placeit(
       Where here       = stepSize.here();
       float sizeValue  = float(calculatedSize/resolution());
       QString message  = QString("The specified Step %1 %2 is less than its calculated %1 %3.")
-                                 .arg(y == XX ? "width" : "height")
-                                 .arg(QString::number(double(stepSize.value(y)),'f',4))
-                                 .arg(resolutionType() == DPCM ? QString::number(double(centimeters2inches(sizeValue)),'f',4)
+                                 .arg(y == XX ? "width" : "height",
+                                      QString::number(double(stepSize.value(y)),'f',4),
+                                      resolutionType() == DPCM ? QString::number(double(centimeters2inches(sizeValue)),'f',4)
                                                                : QString::number(double(sizeValue),'f',4));
       logInfo() << qPrintable(message);
     }

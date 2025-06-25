@@ -157,7 +157,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
 
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
-        if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
+        if (!QDir(QString("%1/addons/%2").arg(blenderDir, BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
             blenderConfigured = false;
             Preferences::setBlenderImportModule(QString());
         }
@@ -175,7 +175,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         if (mImportOnly) {
             labelMessage = tr("Open%1 in Blender using %2")
-                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
+                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
 
             ui->InputLabel->setMinimumWidth(0);
             ui->InputBrowseButton->setMinimumWidth(0);
@@ -277,7 +277,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
                         : tr("LDraw Import MM");
 
                 QString labelMessage = tr("Open%1 in Blender using %2")
-                                          .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
+                                          .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
                 ui->RenderLabel->setText(labelMessage);
                 ui->RenderLabel->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
             }
@@ -297,8 +297,7 @@ void RenderDialog::on_RenderButton_clicked()
         QFile file(mModelFile);
         if (!file.open(QFile::ReadOnly | QFile::Text)) {
             emit gui->messageSig(LOG_ERROR, QString("Cannot read external file %1<br>%2")
-                                                .arg(mModelFile)
-                                                .arg(file.errorString()));
+                                                .arg(mModelFile, file.errorString()));
             return fileContents;
         }
 
@@ -360,8 +359,8 @@ void RenderDialog::on_RenderButton_clicked()
                 QString model;
                 if (lpub->extractStepKey(here, stepNumber))
                     model = tr(" for %1%2")
-                               .arg(here.modelName)
-                               .arg(stepNumber ? QString(" STEP %1").arg(stepNumber) : "");
+                               .arg(here.modelName,
+                                    stepNumber ? QString(" STEP %1").arg(stepNumber) : "");
                 errorEncountered = tr("Could not find LDraw content%1.").arg(model);
             }
 
@@ -489,8 +488,7 @@ void RenderDialog::on_RenderButton_clicked()
         Arguments << QDir::toNativeSeparators(mModelFile);
 
         message = tr("LDV CSI POV File Generation Arguments: %1 %2")
-                .arg(Preferences::ldviewExe)
-                .arg(Arguments.join(" "));
+                     .arg(Preferences::ldviewExe, Arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
 
         // generate POV file
@@ -502,7 +500,7 @@ void RenderDialog::on_RenderButton_clicked()
             ui->RenderLabel->setText(tr("Rendering POV-Ray scene..."));
         }
 
-        message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(Gui::elapsedTime(mRenderTime.elapsed()));
+        message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName(), Gui::elapsedTime(mRenderTime.elapsed()));
         emit gui->messageSig(LOG_INFO, message);
 
         /* set POV-Ray arguments */
@@ -544,7 +542,7 @@ void RenderDialog::on_RenderButton_clicked()
             }
         }
 
-        message = tr("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe).arg(Arguments.join(" "));
+        message = tr("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe, Arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
 
         QStringList povrayEnv = Render::splitParms(lpub->page.meta.LPub.assem.povrayEnvVars.value());
@@ -593,8 +591,8 @@ void RenderDialog::on_RenderButton_clicked()
             BlenderPreferences::saveSettings();
 
         QString defaultBlendFile = QString("%1/Blender/config/%2")
-                                           .arg(Preferences::lpub3d3rdPartyConfigDir)
-                                           .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
+                                           .arg(Preferences::lpub3d3rdPartyConfigDir,
+                                                VER_BLENDER_DEFAULT_BLEND_FILE);
         bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
         int renderPercentage = mHaveKeys ? qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100) : 100;
 
@@ -608,8 +606,8 @@ void RenderDialog::on_RenderButton_clicked()
                                         "image_file=r'%5'")
                                 .arg(mWidth).arg(mHeight)
                                 .arg(renderPercentage)
-                                .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"))
-                                .arg(QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\")));
+                                .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"),
+                                     QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\")));
         if (Preferences::blenderImportModule == QLatin1String("MM"))
             pythonExpression.append(", use_ldraw_import_mm=True");
         if (searchCustomDir)
@@ -644,9 +642,9 @@ void RenderDialog::on_RenderButton_clicked()
 #else
             scriptName =  QLatin1String("render_ldraw_model.sh");
 #endif
-            scriptCommand = QString("%1 %2").arg(Preferences::blenderExe).arg(Arguments.join(" "));
+            scriptCommand = QString("%1 %2").arg(Preferences::blenderExe, Arguments.join(" "));
 
-            message = tr("Blender %1 command: %2").arg(option).arg(scriptCommand);
+            message = tr("Blender %1 command: %2").arg(option, scriptCommand);
 #ifdef QT_DEBUG_MODE
             qDebug() << qPrintable(message);
 #else
@@ -655,7 +653,7 @@ void RenderDialog::on_RenderButton_clicked()
             if (mImportOnly)
                 scriptCommand.append(QString(" > %1").arg(QDir::toNativeSeparators(GetLogFileName(true/*stdOut*/))));
 
-            script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
+            script.setFileName(QString("%1/%2").arg(scriptDir, scriptName));
             if (script.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream stream(&script);
 #ifdef Q_OS_WIN
@@ -665,7 +663,7 @@ void RenderDialog::on_RenderButton_clicked()
 #endif
                 stream << scriptCommand << lpub_endl;
                 script.close();
-                message = tr("Blender %1 script: %2").arg(option).arg(QDir::toNativeSeparators(script.fileName()));
+                message = tr("Blender %1 script: %2").arg(option, QDir::toNativeSeparators(script.fileName()));
 #ifdef QT_DEBUG_MODE
                 qDebug() << qPrintable(message);
 #else
@@ -673,8 +671,8 @@ void RenderDialog::on_RenderButton_clicked()
 #endif
             } else {
                 emit gui->messageSig(LOG_ERROR, tr("Cannot write Blender render script file [%1] %2.")
-                                     .arg(script.fileName())
-                                     .arg(script.errorString()));
+                                     .arg(script.fileName(),
+                                          script.errorString()));
                 lpub->getAct("blenderRenderAct.4")->setEnabled(true);
                 ui->RenderLabel->setText(tr("Error encountered."));
                 return;
@@ -709,7 +707,7 @@ void RenderDialog::on_RenderButton_clicked()
 
         mProcess->setEnvironment(blenderEnvironment);
 
-        mProcess->setWorkingDirectory(QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::blenderRenderDir)));
+        mProcess->setWorkingDirectory(QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath(), Paths::blenderRenderDir)));
 
         mProcess->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
 
@@ -901,8 +899,7 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
     if ( ! file.open(QFile::ReadOnly | QFile::Text))
     {
         QString message = tr("Failed to open log file: %1:\n%2")
-                             .arg(file.fileName())
-                             .arg(file.errorString());
+                             .arg(file.fileName(), file.errorString());
         return message;
     }
 
@@ -940,8 +937,8 @@ void RenderDialog::WriteStdOut()
     }
     else
     {
-       emit gui->messageSig(LOG_INFO, tr("Error writing to %1 file '%2':\n%3")
-                                         .arg("stdout").arg(file.fileName(), file.errorString()));
+       emit gui->messageSig(LOG_INFO, tr("Error writing to stdout file '%1':\n%2")
+                                         .arg(file.fileName(), file.errorString()));
     }
 }
 
@@ -1104,11 +1101,11 @@ void RenderDialog::ShowResult()
     }
 
     message = QString("%1 CSI %2. %3")
-                      .arg(imageType)
-                      .arg(Success ? mImportOnly ? tr("completed") :
+                      .arg(imageType,
+                           Success ? mImportOnly ? tr("completed") :
                                                    tr("generated %1").arg(FileName) :
-                                                   tr("failed (unknown reason)"))
-                      .arg(Gui::elapsedTime(mRenderTime.elapsed()));
+                                                   tr("failed (unknown reason)"),
+                           Gui::elapsedTime(mRenderTime.elapsed()));
     emit gui->messageSig(Success ? LOG_INFO : LOG_ERROR, message);
 }
 
@@ -1308,7 +1305,7 @@ void RenderDialog::validateInput()
         mMn = mMn.replace(mMn.indexOf(mMn.at(0)),1,mMn.at(0).toUpper());
         if (mImportOnly)
             labelMessage = tr("Open%1 in Blender using %2")
-                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
+                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
         else
             labelMessage = tr("Render image%1").arg(mMn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mMn));
         ui->RenderLabel->setText(labelMessage);

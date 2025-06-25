@@ -3293,10 +3293,10 @@ void MetaItem::updateText(
         QString strMeta;
         if (_isRichText)
             strMeta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
-                              .arg(list.join("\\n")) .arg(textPlacement ? "" : offset);
+                              .arg(list.join("\\n"), textPlacement ? "" : offset);
         else
             strMeta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
-                              .arg(list.join("\\n")) .arg(_editFont) .arg(_editFontColor) .arg(textPlacement ? "" : offset);
+                              .arg(list.join("\\n"), _editFont, _editFontColor, textPlacement ? "" : offset);
 
         beginMacro("UpdateText");
         if (append)
@@ -3603,8 +3603,8 @@ bool MetaItem::deleteFinalModelStep(bool force) {
 #ifdef QT_DEBUG_MODE
       emit lpub->messageSig(LOG_DEBUG, QObject::tr("Deleting inserted final model line %1 in '%2' [%3]")
                                                   .arg(walk.lineNumber)
-                                                  .arg(walk.modelName)
-                                                  .arg(lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber)));
+                                                  .arg(walk.modelName,
+                                                       lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber)));
 #endif
 //*/
       deleteMeta(walk);
@@ -4705,16 +4705,16 @@ void MetaItem::writeCsiAnnotationMeta(
             partOffset[YY] = float(partLoc[YY])/csiSize[YY];
 
             line = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
-                           .arg(preamble)
-                           .arg(placements)
+                           .arg(preamble,
+                                placements)
                            .arg(iconOffset[XX],0,'f',0)
                            .arg(iconOffset[YY],0,'f',0)
                            .arg(partOffset[XX],0,'f',5)
                            .arg(partOffset[YY],0,'f',5)
                            .arg(partSize[XX])
                            .arg(partSize[YY])
-                           .arg(partColor)
-                           .arg(partName);
+                           .arg(partColor,
+                                partName);
         } else {
             emit gui->messageSig(LOG_ERROR, QString("Could not generate meta for line [%1]").arg(line));
             return;
@@ -4792,9 +4792,7 @@ bool MetaItem::offsetPoint(
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("Generate %1 offset cannot read file %2: %3")
-                                           .arg(title)
-                                           .arg(monoOutName)
-                                           .arg(inFile.errorString()));
+                                           .arg(title, monoOutName, inFile.errorString()));
       return false; //pagePosition.center();
   }
 
@@ -4935,8 +4933,7 @@ bool MetaItem::offsetPoint(
     return true;
   }
   emit gui->messageSig(LOG_ERROR, QString("Render momo %1 image for %2 failed.")
-                       .arg(title.toLower())
-                       .arg(partAnnotation ? "part ["+partType+"]" : "model ["+modelName+"]"));
+                       .arg(title.toLower(), partAnnotation ? "part ["+partType+"]" : "model ["+modelName+"]"));
   return false;
 }
 
@@ -5121,8 +5118,7 @@ int MetaItem::monoColorSubmodel(
   QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("MonoColorSubmodel cannot write file %1: %2.")
-                         .arg(monoOutName)
-                         .arg(outFile.errorString()));
+                         .arg(monoOutName, outFile.errorString()));
     return -1;
   }
 
@@ -5220,8 +5216,7 @@ QPointF MetaItem::defaultPointerTip(
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("Cannot read defaultPointerTip file %1: %2.")
-                         .arg(monoOutName)
-                         .arg(inFile.errorString()));
+                         .arg(monoOutName, inFile.errorString()));
     return centerOffset;
   }
 

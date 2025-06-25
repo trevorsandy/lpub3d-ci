@@ -530,8 +530,8 @@ int Gui::drawPage(
         static QRegularExpression multiStepRx(" MULTI_STEP BEGIN$");
         bool stepGroup = fin ? multiStep : Gui::stepContains(where, multiStepRx);
         QString const message = tr("%1 %2 draw-page for page %3, step %4, model '%5'%6")
-                .arg(fin ? tr("Processed") : tr("Processing")).arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"))
-                .arg(Gui::displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
+                .arg(fin ? tr("Processed") : tr("Processing")).arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"),
+                     Gui::displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
         emit gui->messageSig(LOG_STATUS, message);
         emit gui->messageSig(fin ? LOG_TRACE : LOG_INFO, message);
     };
@@ -552,8 +552,9 @@ int Gui::drawPage(
             pageRenderMessage += tr("render ");
         }
         pageRenderMessage += tr("rendered page %1 - %2")
-                .arg(QString("%1%2").arg(Gui::displayPageNum).arg(coverPage ? tr(" (Cover Page)") : ""))
-                .arg(Gui::elapsedTime(pageRenderTimer.elapsed()));
+                .arg(QString("%1%2").arg(Gui::displayPageNum)
+                .arg(coverPage ? tr(" (Cover Page)") : ""),
+                     Gui::elapsedTime(pageRenderTimer.elapsed()));
         emit gui->messageSig(LOG_TRACE, pageRenderMessage);
         Gui::revertPageProcess();
     };
@@ -960,8 +961,8 @@ int Gui::drawPage(
                     }
                     SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNum);
                     const QString levelKey = QString("DrawPage BuildMod Key: %1, ParentModel: %2, LineNumber: %3")
-                            .arg(buildMod.key)
-                            .arg(opts.current.modelName)
+                            .arg(buildMod.key,
+                                 opts.current.modelName)
                             .arg(opts.current.lineNumber);
                     int buildModLevel = buildMod.state == BM_BEGIN ? getLevel(levelKey, BM_CURRENT) : opts.buildModLevel;
                     callout->meta.submodelStack << tos;
@@ -1389,7 +1390,7 @@ int Gui::drawPage(
                     curMeta.LeoCad.light.name.setValue(name);
 
                     LightData lightData = curMeta.LeoCad.light.value();
-                    const QString lightKey = QString("%1 %2").arg(lightData.type).arg(name);
+                    const QString lightKey = QString("%1 %2").arg(lightData.type, name);
                     lightList.insert(lightKey, lightData);
                 }
                 else
@@ -1433,8 +1434,8 @@ int Gui::drawPage(
                         && ! buildModPliIgnore
                         && ! synthBegin) {
                     QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2")
-                            .arg(curMeta.LPub.pli.begin.sub.value().color)
-                            .arg(curMeta.LPub.pli.begin.sub.value().part);
+                            .arg(curMeta.LPub.pli.begin.sub.value().color,
+                                 curMeta.LPub.pli.begin.sub.value().part);
                     opts.pliParts << Pli::partLine(addPart,opts.current,curMeta);
                 }
 
@@ -1446,13 +1447,13 @@ int Gui::drawPage(
                         if (!Preferences::modeGUI && Preferences::lpub3dLoaded) {
                             lpub->ldrawFile.setUnofficialPart(curMeta.LPub.pli.begin.sub.value().part, UNOFFICIAL_PART);
                             message = tr("Substitute part %1 detected as a submodel %2. Subfile set to Unofficial Part")
-                                         .arg(curMeta.LPub.pli.begin.sub.value().part).arg(here);
+                                         .arg(curMeta.LPub.pli.begin.sub.value().part, here);
                             emit gui->messageSig(LOG_WARNING, message);
                         } else {
                             message = tr("Substitute part '%1' detected as a submodel %2.<br>"
                                          "Consider adding an !LDRAW_ORG unofficial part header to this subfile.<br>"
                                          "<br>Or click Yes to to set this subfile as an unofficial part now ?")
-                                    .arg(curMeta.LPub.pli.begin.sub.value().part).arg(here);
+                                    .arg(curMeta.LPub.pli.begin.sub.value().part, here);
                             auto Rc = QMessageBox::warning(gui,tr("Substitute Part Warning").arg(VER_PRODUCTNAME_STR), message,
                                                            QMessageBox::No|QMessageBox::Yes|QMessageBox::Abort,QMessageBox::Yes);
                             switch (Rc) {
@@ -2164,14 +2165,15 @@ int Gui::drawPage(
                                                  "Step group PLI per STEP set to TRUE but PLI placement is %1 %2 %3.<br>"
                                                  "The PLI should be relative to %4.<br>"
                                                  "A valid placement is MULTI_STEP PLI PLACEMENT %5 %6 %7.")
-                                    .arg(placementNames[  placementData.placement])
-                                    .arg(relativeNames [  placementData.relativeTo])
-                                    .arg(prepositionNames[placementData.preposition]).arg(tr("%1%2")
-                                                                                          .arg(relativeNames [CsiType]).arg(stepNumRelativeToPli ? "" : tr(" or %1")
-                                                                                                                                                   .arg(relativeNames [StepNumberType])))
-                                    .arg(placementNames[  TopLeft])
-                                    .arg(relativeNames [  CsiType])
-                                    .arg(prepositionNames[Outside]);
+                                    .arg(placementNames[  placementData.placement],
+                                         relativeNames [  placementData.relativeTo],
+                                         prepositionNames[placementData.preposition],
+                                         tr("%1%2").arg(relativeNames [CsiType], stepNumRelativeToPli
+                                                                                 ? ""
+                                                                                 : tr(" or %1").arg(relativeNames [StepNumberType])),
+                                         placementNames[  TopLeft],
+                                         relativeNames [  CsiType],
+                                         prepositionNames[Outside]);
                             emit gui->parseErrorSig(message, opts.current,Preferences::ParseErrors,false,true/*overide*/);
                         }
                     }
@@ -2229,12 +2231,12 @@ int Gui::drawPage(
                                         tr("%1 CSI (Single Call) render took "
                                            "%2 milliseconds to render %3 [Step %4] %5 "
                                            "for %6 step group on page %7.")
-                                        .arg(rendererNames[Render::getRenderer()])
-                                        .arg(Gui::elapsedTime(timer.elapsed(),false))
+                                        .arg(rendererNames[Render::getRenderer()],
+                                             Gui::elapsedTime(timer.elapsed(),false))
                                         .arg(opts.ldrStepFiles.size())
                                         .arg(opts.stepNum)
-                                        .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"))
-                                        .arg(opts.calledOut ? tr("called out,") : tr("simple,"))
+                                        .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"),
+                                             opts.calledOut ? tr("called out,") : tr("simple,"))
                                         .arg(Gui::stepPageNum));
                     }
 
@@ -2300,7 +2302,7 @@ int Gui::drawPage(
                 } else {
                     const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
                     emit gui->parseErrorSig(tr("DrawPage BuildMod key '%1' for %2 action was not found.")
-                               .arg(buildMod.key).arg(action),
+                               .arg(buildMod.key, action),
                                opts.current,Preferences::BuildModErrors);
                 }
                 buildModActionStep = true;
@@ -2327,7 +2329,7 @@ int Gui::drawPage(
                             gui->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                         else
                             emit gui->parseErrorSig(tr("Could not preserve previous BuildMod %1 action for key '%2'.<br>Step or key was not found.")
-                                       .arg(rc == BuildModApplyRc ? tr("Remove") : tr("Apply")).arg(buildMod.key),
+                                       .arg(rc == BuildModApplyRc ? tr("Remove") : tr("Apply"), buildMod.key),
                                        opts.current,Preferences::BuildModErrors, true, false, QMessageBox::Warning);
                         gui->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                         // set buildModStepIndex for writeToTmp() and findPage() content
@@ -2532,7 +2534,7 @@ int Gui::drawPage(
                         if (buildModActionMeta.action())
                             step->buildModActionMeta = buildModActionMeta;
                     }
-                    emit gui->messageSig(LOG_INFO, tr("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
+                    emit gui->messageSig(LOG_INFO, tr("Processing CSI %1 special case for %2...").arg(caseType, topOfStep.modelName));
 
                     step->updateViewer = opts.updateViewer;
 
@@ -2893,12 +2895,12 @@ int Gui::drawPage(
                                                 tr("%1 CSI (Single Call) render took "
                                                    "%2 milliseconds to render %3 [Step %4] %5 for %6 "
                                                    "single step on page %7.")
-                                                .arg(rendererNames[Render::getRenderer()])
-                                                .arg(Gui::elapsedTime(timer.elapsed(),false))
+                                                .arg(rendererNames[Render::getRenderer()],
+                                                     Gui::elapsedTime(timer.elapsed(),false))
                                                 .arg(opts.ldrStepFiles.size())
                                                 .arg(opts.stepNum)
-                                                .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"))
-                                                .arg(opts.calledOut ? tr("called out,") : tr("simple,"))
+                                                .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"),
+                                                     opts.calledOut ? tr("called out,") : tr("simple,"))
                                                 .arg(Gui::stepPageNum));
                             } // useLDViewSCall()
 
@@ -2939,7 +2941,7 @@ int Gui::drawPage(
                                         const QString cover = frontCover ? tr("front cover") : tr("back cover");
                                         emit gui->messageSig(LOG_INFO_STATUS, tr("Set cover page model preview..."));
                                         emit gui->messageSig(LOG_INFO, tr("Set cover page model preview at %1 for %2, step number %3...")
-                                                                          .arg(cover).arg(topOfStep.modelName).arg(stepNum));
+                                                                          .arg(cover, topOfStep.modelName).arg(stepNum));
                                         const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
                                         step->displayStep = DT_MODEL_COVER_PAGE_PREVIEW;
                                         steps->meta.LPub.subModel.showStepNum.setValue(stepNum);
@@ -2950,19 +2952,19 @@ int Gui::drawPage(
                                         });
                                         if (future.result()) {
                                             emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page model preview at %1 for %2, stepNum %3 (%4.ldr).")
-                                                                               .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(fileName));
+                                                                               .arg(cover, topOfStep.modelName).arg(stepNum).arg(fileName));
                                         } else {
                                             // set the current step - enable access from other parts of the application - e.g. Renderer
                                             lpub->setCurrentStep(step);
                                             if (lpub->currentStep) {
                                                 if (step->subModel.viewerSubmodelKey == lpub->currentStep->viewerStepKey) {
                                                     emit gui->showLineSig(topOfStep, LINE_HIGHLIGHT);
-                                                    const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
+                                                    const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath(), Paths::tmpDir, fileName));
                                                     emit gui->previewModelSig(modelFileName);
                                                 } else {
                                                     QString const currentStepKey = lpub->currentStep->viewerStepKey;
                                                     emit gui->messageSig(LOG_WARNING, tr("The specified submodel step key: '%1' does not match the current step key: '%2'")
-                                                                                         .arg(step->subModel.viewerSubmodelKey).arg(currentStepKey));
+                                                                                         .arg(step->subModel.viewerSubmodelKey, currentStepKey));
                                                 }
                                             }
                                         }
@@ -3479,8 +3481,8 @@ int Gui::findPage(
 
                                     // add buildMod settings for this step, needed for submodels in a buildMod.
                                     const QString levelKey = QString("FindPage BuildMod Key: %1, ParentModel: %2, LineNumber: %3")
-                                            .arg(buildMod.key)
-                                            .arg(opts.current.modelName)
+                                            .arg(buildMod.key,
+                                                 opts.current.modelName)
                                             .arg(opts.current.lineNumber);
                                     FindPageFlags flags2;
                                     flags2.buildModStack << buildMod;
@@ -3835,8 +3837,8 @@ int Gui::findPage(
                     Where current = opts.current;
                     if (lpub->mi.scanForwardNoParts(current, StepMask|StepGroupMask) == StepGroupEndRc)
                         emit gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
-                                           .arg(rc == BuildModRemoveRc ? QString("REMOVE") : QString("APPLY"))
-                                           .arg(meta.LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
+                                           .arg(rc == BuildModRemoveRc ? QString("REMOVE") : QString("APPLY"),
+                                                meta.LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
                 }
                 break;
 
@@ -4584,7 +4586,7 @@ int Gui::getBOMParts(
            * Automatically ignore parts added twice due to buffer exchange
            */
               bool removed = false;
-              QString colorPart = QString("%1%2%3").arg(current.lineNumber).arg(token[1]).arg(type);
+              QString colorPart = QString("%1%2%3").arg(current.lineNumber).arg(token[1], type);
 
               if (bfxStore2 && bfxLoad) {
                   int i;
@@ -4656,8 +4658,8 @@ int Gui::getBOMParts(
                   ! buildModIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
-                                            .arg(meta.LPub.pli.begin.sub.value().color)
-                                            .arg(meta.LPub.pli.begin.sub.value().part);
+                                            .arg(meta.LPub.pli.begin.sub.value().color,
+                                                 meta.LPub.pli.begin.sub.value().part);
                   Gui::bomParts << Pli::partLine(addPart,current,meta);
                   pliIgnore = true;
                 }
@@ -4904,8 +4906,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
     QFile bomFile(bomFileName);
     if ( ! bomFile.open(QIODevice::WriteOnly)) {
         emit lpub->messageSig(LOG_ERROR, tr("Cannot open BOM parts file for writing: %1, %2.")
-                              .arg(bomFileName)
-                              .arg(bomFile.errorString()));
+                              .arg(bomFileName, bomFile.errorString()));
         return false;
     }
 
@@ -5512,8 +5513,8 @@ void Gui::pagesCounted()
         } else if (! Gui::ContinuousPage()) {
             emit gui->messageSig(LOG_INFO_STATUS, tr("Page %1 %2. %3.")
                             .arg(Gui::exporting() && Gui::displayPageNum < Gui::maxPages ? Gui::displayPageNum + 1 : Gui::displayPageNum)
-                            .arg(Gui::exporting() ? tr("exported") : tr("loaded"))
-                            .arg(Gui::elapsedTime(displayPageTimer.elapsed())));
+                            .arg(Gui::exporting() ? tr("exported") : tr("loaded"),
+                                 Gui::elapsedTime(displayPageTimer.elapsed())));
         }
 
         if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
@@ -5637,8 +5638,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             QFile file(filePath);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 emit gui->messageSig(LOG_ERROR, tr("Cannot read include file %1<br>%2")
-                                                   .arg(filePath)
-                                                   .arg(file.errorString()));
+                                                   .arg(filePath, file.errorString()));
                 meta.LPub.include.setValue(QString());
                 return static_cast<int>(IncludeFileErrorRc);
             }
@@ -5993,7 +5993,7 @@ int Gui::setBuildModForNextStep(
                 } else {
                     const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
                     emit gui->parseErrorSig(tr("Next Step BuildMod key '%1' for %2 action was not found.")
-                                            .arg(buildMod.key).arg(action),
+                                            .arg(buildMod.key, action),
                                             walk,Preferences::ParseErrors,false,false);
                 }
                 if ((Rc)buildMod.action != rc) {
@@ -6007,7 +6007,7 @@ int Gui::setBuildModForNextStep(
                 if (buildMod.state == BM_BEGIN) {
                     QString const message = tr("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
                                                "Multiple build modifications per STEP are not allowed.")
-                                                    .arg(meta.LPub.buildMod.key()).arg(buildMod.key);
+                                                    .arg(meta.LPub.buildMod.key(), buildMod.key);
                     emit gui->parseErrorSig(message, walk,Preferences::BuildModErrors,false,false);
                 }
                 buildMod.key   = meta.LPub.buildMod.key();
@@ -6154,7 +6154,7 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
   QFile file(filePath);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
       emit gui->messageSig(LOG_ERROR, tr("Failed to open %1 for writing:<br>%2")
-                                         .arg(filePath).arg(file.errorString()));
+                                         .arg(filePath, file.errorString()));
       return QStringList();
     } else if (!parseContent) {
       QTextStream out(&file);
@@ -6384,8 +6384,7 @@ void Gui::writeToTmp()
       QFile file(fileName);
       if (!file.open(QFile::ReadOnly | QFile::Text)) {
           emit gui->messageSig(LOG_ERROR, tr("Cannot read external file %1<br>%2")
-                               .arg(fileName)
-                               .arg(file.errorString()));
+                               .arg(fileName, file.errorString()));
           return QStringList();
       }
 
@@ -6426,18 +6425,18 @@ void Gui::writeToTmp()
                       ? tr("unofficial %1part ").arg(displayModel ? tr("display ") : QString())
                       : tr("%1submodel ").arg(displayModel ? tr("display ") : QString());
 
-          QString const message = tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fileName);
+          QString const message = tr("Writing %1'%2' to temp folder...").arg(fileType, fileName);
 
           QString progressMessage = message;
 
           if (Gui::suspendFileDisplay) {
               progressMessage = tr("Writing %1%2 of %3 files (%4 lines)...")
-                           .arg(fileType)
-                           .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
-                           .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
-                           .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
+                           .arg(fileType,
+                                QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')),
+                                QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')),
+                                QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
           } else {
-              progressMessage = tr("Writing %1%2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
+              progressMessage = tr("Writing %1%2 (%3 lines)").arg(fileType).arg(fileName, numberOfLines);
           }
 
           if (!Gui::ContinuousPage()) {
@@ -6457,7 +6456,7 @@ void Gui::writeToTmp()
                       QFile::remove(destinationPath);
                   }
                   if(!QFile::copy(sourceFilePath, destinationPath)) {
-                      emit gui->messageSig(LOG_ERROR, tr("Could not write %1file '%2' to temp folder...").arg(fileType).arg(fileName));
+                      emit gui->messageSig(LOG_ERROR, tr("Could not write %1file '%2' to temp folder...").arg(fileType, fileName));
                   }
               }
 
@@ -6477,8 +6476,8 @@ void Gui::writeToTmp()
                       if (extension.isEmpty())
                         fadeFileNameStr = QString(fileName).append(QString("%1.ldr").arg(FADE_SFX));
                       else
-                        fadeFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                      emit gui->messageSig(LOG_INFO, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fadeFileNameStr));
+                        fadeFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(FADE_SFX, extension));
+                      emit gui->messageSig(LOG_INFO, tr("Writing %1'%2' to temp folder...").arg(fileType, fadeFileNameStr));
                       QStringList *fadeContent = new QStringList(Gui::configureModelSubFile(*cleanContent, fadeColor, FADE_PART));
                       gui->insertConfiguredSubFile(fadeFileNameStr, *fadeContent);
                       gui->writeToTmp(fadeFileNameStr, *fadeContent, false/*parseContent*/);
@@ -6488,8 +6487,8 @@ void Gui::writeToTmp()
                       if (extension.isEmpty())
                         highlightFileNameStr = QString(fileName).append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
                       else
-                        highlightFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                      emit gui->messageSig(LOG_INFO, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(highlightFileNameStr));
+                        highlightFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX, extension));
+                      emit gui->messageSig(LOG_INFO, tr("Writing %1'%2' to temp folder...").arg(fileType, highlightFileNameStr));
                       QStringList *highlightContent = new QStringList(Gui::configureModelSubFile(*cleanContent, fadeColor, HIGHLIGHT_PART));
                       gui->insertConfiguredSubFile(highlightFileNameStr, *highlightContent);
                       gui->writeToTmp(highlightFileNameStr, *highlightContent, false/*parseContent*/);
@@ -6526,9 +6525,9 @@ void Gui::writeToTmp()
 
       QString const writeToTmpElapsedTime = Gui::elapsedTime(writeToTmpTimer.elapsed());
       emit gui->messageSig(LOG_INFO_STATUS, tr("%1 %2 written to temp folder. %3")
-                                               .arg(writtenFiles ? QString::number(writtenFiles) : tr("No"))
-                                               .arg(writtenFiles == 1 ? tr("file") : tr("files"))
-                                               .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
+                                               .arg(writtenFiles ? QString::number(writtenFiles) : tr("No"),
+                                                    writtenFiles == 1 ? tr("file") : tr("files"),
+                                                    writtenFiles ? writeToTmpElapsedTime : QString()));
   }
 
   Gui::revertPageProcess();
@@ -6726,7 +6725,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                   if (!Gui::colourEntryExist(subfileColourList,argv[1], partType))
                       subfileColourList << Gui::createColourEntry(colourCode, partType);
                   // set color code - fade, highlight or both
-                  argv[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
+                  argv[1] = QString("%1%2").arg(colourPrefix, colourCode);
               }
               // process file naming
               QString fileNameStr = QString(argv[argv.size()-1]).toLower();
@@ -6736,7 +6735,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
                   } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod, extension));
                   }
                 }
               // subfiles
@@ -6744,7 +6743,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
                   } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod, extension));
                   }
                 }
               argv[argv.size()-1] = fileNameStr;
@@ -6806,7 +6805,7 @@ bool Gui::colourEntryExist(
         return true;
 
     QString const colourPrefix = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
-    QString const colourCode   = QString("%1%2").arg(colourPrefix).arg(code);
+    QString const colourCode   = QString("%1%2").arg(colourPrefix, code);
 
     QStringList colourComponents;
     for (int i = 0; i < colourEntries.size(); ++i) {
@@ -6853,10 +6852,10 @@ QString Gui::createColourEntry(
   QString const _colourDescription = colourNamePrefix + LDrawColor::name(colourCode);
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")
-                 .arg(_colourDescription)   // description
-                 .arg(_colourCode)          // original color code
-                 .arg(_mainColourValue)     // main color value
-                 .arg(_edgeColourValue)     // edge color value
+                 .arg(_colourDescription,   // description
+                      _colourCode,          // original color code
+                      _mainColourValue,     // main color value
+                      _edgeColourValue)     // edge color value
                  .arg(_alphaValue);         // color alpha value
 }
 

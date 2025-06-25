@@ -741,8 +741,8 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
       emit lpub->messageSig(LOG_INFO,tr("Fade Steps Color preference changed from %1 to %2 - Set from meta command")
-                                        .arg(fadeStepsColourCompare.replace("_"," "))
-                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
+                                        .arg(fadeStepsColourCompare.replace("_"," "),
+                                             QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
 
   return true /*setupFadeSteps || Preferences::enableFadeSteps*/;
@@ -831,8 +831,7 @@ bool LPub::setHighlightStepFromCommand()
     bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
     if (highlightStepColorChanged)
       emit lpub->messageSig(LOG_INFO,tr("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
-                                        .arg(highlightStepColourCompare)
-                                        .arg(Preferences::highlightStepColour));
+                                        .arg(highlightStepColourCompare, Preferences::highlightStepColour));
   }
 
   return true /*setupHighlightStep || Preferences::enableHighlightStep*/;
@@ -894,8 +893,8 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
   } else if (renderer == RENDERER_POVRAY) {
     if (Preferences::useNativePovGenerator != useNativeGenerator) {
       message = tr("Renderer preference POV file generator changed from %1 to %2.")
-                        .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW])
-                        .arg(useNativeGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]);
+                        .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW],
+                             useNativeGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]);
       emit lpub->messageSig(LOG_INFO,message);
       Preferences::useNativePovGenerator = useNativeGenerator;
       if (!renderFlagChanged)
@@ -907,9 +906,9 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
 
   if (rendererChanged || renderFlagChanged) {
     message = QString("Renderer preference will change from %1 to %2%3.")
-                      .arg(rendererNames[Preferences::preferredRenderer])
-                      .arg(rendererNames[renderer])
-                      .arg(renderer == RENDERER_POVRAY ? tr(" (POV file generator is %1)")
+                      .arg(rendererNames[Preferences::preferredRenderer],
+                           rendererNames[renderer],
+                           renderer == RENDERER_POVRAY ? tr(" (POV file generator is %1)")
                                                                  .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                            renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
                                                          useLDVSnapShotList ? tr(" (Single Call using Snapshot File List)") :
@@ -1110,12 +1109,13 @@ void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
 
     if (Preferences::debugLogging && !stepMatch)
         emit lpub->messageSig(LOG_DEBUG, tr("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
-                                           .arg(stepMatch ? "Match!" : "Oh oh!")
-                                           .arg(tr("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
-                                           .arg(stepType == BM_MULTI_STEP  ? "multi step"  :
+                                           .arg(stepMatch ? "Match!" : "Oh oh!",
+                                                tr("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"),
+                                                stepType == BM_MULTI_STEP  ? "multi step"  :
                                                 stepType == BM_CALLOUT_STEP   ? "called out"  :
-                                                stepType == BM_SINGLE_STEP ? "single step" : "gStep")
-                                           .arg(here.modelName).arg(here.lineNumber));
+                                                stepType == BM_SINGLE_STEP ? "single step" : "gStep",
+                                                here.modelName)
+                                           .arg(here.lineNumber));
 }
 
 bool LPub::setCurrentStep(const QString &key)
@@ -1143,7 +1143,7 @@ bool LPub::setCurrentStep(const QString &key)
         setCurrentStep(step, here, stepNumber, stepType);
     } else {
         emit lpub->messageSig(LOG_ERROR, tr("Could not determine step for '%1' at step number '%2'.")
-                                           .arg(here.modelName).arg(stepNumberSpecified));
+                                           .arg(here.modelName, stepNumberSpecified));
     }
 
 #ifdef QT_DEBUG_MODE
@@ -1209,7 +1209,7 @@ QString LPub::getFilePath(const QString &fileName)
     }
 
     QString message = QString("Failed to resolve file %1 at path:<br>[%2]<br>")
-                              .arg(fileInfo.fileName()).arg(currentPath);
+                              .arg(fileInfo.fileName(), currentPath);
     if (fileInfo.absoluteFilePath().contains("Google Drive",Qt::CaseInsensitive))
         message.append(QString("<br>Replace '...\\Google Drive\\' absolute path with mapped path 'G:\\My Drive\\'."
                                "<br>Use your specified drive letter (versus 'G:\\') accordingly."));
@@ -1370,8 +1370,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool pla
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         emit messageSig(LOG_ERROR, tr("Cannot write file %1:<br>%2.")
-                        .arg(fileName)
-                        .arg(file.errorString()));
+                        .arg(fileName, file.errorString()));
         return false;
     }
 
@@ -1440,7 +1439,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool pla
 #ifdef Q_OS_WIN
         doc.prepend(tr("---------------------------------------------------------------------------------"));
         doc.prepend(QString());
-        doc.prepend(tr("  LPUB UDL: %1assets/resources/%2.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  LPUB UDL: %1assets/resources/%2.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR, VER_PRODUCTNAME_STR));
         doc.prepend(tr("  selected to enable LPUB syntax highlighting."));
         doc.prepend(tr("  Install %1_Npp_UDL.xml and open this file in Notepad++ with '%1' UDL").arg(VER_PRODUCTNAME_STR));
         doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
@@ -1454,7 +1453,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool pla
         doc.prepend(tr("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
         doc.prepend(tr("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
         doc.prepend(tr("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
-        doc.prepend(tr("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
+        doc.prepend(tr("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR, VER_COMMIT_STR));
         doc.prepend(tr("  Author......: %1").arg(VER_PUBLISHER_STR));
         doc.prepend(tr("  Name........: %1, LPUB Meta Commands").arg(VER_FILEDESCRIPTION_STR));
         doc.prepend(QString());
@@ -1511,7 +1510,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool pla
         doc.prepend("<ol id=\"commandOL\">");
         doc.prepend("</div>");
         doc.prepend("<i class=\"fa fa-filter fa-lg\"></i>");
-        doc.prepend(QString("<input type=\"text\" id=\"commandInput\" onkeyup=\"commandFunction()\" placeholder=\"%1\" title=\"%2\">").arg("Meta command filter").arg(tr("Type command key words to filter list")));
+        doc.prepend(QString("<input type=\"text\" id=\"commandInput\" onkeyup=\"commandFunction()\" placeholder=\"%1\" title=\"%2\">").arg("Meta command filter", tr("Type command key words to filter list")));
         doc.prepend(tr("<label><b>Meta Commands:</b></label>"));
         doc.prepend("<div class=\"commandInputDiv\">");
         doc.prepend(tr("  <code>|</code> Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified.</li></p>"));
@@ -1523,12 +1522,12 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool pla
 #ifdef Q_OS_WIN
         doc.prepend("<p>---------------------------------------------------------------------------------</p>");
         doc.prepend(tr("  <i class=\"fa fa-download fa-lg\"></i> %1_LPub_Meta_Commands.txt.zip</button></p>").arg(VER_PRODUCTNAME_STR));
-        doc.prepend(tr("  <button onclick=\"location.href='%1assets/resources/%2_LPub_Meta_Commands.txt.zip'\" title=\"%1assets/resources/%2_LPub_Meta_Commands.txt.zip\">").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  <button onclick=\"location.href='%1assets/resources/%2_LPub_Meta_Commands.txt.zip'\" title=\"%1assets/resources/%2_LPub_Meta_Commands.txt.zip\">").arg(VER_HOMEPAGE_GITHUB_STR, VER_PRODUCTNAME_STR));
         doc.prepend(tr("  <i class=\"fa fa-download fa-lg\"></i> %1_Npp_UDL.xml.zip </button>").arg(VER_PRODUCTNAME_STR));
-        doc.prepend(tr("  <button onclick=\"location.href='%1assets/resources/%2_Npp_UDL.xml.zip'\" title=\"%1assets/resources/%2_Npp_UDL.xml.zip\">").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  <button onclick=\"location.href='%1assets/resources/%2_Npp_UDL.xml.zip'\" title=\"%1assets/resources/%2_Npp_UDL.xml.zip\">").arg(VER_HOMEPAGE_GITHUB_STR, VER_PRODUCTNAME_STR));
         doc.prepend(tr("  selected to enable LPUB syntax highlighting.<br>"));
         doc.prepend(tr("  Install %1_Npp_UDL.xml and open the .txt instance of this file in Notepad++ with '%1' UDL").arg(VER_PRODUCTNAME_STR));
-        doc.prepend(tr("  available in the 'extras' folder or at the <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%2 homepage</a>.<br>").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  available in the 'extras' folder or at the <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%2 homepage</a>.<br>").arg(VER_HOMEPAGE_GITHUB_STR, VER_PRODUCTNAME_STR));
         doc.prepend(tr("  %1 has an LPUB User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
         doc.prepend(tr("  The text instance of this file is best viewed on Windows with Notepad++ <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%1</a>.<br>").arg("https://notepad-plus-plus.org"));
         doc.prepend("<p>");
@@ -1538,7 +1537,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool pla
         doc.prepend(tr("  License.....: GPLv3 - see <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%1</a><br>").arg(VER_LICENSE_INFO_STR));
         doc.prepend(tr("  Homepage....: <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%1</a><br>").arg(VER_HOMEPAGE_GITHUB_STR));
         doc.prepend(tr("  Last Update.: %1<br>").arg(VER_COMPILE_DATE_STR));
-        doc.prepend(tr("  Version.....: %1.%2<br>").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
+        doc.prepend(tr("  Version.....: %1.%2<br>").arg(VER_PRODUCTVERSION_STR, VER_COMMIT_STR));
         doc.prepend(tr("  Author......: %1<br>").arg(VER_PUBLISHER_STR));
         doc.prepend(tr("  Name........: %1, LPUB Meta Commands<br>").arg(VER_FILEDESCRIPTION_STR));
         doc.prepend("<p>");
@@ -1920,7 +1919,7 @@ void LPub::httpDownloadFinished()
     if (mHttpReply->error()) {
         mByteArray.clear();
         message = tr("%1 download failed: %2.")
-                     .arg(mTitle).arg(mHttpReply->errorString());
+                     .arg(mTitle, mHttpReply->errorString());
         if (message.endsWith("not found."))
             message.append(tr("<br>Your internet connection may be interrupted."));
         if (Preferences::modeGUI) {
@@ -1972,18 +1971,18 @@ QString LPub::elapsedTime(const qint64 &duration, bool pretty)
 
     return tr("%1%2%3%4")
               .arg(pretty        ?
-                             tr("Elapsed time: ") : QString())
-              .arg(hours   >   0 ?
+                             tr("Elapsed time: ") : QString(),
+                   hours   >   0 ?
                              QString("%1 %2 ")
                                      .arg(hours)
                                      .arg(hours   > 1 ? tr("hours")   : tr("hour")) :
-                             QString())
-              .arg(minutes > 0 ?
+                             QString(),
+                   minutes > 0 ?
                              QString("%1 %2 ")
                                      .arg(minutes)
                                      .arg(minutes > 1 ? tr("minutes") : tr("minute")) :
-                             QString())
-              .arg(QString("%1.%2 %3")
+                             QString(),
+                   QString("%1.%2 %3")
                    .arg(seconds)
                    .arg(milliseconds,3,10,QLatin1Char('0'))
                    .arg(seconds > 1 ? tr("seconds") : tr("second")));
@@ -2112,7 +2111,7 @@ void LPub::setKeyboardShortcut(QAction *action)
         const int position = action->toolTip().lastIndexOf("-");
         const QString toolTip = action->toolTip().left(position).trimmed();
         const QString shortcutText = action->shortcut().toString(QKeySequence::NativeText);
-        action->setToolTip(QString("%1 - %2").arg(toolTip).arg(shortcutText));
+        action->setToolTip(QString("%1 - %2").arg(toolTip, shortcutText));
     }
 }
 
@@ -2221,8 +2220,7 @@ void LPub::updateChangelog (const QString &url)
         if (! file.open(QFile::ReadOnly | QFile::Text)) {
             LPub::m_setReleaseNotesAsText = true;
             LPub::m_releaseNotesContent = tr("Failed to open Release Notes file: \n%1:\n%2")
-                                             .arg(releaseNotesFile)
-                                             .arg(file.errorString());
+                                             .arg(releaseNotesFile, file.errorString());
         } else {
             LPub::m_releaseNotesContent = QString::fromStdString(file.readAll().toStdString());
         }

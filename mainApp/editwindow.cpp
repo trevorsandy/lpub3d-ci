@@ -323,7 +323,7 @@ void EditWindow::previewCurrentModel()
 {
     lcPreferences& Preferences = lcGetPreferences();
     if (Preferences.mPreviewEnabled && !isIncludeFile) {
-        QString partKey = QString("%1|%2").arg("16").arg(QFileInfo(fileName).fileName());
+        QString partKey = QString("%1|%2").arg("16", QFileInfo(fileName).fileName());
         previewLineAct->setData(partKey);
         previewLineAct->setEnabled(true);
         emit previewLineAct->triggered();
@@ -349,8 +349,8 @@ void EditWindow::updateOpenWithActions()
         auto getProgramIcon = [&programPath] ()
         {
             const QString programName = QString("%1icon.png").arg(QFileInfo(programPath).baseName());
-            const QString iconFile = QString("%1/%2").arg(QDir::tempPath()).arg(programName);
-            if (!QFileInfo(iconFile).exists()) {
+            const QString iconFile = QString("%1/%2").arg(QDir::tempPath(), programName);
+            if (!QFileInfo::exists(iconFile)) {
                 QFileInfo programInfo(programPath);
                 QFileSystemModel *fsModel = new QFileSystemModel;
                 fsModel->setRootPath(programInfo.path());
@@ -399,7 +399,7 @@ void EditWindow::updateOpenWithActions()
             programPath = fileInfo.absoluteFilePath();
             programName = fileInfo.completeBaseName();
             programName.replace(programName[0],programName[0].toUpper());
-            programData = QString("'%1' %2").arg(programPath).arg(arguments);
+            programData = QString("'%1' %2").arg(programPath, arguments);
             QString text = programName;
             if (text.isEmpty())
                 text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
@@ -408,7 +408,7 @@ void EditWindow::updateOpenWithActions()
             openWithActList[i]->setIcon(getProgramIcon());
             openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
             openWithActList[i]->setVisible(true);
-            programEntries.append(QString("%1|%2").arg(programName).arg(programData));
+            programEntries.append(QString("%1|%2").arg(programName, programData));
             numOpenWithPrograms = programEntries.size();
           }
         }
@@ -488,8 +488,8 @@ void EditWindow::openWith()
         QProcess::startDetached(program, arguments, workingDirectory, &pid);
         emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
                                            .arg(QFileInfo(fileName).fileName()).arg(pid)
-                                           .arg(QFileInfo(program).fileName())
-                                           .arg(arguments.size() ? QString(" %1").arg(arguments.join(" ")) : ""));
+                                           .arg(QFileInfo(program).fileName(),
+                                                arguments.size() ? QString(" %1").arg(arguments.join(" ")) : ""));
     }
 }
 
@@ -1240,7 +1240,7 @@ bool EditWindow::setValidPartLine()
         return false;
 
     // substitute partKey
-    QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
+    QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName(), QString::number(colorCode));
 
     // set substitute flag
     if (currentStep && stepSet && !isSubstitute) {
@@ -1272,7 +1272,7 @@ bool EditWindow::setValidPartLine()
 
     if (modelFileEdit()) {
         if (Preferences.mPreviewEnabled && !isIncludeFile) {
-            previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
+            previewLineAct->setText(tr("Preview %1 %2...").arg(titleType, elidedPartType));
             previewLineAct->setData(QString("%1|%2").arg(colorCode).arg(partType));
             previewLineAct->setEnabled(true);
         }
@@ -1282,7 +1282,7 @@ bool EditWindow::setValidPartLine()
         if (modelFileEdit()) {
             titleType = "Subfile";
             if (Preferences.mPreviewEnabled) {
-                previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
+                previewLineAct->setText(tr("Preview %1 %2...").arg(titleType, elidedPartType));
                 previewLineAct->setStatusTip(tr("Display the %1 on the highlighted line in a popup 3D viewer").arg(titleType));
             }
         }
@@ -1302,7 +1302,7 @@ bool EditWindow::setValidPartLine()
         }
         editColorAct->setEnabled(colorEdit);
 
-        editPartAct->setText(tr("Edit %1 %2...").arg(titleType).arg(elidedPartType));
+        editPartAct->setText(tr("Edit %1 %2...").arg(titleType, elidedPartType));
         editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
         editPartAct->setEnabled(true);
 
@@ -1379,8 +1379,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
                 for (int i = 0; i < numOpenWithPrograms; i++) {
                     QFileInfo fileInfo(programEntries.at(i).split("|").last());
                     openWithActList[i]->setStatusTip(tr("Open %1 with %2")
-                                                     .arg(QFileInfo(fileName).fileName())
-                                                     .arg(fileInfo.fileName()));
+                                                     .arg(QFileInfo(fileName).fileName(),
+                                                          fileInfo.fileName()));
                     openWithMenu->addAction(openWithActList.at(i));
                 }
             }
@@ -1448,7 +1448,7 @@ void EditWindow::editLineItem()
     } else if (sender() == editPartAct) {
         elements = editPartAct->data().toString().split("|");
         findText = elements.first();
-        PieceInfo *partInfo = LDrawPartDialog::getLDrawPart(QString("%1;%2").arg(findText).arg(elements.last()));
+        PieceInfo *partInfo = LDrawPartDialog::getLDrawPart(QString("%1;%2").arg(findText, elements.last()));
         if (partInfo)
             replaceText = partInfo->mFileName;
         else
@@ -1567,7 +1567,7 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
     box.setWindowTitle("Substitute PLI Part");
     Step *currentStep = lpub->currentStep;
     if (currentStep) {
-        const QString key = QString("%1_%2").arg(elements.at(sType)).arg(elements.at(sColorCode));
+        const QString key = QString("%1_%2").arg(elements.at(sType), elements.at(sColorCode));
         const PliPart* pliPart = currentStep->pli.getPart(key);
         if (pliPart) {
             QStringList defaultList;
@@ -1613,7 +1613,7 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
                                           "0 !LPUB PART BEGIN IGN\n"
                                           "%2\n"
                                           "0 !LPUB PLI END\n"
-                                          "0 !LPUB PART END").arg(attributes.join(" ")).arg(SUB_PLACEHOLDER);
+                                          "0 !LPUB PART END").arg(attributes.join(" "), SUB_PLACEHOLDER);
                 return true;
             } else
                 return false;
@@ -1626,7 +1626,7 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
                 box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                 const QString title = "<b>" + QMessageBox::tr ("Unsaved substitute part unpdates detected.") + "</b>";
                 const QString text = QMessageBox::tr("<br>Do you want to save your updates for part [%1], color %2 (%3)...")
-                                                     .arg(type).arg(colorName).arg(colorCode);
+                                                     .arg(type, colorName).arg(colorCode);
                 box.setText (title);
                 box.setInformativeText (text);
                 if (box.exec() == QMessageBox::Save)
@@ -1636,7 +1636,7 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
                 return false;
             } else {
                 emit lpub->messageSig(LOG_ERROR, tr("Failed to retrieve part [%1], color %2 (%3)...")
-                                                    .arg(type).arg(colorName).arg(colorCode));
+                                                    .arg(type, colorName).arg(colorCode));
                 return false;
             }
         }
@@ -1928,8 +1928,7 @@ bool EditWindow::saveFile()
             QMessageBox::warning(nullptr,
                                  tr("Model File Editor"),
                                  tr("Cannot write file %1:\n%2.")
-                                 .arg(fileName)
-                                 .arg(file.errorString()));
+                                 .arg(fileName, file.errorString()));
             return rc;
         }
 
@@ -1990,8 +1989,7 @@ bool EditWindow::saveFileCopy()
           QMessageBox::warning(nullptr,
                                tr("Model File Editor"),
                                tr("Cannot write file %1:\n%2.")
-                               .arg(fileCopyName)
-                               .arg(file.errorString()));
+                               .arg(fileCopyName, file.errorString()));
           return false;
       }
 
@@ -3203,7 +3201,7 @@ void EditWindow::preferences()
             _textEdit->setEditorFont();
 
         if (!change.isEmpty())
-            showMessage(tr("%1 editor %2 change").arg(VER_PRODUCTNAME_STR).arg(change));
+            showMessage(tr("%1 editor %2 change").arg(VER_PRODUCTNAME_STR, change));
     }
 }
 
