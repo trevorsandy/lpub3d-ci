@@ -155,7 +155,7 @@ int LPub::processCommandLine()
       {
           QString message = Text.isEmpty() ? tr("Invalid value specified") : Text;
           if (Pair)
-              emit messageSig(LOG_ERROR, message.append(tr(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
+              emit messageSig(LOG_ERROR, message.append(tr(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1], Param)));
           else
               emit messageSig(LOG_ERROR, message.append(tr(" '%1' option.").arg(Param)));
 
@@ -611,8 +611,7 @@ int LPub::processCommandLine()
           bool isHexRGB = fadeStepsColour.contains(rx);
           QString const validColourName = isHexRGB ? LDrawColor::name(fadeStepsColour) : fadeStepsColour;
           message = tr("Fade Steps Color preference changed from %1 to %2.")
-              .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
-              .arg(QString(validColourName).replace("_"," "));
+              .arg(QString(Preferences::validFadeStepsColour).replace("_"," "), QString(validColourName).replace("_"," "));
           emit messageSig(LOG_INFO,message);
           Preferences::validFadeStepsColour = validColourName;
       }
@@ -632,8 +631,7 @@ int LPub::processCommandLine()
           highlightStepColour.toLower() != Preferences::highlightStepColour.toLower())
       {
           message = tr("Highlight Step Color preference changed from %1 to %2.")
-              .arg(Preferences::highlightStepColour)
-              .arg(highlightStepColour);
+              .arg(Preferences::highlightStepColour, highlightStepColour);
           emit messageSig(LOG_INFO,message);
           Preferences::highlightStepColour = highlightStepColour;
       }
@@ -808,8 +806,7 @@ int LPub::processCommandLine()
               result = 1;
           }
           emit messageSig(LOG_INFO,tr("Model file '%1' process %2 (result code %3). %4.")
-                          .arg(QFileInfo(LPub::commandlineFile).fileName())
-                          .arg(result ? tr("failed") : tr("succeeded"))
+                          .arg(QFileInfo(LPub::commandlineFile).fileName(), result ? tr("failed") : tr("succeeded"))
                           .arg(result)
                           .arg(LPub::elapsedTime(commandTimer.elapsed())));
       }

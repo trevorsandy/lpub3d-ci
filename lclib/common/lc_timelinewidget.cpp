@@ -236,7 +236,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 				QString colorCode = fPiece && UseFColor ? gApplication->LPubFadeColour() : QString("%1").arg(Piece->GetColorCode());
 				QString colorPrefix = IsModel ? fPiece ? LPUB3D_COLOUR_FADE_PREFIX : hPiece ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : QString() : fPiece && UseFColor ? LPUB3D_COLOUR_FADE_PREFIX : QString();
-				QString ImageKey = QString("%1_%2").arg(p.completeBaseName()).toLower().arg(QString("%1%2").arg(colorPrefix).arg(Use0Code ? QString("0") : colorCode));
+				QString ImageKey = QString("%1_%2").arg(p.completeBaseName().toLower(), QString("%1%2").arg(colorPrefix, Use0Code ? QString("0") : colorCode));
 
 				if (GetPieceIcon(Size, ImageKey)) {
 

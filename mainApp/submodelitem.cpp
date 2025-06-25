@@ -162,8 +162,8 @@ void SubModel::setSubModel(
   QFileInfo fileInfo(_file);
   QString type = fileInfo.fileName().toLower();
   QString key = QString("%1-%2-%3_%4") // partial key
-                        .arg(fileInfo.completeBaseName())
-                        .arg(SUBMODEL_IMAGE_BASENAME)
+                        .arg(fileInfo.completeBaseName(),
+                             SUBMODEL_IMAGE_BASENAME)
                         .arg(Preferences::preferredRenderer)
                         .arg(LDRAW_MAIN_MATERIAL_COLOUR);
 
@@ -190,7 +190,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    if (Preferences::buildModEnabled)
        rotatedModel = lpub->ldrawFile.smiContents(subModel);
    else
-       rotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
+       rotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color, subModel);
 
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
    FloatPairMeta cameraAngles;
@@ -273,7 +273,7 @@ int SubModel::createSubModelImage(
       keyPart2.append(QString("_%1")
                      .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true)));
 
-  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+  QString key = QString("%1_%2").arg(keyPart1, keyPart2);
 
   imageName = QDir::toNativeSeparators(QDir::currentPath() + "/" +
                                        Paths::submodelDir + "/" + key.toLower() + ".png");
@@ -371,7 +371,7 @@ int SubModel::createSubModelImage(
           if (Preferences::buildModEnabled)
               unrotatedModel = lpub->ldrawFile.smiContents(modelName);
           else
-              unrotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(modelName);
+              unrotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color, modelName);
 
           // set rotated parts - input is unrotatedModel
           QFuture<QStringList> future = QtConcurrent::run([this,&addLine,&unrotatedModel,&cameraAngles] () {
@@ -435,7 +435,7 @@ int SubModel::createSubModelImage(
               keyPart2.append(QString("_0_0_0"));
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
-          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+          QString stepKey = QString("%1;%3").arg(keyPart1, keyPart2);
           lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,rotatedModelNH,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMI);
       } // addViewerStepContent || ! submodel.exists() || imageOutOfDate
 
@@ -446,7 +446,7 @@ int SubModel::createSubModelImage(
             // If not nativeRenderer use preview name coverPagePreview
             QString ldrName = ldrNames.first();
             if (coverPagePreview && Preferences::preferredRenderer != RENDERER_NATIVE)
-                ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(QFileInfo(ldrName).absolutePath()).arg(SUBMODEL_COVER_PAGE_PREVIEW_BASENAME));
+                ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(QFileInfo(ldrName).absolutePath(), SUBMODEL_COVER_PAGE_PREVIEW_BASENAME));
             // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
             if (! rotateModel(ldrName,type,color,noCA,coverPagePreview)) {
                 emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.")
@@ -516,12 +516,12 @@ int SubModel::createSubModelImage(
           // feed DAT to renderer
           if (rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0/*keySub*/) != 0)) {
               emit gui->messageSig(LOG_ERROR, QObject::tr("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
-                                   .arg(rendererNames[Render::getRenderer()])
-                      .arg(imageName)
-                      .arg(callout ? QObject::tr("called out,") : QObject::tr("simple,"))
-                      .arg(multistep ? QObject::tr("step group") : QObject::tr("single step"))
-                      .arg(step ? step->stepNumber.number : 0)
-                      .arg(Gui::stepPageNum));
+                                   .arg(rendererNames[Render::getRenderer()],
+                                        imageName,
+                                        callout ? QObject::tr("called out,") : QObject::tr("simple,"),
+                                        multistep ? QObject::tr("step group") : QObject::tr("single step"))
+                                   .arg(step ? step->stepNumber.number : 0)
+                                   .arg(Gui::stepPageNum));
               imageName = QString(":/resources/missingimage.png");
               /*f*/rc = -1;
           }
@@ -535,11 +535,11 @@ int SubModel::createSubModelImage(
               emit gui->messageSig(LOG_INFO,
                                    QObject::tr("%1 Submodel render call took %2 "
                                                "to render %3 for %4 %5 %6 on page %7.")
-                                   .arg(rendererNames[Render::getRenderer()])
-                                   .arg(LPub::elapsedTime(timer.elapsed(), false/*pretty*/))
-                                   .arg(imageName)
-                                   .arg(callout ? QObject::tr("called out,") : QObject::tr("simple,"))
-                                   .arg(multistep ? QObject::tr("step group") : QObject::tr("single step"))
+                                   .arg(rendererNames[Render::getRenderer()],
+                                        LPub::elapsedTime(timer.elapsed(), false/*pretty*/),
+                                        imageName,
+                                        callout ? QObject::tr("called out,") : QObject::tr("simple,"),
+                                        multistep ? QObject::tr("step group") : QObject::tr("single step"))
                                    .arg(step ? step->stepNumber.number : 0)
                                    .arg(Gui::stepPageNum));
           }

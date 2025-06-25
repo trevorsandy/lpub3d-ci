@@ -229,7 +229,7 @@ void CsiItem::previewCsi(bool useDockable) {
 
     // Check if CSI file date modified is older than model file (on the stack) date modified
     bool csiOutOfDate = false;
-    const QString csiFile = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(csiFileName);
+    const QString csiFile = QString("%1/%2/%3").arg(QDir::currentPath(), Paths::tmpDir, csiFileName);
     QFile csi(csiFile);
     bool csiExist = csi.exists();
     if (csiExist) {
@@ -252,7 +252,7 @@ void CsiItem::previewCsi(bool useDockable) {
             QFile file(csiFile);
             if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
                 emit gui->messageSig(LOG_ERROR,tr("Cannot open file %1 for writing: %2")
-                                                  .arg(csiFile) .arg(file.errorString()));
+                                                  .arg(csiFile, file.errorString()));
                 return;
             }
             QTextStream out(&file);
@@ -796,12 +796,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         if (Keys.size() > 2) {
             const QString Name  = Keys.at(BM_STEP_MODEL_KEY);
             QString csiFile     = QString("%1/viewer_csi_%2.ldr")
-                                          .arg(QFileInfo(csiFilePath).absolutePath())
-                                          .arg(QString("%1_%2_%3_%4")
-                                                       .arg(Name)
-                                                       .arg(QString::number(lpub->ldrawFile.getSubmodelIndex(Name)))
-                                                       .arg(Keys.at(BM_STEP_LINE_KEY))
-                                                       .arg(Keys.at(BM_STEP_NUM_KEY)));
+                                          .arg(QFileInfo(csiFilePath).absolutePath(),
+                                               QString("%1_%2_%3_%4")
+                                                       .arg(Name,
+                                                            QString::number(lpub->ldrawFile.getSubmodelIndex(Name)),
+                                                            Keys.at(BM_STEP_LINE_KEY),
+                                                            Keys.at(BM_STEP_NUM_KEY)));
             gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
             gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
             gui->getEditModeWindow()->setReadOnly(true);

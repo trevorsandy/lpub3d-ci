@@ -290,7 +290,7 @@ Rc IntMeta::parse(QStringList &argv, int index,Where &here)
   }
 
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected a whole number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected a whole number but got \"%1\" %2") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
   }
 
@@ -335,7 +335,7 @@ Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
     }
   }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected a floating point number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected a floating point number but got \"%1\" %2") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
   }
 
@@ -424,7 +424,7 @@ Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
   }
 
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected two floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected two floating point numbers but got \"%1\" %2") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
   }
 
@@ -475,7 +475,7 @@ Rc Vector3Meta::parse(QStringList &argv, int index,Where &here)
   }
 
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
   }
 
@@ -554,7 +554,7 @@ Rc Vector33Meta::parse(QStringList &argv, int index,Where &here)
   }
 
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
   }
 
@@ -665,7 +665,7 @@ Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected TRUE or FALSE \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE \"%1\" %2") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
   }
 
@@ -1236,8 +1236,7 @@ QString BackgroundMeta::format(bool local, bool global)
             .arg(_value[pushed].gsize[0])
             .arg(_value[pushed].gsize[1])
             .arg(_value[pushed].gangle)
-            .arg(points)
-            .arg(stops);
+            .arg(points, stops);
       }
       break;
     case BackgroundData::BgImage:
@@ -1846,7 +1845,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
       n_tokens = argv.size() - index;
 
       QString message = QString("'%1' meta is deprecated. Use 'PAGE POINTER'").arg(argv[1]);
-      QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber);
+      QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message, here.modelName) .arg(here.lineNumber);
       if (Preferences::modeGUI)
         QMessageBox::warning(nullptr,
                              QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -2244,15 +2243,15 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
   } else {
     if (_value[pushed].placements.size() == 2) {
       foo = QString("%1 %2 ")
-              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
-              .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(1).toInt())]);
+              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())],
+                   prepositionNames[PrepositionEnc(_value[pushed].placements.at(1).toInt())]);
     }
     else
     if (_value[pushed].placements.size() == 3) {
       foo = QString("%1 %2 %3 ")
-              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
-              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(1).toInt())])
-              .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
+              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())],
+                   placementNames[PlacementEnc(_value[pushed].placements.at(1).toInt())],
+                   prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
     }
     bar = QString("%1 %2 %3 %4 %5 %6 %7 %8")
                    .arg(double(_value[pushed].iconOffset[0]),0,'f',0)
@@ -2333,9 +2332,9 @@ void PreferredRendererMeta::setPreferences(bool reset)
   Preferences::updatePOVRayConfigFiles();
   if (displayPreference)
     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Renderer %1 %2%3.")
-                                                  .arg(reset ? "reset to" : global ? "save as" : "changed to")
-                                                  .arg(rendererNames[Preferences::preferredRenderer])
-                                                  .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
+                                                  .arg(reset ? "reset to" : global ? "save as" : "changed to",
+                                                      rendererNames[Preferences::preferredRenderer],
+                                                      Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
                                                                                                                    .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                                                        Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ?
                                                                                                            Preferences::enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
@@ -2389,7 +2388,8 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
     else if (argv[1] == "PREFERRED_RENDERER")
       rc = PreferredRendererRc;
   } else if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), but got \"%1\" %2")
+                                            .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return rc;
@@ -2572,7 +2572,7 @@ Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected HORIZONTAL or VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected HORIZONTAL or VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -2673,7 +2673,7 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
       _here[pushed] = here;
       return OkRc;
     }
-    message = QObject::tr("Expected FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    message = QObject::tr("Expected FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
   } else if (argv.size() - index == 2) {
     bool ok[2];
     float latitude = argv[index  ].toFloat(&ok[0]);
@@ -2690,7 +2690,7 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
       _here[pushed] = here;
       return rc;
     }
-    message = QObject::tr("Expected <decimal> <decimal> (e.g. 23.0 45.0), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    message = QObject::tr("Expected <decimal> <decimal> (e.g. 23.0 45.0), but got \"%1\" %2") .arg(argv[index], argv.join(" "));
   } else if (argv.size() - index == 3) {
     rx.setPattern("^(HOME|LAT_LON)$");
     if (argv[index].contains(rx)) {
@@ -2711,9 +2711,9 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
         _here[pushed] = here;
         return rc;
       }
-      message = QObject::tr("Expected LAT_LON <decimal> <decimal> or HOME  <decimal> <decimal> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      message = QObject::tr("Expected LAT_LON <decimal> <decimal> or HOME  <decimal> <decimal> but got \"%1\" %2") .arg(argv[index], argv.join(" "));
     }
-    message = QObject::tr("Expected LAT_LON or HOME but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    message = QObject::tr("Expected LAT_LON or HOME but got \"%1\" %2") .arg(argv[index], argv.join(" "));
   }
   if (reportErrors) {
       emit gui->messageSig(LOG_ERROR,message);
@@ -2766,7 +2766,7 @@ Rc FillMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected ASPECT, STRETCH, or TILE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected ASPECT, STRETCH, or TILE but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -2819,7 +2819,8 @@ Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
     return OkRc;
   }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL but got \"%1\" in \"%2\"")
+                                            .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -2867,7 +2868,7 @@ Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
     return PageOrientationRc;
   }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected PORTRAIT or LANDSCAPE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected PORTRAIT or LANDSCAPE but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -2914,7 +2915,7 @@ Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
       return CountInstanceRc;
     }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -2971,7 +2972,7 @@ Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
     return ContStepNumRc;
   }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -3021,7 +3022,7 @@ Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
     return BuildModEnableRc;
   }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -3073,7 +3074,7 @@ Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
       return FinalModelEnableRc;
     }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -3386,28 +3387,28 @@ QString SepMeta::format(bool local, bool global)
                 .arg(double(_value[pushed].length))
                 .arg("THICKNESS")
                 .arg(double(_value[pushed].thickness))
-                .arg(_value[pushed].color)
-                .arg("MARGINS")
-                .arg(double(_value[pushed].margin[0]))
-                .arg(double(_value[pushed].margin[1]));
+                .arg(_value[pushed].color,
+                     "MARGINS")
+                .arg(double(_value[pushed].margin[0]),
+                     double(_value[pushed].margin[1]));
   } else
   if (_value[pushed].type == SepData::LenPage) {
     foo = QString("%1 %2 %3 \"%4\" %5 %6 %7")
-                  .arg("PAGE_LENGTH")
-                  .arg("THICKNESS")
+                  .arg("PAGE_LENGTH",
+                       "THICKNESS")
                   .arg(double(_value[pushed].thickness))
-                  .arg(_value[pushed].color)
-                  .arg("MARGINS")
-                  .arg(double(_value[pushed].margin[0]))
-                  .arg(double(_value[pushed].margin[1]));
+                  .arg(_value[pushed].color,
+                       "MARGINS")
+                  .arg(double(_value[pushed].margin[0]),
+                       double(_value[pushed].margin[1]));
   } else {
     foo = QString("%1 %2 \"%3\" %4 %5 %6")
                   .arg("THICKNESS")
                   .arg(double(_value[pushed].thickness))
-                  .arg(_value[pushed].color)
-                  .arg("MARGINS")
-                  .arg(double(_value[pushed].margin[0]))
-                  .arg(double(_value[pushed].margin[1]));
+                  .arg(_value[pushed].color,
+                       "MARGINS")
+                  .arg(double(_value[pushed].margin[0]),
+                       double(_value[pushed].margin[1]));
   }
   return LeafMeta::format(local,global,foo);
 }
@@ -3443,7 +3444,8 @@ Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
     }
   }
   if (reportErrors) {
-    QString const message = QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <decimal X pos> <decimal Y pos> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <decimal X pos> <decimal Y pos> but got \"%1\" %2")
+                                            .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
@@ -3512,7 +3514,8 @@ Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
     rc = FailureRc;
   }
   if (rc == FailureRc && reportErrors) {
-    QString const message = QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, but got \"%1\" in \"%2\"")
+                                            .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return rc;
@@ -3594,7 +3597,7 @@ Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
   if (rc == FailureRc && reportErrors) {
     emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Invalid color meta command, expected "
                                                     "<\"0x|#><[AA]RRGGBB\">, or 0-255,0-255,0-255,0-255, "
-                                                    "but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+                                                    "but got \"%1\" in \"%2\"") .arg(argv[index], argv.join(" ")));
   }
   return rc;
 }
@@ -3739,7 +3742,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       if (errorFound) {
         rc = FailureRc;
         QString const message = QObject::tr("Step with INSERT %1 meta command cannot contain %2. Invalid type at line %3")
-                                            .arg(argv[index]).arg(line).arg(start.lineNumber+1);
+                                            .arg(argv[index], line).arg(start.lineNumber+1);
         emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false/*option*/, false/*override*/, 3/*critical*/);
         Gui::setAbortProcess(true);
       }
@@ -3879,9 +3882,7 @@ QString InsertMeta::format(bool local, bool global)
         }
       break;
     case InsertData::InsertText:
-      foo += QString("TEXT \"%1\" \"%2\" \"%3\"") .arg(_value.text)
-          .arg(_value.textFont)
-          .arg(_value.textColor);
+      foo += QString("TEXT \"%1\" \"%2\" \"%3\"") .arg(_value.text, _value.textFont, _value.textColor);
       break;
     case InsertData::InsertRichText:
       foo += QString("RICH_TEXT \"%1\"") .arg(_value.text);
@@ -4502,7 +4503,7 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      QString const message = QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      QString const message = QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index], argv.join(" "));
       emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   }
@@ -4563,7 +4564,7 @@ Rc LPubFaHiMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      QString const message = QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      QString const message = QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index], argv.join(" "));
       emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   }
@@ -4620,7 +4621,7 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      QString const message = QMessageBox::tr("Expected LDraw_colour_name | (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index]) .arg(argv.join(" "));
+      QString const message = QMessageBox::tr("Expected LDraw_colour_name | (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index], argv.join(" "));
       emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   }
@@ -4693,10 +4694,10 @@ void FadeStepsMeta::setPreferences(bool reset)
                               .arg(reset
                                        ? QObject::tr("reset to") : enable.global
                                              ? QObject::tr("save as") : Preferences::enableFadeSteps != enable.value()
-                                                   ? QObject::tr("changed to") : QObject::tr("is"))
-                              .arg(Preferences::enableFadeSteps
-                                       ? QObject::tr("ON") : QObject::tr("OFF"))
-                              .arg(Preferences::enableFadeSteps
+                                                   ? QObject::tr("changed to") : QObject::tr("is"),
+                                  Preferences::enableFadeSteps
+                                       ? QObject::tr("ON") : QObject::tr("OFF"),
+                                  Preferences::enableFadeSteps
                                        ? QObject::tr(" Opacity %1%2")
                                              .arg(Preferences::fadeStepsOpacity)
                                              .arg(Preferences::enableFadeSteps && Preferences::fadeStepsUseColour && !Preferences::validFadeStepsColour.isEmpty()
@@ -4759,11 +4760,11 @@ void HighlightStepMeta::setPreferences(bool reset)
                               .arg(reset
                                        ? QObject::tr("reset to") : enable.global
                                              ? QObject::tr("save as") : Preferences::enableHighlightStep != enable.value()
-                                                   ? QObject::tr("changed to") : QObject::tr("is"))
-                              .arg(Preferences::enableFadeSteps
-                                    ? QObject::tr("ON") : QObject::tr("OFF"))
-                              .arg(Preferences::enableHighlightStep && !Preferences::highlightStepColour.isEmpty()
-                                    ? QObject::tr(" Highlight Color %1").arg(Preferences::highlightStepColour) : "");
+                                                   ? QObject::tr("changed to") : QObject::tr("is"),
+                                  Preferences::enableFadeSteps
+                                      ? QObject::tr("ON") : QObject::tr("OFF"),
+                                  Preferences::enableHighlightStep && !Preferences::highlightStepColour.isEmpty()
+                                      ? QObject::tr(" Highlight Color %1").arg(Preferences::highlightStepColour) : "");
   if (displayPreference)
     emit gui->messageSig(LOG_INFO, message);
 
@@ -4858,7 +4859,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
         here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
         QString const message = QObject::tr("Invalid substitute meta command.<br>"
                                             "No valid parts between %1 and PLI END.<br>Got %2.")
-                                            .arg(argv.join(" ")).arg(originalTypeLine);
+                                            .arg(argv.join(" "), originalTypeLine);
         emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
       }
     }
@@ -4948,7 +4949,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
 
 QString SubMeta::format(bool local, bool global)
 {
-  // Thi routine is acutally not used.
+  // This routine is acutally not used.
   // Substitute commands are formatted by MetaItem::substitutePLIPart
   QStringList _attributeList = _value.attrs.split(";");
 
@@ -4959,26 +4960,26 @@ QString SubMeta::format(bool local, bool global)
             .arg(_value.part);
   } else if (_value.type == PliBeginSub2Rc) {
     foo = QString("%1 %2")
-            .arg(_value.part).arg(_value.color);
+            .arg(_value.part, _value.color);
   } else if (_value.type == PliBeginSub3Rc) {
     foo = QString("%1 %2 %3")
-            .arg(_value.part).arg(_value.color)
+            .arg(_value.part, _value.color)
             .arg(_attributeList[sModelScale]);
   } else if (_value.type == PliBeginSub4Rc) {
     foo = QString("%1 %2 %3 %4")
-            .arg(_value.part).arg(_value.color)
+            .arg(_value.part, _value.color)
             .arg(_attributeList[sModelScale])
             .arg(_attributeList[sCameraFoV]);
   } else if (_value.type == PliBeginSub5Rc) {
     foo = QString("%1 %2 %3 %4 %5 %6")
-            .arg(_value.part).arg(_value.color)
+            .arg(_value.part, _value.color)
             .arg(_attributeList[sModelScale])
             .arg(_attributeList[sCameraFoV])
             .arg(_attributeList[sCameraAngleXX])
             .arg(_attributeList[sCameraAngleYY]);
   } else if (_value.type == PliBeginSub6Rc) {
     foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9")
-            .arg(_value.part).arg(_value.color)
+            .arg(_value.part, _value.color)
             .arg(_attributeList[sModelScale])
             .arg(_attributeList[sCameraFoV])
             .arg(_attributeList[sCameraAngleXX])
@@ -4988,18 +4989,18 @@ QString SubMeta::format(bool local, bool global)
             .arg(_attributeList[sTargetZ]);
   } else if (_value.type == PliBeginSub7Rc) {
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
-              .arg(_value.part).arg(_value.color)
-              .arg(_attributeList[sModelScale])
-              .arg(_attributeList[sCameraFoV])
-              .arg(_attributeList[sCameraAngleXX])
-              .arg(_attributeList[sCameraAngleYY])
-              .arg(_attributeList[sRotX])
-              .arg(_attributeList[sRotY])
-              .arg(_attributeList[sRotZ])
-              .arg(_attributeList[sTransform]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY])
+            .arg(_attributeList[sRotX])
+            .arg(_attributeList[sRotY])
+            .arg(_attributeList[sRotZ])
+            .arg(_attributeList[sTransform]);
   } else { /*PliBeginSub8Rc */
     foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13")
-            .arg(_value.part).arg(_value.color)
+            .arg(_value.part, _value.color)
             .arg(_attributeList[sModelScale])
             .arg(_attributeList[sCameraFoV])
             .arg(_attributeList[sCameraAngleXX])
@@ -5191,7 +5192,7 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
       emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   } else if (!missingMeta.isEmpty()) {
-    QString const message = QMessageBox::tr("Build mod meta %1 requires a key value. Got \"%2\"") .arg(missingMeta).arg(argv.join(" "));
+    QString const message = QMessageBox::tr("Build mod meta %1 requires a key value. Got \"%2\"") .arg(missingMeta, argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     rc = FailureRc;
   }
@@ -5829,7 +5830,7 @@ PageMeta::PageMeta() : BranchMeta()
   parts.placement.setValue(BottomLeftOutside,PageAuthorType);
   parts.type = PagePartsType;
   parts.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
-  parts.setValue(QString("%1 %2").arg(QString::number(LDrawFile::_partCount)).arg(LDrawFile::_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts")));
+  parts.setValue(QString("%1 %2").arg(QString::number(LDrawFile::_partCount), LDrawFile::_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts")));
 
   //model description text
   modelDesc.placement.setValue(BottomLeftOutside,PagePartsType);
@@ -5865,7 +5866,7 @@ PageMeta::PageMeta() : BranchMeta()
   copyright.placement.setValue(BottomLeftInsideCorner,PageType);
   copyright.type = PageCopyrightType;
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  copyright.setValue(QObject::tr("%1 by %2").arg(Preferences::copyright).arg(Preferences::defaultAuthor));
+  copyright.setValue(QObject::tr("%1 by %2").arg(Preferences::copyright, Preferences::defaultAuthor));
 
   //publisher author text
   author.placement.setValue(LeftBottomOutside,PageNumberType);
@@ -5897,7 +5898,7 @@ PageMeta::PageMeta() : BranchMeta()
   copyrightBack.placement.setValue(BottomOutside,PageAuthorType);
   copyrightBack.type = PageCopyrightType;
   copyrightBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  copyrightBack.setValue(QObject::tr("%1 by %2").arg(Preferences::copyright).arg(Preferences::defaultAuthor));
+  copyrightBack.setValue(QObject::tr("%1 by %2").arg(Preferences::copyright, Preferences::defaultAuthor));
 
   //publisher urlBack text
   urlBack.placement.setValue(BottomOutside,PageCopyrightType);
@@ -6757,7 +6758,7 @@ Rc NoStepMeta::parse(QStringList &argv, int index,Where &here )
     return rc;
   } else {
     if (reportErrors) {
-      QString const message = QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      QString const message = QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index], argv.join(" "));
       emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
     return FailureRc;
@@ -7407,8 +7408,7 @@ void Meta::processSpecialCases(QString &line, Where &here) {
                                             "Only application at GLOBAL scope is permitted. "
                                             "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
                                             "This command will be ignored. %2")
-                                            .arg(parseRx.cap(1))
-                                            .arg(line);
+                                            .arg(match.captured(1), line);
         here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
         emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
         line = "0 // IGNORED";

@@ -260,7 +260,7 @@ void Gui::openDropFile(QString &fileName) {
           if (extension.isEmpty())
               noExtension = tr("<br>No file exension specified. Set the file extension to .mpd,.ldr, or .dat.");
           emit gui->messageSig(LOG_ERROR, tr("File not supported!<br>%1%2")
-                                             .arg(fileName).arg(noExtension));
+                                             .arg(fileName, noExtension));
         }
     }
 }
@@ -344,7 +344,7 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
         QProcess::ExitStatus status = proc.exitStatus();
         if (status != 0) {  // look for error
             QErrorMessage *m = new QErrorMessage(this);
-            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!").arg(path));
+            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!", path));
         }
     }
     else {
@@ -383,7 +383,7 @@ void Gui::updateOpenWithActions()
       auto getProgramIcon = [&programPath] ()
       {
         const QString programName = QString("%1icon.png").arg(QFileInfo(programPath).baseName());
-        const QString iconFile = QString("%1/%2").arg(QDir::tempPath()).arg(programName);
+        const QString iconFile = QString("%1/%2").arg(QDir::tempPath(), programName);
         if (!QFileInfo(iconFile).exists()) {
           QFileInfo programInfo(programPath);
           QFileSystemModel *fsModel = new QFileSystemModel;
@@ -436,7 +436,7 @@ void Gui::updateOpenWithActions()
           programPath = fileInfo.absoluteFilePath();
           programName = fileInfo.completeBaseName();
           programName.replace(programName[0],programName[0].toUpper());
-          programData = QString("'%1' %2").arg(programPath).arg(arguments);
+          programData = QString("'%1' %2").arg(programPath, arguments);
           QString text = programName;
           if (text.isEmpty())
             text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
@@ -445,7 +445,7 @@ void Gui::updateOpenWithActions()
           gui->openWithActList[i]->setIcon(getProgramIcon());
           gui->openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
           gui->openWithActList[i]->setVisible(true);
-          gui->programEntries.append(QString("%1|%2").arg(programName).arg(programData));
+          gui->programEntries.append(QString("%1|%2").arg(programName, programData));
           gui->numPrograms = gui->programEntries.size();
           emit lpub->messageSig(LOG_INFO, tr("- Add openWith system editor: %1").arg(programData));
         }
@@ -550,8 +550,8 @@ void Gui::openWith(const QString &filePath)
     QProcess::startDetached(program, arguments, workingDirectory, &pid);
     emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4")
                                         .arg(QFileInfo(filePath).fileName()).arg(pid)
-                                        .arg(QFileInfo(program).fileName())
-                                        .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+                                        .arg(QFileInfo(program).fileName(),
+                                             arguments.size() ? " "+arguments.join(" ") : ""));
 
 }
 
@@ -999,7 +999,7 @@ void Gui::closeModelFile()
                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
     if (!Preferences::modeGUI)
-      gui->setWindowTitle(QString("%1[*] - %2").arg(windowTitle).arg(versionInfo));
+      gui->setWindowTitle(QString("%1[*] - %2").arg(windowTitle, versionInfo));
   }
 }
 
@@ -1080,7 +1080,7 @@ bool Gui::openFile(const QString &fileName)
                               "Parts not in the archive library will not be rendered by the "
                               "%3 Visual Editor or Native renderer.<br><br>"
                               "%3 will archive parts from your search directory paths.<br>"
-                              "%4").arg(missingParts).arg(fileInfo.fileName()).arg(VER_PRODUCTNAME_STR).arg(searchDirs);
+                              "%4").arg(missingParts, fileInfo.fileName(), VER_PRODUCTNAME_STR, searchDirs);
       box.setInformativeText (text);
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
@@ -1093,7 +1093,7 @@ bool Gui::openFile(const QString &fileName)
 
   enableLPubFadeOrHighlight(false/*fadeEnabled*/, false/*highlightEnabled*/, true/*waitForFinish*/);
 
-  QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
+  QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath(), Paths::tmpDir));
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
   emit lpub->messageSig(LOG_INFO, tr("Loading user interface items..."));
   gui->setCurrentFile(fileInfo.absoluteFilePath());
@@ -1105,8 +1105,7 @@ bool Gui::openFile(const QString &fileName)
     for (int i = 0; i < gui->numPrograms; i++) {
       QFileInfo programFileInfo(gui->programEntries.at(i).split("|").last());
       gui->openWithActList[i]->setStatusTip(tr("Open %1 with %2")
-                                          .arg(fileInfo.fileName())
-                                          .arg(programFileInfo.fileName()));
+                                          .arg(fileInfo.fileName(), programFileInfo.fileName()));
     }
   }
   gui->undoStack->setClean();
@@ -1235,7 +1234,7 @@ void Gui::setCurrentFile(const QString &fileName)
                         .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
 
-  gui->setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));
+  gui->setWindowTitle(tr("%1[*] - %2").arg(windowTitle, versionInfo));
 
   if (fileName.size() > 0) {
     QSettings Settings;
@@ -1371,18 +1370,18 @@ QString Gui::elapsedTime(const qint64 &duration, bool pretty)
 
   return tr("%1%2%3%4")
             .arg(pretty        ?
-                           tr("Elapsed time: ") : QString())
-            .arg(hours   >   0 ?
+                           tr("Elapsed time: ") : QString(),
+                 hours   >   0 ?
                            QString("%1 %2 ")
                                    .arg(hours)
                                    .arg(hours   > 1 ? tr("hours")   : tr("hour")) :
-                           QString())
-            .arg(minutes > 0 ?
+                           QString(),
+                 minutes > 0 ?
                            QString("%1 %2 ")
                                    .arg(minutes)
                                    .arg(minutes > 1 ? tr("minutes") : tr("minute")) :
-                           QString())
-            .arg(QString("%1.%2 %3")
+                           QString(),
+                 QString("%1.%2 %3")
                          .arg(seconds)
                          .arg(milliseconds,3,10,QLatin1Char('0'))
                          .arg(seconds > 1 ? tr("seconds") : tr("second")));
