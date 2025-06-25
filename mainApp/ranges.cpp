@@ -809,7 +809,7 @@ int Steps::setCsiAnnotationMetas(bool force)
                 split(line,argv);
 
                 if (argv.size() == 15 && argv[0] == "1") {
-                  QString key = QString("%1_%2").arg(QFileInfo(argv[14]).completeBaseName()).arg(argv[1]);
+                  QString key = QString("%1_%2").arg(QFileInfo(argv[14]).completeBaseName(), argv[1]);
                   PliPart *part = pliParts[key];
 
                   if (! part)

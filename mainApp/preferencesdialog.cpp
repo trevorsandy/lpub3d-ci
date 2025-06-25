@@ -3486,8 +3486,8 @@ void PreferencesDialog::updateCommandList(bool loadDefaultShortcuts)
     }
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_NOTICE, QString("Loaded %1 %2. %3")
-                                             .arg(count).arg(loadDefaultShortcuts ? tr("default shortcuts") : tr("shortcuts"))
-                                             .arg(LPub::elapsedTime(timer.elapsed())));
+                                             .arg(count).arg(loadDefaultShortcuts ? tr("default shortcuts") : tr("shortcuts"),
+                                                  LPub::elapsedTime(timer.elapsed())));
 #endif
 }
 
@@ -3581,7 +3581,7 @@ bool PreferencesDialog::isValidKeyboardShortcut(const QString &ObjectName, const
             if (NewShortcut == it.value().action->shortcut().toString(QKeySequence::NativeText) && it.key() != ObjectName && newPID == curPID) {
                 QString ActionText = qApp->translate("Menu", it.value().action->text().toLatin1().constData()).remove('&').remove(QLatin1String("..."));
                 ResultText = tr("The shortcut '%1' is already assigned to '%2'.").arg(NewShortcut, ActionText);
-                QString QuestionText = tr("%1 Do you want to replace it?").arg(ResultText).arg(NewShortcut, ActionText);
+                QString QuestionText = tr("%1 Do you want to replace it?").arg(ResultText, NewShortcut, ActionText);
 
                 if (Loading || QMessageBox::question(this, tr("Override Shortcut"), QuestionText, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
                     return false;

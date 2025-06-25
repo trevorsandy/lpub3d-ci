@@ -299,7 +299,7 @@ GlobalPliDialog::GlobalPliDialog(
   }
   if (showParmsBox) {
     QString const renderer = rendererNames[Preferences::preferredRenderer];
-    QString const title = tr("%1 Additional %2 Parameters").arg(bom ? tr("Bom") : tr("Pli")).arg(renderer);
+    QString const title = tr("%1 Additional %2 Parameters").arg(bom ? tr("Bom") : tr("Pli"), renderer);
     box = new QGroupBox(tr("Additional %1 Renderer Parameters").arg(renderer));
     vlayout->addWidget(box);
     child = new RendererParamsGui(title,envVarsMeta,parmsMeta,parmsPovMeta,Preferences::preferredRenderer,box);

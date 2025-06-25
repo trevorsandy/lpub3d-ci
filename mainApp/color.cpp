@@ -78,8 +78,9 @@ void LDrawColor::AddColor(const QColor& color, const QString& name, const QStrin
   name2QColor.insert(name.toLower(),color);                     // QColor object from name (lower) - e.g. dark_nougat
 
   QString const message = QObject::tr("%1. ADD 0 !COLOUR %2 CODE %3 VALUE %4 EDGE %5 ALPHA %6 QCOLOR_NAME %7")
-                              .arg(ldname2ldcolor.size(), 3, 10, QChar(' ')).arg(name).arg(code).arg(color.name().toUpper())
-                              .arg(edge.toUpper()).arg(color.alpha()).arg(color.name());
+                              .arg(ldname2ldcolor.size(), 3, 10, QChar(' '))
+                              .arg(name, code, color.name().toUpper(), edge.toUpper())
+                              .arg(color.alpha()).arg(color.name());
   //qDebug() << qUtf8Printable(message);
   if (!native) {
     userdefinedcolors.append(name.toLower());
@@ -186,7 +187,9 @@ void LDrawColor::removeUserDefinedColors()
     ok[9] = userdefinedcolors.removeAll(name) > 0;
     if (ok[9] && ok[8] && ok[7] && ok[6] && ok[5] && ok[4] && ok[3] && ok[2] && ok[1] && ok[0]) {
       QString const message = QObject::tr("REMOVED 0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5 QCOLOR_NAME %6")
-                                          .arg(name.toUpper()).arg(code).arg(color.name().toUpper()).arg(edge.toUpper()).arg(color.alpha()).arg(color.name());
+                                          .arg(name.toUpper(), code, color.name().toUpper(), edge.toUpper())
+                                          .arg(color.alpha())
+                                          .arg(color.name());
       emit lpub->messageSig(LOG_INFO, message);
     }
   }
@@ -267,7 +270,7 @@ QString LDrawColor::name(const QString &codeorvalue)
         for(int i = 0; i < codes.size(); i++)
           names << color2name[QString::number(codes.at(i))];
         name = names.first();
-        emit lpub->messageSig(LOG_WARNING, QObject::tr("RETRIEVED Mulitple Color NAMES [%1] for VALUE [%2] - RETURNED [%3]").arg(names.join(",")).arg(key).arg(name));
+        emit lpub->messageSig(LOG_WARNING, QObject::tr("RETRIEVED Mulitple Color NAMES [%1] for VALUE [%2] - RETURNED [%3]").arg(names.join(","), key, name));
         return name;
       } else {
         name = color2name[QString::number(value2code.value(key))];
@@ -366,7 +369,8 @@ QString LDrawColor::code(const QString& name)
       for(int i = 0; i < codes.size(); i++)
         list << QString::number(codes.at(i));
       code = list.first();
-      emit lpub->messageSig(LOG_WARNING, QObject::tr("RETRIEVED Mulitple Color CODES [%1] for VALUE [%2] - RETURNED [%3 %4]").arg(list.join(",")).arg(name).arg(code).arg(color2name[code]));
+      emit lpub->messageSig(LOG_WARNING, QObject::tr("RETRIEVED Mulitple Color CODES [%1] for VALUE [%2] - RETURNED [%3 %4]")
+                            .arg(list.join(","), name, code, color2name[code]));
       return code;
     } else {
       code = QString::number(value2code.value(key));
@@ -387,7 +391,7 @@ QString LDrawColor::code(const QString& name)
     }
   }
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color CODE for %1 [%2] - RETURNED [-1]").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color CODE for %1 [%2] - RETURNED [-1]").arg(isHexRGB ? "VALUE" : "NAME", name));
   return QLatin1String("-1");
 }
 
