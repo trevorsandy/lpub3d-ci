@@ -757,8 +757,8 @@ void PreferencesDialog::setRenderers()
     nativeRendererIndex = ui.preferredRenderer->count();
     ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
 
-    disconnect(ui.preferredRenderer, SIGNAL(currentIndexChanged(QString)),
-               this, SLOT(on_preferredRenderer_currentIndexChanged(QString)));
+    disconnect(ui.preferredRenderer, SIGNAL(currentTextChanged(const QString&)),
+               this,                   SLOT(on_preferredRenderer_currentTextChanged(const QString&)));
 
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
       ui.preferredRenderer->setCurrentIndex(ldviewIndex);
@@ -1198,7 +1198,7 @@ void PreferencesDialog::on_altLDConfigGrpBox_clicked(bool checked)
   }
 }
 
-void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
+void PreferencesDialog::on_fadeStepsColoursCombo_currentTextChanged(const QString &colorName)
 {
   QColor newFadeColor = LDrawColor::color(colorName);
   if(newFadeColor.isValid() ) {
@@ -1282,7 +1282,7 @@ void PreferencesDialog::on_highlightStepGrpBox_clicked(bool checked)
     ui.highlightStepLineWidthSpin->setEnabled(false);
 }
 
-void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
+void PreferencesDialog::on_preferredRenderer_currentTextChanged(const QString &currentText)
 {
   bool ldviewEnabled  = (currentText == rendererNames[RENDERER_LDVIEW]);
   bool povrayEnabled  = (currentText == rendererNames[RENDERER_POVRAY]);
@@ -1393,7 +1393,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
   ui.applyCARendererRadio->setChecked(applyCARenderer);
 }
 
-void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
+void PreferencesDialog::on_projectionCombo_currentTextChanged(const QString &currentText)
 {
     if (mSetOptions)
         return;

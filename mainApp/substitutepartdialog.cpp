@@ -132,8 +132,8 @@ SubstitutePartDialog::SubstitutePartDialog(
      connect(ui->rotateSpinZ,SIGNAL(valueChanged(double)),
              this,           SLOT(valueChanged(double)));
 
-     connect(ui->transformCombo,SIGNAL(currentIndexChanged(QString const &)),
-             this,           SLOT(  transformChanged(   QString const &)));
+     connect(ui->transformCombo,SIGNAL(currentTextChanged(const QString&)),
+             this,                SLOT(   transformChanged(const QString&)));
 
      connect(ui->nameEdit,   SIGNAL(selectionChanged()),
              this,           SLOT(  typeChanged()));
