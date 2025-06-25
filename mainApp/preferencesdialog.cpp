@@ -3617,7 +3617,8 @@ bool PreferencesDialog::isValidKeyboardShortcut(const QString &ObjectName, const
                 {
                     ExistingItem->setText(1, QString());
                     const QKeySequence &defaultKeySeq = it.value().action->property("defaultshortcut").value<QKeySequence>();
-                    setShortcutModified(ExistingItem, defaultKeySeq.toString(QKeySequence::NativeText)[0] != 0);
+                    const QString defaultKeySeqStr = defaultKeySeq.toString(QKeySequence::NativeText);
+                    setShortcutModified(ExistingItem, defaultKeySeqStr[0] != 0);
                 }
             }
             ++it;
@@ -3678,7 +3679,7 @@ bool PreferencesDialog::SaveKeyboardShortcuts(QTextStream& Stream, int &Count)
             parentID = 0;
 
         const QString parentName = shortcutParentNames[parentID];
-        const QString shortcutName = QString("%1.%2").arg(it.key().split(".").first()).arg(parentName);
+        const QString shortcutName = QString("%1.%2").arg(it.key().split(".").first(), parentName);
         const QString shortcutKey = it.value().action->shortcut().toString(QKeySequence::NativeText);
 
         Stream << shortcutName << QLatin1String("=") << shortcutKey << QLatin1String("\n");
@@ -3740,7 +3741,7 @@ bool PreferencesDialog::LoadKeyboardShortcuts(QTextStream& Stream)
             mOptions->KeyboardShortcuts.insert(Key, Shortcut);
         } else {
             emit lpub->messageSig(LOG_ERROR, tr("The action %1 for this keyboard shortcut %2 was not found.")
-                                  .arg(Key).arg(Shortcut.toString(QKeySequence::NativeText)));
+                                  .arg(Key, Shortcut.toString(QKeySequence::NativeText)));
         }
     }
 
