@@ -232,7 +232,7 @@ int SubModel::pageSizeP(Meta *meta, int which) {
 }
 
 int SubModel::createSubModelImage(
-  QString  &partialKey,
+  const QString  &partialKey,
   QString  &type,
   QString  &color,
   QPixmap  *pixmap)
@@ -564,7 +564,8 @@ int SubModel::generateSubModelItem()
   widestPart = 0;
   tallestPart = 0;
 
-  for (QString &key : parts.keys()) { // There's only one
+  const QList keys = parts.keys();
+  for (const QString &key : keys) { // There's only one
     SubModelPart *part;
 
     part = parts[key];

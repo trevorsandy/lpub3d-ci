@@ -260,7 +260,8 @@ void Gui::checkMixedPageSizeStatus() {
                        .arg(Gui::pageSizes[DEF_SIZE].sizeID)
                        .arg(Gui::pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
 #endif
-      for (int key : Gui::pageSizes.keys()) {
+      const QList keys = Gui::pageSizes.keys();
+      for (int key : keys) {
 
           if (Gui::pageSizes[key].orientation != orientation && orientation_warning != true) {
               orientation_warning = true;
@@ -1124,7 +1125,8 @@ void Gui::exportAsPdf()
           if (Preferences::modeGUI)
               gui->m_progressDialog->setRange(1,pages.count());
 
-          for (int page : pages.keys()) {
+          const QList keys = pages.keys();
+          for (int page : keys) {
 
               message = tr("Step 2. Exporting pdf document page %1 of %2").arg(page).arg(pages.count());
               emit gui->messageSig(LOG_INFO_STATUS,message);
@@ -1347,8 +1349,8 @@ void Gui::exportAsPdf()
           if (Preferences::modeGUI)
               gui->m_progressDialog->setRange(1,pages.count());
 
-          int page;
-          Q_FOREACH (page, pages.keys()) {
+          const QList keys = pages.keys();
+          for (int page : keys) {
 
               message = tr("Step 2. Exporting pdf document page %1 of %2").arg(page).arg(pages.count());
               emit gui->messageSig(LOG_INFO_STATUS,message);

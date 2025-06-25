@@ -71,7 +71,8 @@ const Command &CommandCollection::at(int offset) const
 QStringList CommandCollection::preambleList() const
 {
    QStringList preambleList;
-   foreach (const Command &command, commands.values()) {
+   const QList values = commands.values();
+   foreach (const Command &command, values) {
        preambleList << command.preamble;
    }
    return preambleList;
@@ -80,8 +81,8 @@ QStringList CommandCollection::preambleList() const
 QSharedPointer<CommandCollection> CommandCollection::userModifiedCommands() const
 {
     QSharedPointer<CommandCollection> userModifiedCommands = QSharedPointer<CommandCollection>::create();
-
-    foreach (Command command, commands.values()) {
+    const QList values = commands.values();
+    foreach (Command command, values) {
         if (command.modified == Command::True) {
             userModifiedCommands->insert(command);
         }

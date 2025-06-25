@@ -212,9 +212,10 @@ int Placement::relativeTo(
       }
     } // callouts
     /* pagePointers */
-    for (auto i : step->parent->parent->pagePointers.keys()) {
-        if (step->parent->parent->pagePointers[i]->relativeType == PagePointerType) {
-            PagePointer *pagePointer = step->parent->parent->pagePointers[i];
+    const QList keys = step->parent->parent->pagePointers.keys();
+    for (const auto &key : keys) {
+        if (step->parent->parent->pagePointers[key]->relativeType == PagePointerType) {
+            PagePointer *pagePointer = step->parent->parent->pagePointers[key];
             stepRelativeTo = pagePointer->placement.value().relativeTo;
             if (stepRelativeTo == relativeType) {
                 int size[2]   = {pagePointer->size[0],pagePointer->size[1]};
@@ -298,8 +299,9 @@ int Placement::relativeToSg(
     }
 
     // Page Pointer
-    for (auto i : steps->pagePointers.keys()) {
-      PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[i]);
+    const QList keys = steps->pagePointers.keys();
+    for (const auto &key : keys) {
+      PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[key]);
       PlacementData placementData = pagePointer->placement.value();
       if (placementData.relativeTo == relativeType) {
         int size[2]   = { pagePointer->size[0], pagePointer->size[1] };

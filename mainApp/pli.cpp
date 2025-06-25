@@ -1302,11 +1302,9 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
     }
 
     if (isNormalPart) {
-
-        QString key;
         // 3. populate parts with image pixmap and size
-        Q_FOREACH (key,parts.keys()) {
-
+        const QList keys = parts.keys();
+        Q_FOREACH (const QString &key, keys) {
             PliPart *part;
             // get part info
             part = parts[key];
@@ -2227,7 +2225,8 @@ int Pli::partSize()
       bool populateBomProgress = bom && Preferences::modeGUI && !Gui::exporting();
       int partCounter = 0;
 
-      Q_FOREACH (const QString &key, parts.keys()) {
+      const QList keys = parts.keys();
+      Q_FOREACH (const QString &key, keys) {
 
           if (populateBomProgress)
               emit gui->progressBarPermSetValueSig(++partCounter);
@@ -2464,7 +2463,8 @@ int Pli::partSizeLDViewSCall() {
     int partCounter = 0;
 
     // 1. generate ldr files
-    Q_FOREACH (const QString &key, parts.keys()) {
+    const QList keys = parts.keys();
+    Q_FOREACH (const QString &key, keys) {
 
         if (populateBomProgress)
             emit gui->progressBarPermSetValueSig(++partCounter);
