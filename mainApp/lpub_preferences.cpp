@@ -4434,7 +4434,7 @@ int  Preferences::showMessage(
         bool override/*false*/,
         int icon/*NoIcon*/)
 {
-    for (const QString &messageNotShown : messagesNotShown)
+    for (QString &messageNotShown : messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
             return QMessageBox::Ok;
 
@@ -5915,7 +5915,6 @@ bool Preferences::getPreferences()
 
         bool displayThemeColorsChanged = false;
         if ((displayThemeColorsChanged = dialog->themeColours().size())) {
-
             QMap<int, QString>::ConstIterator i = dialog->themeColours().constBegin();
             bool textDecorationColorChanged = false;
             while (i != dialog->themeColours().constEnd()) {
@@ -6765,7 +6764,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
             if (line.left(1) == QLatin1String("[") || line.isEmpty()) {  // at next section or empty line, insert search dirs
                 dirNum = 0;
                 QString nativePath;
-                for (const QString &searchDir : ldSearchDirs) {
+                for (QString &searchDir : ldSearchDirs) {
                     dirNum++;
                     if (dirNum <= ldSearchDirs.count()) {
 #ifdef Q_OS_WIN
@@ -6789,7 +6788,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
             if (line.contains("_SessionPlaceholder")) {      // insert search dirs before session placeholder
                 dirNum = 0;
                 QString nativePath;
-                for (const QString &searchDir : ldSearchDirs) {
+                for (QString &searchDir : ldSearchDirs) {
                     dirNum++;
                     if (dirNum <= ldSearchDirs.count()) {
 #ifdef Q_OS_WIN
@@ -6862,7 +6861,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
     if (confFile.open(QIODevice::WriteOnly))
     {
         QTextStream output(&confFile);
-        for (const QString &line : contentList) {
+        for (QString &line : contentList) {
            output << line << lpub_endl;
         }
         confFile.flush();
@@ -7035,7 +7034,7 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
         if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
             return false;
         QDir sourceDir(srcFilePath);
-        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        const QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
         for (const QString &fileName : fileNames) {
             const QString newSrcFilePath
                     = srcFilePath + QLatin1Char('/') + fileName;
