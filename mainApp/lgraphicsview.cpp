@@ -41,15 +41,15 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
     setScene(scene);
     setAcceptDrops(true);
 
-    connect(this,SIGNAL(setGridSizeSig(int)),           scene,SLOT(setGridSize(int)));
-    connect(this,SIGNAL(setSceneGuidesLineSig(int)),    scene,SLOT(setSceneGuidesLine(int)));
-    connect(this,SIGNAL(setSceneGuidesPosSig(int)),     scene,SLOT(setSceneGuidesPos(int)));
-    connect(this,SIGNAL(setSnapToGridSig(bool)),        scene,SLOT(setSnapToGrid(bool)));
-    connect(this,SIGNAL(setSceneGuidesSig(bool)),       scene,SLOT(setSceneGuides(bool)));
-    connect(this,SIGNAL(setGuidePenSig(QString,int)),   scene,SLOT(setGuidePen(QString,int)));
-    connect(this,SIGNAL(setGridPenSig(QString)),        scene,SLOT(setGridPen(QString)));
-    connect(this,SIGNAL(setResolutionSig(float)),       scene,SLOT(setResolution(float)));
-    connect(this,SIGNAL(setShowCoordinates(bool,bool)), scene,SLOT(setShowCoordinates(bool,bool)));
+    connect(this,SIGNAL(setGridSizeSig(int)),              scene,SLOT(setGridSize(int)));
+    connect(this,SIGNAL(setSceneGuidesLineSig(int)),       scene,SLOT(setSceneGuidesLine(int)));
+    connect(this,SIGNAL(setSceneGuidesPosSig(int)),        scene,SLOT(setSceneGuidesPos(int)));
+    connect(this,SIGNAL(setSnapToGridSig(bool)),           scene,SLOT(setSnapToGrid(bool)));
+    connect(this,SIGNAL(setSceneGuidesSig(bool)),          scene,SLOT(setSceneGuides(bool)));
+    connect(this,SIGNAL(setGuidePenSig(QString,int)),      scene,SLOT(setGuidePen(QString,int)));
+    connect(this,SIGNAL(setGridPenSig(QString)),           scene,SLOT(setGridPen(QString)));
+    connect(this,SIGNAL(setResolutionSig(float)),          scene,SLOT(setResolution(float)));
+    connect(this,SIGNAL(setShowCoordinatesSig(bool,bool)), scene,SLOT(setShowCoordinates(bool,bool)));
 
     connect(this,  SIGNAL(setSceneHorzRulerPositionSig(QPointF)),
             scene, SLOT(  setSceneHorzRulerPosition(   QPointF)));
@@ -189,7 +189,7 @@ void LGraphicsView::setShowCoordinates() {
     bool tracking = Preferences::sceneRuler &&
             Preferences::sceneRulerTracking == TRACKING_LINE &&
             Preferences::showTrackingCoordinates;
-    emit setShowCoordinates(guides,tracking);
+    emit setShowCoordinatesSig(guides,tracking);
 }
 
 void LGraphicsView::setSnapToGrid() {

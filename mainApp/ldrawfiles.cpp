@@ -1884,7 +1884,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     if (topLevelModel)
         emit gui->progressPermInitSig();
     else
-        emit gui->progressBarPermReset();
+        gui->progressBarPermReset();
     emit gui->progressBarPermSetRangeSig(1, lineCount);
     emit gui->progressLabelPermSetTextSig(QObject::tr("Loading MPD Model '%1'...").arg( fileInfo.fileName()));
 
@@ -2509,7 +2509,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         if (topLevelModel)
             emit gui->progressPermInitSig();
         else
-            emit gui->progressBarPermReset();
+            gui->progressBarPermReset();
         emit gui->progressBarPermSetRangeSig(1, lineCount);
         emit gui->progressLabelPermSetTextSig(QObject::tr("Loading LDR Model '%1'...").arg(fileInfo.fileName()));
 

@@ -78,7 +78,7 @@ public:
     PartWorker(QString archiveFile, QObject *parent = nullptr);
     ~PartWorker()
     {
-        _colourParts.empty();
+        _colourParts.clear();
         _ldrawStaticColourParts.clear();
         _partFileContents.clear();
 
@@ -254,7 +254,7 @@ public:
     explicit ColourPartListWorker(QObject *parent = nullptr);
     ~ColourPartListWorker()
     {
-        _colourParts.empty();
+        _colourParts.clear();
         _ldrawStaticColourParts.clear();
         _partFileContents.clear();
     }

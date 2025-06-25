@@ -1840,9 +1840,9 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append) {
         file.close();
 
         if(!append) {
-            gui->messageSig(LOG_INFO,tr("Lines written to %1: %2")
-                                        .arg(Preferences::validLDrawColorParts)
-                                        .arg(_ldrawStaticColourParts.size()+5));
+            emit gui->messageSig(LOG_INFO,tr("Lines written to %1: %2")
+                                             .arg(Preferences::validLDrawColorParts)
+                                             .arg(_ldrawStaticColourParts.size()+5));
         }
         _ldrawStaticColourParts.clear();
     }
@@ -2591,7 +2591,7 @@ int CountPageWorker::countPage(
               if (Preferences::buildModEnabled) {
                   Where current = opts.current;
                   if (lpub->mi.scanForwardNoParts(current, StepMask|StepGroupMask) == StepGroupEndRc)
-                      gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
+                      emit gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
                                                  .arg(rc == BuildModRemoveRc ? QLatin1String("REMOVE") : QLatin1String("APPLY"))
                                                  .arg(meta->LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
                   // special case where we have BUILD_MOD and NOSTEP commands in the same single STEP
