@@ -2203,7 +2203,7 @@ char *ucstringtoutf8(CUCSTR src, int length /*= -1*/)
 #ifdef __MINGW64__
 		return 0;
 #else
-		return false;
+		return NULL;
 #endif
 	}
 	char* retValue = new char[dstLen];

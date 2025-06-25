@@ -3695,9 +3695,7 @@ QString         title,
   _meta.enable   = meta->enable;
   _meta.color    = meta->color;
   _meta.opacity  = meta->opacity;
-  bool ok;
-  ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
-
+  bool ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
   if (ok) {
     bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
@@ -3741,9 +3739,7 @@ void MetaItem::setHighlightStep(
   _meta.enable    = meta->enable;
   _meta.color     = meta->color;
   _meta.lineWidth = meta->lineWidth;
-  bool ok;
-  ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
-
+  bool ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
   if (ok) {
     bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
@@ -4129,7 +4125,6 @@ Where MetaItem::sortedGlobalWhere(
 {
   Where walk = Where(modelName,0);
   int maxLines = lpub->ldrawFile.size(modelName);
-  QRegExp lines1_5("^\\s*[1-5]");
 
   bool header = true;
 

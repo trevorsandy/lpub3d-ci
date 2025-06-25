@@ -110,7 +110,8 @@ TextEditDialog::TextEditDialog(QWidget *parent) :
     tedit = this;
 
     setModal(true);
-    setMinimumSize(40,20);
+
+    adjustSize();
 }
 
 void TextEditDialog::initialize(
@@ -208,9 +209,16 @@ void TextEditDialog::fontChanged(const QFont &f)
     }
 
     QString fontProperties = QString("Font: %1, Size: %2")
-            .arg(QString("%1%2").arg(QFontInfo(f).family())
-                 .arg(f.bold() ? " Bold" : f.italic() ? " Italic" : f.underline() ? " Underline" : ""))
-            .arg(QString::number(f.pointSize()));
+            .arg(QString("%1%2")
+                 .arg(QFontInfo(f).family(),
+                      f.bold()
+                          ? " Bold"
+                          : f.italic()
+                              ? " Italic"
+                              : f.underline()
+                                  ? " Underline"
+                                  : ""),
+                      QString::number(f.pointSize()));
     ui->statusBar->showMessage(fontProperties);
 }
 
@@ -296,27 +304,27 @@ bool TextEditDialog::getText(
       QString &goods,
       QString  windowTitle)
 {
-    if (!lpub->textEdit)
+    if (!tedit)
         return false;
 
     QEventLoop loop;
     QString empty = QString();
 
-    lpub->textEdit->initialize(goods,empty,empty,windowTitle);
+    tedit->initialize(goods,empty,empty,windowTitle);
 
     bool ok =  false;
 
     connect(lpub->textEdit, &QDialog::finished, [&](int r) { ok = r; loop.exit(); });
 
-    lpub->textEdit->open();
+    tedit->open();
 
     // Non blocking wait
     loop.exec(QEventLoop::DialogExec);
 
     if (ok)
-        goods = lpub->textEdit->text;
+        goods = tedit->text;
 
-    disconnect(lpub->textEdit, &QDialog::finished, nullptr, nullptr);
+    disconnect(tedit, &QDialog::finished, nullptr, nullptr);
 
     return ok;
 }
@@ -330,7 +338,7 @@ bool TextEditDialog::getText(
       QString  windowTitle,
       bool     fontActions)
 {
-    if (!lpub->textEdit)
+    if (!tedit)
         return false;
 
     QEventLoop loop;
@@ -359,27 +367,27 @@ bool TextEditDialog::getText(
         unformattedGoods = list.join(" ");
     }
 
-    lpub->textEdit->initialize(unformattedGoods, editFont, editFontColor, windowTitle, richText, fontActions);
+    tedit->initialize(unformattedGoods, editFont, editFontColor, windowTitle, richText, fontActions);
 
     bool ok = false;
 
     connect(lpub->textEdit, &QDialog::finished, [&](int r) { ok = r; loop.exit(); });
 
-    lpub->textEdit->open();
+    tedit->open();
 
     // Non blocking wait
     loop.exec(QEventLoop::DialogExec);
 
     if (ok) {
-        goods    = lpub->textEdit->text;
-        richText = lpub->textEdit->richText;
+        goods    = tedit->text;
+        richText = tedit->richText;
     }
     if (!richText) {
-        editFont      = lpub->textEdit->font.toString();
-        editFontColor = lpub->textEdit->fontColor.name();
+        editFont      = tedit->font.toString();
+        editFontColor = tedit->fontColor.name();
     }
 
-    disconnect(lpub->textEdit, &QDialog::finished, nullptr, nullptr);
+    disconnect(tedit, &QDialog::finished, nullptr, nullptr);
 
     return ok;
 }

@@ -666,17 +666,17 @@ void Pli::setParts(
 
       sortParts(tempParts, true);
 
-	  int quotient    = tempParts.size() / Gui::GetBOMs();
-	  int remainder   = tempParts.size() % Gui::GetBOMs();
+      int quotient    = tempParts.size() / Gui::GetBOMs();
+      int remainder   = tempParts.size() % Gui::GetBOMs();
       int maxParts    = 0;
       int startIndex  = 0;
       int partIndex   = 0;   // using 0-based index
 
-	  if (Gui::GetBOMOccurrence() == Gui::GetBOMs()) {
-		  maxParts = Gui::GetBOMOccurrence() * quotient + remainder;
+      if (Gui::GetBOMOccurrence() == Gui::GetBOMs()) {
+          maxParts = Gui::GetBOMOccurrence() * quotient + remainder;
           startIndex = maxParts - quotient - remainder;
         } else {
-		  maxParts = Gui::GetBOMOccurrence() * quotient;
+          maxParts = Gui::GetBOMOccurrence() * quotient;
           startIndex = maxParts - quotient;
         }
 
@@ -984,7 +984,7 @@ int Pli::createPartImage(
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = lcGetPreferences().mViewPieceIcons;
     fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
-	highlightStep = Preferences::enableHighlightStep /*&& !Gui::suppressColourMeta()*/;
+    highlightStep = Preferences::enableHighlightStep /*&& !Gui::suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     bool isColorPart = LDrawColourParts::isLDrawColourPart(type);
@@ -1899,7 +1899,7 @@ int Pli::placePli(
           }
       }
 
-      topMargin = qMax(topMargin,part->topMargin);
+      topMargin = qMax(topMargin, part ? part->topMargin : 0);
 
       left += width;
 
@@ -1958,8 +1958,6 @@ int Pli::placePli(
 void Pli::placeCols(
     QList<QString> &keys)
 {
-  QList< QPair<int, int> > margins;
-
   // Place the first row
   BorderData borderData;
   borderData = pliMeta.border.valuePixels();
@@ -2455,7 +2453,7 @@ int Pli::partSizeLDViewSCall() {
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = lcGetPreferences().mViewPieceIcons;
     fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
-	highlightStep = Preferences::enableHighlightStep /*&& !Gui::suppressColourMeta()*/;
+    highlightStep = Preferences::enableHighlightStep /*&& !Gui::suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;

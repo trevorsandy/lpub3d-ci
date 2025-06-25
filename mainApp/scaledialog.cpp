@@ -33,7 +33,7 @@
 #include "metagui.h"
 
 UnitsDialog::UnitsDialog(
-  float   values[2],
+  float   values[],
   QString _name,
   QString _labels,
   QWidget *parent)
@@ -67,7 +67,7 @@ UnitsDialog::~UnitsDialog()
 }
 
 bool UnitsDialog::getUnits(
-  float    values[2],
+  float    values[],
   QString  name,
   QString  labels,
   QWidget *parent)

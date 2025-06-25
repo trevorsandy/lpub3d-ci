@@ -42,7 +42,7 @@
 #include "declarations.h"
 #include "LDVHtmlInventory.h"
 
-#ifdef Q_OS_WIN
+#ifdef WIN32
 #include <winsock2.h>
 #include <windows.h>
 #endif

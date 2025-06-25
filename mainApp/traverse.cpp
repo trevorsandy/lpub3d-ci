@@ -303,8 +303,6 @@ void Gui::set_divider_pointers(
         int stepNum,
         Rc rct) {
 
-    QString sType = (rct == CalloutDividerRc ? "CALLOUT" : "STEPGROUP");
-
     Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc :
                                          StepGroupDividerPointerRc);
     Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc :
@@ -4536,8 +4534,6 @@ int Gui::getBOMParts(
 
   gui->skipHeader(current);
 
-  QHash<QString, QStringList> bfx;
-
   int numLines = lpub->ldrawFile.size(current.modelName);
 
   Rc rc;
@@ -4877,7 +4873,6 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
 }
 
 bool Gui::generateBOMPartsFile(const QString &bomFileName) {
-    QString addLine;
     Where current(lpub->ldrawFile.topLevelFile(),0);
     QFuture<void> future = QtConcurrent::run([current]() {
         Gui::bomParts.clear();

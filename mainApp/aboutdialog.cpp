@@ -133,15 +133,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
 #if defined(Q_OS_WIN)
     int OS = checkOS();
     if (OS == Win_64)
-        osPlatform   = "64-bit system";
+        osPlatform = tr("64-bit system");
     else if(OS == Win_32)
-        osPlatform   = "32-bit system";
+        osPlatform = tr("32-bit system");
     else if (OS == OsOther)
-        osPlatform  = "Other Operating System";
+        osPlatform = tr("Other Operating System");
     else if (OS == OsError)
-        osPlatform  = "Error encountered";
+        osPlatform = tr("Error encountered");
     else
-      osPlatform = "Cannot determine system";
+        osPlatform = tr("Cannot determine system");
 #elif defined(Q_OS_MACX)
     osPlatform = QSysInfo::currentCpuArchitecture();
 #elif defined(Q_OS_LINUX)
@@ -196,11 +196,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(creditsButton,SIGNAL(clicked(bool)),
             this,SLOT(showCreditDetails(bool)));
 
-    connect(this, SIGNAL(iamOpening()), SLOT(updateChangelog ()));
-
     changeLogLoaded = false;
 
     setSizeGripEnabled(true);
+
+    adjustSize();
 }
 
 AboutDialog::~AboutDialog()
@@ -235,7 +235,7 @@ void AboutDialog::showCreditDetails(bool clicked) {
     Q_UNUSED(clicked);
 
     //populate credits
-    QString creditsFile = QString("%1/CREDITS.txt").arg(Preferences::lpub3dDocsResourcePath);
+    const QString creditsFile = QString("%1/CREDITS.txt").arg(Preferences::lpub3dDocsResourcePath);
 
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -256,7 +256,7 @@ void AboutDialog::showCreditDetails(bool clicked) {
     }
 }
 
-QString AboutDialog::osName()
+QString AboutDialog::osName() const
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
     auto current = QOperatingSystemVersion::current();

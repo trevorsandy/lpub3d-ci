@@ -1058,8 +1058,6 @@ int SubModel::placeSubModel(
   width = 0;
   height = 0;
 
-  QString key;
-
   for (int i = 0; i < keys.size(); i++) {
     parts[keys[i]]->placed = false;
     if (parts[keys[i]]->height > yConstraint) {
@@ -1165,8 +1163,6 @@ int SubModel::placeSubModel(
 void SubModel::placeCols(
   QList<QString> &keys)
 {
-  QList< QPair<int, int> > margins;
-
   // Place the first row
   BorderData borderData;
   borderData = subModelMeta.border.valuePixels();

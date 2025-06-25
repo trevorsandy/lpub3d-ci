@@ -280,7 +280,7 @@ void FindReplaceCtrls::findInTextPrevious()
 
 void FindReplaceCtrls::findInTextAll() {
     if (!_textEdit) {
-        lpub->messageSig(LOG_ERROR, tr("Document is null."));
+        emit lpub->messageSig(LOG_ERROR, tr("Document is null."));
         return;
     }
 
@@ -350,7 +350,7 @@ void FindReplaceCtrls::findInTextAll() {
 
 void FindReplaceCtrls::find(int direction) {
     if (!_textEdit) {
-        lpub->messageSig(LOG_ERROR, tr("Document is null."));
+        emit lpub->messageSig(LOG_ERROR, tr("Document is null."));
         return;
     }
 
@@ -433,7 +433,7 @@ void FindReplaceCtrls::replaceInTextFind() {
 
 void FindReplaceCtrls::replaceInTextAll() {
     if (!_textEdit) {
-        lpub->messageSig(LOG_ERROR, tr("Document is null."));
+        emit lpub->messageSig(LOG_ERROR, tr("Document is null."));
         return;
     }
 

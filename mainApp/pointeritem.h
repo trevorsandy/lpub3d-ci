@@ -142,7 +142,7 @@ public:
    * location for the MidBase segment to follow. */
 
     bool autoMidBaseFromMidTip();
-	
+
   /* When we drag the base object or CSI, we need to recalculate
    * the pointer.
    * When we have more than one segment we calculate

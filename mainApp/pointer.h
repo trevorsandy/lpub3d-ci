@@ -34,8 +34,6 @@
 #include "where.h"
 #include "meta.h"
 
-#include "QsLog.h"
-
 class Pointer
 {
 public:

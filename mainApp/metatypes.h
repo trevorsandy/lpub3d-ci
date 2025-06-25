@@ -33,6 +33,8 @@
 #include <QStringList>
 #include <QPointF>
 #include <QGradient>
+#include <QHash>
+#include <QVector>
 #include "lpub_preferences.h"
 
 enum AxisEnc {

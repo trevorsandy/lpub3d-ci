@@ -50,7 +50,7 @@ PliAnnotationDialog::PliAnnotationDialog(
 
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
-  bool bom   = _name.toUpper().contains("BOM");
+  bool bom   = _name.contains("BOM", Qt::CaseInsensitive);
   annotation = new PliAnnotationGui("",&meta,box,bom);
 
   QDialogButtonBox *buttonBox;

@@ -23,9 +23,9 @@ class LPubMessages;
 class PliSubstituteParts
 {
   private:
-    static bool     				result;
-    static QString     				empty;
-    static QMap<QString, QString>               substituteParts;
+    static bool result;
+    static QString empty;
+    static QMap<QString, QString> substituteParts;
   public:
     PliSubstituteParts();
     static bool exportSubstitutePartsHeader();

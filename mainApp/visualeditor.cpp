@@ -3593,7 +3593,7 @@ void Gui::ReloadVisualEditor() {
                      return PieceString;
 
                  if (PieceLineIndex == BM_INVALID_INDEX) {
-                     lpub->messageSig(LOG_WARNING, tr("%1 BuildMod invalid piece line index for piece string %1").arg(Action).arg(PieceString));
+                     emit lpub->messageSig(LOG_WARNING, tr("%1 BuildMod invalid piece line index for piece string %1").arg(Action).arg(PieceString));
                      return PieceString;
                  }
 

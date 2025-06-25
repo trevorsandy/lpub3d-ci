@@ -616,6 +616,7 @@ int Render::splitIMParts(const QStringList &rotatedParts,
                          const QString &rotsComment,
                          const QString &ldrName,
                          const QString &csiKey) {
+  Q_UNUSED(csiKey)
   QString ext = ".ldr";
 //  / *
   QStringList imPrevious,
