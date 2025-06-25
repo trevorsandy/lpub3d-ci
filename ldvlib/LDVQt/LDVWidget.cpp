@@ -777,14 +777,14 @@ void LDVWidget::doPartList(
 
 				QImage image(userDefinedSnapshot);
 				if (image.width() != imageWidth || image.height() != imageHeight)
-					image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+					image = image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
 				QImageWriter Writer(snapshot);
 				if (!Writer.write(image))
 				{
 					emit lpub->messageSig(LOG_ERROR,
 										  QString::fromWCharArray(TCLocalStrings::get(L"SnapshotWriteError"))
-											  .arg(snapshot).arg(Writer.errorString()));
+											  .arg(snapshot, Writer.errorString()));
 					return;
 				}
 			}
@@ -1393,7 +1393,7 @@ void LDVWidget::checkForLibraryUpdates(void)
 	if (ldrawZip && showLDrawZipMsg)
 	{
 		QMessageBox mb;
-		QString title,message,zipPath=QString(ldrawZip);
+		QString message,zipPath=QString(ldrawZip);
 		message=QString::fromWCharArray(TCLocalStrings::get(L"ReplaceLDrawZipMessage"));
 		message.replace(QString("%s"),zipPath);
 		mb.setText(message);
@@ -1464,7 +1464,6 @@ bool LDVWidget::installLDraw(void)
 	{
 		char *ldrawParentDir = getLDrawDir();
 		char *ldrawDir = copyString(ldrawParentDir, 255);
-		QDir originalDir = QDir::current();
 		bool progressDialogClosed = false;
 
 		ldrawLibraryUpdateFinished = false;
@@ -1703,12 +1702,12 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 {
 	QJsonDocument Document = QJsonDocument::fromJson(m_RebrickableParts);
 	QJsonObject Root = Document.object();
-	QJsonArray Parts = Root["results"].toArray();
+	const QJsonArray Parts = Root["results"].toArray();
 	// Converting QByteArray to QString Utf8 constData
 	// because QByteArray.toStdString() is only available
 	//if Qt is configured with STL compatibility enabled.
 	std::string utf8String;
-	for (const QJsonValue& Part : Parts)
+	for (const QJsonValue &Part : Parts)
 	{
 		// primary check
 		QJsonObject PartObject = Part.toObject();
@@ -1765,9 +1764,8 @@ void LDVWidget::DownloadFinished(lcHttpReply* Reply)
 
 			if (Version == 1)
 			{
-				QJsonArray Keys = Root["Keys"].toArray();
-
-				for (const QJsonValue& Key : Keys)
+				const QJsonArray Keys = Root["Keys"].toArray();
+				for (const QJsonValue &Key : Keys)
 					m_Keys.append(Key.toString());
 			}
 		}

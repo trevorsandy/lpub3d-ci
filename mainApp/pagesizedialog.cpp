@@ -30,7 +30,7 @@
 #include "metagui.h"
 
 PageSizeDialog::PageSizeDialog(
-  float            goods[2],
+  float            goods[],
   QString         _name,
   QWidget         *parent)
   : QDialog(parent)
@@ -70,7 +70,7 @@ PageSizeDialog::~PageSizeDialog()
 }
 
 bool PageSizeDialog::getPageSize(
-  float           goods[2],
+  float           goods[],
   QString         name,
   QWidget        *parent)
 {

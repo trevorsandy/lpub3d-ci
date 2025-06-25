@@ -529,14 +529,14 @@ void EditWindow::createActions()
     QIcon editorTabLockIcon(Preferences::editorTabLock
         ? ":/resources/editortablocked.png"
         : ":/resources/editortabunlocked.png");
-    QString StatusTip(Preferences::editorTabLock
+    QString editorTabLockStatusTip(Preferences::editorTabLock
         ? tr("Keep the command editor tab on top. Do not raise visual editor on image load")
         : tr("Allow the visual editor and preview tabs to automatically raise on image load"));
     editorTabLockAct = new QAction(editorTabLockIcon,tr("Lock Command Editor"), this);
     editorTabLockAct->setCheckable(true);
     editorTabLockAct->setChecked(Preferences::editorTabLock);
     editorTabLockAct->setObjectName("editorTabLockAct.2");
-    editorTabLockAct->setStatusTip(tr("Keep command editor tab on top. Do not raise the viaual editor on image load"));
+    editorTabLockAct->setStatusTip(editorTabLockStatusTip);
     lpub->actions.insert(editorTabLockAct->objectName(), Action(QStringLiteral("Edit.Editor Tab Lock"), editorTabLockAct));
     connect(editorTabLockAct, SIGNAL(triggered()), this, SLOT(editorTabLock()));
 
@@ -972,11 +972,11 @@ void EditWindow::createToolBars()
                 this,    SLOT(mpdComboChanged(int)));
         mpdComboSeparatorAct = editToolBar->addSeparator();
         mpdComboSeparatorAct->setObjectName("mpdComboSeparatorAct.2");
-        lpub->actions.insert(mpdComboSeparatorAct->objectName(), Action(QStringLiteral(""), mpdComboSeparatorAct));
+        lpub->actions.insert(mpdComboSeparatorAct->objectName(), Action(QString(""), mpdComboSeparatorAct));
 
         mpdComboAct = editToolBar->addWidget(mpdCombo);
         mpdComboAct->setObjectName("mpdComboAct.2");
-        lpub->actions.insert(mpdComboAct->objectName(), Action(QStringLiteral(""), mpdComboAct));
+        lpub->actions.insert(mpdComboAct->objectName(), Action(QString(""), mpdComboAct));
         editToolBar->addAction(updateAct);
     } else {
         editToolBar->addAction(editorTabLockAct);
@@ -2879,7 +2879,7 @@ void EditWindow::redraw()
 {
   if (modelFileEdit() && Preferences::saveOnRedraw)
       saveFile();
-  redrawSig();
+  emit redrawSig();
 }
 
 void EditWindow::update(bool state)
@@ -2887,7 +2887,7 @@ void EditWindow::update(bool state)
   if (modelFileEdit() && Preferences::saveOnUpdate)
       saveFile();
   updateDisabled(state);
-  updateSig();
+  emit updateSig();
 }
 
 void EditWindow::deleteSelection()

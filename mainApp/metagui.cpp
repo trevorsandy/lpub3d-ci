@@ -8745,7 +8745,7 @@ void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
         }
     }
     if (programIndex == -1) {
-        gui->messageSig(LOG_ERROR,QString("Could not locate open with program index"));
+        emit gui->messageSig(LOG_ERROR,QString("Could not locate open with program index"));
         return;
     }
     QString programName = programEntries.at(programIndex).split("|").first();

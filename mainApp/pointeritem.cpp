@@ -350,7 +350,6 @@ void PointerItem::addShaftSegment() {
     thickness = pad->lineData.thickness;
 
     QColor penColor(pad->lineData.color);
-    QColor brushColor(pad->lineData.color);
 
     QPen pen(penColor);
     pen.setWidth(pad->lineData.thickness);

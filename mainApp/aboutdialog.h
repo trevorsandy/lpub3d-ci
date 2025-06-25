@@ -40,7 +40,7 @@ private slots:
 
 public:
     explicit AboutDialog(QWidget *parent);
-    QString osName();
+    QString osName() const;
     QPushButton *detailsButton;
     QPushButton *creditsButton;
     ~AboutDialog();

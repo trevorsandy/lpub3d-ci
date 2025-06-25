@@ -400,7 +400,7 @@ void Gui::updateOpenWithActions()
           gui->openWithActList[i]->setVisible(true);
           i++;
           if (Preferences::debugLogging) {
-            lpub->messageSig(LOG_DEBUG, tr("- Add openWith program: %1. %2").arg(i).arg(programData));
+            emit lpub->messageSig(LOG_DEBUG, tr("- Add openWith program: %1. %2").arg(i).arg(programData));
           }
         } else {
           gui->programEntries.removeOne(gui->programEntries.at(i));
@@ -430,12 +430,12 @@ void Gui::updateOpenWithActions()
           gui->openWithActList[i]->setVisible(true);
           gui->programEntries.append(QString("%1|%2").arg(programName).arg(programData));
           gui->numPrograms = gui->programEntries.size();
-          lpub->messageSig(LOG_INFO, tr("- Add openWith system editor: %1").arg(programData));
+          emit lpub->messageSig(LOG_INFO, tr("- Add openWith system editor: %1").arg(programData));
         }
       }
 
       if (Preferences::debugLogging)
-        lpub->messageSig(LOG_DEBUG, tr("- Number of loaded openWith programs: %1").arg(gui->numPrograms));
+        emit lpub->messageSig(LOG_DEBUG, tr("- Number of loaded openWith programs: %1").arg(gui->numPrograms));
 
       // hide empty program actions - redundant
       for (int j = gui->numPrograms; j < Preferences::maxOpenWithPrograms; j++)
@@ -564,7 +564,6 @@ void Gui::openRecentFile()
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
     fileLoadTimer.start();
-    QString fileName = action->data().toString();
     QString const recentFile = action->data().toString();
     if (QFileInfo(recentFile).isReadable()) {
       gui->loadFile(recentFile);
