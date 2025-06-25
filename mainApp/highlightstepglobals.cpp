@@ -143,8 +143,8 @@ void GlobalHighlightStepDialog::accept()
   mi.beginMacro("GlobalHighlightStep");
 
   bool noFileDisplay = false;
-
-  for (MetaGui *child : data->children) {
+  const QList children = data->children;
+  for (MetaGui *child : children) {
     child->apply(data->topLevelFile);
     noFileDisplay |= child->modified;
   }

@@ -267,15 +267,15 @@ bool PartWorker::loadLDrawSearchDirs() {
            it != ldrawSearchDirs.end(); it++)
         {
           const char *dir = it->c_str();
-          QString const ldrawSearchDir(dir);
+          QString const ldrawSearchDir(QString(dir).toLower());
           // check for Unofficial root directory
           if (!foundUnofficialRootDir)
             foundUnofficialRootDir = ldrawSearchDir.toLower() == unofficialRootDir.toLower();
 
           bool excludeSearchDir = false;
           for (QString const &excludedDir : _excludedSearchDirs) {
-              if ((excludeSearchDir =
-                   ldrawSearchDir.toLower().contains(excludedDir.toLower()))) {
+
+              if ((excludeSearchDir = ldrawSearchDir.contains(excludedDir.toLower()))) {
                   break;
                 }
             }
@@ -361,7 +361,7 @@ bool PartWorker::loadLDrawSearchDirs() {
                                   // 7. search each subSubSubDir for files and subfolders
                                   for (QString const &subSubDirName : subSubSubDirs) {
                                       // 8. get the unofficialSubSubSubDir path - e.g. .../unofficial/custom/textures/model
-                                      QString const unofficialSubSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubSubDir, subSubDirName));
+                                      QString const unofficialSubSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubSubDir, subSubDirName)).toLower();
                                       // Exclude 'parts/s', 'p/8' and 'p/48' sub-directories
                                       excludeSearchDir = false;
                                       QStringList _excludedDirs = QStringList()
@@ -370,7 +370,7 @@ bool PartWorker::loadLDrawSearchDirs() {
                                               << QDir::toNativeSeparators(QString("p/48"));
                                       for (QString const &excludedDir : _excludedDirs) {
                                           if ((excludeSearchDir =
-                                               unofficialSubSubSubDir.toLower().endsWith(excludedDir.toLower()))) {
+                                               unofficialSubSubSubDir.endsWith(excludedDir.toLower()))) {
                                               break;
                                           }
                                       }
@@ -2745,7 +2745,8 @@ int CountPageWorker::countPage(
                           if (buildMod.state != BM_END)
                               emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                       opts.current, Preferences::BuildModErrors,false,false);
-                          for (int buildModLevel : buildModKeys.keys())
+                          const QList keys = buildModKeys.keys();
+                          for (int buildModLevel : keys)
                               insertBuildModification(buildModLevel);
                       }
                       buildModKeys.clear();
@@ -3028,7 +3029,8 @@ int CountPageWorker::countPage(
               if (buildMod.state != BM_END)
                   emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                           opts.current, Preferences::BuildModErrors,false,false);
-              for (int buildModLevel : buildModKeys.keys())
+              const QList keys = buildModKeys.keys();
+              for (int buildModLevel : keys)
                   insertBuildModification(buildModLevel);
           }
 /*

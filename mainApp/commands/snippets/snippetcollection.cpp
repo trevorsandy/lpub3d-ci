@@ -71,7 +71,8 @@ const Snippet &SnippetCollection::at(int offset) const
 QStringList SnippetCollection::triggerList() const
 {
    QStringList triggerList;
-   foreach (const Snippet &snippet, snippets.values()) {
+   const QList values = snippets.values();
+   foreach (const Snippet &snippet, values) {
        triggerList << snippet.trigger;
    }
    return triggerList;
@@ -80,8 +81,8 @@ QStringList SnippetCollection::triggerList() const
 QSharedPointer<SnippetCollection> SnippetCollection::userDefinedSnippets() const
 {
     QSharedPointer<SnippetCollection> userDefinedSnippets = QSharedPointer<SnippetCollection>::create();
-
-    foreach (Snippet snippet, snippets.values()) {
+    const QList values = snippets.values();
+    foreach (Snippet snippet, values) {
         if (snippet.builtIn != Snippet::True) {
             userDefinedSnippets->insert(snippet);
         }

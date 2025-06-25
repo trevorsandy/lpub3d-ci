@@ -682,7 +682,8 @@ bool LDrawFile::isSingleSubfileLine(const QString &line)
 bool LDrawFile::modified()
 {
   bool modified = false;
-  for (const QString &key : _subFiles.keys())
+  const QList _sfKeys = _subFiles.keys();
+  for (const QString &key : _sfKeys)
     modified |= _subFiles[key]._modified;
   return modified;
 }
@@ -976,7 +977,8 @@ void LDrawFile::setPrevStepPosition(
 
 void LDrawFile::clearPrevStepPositions()
 {
-  for (const QString &key : _subFiles.keys()) {
+  const QList _sfKeys = _subFiles.keys();
+  for (const QString &key : _sfKeys) {
     _subFiles[key]._prevStepPosition.clear();
   }
 }
@@ -1245,7 +1247,8 @@ QString LDrawFile::readConfiguredLine(const QString &mcFileName, int lineNumber)
 
 void LDrawFile::unrendered()
 {
-  for (const QString &key : _subFiles.keys()) {
+  const QList _sfKeys = _subFiles.keys();
+  for (const QString &key : _sfKeys) {
     _subFiles[key]._rendered = false;
     _subFiles[key]._mirrorRendered = false;
     _subFiles[key]._renderedKeys.clear();
@@ -3348,8 +3351,9 @@ void LDrawFile::countInstances(
             if (! buildModIgnore) {
               _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
               // build modification inserts
-              if (loadBuildMods() && buildModKeys.size()) {
-                for (int level : buildModKeys.keys())
+              const QList bmKeys = buildModKeys.keys();
+              if (loadBuildMods() && bmKeys.size()) {
+                for (int level : bmKeys)
                   insertBuildModification(level);
               }
             }
@@ -3396,8 +3400,9 @@ void LDrawFile::countInstances(
       if (! buildModIgnore) {
         _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
         // insert buildMod entries at end of content
-        if (loadBuildMods() && buildModKeys.size()) {
-          for (int level : buildModKeys.keys())
+        const QList bmKeys = buildModKeys.keys();
+        if (loadBuildMods() && bmKeys.size()) {
+          for (int level : bmKeys)
             insertBuildModification(level);
         }
       }
@@ -4144,7 +4149,8 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
 
 void LDrawFile::tempCacheCleared()
 {
-  for (const QString &key : _subFiles.keys()) {
+  const QList _sfKeys =_subFiles.keys();
+  for (const QString &key : _sfKeys) {
     _subFiles[key]._changedSinceLastWrite = true;
     _subFiles[key]._modified = true;
   }
@@ -4683,7 +4689,8 @@ void LDrawFile::clearBuildModRendered(const QString &buildModKey, const QString 
 
 void LDrawFile::clearBuildModRendered(bool countPage)
 {
-    for (const QString &key : _buildModRendered.keys()) {
+    const QList _bmKeys = _buildModRendered.keys();
+    for (const QString &key : _bmKeys) {
         if (countPage) {
            for (const QString &modelFile : _buildModRendered[key]) {
                if (modelFile.startsWith(COUNT_PAGE_PREFIX)) {
@@ -4920,8 +4927,10 @@ void LDrawFile::setBuildModNavBackward()
     int count = 0;
     QString keys;
 #endif
-    for (const QString &modKey : _buildMods.keys()) {
-        for (int stepIndex : _buildMods[modKey]._modActions.keys()) {
+    const QList _bmKeys = _buildMods.keys();
+    for (const QString &modKey : _bmKeys) {
+        const QList _maKeys = _buildMods[modKey]._modActions.keys();
+        for (int stepIndex : _maKeys) {
             if (stepIndex > _buildModNextStepIndex && stepIndex <= _buildModPrevStepIndex) {
                 int action = _buildMods[modKey]._modActions.last();
 #ifdef QT_DEBUG_MODE
