@@ -1700,7 +1700,6 @@ void Preferences::lpub3dLibPreferences(bool browse)
         fileInfo.setFile(lpub3dLibFile);
 
         if (fileInfo.exists()) {
-            QString partsLibrary = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
             return;
         }
         else {
@@ -6729,7 +6728,6 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
         return retVal;
 
     QFile confFile(iniFile);
-    QFileInfo confFileInfo(iniFile);
     QStringList contentList;
     int dirNum = 0;
     bool foundExtraSearchDirs = false;
