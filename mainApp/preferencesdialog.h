@@ -235,10 +235,10 @@ class PreferencesDialog : public QDialog
     void on_highlightStepGrpBox_clicked(bool checked);
     void on_fadeStepGrpBox_clicked(bool checked);
     void on_fadeStepsUseColourGrpBox_clicked(bool checked);
-    void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
+    void on_fadeStepsColoursCombo_currentTextChanged(const QString &colorName);
 
-    void on_preferredRenderer_currentIndexChanged(const QString &arg1);
-    void on_projectionCombo_currentIndexChanged(const QString &arg1);
+    void on_preferredRenderer_currentTextChanged(const QString &arg1);
+    void on_projectionCombo_currentTextChanged(const QString &arg1);
     void on_loggingGrpBox_clicked(bool checked);
 
     void on_ldvPreferencesBtn_clicked();
