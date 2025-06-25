@@ -757,8 +757,8 @@ void PreferencesDialog::setRenderers()
     nativeRendererIndex = ui.preferredRenderer->count();
     ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
 
-    disconnect(ui.preferredRenderer, SIGNAL(currentIndexChanged(QString)),
-               this, SLOT(on_preferredRenderer_currentIndexChanged(QString)));
+    disconnect(ui.preferredRenderer, SIGNAL(currentTextChanged(const QString&)),
+               this,                   SLOT(on_preferredRenderer_currentTextChanged(const QString&)));
 
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
       ui.preferredRenderer->setCurrentIndex(ldviewIndex);
