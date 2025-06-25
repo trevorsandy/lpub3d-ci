@@ -299,7 +299,8 @@ QStringList LDrawColor::names()
 {
   QStringList colorNames;
   static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
-  for (QString &key : color2name.keys()) {
+  const QStringList keys = color2name.keys();
+  for (const QString &key : keys) {
     if (! key.contains(hexRx))
       colorNames << color2name[key];
   }

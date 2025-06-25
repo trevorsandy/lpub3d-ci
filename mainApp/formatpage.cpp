@@ -921,8 +921,8 @@ int Gui::addGraphicsPageItems(
                     }
 
                     // add page pointer base and pointers to the scene
-
-                    for (auto i : page->pagePointers.keys()) {
+                    const QList keys = page->pagePointers.keys();
+                    for (auto i : keys) {
                         PagePointer *pp = page->pagePointers[i];
                         pp->parentStep = step;
 
@@ -1030,8 +1030,8 @@ int Gui::addGraphicsPageItems(
         page->addGraphicsItems(0,0,pageBkGrndItem); // place all multi-step graphics items (e.g. RotateIcon...)
 
         // add page pointers to the scene
-
-        for (auto i : page->pagePointers.keys()) {
+        const QList keys = page->pagePointers.keys();
+        for (auto i : keys) {
             PagePointer *pp = page->pagePointers[i];
 
             // override the default location
@@ -1204,7 +1204,8 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene) {
             Where bottom = step->bottomOfStep();
             int lineNumber = step->stepNumber.number;
             PliPart *part;
-            for (QString const &key : pliParts.keys()) {
+            const QList keys = pliParts.keys();
+            for (QString const &key : keys) {
                 part = pliParts[key];
                 part->addPartGroupToScene(scene,top,bottom,lineNumber);
             }
@@ -1270,13 +1271,13 @@ int Gui::addPliPartGroupsToScene(
             // add Pli part group to scene
             QHash<QString, PliPart*> pliParts;
             PliPart *part;
-            QString key;
             page->pli.getParts(pliParts);
             if (pliParts.size()) {
                 Where top = page->pli.step ? page->pli.step->topOfStep() : page->topOfSteps();
                 Where bottom = page->pli.step ? page->pli.step->bottomOfStep() : page->bottomOfSteps();
                 int lineNumber = page->pli.step ? page->pli.step->stepNumber.number : 0;
-                Q_FOREACH (key,pliParts.keys()) {
+                const QList keys = pliParts.keys();
+                for (QString const &key : keys) {
                     part = pliParts[key];
                     part->addPartGroupToScene(scene,top,bottom,lineNumber);
                 }

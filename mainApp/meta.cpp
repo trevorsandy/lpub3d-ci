@@ -80,6 +80,14 @@ QString LeafMeta::format(
   return preamble + result + suffix;
 }
 
+BranchMeta::BranchMeta (const BranchMeta &rhs) : AbstractMeta(rhs)
+{
+  const QStringList keys = list.keys();
+  Q_FOREACH (const QString &key, keys) {
+    *list[key] = *rhs.list[key];
+  }
+}
+
 BranchMeta::~BranchMeta()
 {
   list.clear();
@@ -232,8 +240,8 @@ void BranchMeta::metaKeywords(QStringList &out, QString preamble)
 
 void BranchMeta::pop()
 {
-  QString key;
-  Q_FOREACH (key,list.keys()) {
+  const QStringList keys = list.keys();
+  Q_FOREACH (const QString &key, keys) {
     list[key]->pop();
   }
 }

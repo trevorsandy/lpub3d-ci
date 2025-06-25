@@ -2735,7 +2735,8 @@ int Gui::drawPage(
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
                                     emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
-                                for (int &buildModLevel : buildModKeys.keys()) {
+                                const QList keys = buildModKeys.keys();
+                                for (int buildModLevel : keys) {
                                     if (buildModInsert)
                                         insertBuildModification(buildModLevel);
                                     else
@@ -3969,7 +3970,8 @@ int Gui::findPage(
                                     if (buildMod.state != BM_END)
                                         emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                    opts.current, Preferences::BuildModErrors);
-                                    Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
+                                    const QList keys = buildModKeys.keys();
+                                    for (int buildModLevel : keys) {
                                         insertBuildModification(buildModLevel);
                                     }
                                     buildModKeys.clear();
@@ -4090,7 +4092,8 @@ int Gui::findPage(
                                         emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                    opts.current, Preferences::BuildModErrors);
 
-                                    for (int &buildModLevel : buildModKeys.keys())
+                                    const QList keys = buildModKeys.keys();
+                                    for (int buildModLevel : keys)
                                         insertBuildModification(buildModLevel);
 
                                     buildModKeys.clear();
@@ -5501,7 +5504,7 @@ void Gui::pagesCounted()
                                        .arg(fileInfo.fileName())
                                        .arg(Gui::maxPages)
                                        .arg(lpub->ldrawFile.getPartCount())
-									   .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
+                                       .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
                 if (!Gui::maxPages && !lpub->ldrawFile.getPartCount()) {
                     emit gui->messageSig(LOG_ERROR, tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
@@ -6052,7 +6055,8 @@ int Gui::setBuildModForNextStep(
                     if (buildMod.state != BM_END)
                         emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                 walk, Preferences::BuildModErrors,false,false);
-                    Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                    const QList keys = buildModKeys.keys();
+                    for (int buildModLevel : keys)
                         insertBuildModification(buildModLevel);
                 }
                 bottomOfStep = partsAdded;
@@ -6109,7 +6113,8 @@ int Gui::setBuildModForNextStep(
     } else {
         // Last step of submodel
         if (buildModKeys.size()) {
-            Q_FOREACH (int buildModLevel, buildModKeys.keys())
+            const QList keys = buildModKeys.keys();
+            for (int buildModLevel : keys)
                 insertBuildModification(buildModLevel);
         }
 
@@ -6171,7 +6176,7 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
       skipHeader(topOfStep);
 
       int  buildModBottom     = 0;
-      int  buildModLevel      = BM_BASE_LEVEL; 
+      int  buildModLevel      = BM_BASE_LEVEL;
       bool buildModIgnore     = false;
       bool buildModItems      = false;
       bool buildModApplicable = false;
