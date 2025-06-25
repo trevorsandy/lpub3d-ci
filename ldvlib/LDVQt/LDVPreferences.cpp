@@ -228,7 +228,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 #if defined(WIN32) && !defined(_OSMESA)
 	setupAntialiasing();
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
-	connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
+	connect( fsaaModeBox, SIGNAL( currentTextChanged(const QString&) ), this, SLOT( fsaaModeBoxChanged(const QString&) ) );
 	connect( havePixelBufferButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
 	connect( updateLDrawLibraryButton, SIGNAL( clicked() ), this, SLOT(doLibraryCheckForUpdates() ) );
 #else
