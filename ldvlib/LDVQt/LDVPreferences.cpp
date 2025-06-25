@@ -1639,19 +1639,19 @@ void LDVPreferences::doNewPreferenceSet()
 		{
 			if (getPrefSet(i) && strcmp(getPrefSet(i), name.toUtf8().constData())==0)
 			{
-				QMessageBox::warning(this,
-					QString::fromWCharArray(TCLocalStrings::get(L"PrefSetAlreadyExists")),
-					QString::fromWCharArray(TCLocalStrings::get(L"DuplicateName")),
-					QMessageBox::Ok,0);
+				QMessageBox(QMessageBox::Warning,
+							QString::fromWCharArray(TCLocalStrings::get(L"PrefSetAlreadyExists")),
+							QString::fromWCharArray(TCLocalStrings::get(L"DuplicateName")),
+							QMessageBox::Ok|QMessageBox::Cancel).exec();
 				return;
 			}
 		}
 		if (name.indexOf('/')!=-1)
 		{
-			QMessageBox::warning(this,
-				QString::fromWCharArray(TCLocalStrings::get(L"PrefSetNameBadChars")),
-				QString::fromWCharArray(TCLocalStrings::get(L"InvalidName")),
-				QMessageBox::Ok,0);
+			QMessageBox(QMessageBox::Warning,
+						QString::fromWCharArray(TCLocalStrings::get(L"PrefSetNameBadChars")),
+						QString::fromWCharArray(TCLocalStrings::get(L"InvalidName")),
+						QMessageBox::Ok|QMessageBox::Cancel).exec();
 				return;
 		}
 		new QListWidgetItem(name,preferenceSetList);
@@ -1660,10 +1660,10 @@ void LDVPreferences::doNewPreferenceSet()
 	}
 	if (name.isEmpty() && ok)
 	{
-		QMessageBox::warning(this,
-			QString::fromWCharArray(TCLocalStrings::get(L"PrefSetNameRequired")),
-			QString::fromWCharArray(TCLocalStrings::get(L"EmptyName")),
-			QMessageBox::Ok,0);
+		QMessageBox(QMessageBox::Warning,
+					QString::fromWCharArray(TCLocalStrings::get(L"PrefSetNameRequired")),
+					QString::fromWCharArray(TCLocalStrings::get(L"EmptyName")),
+					QMessageBox::Ok|QMessageBox::Cancel).exec();
 		return;
 	}
 }
@@ -1676,10 +1676,10 @@ void LDVPreferences::doDelPreferenceSet()
 		int selectedIndex = preferenceSetList->currentRow();
 		if (checkAbandon && applyButton->isEnabled())
 		{
-			if(QMessageBox::warning(this,
-				QString::fromWCharArray(TCLocalStrings::get(L"AbandonChanges")),
-				QString::fromWCharArray(TCLocalStrings::get(L"PrefSetAbandonConfirm")),
-				 QMessageBox::Yes, QMessageBox::No)== QMessageBox::Yes)
+			if(QMessageBox(QMessageBox::Warning,
+						   QString::fromWCharArray(TCLocalStrings::get(L"AbandonChanges")),
+						   QString::fromWCharArray(TCLocalStrings::get(L"PrefSetAbandonConfirm")),
+						   QMessageBox::Yes|QMessageBox::No).exec() == QMessageBox::Yes)
 			{
 				abandonChanges();
 			}
