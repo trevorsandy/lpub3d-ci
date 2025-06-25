@@ -4791,7 +4791,7 @@ QString MetaCommandsFileDialog::getCommandsSaveFileName(
     hLayout->addWidget(exportDescriptionsBox.data());
     hLayout->addWidget(exportPlainTextBox.data());
 
-    fileDialog->connect(fileDialog.data(), &QFileDialog::accepted, [&] {
+    fileDialog->connect(fileDialog.data(), &QFileDialog::accepted, gui, [&] {
         if (selectedFilter)
             *selectedFilter = fileDialog->selectedNameFilter();
 
@@ -4803,7 +4803,7 @@ QString MetaCommandsFileDialog::getCommandsSaveFileName(
         selectedUrl = fileDialog->selectedUrls().value(0);
     });
 
-    fileDialog->connect(fileDialog.data(), &QFileDialog::finished,
+    fileDialog->connect(fileDialog.data(), &QFileDialog::finished, gui,
                   [&](int) { loop.exit(); });
 
     fileDialog->open();
