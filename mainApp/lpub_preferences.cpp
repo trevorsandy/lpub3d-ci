@@ -5933,9 +5933,10 @@ bool Preferences::getPreferences()
 
         bool displayThemeColorsChanged = false;
         if ((displayThemeColorsChanged = dialog->themeColours().size())) {
-            QMap<int, QString>::ConstIterator i = dialog->themeColours().constBegin();
+            const QMap<int, QString>themeColours = dialog->themeColours();
+            QMap<int, QString>::ConstIterator i = themeColours.constBegin();
             bool textDecorationColorChanged = false;
-            while (i != dialog->themeColours().constEnd()) {
+            while (i != themeColours.constEnd()) {
                 if (!textDecorationColorChanged)
                     if ((darkTheme && i.key() >= THEME_DEFAULT_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_SCENE_BACKGROUND_COLOR) ||
                                      (i.key() >= THEME_DARK_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_PALETTE_WINDOW))

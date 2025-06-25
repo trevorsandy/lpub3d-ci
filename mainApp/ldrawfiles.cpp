@@ -2511,8 +2511,9 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if (smLine.contains(_fileRegExp[SOF_RX])) {
                     file.close();
                     stagedContents.clear();
-                    QString scModelType = QString(fileType())[0].toUpper() + QString(fileType()).right(QString(fileType()).size() - 1);
-                    emit gui->messageSig(LOG_INFO_STATUS, QString(scModelType + " file %1 identified as Multi-Part LDraw System (MPD) Document").arg(fileInfo.fileName()));
+                    const QString fileTypeUpper = fileType();
+                    const QString scModelType = fileTypeUpper[0].toUpper() + fileType().right(fileType().size() - 1);
+                    emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 file %2 identified as Multi-Part LDraw System (MPD) Document").arg(scModelType, fileInfo.fileName()));
                     loadMPDFile(fileInfo.absoluteFilePath());
                     return;
                 }
