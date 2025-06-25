@@ -156,7 +156,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	connect( geometryResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeometry() ) );
 	connect( effectsResetButton, SIGNAL( clicked() ), this, SLOT( doResetEffects() ) );
 	connect( updatesResetButton, SIGNAL( clicked() ), this, SLOT( doResetUpdates() ) );
-	connect( updatesResetTimesButton, SIGNAL( clicked () ), this, SLOT (doResetTimesUpdates() ) );
+	connect( updatesResetTimesButton, SIGNAL( clicked() ), this, SLOT (doResetTimesUpdates() ) );
 	connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframe(bool) ) );
 	connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( doBFC(bool) ) );
 	connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
@@ -194,7 +194,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	connect( newPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doNewPreferenceSet() ) );
 	connect( delPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doDelPreferenceSet() ) );
 	connect( hotkeyPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doHotkeyPreferenceSet() ) );
-	connect( preferenceSetList, SIGNAL( currentItemChanged(QListWidgetItem *,QListWidgetItem *) ), this, SLOT( doPrefSetSelected(QListWidgetItem *,QListWidgetItem *) ) );
+	connect( preferenceSetList, SIGNAL( currentItemChanged(QListWidgetItem*,QListWidgetItem*) ), this, SLOT( doPrefSetSelected(QListWidgetItem*,QListWidgetItem*) ) );
 	connect( backgroundColorButton, SIGNAL( clicked() ), this, SLOT( doBackgroundColor() ) );
 	connect( defaultColorButton, SIGNAL( clicked() ), this, SLOT( doDefaultColor() ) );
 	connect( updatesNoproxyButton, SIGNAL( toggled(bool) ), this, SLOT( disableProxy() ) );
@@ -208,7 +208,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	connect( delExtraDirButton, SIGNAL( clicked() ), this, SLOT( doDelExtraDir() ) );
 	connect( upExtraDirButton, SIGNAL( clicked() ), this, SLOT( doUpExtraDir() ) );
 	connect( downExtraDirButton, SIGNAL( clicked() ), this, SLOT( doDownExtraDir() ) );
-	connect( ExtraDirListView, SIGNAL( currentItemChanged ( QListWidgetItem * , QListWidgetItem * ) ), this, SLOT( doExtraDirSelected(QListWidgetItem *,QListWidgetItem *) ) );
+	connect( ExtraDirListView, SIGNAL( currentItemChanged (QListWidgetItem*,QListWidgetItem*) ), this, SLOT( doExtraDirSelected(QListWidgetItem*,QListWidgetItem*) ) );
 	connect( ldrawDirButton, SIGNAL(clicked() ), this, SLOT( doLDrawDir() ) );
 	connect( ldrawZipButton, SIGNAL(clicked() ), this, SLOT( doLDrawZip() ) );
 	if (!extraSearchDirs)
@@ -230,7 +230,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
 	connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
 	connect( havePixelBufferButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
-	connect( updateLDrawLibraryButton, SIGNAL( clicked () ), this, SLOT(doLibraryCheckForUpdates() ) );
+	connect( updateLDrawLibraryButton, SIGNAL( clicked() ), this, SLOT(doLibraryCheckForUpdates() ) );
 #else
 	fsaaModeBox->setDisabled(true);
 	fsaaModeBox->hide();
