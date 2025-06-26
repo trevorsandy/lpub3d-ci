@@ -285,6 +285,7 @@ class LDrawFile {
     static bool                 _buildModDetected;
     static int                  _savedLines;
     static qint64               _elapsed;
+    static QStringList          _itemsLoaded;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
 
