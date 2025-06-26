@@ -86,7 +86,7 @@ Updater::Updater()
 #else
     m_platform = "windows-exe";
 #endif
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     m_platform = QLatin1String("macos-dmg");
 #elif defined Q_OS_LINUX
 #if defined LP3D_APPIMAGE
