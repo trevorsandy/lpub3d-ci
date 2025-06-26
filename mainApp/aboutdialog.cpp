@@ -263,12 +263,7 @@ void AboutDialog::showCreditDetails(bool clicked) {
 QString AboutDialog::osName() const
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
-    auto current = QOperatingSystemVersion::current();
-    return QString("%1 %2 %3 %4")
-                   .arg(current.name())
-                   .arg(current.majorVersion())
-                   .arg(current.minorVersion())
-                   .arg(current.microVersion());
+    return QSysInfo::prettyProductName();
 #else
   #ifdef Q_OS_LINUX
     #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
