@@ -247,12 +247,12 @@
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 4.9.1 on Qt 5.12.3 (MSVC 2017, x32)"
+    #define VER_IDE                     "Qt Creator 17.0.1 on Qt 6.9.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)"
+    #define VER_IDE                     "Qt Creator 17.0.1 on Qt 6.9.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
   #elif __APPLE__
     #define VER_COMPILED_ON             "Clang (x86" VER_BUILD_ARCH_STR "bit) Apple"
     #define VER_COMPILED_FOR            "macOS " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
@@ -274,8 +274,8 @@
 #elif _MSC_VER
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2022"
   #define VER_COMPILED_FOR               "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
-  #define VER_COMPILED_WITH              "Qt qtver (MSVC2019 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 15.0.82 on Qt 6.8.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
+  #define VER_COMPILED_WITH              "Qt qtver (MSVC2022 " VER_BUILD_ARCH_STR "bit)"
+  #define VER_IDE                        "Qt Creator 17.0.1 on Qt 6.9.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
 #endif
 
 #endif // VERSION_H
