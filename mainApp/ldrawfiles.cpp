@@ -1426,11 +1426,18 @@ int LDrawFile::loadFile(const QString &fileName)
     QElapsedTimer t; t.start();
 
     // check file encoding
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0) || defined(QT_CORE5COMPAT_LIB)
     QTextCodec::ConverterState state;
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
     QString utfTest = codec->toUnicode(qba.constData(), qba.size(), &state);
     _currFileIsUTF8 = state.invalidChars == 0;
     utfTest = QString();
+#else
+    auto utf8Decoder = QStringDecoder(QStringDecoder::Utf8);
+    auto data = utf8Decoder(qba);
+    _currFileIsUTF8 = !utf8Decoder.hasError();
+    Q_UNUSED(data)
+#endif
 
     // get rid of what's there before we load up new stuff
 
