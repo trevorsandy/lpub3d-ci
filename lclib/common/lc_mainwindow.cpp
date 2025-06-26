@@ -2438,7 +2438,7 @@ void lcMainWindow::RemoveRecentFile(int FileIndex)
 }
 
 /*** LPub3D Mod - Selected Parts ***/
-void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes)
+void lcMainWindow::SetSelectedPieces(const QVector<int> &LineTypeIndexes)
 {
 	if (GetImageType() != Options::PLI)
 	{
@@ -2446,7 +2446,7 @@ void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 
 		if (ActiveModel)
 		{
-			ActiveModel->SetSelectedPieces(LineTypeIndexes);
+			ActiveModel->SetSelectedPieces(const_cast<QVector<int>&>(LineTypeIndexes));
 		}
 	}
 }
