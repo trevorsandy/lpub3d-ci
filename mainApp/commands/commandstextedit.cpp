@@ -97,8 +97,8 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
 
     createActions();
 
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showContextMenu(const QPoint &)));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(showContextMenu(const QPoint&)));
 
     connect(this, SIGNAL(blockCountChanged(int)),
             this, SLOT(  updateLineNumberAreaWidth(int)));
@@ -106,8 +106,8 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
     connect(this, SIGNAL(blockCountChanged(int)),
             this, SLOT(  enableActions(int)));
 
-    connect(this, SIGNAL(updateRequest(QRect, int)),
-            this, SLOT(  updateLineNumberArea(QRect, int)));
+    connect(this, SIGNAL(updateRequest(const QRect&,int)),
+            this, SLOT(  updateLineNumberArea(const QRect&,int)));
 
     connect(this, SIGNAL(selectionChanged()),
             this, SLOT(  highlightCurrentLine()));
@@ -404,8 +404,8 @@ void CommandsTextEdit::setSnippetCompleter(SnippetCompleter *completer)
     if (!sc)
         return;
 
-    connect(completer,  SIGNAL(snippetSelected(QString,QString, int)),
-            this,       SLOT(  insertSnippet(QString,QString, int)));
+    connect(completer,  SIGNAL(snippetSelected(const QString&,const QString&,int)),
+            this,       SLOT(  insertSnippet(const QString&,const QString&,int)));
 }
 
 void CommandsTextEdit::performCompletion()

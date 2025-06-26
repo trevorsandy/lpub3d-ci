@@ -102,7 +102,7 @@ signals:
   void moveLineDown();
 
 private slots:
-  void customMenuRequested(QPoint pos);
+  void customMenuRequested(const QPoint &pos);
   void currentCommandChanged(const QModelIndex &current, const QModelIndex &previous);
   void commandFilterEditChanged();
   void commandTextChanged();

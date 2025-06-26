@@ -212,10 +212,10 @@ void HistoryLineEdit::setWordCompleter(QCompleter* comp)
     if ( comp )
     {
         /// \todo should set these only when on focus
-        connect(completer, SIGNAL(activated(QString)),
-                this,      SLOT(autocomplete(QString)));
-        connect(completer, SIGNAL(highlighted(QString)),
-                this,      SLOT(autocomplete(QString)));
+        connect(completer, SIGNAL(activated(const QString&)),
+                this,      SLOT(autocomplete(const QString&)));
+        connect(completer, SIGNAL(highlighted(const QString&)),
+                this,      SLOT(autocomplete(const QString&)));
         completer->setWidget(this);
     }
 }

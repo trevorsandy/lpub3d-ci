@@ -39,7 +39,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
     setLineEditResetAct = ui->lineEditPageRange->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     setLineEditResetAct->setEnabled(false);
-    connect(ui->lineEditPageRange, SIGNAL(textEdited(const QString &)), this, SLOT(enableLineEditPageRangeReset(const QString &)));
+    connect(ui->lineEditPageRange, SIGNAL(textEdited(const QString&)), this, SLOT(enableLineEditPageRangeReset(const QString&)));
     connect(setLineEditResetAct, SIGNAL(triggered()), this, SLOT(lineEditPageRangeReset()));
     bool ok[2] = {false, false};
     QString const cleanRange = gui->setPageLineEdit->displayText().trimmed().replace(" ", "");

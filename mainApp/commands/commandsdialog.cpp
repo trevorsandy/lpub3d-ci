@@ -130,11 +130,11 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   commandTableView->setModel(commandsProxyTableModel);
   commandTableView->setContextMenuPolicy (Qt::CustomContextMenu);
   widgetLayout->addWidget(commandTableView,1,0);
-  connect(commandTableView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-          this,                               SLOT(   currentCommandChanged(QModelIndex,QModelIndex)));
+  connect(commandTableView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&,const QModelIndex&)),
+          this,                               SLOT(currentCommandChanged(const QModelIndex&,const QModelIndex&)));
 
-  connect(commandTableView,                   SIGNAL(customContextMenuRequested(QPoint)),
-          this,                               SLOT(  customMenuRequested(QPoint)));
+  connect(commandTableView,                   SIGNAL(customContextMenuRequested(const QPoint&)),
+          this,                               SLOT(customMenuRequested(const QPoint&)));
 
   if (!lpub->commandTextEdit)
       commandTextEdit = new CommandsTextEdit(widget);
@@ -257,11 +257,11 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   snippetTableView->setModel(snippetsProxyTableModel);
   snippetTableView->setContextMenuPolicy (Qt::CustomContextMenu);
   widgetLayout->addWidget(snippetTableView,1,0);
-  connect(snippetTableView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-          this,                               SLOT(  currentSnippetChanged(QModelIndex,QModelIndex)));
+  connect(snippetTableView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&,const QModelIndex&)),
+          this,                               SLOT(  currentSnippetChanged(const QModelIndex&,const QModelIndex&)));
 
-  connect(snippetTableView,                   SIGNAL(customContextMenuRequested(QPoint)),
-          this,                               SLOT(  customMenuRequested(QPoint)));
+  connect(snippetTableView,                   SIGNAL(customContextMenuRequested(const QPoint&)),
+          this,                               SLOT(  customMenuRequested(const QPoint&)));
 
   if (!lpub->snippetTextEdit)
       snippetTextEdit = new CommandsTextEdit(widget);
@@ -442,7 +442,7 @@ void CommandsDialog::copyToClipboard() {
   }
 }
 
-void CommandsDialog::customMenuRequested(QPoint pos) {
+void CommandsDialog::customMenuRequested(const QPoint &pos) {
 
   QAction *copyToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Copy to Clipboard"), this);
   copyToClipboardAct->setObjectName("copyToClipboardAct.6");

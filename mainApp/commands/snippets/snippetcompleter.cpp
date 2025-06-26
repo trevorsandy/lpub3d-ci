@@ -36,12 +36,12 @@ SnippetCompleter::SnippetCompleter(SnippetCollection *collection, QWidget *paren
     completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setCaseSensitivity(Qt::CaseSensitive);
 
-    connect(completer, SIGNAL(activated(QString)),
-            this, SLOT(insertSnippet(QString)));
+    connect(completer, SIGNAL(activated(const QString&)),
+            this, SLOT(insertSnippet(const QString&)));
 
     SnippetListModel *model = new SnippetListModel(completer);
-    connect(collection, SIGNAL(collectionChanged(SnippetCollection::CollectionChangedType,Snippet)),
-            model, SLOT(snippetCollectionChanged(SnippetCollection::CollectionChangedType,Snippet)));
+    connect(collection, SIGNAL(collectionChanged(SnippetCollection::CollectionChangedType,const Snippet&)),
+            model, SLOT(snippetCollectionChanged(SnippetCollection::CollectionChangedType,const Snippet&)));
 
     completer->setModel(model);
 

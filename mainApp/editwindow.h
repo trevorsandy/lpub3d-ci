@@ -125,7 +125,7 @@ signals:
     void disableWatcherSig();
     void updateDisabledSig(bool);
     void editModelFileSig();
-    void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
+    void SelectedPartLinesSig(const QVector<TypeLine>&, PartSource = EDITOR_LINE);
     void setStepForLineSig();
     void waitingSpinnerStopSig();
     void triggerUndoSig();
@@ -140,7 +140,7 @@ public slots:
     void setSubFiles(const QStringList& subFiles);
     void modelFileChanged(const QString &fileName);
     void showLine(int, int);
-    void highlightSelectedLines(QVector<int> &lines, bool clear);
+    void highlightSelectedLines(const QVector<int> &lines, bool clear);
     void triggerPreviewLine();
     void updateDisabled(bool);
     void clearEditorWindow();
@@ -217,7 +217,7 @@ protected:
     void writeSettings();
     void clearEditorHighlightLines(bool = false);
     void openFolderSelect(const QString &absoluteFilePath);
-    void highlightSelectedLines(QVector<LineHighlight> &lines, bool isEditor);
+    void highlightSelectedLines(const QVector<LineHighlight> &lines, bool isEditor);
     void setOpenWithProgramAndArgs(QString &program, QStringList &arguments);
     void updateOpenWithActions();
     void disableActions();

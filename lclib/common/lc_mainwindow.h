@@ -410,7 +410,7 @@ public slots:
 
 /*** LPub3D Mod - Selected Parts ***/
 	int GetImageType();
-	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
+	void SetSelectedPieces(const QVector<int> &LineTypeIndexes);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
@@ -420,11 +420,11 @@ public slots:
 /*** LPub3D Mod - signals ***/
 signals:
 /*** LPub3D Mod - rotate step signals ***/
-	void SetRotStepAngles(QVector<float>&, bool=false);
+	void SetRotStepAngles(const QVector<float>&, bool=false);
 	void SetRotStepAngleX(float,  bool=false);
 	void SetRotStepAngleY(float,  bool=false);
 	void SetRotStepAngleZ(float,  bool=false);
-	void SetRotStepType(QString&, bool=false);
+	void SetRotStepType(const QString&, bool=false);
 	void SetRotStepCommand();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export image completion ***/
@@ -432,7 +432,7 @@ signals:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	void SetActiveModelSig(const QString &);
-	void SelectedPartLinesSig(QVector<TypeLine> &, PartSource);
+	void SelectedPartLinesSig(const QVector<TypeLine> &, PartSource);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Move unod/redo trigger to LPub3D ***/
 	void UpdateUndoRedoSig(const QString&, const QString&);

@@ -1255,16 +1255,16 @@ public slots:
   void halt3DViewer(bool enable);
   void UpdateVisualEditUndoRedo(const QString& UndoText, const QString& RedoText);
 
-  void SetRotStepAngles(QVector<float>& Angles, bool display);
+  void SetRotStepAngles(const QVector<float>& Angles, bool display);
   void SetRotStepAngleX(float AngleX, bool display);
   void SetRotStepAngleY(float AngleY, bool display);
   void SetRotStepAngleZ(float AngleZ, bool display);
-  void SetRotStepType(QString& RotStepType, bool display);
+  void SetRotStepType(const QString &RotStepType, bool display);
   void SetRotStepCommand();
 
   void ShowStepRotationStatus();
   void SetActiveModel(const QString &modelName);
-  void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
+  void SelectedPartLines(const QVector<TypeLine> &indexes, const PartSource source);
   void openFolderSelect(const QString &absoluteFilePath);
   void clearBuildModRange();
   void clearVisualEditUndoRedoText();
@@ -1358,7 +1358,7 @@ public slots:
 
   QString GetPliIconsPath(QString& key);
 
-  void setPliIconPath(QString& key, QString& value);
+  void setPliIconPath(const QString &key, const QString &value);
 
   int GetImageWidth();
   int GetImageHeight();
@@ -1599,8 +1599,8 @@ signals:
                      const QString & = "" /*type*/);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
-  void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);
-  void setSelectedPiecesSig(QVector<int> &indexes);
+  void highlightSelectedLinesSig(const QVector<int> &indexes, bool clear);
+  void setSelectedPiecesSig(const QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
   void showLineSig(const Where &here, int type);
   void setMpdComboSig(const QString &modelName);
@@ -1661,7 +1661,7 @@ signals:
   void enableLPubFadeOrHighlightSig(bool, bool, bool);
   void operateHighlightParts(bool, bool);
   void operateFadeParts(bool, bool);
-  void setPliIconPathSig(QString &,QString &);
+  void setPliIconPathSig(const QString &,const QString &);
 
   void fileLoadedSig(bool);
   void consoleCommandFromOtherThreadSig(int, int *);

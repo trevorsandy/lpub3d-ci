@@ -59,7 +59,7 @@ void ProgressDialog::setAutoHide(bool b)
     autoHide = b;
 }
 
-void ProgressDialog::setLabelText(QString text, bool alert) {
+void ProgressDialog::setLabelText(const QString &text, bool alert) {
     ui->progressDlgMessageLbl->setStyleSheet(alert ? QLatin1String("QLabel { color : rgb(255, 51, 0); }") : styleSheet());
     ui->progressDlgMessageLbl->setText(text);
     repaint();

@@ -208,7 +208,7 @@ QString Gui::GetPliIconsPath(QString& key)
     return QString();
 }
 
-void Gui::setPliIconPath(QString& key, QString& value)
+void Gui::setPliIconPath(const QString& key, const QString& value)
 {
     if (!mPliIconsPath.contains(key)) {
         mPliIconsPath.insert(key,value);
@@ -3468,11 +3468,11 @@ Gui::Gui()
 
     if (Preferences::modeGUI) {
         // Gui - 
-        connect(this,           SIGNAL(showLineSig(const Where &, int)),
-                this,           SLOT(  showLine(   const Where &, int)));
+        connect(this,           SIGNAL(showLineSig(const Where&,int)),
+                this,           SLOT(     showLine(const Where&,int)));
 
-        connect(this,           SIGNAL(setMpdComboSig(const QString &)),
-                this,           SLOT(  setMpdCombo(   const QString &)));
+        connect(this,           SIGNAL(setMpdComboSig(const QString&)),
+                this,           SLOT(     setMpdCombo(const QString&)));
 
         connect (m_progressDialog, SIGNAL (cancelClicked()),
                 this,             SLOT (  cancelExporting()));
@@ -3480,8 +3480,8 @@ Gui::Gui()
         // Gui - right side progress bar
         connect(this, SIGNAL(progressPermInitSig()),
                 this, SLOT(  progressPermInit()));
-        connect(this, SIGNAL(progressLabelPermSetTextSig(const QString &)),
-                this, SLOT(  progressLabelPermSetText(const QString &)));
+        connect(this, SIGNAL(progressLabelPermSetTextSig(const QString&)),
+                this, SLOT(  progressLabelPermSetText(const QString&)));
         connect(this, SIGNAL(progressBarPermSetRangeSig(int,int)),
                 this, SLOT(  progressBarPermSetRange(int,int)));
         connect(this, SIGNAL(progressBarPermSetValueSig(int)),
@@ -3492,21 +3492,21 @@ Gui::Gui()
                 this, SLOT(  progressPermStatusRemove()));
 
         // Gui - ParmsWindow
-        connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
-                parmsWindow,    SLOT( displayParmsFile(    const QString &)));
+        connect(this,           SIGNAL(displayParmsFileSig(const QString&)),
+                parmsWindow,    SLOT(     displayParmsFile(const QString&)));
 
         // Gui - EditWindow
-        connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
-                editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &, const StepLines &)));
+        connect(this,           SIGNAL(displayFileSig(LDrawFile*,const QString&,const StepLines&)),
+                editWindow,     SLOT(  displayFile   (LDrawFile*,const QString&,const StepLines&)));
 
-        connect(this,           SIGNAL(setLineScopeSig(const StepLines &)),
-                editWindow,     SLOT(  setLineScope(   const StepLines &)));
+        connect(this,           SIGNAL(setLineScopeSig(const StepLines&)),
+                editWindow,     SLOT(     setLineScope(const StepLines&)));
 
-        connect(this,           SIGNAL(showLineSig(int, int)),
-                editWindow,     SLOT(  showLine(   int, int)));
+        connect(this,           SIGNAL(showLineSig(int,int)),
+                editWindow,     SLOT(     showLine(int,int)));
 
-        connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
-                editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
+        connect(this,           SIGNAL(highlightSelectedLinesSig(const QVector<int>&,bool)),
+                editWindow,     SLOT(     highlightSelectedLines(const QVector<int>&,bool)));
 
         connect(this,           SIGNAL(clearEditorWindowSig()),
                 editWindow,     SLOT(  clearEditorWindow()));
@@ -3514,15 +3514,15 @@ Gui::Gui()
         connect(this,           SIGNAL(setTextEditHighlighterSig()),
                 editWindow,     SLOT(  setTextEditHighlighter()));
 
-        connect(this,           SIGNAL(setSubFilesSig(const QStringList &)),
-                editWindow,     SLOT(  setSubFiles(   const QStringList &)));
+        connect(this,           SIGNAL(setSubFilesSig(const QStringList&)),
+                editWindow,     SLOT(     setSubFiles(const QStringList&)));
 
         connect(this,           SIGNAL(visualEditorVisibleSig(bool)),
                 editWindow,     SLOT(setVisualEditorVisible(bool)));
 
         // Edit Window - Gui
-        connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-                this,           SLOT(SelectedPartLines(     QVector<TypeLine>&,PartSource)));
+        connect(editWindow,     SIGNAL(SelectedPartLinesSig(const QVector<TypeLine>&,PartSource)),
+                this,           SLOT(     SelectedPartLines(const QVector<TypeLine>&,PartSource)));
 
         connect(editWindow,     SIGNAL(redrawSig()),
                 this,           SLOT(  clearAndReloadModelFile()));
@@ -3530,8 +3530,8 @@ Gui::Gui()
         connect(editWindow,     SIGNAL(updateSig()),
                 this,           SLOT(  reloadCurrentPage()));
 
-        connect(editWindow,     SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
-                this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
+        connect(editWindow,     SIGNAL(contentsChangeSig(const QString&,bool,bool,int,int,const QString&)),
+                this,           SLOT(     contentsChange(const QString&,bool,bool,int,int,const QString&)));
 
         connect(editWindow,     SIGNAL(setStepForLineSig()),
                 this,           SLOT(  setStepForLine()));
@@ -3550,8 +3550,8 @@ Gui::Gui()
         connect(this,           SIGNAL(setTextEditHighlighterSig()),
                 editModeWindow, SLOT(  setTextEditHighlighter()));
 
-        connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
-                editModeWindow, SLOT(  displayFile(        LDrawFile *, const QString &)));
+        connect(this,           SIGNAL(displayModelFileSig(LDrawFile*,const QString&)),
+                editModeWindow, SLOT(          displayFile(LDrawFile*,const QString&)));
 
         connect(editModeWindow, SIGNAL(refreshModelFileSig()),
                 this,           SLOT(  refreshModelFile()));
@@ -3565,8 +3565,8 @@ Gui::Gui()
         connect(this,           SIGNAL(clearEditorWindowSig()),
                 editModeWindow, SLOT(  clearEditorWindow()));
 
-        connect(editModeWindow, SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
-                this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
+        connect(editModeWindow, SIGNAL(contentsChangeSig(const QString&,bool,bool,int,int,const QString&)),
+                this,           SLOT(     contentsChange(const QString&,bool,bool,int,int,const QString&)));
 
         // Gui::saveFile() calls Gui::undoStack->setClean() which triggers
         // Gui::undoStack->cleanChanged() that calls
@@ -3581,32 +3581,32 @@ Gui::Gui()
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::finishedCountingPages);
 
     // LPub - Object connection is Qt::AutoConnection so it will trigger without an active event loop
-    connect(lpub,           SIGNAL(messageSig( LogType,const QString &,int)),
-            this,           SLOT(statusMessage(LogType,const QString &,int)));
+    connect(lpub,           SIGNAL( messageSig(LogType,const QString&,int)),
+            this,           SLOT(statusMessage(LogType,const QString&,int)));
 
     // Gui - MainWindow
-    connect(this,           SIGNAL(messageSig( LogType,const QString &,int)),
-            this,           SLOT(statusMessage(LogType,const QString &,int)),
+    connect(this,           SIGNAL( messageSig(LogType,const QString&,int)),
+            this,           SLOT(statusMessage(LogType,const QString&,int)),
             Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
     connect(this,           SIGNAL(setExportingSig(bool)),
-            this,           SLOT(  setExporting(   bool)));
+            this,             SLOT(   setExporting(bool)));
 
     connect(this,           SIGNAL(setExportingObjectsSig(bool)),
-            this,           SLOT(  setExportingObjects(   bool)));
+            this,             SLOT(   setExportingObjects(bool)));
 
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
-            this,           SLOT(  setContinuousPage(   bool)));
+            this,           SLOT(  setContinuousPage(bool)));
 
     // cache management
-    connect(this,           SIGNAL(clearStepCacheSig(Step*, int)),
-            this,           SLOT(  clearStepCache(Step*, int)));
+    connect(this,           SIGNAL(clearStepCacheSig(Step*,int)),
+            this,           SLOT(  clearStepCache(Step*,int)));
 
-    connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
-            this,           SLOT(  clearPageCache(PlacementType, Page*, int)));
+    connect(this,           SIGNAL(clearPageCacheSig(PlacementType,Page*,int)),
+            this,           SLOT(  clearPageCache(PlacementType,Page*,int)));
 
-    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool, bool, bool)),   // reloadModelFile
-            this,           SLOT(  clearAndReloadModelFile(bool, bool, bool)));
+    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool,bool,bool)),   // reloadModelFile
+            this,           SLOT(  clearAndReloadModelFile(bool,bool,bool)));
 
     connect(this,           SIGNAL(clearCustomPartCacheSig(bool)),
             this,           SLOT(  clearCustomPartCache(bool)));
@@ -3632,8 +3632,8 @@ Gui::Gui()
     connect(this,           SIGNAL(reloadCurrentPageSig(bool)),          // reloadDisplayPage
             this,           SLOT(  reloadCurrentPage(bool)));
 
-    connect(this,           SIGNAL(restartApplicationSig(bool, bool)),
-            this,           SLOT(  restartApplication(bool, bool)));
+    connect(this,           SIGNAL(restartApplicationSig(bool,bool)),
+            this,           SLOT(  restartApplication(bool,bool)));
 
     // Undo Stack
     connect(undoStack,      SIGNAL(canRedoChanged(bool)),
@@ -3650,8 +3650,8 @@ Gui::Gui()
             this,           SLOT(  enableLPubFadeOrHighlight(bool,bool,bool)));
 
 #ifdef WATCHER
-    connect(&watcher,       SIGNAL(fileChanged(const QString &)),
-             this,          SLOT(  fileChanged(const QString &)));
+    connect(&watcher,       SIGNAL(fileChanged(const QString&)),
+             this,          SLOT(  fileChanged(const QString&)));
     changeAccepted = true;
 #endif
 
@@ -3706,33 +3706,33 @@ void Gui::initialize()
 
   emit Application::instance()->splashMsgSig(tr("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
-  connect(this, SIGNAL(loadFileSig(QString)),
-          this, SLOT(  loadFile(QString)));
+  connect(this, SIGNAL(loadFileSig(const QString&)),
+          this, SLOT(  loadFile(const QString&)));
   connect(this, SIGNAL(loadLastOpenedFileSig()),
           this, SLOT(  loadLastOpenedFile()));
-  connect(lpub, SIGNAL(loadFileSig(QString, bool)),
-          this, SLOT(  loadFile(QString, bool)));
-  connect(lpub, SIGNAL(consoleCommandSig(int, int*)),
-          this, SLOT(  consoleCommandCurrentThread(int, int*)), Qt::DirectConnection);
-  connect(this, SIGNAL(consoleCommandFromOtherThreadSig(int, int*)),
-          this, SLOT(  consoleCommand(int, int*)), Qt::BlockingQueuedConnection);
+  connect(lpub, SIGNAL(loadFileSig(const QString&,bool)),
+          this, SLOT(  loadFile(const QString&,bool)));
+  connect(lpub, SIGNAL(consoleCommandSig(int,int*)),
+          this, SLOT(  consoleCommandCurrentThread(int,int*)), Qt::DirectConnection);
+  connect(this, SIGNAL(consoleCommandFromOtherThreadSig(int,int*)),
+          this, SLOT(  consoleCommand(int,int*)), Qt::BlockingQueuedConnection);
   connect(this, SIGNAL(countPagesSig()),
           this, SLOT(  countPages()));
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(  halt3DViewer(bool)));
   connect(this, SIGNAL(updateAllViewsSig()),
           this, SLOT(  UpdateAllViews()));
-  connect(this, SIGNAL(previewModelSig(QString const &)),
-          this, SLOT(  previewModel(QString const &)));
-  connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)),
-          this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)));
+  connect(this, SIGNAL(previewModelSig(const QString&)),
+          this, SLOT(  previewModel(const QString&)));
+  connect(this, SIGNAL(parseErrorSig(const QString&,const Where&,Preferences::MsgKey,bool,bool,int,const QString&,const QString&)),
+          this, SLOT(  parseError(const QString&,const Where&,Preferences::MsgKey,bool,bool,int,const QString&,const QString&)));
   if (Preferences::modeGUI) {
       connect(this, SIGNAL(setGeneratingBomSig(bool)),
               this, SLOT(  deployBanner(bool)));
       connect(this, SIGNAL(setExportingSig(bool)),
               this, SLOT(  deployBanner(bool)));
-      connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
-              this, SLOT(  setPliIconPath(QString&,QString&)));
+      connect(this, SIGNAL(setPliIconPathSig(const QString&,const QString&)),
+              this, SLOT(  setPliIconPath(const QString&,const QString&)));
 
       commonMenus.setWhatsThis();
 
@@ -4089,8 +4089,8 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
                 this,                 SLOT(  progressPermInit()));
-        connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString &)),
-                this,                 SLOT(  progressLabelPermSetText(const QString &)));
+        connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString&)),
+                this,                 SLOT(  progressLabelPermSetText(const QString&)));
         connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),
                 this,                 SLOT(  progressBarPermSetRange(int,int)));
         connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),
@@ -4117,13 +4117,13 @@ void Gui::processFadeColourParts(bool overwrite, bool setup)
 {
     gui->partWorkerCustomColour = new PartWorker();
 
-    connect(gui,                   SIGNAL(operateFadeParts(bool, bool)),
-            partWorkerCustomColour, SLOT(processFadeColourParts(bool, bool)));
+    connect(gui,                   SIGNAL(operateFadeParts(bool,bool)),
+            partWorkerCustomColour, SLOT(processFadeColourParts(bool,bool)));
 
     connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
             gui,                   SLOT( progressBarInit()));
-    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
-            gui,                   SLOT( progressBarSetText(const QString &)));
+    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString&)),
+            gui,                   SLOT( progressBarSetText(const QString&)));
     connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
             gui,                   SLOT( progressBarSetRange(int,int)));
     connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
@@ -4142,13 +4142,13 @@ void Gui::processHighlightColourParts(bool overwrite, bool setup)
 {
     gui->partWorkerCustomColour = new PartWorker();
 
-    connect(gui,                   SIGNAL(operateHighlightParts(bool, bool)),
-            partWorkerCustomColour, SLOT(  processHighlightColourParts(bool, bool)));
+    connect(gui,                   SIGNAL(operateHighlightParts(bool,bool)),
+            partWorkerCustomColour, SLOT(  processHighlightColourParts(bool,bool)));
 
     connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
             gui,                   SLOT(  progressBarInit()));
-    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
-            gui,                   SLOT(  progressBarSetText(const QString &)));
+    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString&)),
+            gui,                   SLOT(  progressBarSetText(const QString&)));
     connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
             gui,                   SLOT(  progressBarSetRange(int,int)));
     connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
@@ -4227,8 +4227,8 @@ bool Gui::installRenderer(int which)
     }
 
     QEventLoop *wait = new QEventLoop();
-    wait->connect(rendererDownload, SIGNAL(rendererDownloadFinished(QString)), wait, SLOT(quit()));
-    wait->connect(rendererDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+    wait->connect(rendererDownload, SIGNAL(rendererDownloadFinished(const QString&)), wait, SLOT(quit()));
+    wait->connect(rendererDownload, SIGNAL(cancel()),                                 wait, SLOT(quit()));
     rendererDownload->requestDownload(rendererDownload->getDEFS_URL(), downloadPath);
     wait->exec();
     if (rendererDownload->getCancelled()) {
@@ -4364,8 +4364,8 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fi
                   gui,                   SLOT(  cancelExporting()));
       connect(gui->m_progressDialog,     SIGNAL(cancelClicked()),
               job,                       SLOT(  requestEndThreadNow()));
-      connect(job,                       SIGNAL(progressMessageSig(QString)),
-              gui->m_progressDialog,     SLOT(  setLabelText(QString)));
+      connect(job,                       SIGNAL(progressMessageSig(const QString&)),
+              gui->m_progressDialog,     SLOT(  setLabelText(const QString&)));
       if (!OnDemand)
           connect(job,                   SIGNAL(progressSetValueSig(int)),
               gui->m_progressDialog,     SLOT(  setValue(int)));
@@ -4455,8 +4455,8 @@ void Gui::refreshLDrawUnoffParts() {
     UpdateCheck *libraryDownload;
     libraryDownload      = new UpdateCheck(this, (void*)LDrawUnofficialLibraryDownload);
     QEventLoop  *wait    = new QEventLoop();
-    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(QString)), wait, SLOT(quit()));
-    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(const QString&)), wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(cancel()),                                 wait, SLOT(quit()));
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
     wait->exec();
     if (libraryDownload->getCancelled()) {
@@ -4550,7 +4550,7 @@ void Gui::refreshLDrawUnoffParts() {
                 gui->m_progressDialog, SLOT(setValue(int)));
         connect(gui->m_progressDialog, SIGNAL(cancelClicked()),
                 job, SLOT(requestEndThreadNow()));
-        connect(job, SIGNAL(progressMessageSig (QString)),
+        connect(job, SIGNAL(progressMessageSig(QString)),
                 gui->m_progressDialog, SLOT(setLabelText(QString)));
         connect(job, SIGNAL(progressSetValueSig(int)),
                 gui, SLOT(workerJobResult(int)));
@@ -4622,8 +4622,8 @@ void Gui::refreshLDrawOfficialParts() {
     UpdateCheck *libraryDownload;
     libraryDownload      = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
     QEventLoop  *wait    = new QEventLoop();
-    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(QString)), wait, SLOT(quit()));
-    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(const QString&)), wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(cancel()),                                 wait, SLOT(quit()));
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
     wait->exec();
     if (libraryDownload->getCancelled()) {
@@ -5728,7 +5728,7 @@ void Gui::createActions()
     setPageLineEditResetAct->setEnabled(false);
     lpub->actions.insert(setPageLineEditResetAct->objectName(), Action(QStringLiteral("Navigation.Current Page Edit Reset"), setPageLineEditResetAct));
     connect(setPageLineEdit, SIGNAL(returnPressed()), gui, SLOT(setPage()));
-    connect(setPageLineEdit, SIGNAL(textEdited(const QString &)), gui, SLOT(enablePageLineReset(const QString &)));
+    connect(setPageLineEdit, SIGNAL(textEdited(const QString&)), gui, SLOT(enablePageLineReset(const QString&)));
     connect(setPageLineEditResetAct, SIGNAL(triggered()), gui, SLOT(pageLineEditReset()));
 
     // Configuration
@@ -8336,7 +8336,7 @@ TextEditSearchDirs::TextEditSearchDirs(QWidget *parent) :
   lineNumberArea->setPalette(lineNumberPalette);
 
   connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
-  connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
+  connect(this, SIGNAL(updateRequest(const QRect&,int)), this, SLOT(updateLineNumberArea(const QRect&,int)));
   connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
 
   updateLineNumberAreaWidth(0);

@@ -30,17 +30,17 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 
     m_updater = QSimpleUpdater::getInstance();
 
-    connect (m_updater, SIGNAL(checkingFinished(QString)),
-             this,      SLOT(  updateChangelog(QString)));
+    connect (m_updater, SIGNAL(checkingFinished(const QString&)),
+             this,      SLOT(  updateChangelog(const QString&)));
 
-    connect (m_updater, SIGNAL(checkingFinished(QString)),
-             this,      SIGNAL(checkingFinished(QString)));
+    connect (m_updater, SIGNAL(checkingFinished(const QString&)),
+             this,      SIGNAL(checkingFinished(const QString&)));
 
-    connect (m_updater, SIGNAL(downloadFinished(QString,QString)),
-             this,      SLOT(  downloadReturn(QString,QString)));
+    connect (m_updater, SIGNAL(downloadFinished(const QString&,const QString&)),
+             this,      SLOT(  downloadReturn(const QString&,const QString&)));
 
-    connect (m_updater, SIGNAL(downloadFinished(QString,QString)),
-             this,      SIGNAL(downloadFinished(QString,QString)));
+    connect (m_updater, SIGNAL(downloadFinished(const QString&,const QString&)),
+             this,      SIGNAL(downloadFinished(const QString&,const QString&)));
 
     connect (m_updater, SIGNAL(cancel()),
              this,      SLOT(  setCancelled()));
@@ -131,12 +131,12 @@ void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
     }
 }
 
-void UpdateCheck::downloadReturn(QString url, QString path) {
+void UpdateCheck::downloadReturn(const QString& url, const QString& path) {
     m_downloadReturnPath = path;
     emit rendererDownloadFinished(url);
 }
 
-void UpdateCheck::updateChangelog (const QString &url) {
+void UpdateCheck::updateChangelog (const QString& url) {
     if (url == DEFS_URL) {
         m_latestVersion = m_updater->getLatestVersion(url);
         m_changeLog = m_updater->getChangelog (url);
@@ -188,8 +188,8 @@ AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
   m_updater->setNotifyOnFinish(DEFS_URL, false);
   m_updater->setNotifyOnUpdate (DEFS_URL, false);
 
-  connect (m_updater, SIGNAL(checkingFinished(QString)),
-           this,      SLOT(setAvailableVersions(QString)));
+  connect (m_updater, SIGNAL(checkingFinished(const QString&)),
+           this,      SLOT(setAvailableVersions(const QString&)));
 
   m_updater->retrieveAvailableVersions(DEFS_URL);
 

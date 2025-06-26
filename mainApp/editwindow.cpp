@@ -138,10 +138,10 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     }
 
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &EditWindow::contentLoaded);
-    connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
-    connect(_textEdit, SIGNAL(cursorPositionChanged()),  this, SLOT(highlightCurrentLine()));
-    connect(_textEdit, SIGNAL(highlightSelectedParts()),  this, SLOT(highlightSelectedParts()));
-    connect(_textEdit, SIGNAL(triggerPreviewLine()),  this,  SLOT(triggerPreviewLine()));
+    connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    connect(_textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    connect(_textEdit, SIGNAL(highlightSelectedParts()), this, SLOT(highlightSelectedParts()));
+    connect(_textEdit, SIGNAL(triggerPreviewLine()),  this, SLOT(triggerPreviewLine()));
 
     setCentralWidget(_textEdit);
 
@@ -2160,7 +2160,7 @@ void EditWindow::clearEditorHighlightLines(bool currentLine)
     highlightSelectedLines(selection, true/*isEditor*/);
 }
 
-void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
+void EditWindow::highlightSelectedLines(const QVector<int> &lines, bool clear)
 {
     QVector<LineHighlight> selection;
     for (int line : lines) {
@@ -2171,12 +2171,12 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
     highlightSelectedLines(selection, false/*isEditor*/);
 }
 
-void EditWindow::highlightSelectedLines(QVector<LineHighlight> &lines, bool isEditor)
+void EditWindow::highlightSelectedLines(const QVector<LineHighlight> &lines, bool isEditor)
 {
     if (isReadOnly)
         return;
 
-    auto formatSelection = [this, &isEditor] (QVector<LineHighlight> &lines)
+    auto formatSelection = [this, &isEditor] (const QVector<LineHighlight> &lines)
     {
         QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -2827,8 +2827,8 @@ void EditWindow::loadFinished()
     connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
             this,                  SLOT(  contentsChange(int,int,int)));
 
-    connect(lpub->commandsDialog, SIGNAL(insertCommand(const QString &,bool)),
-            this,                 SLOT(applyInsertCommand(const QString &, bool)));
+    connect(lpub->commandsDialog, SIGNAL(insertCommand(const QString&,bool)),
+            this,                 SLOT(applyInsertCommand(const QString&,bool)));
 
     connect(lpub->commandsDialog, SIGNAL(moveLineUp()),
            this,                  SLOT(moveLineUp()));
@@ -3398,8 +3398,8 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     connect(this, SIGNAL(blockCountChanged(int)),
             this, SLOT(  updateLineNumberAreaWidth(int)));
 
-    connect(this, SIGNAL(updateRequest(QRect, int)),
-            this, SLOT(  updateLineNumberArea(QRect, int)));
+    connect(this, SIGNAL(updateRequest(QRect,int)),
+            this, SLOT(  updateLineNumberArea(QRect,int)));
 
     updateLineNumberAreaWidth(0);
 
@@ -3427,8 +3427,8 @@ void TextEditor::setSnippetCompleter(SnippetCompleter *completer)
     if (!sc)
         return;
 
-    connect(completer,  SIGNAL(snippetSelected(QString,QString, int)),
-            this,       SLOT(  insertSnippet(QString,QString, int)));
+    connect(completer,  SIGNAL(snippetSelected(const QString&,const QString&,int)),
+            this,       SLOT(  insertSnippet(const QString&,const QString&,int)));
 }
 
 void TextEditor::performCompletion()
