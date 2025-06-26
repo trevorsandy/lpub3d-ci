@@ -52,16 +52,16 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
     connect(this,SIGNAL(setShowCoordinatesSig(bool,bool)), scene,SLOT(setShowCoordinates(bool,bool)));
 
     connect(this,  SIGNAL(setSceneHorzRulerPositionSig(QPointF)),
-            scene, SLOT(  setSceneHorzRulerPosition(   QPointF)));
+            scene,   SLOT(   setSceneHorzRulerPosition(QPointF)));
 
     connect(this,  SIGNAL(setSceneVertRulerPositionSig(QPointF)),
-            scene, SLOT(  setSceneVertRulerPosition(   QPointF)));
+            scene,   SLOT(   setSceneVertRulerPosition(QPointF)));
 
     connect(this,  SIGNAL(setSceneRulerTrackingPenSig(QString)),
-            scene, SLOT(  setSceneRulerTrackingPen(   QString)));
+            scene,   SLOT(   setSceneRulerTrackingPen(QString)));
 
     connect(this,  SIGNAL(setSceneRulerTrackingSig(bool)),
-            scene, SLOT(  setSceneRulerTracking(   bool)));
+            scene,   SLOT(   setSceneRulerTracking(bool)));
 }
 
 LGraphicsView::LGraphicsView()
@@ -121,10 +121,10 @@ void LGraphicsView::setSceneRuler() {
         mHorzRuler = new LRuler(LRuler::Horizontal,fake);
         mVertRuler = new LRuler(LRuler::Vertical,fake);
 
-        connect(mHorzRuler,SIGNAL(setRulerPositionSig(  QPoint)),
+        connect(mHorzRuler,SIGNAL(setRulerPositionSig(QPoint)),
                 this,      SLOT(  setSceneHorzRulerPosition(QPoint)));
 
-        connect(mVertRuler,SIGNAL(setRulerPositionSig(  QPoint)),
+        connect(mVertRuler,SIGNAL(setRulerPositionSig(QPoint)),
                 this,      SLOT(  setSceneVertRulerPosition(QPoint)));
 
         mGridLayout->addWidget(fake,0,0);
