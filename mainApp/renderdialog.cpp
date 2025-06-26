@@ -99,8 +99,8 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     resetOutputAct = ui->OutputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     resetOutputAct->setText(tr("Reset"));
     resetOutputAct->setEnabled(false);
-    connect(ui->OutputEdit, SIGNAL(textEdited(  QString const &)),
-            this,           SLOT(  enableReset( QString const &)));
+    connect(ui->OutputEdit, SIGNAL(textEdited(const QString&)),
+            this,           SLOT(  enableReset(const QString&)));
     connect(resetOutputAct, SIGNAL(triggered()),
             this,           SLOT(  resetEdit()));
 
@@ -114,8 +114,8 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         resetInputAct = ui->InputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
         resetInputAct->setText(tr("Reset"));
         resetInputAct->setEnabled(false);
-        connect(ui->InputEdit,  SIGNAL(textEdited(  QString const &)),
-                this,           SLOT(  enableReset( QString const &)));
+        connect(ui->InputEdit,  SIGNAL(textEdited(const QString&)),
+                this,           SLOT(  enableReset(const QString&)));
         connect(resetInputAct,  SIGNAL(triggered()),
                 this,           SLOT(  resetEdit()));
 
