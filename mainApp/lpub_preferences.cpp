@@ -1849,8 +1849,8 @@ void Preferences::lpub3dLibPreferences(bool browse)
                     UpdateCheck *libraryDownload;
                     QEventLoop  *wait = new QEventLoop();
                     libraryDownload  = new UpdateCheck(nullptr, (void*)LDrawOfficialLibraryDirectDownload);
-                    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
-                    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+                    wait->connect(libraryDownload, SIGNAL(downloadFinished(const QString&,const QString&)), wait, SLOT(quit()));
+                    wait->connect(libraryDownload, SIGNAL(cancel()),                                        wait, SLOT(quit()));
                     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
                     wait->exec();
                     if (libraryDownload->getCancelled()) {
@@ -1866,8 +1866,8 @@ void Preferences::lpub3dLibPreferences(bool browse)
                         exit(-1);
                     }
                     libraryDownload  = new UpdateCheck(nullptr, (void*)LDrawUnofficialLibraryDirectDownload);
-                    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
-                    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+                    wait->connect(libraryDownload, SIGNAL(downloadFinished(const QString&,const QString&)), wait, SLOT(quit()));
+                    wait->connect(libraryDownload, SIGNAL(cancel()),                                        wait, SLOT(quit()));
                     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
                     wait->exec();
                     if (libraryDownload->getCancelled()) {
