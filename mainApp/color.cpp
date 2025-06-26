@@ -94,7 +94,7 @@ void LDrawColor::AddColor(const QColor& color, const QString& name, const QStrin
  */
 void LDrawColor::removeUserDefinedColors()
 {
-  for (const QString &name : userdefinedcolors) {
+  for (QString &name : userdefinedcolors) {
 
     QColor color(name2QColor[name]);
     QString const hexname = color.name(QColor::HexRgb).toLower();
