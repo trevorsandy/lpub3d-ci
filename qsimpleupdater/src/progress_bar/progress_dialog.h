@@ -43,7 +43,7 @@ signals:
     void cancelPreviousPageContinuous();
 
 public slots:
-    void setLabelText(QString text, bool alert = false);
+    void setLabelText(const QString &text, bool alert = false);
     void setRange(int min, int max);
     void setValue(int value);
 
