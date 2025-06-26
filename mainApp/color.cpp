@@ -104,7 +104,7 @@ void LDrawColor::removeUserDefinedColors()
     bool ok[10];
 
     ok[0] = false;
-    QHash<QString, int>::iterator a = value2code.find(hexname);
+    QMultiHash<QString, int>::iterator a = value2code.find(hexname);
     while (a != value2code.end()) {
       if (a.key() == hexname) {
         a = value2code.erase(a);
