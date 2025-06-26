@@ -212,8 +212,8 @@ void LdrawFilesLoad::createActions()
     connect(groupAct, SIGNAL(triggered()), this, SLOT(enableActions()));
 
     sm = ui->messagesView->selectionModel();
-    connect(sm,  SIGNAL(selectionChanged(const QItemSelection &,const QItemSelection &)),
-            this,  SLOT(selectionChanged(const QItemSelection &,const QItemSelection &)));
+    connect(sm,  SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+            this,  SLOT(selectionChanged(const QItemSelection&,const QItemSelection&)));
 
     if (!isAction && mpc) {
         ui->buttonBox->addButton(QDialogButtonBox::Discard);

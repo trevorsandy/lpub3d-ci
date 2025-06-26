@@ -2158,11 +2158,11 @@ void LPub::setupChangeLogUpdate()
     // QSimpleUpdater start
     LPub::m_updaterCancelled = false;
     m_updater = QSimpleUpdater::getInstance();
-    connect (m_updater, SIGNAL(checkingFinished (QString)),
-             this,      SLOT(  updateChangelog (QString)));
+    connect (m_updater, SIGNAL(checkingFinished(const QString&)),
+             this,      SLOT(  updateChangelog(const QString&)));
 
     connect (m_updater, SIGNAL(cancel()),
-             this,      SLOT(  updaterCancelled ()));
+             this,      SLOT(  updaterCancelled()));
 
     // set release notes
     if (Preferences::autoUpdateChangeLog) {

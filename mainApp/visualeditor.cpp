@@ -983,8 +983,8 @@ bool Gui::eventFilter(QObject *object, QEvent *event)
 
 void Gui::initiaizeVisualEditor()
 {
-    connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(       const QString&,const QString&)),
-            this,        SLOT(  UpdateVisualEditUndoRedo(const QString&,const QString&)));
+    connect(gMainWindow, SIGNAL(       UpdateUndoRedoSig(const QString&,const QString&)),
+            this,          SLOT(UpdateVisualEditUndoRedo(const QString&,const QString&)));
 
     connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),
             this,        SLOT(  togglePreviewWidget(bool)));
@@ -993,13 +993,13 @@ void Gui::initiaizeVisualEditor()
             gMainWindow, SLOT(  NewProject()));
 
     connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&)),
-            this,        SLOT(  SetActiveModel(const QString&)));
+            this,          SLOT(   SetActiveModel(const QString&)));
 
-    connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
-            gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+    connect(this,        SIGNAL(setSelectedPiecesSig(const QVector<int>&)),
+            gMainWindow, SLOT(  SetSelectedPieces(const QVector<int>&)));
 
-    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-            this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
+    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(const QVector<TypeLine>&,PartSource)),
+            this,        SLOT(  SelectedPartLines(const QVector<TypeLine>&,PartSource)));
 
     connect(gMainWindow, SIGNAL(SetRotStepCommand()),
             this,        SLOT(  SetRotStepCommand()));
@@ -1013,11 +1013,11 @@ void Gui::initiaizeVisualEditor()
     connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
             this,        SLOT(  SetRotStepAngleZ(float,bool)));
 
-    connect(gMainWindow, SIGNAL(SetRotStepType(QString&,bool)),
-            this,        SLOT(  SetRotStepType(QString&,bool)));
+    connect(gMainWindow, SIGNAL(SetRotStepType(const QString&,bool)),
+            this,        SLOT(  SetRotStepType(const QString&,bool)));
 
-    connect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
-            this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
+    connect(gMainWindow, SIGNAL(SetRotStepAngles(const QVector<float>&,bool)),
+            this,        SLOT(  SetRotStepAngles(const QVector<float>&,bool)));
 
     enable3DActions(false);
 
@@ -2944,7 +2944,7 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
  * RotStep Meta
  *
  ********************************************/
-void Gui::SetRotStepAngles(QVector<float> &Angles, bool display)
+void Gui::SetRotStepAngles(const QVector<float> &Angles, bool display)
 {
     mRotStepAngleX = Angles[0];
     mRotStepAngleY = Angles[1];
@@ -2974,7 +2974,7 @@ void Gui::SetRotStepAngleZ(float AngleZ, bool display)
         ShowStepRotationStatus();
 }
 
-void Gui::SetRotStepType(QString& RotStepType, bool display)
+void Gui::SetRotStepType(const QString& RotStepType, bool display)
 {
     mRotStepType = RotStepType;
     if (display)
@@ -5257,15 +5257,15 @@ void Gui::setStepForLine()
     if (lpub->page.coverPage)
         return;
 
-    disconnect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
-               editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
+    disconnect(this,           SIGNAL(highlightSelectedLinesSig(const QVector<int>&,bool)),
+               editWindow,       SLOT(   highlightSelectedLines(const QVector<int>&,bool)));
 
     enableVisualBuildModActions();
     lpub->currentStep->viewerOptions->ZoomExtents = true;
     lpub->currentStep->loadTheViewer();
 
-    connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
-            editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
+    connect(this,           SIGNAL(highlightSelectedLinesSig(const QVector<int>&,bool)),
+            editWindow,       SLOT(   highlightSelectedLines(const QVector<int>&,bool)));
 }
 
 /*********************************************
@@ -5345,7 +5345,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
  *
  ********************************************/
 
-void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
+void Gui::SelectedPartLines(const QVector<TypeLine> &indexes, const PartSource source)
 {
     if (! Gui::exporting() && Preferences::modeGUI) {
         Step *currentStep = lpub->currentStep;

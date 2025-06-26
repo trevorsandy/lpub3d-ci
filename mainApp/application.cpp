@@ -660,8 +660,8 @@ int Application::initialize(lcCommandLineOptions &Options)
     m_parent_console = false;
 #endif
 
-    connect(this, SIGNAL(splashMsgSig(const QString &)),
-            this, SLOT(  splashMsg(   const QString &)));
+    connect(this, SIGNAL(splashMsgSig(const QString&)),
+            this, SLOT(     splashMsg(const QString&)));
 
     // process arguments
     bool header_printed = false;

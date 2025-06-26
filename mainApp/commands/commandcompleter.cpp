@@ -38,8 +38,8 @@ CommandCompleter::CommandCompleter(CommandCollection *collection, QWidget *paren
     completer->setCaseSensitivity(Qt::CaseSensitive);
 
     CommandListModel *model = new CommandListModel(completer);
-    connect(collection, SIGNAL(collectionChanged(CommandCollection::CollectionChangedType,Command)),
-            model,      SLOT(commandCollectionChanged(CommandCollection::CollectionChangedType,Command)));
+    connect(collection, SIGNAL(collectionChanged(CommandCollection::CollectionChangedType,const Command&)),
+            model,      SLOT(commandCollectionChanged(CommandCollection::CollectionChangedType,const Command&)));
     completer->setModel(model);
 }
 

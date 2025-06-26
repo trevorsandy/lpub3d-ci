@@ -51,7 +51,7 @@ CommandListColumnStretcher::CommandListColumnStretcher(QTreeWidget *treeWidget, 
     : QObject(treeWidget->header()), m_columnToStretch(columnToStretch),m_interactiveResize(false), m_stretchWidth(0)
 {
     parent()->installEventFilter(this);
-    connect(treeWidget->header(), SIGNAL(sectionResized(int, int, int)), SLOT(sectionResized(int, int, int)));
+    connect(treeWidget->header(), SIGNAL(sectionResized(int,int,int)), SLOT(sectionResized(int,int,int)));
     QHideEvent stretch;
     CommandListColumnStretcher::eventFilter(parent(), &stretch);
 }
@@ -211,14 +211,14 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   setShortcutEditResetAct->setText(tr("Shortcut Reset"));
   setShortcutEditResetAct->setObjectName("setShortcutEditResetAct.8");
   lpub->actions.insert(setShortcutEditResetAct->objectName(), Action(QStringLiteral("Edit.ShortcutReset"), setShortcutEditResetAct));
-  connect(ui.shortcutEdit,         SIGNAL(textChanged(const QString&)),
-          this,                    SLOT(enableShortcutEditReset(const QString&)));
-  connect(setShortcutEditResetAct, SIGNAL(triggered()),
-          this,                    SLOT(shortcutEditReset()));
-  connect(ui.commandList,          SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-          this,                    SLOT( commandChanged(QTreeWidgetItem*)));
-  connect(completer,               SIGNAL(activated(const QString&)),
-          this,                    SLOT(on_KeyboardFilterEdit_textEdited(const QString&)));
+  connect(ui.shortcutEdit,         SIGNAL(            textChanged(const QString&)),
+          this,                      SLOT(enableShortcutEditReset(const QString&)));
+  connect(setShortcutEditResetAct, SIGNAL(        triggered()),
+          this,                      SLOT(shortcutEditReset()));
+  connect(ui.commandList,          SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+          this,                      SLOT(    commandChanged(QTreeWidgetItem*)));
+  connect(completer,               SIGNAL(                       activated(const QString&)),
+          this,                      SLOT(on_KeyboardFilterEdit_textEdited(const QString&)));
 
   updateCommandList();
   new CommandListColumnStretcher(ui.commandList, 0);
@@ -327,45 +327,45 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
           this,                             &PreferencesDialog::ColorButtonClicked);
   connect(ui.HighlightNewPartsColor,        &QToolButton::clicked,
           this,                             &PreferencesDialog::ColorButtonClicked);
-  connect(ui.HighContrastButton,            SIGNAL(clicked()),
-          this,                             SLOT(AutomateEdgeColor()));
-  connect(ui.AutomateEdgeColorButton,       SIGNAL(clicked()),
-          this,                             SLOT(AutomateEdgeColor()));
-  connect(ui.LineWidthMaxGranularityButton, SIGNAL(clicked()),
-          this,                             SLOT(lineWidthMaxGranularity()));
-  connect(ui.ResetFadeStepsButton,          SIGNAL(clicked()),
-          this,                             SLOT(ResetFadeHighlightColor()));
-  connect(ui.ResetHighlightNewPartsButton,  SIGNAL(clicked()),
-          this,                             SLOT(ResetFadeHighlightColor()));
+  connect(ui.HighContrastButton,            SIGNAL(          clicked()),
+          this,                               SLOT(AutomateEdgeColor()));
+  connect(ui.AutomateEdgeColorButton,       SIGNAL(          clicked()),
+          this,                               SLOT(AutomateEdgeColor()));
+  connect(ui.LineWidthMaxGranularityButton, SIGNAL(                clicked()),
+          this,                               SLOT(lineWidthMaxGranularity()));
+  connect(ui.ResetFadeStepsButton,          SIGNAL(                clicked()),
+          this,                               SLOT(ResetFadeHighlightColor()));
+  connect(ui.ResetHighlightNewPartsButton,  SIGNAL(                clicked()),
+          this,                               SLOT(ResetFadeHighlightColor()));
 
-  connect(ui.resetDefaultDistanceFactor,    SIGNAL(clicked()),
-          this,                             SLOT(cameraPropertyReset()));
-  connect(ui.resetDefaultPosition,          SIGNAL(clicked()),
-          this,                             SLOT(cameraPropertyReset()));
-  connect(ui.resetFoV,                      SIGNAL(clicked()),
-          this,                             SLOT(cameraPropertyReset()));
-  connect(ui.resetNearPlane,                SIGNAL(clicked()),
-          this,                             SLOT(cameraPropertyReset()));
-  connect(ui.resetFarPlane,                 SIGNAL(clicked()),
-          this,                             SLOT(cameraPropertyReset()));
+  connect(ui.resetDefaultDistanceFactor,    SIGNAL(            clicked()),
+          this,                               SLOT(cameraPropertyReset()));
+  connect(ui.resetDefaultPosition,          SIGNAL(            clicked()),
+          this,                               SLOT(cameraPropertyReset()));
+  connect(ui.resetFoV,                      SIGNAL(            clicked()),
+          this,                               SLOT(cameraPropertyReset()));
+  connect(ui.resetNearPlane,                SIGNAL(            clicked()),
+          this,                               SLOT(cameraPropertyReset()));
+  connect(ui.resetFarPlane,                 SIGNAL(            clicked()),
+          this,                               SLOT(cameraPropertyReset()));
   // lcLib
 
-  connect(ui.ldvPoVFileGenOptBtn,           SIGNAL(clicked()),
-          this,                             SLOT(ldvPoVFileGenOptBtn_clicked()));
-  connect(ui.ldvPoVFileGenPrefBtn,          SIGNAL(clicked()),
-          this,                             SLOT(ldvPoVFileGenPrefBtn_clicked()));
-  connect(ui.sceneBackgroundColorButton,    SIGNAL(clicked()),
-          this,                             SLOT(sceneColorButtonClicked()));
-  connect(ui.sceneGridColorButton,          SIGNAL(clicked()),
-          this,                             SLOT(sceneColorButtonClicked()));
-  connect(ui.sceneRulerTickColorButton,     SIGNAL(clicked()),
-          this,                             SLOT(sceneColorButtonClicked()));
-  connect(ui.sceneRulerTrackingColorButton, SIGNAL(clicked()),
-          this,                             SLOT(sceneColorButtonClicked()));
-  connect(ui.sceneGuideColorButton,         SIGNAL(clicked()),
-          this,                             SLOT(sceneColorButtonClicked()));
-  connect(lpub,                             SIGNAL(checkForUpdatesFinished ()),
-          this,                             SLOT(updateChangelog ()));
+  connect(ui.ldvPoVFileGenOptBtn,           SIGNAL(                    clicked()),
+          this,                               SLOT(ldvPoVFileGenOptBtn_clicked()));
+  connect(ui.ldvPoVFileGenPrefBtn,          SIGNAL(                     clicked()),
+          this,                               SLOT(ldvPoVFileGenPrefBtn_clicked()));
+  connect(ui.sceneBackgroundColorButton,    SIGNAL(                clicked()),
+          this,                               SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneGridColorButton,          SIGNAL(                clicked()),
+          this,                               SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneRulerTickColorButton,     SIGNAL(                clicked()),
+          this,                               SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneRulerTrackingColorButton, SIGNAL(                clicked()),
+          this,                               SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneGuideColorButton,         SIGNAL(                clicked()),
+          this,                               SLOT(sceneColorButtonClicked()));
+  connect(lpub,                             SIGNAL(checkForUpdatesFinished()),
+          this,                               SLOT(        updateChangelog()));
 
   setMinimumSize(600, 700);
 
@@ -787,8 +787,8 @@ void PreferencesDialog::setRenderers()
         }
     }
 
-    connect(ui.preferredRenderer, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(on_preferredRenderer_currentIndexChanged(QString)));
+    connect(ui.preferredRenderer, SIGNAL(                     currentTextChanged(const QString&)),
+            this,                   SLOT(on_preferredRenderer_currentTextChanged(const QString&)));
 
     if (Preferences::preferredRenderer != RENDERER_LDGLITE) {
         ui.highlightStepLineWidthSpin->setVisible(false);

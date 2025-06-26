@@ -61,7 +61,7 @@ public slots:
    }
 
 private slots:
-   void downloadReturn(QString url, QString path);
+   void downloadReturn(const QString &url, const QString &path);
 
 private:
    void applyGeneralSettings (const QString& url);
