@@ -52,6 +52,11 @@ if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64
     CHIPSET  = AMD
 }
 
+greaterThan(QT_MAJOR_VERSION, 5) {
+#~~ Qt5 Core Compatibility for Qt6 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    QT += core5compat
+}
+
 #~~ Qt/OSMesa/WGL library identifiers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ldviewqt {
