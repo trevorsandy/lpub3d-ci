@@ -1328,7 +1328,7 @@ void Gui::togglePreviewWidget(bool visible)
             gui->previewDockWindow->show();
         else
             gui->previewDockWindow->hide();
-        QList<QAction*> viewActions = gui->viewMenu->actions();
+        const QList<QAction*> viewActions = gui->viewMenu->actions();
         for (QAction *viewAct : viewActions) {
             if (viewAct->text() == QLatin1String("Preview")) {
                 viewAct->setChecked(visible);
@@ -2492,13 +2492,13 @@ void Gui::enableVisualBuildModActions()
     DeleteBuildModActionAct->setStatusTip(deleteBuildModActionStatusTip);
 
     // set action text and build mod combo enable
-    QList<QAction*> modActions;
-    modActions
-    << ApplyBuildModAct
-    << RemoveBuildModAct
-    << DeleteBuildModActionAct
-    << DeleteBuildModAct
-    << LoadBuildModAct;
+    const QList<QAction*> modActions = {
+        ApplyBuildModAct,
+        RemoveBuildModAct,
+        DeleteBuildModActionAct,
+        DeleteBuildModAct,
+        LoadBuildModAct
+    };
 
     for(QAction* action : modActions) {
         if (updateTitle) {
@@ -2884,7 +2884,7 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
                     for (QString const &sl : scl) {
                         if (!inserted) {
                             if ((inserted = sl.contains(insertRx))) {
-                                for (QString const &vl : vcl)
+                                for (QString &vl : vcl)
                                     out << vl << lpub_endl;
                                 continue;
                             }

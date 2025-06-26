@@ -680,7 +680,8 @@ void Pli::setParts(
           startIndex = maxParts - quotient;
         }
 
-      for (QString const &key : sortedKeys) {
+      const QList keys = sortedKeys;
+      for (QString const &key : keys) {
           PliPart *part;
           part = tempParts[key];
 
@@ -1198,7 +1199,7 @@ int Pli::createPartImage(
                 return futureFile;
             });
 
-            QStringList pliFile = future.result();
+            const QStringList pliFile = future.result();
             rc = pliFile.isEmpty();
 
             // unrotated part
@@ -2722,7 +2723,7 @@ int Pli::partSizeLDViewSCall() {
                         return futureFile;
                     });
 
-                    QStringList pliFile = future.result();
+                    const QStringList pliFile = future.result();
 
                     // unrotated part
                     QStringList pliFileU = QStringList()

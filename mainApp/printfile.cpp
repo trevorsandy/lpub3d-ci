@@ -180,7 +180,7 @@ void Gui::checkMixedPageSizeStatus() {
 
   if (Gui::processOption == EXPORT_PAGE_RANGE) {
 
-      QStringList pageRanges = Gui::pageRangeText.split(",");
+      const QStringList pageRanges = Gui::pageRangeText.split(",");
       QList<int> printPages;
       for (QString const &ranges : pageRanges) {
           if (ranges.contains("-")) {
@@ -337,7 +337,7 @@ bool Gui::validatePageRange()
 
   bool validEntry = true;
   QString message;
-  QStringList pageRanges = Gui::pageRangeText.split(",");
+  const QStringList pageRanges = Gui::pageRangeText.split(",");
   for (QString const &ranges: pageRanges) {
       if (ranges.contains("-")) {
           bool ok[2];
@@ -1175,7 +1175,7 @@ void Gui::exportAsPdf()
 
   } else {
 
-      QStringList pageRanges = Gui::pageRangeText.split(",");
+      const QStringList pageRanges = Gui::pageRangeText.split(",");
       QList<int> printPages;
       for (QString const &ranges : pageRanges) {
           if (ranges.contains("-")) {
@@ -1424,7 +1424,7 @@ void Gui::exportAsPdf()
           static QRegularExpression errorRx(">ERROR<");
           static QRegularExpression fatalRx(">FATAL<");
           static QRegularExpression warnRx(">WARNING<");
-          for (const QString &item : Gui::messageList)
+          for (QString &item : Gui::messageList)
               if (item.contains(errorRx) || item.contains(fatalRx))
                   errorSet++;
               else if (! warnSet && item.contains(warnRx))
@@ -1568,7 +1568,7 @@ void Gui::exportAs(const QString &_suffix)
   } else {
 
       pageRanges = Gui::pageRangeText.split(",");
-      for (QString const &ranges : pageRanges) {
+      for (QString &ranges : pageRanges) {
           if (ranges.contains("-")) {
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
@@ -1904,7 +1904,7 @@ void Gui::exportAs(const QString &_suffix)
           static QRegularExpression errorRx(">ERROR<");
           static QRegularExpression fatalRx(">FATAL<");
           static QRegularExpression warnRx(">WARNING<");
-          for (const QString &item : Gui::messageList)
+          for (QString &item : Gui::messageList)
             if (item.contains(errorRx) || item.contains(fatalRx))
                 errorSet++;
             else if (! warnSet && item.contains(warnRx))
@@ -2409,7 +2409,7 @@ void Gui::showExportedFile()
       static QRegularExpression errorRx(">ERROR<");
       static QRegularExpression fatalRx(">FATAL<");
       static QRegularExpression warnRx(">WARNING<");
-      for (const QString &item : Gui::messageList)
+      for (QString &item : Gui::messageList)
         if (item.contains(errorRx) || item.contains(fatalRx))
             errorSet++;
         else if (! warnSet && item.contains(warnRx))

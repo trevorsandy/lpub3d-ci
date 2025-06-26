@@ -928,7 +928,7 @@ void RenderDialog::WriteStdOut()
     {
         QTextStream Out(&file);
 
-        for (const QString& Line : mStdOutList)
+        for (QString& Line : mStdOutList)
             Out << Line;
 
         file.close();

@@ -6281,10 +6281,7 @@ PliSortOrderGui::PliSortOrderGui(
   secondaryCombo = new QComboBox(parent);
   tertiaryCombo  = new QComboBox(parent);
 
-  QList<QComboBox *> cbl;
-  cbl << primaryCombo
-      << secondaryCombo
-      << tertiaryCombo;
+  const QList<QComboBox *> cbl = {primaryCombo, secondaryCombo, tertiaryCombo};
   for (const auto cb : cbl) {
       for (const auto &so : SortOptionName) {
           if (so == SortOptionName[PartElement] && !bom)

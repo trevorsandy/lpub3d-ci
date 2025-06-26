@@ -1316,7 +1316,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
     const QString LDGLite = rendererNames[RENDERER_LDGLITE];
     const QString Native = rendererNames[RENDERER_NATIVE];
     bool showMessage = true;
-    for (const QString &messageNotShown : Preferences::messagesNotShown)
+    for (QString &messageNotShown : Preferences::messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString())) {
             showMessage = false;
             break;
@@ -1775,7 +1775,7 @@ void PreferencesDialog::messageManagement()
 
         if (Preferences::messagesNotShown.size()) {
             bool ok;
-            for (QString const &message : Preferences::messagesNotShown) {
+            for (QString &message : Preferences::messagesNotShown) {
                 int key = message.split(" ").first().toInt(&ok);
                 if (ok) {
                     Preferences::MsgKey msgKey = Preferences::MsgKey(key);
