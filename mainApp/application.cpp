@@ -649,7 +649,7 @@ void Application::splashMsg(const QString &message)
 
 int Application::initialize(lcCommandLineOptions &Options)
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     m_application.setStyle(QStyleFactory::create("macintosh"));
 #endif
     m_application_restart = false;
@@ -974,7 +974,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     Preferences::printInfo(tr("Arguments....................(%1)").arg(dispAargs));
 #ifndef Q_OS_WIN
     QDir cwd(QCoreApplication::applicationDirPath());
-#ifdef Q_OS_MAC           // for macOS
+#ifdef Q_OS_MACOS           // for macOS
     Preferences::printInfo(tr("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
         cwd.cdUp();                   // Contents/      (app bundle contents folder)
@@ -1008,7 +1008,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     }
 #endif
 #endif // NOT Q_OS_WIN
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dPath)));
 #else // Q_OS_LINUX and Q_OS_WIN
     Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dPath)));
@@ -1017,7 +1017,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     Preferences::printInfo(tr("%1 Application Data Path.(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpubDataPath)));
 #ifdef Q_OS_WIN
     Preferences::printInfo(tr("%1 Parameters Location...(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::dataLocation)));
-#else // Q_OS_LINUX and Q_OS_MAC
+#else // Q_OS_LINUX and Q_OS_MACOS
     Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(QDir::toNativeSeparators(Preferences::lpub3dExtrasResourcePath)));
 #if defined Q_OS_LINUX
 #ifdef DEBUG_MODE_USE_BUILD_FOLDERS
@@ -1030,10 +1030,10 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(lpub3d3rdPartyAppExeDir)));
 #endif // DEBUG_MODE_USE_BUILD_FOLDERS
 #endif // Q_OS_LINUX
-#endif //  Q_OS_WIN or Q_OS_LINUX and Q_OS_MAC
+#endif //  Q_OS_WIN or Q_OS_LINUX and Q_OS_MACOS
     Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dConfigPath)));
     Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR, QDir::toNativeSeparators(Preferences::lpub3dCachePath)));
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     Preferences::printInfo(tr("%1 Homebrew Installation.(Apple %2)").arg(VER_PRODUCTNAME_STR, Preferences::homebrewPathPrefix.startsWith("/opt/homebrew") ? tr("Silicon") : tr("Intel")));
     Preferences::printInfo(tr("%1 Homebrew Path Prefix..(%2)").arg(VER_PRODUCTNAME_STR, Preferences::homebrewPathPrefix));
 #endif
@@ -1083,7 +1083,7 @@ QString distribution = tr("Installed");
   #elif defined(LP3D_FLATPACK)
     distribution = tr("%1 Package").arg(VER_FLATPAK_BUILD_STR);
   #endif
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
 #endif
     Preferences::printInfo(tr("Application Distribution.....(%1)").arg(distribution));
     Preferences::printInfo("-----------------------------");
@@ -1131,7 +1131,7 @@ QString distribution = tr("Installed");
 #ifdef Q_OS_LINUX
         splashFont.setFamily("Geneva");
         splashFont.setPointSize(16);
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
         splashFont.setFamily("Menlo");
         splashFont.setPointSize(14);
 #else
