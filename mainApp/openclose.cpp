@@ -1078,7 +1078,8 @@ bool Gui::openFile(const QString &fileName)
       box.setText (title);
       QString searchDirs;
       QFontMetrics fontMetrics = box.fontMetrics();
-      for (const QString &ldDir: Preferences::ldSearchDirs)
+      const QStringList &ldDirs = Preferences::ldSearchDirs;
+      for (const QString &ldDir: ldDirs)
         searchDirs.append(QString(" - %1<br>").arg(fontMetrics.elidedText(ldDir, Qt::ElideMiddle, box.width())));
       QString const text = tr("LDraw <b>%1</b> parts were detected in the loaded model file <i>%2</i>.<br><br>"
                               "Parts not in the archive library will not be rendered by the "

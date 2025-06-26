@@ -85,7 +85,8 @@ QList<HiarchLevel*> LDrawFile::_allLevels;
 HiarchLevel* addLevel(const QString& key, bool create)
 {
     // if level object with specified key exists...
-    for (HiarchLevel* level : LDrawFile::_allLevels)
+    const QList _levels = LDrawFile::_allLevels;
+    for (HiarchLevel* level : _levels)
         // return existing level object
         if (level->key == key)
             return level;
@@ -1077,7 +1078,8 @@ QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
         QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(mcFileName);
         if (it != _subFiles.end()) {
             if (it.value()._unofficialPart == UNOFFICIAL_SUBMODEL && !it.value()._generated) {
-                for(int i : it.value()._subFileIndexes) {
+                const QVector<int> _sfIndexes = it.value()._subFileIndexes;
+                for(int i : _sfIndexes) {
                     if (!indexes.contains(i) && !parsedIndexes.contains(i))
                         indexes << i;
                 }
@@ -2310,7 +2312,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 }
                 if (!subfileFound) {
                     // extended search - LDraw subfolder paths and extra search directories
-                    for (QString const &subFilePath : searchPaths) {
+                    for (QString &subFilePath : searchPaths) {
                         if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
                             fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
                             break;
@@ -2879,7 +2881,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     }
                     if (!subfileFound) {
                         // extended search - LDraw subfolder paths and extra search directories
-                        for (QString const &subFilePath : searchPaths) {
+                        for (QString &subFilePath : searchPaths) {
                             if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
                                 fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
                                 break;
@@ -4237,9 +4239,10 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   insertBuildModStep(modKey, stepIndex, BuildModApplyRc);
 
   // Set submodelStack items modified if exists
-  if (modSubmodelStack.size()) {
+  const QVector<int> msmStack = modSubmodelStack;
+  if (msmStack.size()) {
       buildMod._modSubmodelStack = modSubmodelStack;
-      for (const int modelIndex : modSubmodelStack)
+      for (int modelIndex : msmStack)
           setModified(getSubmodelName(modelIndex),true);
   }
 
@@ -4494,7 +4497,7 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 
 void LDrawFile::deleteBuildMods(const int stepIndex)
 {
-    for(const QString &key : getBuildModsList()) {
+    for(QString &key : getBuildModsList()) {
         const int index = getBuildModStepIndex(key);
         if (index >= stepIndex) {
             deleteBuildMod(key);
@@ -4504,7 +4507,7 @@ void LDrawFile::deleteBuildMods(const int stepIndex)
 
 void LDrawFile::deleteBuildMods()
 {
-    for (const QString &key : getBuildModsList()) {
+    for (QString &key : getBuildModsList()) {
         deleteBuildMod(key);
     }
 }
@@ -4692,7 +4695,8 @@ void LDrawFile::clearBuildModRendered(bool countPage)
     const QList _bmKeys = _buildModRendered.keys();
     for (const QString &key : _bmKeys) {
         if (countPage) {
-           for (const QString &modelFile : _buildModRendered[key]) {
+           const QList bmRendered = _buildModRendered[key];
+           for (const QString &modelFile : bmRendered) {
                if (modelFile.startsWith(COUNT_PAGE_PREFIX)) {
                    _buildModRendered[key].removeAll(modelFile);
                }
@@ -4848,7 +4852,8 @@ int LDrawFile::setBuildModAction(
 
         QString modFileName = getBuildModStepKeyModelName(modKey);
         setModified(modFileName, true);
-        for (const int modelIndex : i.value()._modSubmodelStack)
+        const QVector<int> _smStack = i.value()._modSubmodelStack;
+        for (const int modelIndex : _smStack)
             setModified(getSubmodelName(modelIndex), true);
 
         action = i.value()._modActions.value(stepIndex);
@@ -5443,10 +5448,11 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
                                             i.value()._modAttributes.at(BM_MODEL_STEP_NUM) };
 
       setModified(getSubmodelName(viewerStepKey.modelIndex), true);
-      if (i.value()._modSubmodelStack.size())
-        for (const int index : i.value()._modSubmodelStack)
+      if (i.value()._modSubmodelStack.size()) {
+        const QVector<int> _smStack = i.value()._modSubmodelStack;
+        for (int index : _smStack)
           setModified(getSubmodelName(index), true);
-
+      }
 #ifdef QT_DEBUG_MODE
       subModelStackCount = i.value()._modSubmodelStack.size() + 1;
 #endif
@@ -5510,7 +5516,7 @@ bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buil
 {
     QString fileName = mcFileName.toLower();
     static QRegularExpression buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
-    for(const QString &line : lpub->ldrawFile.contents(fileName)) {
+    for(QString &line : lpub->ldrawFile.contents(fileName)) {
         if (line[0] == '1')
             continue;
         if (line.contains(buildModBeginRx))
@@ -5706,7 +5712,7 @@ QStringList LDrawFile::getPathsFromViewerStepKey(const QString &stepKey)
 {
   QStringList list = stepKey.split(";");
   if (list.size() == BM_SUBMODEL_STACK) {
-    QStringList submodelStack = list.takeFirst().split(":");
+    const QStringList submodelStack = list.takeFirst().split(":");
     if (submodelStack.size())
       for (const QString &index : submodelStack)
         setModified(getSubmodelName(index.toInt()),true);

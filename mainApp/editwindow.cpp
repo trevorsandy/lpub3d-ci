@@ -2111,8 +2111,8 @@ void EditWindow::highlightSelectedParts() {
         performHighlight = true;
         LineHighlight lh(firstLine,HIGHLIGHT_CURRENT);
         highlightSelection.append(lh);
-
-        for (int line : savedSelection) {
+        const QList slines = savedSelection.toList();
+        for (int line : slines) {
             LineHighlight lh(line,HIGHLIGHT_SELECTION);
             highlightSelection.append(lh);
         }
@@ -2141,7 +2141,8 @@ void EditWindow::clearEditorHighlightLines(bool currentLine)
             selection.append(hl);
         }
     } else if (savedSelection.size()) {
-        for (int line : savedSelection) {
+        const QList slines = savedSelection.toList();
+        for (int line : slines) {
             LineHighlight lh(line,HIGHLIGHT_CLEAR);
             selection.append(lh);
         }
@@ -2261,7 +2262,8 @@ void EditWindow::highlightSelectedLines(QVector<LineHighlight> &lines, bool isEd
                 return false;
             };
             // add saved selection lines to selected lines
-            for (int savedLine : savedSelection)
+            const QList slines = savedSelection.toList();
+            for (int savedLine : slines)
                 if (!foundInLines(savedLine))
                    savedLines.append(savedLine);
         }
@@ -2269,7 +2271,8 @@ void EditWindow::highlightSelectedLines(QVector<LineHighlight> &lines, bool isEd
 
     // add selected lines to lines
     if (savedLines.size()) {
-        for (int line : savedLines) {
+        const QList slines = savedLines.toList();
+        for (int line : slines) {
             LineHighlight lh(line, isEditor ? HIGHLIGHT_SELECTION : HIGHLIGHT_CLEAR);
             selection.append(lh);
         }
@@ -2772,7 +2775,8 @@ void EditWindow::loadFinished()
         mpdCombo->setEnabled(enableMpdCombo);
         if (enableMpdCombo) {
             bool mpdComboActionFound = false;
-            for (QAction *action : editToolBar->actions()) {
+            const QList actions = editToolBar->actions();
+            for (QAction *action : actions) {
                 if ((mpdComboActionFound = action == mpdComboSeparatorAct))
                     break;
             }
