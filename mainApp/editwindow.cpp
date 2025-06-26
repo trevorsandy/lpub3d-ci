@@ -1778,7 +1778,7 @@ void EditWindow::openFolderSelect(const QString& absoluteFilePath)
         // If the item to select doesn't exist, try to open its parent
         openPath(path.left(path.lastIndexOf("/")));
     }
-#elif defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+#elif defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     if (QFileInfo(path).exists()) {
         QProcess proc;
         QString output;
@@ -1809,7 +1809,7 @@ void EditWindow::openFolderSelect(const QString& absoluteFilePath)
         // If the item to select doesn't exist, try to open its parent
         openPath(path.left(path.lastIndexOf("/")));
     }
-#else // Q_OS_MAC
+#else // Q_OS_MACOS
     openPath(path.left(path.lastIndexOf("/")));
 #endif
 }
