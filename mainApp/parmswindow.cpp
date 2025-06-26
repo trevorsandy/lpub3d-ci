@@ -78,7 +78,7 @@ ParmsWindow::ParmsWindow(QWidget *parent) :
     createActions();
     createToolBars();
 
-    connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
+    connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
     setCentralWidget(_textEdit);
 
@@ -818,8 +818,8 @@ ParmEditor::ParmEditor(QWidget *parent) :
     connect(this, SIGNAL(blockCountChanged(int)),
             this, SLOT(updateLineNumberAreaWidth(int)));
 
-    connect(this, SIGNAL(updateRequest(QRect,int)),
-            this, SLOT(updateLineNumberArea(QRect,int)));
+    connect(this, SIGNAL(updateRequest(const QRect &,int)),
+            this, SLOT(updateLineNumberArea(const QRect &,int)));
 
     connect(this, SIGNAL(cursorPositionChanged()),
             this, SLOT(highlightCurrentLine()));

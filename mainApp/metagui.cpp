@@ -177,8 +177,8 @@ void CheckBoxGui::apply(QString &modelName)
  **********************************************************************/
 
 BoolRadioGui::BoolRadioGui(
-  QString const &trueHeading,
-  QString const &falseHeading,
+  const QString &trueHeading,
+  const QString &falseHeading,
   BoolMeta       *_meta,
   QGroupBox      *parent)
 {
@@ -236,7 +236,7 @@ void BoolRadioGui::apply(QString &modelName)
  **********************************************************************/
 
 UnitsGui::UnitsGui(
-  QString const &heading,
+  const QString &heading,
   UnitsMeta     *_meta,
   QGroupBox     *parent,
   bool           isMargin)
@@ -280,12 +280,12 @@ UnitsGui::UnitsGui(
   reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset0Act->setText(tr("Reset"));
   reset0Act->setEnabled(false);
-  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
+  connect(value0Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
   connect(reset0Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value0Edit,SIGNAL( textEdited(  QString const &)),
-          this,      SLOT(   value0Change(QString const &)));
+          this,         SLOT(lineEditReset()));
+  connect(value0Edit,SIGNAL(  textEdited(const QString&)),
+          this,        SLOT(value0Change(const QString&)));
   layout->addWidget(value0Edit);
 
   if (secondLabel) {
@@ -303,12 +303,12 @@ UnitsGui::UnitsGui(
   reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset1Act->setText(tr("Reset"));
   reset1Act->setEnabled(false);
-  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset1Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  value1Change(QString const &)));
+  connect(value1Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
+  connect(reset1Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value1Edit, SIGNAL(  textEdited(const QString&)),
+          this,         SLOT(value1Change(const QString&)));
   layout->addWidget(value1Edit);
 }
 
@@ -338,14 +338,14 @@ void UnitsGui::lineEditReset()
   }
 }
 
-void UnitsGui::value0Change(QString const &string)
+void UnitsGui::value0Change(const QString &string)
 {
   const float value = string.toFloat();
   meta->setValue(0,value);
   modified = notEqual(value, data0);
 }
 
-void UnitsGui::value1Change(QString const &string)
+void UnitsGui::value1Change(const QString &string)
 {
   const float value = string.toFloat();
   meta->setValue(1,value);
@@ -379,8 +379,8 @@ void UnitsGui::apply(QString &modelName)
  **********************************************************************/
 
 FloatsGui::FloatsGui(
-  QString const &heading0,
-  QString const &heading1,
+  const QString &heading0,
+  const QString &heading1,
   FloatPairMeta *_meta,
   QGroupBox     *parent,
   int            decPlaces,
@@ -422,12 +422,12 @@ FloatsGui::FloatsGui(
   reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset0Act->setText(tr("Reset"));
   reset0Act->setEnabled(false);
-  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset0Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  value0Change(QString const &)));
+  connect(value0Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
+  connect(reset0Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value0Edit, SIGNAL(  textEdited(const QString&)),
+          this,         SLOT(value0Change(const QString&)));
   layout->addWidget(value0Edit);
 
   if (showPair) {
@@ -448,12 +448,12 @@ FloatsGui::FloatsGui(
     reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     reset1Act->setText(tr("Reset"));
     reset1Act->setEnabled(false);
-    connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-            this,       SLOT(  enableReset( QString const &)));
-    connect(reset1Act,  SIGNAL(triggered()),
-            this,       SLOT(  lineEditReset()));
-    connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-            this,       SLOT(  value1Change(QString const &)));
+    connect(value1Edit, SIGNAL( textEdited(const QString&)),
+            this,         SLOT(enableReset(const QString&)));
+    connect(reset1Act,  SIGNAL(    triggered()),
+            this,         SLOT(lineEditReset()));
+    connect(value1Edit, SIGNAL(  textEdited(const QString&)),
+            this,         SLOT(value1Change(const QString&)));
     layout->addWidget(value1Edit);
   } else {
       QSpacerItem *hSpacer;
@@ -488,7 +488,7 @@ void FloatsGui::lineEditReset()
   }
 }
 
-void FloatsGui::value0Change(QString const &string)
+void FloatsGui::value0Change(const QString &string)
 {
   const float value = string.toFloat();
   meta->setValue(0,value);
@@ -497,7 +497,7 @@ void FloatsGui::value0Change(QString const &string)
   modified = notEqual(value, data0);
 }
 
-void FloatsGui::value1Change(QString const &string)
+void FloatsGui::value1Change(const QString &string)
 {
   const float value = string.toFloat();
   meta->setValue(1,value);
@@ -533,7 +533,7 @@ void FloatsGui::apply(QString &modelName)
  **********************************************************************/
 
 SpinGui::SpinGui(
-  QString const &heading,
+  const QString &heading,
   IntMeta       *_meta,
   int            min,
   int            max,
@@ -575,9 +575,9 @@ SpinGui::SpinGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spin,   SIGNAL(valueChanged(int)),
-          this,   SLOT(  enableReset( int)));
-  connect(button, SIGNAL(clicked(     bool)),
-          this,   SLOT(  spinReset(   bool)));
+          this,     SLOT( enableReset(int)));
+  connect(button, SIGNAL(  clicked(bool)),
+          this,     SLOT(spinReset(bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -627,7 +627,7 @@ void SpinGui::apply(QString &modelName)
  **********************************************************************/
 
 DoubleSpinGui::DoubleSpinGui(
-  QString const &heading,
+  const QString &heading,
   FloatMeta     *_meta,
   float          min,
   float          max,
@@ -674,9 +674,9 @@ DoubleSpinGui::DoubleSpinGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spin,   SIGNAL(valueChanged(double)),
-          this,   SLOT(  enableReset( double)));
-  connect(button, SIGNAL(clicked(     bool)),
-          this,   SLOT(  spinReset(   bool)));
+          this,     SLOT( enableReset(double)));
+  connect(button, SIGNAL(  clicked(bool)),
+          this,     SLOT(spinReset(bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -764,8 +764,8 @@ NumberGui::NumberGui(
   grid->addWidget(fontExample,0,1);
 
   fontButton = new QPushButton(tr("Change"),parent);
-  connect(fontButton,SIGNAL(clicked(   bool)),
-          this,      SLOT(  browseFont(bool)));
+  connect(fontButton,SIGNAL(   clicked(bool)),
+          this,        SLOT(browseFont(bool)));
   grid->addWidget(fontButton,0,2);
 
   colorLabel = new QLabel(tr("Color"),parent);
@@ -783,8 +783,8 @@ NumberGui::NumberGui(
   grid->addWidget(colorExample,1,1);
 
   colorButton = new QPushButton(tr("Change"));
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
+  connect(colorButton,SIGNAL(    clicked(bool)),
+          this,         SLOT(browseColor(bool)));
   grid->addWidget(colorButton,1,2);
 
   marginsLabel = new QLabel(tr("Margins"),parent);
@@ -800,12 +800,12 @@ NumberGui::NumberGui(
   reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset0Act->setText(tr("Reset"));
   reset0Act->setEnabled(false);
-  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset0Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  value0Changed(QString const &)));
+  connect(value0Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
+  connect(reset0Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value0Edit, SIGNAL(   textEdited(const QString&)),
+          this,         SLOT(value0Changed(const QString&)));
   grid->addWidget(value0Edit,2,1);
 
   value1Edit = new QLineEdit(parent);
@@ -818,12 +818,12 @@ NumberGui::NumberGui(
   reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset1Act->setText(tr("Reset"));
   reset1Act->setEnabled(false);
-  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset1Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  value1Changed(QString const &)));
+  connect(value1Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
+  connect(reset1Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value1Edit, SIGNAL(   textEdited(const QString&)),
+          this,         SLOT(value1Changed(const QString&)));
   grid->addWidget(value1Edit,2,2);
 
   fontModified    = false;
@@ -891,14 +891,14 @@ void NumberGui::browseColor(bool clicked)
     }
 }
 
-void NumberGui::value0Changed(QString const &string)
+void NumberGui::value0Changed(const QString &string)
 {
   const float value = string.toFloat();
   meta->margin.setValue(0,value);
   modified = marginsModified = notEqual(value, marginData0);
 }
 
-void NumberGui::value1Changed(QString const &string)
+void NumberGui::value1Changed(const QString &string)
 {
   const float value = string.toFloat();
   meta->margin.setValue(1,value);
@@ -929,7 +929,7 @@ void NumberGui::apply(
  **********************************************************************/
 
 ConstrainGui::ConstrainGui(
-  QString const &heading,
+  const QString &heading,
   ConstrainMeta *_meta,
   QGroupBox     *parent)
 {
@@ -985,8 +985,8 @@ ConstrainGui::ConstrainGui(
   combo->addItem("Height");
   combo->addItem("Columns");
   combo->setCurrentIndex(int(constraint.type));
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typeChange(         QString const &)));
+  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+          this,   SLOT(         typeChange(const QString&)));
   layout->addWidget(combo);
 
   /* Constraint */
@@ -999,13 +999,13 @@ ConstrainGui::ConstrainGui(
   valueEdit->setValidator(valueValidator);
   valueEdit->setText(string);
   //valueEdit->setInputMask("009.99");
-  connect(valueEdit,SIGNAL(textEdited( QString const &)),
-          this,     SLOT(  valueChange(QString const &)));
+  connect(valueEdit,SIGNAL( textEdited(const QString&)),
+          this,       SLOT(valueChange(const QString&)));
   layout->addWidget(valueEdit);
   enable();
 }
 
-void ConstrainGui::typeChange(QString const &type)
+void ConstrainGui::typeChange(const QString &type)
 {
   ConstrainData _data = meta->valueUnit();
   QString string = "";
@@ -1029,7 +1029,7 @@ void ConstrainGui::typeChange(QString const &type)
   modified = true;
 }
 
-void ConstrainGui::valueChange(QString const &string)
+void ConstrainGui::valueChange(const QString &string)
 {
   ConstrainData _data = meta->valueUnit();
   float newValue = string.toFloat();
@@ -1095,7 +1095,7 @@ void ConstrainGui::apply(QString &modelName)
  *
  **********************************************************************/
 
-RendererParamsGui::RendererParamsGui(QString const &heading,
+RendererParamsGui::RendererParamsGui(const QString &heading,
                                      StringMeta    *_envVarsMeta,
                                      StringMeta    *_parmsMeta,
                                      StringMeta    *_parmsPovMeta,
@@ -1140,10 +1140,10 @@ RendererParamsGui::RendererParamsGui(QString const &heading,
   resetParameterEditAct = parameterEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetParameterEditAct->setText(tr("Reset"));
   resetParameterEditAct->setEnabled(false);
-  connect(resetParameterEditAct, SIGNAL(triggered()),
-          this,         SLOT(  lineEditReset()));
-  connect(parameterEdit,SIGNAL(textEdited(QString const &)),
-          this,         SLOT(  editChange(QString const &)));
+  connect(resetParameterEditAct, SIGNAL(    triggered()),
+          this,                    SLOT(lineEditReset()));
+  connect(parameterEdit,SIGNAL(textEdited(const QString&)),
+          this,           SLOT(editChange(const QString&)));
   grid->addWidget(parameterEdit,row,1,1,3);
 
   if (useLDViewPovGen) {
@@ -1156,10 +1156,10 @@ RendererParamsGui::RendererParamsGui(QString const &heading,
       resetParameterPovEditAct = parameterPovEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
       resetParameterPovEditAct->setText(tr("Reset"));
       resetParameterPovEditAct->setEnabled(false);
-      connect(resetParameterPovEditAct, SIGNAL(triggered()),
-              this,         SLOT(  lineEditReset()));
-      connect(parameterPovEdit,SIGNAL(textEdited(QString const &)),
-              this,         SLOT(  editChange(QString const &)));
+      connect(resetParameterPovEditAct, SIGNAL(    triggered()),
+              this,                       SLOT(lineEditReset()));
+      connect(parameterPovEdit,SIGNAL(textEdited(const QString&)),
+              this,              SLOT(editChange(const QString&)));
       grid->addWidget(parameterPovEdit,row,1,1,3);
   }
 
@@ -1172,10 +1172,10 @@ RendererParamsGui::RendererParamsGui(QString const &heading,
   resetEnviromentEditAct = enviromentEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetEnviromentEditAct->setText(tr("Reset"));
   resetEnviromentEditAct->setEnabled(false);
-  connect(resetEnviromentEditAct, SIGNAL(triggered()),
-          this,         SLOT(  lineEditReset()));
-  connect(enviromentEdit,SIGNAL(textEdited(QString const &)),
-          this,         SLOT(  editChange(QString const &)));
+  connect(resetEnviromentEditAct, SIGNAL(    triggered()),
+          this,                     SLOT(lineEditReset()));
+  connect(enviromentEdit,SIGNAL(textEdited(const QString&)),
+          this,            SLOT(editChange(const QString&)));
   grid->addWidget(enviromentEdit,row,1,1,3);
 
   parametersModified = false;
@@ -1183,7 +1183,7 @@ RendererParamsGui::RendererParamsGui(QString const &heading,
   enviromentModified = false;
 }
 
-void RendererParamsGui::editChange(QString const &string)
+void RendererParamsGui::editChange(const QString &string)
 {
   if (sender() == parameterEdit) {
     parmsMeta->setValue(string);
@@ -1592,8 +1592,8 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   placementButton = new QPushButton(tr("Change Placement"),parent);
   gLayout->addWidget(placementButton,0,0);
-  connect(placementButton,SIGNAL(clicked(   bool)),
-          this,      SLOT(  placementChanged(bool)));
+  connect(placementButton,SIGNAL(         clicked(bool)),
+          this,             SLOT(placementChanged(bool)));
 
   // font
   fontLabel = new QLabel(tr("Font"),parent);
@@ -1606,8 +1606,8 @@ PageAttributeTextGui::PageAttributeTextGui(
   grid->addWidget(fontExample,1,1);
 
   fontButton = new QPushButton(tr("Change"),parent);
-  connect(fontButton,SIGNAL(clicked(   bool)),
-          this,      SLOT(  browseFont(bool)));
+  connect(fontButton,SIGNAL(   clicked(bool)),
+          this,        SLOT(browseFont(bool)));
   grid->addWidget(fontButton,1,2);
 
   // color
@@ -1626,8 +1626,8 @@ PageAttributeTextGui::PageAttributeTextGui(
   grid->addWidget(colorExample,2,1);
 
   colorButton = new QPushButton(tr("Change"));
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
+  connect(colorButton,SIGNAL(    clicked(bool)),
+          this,         SLOT(browseColor(bool)));
   grid->addWidget(colorButton,2,2);
 
   // margins
@@ -1647,12 +1647,12 @@ PageAttributeTextGui::PageAttributeTextGui(
   reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset0Act->setText(tr("Reset"));
   reset0Act->setEnabled(false);
-  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset0Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  value0Changed(QString const &)));
+  connect(value0Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
+  connect(reset0Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value0Edit, SIGNAL(   textEdited(const QString&)),
+          this,         SLOT(value0Changed(const QString&)));
   grid->addWidget(value0Edit,3,1);
 
   value1Edit = new QLineEdit(parent);
@@ -1665,12 +1665,12 @@ PageAttributeTextGui::PageAttributeTextGui(
   reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset1Act->setText(tr("Reset"));
   reset1Act->setEnabled(false);
-  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset1Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  value1Changed(QString const &)));
+  connect(value1Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
+  connect(reset1Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value1Edit, SIGNAL(   textEdited(const QString&)),
+          this,         SLOT(value1Changed(const QString&)));
   grid->addWidget(value1Edit,3,2);
 
   //Content Dialogue
@@ -1696,8 +1696,8 @@ PageAttributeTextGui::PageAttributeTextGui(
       contentLineEdit = new QLineEdit(content,parent);
       contentLineEdit->setClearButtonEnabled(true);
 
-      connect(contentLineEdit,SIGNAL(textChanged(QString const &)),
-            this,             SLOT(lineEditChanged(QString const &)));
+      connect(contentLineEdit,SIGNAL(    textChanged(const QString&)),
+            this,               SLOT(lineEditChanged(const QString&)));
 
       hLayout->addWidget(contentLineEdit);
   }
@@ -1770,14 +1770,14 @@ void PageAttributeTextGui::lineEditReset()
   }
 }
 
-void PageAttributeTextGui::value0Changed(QString const &string)
+void PageAttributeTextGui::value0Changed(const QString &string)
 {
   const float value = string.toFloat();
   meta->margin.setValue(0,value);
   modified = marginsModified = notEqual(value, marginData0);
 }
 
-void PageAttributeTextGui::value1Changed(QString const &string)
+void PageAttributeTextGui::value1Changed(const QString &string)
 {
   const float value = string.toFloat();
   meta->margin.setValue(1,value);
@@ -1926,8 +1926,8 @@ void PageAttributeTextGui::apply(
 
   placementButton = new QPushButton(tr("Change Placement"),parent);
   gLayout->addWidget(placementButton,0,0);
-  connect(placementButton,SIGNAL(clicked(   bool)),
-          this,      SLOT(  placementChanged(bool)));
+  connect(placementButton,SIGNAL(         clicked(bool)),
+          this,             SLOT(placementChanged(bool)));
 
   // margins
   marginData0 = _meta->margin.value(0);
@@ -1946,12 +1946,12 @@ void PageAttributeTextGui::apply(
   reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset0Act->setText(tr("Reset"));
   reset0Act->setEnabled(false);
-  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(enableEditReset(QString const &)));
-  connect(reset0Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  value0Changed(QString const &)));
+  connect(value0Edit, SIGNAL(     textEdited(const QString&)),
+          this,         SLOT(enableEditReset(const QString&)));
+  connect(reset0Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value0Edit, SIGNAL(   textEdited(const QString&)),
+          this,         SLOT(value0Changed(const QString&)));
   grid->addWidget(value0Edit,1,1);
 
   value1Edit = new QLineEdit(parent);
@@ -1964,25 +1964,25 @@ void PageAttributeTextGui::apply(
   reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset1Act->setText(tr("Reset"));
   reset1Act->setEnabled(false);
-  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(enableEditReset(QString const &)));
-  connect(reset1Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  value1Changed(QString const &)));
+  connect(value1Edit, SIGNAL(     textEdited(const QString&)),
+          this,         SLOT(enableEditReset(const QString&)));
+  connect(reset1Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
+  connect(value1Edit, SIGNAL(   textEdited(const QString&)),
+          this,         SLOT(value1Changed(const QString&)));
   grid->addWidget(value1Edit,1,2);
 
   // Image
   image = _meta->file.value();
   imageEdit = new QLineEdit(image,parent);
   imageEdit->setClearButtonEnabled(true);
-  connect(imageEdit,SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  imageChange(QString const &)));
+  connect(imageEdit,SIGNAL( textEdited(const QString&)),
+          this,       SLOT(imageChange(const QString&)));
   grid->addWidget(imageEdit,2,0,1,2);
 
   imageButton = new QPushButton(tr("Browse"),parent);
-  connect(imageButton,SIGNAL(clicked(     bool)),
-          this,         SLOT(  browseImage(bool)));
+  connect(imageButton,SIGNAL(    clicked(bool)),
+          this,         SLOT(browseImage(bool)));
   grid->addWidget(imageButton,2,2,1,1);
 
   //scale
@@ -2011,7 +2011,7 @@ void PageAttributeTextGui::apply(
   spin->setDecimals(decimalPlaces);
   spin->setValue(scaleData);
   connect(spin,SIGNAL(valueChanged(double)),
-          this,SLOT  (valueChanged(double)));
+          this,  SLOT(valueChanged(double)));
   hLayout->addWidget(spin);
 
   resetButton = new QPushButton(parent);
@@ -2020,10 +2020,10 @@ void PageAttributeTextGui::apply(
   resetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
   resetButton->setToolTip(tr("Reset"));
   resetButton->setEnabled(false);
-  connect(spin,        SIGNAL(valueChanged( double)),
-          this,        SLOT(enableSpinReset(double)));
-  connect(resetButton, SIGNAL(clicked(      bool)),
-          this,        SLOT(  spinReset(    bool)));
+  connect(spin,        SIGNAL(   valueChanged(double)),
+          this,          SLOT(enableSpinReset(double)));
+  connect(resetButton, SIGNAL(  clicked(bool)),
+          this,          SLOT(spinReset(bool)));
   hLayout->addWidget(resetButton);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -2121,7 +2121,7 @@ void PageAttributeImageGui::imageFill(bool checked)
   modified = fillModified = true;
 }
 
-void PageAttributeImageGui::imageChange(QString const &pic)
+void PageAttributeImageGui::imageChange(const QString &pic)
 {
   meta->file.setValue(pic);
   modified = imageModified = true;
@@ -2155,14 +2155,14 @@ void PageAttributeImageGui::gbScaleClicked(bool checked)
   }
 }
 
-void PageAttributeImageGui::value0Changed(QString const &string)
+void PageAttributeImageGui::value0Changed(const QString &string)
 {
   const float value = string.toFloat();
   meta->margin.setValue(0,value);
   modified = marginsModified = value != marginData0;
 }
 
-void PageAttributeImageGui::value1Changed(QString const &string)
+void PageAttributeImageGui::value1Changed(const QString &string)
 {
   const float value = string.toFloat();
   meta->margin.setValue(1,value);
@@ -2234,7 +2234,7 @@ void PageAttributeImageGui::apply(QString &topLevelFile)
  **********************************************************************/
 
 HeaderFooterHeightGui::HeaderFooterHeightGui(
-  QString const &heading,
+  const QString &heading,
   UnitsMeta     *_meta,
   QGroupBox     *parent)
 {
@@ -2277,12 +2277,12 @@ HeaderFooterHeightGui::HeaderFooterHeightGui(
   reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset1Act->setText(tr("Reset"));
   reset1Act->setEnabled(false);
-  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
+  connect(value1Edit, SIGNAL( textEdited(const QString&)),
+          this,         SLOT(enableReset(const QString&)));
   connect(reset1Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
-  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  value1Change(QString const &)));
+          this,         SLOT(lineEditReset()));
+  connect(value1Edit, SIGNAL(  textEdited(const QString&)),
+          this,         SLOT(value1Change(const QString&)));
   layout->addWidget(value1Edit);
 }
 
@@ -2299,7 +2299,7 @@ void HeaderFooterHeightGui::lineEditReset()
     value1Edit->setText(QString::number(data1,'f',meta->_precision));
 }
 
-void HeaderFooterHeightGui::value1Change(QString const &string)
+void HeaderFooterHeightGui::value1Change(const QString &string)
 {
   const float value = string.toFloat();
   meta->setValue(1,value);
@@ -2439,8 +2439,8 @@ FadeStepsGui::FadeStepsGui(
 
   grid->addWidget(colorCombo,4,1);
 
-  connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
-                 this, SLOT(colorChange(        QString const &)));
+  connect(colorCombo,SIGNAL(currentIndexChanged(const QString&)),
+                 this, SLOT(        colorChange(const QString&)));
 
   // fade opacity row
 
@@ -2475,7 +2475,7 @@ FadeStepsGui::FadeStepsGui(
   opacityModified = false;
 }
 
-void FadeStepsGui::colorChange(QString const &colorName)
+void FadeStepsGui::colorChange(const QString &colorName)
 {
   QColor oldFadeColour = colorExample->palette().window().color();
   QColor fadeColor = LDrawColor::color(colorName);
@@ -2687,9 +2687,9 @@ HighlightStepGui::HighlightStepGui(
     button->setToolTip(tr("Reset"));
     button->setEnabled(false);
     connect(lineWidthSpin, SIGNAL(valueChanged(int)),
-            this,          SLOT(  enableReset( int)));
-    connect(button,        SIGNAL(clicked(     bool)),
-            this,          SLOT(  spinReset(   bool)));
+            this,            SLOT( enableReset(int)));
+    connect(button,        SIGNAL(  clicked(bool)),
+            this,            SLOT(spinReset(bool)));
     grid->addWidget(button,4,2);
   }
 
@@ -2833,7 +2833,7 @@ JustifyStepGui::JustifyStepGui(
   typeCombo->addItem(tr("Left (Default)"));
   typeCombo->setCurrentIndex(int(data.type));
   connect(typeCombo,SIGNAL(currentIndexChanged(int)),
-          this,     SLOT(  typeChanged(        int)));
+          this,       SLOT(        typeChanged(int)));
   layout->addWidget(typeCombo);
 
   label = new QLabel(tr("Spacing"),parent);
@@ -2851,8 +2851,8 @@ JustifyStepGui::JustifyStepGui(
   spacingSpinBox->setToolTip(tr("Set the spaceing, in %1, between items when step "
                                 "is center justified").arg(units2name()));
   spacingSpinBox->setEnabled(data.type != JustifyLeft);
-  connect(spacingSpinBox,SIGNAL(valueChanged(double)),
-          this,          SLOT(spacingChanged(double)));
+  connect(spacingSpinBox,SIGNAL(  valueChanged(double)),
+          this,            SLOT(spacingChanged(double)));
   layout->addWidget(spacingSpinBox);
 
   button = new QPushButton(parent);
@@ -2862,9 +2862,9 @@ JustifyStepGui::JustifyStepGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spacingSpinBox,SIGNAL(valueChanged(double)),
-          this,          SLOT(  enableReset( double)));
-  connect(button,        SIGNAL(clicked(     bool)),
-          this,          SLOT(  spinReset(   bool)));
+          this,            SLOT( enableReset(double)));
+  connect(button,        SIGNAL(  clicked(bool)),
+          this,            SLOT(spinReset(bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -2963,9 +2963,9 @@ RotStepGui::RotStepGui(
   button0->setToolTip(tr("Reset"));
   button0->setEnabled(false);
   connect(rotStepSpinX,SIGNAL(valueChanged(double)),
-          this,        SLOT(  enableReset( double)));
-  connect(button0,     SIGNAL(clicked(     bool)),
-          this,        SLOT(  spinReset(   bool)));
+          this,          SLOT( enableReset( double)));
+  connect(button0,     SIGNAL(  clicked(bool)),
+          this,          SLOT(spinReset(bool)));
   grid->addWidget(button0,0,2);
 
   value = data.rots[1];
@@ -2985,9 +2985,9 @@ RotStepGui::RotStepGui(
   button1->setToolTip(tr("Reset"));
   button1->setEnabled(false);
   connect(rotStepSpinY, SIGNAL(valueChanged(double)),
-          this,         SLOT(  enableReset( double)));
-  connect(button1,      SIGNAL(clicked(     bool)),
-          this,         SLOT(  spinReset(   bool)));
+          this,           SLOT( enableReset(double)));
+  connect(button1,      SIGNAL(  clicked(bool)),
+          this,           SLOT(spinReset(bool)));
   grid->addWidget(button1,0,4);
 
   value = data.rots[2];
@@ -2996,8 +2996,8 @@ RotStepGui::RotStepGui(
   rotStepSpinZ->setSingleStep(1.0);
   rotStepSpinZ->setDecimals(decimalPlaces(value));
   rotStepSpinZ->setValue(value);
-  connect(rotStepSpinZ,SIGNAL(valueChanged(double)),
-          this,        SLOT(rotStepChanged(double)));
+  connect(rotStepSpinZ,SIGNAL( valueChanged(double)),
+          this,          SLOT(rotStepChanged(double)));
   grid->addWidget(rotStepSpinZ,0,5);
 
   button2 = new QPushButton(parent);
@@ -3007,9 +3007,9 @@ RotStepGui::RotStepGui(
   button2->setToolTip(tr("Reset"));
   button2->setEnabled(false);
   connect(rotStepSpinZ,SIGNAL(valueChanged(double)),
-          this,        SLOT(  enableReset( double)));
-  connect(button2,     SIGNAL(clicked(     bool)),
-          this,        SLOT(  spinReset(   bool)));
+          this,          SLOT( enableReset(double)));
+  connect(button2,     SIGNAL( clicked(bool)),
+          this,          SLOT(spinReset(bool)));
   grid->addWidget(button2,0,6);
 
   QLabel    *typeLabel;
@@ -3021,8 +3021,8 @@ RotStepGui::RotStepGui(
   typeCombo->addItem("REL");
   typeCombo->addItem("ADD");
   typeCombo->setCurrentIndex(!data.type.isEmpty() ? typeCombo->findText(data.type) : 1);
-  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,     SLOT(  typeChanged(        QString const &)));
+  connect(typeCombo,SIGNAL(currentIndexChanged(const QString&)),
+          this,       SLOT(        typeChanged(const QString&)));
   grid->addWidget(typeCombo,1,1);
 
 }
@@ -3079,7 +3079,7 @@ void RotStepGui::rotStepChanged(double value)
   emit settingsChanged(modified);
 }
 
-void RotStepGui::typeChanged(QString const &value)
+void RotStepGui::typeChanged(const QString &value)
 {
   RotStepData _data = meta->value();
   if (!modified)
@@ -3512,22 +3512,22 @@ BackgroundGui::BackgroundGui(
      combo->addItem("Submodel Level Color");    //3
      combo->setCurrentIndex(background.type == 4 ? 3 : int(background.type));
   }
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typeChange(         QString const &)));
+  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+          this,   SLOT(         typeChange(const QString&)));
   grid->addWidget(combo,0,0);
 
   /* Color and Gradient button */
 
   colorButton = new QPushButton("Change Color...",parent);
   colorButton->setToolTip(tr("Change color using color picker"));
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
+  connect(colorButton,SIGNAL(    clicked(bool)),
+          this,         SLOT(browseColor(bool)));
   grid->addWidget(colorButton,0,1);
 
   gradientButton = new QPushButton("Change Gradient...",parent);
   gradientButton->setToolTip(tr("Change gradient using gradient dialog"));
-  connect(gradientButton,SIGNAL(clicked(     bool)),
-          this,          SLOT(setGradient(   bool)));
+  connect(gradientButton,SIGNAL(    clicked(bool)),
+          this,            SLOT(setGradient(bool)));
   grid->addWidget(gradientButton,0,1);
   gradientButton->hide();
 
@@ -3552,13 +3552,13 @@ BackgroundGui::BackgroundGui(
   pictureEdit = new QLineEdit(picture,parent);
   pictureEdit->setClearButtonEnabled(true);
   pictureEdit->setToolTip("Enter image path");
-  connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  imageChange(QString const &)));
+  connect(pictureEdit,SIGNAL( textEdited(const QString&)),
+          this,         SLOT(imageChange(const QString&)));
   grid->addWidget(pictureEdit,1,0,1,2);
 
   pictureButton = new QPushButton("Browse",parent);
-  connect(pictureButton,SIGNAL(clicked(     bool)),
-          this,         SLOT(  browseImage(bool)));
+  connect(pictureButton,SIGNAL(    clicked(bool)),
+          this,           SLOT(browseImage(bool)));
   grid->addWidget(pictureButton,1,2);
 
   /* Image Fill */
@@ -3571,11 +3571,11 @@ BackgroundGui::BackgroundGui(
 
   stretchRadio = new QRadioButton("Stretch Image",fill);
   connect(stretchRadio,SIGNAL(clicked(bool)),
-          this,        SLOT(  stretch(bool)));
+          this,          SLOT(stretch(bool)));
   layout->addWidget(stretchRadio);
   tileRadio    = new QRadioButton("Tile Image",fill);
   connect(tileRadio,SIGNAL(clicked(bool)),
-          this,     SLOT(  tile(bool)));
+          this,       SLOT(   tile(bool)));
   layout->addWidget(tileRadio);
 
   if (!pictureSettings) {
@@ -3632,7 +3632,7 @@ void BackgroundGui::enable()
   }
 }
 
-void BackgroundGui::typeChange(QString const &type)
+void BackgroundGui::typeChange(const QString &type)
 {
   BackgroundData background = meta->value();
 
@@ -3654,7 +3654,7 @@ void BackgroundGui::typeChange(QString const &type)
   modified = true;
 }
 
-void BackgroundGui::imageChange(QString const &pic)
+void BackgroundGui::imageChange(const QString &pic)
 {
   BackgroundData background = meta->value();
   background.string = pic;
@@ -3895,8 +3895,8 @@ BorderGui::BorderGui(
   typeCombo->addItem(tr("Square Corners"));
   typeCombo->addItem(tr("Round Corners"));
   typeCombo->setCurrentIndex(int(border.type));
-  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,     SLOT(  typeChange(         QString const &)));
+  connect(typeCombo,SIGNAL(currentIndexChanged(const QString&)),
+          this,       SLOT(         typeChange(const QString&)));
   grid->addWidget(typeCombo,0,0);
 
   /* Radius */
@@ -3910,7 +3910,7 @@ BorderGui::BorderGui(
   spin->setSingleStep(5);
   spin->setValue(int(border.radius));
   connect(spin,SIGNAL(valueChanged(int)),
-          this,SLOT(  radiusChange(int)));
+          this,  SLOT(radiusChange(int)));
   grid->addWidget(spin,0,2);
 
   resetButton = new QPushButton(parent);
@@ -3919,10 +3919,10 @@ BorderGui::BorderGui(
   resetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
   resetButton->setToolTip(tr("Reset"));
   resetButton->setEnabled(false);
-  connect(spin,        SIGNAL(valueChanged( int)),
-          this,        SLOT(enableSpinReset(int)));
-  connect(resetButton, SIGNAL(clicked(      bool)),
-          this,        SLOT(  spinReset(    bool)));
+  connect(spin,        SIGNAL(   valueChanged(int)),
+          this,          SLOT(enableSpinReset(int)));
+  connect(resetButton, SIGNAL(  clicked(bool)),
+          this,          SLOT(spinReset(bool)));
   grid->addWidget(resetButton,0,3,1,1,{Qt::AlignVCenter, Qt::AlignLeft});
 
   /* Line Combo */
@@ -3935,8 +3935,8 @@ BorderGui::BorderGui(
   lineCombo->addItem(tr("Dot-Dash Line"));
   lineCombo->addItem(tr("Dot-Dot-Dash Line"));
   lineCombo->setCurrentIndex(border.line);
-  connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,     SLOT(  lineChange(         QString const &)));
+  connect(lineCombo,SIGNAL(currentIndexChanged(const QString&)),
+          this,       SLOT(         lineChange(const QString&)));
   grid->addWidget(lineCombo,1,0);
 
 
@@ -3956,12 +3956,12 @@ BorderGui::BorderGui(
   resetThicknessEditAct = thicknessEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetThicknessEditAct->setText(tr("Reset"));
   resetThicknessEditAct->setEnabled(false);
-  connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
-          this,         SLOT(enableEditReset(  QString const &)));
+  connect(thicknessEdit,SIGNAL(     textEdited(const QString&)),
+          this,           SLOT(enableEditReset(const QString&)));
   connect(resetThicknessEditAct, SIGNAL(triggered()),
           this,         SLOT(  lineEditReset()));
-  connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
-          this,         SLOT(  thicknessChange(QString const &)));
+  connect(thicknessEdit,SIGNAL(     textEdited(const QString&)),
+          this,           SLOT(thicknessChange(const QString&)));
   grid->addWidget(thicknessEdit,1,2,1,2);
 
   /* Color */
@@ -3982,8 +3982,8 @@ BorderGui::BorderGui(
   grid->addWidget(colorExample,2,1);
 
   colorButton = new QPushButton(tr("Change"),parent);
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
+  connect(colorButton,SIGNAL(    clicked(bool)),
+          this,         SLOT(browseColor(bool)));
   grid->addWidget(colorButton,2,2,1,2);
 
   /* Margins */
@@ -4002,12 +4002,12 @@ BorderGui::BorderGui(
   resetXEditAct = marginXEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetXEditAct->setText(tr("Reset"));
   resetXEditAct->setEnabled(false);
-  connect(marginXEdit,  SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(enableEditReset(QString const &)));
-  connect(resetXEditAct,SIGNAL(triggered()),
-          this,         SLOT(  lineEditReset()));
-  connect(marginXEdit,  SIGNAL(textEdited(QString const &)),
-          this,         SLOT(marginXChange(QString const &)));
+  connect(marginXEdit,  SIGNAL(     textEdited(const QString&)),
+          this,           SLOT(enableEditReset(const QString&)));
+  connect(resetXEditAct,SIGNAL(    triggered()),
+          this,           SLOT(lineEditReset()));
+  connect(marginXEdit,  SIGNAL(   textEdited(const QString&)),
+          this,           SLOT(marginXChange(const QString&)));
   grid->addWidget(marginXEdit,3,1);
 
   marginYEdit = new QLineEdit(parent);
@@ -4020,12 +4020,12 @@ BorderGui::BorderGui(
   resetYEditAct = marginYEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetYEditAct->setText(tr("Reset"));
   resetYEditAct->setEnabled(false);
-  connect(marginYEdit,  SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(enableEditReset(QString const &)));
-  connect(resetYEditAct,SIGNAL(triggered()),
-          this,         SLOT(  lineEditReset()));
-  connect(marginYEdit,  SIGNAL(textEdited(QString const &)),
-          this,         SLOT(marginYChange(QString const &)));
+  connect(marginYEdit,  SIGNAL(     textEdited(const QString&)),
+          this,           SLOT(enableEditReset(const QString&)));
+  connect(resetYEditAct,SIGNAL(    triggered()),
+          this,           SLOT(lineEditReset()));
+  connect(marginYEdit,  SIGNAL(   textEdited(const QString&)),
+          this,           SLOT(marginYChange(const QString&)));
   grid->addWidget(marginYEdit,3,2,1,2);
 
   enable(rotateArrow);
@@ -4155,7 +4155,7 @@ void BorderGui::enable(bool rotateArrow)
     }
 }
 
-void BorderGui::typeChange(QString const &type)
+void BorderGui::typeChange(const QString &type)
 {
   BorderData _border = meta->value();
 
@@ -4172,7 +4172,7 @@ void BorderGui::typeChange(QString const &type)
   modified = _border.type != border.type;
 }
 
-void BorderGui::lineChange(QString const &line)
+void BorderGui::lineChange(const QString &line)
 {
   BorderData _border = meta->value();
 
@@ -4230,7 +4230,7 @@ void BorderGui::browseColor(bool)
   }
 }
 
-void BorderGui::thicknessChange(QString const &thickness)
+void BorderGui::thicknessChange(const QString &thickness)
 {
   float value = thickness.toFloat();
   BorderData _border = meta->value();
@@ -4246,7 +4246,7 @@ void BorderGui::radiusChange(int value)
   modified = _border.radius != border.radius;
 }
 void BorderGui::marginXChange(
-  QString const &string)
+  const QString &string)
 {
   float value = string.toFloat();
   BorderData _border = meta->value();
@@ -4255,7 +4255,7 @@ void BorderGui::marginXChange(
   modified = notEqual(value, border.margin[0]);
 }
 void BorderGui::marginYChange(
-  QString const &string)
+  const QString &string)
 {
   float value = string.toFloat();
   BorderData _border = meta->value();
@@ -4307,8 +4307,8 @@ PlacementGui::PlacementGui(
     placementButton = new QPushButton(placementButtonText,parent);
     placementButton->setToolTip(tr("Set default %1 placement").arg(placementName));
     hlayout->addWidget(placementButton);
-    connect(placementButton,SIGNAL(clicked(   bool)),
-            this,           SLOT(  placementChanged(bool)));
+    connect(placementButton,SIGNAL(         clicked(bool)),
+            this,             SLOT(placementChanged(bool)));
 
     modified = false;
 }
@@ -4403,8 +4403,8 @@ void PlacementGui::apply(QString &topLevelFile)
     lineCombo->addItem(tr("Dot-Dash Line"));
     lineCombo->addItem(tr("Dot-Dot-Dash Line"));
     lineCombo->setCurrentIndex(index); //
-    connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
-            this,       SLOT(  lineChange(       QString const &)));
+    connect(lineCombo,SIGNAL(currentIndexChanged(const QString&)),
+            this,       SLOT(         lineChange(const QString&)));
     grid->addWidget(lineCombo,0,0);
     grid->setColumnStretch(0,1);
     grid->setColumnStretch(1,1);
@@ -4426,12 +4426,12 @@ void PlacementGui::apply(QString &topLevelFile)
     resetThicknessEditAct = thicknessEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     resetThicknessEditAct->setText(tr("Reset"));
     resetThicknessEditAct->setEnabled(false);
-    connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
-            this,         SLOT(enableEditReset(  QString const &)));
-    connect(resetThicknessEditAct, SIGNAL(triggered()),
-            this,         SLOT(  lineEditReset()));
-    connect(thicknessEdit,SIGNAL(textEdited(QString const &)),
-            this,         SLOT(  sizeChange(QString const &)));
+    connect(thicknessEdit,SIGNAL(     textEdited(const QString&)),
+            this,           SLOT(enableEditReset(const QString&)));
+    connect(resetThicknessEditAct, SIGNAL(    triggered()),
+            this,                    SLOT(lineEditReset()));
+    connect(thicknessEdit,SIGNAL(textEdited(const QString&)),
+            this,           SLOT(sizeChange(const QString&)));
     grid->addWidget(thicknessEdit,0,2);
 
     /*  Color */
@@ -4454,7 +4454,7 @@ void PlacementGui::apply(QString &topLevelFile)
     grid->addWidget(colorExample,1,1);
 
     colorButton = new QPushButton(tr("Change"),parent);
-    connect(colorButton,SIGNAL(clicked(   bool)),
+    connect(colorButton,SIGNAL(   clicked(bool)),
             this,        SLOT(browseColor(bool)));
     grid->addWidget(colorButton,1,2);
 
@@ -4463,8 +4463,8 @@ void PlacementGui::apply(QString &topLevelFile)
     if (isLine && !_isCallout) {
         hideTipBox = new QCheckBox(tr("Hide Pointer Tip"), parent);
         hideTipBox->setChecked(hideTip);
-        connect(hideTipBox,SIGNAL(clicked(    bool)),
-                this,      SLOT(hideTipChange(bool)));
+        connect(hideTipBox,SIGNAL(      clicked(bool)),
+                this,        SLOT(hideTipChange(bool)));
         grid->addWidget(hideTipBox,2,0,1,3);
     }
 
@@ -4490,12 +4490,12 @@ void PlacementGui::apply(QString &topLevelFile)
     resetWidthEditAct = widthEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     resetWidthEditAct->setText(tr("Reset"));
     resetWidthEditAct->setEnabled(false);
-    connect(widthEdit,        SIGNAL(textEdited(   QString const &)),
-            this,             SLOT(enableEditReset(QString const &)));
-    connect(resetWidthEditAct,SIGNAL(triggered()),
-            this,             SLOT(  lineEditReset()));
-    connect(widthEdit,        SIGNAL(textEdited(QString const &)),
-            this,             SLOT(sizeChange(QString const &)));
+    connect(widthEdit,        SIGNAL(     textEdited(const QString&)),
+            this,               SLOT(enableEditReset(const QString&)));
+    connect(resetWidthEditAct,SIGNAL(    triggered()),
+            this,               SLOT(lineEditReset()));
+    connect(widthEdit,        SIGNAL(textEdited(const QString&)),
+            this,               SLOT(sizeChange(const QString&)));
     grid->addWidget(widthEdit,0,1);
 
     /*  Height */
@@ -4515,12 +4515,12 @@ void PlacementGui::apply(QString &topLevelFile)
     resetHeightEditAct = heightEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     resetHeightEditAct->setText(tr("Reset"));
     resetHeightEditAct->setEnabled(false);
-    connect(heightEdit,        SIGNAL(textEdited(   QString const &)),
-            this,              SLOT(enableEditReset(QString const &)));
-    connect(resetHeightEditAct,SIGNAL(triggered()),
-            this,              SLOT(  lineEditReset()));
-    connect(heightEdit,        SIGNAL(textEdited(   QString const &)),
-            this,              SLOT(sizeChange(     QString const &)));
+    connect(heightEdit,        SIGNAL(     textEdited(const QString&)),
+            this,                SLOT(enableEditReset(const QString&)));
+    connect(resetHeightEditAct,SIGNAL(    triggered()),
+            this,                SLOT(lineEditReset()));
+    connect(heightEdit,        SIGNAL(textEdited(const QString&)),
+            this,                SLOT(sizeChange(const QString&)));
     grid->addWidget(heightEdit,0,3);
   }
   tipModified = false;
@@ -4576,7 +4576,7 @@ void PointerAttribGui::lineEditReset()
   }
 }
 
-void PointerAttribGui::lineChange(QString const &_line)
+void PointerAttribGui::lineChange(const QString &_line)
 {
   BorderData::Line padLine = BorderData::BdrLnSolid;
 
@@ -4607,7 +4607,7 @@ void PointerAttribGui::lineChange(QString const &_line)
     modified = lineModified || borderModified;
 }
 
-void PointerAttribGui::sizeChange(QString const &size)
+void PointerAttribGui::sizeChange(const QString &size)
 {
   float value = size.toFloat();
   PointerAttribData _data = meta->value();
@@ -4737,12 +4737,12 @@ SepGui::SepGui(
   resetThicknessEditAct = thicknessEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetThicknessEditAct->setText(tr("Reset"));
   resetThicknessEditAct->setEnabled(false);
-  connect(thicknessEdit,        SIGNAL(textEdited(     QString const &)),
-          this,                 SLOT(  enableReset(    QString const &)));
-  connect(resetThicknessEditAct,SIGNAL(triggered()),
-          this,                 SLOT(  lineEditReset()));
-  connect(thicknessEdit,        SIGNAL(textEdited(     QString const &)),
-          this,                 SLOT(  thicknessChange(QString const &)));
+  connect(thicknessEdit,        SIGNAL( textEdited(const QString&)),
+          this,                   SLOT(enableReset(const QString&)));
+  connect(resetThicknessEditAct,SIGNAL(    triggered()),
+          this,                   SLOT(lineEditReset()));
+  connect(thicknessEdit,        SIGNAL(     textEdited(const QString&)),
+          this,                   SLOT(thicknessChange(const QString&)));
   grid->addWidget(thicknessEdit,0,1);
 
   label = new QLabel("Length",parent);
@@ -4754,7 +4754,7 @@ SepGui::SepGui(
   typeCombo->addItem("Custom");
   typeCombo->setCurrentIndex(int(data.type));
   connect(typeCombo,SIGNAL(currentIndexChanged(int)),
-          this,     SLOT(  typeChange(             int)));
+          this,       SLOT(         typeChange(int)));
   grid->addWidget(typeCombo,1,1);
 
   lengthEdit = new QLineEdit(parent);
@@ -4768,12 +4768,12 @@ SepGui::SepGui(
   resetLengthEditAct = lengthEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetLengthEditAct->setText(tr("Reset"));
   resetLengthEditAct->setEnabled(false);
-  connect(lengthEdit,        SIGNAL(textEdited(     QString const &)),
-          this,              SLOT(  enableReset(    QString const &)));
-  connect(resetLengthEditAct,SIGNAL(triggered()),
-          this,              SLOT(  lineEditReset()));
-  connect(lengthEdit,        SIGNAL(textEdited(     QString const &)),
-          this,              SLOT(  lengthChange(   QString const &)));
+  connect(lengthEdit,        SIGNAL( textEdited(const QString&)),
+          this,                SLOT(enableReset(const QString&)));
+  connect(resetLengthEditAct,SIGNAL(    triggered()),
+          this,                SLOT(lineEditReset()));
+  connect(lengthEdit,        SIGNAL(  textEdited(const QString&)),
+          this,                SLOT(lengthChange(const QString&)));
   grid->addWidget(lengthEdit,1,2);
 
   label = new QLabel("Color",parent);
@@ -4808,12 +4808,12 @@ SepGui::SepGui(
   resetXEditAct = marginXEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetXEditAct->setText(tr("Reset"));
   resetXEditAct->setEnabled(false);
-  connect(marginXEdit,  SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(  enableReset(  QString const &)));
-  connect(resetXEditAct,SIGNAL(triggered()),
-          this,         SLOT(  lineEditReset()));
-  connect(marginXEdit,  SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(  marginXChange(QString const &)));
+  connect(marginXEdit,  SIGNAL( textEdited(const QString&)),
+          this,           SLOT(enableReset(const QString&)));
+  connect(resetXEditAct,SIGNAL(    triggered()),
+          this,           SLOT(lineEditReset()));
+  connect(marginXEdit,  SIGNAL(   textEdited(const QString&)),
+          this,           SLOT(marginXChange(const QString&)));
   grid->addWidget(marginXEdit,3,1);
 
   marginYEdit = new QLineEdit(parent);
@@ -4826,12 +4826,12 @@ SepGui::SepGui(
   resetYEditAct = marginYEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetYEditAct->setText(tr("Reset"));
   resetYEditAct->setEnabled(false);
-  connect(marginYEdit,  SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(  enableReset(  QString const &)));
+  connect(marginYEdit,  SIGNAL( textEdited(const QString&)),
+          this,           SLOT(enableReset(const QString&)));
   connect(resetYEditAct,SIGNAL(triggered()),
-          this,         SLOT(  lineEditReset()));
-  connect(marginYEdit,  SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(  marginYChange(QString const &)));
+          this,           SLOT(lineEditReset()));
+  connect(marginYEdit,  SIGNAL(   textEdited(const QString&)),
+          this,           SLOT(marginYChange(const QString&)));
   grid->addWidget(marginYEdit,3,2);
 }
 
@@ -4890,7 +4890,7 @@ void SepGui::typeChange(
 }
 
 void SepGui::lengthChange(
-  QString const &string)
+  const QString &string)
 {
   float value = string.toFloat();
   SepData _data = meta->value();
@@ -4900,7 +4900,7 @@ void SepGui::lengthChange(
 }
 
 void SepGui::thicknessChange(
-  QString const &string)
+  const QString &string)
 {
   float value = string.toFloat();
   SepData _data = meta->value();
@@ -4931,7 +4931,7 @@ void SepGui::browseColor(
 }
 
 void SepGui::marginXChange(
-  QString const &string)
+  const QString &string)
 {
   float value = string.toFloat();
   SepData _data = meta->value();
@@ -4941,7 +4941,7 @@ void SepGui::marginXChange(
 }
 
 void SepGui::marginYChange(
-  QString const &string)
+  const QString &string)
 {
   float value = string.toFloat();
   SepData _data = meta->value();
@@ -5000,8 +5000,8 @@ ResolutionGui::ResolutionGui(
   combo->addItem("Dots Per Inch");
   combo->addItem("Dots Per Centimetre");
   combo->setCurrentIndex(int(dataT));
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  unitsChange(        QString const &)));
+  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+          this,   SLOT(        unitsChange(const QString&)));
   grid->addWidget(combo,0,1);
 
   valueEdit = new QLineEdit(parent);
@@ -5012,13 +5012,13 @@ ResolutionGui::ResolutionGui(
   reset0Act = valueEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   reset0Act->setText(tr("Reset"));
   reset0Act->setEnabled(false);
-  connect(valueEdit, SIGNAL(textEdited(  QString const &)),
-          this,       SLOT(  enableReset( QString const &)));
-  connect(reset0Act,  SIGNAL(triggered()),
-          this,       SLOT(  lineEditReset()));
+  connect(valueEdit, SIGNAL( textEdited(const QString&)),
+          this,        SLOT(enableReset(const QString&)));
+  connect(reset0Act,  SIGNAL(    triggered()),
+          this,         SLOT(lineEditReset()));
 
-  connect(valueEdit,SIGNAL(textEdited( QString const &)),
-          this,     SLOT(  valueChange(QString const &)));
+  connect(valueEdit,SIGNAL(textEdited( const QString&)),
+          this,     SLOT(  valueChange(const QString&)));
   grid->addWidget(valueEdit,0,2);
 
   grid->setColumnStretch(0,3);
@@ -5045,7 +5045,7 @@ void ResolutionGui::lineEditReset()
   }
 }
 
-void ResolutionGui::unitsChange(QString const &units)
+void ResolutionGui::unitsChange(const QString &units)
 {
   ResolutionType type;
 
@@ -5071,7 +5071,7 @@ void ResolutionGui::unitsChange(QString const &units)
     emit unitsChanged(type);
 }
 
-void ResolutionGui::valueChange(QString const &string)
+void ResolutionGui::valueChange(const QString &string)
 {
   float value = string.toFloat();
   meta->setValue(value);
@@ -5257,12 +5257,12 @@ CameraAnglesGui::CameraAnglesGui(
   setLatitudeResetAct = latitudeEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   setLatitudeResetAct->setText(tr("Reset"));
   setLatitudeResetAct->setEnabled(false);
-  connect(latitudeEdit,         SIGNAL(textEdited( QString const &)),
-          this,                 SLOT(  enableReset(QString const &)));
-  connect(setLatitudeResetAct,  SIGNAL(triggered()),
-          this,                 SLOT(  lineEditReset()));
-  connect(latitudeEdit,         SIGNAL(textEdited(    QString const &)),
-          this,                 SLOT(  latitudeChange(QString const &)));
+  connect(latitudeEdit,         SIGNAL( textEdited(const QString&)),
+          this,                   SLOT(enableReset(const QString&)));
+  connect(setLatitudeResetAct,  SIGNAL(    triggered()),
+          this,                   SLOT(lineEditReset()));
+  connect(latitudeEdit,         SIGNAL(    textEdited(const QString&)),
+          this,                   SLOT(latitudeChange(const QString&)));
   grid->addWidget(latitudeEdit,0,1);
 
   // longitude
@@ -5280,12 +5280,12 @@ CameraAnglesGui::CameraAnglesGui(
   setLongitudeResetAct = longitudeEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   setLongitudeResetAct->setText(tr("Reset"));
   setLongitudeResetAct->setEnabled(false);
-  connect(longitudeEdit,        SIGNAL(textEdited( QString const &)),
-          this,                 SLOT(  enableReset(QString const &)));
-  connect(setLongitudeResetAct, SIGNAL(triggered()),
-          this,                 SLOT(  lineEditReset()));
-  connect(longitudeEdit,        SIGNAL(textEdited(     QString const &)),
-          this,                 SLOT(  longitudeChange(QString const &)));
+  connect(longitudeEdit,        SIGNAL( textEdited(const QString&)),
+          this,                   SLOT(enableReset(const QString&)));
+  connect(setLongitudeResetAct, SIGNAL(    triggered()),
+          this,                   SLOT(lineEditReset()));
+  connect(longitudeEdit,        SIGNAL(     textEdited(const QString&)),
+          this,                   SLOT(longitudeChange(const QString&)));
   grid->addWidget(longitudeEdit,0,3);
 
   // Camera view
@@ -5304,15 +5304,15 @@ CameraAnglesGui::CameraAnglesGui(
   cameraViewCombo->addItem("Default");
   cameraViewCombo->setCurrentIndex(int(data.cameraView));
   connect(cameraViewCombo,SIGNAL(currentIndexChanged(int)),
-          this,           SLOT(  cameraViewChange(   int)));
+          this,             SLOT(   cameraViewChange(int)));
   grid->addWidget(cameraViewCombo,1,1);
 
   // Home viewpoint angles change
   homeViewpointBox = new QCheckBox(tr("Use Latitude And Longitude Angles"),parent);
   homeViewpointBox->setChecked(data.cameraView == CameraView::Home && data.customViewpoint);
   homeViewpointBox->setToolTip(tr("Set Home viewpoint angles to use specified latitude and longitude."));
-  connect(homeViewpointBox,SIGNAL(stateChanged(        int)),
-          this,            SLOT(  homeViewpointChanged(int)));
+  connect(homeViewpointBox,SIGNAL(        stateChanged(int)),
+          this,              SLOT(homeViewpointChanged(int)));
   grid->addWidget(homeViewpointBox,1,2,1,2);
 
   setEnabled(data.cameraView == CameraView::Default);
@@ -5344,7 +5344,7 @@ void CameraAnglesGui::lineEditReset()
   }
 }
 
-void CameraAnglesGui::latitudeChange(QString const &string)
+void CameraAnglesGui::latitudeChange(const QString &string)
 {
   float value = string.toFloat();
   CameraAnglesData cad = meta->value();
@@ -5356,7 +5356,7 @@ void CameraAnglesGui::latitudeChange(QString const &string)
   emit settingsChanged(modified);
 }
 
-void CameraAnglesGui::longitudeChange(QString const &string)
+void CameraAnglesGui::longitudeChange(const QString &string)
 {
   float value = string.toFloat();
   CameraAnglesData cad = meta->value();
@@ -5460,7 +5460,7 @@ void CameraAnglesGui::apply(QString &modelName)
  **********************************************************************/
 
 CameraFOVGui::CameraFOVGui(
-  QString const &heading,
+  const QString &heading,
   FloatMeta     *_meta,
   QGroupBox     *parent)
 {
@@ -5500,9 +5500,9 @@ CameraFOVGui::CameraFOVGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spin,   SIGNAL(valueChanged(double)),
-          this,   SLOT(  enableReset( double)));
-  connect(button, SIGNAL(clicked(     bool)),
-          this,   SLOT(  spinReset(   bool)));
+          this,     SLOT( enableReset(double)));
+  connect(button, SIGNAL(  clicked(bool)),
+          this,     SLOT(spinReset(bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -5551,7 +5551,7 @@ void CameraFOVGui::apply(QString &modelName)
  **********************************************************************/
 
 CameraZPlaneGui::CameraZPlaneGui(
-  QString const &heading,
+  const QString &heading,
   FloatMeta     *_meta,
   bool            zfar,
   QGroupBox     *parent)
@@ -5581,7 +5581,7 @@ CameraZPlaneGui::CameraZPlaneGui(
   spin->setDecimals(1);
   spin->setValue(data);
   connect(spin,SIGNAL(valueChanged(double)),
-          this,SLOT  (valueChanged(double)));
+          this,  SLOT(valueChanged(double)));
   layout->addWidget(spin);
 
   button = new QPushButton(parent);
@@ -5591,9 +5591,9 @@ CameraZPlaneGui::CameraZPlaneGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spin,   SIGNAL(valueChanged(double)),
-          this,   SLOT(  enableReset( double)));
-  connect(button, SIGNAL(clicked(     bool)),
-          this,   SLOT(  spinReset(   bool)));
+          this,     SLOT( enableReset(double)));
+  connect(button, SIGNAL(  clicked( bool)),
+          this,     SLOT(spinReset( bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -5644,7 +5644,7 @@ void CameraZPlaneGui::apply(QString &modelName)
  **********************************************************************/
 
 CameraDDFGui::CameraDDFGui(
-  QString const &heading,
+  const QString &heading,
   FloatMeta     *_meta,
   QGroupBox     *parent)
 {
@@ -5674,7 +5674,7 @@ CameraDDFGui::CameraDDFGui(
   spin->setDecimals(decimalPlaces);
   spin->setValue(data);
   connect(spin,SIGNAL(valueChanged(double)),
-          this,SLOT  (valueChanged(double)));
+          this,  SLOT(valueChanged(double)));
   layout->addWidget(spin);
 
   button = new QPushButton(parent);
@@ -5684,9 +5684,9 @@ CameraDDFGui::CameraDDFGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spin,   SIGNAL(valueChanged(double)),
-          this,   SLOT(  enableReset( double)));
-  connect(button, SIGNAL(clicked(     bool)),
-          this,   SLOT(  spinReset(   bool)));
+          this,     SLOT( enableReset(double)));
+  connect(button, SIGNAL(clicked(bool)),
+          this,     SLOT(spinReset(bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -5735,7 +5735,7 @@ void CameraDDFGui::apply(QString &modelName)
  **********************************************************************/
 
 ScaleGui::ScaleGui(
-  QString const &heading,
+  const QString &heading,
   FloatMeta     *_meta,
   QGroupBox     *parent)
 {
@@ -5775,9 +5775,9 @@ ScaleGui::ScaleGui(
   button->setToolTip(tr("Reset"));
   button->setEnabled(false);
   connect(spin,   SIGNAL(valueChanged(double)),
-          this,   SLOT(  enableReset( double)));
-  connect(button, SIGNAL(clicked(     bool)),
-          this,   SLOT(  spinReset(   bool)));
+          this,     SLOT( enableReset(double)));
+  connect(button, SIGNAL(  clicked(bool)),
+          this,     SLOT(spinReset(bool)));
   layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -5940,8 +5940,8 @@ ShowSubModelGui::ShowSubModelGui(
     PlacementData placementData = meta->placement.value();
     placementButton->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(SubModelType,placementData,placementButton->text()));
     placementButton->setToolTip(tr("Set %1 default placement").arg(placementName));
-    connect(placementButton,SIGNAL(clicked(   bool)),
-            this,           SLOT(  placementChanged(bool)));
+    connect(placementButton,SIGNAL(         clicked(bool)),
+            this,             SLOT(placementChanged(bool)));
     grid->addWidget(placementButton,12,1);
 
     showSubmodelsModified         = false;
@@ -6156,14 +6156,14 @@ PliSortGui::PliSortGui(
   if (bom)
       combo->addItem(SortOptionName[PartElement]);
   combo->setCurrentIndex(currentIndex);
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  optionChange(       QString const &)));
+  connect(combo,SIGNAL(currentIndexChanged(const QString&)),
+          this,   SLOT(       optionChange(const QString&)));
   grid->addWidget(combo,0,1);
 
   modified = false;
 }
 
-void PliSortGui::optionChange(QString const &sortOption)
+void PliSortGui::optionChange(const QString &sortOption)
 {
   StringMeta sortBy = meta->sortOption;
   sortBy.setValue(sortOption);
@@ -6298,17 +6298,17 @@ PliSortOrderGui::PliSortOrderGui(
 
   primaryCombo->setCurrentIndex(OptionIndex(meta->primary.value()));
   connect(primaryCombo,SIGNAL(currentIndexChanged(int)),
-          this,        SLOT(  orderChange(        int)));
+          this,          SLOT(        orderChange(int)));
   grid->addWidget(primaryCombo,1,0);
 
   secondaryCombo->setCurrentIndex(OptionIndex(meta->secondary.value()));
   connect(secondaryCombo,SIGNAL(currentIndexChanged(int)),
-          this,          SLOT(  orderChange(        int)));
+          this,            SLOT(        orderChange(int)));
   grid->addWidget(secondaryCombo,1,1);
 
   tertiaryCombo->setCurrentIndex(OptionIndex(meta->tertiary.value()));
   connect(tertiaryCombo,SIGNAL(currentIndexChanged(int)),
-          this,         SLOT(  orderChange(        int)));
+          this,           SLOT(        orderChange(int)));
   grid->addWidget(tertiaryCombo,1,2);
 
   if (meta->tertiary.value()  == SortOptionName[NoSort]) {
@@ -7189,8 +7189,8 @@ CsiAnnotationGui::CsiAnnotationGui(
 
   placementButton = new QPushButton(placementButtonText,gbPlacement);
   placementButton->setToolTip(tr("Set annotation placement relative to CSI part"));
-  connect(placementButton,SIGNAL(clicked(   bool)),
-          this,           SLOT(  placementChanged(bool)));
+  connect(placementButton,SIGNAL(         clicked(bool)),
+          this,             SLOT(placementChanged(bool)));
   gLayout->addWidget(placementButton);
 
   displayModified          = false;
@@ -7416,12 +7416,12 @@ RotateIconSizeGui::RotateIconSizeGui(
   resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetWAct->setText(tr("Reset"));
   resetWAct->setEnabled(false);
-  connect(valueW,    SIGNAL(textEdited(  QString const &)),
-          this,      SLOT(  enableReset( QString const &)));
+  connect(valueW,    SIGNAL( textEdited(const QString&)),
+          this,        SLOT(enableReset(const QString&)));
   connect(resetWAct, SIGNAL(triggered()),
-          this,      SLOT(  lineEditReset()));
-  connect(valueW,    SIGNAL(textChanged( QString const &)),
-          this,      SLOT(  valueWChange(QString const &)));
+          this,        SLOT(lineEditReset()));
+  connect(valueW,    SIGNAL( textChanged(const QString&)),
+          this,        SLOT(valueWChange(const QString&)));
 
   labelW = new QLabel(tr("Width"),parent);
   labelW->setToolTip(tr("Current Width in pixels is %1").arg(_meta->valuePixels(0)));
@@ -7445,12 +7445,12 @@ RotateIconSizeGui::RotateIconSizeGui(
   resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetHAct->setText(tr("Reset"));
   resetHAct->setEnabled(false);
-  connect(valueH,    SIGNAL(textEdited(  QString const &)),
-          this,      SLOT(  enableReset( QString const &)));
+  connect(valueH,    SIGNAL( textEdited(const QString&)),
+          this,        SLOT(enableReset(const QString&)));
   connect(resetHAct, SIGNAL(triggered()),
-          this,      SLOT(  lineEditReset()));
-  connect(valueH,    SIGNAL(textChanged( QString const &)),
-          this,      SLOT(  valueHChange(QString const &)));
+          this,        SLOT(lineEditReset()));
+  connect(valueH,    SIGNAL( textChanged(const QString&)),
+          this,        SLOT(valueHChange(const QString&)));
 
   labelH = new QLabel(tr("Height"),parent);
   labelH->setToolTip(tr("Current Height in pixels is %1").arg(_meta->valuePixels(1)));
@@ -7491,7 +7491,7 @@ void RotateIconSizeGui::lineEditReset()
   }
 }
 
-void RotateIconSizeGui::valueWChange(QString const &string)
+void RotateIconSizeGui::valueWChange(const QString &string)
 {
   float value = string.toFloat();
   meta->setValue(0,value);
@@ -7499,7 +7499,7 @@ void RotateIconSizeGui::valueWChange(QString const &string)
   modified = notEqual(value, dataH);
 }
 
-void RotateIconSizeGui::valueHChange(QString const &string)
+void RotateIconSizeGui::valueHChange(const QString &string)
 {
   float value = string.toFloat();
   meta->setValue(1,value);
@@ -7571,8 +7571,8 @@ PageSizeGui::PageSizeGui(
   }
 
   sizeCombo->setCurrentIndex(int(getTypeIndex(dataW,dataH)));
-  connect(sizeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,     SLOT(  typeChange(         QString const &)));
+  connect(sizeCombo,SIGNAL(currentIndexChanged(const QString&)),
+          this,       SLOT(         typeChange(const QString&)));
   if (heading == "")
     grid->addWidget(sizeCombo,0,0);
   else
@@ -7588,12 +7588,12 @@ PageSizeGui::PageSizeGui(
   resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetWAct->setText(tr("Reset"));
   resetWAct->setEnabled(false);
-  connect(valueW,    SIGNAL(textEdited(  QString const &)),
-          this,      SLOT(  enableReset( QString const &)));
+  connect(valueW,    SIGNAL( textEdited(const QString&)),
+          this,        SLOT(enableReset(const QString&)));
   connect(resetWAct, SIGNAL(triggered()),
-          this,      SLOT(  lineEditReset()));
-  connect(valueW,    SIGNAL(textChanged( QString const &)),
-          this,      SLOT(  valueWChange(QString const &)));
+          this,        SLOT(lineEditReset()));
+  connect(valueW,    SIGNAL( textChanged(const QString&)),
+          this,        SLOT(valueWChange(const QString&)));
 
   if (heading == "")
     grid->addWidget(valueW,0,1);
@@ -7610,12 +7610,12 @@ PageSizeGui::PageSizeGui(
   resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetHAct->setText(tr("Reset"));
   resetHAct->setEnabled(false);
-  connect(valueH,    SIGNAL(textEdited(  QString const &)),
-          this,      SLOT(  enableReset( QString const &)));
-  connect(resetHAct, SIGNAL(triggered()),
-          this,      SLOT(  lineEditReset()));
-  connect(valueH,    SIGNAL(textChanged( QString const &)),
-          this,      SLOT(  valueHChange(QString const &)));
+  connect(valueH,    SIGNAL( textEdited(const QString&)),
+          this,        SLOT(enableReset(const QString&)));
+  connect(resetHAct, SIGNAL(    triggered()),
+          this,        SLOT(lineEditReset()));
+  connect(valueH,    SIGNAL( textChanged(const QString&)),
+          this,        SLOT(valueHChange(const QString&)));
 
   if (heading == "")
     grid->addWidget(valueH,0,2);
@@ -7717,7 +7717,7 @@ void PageSizeGui::typeChange(const QString &pageType) {
   setEnabled(editLine);
 }
 
-void PageSizeGui::valueWChange(QString const &string)
+void PageSizeGui::valueWChange(const QString &string)
 {
   float value = string.toFloat();
 
@@ -7730,7 +7730,7 @@ void PageSizeGui::valueWChange(QString const &string)
   }
 }
 
-void PageSizeGui::valueHChange(QString const &string)
+void PageSizeGui::valueHChange(const QString &string)
 {
   float value = string.toFloat();
   if (lpub->page.meta.LPub.page.orientation.value() == Portrait) {
@@ -7850,8 +7850,8 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   }
 
   typeCombo->setCurrentIndex(typeIndex);
-  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,     SLOT(  typeChange(         QString const &)));
+  connect(typeCombo,SIGNAL(currentIndexChanged(const QString&)),
+          this,       SLOT(         typeChange(const QString&)));
 
   if (heading == "")
     grid->addWidget(typeCombo,0,0);
@@ -7868,12 +7868,12 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetWAct->setText(tr("Reset"));
   resetWAct->setEnabled(false);
-  connect(valueW,   SIGNAL(textEdited(  QString const &)),
-          this,     SLOT(  enableReset( QString const &)));
-  connect(resetWAct,SIGNAL(triggered()),
-          this,     SLOT(  lineEditReset()));
-  connect(valueW,   SIGNAL(textChanged( QString const &)),
-          this,     SLOT(  valueWChange(QString const &)));
+  connect(valueW,   SIGNAL( textEdited(const QString&)),
+          this,       SLOT(enableReset(const QString&)));
+  connect(resetWAct,SIGNAL(    triggered()),
+          this,       SLOT(lineEditReset()));
+  connect(valueW,   SIGNAL( textChanged(const QString&)),
+          this,       SLOT(valueWChange(const QString&)));
 
   if (heading == "")
     grid->addWidget(valueW,0,1);
@@ -7890,12 +7890,12 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetHAct->setText(tr("Reset"));
   resetHAct->setEnabled(false);
-  connect(valueH,   SIGNAL(textEdited(  QString const &)),
-          this,     SLOT(  enableReset( QString const &)));
-  connect(resetHAct,SIGNAL(triggered()),
-          this,     SLOT(  lineEditReset()));
-  connect(valueH,   SIGNAL(textChanged( QString const &)),
-          this,     SLOT(  valueHChange(QString const &)));
+  connect(valueH,   SIGNAL( textEdited(const QString&)),
+          this,       SLOT(enableReset(const QString&)));
+  connect(resetHAct,SIGNAL(    triggered()),
+          this,       SLOT(lineEditReset()));
+  connect(valueH,   SIGNAL( textChanged(const QString&)),
+          this,       SLOT(valueHChange(const QString&)));
 
   if (heading == "")
     grid->addWidget(valueH,0,2);
@@ -8035,7 +8035,7 @@ void SizeAndOrientationGui::orientationChange(bool clicked)
   modified =  orientationModified || sizeIDModified;
 }
 
-void SizeAndOrientationGui::valueWChange(QString const &string)
+void SizeAndOrientationGui::valueWChange(const QString &string)
 {
   float value = string.toFloat();
   metaS->setValue(0,value);
@@ -8043,7 +8043,7 @@ void SizeAndOrientationGui::valueWChange(QString const &string)
   modified =  sizeModified || orientationModified || sizeIDModified;
 }
 
-void SizeAndOrientationGui::valueHChange(QString const &string)
+void SizeAndOrientationGui::valueHChange(const QString &string)
 {
   float value = string.toFloat();
   metaS->setValue(1,value);
@@ -8108,8 +8108,8 @@ SubModelColorGui::SubModelColorGui(
   grid->addWidget(subModelColor0Example,0,1);
 
   subModelColor0Button = new QPushButton("Change");
-  connect(subModelColor0Button,SIGNAL(clicked(      bool)),
-          this,       SLOT(  browseSubModelColor0(bool)));
+  connect(subModelColor0Button,SIGNAL(             clicked(bool)),
+          this,                  SLOT(browseSubModelColor0(bool)));
 
   grid->addWidget(subModelColor0Button,0,2);
 
@@ -8127,8 +8127,8 @@ SubModelColorGui::SubModelColorGui(
   grid->addWidget(subModelColor1Example,1,1);
 
   subModelColor1Button = new QPushButton("Change");
-  connect(subModelColor1Button,SIGNAL(clicked(      bool)),
-          this,       SLOT(  browseSubModelColor1(bool)));
+  connect(subModelColor1Button,SIGNAL(             clicked(bool)),
+          this,                  SLOT(browseSubModelColor1(bool)));
 
   grid->addWidget(subModelColor1Button,1,2);
 
@@ -8146,8 +8146,8 @@ SubModelColorGui::SubModelColorGui(
   grid->addWidget(subModelColor2Example,2,1);
 
   subModelColor2Button = new QPushButton("Change");
-  connect(subModelColor2Button,SIGNAL(clicked(      bool)),
-          this,       SLOT(  browseSubModelColor2(bool)));
+  connect(subModelColor2Button,SIGNAL(             clicked(bool)),
+          this,                  SLOT(browseSubModelColor2(bool)));
 
   grid->addWidget(subModelColor2Button,2,2);
 
@@ -8165,8 +8165,8 @@ SubModelColorGui::SubModelColorGui(
   grid->addWidget(subModelColor3Example,3,1);
 
   subModelColor3Button = new QPushButton("Change");
-  connect(subModelColor3Button,SIGNAL(clicked(      bool)),
-          this,       SLOT(  browseSubModelColor3(bool)));
+  connect(subModelColor3Button,SIGNAL(             clicked(bool)),
+          this,                  SLOT(browseSubModelColor3(bool)));
 
   grid->addWidget(subModelColor3Button,3,2);
 }
@@ -8281,8 +8281,8 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList) {
         spinBox->setSingleStep(1);
         spinBox->setValue(targetValues[i]);
         targetSpinBoxList << spinBox;
-        connect(spinBox,SIGNAL(valueChanged(     int)),
-                this,   SLOT(  enableTargetReset(int)));
+        connect(spinBox,SIGNAL(     valueChanged(int)),
+                this,     SLOT(enableTargetReset(int)));
         subGridLayout->addWidget(spinBox,i,1);
         subGridLayout->setColumnStretch(1,1);
 
@@ -8293,8 +8293,8 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList) {
         button->setToolTip(tr("Reset"));
         button->setEnabled(false);
         targetButtonList << button;
-        connect(button, SIGNAL(clicked(          bool)),
-                this,   SLOT(  spinReset(        bool)));
+        connect(button, SIGNAL(  clicked(bool)),
+                this,     SLOT(spinReset(bool)));
         subGridLayout->addWidget(button,i,2);
     }
 
@@ -8332,8 +8332,8 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList) {
         doubleSpinBox->setDecimals(decimalPlaces(rotateValues[i]));
         doubleSpinBox->setValue(rotateValues[i]);
         rotateDoubleSpinBoxList << doubleSpinBox;
-        connect(doubleSpinBox,SIGNAL(valueChanged(     double)),
-                this,         SLOT(  enableRotateReset(double)));
+        connect(doubleSpinBox,SIGNAL(     valueChanged(double)),
+                this,           SLOT(enableRotateReset(double)));
         subGridLayout->addWidget(doubleSpinBox,i,1);
         subGridLayout->setColumnStretch(1,1);
 
@@ -8344,8 +8344,8 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList) {
         button->setToolTip(tr("Reset"));
         button->setEnabled(false);
         rotateButtonList << button;
-        connect(button,       SIGNAL(clicked(          bool)),
-                this,         SLOT(  spinReset(        bool)));
+        connect(button,       SIGNAL(  clicked(bool)),
+                this,           SLOT(spinReset(bool)));
         subGridLayout->addWidget(button,i,2);
     }
 
@@ -8832,10 +8832,10 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action) {
 
         hLayout->addWidget(buildModList);
 
-        QObject::connect(buildModList, SIGNAL(itemClicked(QListWidgetItem *)),
-                         this,         SLOT(  setBuildModActive(QListWidgetItem *)));
-        QObject::connect(buildModList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
-                         this,         SLOT(  setBuildModActive(QListWidgetItem *)));
+        QObject::connect(buildModList, SIGNAL(      itemClicked(QListWidgetItem*)),
+                         this,         SLOT(  setBuildModActive(QListWidgetItem*)));
+        QObject::connect(buildModList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+                         this,         SLOT(  setBuildModActive(QListWidgetItem*)));
     } else {
         QString message = tr("No build modifications were detected!");
         QLabel *label = new QLabel(message, dialog);
@@ -8943,8 +8943,8 @@ void POVRayRenderDialogGui::getRenderSettings(
                         i == LBL_RESOLUTION ? csiKeyList.at(K_RESOLUTION) :
                                               csiKeyList.at(K_MODELSCALE));
             if (i < LBL_LATITUDE) {      // width, height
-                connect(lineEdit,SIGNAL(textChanged(const QString &)),
-                        this,    SLOT  (textChanged(const QString &)));
+                connect(lineEdit,SIGNAL(textChanged(const QString&)),
+                        this,    SLOT  (textChanged(const QString&)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             }
             else if (i < LBL_RESOLUTION) // latitued, longitude
@@ -8955,8 +8955,8 @@ void POVRayRenderDialogGui::getRenderSettings(
                 lineEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
             lineEdit->setToolTip(povraySettings[i].tooltip);
             lineEditList << lineEdit;
-            connect(lineEdit, SIGNAL(textEdited(  QString const &)),
-                    this,     SLOT(  enableReset( QString const &)));
+            connect(lineEdit, SIGNAL( textEdited(const QString&)),
+                    this,     SLOT(  enableReset(const QString&)));
             QAction *resetEditAct = lineEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
             resetEditAct->setText(tr("Reset"));
             resetEditAct->setEnabled(false);
@@ -9129,18 +9129,18 @@ void POVRayRenderDialogGui::textChanged(const QString &value)
     int mNewValue = value.toInt();
     if (checkBoxList.at(ASPECT_BOX)->isChecked()) {
         if (sender() == lineEditList.at(WIDTH_EDIT)) {
-            disconnect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
-                       this,                        SLOT  (textChanged(const QString &)));
+            disconnect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString&)),
+                       this,                        SLOT  (textChanged(const QString&)));
             lineEditList.at(HEIGHT_EDIT)->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
-            connect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
-                  this,                          SLOT  (textChanged(const QString &)));
+            connect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString&)),
+                  this,                          SLOT  (textChanged(const QString&)));
         } else
         if (sender() == lineEditList.at(HEIGHT_EDIT)) {
-            disconnect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
-                       this,                       SLOT  (textChanged(const QString &)));
+            disconnect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString&)),
+                       this,                       SLOT  (textChanged(const QString&)));
             lineEditList.at(WIDTH_EDIT)->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
-            connect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
-                    this,                       SLOT  (textChanged(const QString &)));
+            connect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString&)),
+                    this,                       SLOT  (textChanged(const QString&)));
         }
     }
 }

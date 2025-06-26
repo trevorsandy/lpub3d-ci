@@ -272,7 +272,7 @@ private slots:
 
 signals:
   void messageSig(LogType, const QString &, int = 0);
-  void loadFileSig(QString, bool);
+  void loadFileSig(const QString&, bool);
   void consoleCommandSig(int, int*);
   void checkForUpdatesFinished();
 

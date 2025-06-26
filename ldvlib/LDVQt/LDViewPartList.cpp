@@ -29,7 +29,7 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
 	connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
 	connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
 	connect( showModelButton, SIGNAL( clicked() ), this, SLOT( doShowModel() ) );
-	connect( fieldOrderView, SIGNAL( currentItemChanged(QListWidgetItem *, QListWidgetItem *) ), this, SLOT( doHighlighted(QListWidgetItem *, QListWidgetItem *) ) );
+	connect( fieldOrderView, SIGNAL( currentItemChanged(QListWidgetItem*,QListWidgetItem*) ), this, SLOT( doHighlighted(QListWidgetItem*, QListWidgetItem*) ) );
 	connect( preferencesButton, SIGNAL( clicked() ), this, SLOT( doShowPreferences() ) );
 	connect( snapshotButton, SIGNAL( clicked() ), this, SLOT( doBrowseSnapshotFile() ) );
 	connect( snapshotEdit, SIGNAL( editingFinished() ), this, SLOT(doUpdateSnapshotEdit() ) );
