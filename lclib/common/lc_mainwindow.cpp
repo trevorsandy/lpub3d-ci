@@ -458,7 +458,7 @@ void lcMainWindow::CreateActions()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - macOS menu management ***/
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
   mActions[LC_FILE_EXIT]->setMenuRole(QAction::NoRole);
   mActions[LC_VIEW_PREFERENCES]->setMenuRole(QAction::NoRole);
   mActions[LC_HELP_ABOUT]->setMenuRole(QAction::NoRole);

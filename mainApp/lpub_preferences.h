@@ -23,7 +23,7 @@
 #include <QMessageBox>
 
 enum UpdateFlag { UpdateExisting, SkipExisting };
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 enum LibFlag { LibValid, LibMissing, LibInvalid, LibChkError };
 #endif
 
@@ -173,7 +173,7 @@ class Preferences
                            bool option = false,  // true=OkCancel|default=Cancel, false=AbortIgnore|default=Ignore
                            bool override = false,// true=Ok|default=Ok|NoCheckBox, false=AbortIgnore|default=Ignore,
                            int icon = 3);
-    #ifdef Q_OS_MAC
+    #ifdef Q_OS_MACOS
     static LibFlag validRendererLib(const QString &, const QString &);
     #endif
     static void messageBoxAdjustWidth(QMessageBox *box, const QString &title, const QString &text, int minWidth = 0);
@@ -285,7 +285,7 @@ class Preferences
     static QString sceneGuideColor;
     static QString currentLibrarySave;
     static QString editorFont;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     static QString homebrewPathPrefix;
     static QString homebrewPathInsert;
 
@@ -429,7 +429,7 @@ class Preferences
     static bool    editorCyclePagesOnUpdateDialog;
     static bool    editorTabLock;
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     static bool    missingRendererLibs;
 #endif
     static int     preferredRenderer;

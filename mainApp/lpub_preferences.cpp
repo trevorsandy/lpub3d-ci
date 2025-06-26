@@ -411,7 +411,7 @@ QString Preferences::sceneRulerTickColor        = defaultThemeColors[THEME_DEFAU
 QString Preferences::sceneRulerTrackingColor    = defaultThemeColors[THEME_DEFAULT_RULER_TRACK_PEN].color;
 QString Preferences::sceneGuideColor            = defaultThemeColors[THEME_DEFAULT_GUIDE_PEN].color;
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 QString Preferences::homebrewPathPrefix         = VER_HOMEBREW_PATH_PREFIX;
 QString Preferences::homebrewPathInsert         = VER_HOMEBREW_PATH_INSERT;
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_MACOS;
@@ -568,7 +568,7 @@ bool    Preferences::resetCustomCache           = false;
 bool    Preferences::restartApplication         = false;
 bool    Preferences::libraryChangeRestart       = false;
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 bool    Preferences::missingRendererLibs        = false;
 #endif
 
@@ -603,7 +603,7 @@ int     Preferences::partCameraLongitude        = DEFAULT_PART_CAMERA_LONGITUDE;
 int     Preferences::submodelCameraLatitude     = DEFAULT_SUBMODEL_CAMERA_LATITUDE;
 int     Preferences::submodelCameraLongitude    = DEFAULT_SUBMODEL_CAMERA_LONGITUDE;
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 QStringList Preferences::missingLibs;
 
 int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_MACOS;
@@ -1207,7 +1207,7 @@ void Preferences::loggingPreferences()
     } // end init loggingPreferences
 }
 
-#ifdef Q_OS_MAC //macOS Library Validation Routine
+#ifdef Q_OS_MACOS //macOS Library Validation Routine
 LibFlag Preferences::validRendererLib(const QString &library, const QString &libraryVersion)
 {
     QString scriptFile, scriptCommand, libraryName;
@@ -1385,8 +1385,8 @@ void Preferences::lpubPreferences()
 
 #ifndef Q_OS_LINUX
     QSettings Settings;
-#endif // Q_OS_MAC and Q_OS_WIN
-#ifdef Q_OS_MAC
+#endif // Q_OS_MACOS and Q_OS_WIN
+#ifdef Q_OS_MACOS
 
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
         cwd.cdUp();                   // Contents/      (app bundle contents folder)
@@ -1467,7 +1467,7 @@ void Preferences::lpubPreferences()
 
 #endif // X11_BINARY_BUILD
 
-#endif // Q_OS_MAC Q_OS_LINUX Q_OS_WIN
+#endif // Q_OS_MACOS Q_OS_LINUX Q_OS_WIN
 
     lpub3dPath = cwd.absolutePath();
 
@@ -1513,7 +1513,7 @@ void Preferences::lpubPreferences()
 
     } // distribution type
 
-#else  // Q_OS_LINUX or Q_OS_MAC
+#else  // Q_OS_LINUX or Q_OS_MACOS
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     const int dataIndex = lpubDataPath.indexOf("/share/");
@@ -1578,7 +1578,7 @@ void Preferences::lpubPreferences()
      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, configDir.absolutePath());
 #endif // LP3D_FLATPACK or LP3D_SNAP
 #endif // (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#endif // Q_OS_WIN or Q_OS_LINUX and Q_OS_MAC
+#endif // Q_OS_WIN or Q_OS_LINUX and Q_OS_MACOS
 
     // applications paths:
 #ifdef Q_OS_WIN
@@ -1593,11 +1593,11 @@ void Preferences::lpubPreferences()
            dataPath = validDataPath;
     }
     dataLocation = QString("%1/%2/").arg(dataPath,dataDir);
-#else // Q_OS_LINUX or Q_OS_MAC
+#else // Q_OS_LINUX or Q_OS_MACOS
     // On Linux 'dataLocation' folder is /usr/share/lpub3d
     // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
     dataLocation = QString("%1/").arg(lpub3dExtrasResourcePath);
-#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
+#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MACOS
 
     QDir extrasDir(lpubDataPath + QDir::separator() + QLatin1String("extras"));
     if(!QDir(extrasDir).exists())
@@ -1633,7 +1633,7 @@ void Preferences::lpubPreferences()
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_STICKER_PARTS_FILE));
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     bool homebrewSilicon = QFileInfo::exists("/opt/homebrew/bin/brew");
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LibraryCheckPathInsert"))) {
         if (homebrewSilicon) homebrewPathInsert = QStringLiteral("PATH=/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}");
@@ -1775,7 +1775,7 @@ void Preferences::lpub3dLibPreferences(bool browse)
 
         } else if (modeGUI) { // This condition should never fire - left over old code that offers to select or download the archive libraries (in case the user removes them)
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
             if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
                 Application::instance()->splash->hide();
 #endif
@@ -1836,7 +1836,7 @@ void Preferences::lpub3dLibPreferences(bool browse)
             } else
                 if (box.clickedButton()==downloadButton) {
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
                     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
                         Application::instance()->splash->show();
 #endif
@@ -1915,7 +1915,7 @@ void Preferences::lpub3dLibPreferences(bool browse)
                     exit(-1);
 
                 }
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
             if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
                 Application::instance()->splash->show();
 #endif
@@ -1994,7 +1994,7 @@ void Preferences::ldrawPreferences(bool browse)
 
                         dataPathList = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
 
-#if defined Q_OS_WIN || defined Q_OS_MAC
+#if defined Q_OS_WIN || defined Q_OS_MACOS
                         ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1), validLDrawDir)); /* C:/Users/<user>/AppData/Local/LPub3D Software/LPub3Dd/<LDraw library>,  ~/Library/Application Support/LPub3D Software/LPub3D/<LDraw library> */
 #else
                         ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2), validLDrawDir)); /* ~/.local/share/LPub3D Software/lpub3d<ver_suffix>/<LDraw library>" */
@@ -2016,7 +2016,7 @@ void Preferences::ldrawPreferences(bool browse)
                                                             QDir::toNativeSeparators(QString("%1/%2").arg(homePath, validLDrawDir)))
                                              : QDir::toNativeSeparators(QString("%1/%2").arg(homePath, validLDrawDir)),
                                                QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath, validLDrawDir)),
-#if defined Q_OS_WIN || defined Q_OS_MAC
+#if defined Q_OS_WIN || defined Q_OS_MACOS
                                              QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1), validLDrawDir)),
 #else
                                              QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2), validLDrawDir)),
@@ -2038,7 +2038,7 @@ void Preferences::ldrawPreferences(bool browse)
 #endif
 
                                 if (modeGUI) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
                                     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
                                         Application::instance()->splash->hide();
 #endif
@@ -2118,7 +2118,7 @@ void Preferences::ldrawPreferences(bool browse)
             }
 
             if (/* ! ldrawLibPath.isEmpty() && */ browse && modeGUI) { // fourth check - browse
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
                 if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
 #endif
@@ -2145,7 +2145,7 @@ void Preferences::ldrawPreferences(bool browse)
             } else {
 
                 if (modeGUI) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
                     if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                         Application::instance()->splash->hide();
 #endif
@@ -2207,7 +2207,7 @@ void Preferences::ldrawPreferences(bool browse)
         } else {
 
             if (modeGUI) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
                 if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
 #endif
@@ -2287,7 +2287,7 @@ void Preferences::ldrawPreferences(bool browse)
         excludeModelsSearchDir = Settings.value(QString("%1/%2").arg(SETTINGS,excludeModelsSearchDirKey)).toBool();
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
         Application::instance()->splash->show();
 #endif
@@ -2629,7 +2629,7 @@ void Preferences::rendererPreferences()
     QFileInfo ldviewInfo(QString("%1/%2/bin/%3").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR, ldviewexe));
     QFileInfo povrayInfo(QString("%1/%2/bin/%3").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR, povrayexe));
 #endif
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
         lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
     } else {
@@ -2676,7 +2676,7 @@ void Preferences::rendererPreferences()
         logNotice() << qUtf8Printable(QObject::tr("LDGLite : %1 not installed").arg(ldgliteInfo.absoluteFilePath()));
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     emit Application::instance()->splashMsgSig(QObject::tr("25% - %1 macOS Required Library Check...").arg(VER_PRODUCTNAME_STR));
     MsgKey msgKey(ConfigurationErrors);
     MsgID msgID = MsgID(msgKey,"87918723 0");
@@ -2692,7 +2692,7 @@ void Preferences::rendererPreferences()
         ldviewExe = QDir::toNativeSeparators(ldviewInfo.absoluteFilePath());
         logInfo() << qUtf8Printable(QObject::tr("LDView  : %1").arg(ldviewExe));
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         // Check macOS LDView Libraries
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"))) {
             missingRendererLibs = true;
@@ -2785,7 +2785,7 @@ void Preferences::rendererPreferences()
         povrayExe = QDir::toNativeSeparators(povrayInfo.absoluteFilePath());
         logInfo() << qUtf8Printable(QObject::tr("POVRay  : %1").arg(povrayExe));
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         // Check POVRay libraries on macOS
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"))) {
             missingRendererLibs = true;
@@ -4239,7 +4239,7 @@ void Preferences::userInterfacePreferences()
       bool found = false;
       QString command = "which";
       QStringList arguments;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
       arguments << MACOS_SYS_EDITOR;
 #elif defined Q_OS_LINUX
       arguments << LINUX_SYS_EDITOR;
@@ -5385,7 +5385,7 @@ void Preferences::keyboardShortcutPreferences()
 
 bool Preferences::getPreferences()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
         Application::instance()->splash->hide();
 #endif
@@ -6664,7 +6664,7 @@ bool Preferences::getPreferences()
         returnResult = false;
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
         Application::instance()->splash->show();
 #endif
@@ -6897,7 +6897,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
 
 bool Preferences::extractLDrawLib() {
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
         Application::instance()->splash->show();
 #endif

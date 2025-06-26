@@ -163,7 +163,7 @@
 #define VER_LPUB3D_TENTE_CUSTOM_ARCHIVE     "tentecustomparts.zip"
 #define VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE     "vexiqcustomparts.zip"
 
-#if defined Q_OS_WIN || defined Q_OS_MAC
+#if defined Q_OS_WIN || defined Q_OS_MACOS
 #define VER_LEGO_LDRAWDIR_STR               "LDraw"
 #define VER_TENTE_LDRAWDIR_STR              "TENTEParts"
 #define VER_VEXIQ_LDRAWDIR_STR              "VEXIQParts"
@@ -230,7 +230,7 @@
 #define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"
 #define VER_BLENDER_ADDON_SHA_HASH_URL      VER_BLENDER_ADDON_URL ".sha256"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #define VER_HOMEBREW_PATH_PREFIX            "/usr/local/opt"
 #define VER_HOMEBREW_PATH_INSERT            "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin:"
 #endif

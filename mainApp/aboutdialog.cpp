@@ -305,7 +305,7 @@ QString AboutDialog::osName() const
     #endif
   #endif
 
-  #ifdef Q_OS_MAC
+  #ifdef Q_OS_MACOS
     #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
        switch(QSysInfo::MacintoshVersion)
        {
