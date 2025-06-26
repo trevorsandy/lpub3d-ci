@@ -23,7 +23,7 @@ CONFIG   += skip_target_version_ext
 
 # The ABI version.
 VER_MAJ = 1
-VER_MIN = 1
+VER_MIN = 4
 VER_PAT = 0
 VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
