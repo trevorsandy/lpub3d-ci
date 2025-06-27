@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include <QtOpenGL>
+#include <QPushButton>
 #ifdef Q_OS_WIN
 #include <tchar.h>
 #endif
@@ -23,12 +24,12 @@
 #endif
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
-#include "lc_global.h"
+//#include "lc_global.h"
 #include "declarations.h"
 #include "version.h"
 #include "lpub_preferences.h"
 #include "lpub_object.h"
-#include "qsimpleupdater.h"
+//#include "qsimpleupdater.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
@@ -121,8 +122,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                             QString::fromLatin1(VER_COMPILED_FOR),
                                             QString::fromLatin1(VER_COMPILED_WITH).replace("qtver",qVersion()),
                                             QString::fromLatin1(VER_IDE),
-                                            tr("%1 - Commit %2").arg(QString::fromLatin1(LC_VERSION_TEXT),
-                                                                     QString::fromLatin1(LC_VERSION_SHA)),
+                                            tr("%1 - Commit %2").arg(QString::fromLatin1(VER_LC_VERSION_TEXT),
+                                                                     QString::fromLatin1(VER_LC_VERSION_SHA)),
                                             QString::fromLatin1(VER_COMPILE_DATE_STR),
                                             QString::fromLatin1(VER_QT_URL));
 
