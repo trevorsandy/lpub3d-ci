@@ -230,6 +230,11 @@
 #define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"
 #define VER_BLENDER_ADDON_SHA_HASH_URL      VER_BLENDER_ADDON_URL ".sha256"
 
+// ~~~~~~ LeoCAD Version ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+#define VER_LC_VERSION_TEXT                 "23.03"
+#define VER_LC_VERSION_SHA                  "ed24c15"
+
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #ifdef __GNUC__
