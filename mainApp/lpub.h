@@ -1047,7 +1047,8 @@ public:
 
   bool deleteBuildMod(const QString &buildModKey = QString())
   {
-      return lpub->ldrawFile.deleteBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
+      const QString buildModLastKey = lpub->ldrawFile._buildModList.last();
+      return lpub->ldrawFile.deleteBuildMod(buildModKey.isEmpty() ? buildModLastKey : buildModKey);
   }
 
   void deleteBuildMods(const int &stepIndex)
