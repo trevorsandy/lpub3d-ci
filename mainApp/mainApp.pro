@@ -13,12 +13,12 @@ CONFIG  += exceptions
 CONFIG  += incremental
 
 lessThan(QT_MAJOR_VERSION, 5) {
-    error("$${TARGET} requires Qt5.4 or later.")
+    error("$${TARGET} requires Qt5.5 or later.")
 }
 
 equals(  QT_MAJOR_VERSION, 5): \
-lessThan(QT_MINOR_VERSION, 4) {
-    error("$${TARGET} requires Qt5.4 or later.")
+lessThan(QT_MINOR_VERSION, 5) {
+    error("$${TARGET} requires Qt5.5 or later.")
 }
 
 greaterThan(QT_MAJOR_VERSION, 5) {
