@@ -3159,17 +3159,11 @@ void MetaItem::updateText(
 {
     QString windowTitle = _isRichText ? QMessageBox::tr("Edit Rich Text") : QMessageBox::tr("Edit Plain Text");
 
-    bool stepOk      = true;
-    bool initialAdd  = true;
-    bool stepFound   = true;
-    QString text     = _text;
     QString placementStr;
-
-    if (!text.isEmpty()) {
-      initialAdd      = false;
-      QStringList pre = text.split("\\n");
-      text = pre.join(" ");
-    }
+    QString text     = _text;
+    bool initialAdd  = text.isEmpty();
+    bool stepOk      = true;
+    bool stepFound   = true;
 
     int thisStep          = 1;
     Where insertPosition  = here;
