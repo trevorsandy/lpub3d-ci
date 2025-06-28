@@ -277,6 +277,9 @@ void lcPropertiesWidget::FloatChanged()
 	lcCamera* Camera = dynamic_cast<lcCamera*>(mFocusObject);
 	lcLight* Light = dynamic_cast<lcLight*>(mFocusObject);
 	float Value = lcParseValueLocalized(Widget->text());
+/*** LPub3D Mod - Set default camera ***/
+	bool DefaultCamera = Camera && Camera->GetName().isEmpty();
+/*** LPub3D Mod end ***/
 
 	// todo: mouse drag
 
@@ -358,8 +361,8 @@ void lcPropertiesWidget::FloatChanged()
 
 		lcVector3 Distance = End - Start;
 
-/*** LPub3D Mod - Camera Globe, Set default camera ***/
-		if (Camera->GetName().isEmpty())
+/*** LPub3D Mod - Set default camera ***/
+		if (DefaultCamera)
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
@@ -402,8 +405,8 @@ void lcPropertiesWidget::FloatChanged()
 
 		lcVector3 Distance = End - Start;
 
-/*** LPub3D Mod - Camera Globe, Set default camera ***/
-		if (Camera->GetName().isEmpty())
+/*** LPub3D Mod - Set default camera ***/
+		if (DefaultCamera)
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
@@ -446,8 +449,8 @@ void lcPropertiesWidget::FloatChanged()
 
 		lcVector3 Distance = End - Start;
 
-/*** LPub3D Mod - Camera Globe, Set default camera ***/
-		if (Camera->GetName().isEmpty())
+/*** LPub3D Mod - Set default camera ***/
+		if (DefaultCamera)
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, true, true);
@@ -464,23 +467,27 @@ void lcPropertiesWidget::FloatChanged()
 	{
 		QStringList ValueList = QString(Widget->text()).trimmed().split(" ",SkipEmptyParts);
 		bool hasOther = ValueList.size() == 2;
-
 		float Value = lcParseValueLocalized(ValueList.first());
 		float OtherValue = hasOther ? lcParseValueLocalized(ValueList.last()) : 0.0f;
 
-		float Latitude, Longitude, Distance;
-		Camera->GetAngles(Latitude,Longitude,Distance);
-		if (PropertyId == lcObjectPropertyId::CameraLatitude) {
-			Latitude = Value;
-			if (hasOther)
-				Longitude = OtherValue;
-		} else if (PropertyId == lcObjectPropertyId::CameraLongitude) {
-			if (hasOther)
-				Latitude = OtherValue;
-			Longitude = Value;
-		}
+		if (Camera)
+		{
+			float Latitude, Longitude, Distance;
 
-		Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
+			Camera->GetAngles(Latitude, Longitude, Distance);
+
+			if (PropertyId == lcObjectPropertyId::CameraLatitude) {
+				Latitude = Value;
+				if (hasOther)
+					Longitude = OtherValue;
+			} else if (PropertyId == lcObjectPropertyId::CameraLongitude) {
+				if (hasOther)
+					Latitude = OtherValue;
+				Longitude = Value;
+			}
+
+			Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
+		}
 /*** LPub3D Mod end ***/
 	}
 	else if (Camera)
@@ -1134,9 +1141,9 @@ void lcPropertiesWidget::CreateWidgets()
 	AddFloatProperty(lcObjectPropertyId::CameraNear, tr("Near"), tr("Near clipping distance"), false, 0.001f, FLT_MAX);
 	AddFloatProperty(lcObjectPropertyId::CameraFar, tr("Far"), tr("Far clipping distance"), false, 0.001f, FLT_MAX);
 /*** LPub3D Mod - LPUB meta properties ***/
-	AddIntegerProperty(lcObjectPropertyId::CameraLatitude, tr("Latitude"), tr("Camera globe latitude in degrees"), true, -360, 360);
-	AddIntegerProperty(lcObjectPropertyId::CameraLongitude, tr("Longitude"), tr("Camera globe longitude in degrees"), true, -360, 360);
-	AddIntegerProperty(lcObjectPropertyId::CameraDistance, tr("Distance"), tr("Camera distance using LDraw units"), true, 1, INT_MAX);
+	AddFloatProperty(lcObjectPropertyId::CameraLatitude, tr("Latitude"), tr("Camera globe latitude in degrees"), true, -360.0f, 360.0f);
+	AddFloatProperty(lcObjectPropertyId::CameraLongitude, tr("Longitude"), tr("Camera globe longitude in degrees"), true, -360.0f, 360.0f);
+	AddFloatProperty(lcObjectPropertyId::CameraDistance, tr("Distance"), tr("Camera distance using LDraw units"), true, 1, FLT_MAX);
 /*** LPub3D Mod end ***/
 
 	AddSpacing();
@@ -1342,7 +1349,7 @@ void lcPropertiesWidget::SetPiece(const std::vector<lcObject*>& Selection, lcObj
 	mFocusObject = Piece;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	lcVector3 Position, SwitchPosition;
+	lcVector3 Position = lcVector3(0.0f, 0.0f, 0.0f), SwitchPosition;
 	lcMatrix33 RelativeRotation;
 	lcModel* Model = gMainWindow->GetActiveModel();
 
@@ -1485,11 +1492,6 @@ void lcPropertiesWidget::SetCamera(const std::vector<lcObject*>& Selection, lcOb
 	float Longitude = 0.0f;
 	float Distance = 0.0f;
 	float ImageScale = 0.0f;
-	int Resolution = 0;
-	int ImageWidth = 0;
-	int ImageHeight = 0;
-	int ImagePageWidth = 0;
-	int ImagePageHeight = 0;
 /*** LPub3D Mod end ***/
 
 	if (Camera)
@@ -1504,12 +1506,7 @@ void lcPropertiesWidget::SetCamera(const std::vector<lcObject*>& Selection, lcOb
 		ZFar = Camera->m_zFar;
 /*** LPub3D Mod - Camera Globe ***/
 		Camera->GetAngles(Latitude,Longitude,Distance);
-		ImageScale      = Camera->GetScale();
-		Resolution      = lcGetActiveProject()->GetResolution();
-		ImagePageWidth  = lcGetActiveProject()->GetPageWidth();
-		ImagePageHeight = lcGetActiveProject()->GetPageHeight();
-		ImageWidth      = lcGetActiveProject()->GetImageWidth();
-		ImageHeight     = lcGetActiveProject()->GetImageHeight();
+		ImageScale = Camera->GetScale();
  /*** LPub3D Mod end ***/
 	}
 
@@ -1540,11 +1537,11 @@ void lcPropertiesWidget::SetCamera(const std::vector<lcObject*>& Selection, lcOb
 
 /*** LPub3D Mod - LPUB meta properties ***/
 	UpdateFloat(lcObjectPropertyId::CameraImageScale, ImageScale);
-	UpdateFloat(lcObjectPropertyId::CameraImageResolution, Resolution);
-	UpdateFloat(lcObjectPropertyId::CameraImageWidth, ImageWidth);
-	UpdateFloat(lcObjectPropertyId::CameraImageHeight, ImageHeight);
-	UpdateFloat(lcObjectPropertyId::CameraImagePageWidth, ImagePageWidth);
-	UpdateFloat(lcObjectPropertyId::CameraImagePageHeight, ImagePageHeight);
+	UpdateInteger(lcObjectPropertyId::CameraImageResolution);
+	UpdateInteger(lcObjectPropertyId::CameraImageWidth);
+	UpdateInteger(lcObjectPropertyId::CameraImageHeight);
+	UpdateInteger(lcObjectPropertyId::CameraImagePageWidth);
+	UpdateInteger(lcObjectPropertyId::CameraImagePageHeight);
 
 	SetPropertyReadOnly(lcObjectPropertyId::CameraImageScale, true);
 	SetPropertyReadOnly(lcObjectPropertyId::CameraImageResolution, true);

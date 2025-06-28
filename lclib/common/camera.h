@@ -355,7 +355,7 @@ public:
 	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance);
 	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance, const lcVector3& Target);
 	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance, const lcVector3& Target, lcStep Step, bool AddKey);
-	float GetScale();
+	float GetScale() const;
 	float GetCDF() const;
 	float GetDDF() const;
 	float GetCDP() const;
