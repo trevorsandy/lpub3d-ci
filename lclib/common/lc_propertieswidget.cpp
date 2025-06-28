@@ -400,7 +400,7 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 
 /*** LPub3D Mod - Set default camera ***/
 		if (DefaultCamera)
-			Model->MoveDefaultCamera(Camera, Distance);
+			Model->MoveDefaultCamera(Camera, Distance, !Dragging);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, !Dragging, true);
 /*** LPub3D Mod end ***/
@@ -444,7 +444,7 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 
 /*** LPub3D Mod - Set default camera ***/
 		if (DefaultCamera)
-			Model->MoveDefaultCamera(Camera, Distance);
+			Model->MoveDefaultCamera(Camera, Distance, !Dragging);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, !Dragging, true);
 /*** LPub3D Mod end ***/
@@ -488,7 +488,7 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 
 /*** LPub3D Mod - Set default camera ***/
 		if (DefaultCamera)
-			Model->MoveDefaultCamera(Camera, Distance);
+			Model->MoveDefaultCamera(Camera, Distance, !Dragging);
 		else
 			Model->MoveSelectedObjects(Distance, false, false, true, !Dragging, true);
 /*** LPub3D Mod end ***/
@@ -513,7 +513,7 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 			else if (PropertyId == lcObjectPropertyId::CameraLongitude)
 				Longitude = Value;
 
-			Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
+			Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance, !Dragging);
 		}
 /*** LPub3D Mod end ***/
 	}

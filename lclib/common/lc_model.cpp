@@ -2813,7 +2813,7 @@ void lcModel::DeleteAllCameras()
 }
 
 /*** LPub3D Mod - Camera Globe ***/
-void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance)
+void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance, bool Checkpoint)
 {
 	if (ObjectDistance.LengthSquared() >= 0.001f)
 	{
@@ -2823,8 +2823,11 @@ void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistanc
 		Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
 		Camera->UpdatePosition(mCurrentStep);
 
+		if (Checkpoint)
+			SaveCheckpoint(tr("Moving Default Camera"));
+
 		UpdateAllViews();
-		SaveCheckpoint(tr("Moving Default Camera"));
+
 		gMainWindow->UpdateDefaultCameraProperties();
 	}
 }
@@ -3860,7 +3863,7 @@ void lcModel::SetCameraZFar(lcCamera* Camera, float ZFar, bool Checkpoint)
 }
 
 /*** LPub3D Mod - Camera Globe ***/
-void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance)
+void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance, bool Checkpoint)
 {
 	auto notEqual = [] (const float v1, const float v2)
 	{
@@ -3874,7 +3877,8 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 		notEqual(_Longitude, Longitude))
 	{
 		Camera->SetAngles(Latitude, Longitude, Distance, Camera->mTargetPosition, mCurrentStep, false);
-		SaveCheckpoint(tr("Update Camera Globe"));
+		if (Checkpoint)
+			SaveCheckpoint(tr("Changing Camera Globe"));
 		UpdateAllViews();
 	}
 }

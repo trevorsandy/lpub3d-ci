@@ -424,8 +424,8 @@ public:
 	void ZoomExtents(lcCamera* Camera, float Aspect, const lcMatrix44& WorldMatrix);
 	void Zoom(lcCamera* Camera, float Amount);
 /*** LPub3D Mod - Camera Globe ***/
-	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
-	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
+	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance, bool Checkpoint);
+	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance, bool Checkpoint);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
