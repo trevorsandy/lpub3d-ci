@@ -726,12 +726,19 @@ QVariant lcCamera::GetPropertyValue(lcObjectPropertyId PropertyId) const
 	case lcObjectPropertyId::CameraUpY:
 	case lcObjectPropertyId::CameraUpZ:
 /*** LPub3D Mod - LPUB meta properties ***/
+
 	case lcObjectPropertyId::CameraImageScale:
+		break;
 	case lcObjectPropertyId::CameraImageResolution:
+		return static_cast<int>(lcGetActiveProject()->GetResolution());
 	case lcObjectPropertyId::CameraImageWidth:
+		return static_cast<int>(lcGetActiveProject()->GetImageWidth());
 	case lcObjectPropertyId::CameraImageHeight:
+		return static_cast<int>(lcGetActiveProject()->GetImageHeight());
 	case lcObjectPropertyId::CameraImagePageWidth:
+		return static_cast<int>(lcGetActiveProject()->GetPageWidth());
 	case lcObjectPropertyId::CameraImagePageHeight:
+		return static_cast<int>(lcGetActiveProject()->GetPageHeight());
 /*** LPub3D Mod end ***/
 	case lcObjectPropertyId::LightName:
 	case lcObjectPropertyId::LightType:
@@ -1488,9 +1495,8 @@ void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const fl
 		TargetPosition = Target;
 		const lcVector3 Direction = TargetPosition - Position;
 		lcVector3 SideVector = lcCross(Direction, UpVector);
-		lcVector3 UpVector = lcCross(SideVector, Direction);
+		UpVector = lcCross(SideVector, Direction);
 		UpVector.Normalize();
-		UpVector = UpVector;
 	}
 
 	mPosition.ChangeKey(Position, Step, AddKey);
@@ -1527,7 +1533,7 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 }
 
 /*** LPub3D Mod - Camera Globe ***/
-float lcCamera::GetScale()
+float lcCamera::GetScale() const
 {
 	return 1 / (lcLength(mPosition) / GetCDF()) ;
 }
