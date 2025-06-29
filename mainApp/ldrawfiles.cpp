@@ -2387,8 +2387,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 #ifdef QT_DEBUG_MODE
     if (!stagedSubfiles.size())
         emit gui->messageSig(LOG_DEBUG, QString("All '%1' staged subfiles processed.").arg(subfileName));
-
+#if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
     QMultiHashIterator<QString, int> i(_ldcadGroups);
+#else
+    QHashIterator<QString, int> i(_ldcadGroups);
+#endif
     while (i.hasNext()) {
         i.next();
         emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
@@ -2959,7 +2962,11 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         if (!stagedSubfiles.size())
             emit gui->messageSig(LOG_DEBUG, QString("All '%1' staged subfiles processed.").arg(subfileName));
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
         QMultiHashIterator<QString, int> i(_ldcadGroups);
+#else
+        QHashIterator<QString, int> i(_ldcadGroups);
+#endif
         while (i.hasNext()) {
             i.next();
             emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
