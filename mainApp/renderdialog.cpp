@@ -157,7 +157,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
 
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
-        if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
+        if (!QDir(QString("%1/addons/%2").arg(blenderDir, BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
             blenderConfigured = false;
             Preferences::setBlenderImportModule(QString());
         }
@@ -175,7 +175,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         if (mImportOnly) {
             labelMessage = tr("Open%1 in Blender using %2")
-                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
+                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
 
             ui->InputLabel->setMinimumWidth(0);
             ui->InputBrowseButton->setMinimumWidth(0);
