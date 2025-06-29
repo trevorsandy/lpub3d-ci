@@ -473,7 +473,6 @@ void CommandsDialog::snippetFilterEditChanged()
   if (snippetFilterEdit->pattern() == RegExp::FixedString) {
     snippetsProxyTableModel->setFilterFixedString(snippetsText);
   } else {
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     const QString snippetsPattern = snippetFilterEdit->pattern() == RegExp::Wildcard
                                     ? QRegularExpression::wildcardToRegularExpression(snippetsText)
                                     : snippetsText;
@@ -482,11 +481,6 @@ void CommandsDialog::snippetFilterEditChanged()
                                     : QRegularExpression::CaseInsensitiveOption;
     QRegularExpression snippetsRxFilter = QRegularExpression(snippetsPattern, snippetsPatternOption);
     snippetsProxyTableModel->setFilterRegularExpression(snippetsRxFilter);
-#else
-    QRegExp::PatternSyntax snippetsRxPatternSyntax = snippetsWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
-    QRegExp snippetsRxFilter = QRegExp(snippetsFilter, snippetFilterEdit->caseSensitivity(), snippetsRxPatternSyntax);
-    snippetsProxyTableModel->setFilterRegExp(snippetsRxFilter);
-#endif
   }
 }
 
