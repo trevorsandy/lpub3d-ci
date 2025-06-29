@@ -1078,7 +1078,7 @@ QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
         QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(mcFileName);
         if (it != _subFiles.end()) {
             if (it.value()._unofficialPart == UNOFFICIAL_SUBMODEL && !it.value()._generated) {
-                const QList _sfIndexes = it.value()._subFileIndexes;
+                const QVector<int> _sfIndexes = it.value()._subFileIndexes;
                 for(int i : _sfIndexes) {
                     if (!indexes.contains(i) && !parsedIndexes.contains(i))
                         indexes << i;
@@ -4283,7 +4283,7 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   insertBuildModStep(modKey, stepIndex, BuildModApplyRc);
 
   // Set submodelStack items modified if exists
-  const QList msmStack = modSubmodelStack;
+  const QVector<int> msmStack = modSubmodelStack;
   if (msmStack.size()) {
       buildMod._modSubmodelStack = modSubmodelStack;
       for (int modelIndex : msmStack)
@@ -4896,7 +4896,7 @@ int LDrawFile::setBuildModAction(
 
         QString modFileName = getBuildModStepKeyModelName(modKey);
         setModified(modFileName, true);
-        const QList _smStack = i.value()._modSubmodelStack;
+        const QVector<int> _smStack = i.value()._modSubmodelStack;
         for (const int modelIndex : _smStack)
             setModified(getSubmodelName(modelIndex), true);
 
@@ -5493,7 +5493,7 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
 
       setModified(getSubmodelName(viewerStepKey.modelIndex), true);
       if (i.value()._modSubmodelStack.size()) {
-        const QList _smStack = i.value()._modSubmodelStack;
+        const QVector<int> _smStack = i.value()._modSubmodelStack;
         for (int index : _smStack)
           setModified(getSubmodelName(index), true);
       }
