@@ -1,4 +1,4 @@
-LPub3D 2.4.9.92.4373 (22 03 2025 16:50:00)
+LPub3D 2.4.9.271.4552 (29 06 2025 14:35:50)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Feature - Upgrade development platform to Qt 6.9 #820
 - Enhancement - Inconsistency with parts list shape inputs #805
 - Enhancement - Set annotation style attributes from context menu action #812
 - Enhancement - Update LDView renderer to version 4.6 #815
