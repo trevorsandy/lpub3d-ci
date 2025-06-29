@@ -325,7 +325,7 @@ bool TextEditDialog::getText(
 
     bool ok =  false;
 
-    connect(lpub->textEdit, &QDialog::finished, [&](int r) { ok = r; loop.exit(); });
+    connect(tedit, &QDialog::finished, tedit, [&](int r) { ok = r; loop.exit(); });
 
     tedit->open();
 
@@ -390,7 +390,7 @@ bool TextEditDialog::getText(
 
     bool ok = false;
 
-    connect(lpub->textEdit, &QDialog::finished, [&](int r) { ok = r; loop.exit(); });
+    connect(tedit, &QDialog::finished, tedit, [&](int r) { ok = r; loop.exit(); });
 
     tedit->open();
 
