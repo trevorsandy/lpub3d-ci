@@ -1234,9 +1234,9 @@ void PartWorker::insert(
         const bool          &unOff) {
 
     bool partErased = false;
-    QMap<QString, ColourPart>::const_iterator i = _colourParts.constFind(fileNameStr.toLower());
+    QMap<QString, ColourPart>::iterator i = _colourParts.find(fileNameStr.toLower());
 
-    if (i != _colourParts.constEnd()) {
+    if (i != _colourParts.end()) {
         _colourParts.erase(i);
         partErased = true;
 //        emit gui->messageSig(LOG_NOTICE,tr("PART ALREADY IN LIST - PART ERASED %1, UnOff Lib: %2").arg(i.value()._fileNameStr).arg(i.value()._unOff));
@@ -1278,9 +1278,9 @@ QStringList PartWorker::contents(const QString &fileNameStr) {
 
 void PartWorker::remove(const QString &fileNameStr)
 {
-  QMap<QString, ColourPart>::const_iterator i = _colourParts.constFind(fileNameStr.toLower());
+  QMap<QString, ColourPart>::iterator i = _colourParts.find(fileNameStr.toLower());
 
-  if (i != _colourParts.constEnd()) {
+  if (i != _colourParts.end()) {
 
     _colourParts.erase(i);
     _partList.removeAll(fileNameStr.toLower());
@@ -1857,9 +1857,9 @@ void ColourPartListWorker::insert(
 
     bool partErased = false;
 
-    QMap<QString, ColourPart>::const_iterator i = _colourParts.constFind(fileNameStr.toLower());
+    QMap<QString, ColourPart>::iterator i = _colourParts.find(fileNameStr.toLower());
 
-    if (i != _colourParts.constEnd()) {
+    if (i != _colourParts.end()) {
         _colourParts.erase(i);
         partErased = true;
 //        qDebug() << "PART ALREADY IN LIST - PART ERASED" << i.value()._fileNameStr << ", UnOff Lib:" << i.value()._unOff;
@@ -1884,9 +1884,9 @@ bool ColourPartListWorker::partAlreadyInList(const QString &fileNameStr)
 
 void ColourPartListWorker::remove(const QString &fileNameStr)
 {
-    QMap<QString, ColourPart>::const_iterator i = _colourParts.constFind(fileNameStr.toLower());
+    QMap<QString, ColourPart>::iterator i = _colourParts.find(fileNameStr.toLower());
 
-    if (i != _colourParts.constEnd()) {
+    if (i != _colourParts.end()) {
         _colourParts.erase(i);
         _partList.removeAll(fileNameStr.toLower());
 //        gui->messageSig(LOG_NOTICE,tr("REMOVE COLOUR PART: %1 from contents and _partList").arg(fileNameStr.toLower()));
