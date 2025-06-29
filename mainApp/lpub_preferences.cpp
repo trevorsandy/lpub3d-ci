@@ -3481,7 +3481,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
 #if defined Q_OS_WIN
                                                  .arg("%USERPROFILE%",
 #else
-                                                     "$USER",
+                                                 .arg("$USER",
 #endif
                                                       QDir::toNativeSeparators(QDir::homePath()));
                 QString workingdirComment = QString("The working directory (e.g. %1) is where %2-Trace is called from.")
