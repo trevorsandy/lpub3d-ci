@@ -431,8 +431,8 @@ void LDrawFile::insert(const QString &mcFileName,
                       const QString  &description)
 {
   QString    fileName = mcFileName.toLower();
-  QMap<QString, LDrawSubFile>::const_iterator i = _subFiles.constFind(fileName);
-  if (i != _subFiles.constEnd()) {
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
     _subFiles.erase(i);
   }
   const QString modelDesc = description.isEmpty() ? QFileInfo(mcFileName).baseName() : description;
@@ -467,9 +467,9 @@ void LDrawFile::insertConfiguredSubFile(const QString &mcFileName,
                                         const QString  &subFilePath)
 {
   QString    fileName = mcFileName.toLower();
-  QMap<QString, ConfiguredSubFile>::const_iterator i = _configuredSubFiles.constFind(fileName);
+  QMap<QString, ConfiguredSubFile>::iterator i = _configuredSubFiles.find(fileName);
 
-  if (i != _configuredSubFiles.constEnd()) {
+  if (i != _configuredSubFiles.end()) {
     _configuredSubFiles.erase(i);
   }
   ConfiguredSubFile subFile(contents,subFilePath);
@@ -4157,8 +4157,8 @@ bool LDrawFile::saveDatafile(const QString &fileName, const QByteArray &dataFile
 void LDrawFile::insertMissingItem(const QStringList &item)
 {
     QString const type = item.at(0).toLower();
-    QMap<QString, MissingItem>::const_iterator i = _missingItems.constFind(type);
-    if (i != _missingItems.constEnd())
+    QMap<QString, MissingItem>::iterator i = _missingItems.find(type);
+    if (i != _missingItems.end())
       _missingItems.erase(i);
     MissingItem missingItem(type, item.at(1));
     _missingItems.insert(type, missingItem);
@@ -4176,8 +4176,8 @@ bool LDrawFile::isMissingItem(const QString &fileName)
 void LDrawFile::removeMissingItem(const QString &fileName)
 {
     QString const type = fileName.toLower();
-    QMap<QString, MissingItem>::const_iterator i = _missingItems.constFind(type);
-    if (i != _missingItems.constEnd())
+    QMap<QString, MissingItem>::iterator i = _missingItems.find(type);
+    if (i != _missingItems.end())
         _missingItems.erase(i);
 }
 
@@ -4233,8 +4233,8 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   QVector<int>  modSubmodelStack;
   QMap<int,int> modActions;
   QVector<int>  newAttributes;
-  QMap<QString, BuildMod>::const_iterator i = _buildMods.constFind(modKey);
-  if (i != _buildMods.constEnd()) {
+  QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+  if (i != _buildMods.end()) {
     // Preserve actions
     modActions = i.value()._modActions;
 
@@ -4242,8 +4242,8 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
     modSubmodelStack = i.value()._modSubmodelStack;
 
     // Remove action for specified stepIndex
-    QMap<int,int>::const_iterator a = modActions.constFind(stepIndex);
-    if (a != modActions.constEnd())
+    QMap<int,int>::iterator a = modActions.find(stepIndex);
+    if (a != modActions.end())
         modActions.erase(a);
 
     // Update attributes
@@ -4308,8 +4308,8 @@ void LDrawFile::insertBuildModStep(const QString &buildModKey,
     bool modBegin = false;
     QString modKey = buildModKey.toLower();
     BuildModStep newModStep(stepIndex, modAction ? modAction : getBuildModAction(modKey, stepIndex), modKey);
-    QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.constFind(stepIndex);
-    while (i != _buildModSteps.constEnd() && i.key() == stepIndex) {
+    QMultiMap<int, BuildModStep>::iterator i = _buildModSteps.find(stepIndex);
+    while (i != _buildModSteps.end() && i.key() == stepIndex) {
         if (i.value()._buildModKey == modKey) {
             modBegin = getBuildModStepIndex(i.value()._buildModKey) == stepIndex;
             if (modBegin)
@@ -4444,8 +4444,8 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
 {
     bool modBegin = false;
     QString modKey = buildModKey.toLower();
-    QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.constFind(stepIndex);
-    while (i != _buildModSteps.constEnd() && i.key() == stepIndex) {
+    QMultiMap<int, BuildModStep>::iterator i = _buildModSteps.find(stepIndex);
+    while (i != _buildModSteps.end() && i.key() == stepIndex) {
         if (i.value()._buildModStepIndex == stepIndex &&
             i.value()._buildModKey == modKey) {
             modBegin = getBuildModStepIndex(i.value()._buildModKey) == stepIndex;
@@ -4508,8 +4508,8 @@ void LDrawFile::clearBuildModSteps(const QString &buildModKey)
 bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 {
     QString modKey = buildModKey.toLower();
-    QMap<QString, BuildMod>::const_iterator i = _buildMods.constFind(modKey);
-    if (i != _buildMods.constEnd()) {
+    QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+    if (i != _buildMods.end()) {
         _buildMods.erase(i);
         if (_buildModList.contains(buildModKey, Qt::CaseInsensitive)) {
             static QRegularExpression buildModKeyRx(buildModKey, QRegularExpression::CaseInsensitiveOption);
@@ -5604,8 +5604,8 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
                                  bool               calledOut,
                                  int                viewType)
 {
-  QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constFind(stepKey);
-  if (i != _viewerSteps.constEnd()) {
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
+  if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
 
@@ -5839,8 +5839,8 @@ bool LDrawFile::viewerStepContentExist(const QString &stepKey)
 
 bool LDrawFile::deleteViewerStep(const QString &stepKey)
 {
-    QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constFind(stepKey);
-    if (i != _viewerSteps.constEnd()) {
+    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
+    if (i != _viewerSteps.end()) {
         _viewerSteps.erase(i);
         return true;
     }
