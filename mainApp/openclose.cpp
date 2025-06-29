@@ -147,6 +147,7 @@ void Gui::comboFilterTextChanged(const QString& Text)
         if (gui->comboPattern() == RegExp::FixedString) {
             gui->mComboFilterModel->setFilterFixedString(comboText);
         } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
             const QString comboPattern = gui->comboPattern() == RegExp::Wildcard
                                          ? QRegularExpression::wildcardToRegularExpression(comboText)
                                          : comboText;
@@ -155,6 +156,12 @@ void Gui::comboFilterTextChanged(const QString& Text)
                                                                    : QRegularExpression::CaseInsensitiveOption;
             QRegularExpression comboRxFilter(comboPattern, comboPatternOption);
             gui->mComboFilterModel->setFilterRegularExpression(comboRxFilter);
+#else
+            bool comboWildcardFilter = this->comboPattern() == RegExp::Wildcard;
+            QRegExp::PatternSyntax comboRxPatternSyntax = comboWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+            QRegExp comboRxFilter = QRegExp(comboText, this->comboCaseSensitivity(), comboRxPatternSyntax);
+            mComboFilterModel->setFilterRegExp(comboRxFilter);
+#endif
         }
     }
 }
