@@ -326,6 +326,7 @@ void CommandsDialog::commandFilterEditChanged()
   if (commandFilterEdit->pattern() == RegExp::FixedString) {
     commandsProxyTableModel->setFilterFixedString(commandsText);
   } else {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     const QString commandsPattern = commandFilterEdit->pattern() == RegExp::Wildcard
                                     ? QRegularExpression::wildcardToRegularExpression(commandsText)
                                     : commandsText;
@@ -334,6 +335,12 @@ void CommandsDialog::commandFilterEditChanged()
                                     : QRegularExpression::CaseInsensitiveOption;
     QRegularExpression commandsRxFilter(commandsPattern, commandsPatternOption);
     commandsProxyTableModel->setFilterRegularExpression(commandsRxFilter);
+#else
+    bool commandsWildcardFilter = commandFilterEdit->pattern() == RegExp::Wildcard;
+    QRegExp::PatternSyntax commandsRxPatternSyntax = commandsWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+    QRegExp commandsRxFilter = QRegExp(commandsText, snippetFilterEdit->caseSensitivity(), commandsRxPatternSyntax);
+    commandsProxyTableModel->setFilterRegExp(commandsRxFilter);
+#endif
   }
 }
 
@@ -473,6 +480,7 @@ void CommandsDialog::snippetFilterEditChanged()
   if (snippetFilterEdit->pattern() == RegExp::FixedString) {
     snippetsProxyTableModel->setFilterFixedString(snippetsText);
   } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     const QString snippetsPattern = snippetFilterEdit->pattern() == RegExp::Wildcard
                                     ? QRegularExpression::wildcardToRegularExpression(snippetsText)
                                     : snippetsText;
@@ -481,6 +489,12 @@ void CommandsDialog::snippetFilterEditChanged()
                                     : QRegularExpression::CaseInsensitiveOption;
     QRegularExpression snippetsRxFilter = QRegularExpression(snippetsPattern, snippetsPatternOption);
     snippetsProxyTableModel->setFilterRegularExpression(snippetsRxFilter);
+#else
+    bool snippetsWildcardFilter = commandFilterEdit->pattern() == RegExp::Wildcard;
+    QRegExp::PatternSyntax snippetsRxPatternSyntax = snippetsWildcardFilter ? QRegExp::Wildcard : QRegExp::RegExp2;
+    QRegExp snippetsRxFilter = QRegExp(snippetsText, snippetFilterEdit->caseSensitivity(), snippetsRxPatternSyntax);
+    snippetsProxyTableModel->setFilterRegExp(snippetsRxFilter);
+#endif
   }
 }
 
