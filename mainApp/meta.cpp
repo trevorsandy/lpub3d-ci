@@ -4957,7 +4957,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
 
 QString SubMeta::format(bool local, bool global)
 {
-  // Thi routine is acutally not used.
+  // This routine is acutally not used.
   // Substitute commands are formatted by MetaItem::substitutePLIPart
   QStringList _attributeList = _value.attrs.split(";");
 
@@ -4971,55 +4971,55 @@ QString SubMeta::format(bool local, bool global)
             .arg(_value.part, _value.color);
   } else if (_value.type == PliBeginSub3Rc) {
     foo = QString("%1 %2 %3")
-            .arg(_value.part, _value.color,
-                 _attributeList[sModelScale]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale]);
   } else if (_value.type == PliBeginSub4Rc) {
     foo = QString("%1 %2 %3 %4")
-            .arg(_value.part, _value.color,
-                 _attributeList[sModelScale],
-                 _attributeList[sCameraFoV]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV]);
   } else if (_value.type == PliBeginSub5Rc) {
     foo = QString("%1 %2 %3 %4 %5 %6")
-            .arg(_value.part, _value.color,
-                 _attributeList[sModelScale],
-                 _attributeList[sCameraFoV],
-                 _attributeList[sCameraAngleXX],
-                 _attributeList[sCameraAngleYY]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY]);
   } else if (_value.type == PliBeginSub6Rc) {
     foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9")
-            .arg(_value.part, _value.color,
-                 _attributeList[sModelScale],
-                 _attributeList[sCameraFoV],
-                 _attributeList[sCameraAngleXX],
-                 _attributeList[sCameraAngleYY],
-                 _attributeList[sTargetX],
-                 _attributeList[sTargetY],
-                 _attributeList[sTargetZ]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY])
+            .arg(_attributeList[sTargetX])
+            .arg(_attributeList[sTargetY])
+            .arg(_attributeList[sTargetZ]);
   } else if (_value.type == PliBeginSub7Rc) {
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
-            .arg(_value.part, _value.color,
-                 _attributeList[sModelScale],
-                 _attributeList[sCameraFoV],
-                 _attributeList[sCameraAngleXX],
-                 _attributeList[sCameraAngleYY],
-                 _attributeList[sRotX],
-                 _attributeList[sRotY],
-                 _attributeList[sRotZ],
-                 _attributeList[sTransform]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY])
+            .arg(_attributeList[sRotX])
+            .arg(_attributeList[sRotY])
+            .arg(_attributeList[sRotZ])
+            .arg(_attributeList[sTransform]);
   } else { /*PliBeginSub8Rc */
     foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13")
-            .arg(_value.part, _value.color,
-                 _attributeList[sModelScale],
-                 _attributeList[sCameraFoV],
-                 _attributeList[sCameraAngleXX],
-                 _attributeList[sCameraAngleYY],
-                 _attributeList[sTargetX],
-                 _attributeList[sTargetY],
-                 _attributeList[sTargetZ],
-                 _attributeList[sRotX],
-                 _attributeList[sRotY],
-                 _attributeList[sRotZ],
-                 _attributeList[sTransform]);
+            .arg(_value.part, _value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY])
+            .arg(_attributeList[sTargetX])
+            .arg(_attributeList[sTargetY])
+            .arg(_attributeList[sTargetZ])
+            .arg(_attributeList[sRotX])
+            .arg(_attributeList[sRotY])
+            .arg(_attributeList[sRotZ])
+            .arg(_attributeList[sTransform]);
   }
 
   if (_value.ldrawType) {
