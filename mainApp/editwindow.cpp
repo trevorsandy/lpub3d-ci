@@ -1076,7 +1076,7 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
         if (currentStep && currentStep->viewerStepKey.startsWith(stepKey))
 #else
-        if (currentStep && currentStep->viewerStepKey.startsWith(*stepKey))
+        if (currentStep && currentStep->viewerStepKey.startsWith(&stepKey))
 #endif
             return EXISTING_CURRENT_STEP;
 
