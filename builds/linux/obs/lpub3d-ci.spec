@@ -92,30 +92,18 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-%if ( 0%{?centos_version}<=600 || 0%{?rhel_version}>=600 || 0%{?scientificlinux_version}>=600 )
-%define build_qt5 0
-%else
-BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
-%endif
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version}
+BuildRequires: qt6-qtbase-devel, qt6-qttools-devel
 BuildRequires: hostname
 BuildRequires: gcc-c++, make
-%if 0%{?buildservice}!=1
 BuildRequires: git
-%endif
-%if 0%{?fedora}==26
-%define build_osmesa 1
-%endif
 %if 0%{?fedora_version}>30
 BuildRequires: libXext-devel
-%if 0%{?fedora_version}==37
-BuildRequires: libverto-libevent
-%endif
 %endif
 %endif
 
 %if 0%{?suse_version}
-BuildRequires: libqt5-qtbase-devel
+BuildRequires: libqt6-qtbase-devel
 BuildRequires: update-desktop-files hostname
 BuildRequires: zlib-devel
 %if 0%{?buildservice}
@@ -124,16 +112,7 @@ BuildRequires: -post-build-checks
 %endif
 
 %if 0%{?mageia}
-BuildRequires: qtbase5-devel, qttools5
-%ifarch x86_64
-%if 0%{?buildservice}
-BuildRequires: lib64sane1, lib64proxy-webkit
-%endif
-%else
-%if 0%{?buildservice}
-BuildRequires: libsane1, libproxy-webkit
-%endif
-%endif
+BuildRequires: qtbase6-devel, qttools6
 %endif
 
 # configuration settings
@@ -149,7 +128,7 @@ BuildRequires: libsane1, libproxy-webkit
  LeoCAD© 2022 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- Copyright © 2015 - 2022 Trevor SANDY
+ Copyright © 2015 - 2025 Trevor SANDY
 
 %prep
 set +x
@@ -237,13 +216,7 @@ export PLATFORM_VER=%{fedora}
 export LPUB3D=%{name}
 export RPM_BUILD=true
 export LDRAWDIR=${HOME}/ldraw
-# set Qt5
-export QT_SELECT=qt5
 # 3rd-party renderers build-from-source requirements
-%if 0%{?build_osmesa}
-echo "Build OSMesa from source.......yes"
-export build_osmesa="%{build_osmesa}"
-%endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../)
 %if 0%{?buildservice}
@@ -256,14 +229,14 @@ export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"; \
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"; \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # Qt setup
-if which qmake-qt5 >/dev/null 2>/dev/null ; then
-  QMAKE_EXEC=qmake-qt5
-else
+if which qmake6 >/dev/null 2>&1; then
+  QMAKE_EXEC=qmake6
+elif which qmake >/dev/null 2>&1; then
   QMAKE_EXEC=qmake
 fi
 echo && ${QMAKE_EXEC} -v && echo
 # configure and build LPub3d
-${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+${QMAKE_EXEC} -makefile -nocache CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d LPub3D.pro
 make clean
 make %{?_smp_mflags}
 # check lpub3d dependencies

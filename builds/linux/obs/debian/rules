@@ -1,13 +1,13 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update: June 05, 2025
+# Last Update: July 30, 2025
 # Copyright (C) 2017 - 2025 Trevor SANDY
 
 # output every command that modifies files on the build system.
 export DH_VERBOSE=1
 
-# use Qt5
-export QT_SELECT=qt5
+# use Qt5 if Qt6 qmake6 not found
+export QT_SELECT := $(shell [ $$(which qmake6) ] && echo qt6 || echo qt5)
 
 # get include-binaries path prefix
 export BINARY_FILE_PATH := $(shell readlink -e ../)
@@ -34,7 +34,7 @@ LP3D_VER_SUFFIX := $(shell cat builds/utilities/version.info | cut -d " " -f 1-2
 LP3D_RELEASE_DIR := $(shell [ ${TARGET_CPU} = amd64 ] || [ ${TARGET_CPU} = x86_64 ] || [ ${TARGET_CPU} = aarch64 ] || [ ${TARGET_CPU} = arm64 ] && echo '64bit_release' || echo '32bit_release')
 
 # set QMake flags
-LP3D_MAKE_FLAGS := $(shell [ $$(which qmake) ] && echo "LDRAWDIR=${HOME}/ldraw CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb" || :)
+LP3D_MAKE_FLAGS := $(shell echo "LDRAWDIR=${HOME}/ldraw CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb")
 
 # get lpub3d executable path
 LP3D_VALID_EXE := $(shell echo "mainApp/${LP3D_RELEASE_DIR}/lpub3d${LP3D_VER_SUFFIX}")
@@ -111,8 +111,19 @@ override_dh_auto_configure:
     export LP3D_3RD_DIST_DIR=$${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}; export build_tinyxml=1; \
     export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]) && echo 1 || :); \
     chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-	# evaluate QMake
-	if which qmake >/dev/null 2>/dev/null ; then \
+	# evaluate and setup QMake
+	if which qmake6 >/dev/null 2>/dev/null; then \
+        ln -s `which qmake6` ./qmake; \
+        export PATH=`pwd`:$(PATH); \
+        qmake -v; \
+        ! test `which qtchooser` && echo "ERROR - could not configure qtchooser for ${QT_SELECT}"; \
+        [ `which qtchooser` ] && [ ! -f "/usr/share/qtchooser/qt6.conf" ] && \
+        (echo "Configure qtchooser for ${QT_SELECT}" && \
+         qtchooser -install qt6 `which qmake6` && \
+         sudo mv ~/.config/qtchooser/qt6.conf /usr/share/qtchooser/qt6.conf && \
+         sudo mkdir -p /usr/lib/`uname -p`-linux-gnu/qt-default/qtchooser && \
+         sudo ln -n /usr/share/qtchooser/qt6.conf /usr/lib/`uname -p`-linux-gnu/qt-default/qtchooser/default.conf) || :; \
+    elif which qmake >/dev/null 2>/dev/null; then \
         qmake -v; \
     else \
         echo "ERROR - qmake not found"; \
@@ -135,3 +146,9 @@ override_dh_shlibdeps:
 # strip non-deterministic information such as timestamps and filesystem ordering
 override_dh_strip_nondeterminism:
 	# Do nothing
+
+# remove linked Qt6 qmake if exist
+override_dh_auto_clean:
+	[ -f qmake ] && \
+    $(RM) qmake || :
+	dh_auto_clean
