@@ -82,7 +82,6 @@
       <param name="archive">*.tar</param>
       <param name="files">*/mainApp/resources/lpub3d.xpm
                           */builds/linux/obs/lpub3d-ci-rpmlintrc
-                          */builds/linux/obs/alldeps/appimage.yml
                           */builds/linux/obs/alldeps/debian/lpub3d-ci.dsc
                           */builds/linux/obs/alldeps/lpub3d-ci.spec
                           */builds/linux/obs/alldeps/PKGBUILD
@@ -111,40 +110,10 @@
     <param name="filename">povray.tar.gz</param>
   </service>
   <service name="download_url">
-    <param name="protocol">https</param>
-    <param name="host">github.com</param>
-    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/qt5-5.9.3-gcc_64-el.tar.gz</param>
-    <param name="filename">qt5-5.9.3-gcc_64-el.tar.gz</param>
-  </service>
-  <service name="download_url">
-    <param name="protocol">https</param>
-    <param name="host">github.com</param>
-    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/locallibs.el.x86_64.tar.gz</param>
-    <param name="filename">locallibs.el.x86_64.tar.gz</param>
-  </service>
-  <service name="download_url">
-   <param name="protocol">https</param>
-   <param name="host">github.com</param>
-   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-17.2.6.tar.gz</param>
-   <param name="filename">mesa-17.2.6.tar.gz</param>
-  </service>
-  <service name="download_url">
-   <param name="protocol">https</param>
-   <param name="host">github.com</param>
-   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.5.tar.gz</param>
-   <param name="filename">mesa-18.3.5.tar.gz</param>
-  </service>
-  <service name="download_url">
    <param name="protocol">https</param>
    <param name="host">github.com</param>
    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-21.3.9.tar.xz</param>
    <param name="filename">mesa-21.3.9.tar.xz</param>
-  </service>
-  <service name="download_url">
-   <param name="protocol">https</param>
-   <param name="host">github.com</param>
-   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-9.0.0.tar.bz2</param>
-   <param name="filename">glu-9.0.0.tar.bz2</param>
   </service>
   <service name="download_url">
    <param name="protocol">https</param>
