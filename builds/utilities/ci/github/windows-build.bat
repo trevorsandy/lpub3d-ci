@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 01, 2025
+rem  Last Update: July 06, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -17,10 +17,13 @@ rem .\builds\utilities\ci\github\windows-build.bat
 
 SET GITHUB=True
 SET GITHUB_CONFIG=release
-SET BUILD_ARCH=-all_amd
 SET BUILD_OPT=default
+SET LP3D_BUILD_ARCH=%LP3D_BUILD%
 SET UPDATE_LDRAW_LIBS=False
 SET LP3D_VSVERSION=2022
+SET LP3D_QT32VCVERSION=2019
+SET LP3D_QT64VCVERSION=2022
+SET LP3D_CREATE_EXE_PKG=True
 SET LP3D_3RD_DIST_DIR=lpub3d_windows_3rdparty
 SET LP3D_DIST_DIR_PATH=%LP3D_3RD_PARTY_PATH%\windows
 SET LP3D_LDRAW_DIR_PATH=%LP3D_3RD_PARTY_PATH%\ldraw
@@ -158,12 +161,13 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "RELEASE_BUILD" >NUL && (
 ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (
   ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
     ECHO - Build option verify ^(x86 architecture only^) detected.
-    SET BUILD_ARCH=x86
+    IF "%LP3D_BUILD_ARCH%" EQU "" SET LP3D_BUILD_ARCH=x86
+    SET LP3D_CREATE_EXE_PKG=False
     SET BUILD_OPT=verify
   )
 )
 
-SET LP3D_BUILD_COMMAND=%BUILD_ARCH% -3rd -ins -chk
+SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% -3rd -ins -chk
 
 ECHO - Commit message: %LP3D_COMMIT_MSG%
 ECHO - Build command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
@@ -171,12 +175,11 @@ ECHO - Build command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
 CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% 2>&1 || GOTO :ERROR_END
 IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
 
-IF "%BUILD_ARCH%" EQU "-all" (
+IF "%LP3D_CREATE_EXE_PKG%" EQU "True" (
   CALL builds\windows\CreateExePkg.bat 2>&1 || GOTO :ERROR_END
   IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
+  CALL :GENERATE_HASH_FILES
 )
-
-CALL :GENERATE_HASH_FILES
 
 GOTO :END
 
@@ -229,7 +232,12 @@ EXIT /b
 ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
   SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_ALL
 )
-SET BUILD_ARCH=-all
+IF "%LP3D_BUILD_ARCH%" EQU "" SET LP3D_BUILD_ARCH=-all_amd
+IF "%LP3D_BUILD_ARCH%" NEQ "-all_amd" (
+  IF "%LP3D_BUILD_ARCH%" NEQ "arm64" (
+    SET LP3D_CREATE_EXE_PKG=False
+  ) 
+)
 EXIT /b
 
 :SET_BUILD_ALL_RENDERERS

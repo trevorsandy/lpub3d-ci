@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 01, 2025
+rem  Last Update: July 17, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -67,88 +67,6 @@ IF "%LP3D_INSTALL_PKG_ONLY%" == "1" (
   SET LP3D_COMMIT_MSG=Create installation packages only
 )
 
-IF "%BUILD_WORKER%" EQU "True" (
-  IF "%LP3D_DIST_DIR_PATH%" == "" (
-    ECHO.
-    ECHO  -ERROR - Distribution directory path not defined.
-    GOTO :ERROR_END
-  )
-  IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
-    SET CI=True
-    SET BUILD_WORKER_JOB=Local %BUILD_WORKER_ID% CI Build
-  ) ELSE (
-    :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
-    IF "%GITHUB%" EQU "True" (
-      SET CONFIG_CI=github_ci_win
-    )
-    IF "%LP3D_CONDA_BUILD%" EQU "True" (
-	  :: Using default 'DD/MM/YYYY' date format for 'BUILD_OPT=local' build
-	  IF "%BUILD_OPT%" EQU "default" (
-        SET CONFIG_CI=azure_ci_win
-	  )
-    )
-  )
-  SET ABS_WD=%BUILD_WORKSPACE%
-  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
-  SET CONFIGURATION=%BUILD_WORKER_CONFIG%
-  SET LDRAW_INSTALL_ROOT=%LP3D_3RD_PARTY_PATH%
-  SET LDRAW_LIBS=%LP3D_3RD_PARTY_PATH%
-  SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
-  SET LP3D_UPDATE_LDRAW_LIBS=%UPDATE_LDRAW_LIBS%
-  IF "%LP3D_QT32_MSVC%" == "" (
-    SET LP3D_QT32_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
-  )
-  IF "%LP3D_QT64_MSVC%" == "" (
-    SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
-  )
-)
-
-IF "%APPVEYOR%" EQU "True" (
-  IF "%LP3D_DIST_DIR_PATH%" == "" (
-    ECHO.
-    ECHO  -ERROR - Distribution directory path not defined.
-    GOTO :ERROR_END
-  )
-  IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
-    SET CI=True
-    SET APPVEYOR_BUILD_ID=Local CI Build
-  ) ELSE (
-    :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
-    SET CONFIG_CI=appveyor_ci_win
-  )
-  SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
-  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
-  SET CONFIGURATION=%configuration%
-  SET APPVEYOR_BUILD_WORKER_IMAGE=Visual Studio %LP3D_VSVERSION%
-  SET LDRAW_INSTALL_ROOT=%APPVEYOR_BUILD_FOLDER%
-  SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
-  SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
-  SET LP3D_UPDATE_LDRAW_LIBS=%LP3D_UPDATE_LDRAW_LIBS_VAR%
-  IF "%LP3D_QT32_MSVC%" == "" (
-    SET LP3D_QT32_MSVC=C:\Qt\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
-  )
-  IF "%LP3D_QT64_MSVC%" == "" (
-    SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
-  )
-)
-
-IF "%BUILD_WORKER%" NEQ "True" (
-  IF "%APPVEYOR%" NEQ "True" (
-    CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
-    SET CONFIGURATION=release
-    SET LDRAW_INSTALL_ROOT=%USERPROFILE%
-    SET LDRAW_LIBS=%USERPROFILE%
-    SET LDRAW_DIR=%USERPROFILE%\LDraw
-    IF "%LP3D_QT32_MSVC%" == "" (
-      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
-    )
-    IF "%LP3D_QT64_MSVC%" == "" (
-      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
-    )
-    SET LP3D_UPDATE_LDRAW_LIBS=unknown
-  )
-)
-
 IF "%LP3D_CONDA_BUILD%" NEQ "True" (
   IF EXIST "C:\Program Files\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build" (
     SET LP3D_VCVARSALL_DIR=C:\Program Files\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build
@@ -180,17 +98,29 @@ IF NOT EXIST "%ABS_WD%\mainApp" (
   GOTO :ERROR_END
 )
 
+rem https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
 rem https://en.wikipedia.org/wiki/Microsoft_Visual_C++
 rem Visual C++ 2012 -vcvars_ver=11.0 Toolset v110 VSVersion 11.0    _MSC_VER 1700
 rem Visual C++ 2013 -vcvars_ver=12.0 Toolset v120 VSVersion 12.0    _MSC_VER 1800
 rem Visual C++ 2015 -vcvars_ver=14.0 Toolset v140 VSVersion 14.0    _MSC_VER 1900
 rem Visual C++ 2017 -vcvars_ver=14.1 Toolset v141 VSVersion 15.9    _MSC_VER 1916
 rem Visual C++ 2019 -vcvars_ver=14.2 Toolset v142 VSVersion 16.11.3 _MSC_VER 1929
-rem Visual C++ 2022 -vcvars_ver=14.4 Toolset v143 VSVersion 17.11.3 _MSC_VER 1941
-IF "%LP3D_MSC_VER%" == "" SET LP3D_MSC_VER=1941
-IF "%LP3D_VCSDKVER%" == "" SET LP3D_VCSDKVER=8.1
-IF "%LP3D_VCTOOLSET%" == "" SET LP3D_VCTOOLSET=v141
-IF "%LP3D_VCVARSALL_VER%" == "" SET LP3D_VCVARSALL_VER=-vcvars_ver=14.1
+rem Visual C++ 2022 -vcvars_ver=14.4 Toolset v143 VSVersion 17.14.0 _MSC_VER 1944
+IF "%LP3D_MSC32_VER%" == "" SET LP3D_MSC32_VER=1941
+IF "%LP3D_VC32SDKVER%" == "" SET LP3D_VC32SDKVER=8.1
+IF "%LP3D_VC32TOOLSET%" == "" SET LP3D_VC32TOOLSET=v141
+IF "%LP3D_VC32VARSALL_VER%" == "" SET LP3D_VC32VARSALL_VER=-vcvars_ver=14.1
+
+IF "%LP3D_MSC64_VER%" == "" SET LP3D_MSC64_VER=1944
+IF "%LP3D_VC64SDKVER%" == "" SET LP3D_VC64SDKVER=10.0
+IF "%LP3D_VC64TOOLSET%" == "" SET LP3D_VC64TOOLSET=v143
+IF "%LP3D_VC64VARSALL_VER%" == "" SET LP3D_VC64VARSALL_VER=-vcvars_ver=14.4
+
+IF "%LP3D_MSCARM64_VER%" == "" SET LP3D_MSCARM64_VER=1944
+IF "%LP3D_VCARM64SDKVER%" == "" SET LP3D_VCARM64SDKVER=10.0
+IF "%LP3D_VCARM64TOOLSET%" == "" SET LP3D_VCARM64TOOLSET=v143
+IF "%LP3D_VCARM64VARSALL_VER%" == "" SET LP3D_VCARM64VARSALL_VER=-vcvars_ver=14.4
+
 IF "%LP3D_VALID_7ZIP%" =="" SET LP3D_VALID_7ZIP=0
 
 IF "%LP3D_SYS_DIR%" == "" (
@@ -230,8 +160,10 @@ rem Verify 1st input flag options
 IF NOT [%1]==[] (
   IF NOT "%1"=="x86" (
     IF NOT "%1"=="x86_64" (
-      IF NOT "%1"=="-all_amd" (
-        IF NOT "%1"=="-help" GOTO :PLATFORM_ERROR
+      IF NOT "%1"=="arm64" (
+        IF NOT "%1"=="-all_amd" (
+          IF NOT "%1"=="-help" GOTO :PLATFORM_ERROR
+        )
       )
     )
   )
@@ -254,6 +186,12 @@ IF /I "%1"=="x86" (
 IF /I "%1"=="x86_64" (
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM_ARCH=x86_64
+  GOTO :SET_CONFIGURATION
+)
+
+IF /I "%1"=="arm64" (
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
+  SET PLATFORM_ARCH=ARM64
   GOTO :SET_CONFIGURATION
 )
 
@@ -316,6 +254,94 @@ IF NOT [%4]==[] (
         )
       )
     )
+  )
+)
+
+rem setup library options
+IF %PLATFORM_ARCH%==ARM64 (
+  SET LP3D_QTARCH=%PLATFORM_ARCH%
+) ELSE (
+  SET LP3D_QTARCH=64
+)
+IF "%BUILD_WORKER%" EQU "True" (
+  IF "%LP3D_DIST_DIR_PATH%" == "" (
+    ECHO.
+    ECHO  -ERROR - Distribution directory path not defined.
+    GOTO :ERROR_END
+  )
+  IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+    SET CI=True
+    SET BUILD_WORKER_JOB=Local %BUILD_WORKER_ID% CI Build
+  ) ELSE (
+    :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
+    IF "%GITHUB%" EQU "True" (
+      SET CONFIG_CI=github_ci_win
+    )
+    IF "%LP3D_CONDA_BUILD%" EQU "True" (
+	  :: Using default 'DD/MM/YYYY' date format for 'BUILD_OPT=local' build
+	  IF "%BUILD_OPT%" EQU "default" (
+        SET CONFIG_CI=azure_ci_win
+	  )
+    )
+  )
+  SET ABS_WD=%BUILD_WORKSPACE%
+  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
+  SET CONFIGURATION=%BUILD_WORKER_CONFIG%
+  SET LDRAW_INSTALL_ROOT=%LP3D_3RD_PARTY_PATH%
+  SET LDRAW_LIBS=%LP3D_3RD_PARTY_PATH%
+  SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
+  SET LP3D_UPDATE_LDRAW_LIBS=%UPDATE_LDRAW_LIBS%
+  IF "%LP3D_QT32_MSVC%" == "" (
+    SET LP3D_QT32_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
+  )
+  IF "%LP3D_QT64_MSVC%" == "" (
+    SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_%LP3D_QTARCH%\bin
+  )
+)
+
+IF "%APPVEYOR%" EQU "True" (
+  IF "%LP3D_DIST_DIR_PATH%" == "" (
+    ECHO.
+    ECHO  -ERROR - Distribution directory path not defined.
+    GOTO :ERROR_END
+  )
+  IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+    SET CI=True
+    SET APPVEYOR_BUILD_ID=Local CI Build
+  ) ELSE (
+    :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
+    SET CONFIG_CI=appveyor_ci_win
+  )
+  SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
+  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
+  SET CONFIGURATION=%configuration%
+  SET APPVEYOR_BUILD_WORKER_IMAGE=Visual Studio %LP3D_VSVERSION%
+  SET LDRAW_INSTALL_ROOT=%APPVEYOR_BUILD_FOLDER%
+  SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
+  SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
+  SET LP3D_UPDATE_LDRAW_LIBS=%LP3D_UPDATE_LDRAW_LIBS_VAR%
+  IF "%LP3D_QT32_MSVC%" == "" (
+    SET LP3D_QT32_MSVC=C:\Qt\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
+  )
+  IF "%LP3D_QT64_MSVC%" == "" (
+    SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_%LP3D_QTARCH%\bin
+  )
+)
+
+IF "%BUILD_WORKER%" NEQ "True" (
+  IF "%APPVEYOR%" NEQ "True" (
+    CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
+    SET CONFIGURATION=release
+    SET LDRAW_INSTALL_ROOT=%USERPROFILE%
+    SET LDRAW_LIBS=%USERPROFILE%
+    SET LDRAW_DIR=%USERPROFILE%\LDraw
+    IF "%LP3D_QT32_MSVC%" == "" (
+      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
+    )
+    IF "%LP3D_QT64_MSVC%" == "" (
+      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_%LP3D_QTARCH%\bin
+    )
+    SET LP3D_UPDATE_LDRAW_LIBS=unknown
   )
 )
 
@@ -456,10 +482,10 @@ IF /I %CHECK%==1 (
 rem set debug suffix
 IF NOT [%CONFIGURATION%]==[] (
   IF "%CONFIGURATION%"=="release" (
-    SET "d="
+    SET d=
   )
   IF "%CONFIGURATION%"=="debug" (
-    SET "d=d"
+    SET d=d
   )
 )
 
@@ -468,22 +494,32 @@ SET platform_build_start=%time%
 rem stop here if only running settings for CreateExePkg.bat
 IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
   ECHO.
-  ECHO -Package %PACKAGE% x86_64 and x86 distributions...
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET EXE_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
   SET EXE_TARGET_DIR=builds\windows\%CONFIGURATION%\!EXE_PRODUCT_DIR!
-  SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86_64\%PACKAGE%%d%.exe
-  IF NOT EXIST "!EXE!" (
-    ECHO.
-    ECHO -ERROR - !EXE! was not found. Cannot create install package.
-    GOTO :ERROR_END
-  )
-  SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86\%PACKAGE%%d%.exe
-  IF NOT EXIST "!EXE!" (
-    ECHO.
-    ECHO -ERROR - !EXE! was not found. Cannot create install package.
-    GOTO :ERROR_END
-  )
+  IF %PLATFORM_ARCH%==ARM64 (
+    ECHO -Package %PACKAGE% ARM64 distribution...
+    SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_ARM64\%PACKAGE%%d%.exe
+    IF NOT EXIST "!EXE!" (
+      ECHO.
+      ECHO -ERROR - !EXE! was not found. Cannot create install package.
+      GOTO :ERROR_END
+    )
+  ) ELSE (
+    ECHO -Package %PACKAGE% x86_64 and x86 distributions...
+    SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86_64\%PACKAGE%%d%.exe
+    IF NOT EXIST "!EXE!" (
+      ECHO.
+      ECHO -ERROR - !EXE! was not found. Cannot create install package.
+      GOTO :ERROR_END
+    )
+    SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86\%PACKAGE%%d%.exe
+    IF NOT EXIST "!EXE!" (
+      ECHO.
+      ECHO -ERROR - !EXE! was not found. Cannot create install package.
+      GOTO :ERROR_END
+    )
+  )  
   rem Perform build check if specified
   IF %CHECK%==1 (CALL :BUILD_CHECK x86) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
   ENDLOCAL
@@ -523,6 +559,7 @@ nmake.exe %LPUB3D_MAKE_ARGS%
 rem Check build status
 IF %PLATFORM_ARCH%==x86 (SET EXE=mainApp\32bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
 IF %PLATFORM_ARCH%==x86_64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
+IF %PLATFORM_ARCH%==ARM64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
 IF NOT EXIST "%EXE%" (
   ECHO.
   ECHO -ERROR - %EXE% was not successfully built.
@@ -591,7 +628,12 @@ GOTO :END
 :BUILD_RENDERERS
 rem Check if build all platforms
 IF /I "%PLATFORM_ARCH%"=="-all_amd" (
-  GOTO :BUILD_ALL_AMD_RENDERERS
+  SET ALL_RENDERERS=x86, x86_64
+  GOTO :BUILD_ALL_RENDERERS
+)
+IF /I "%PLATFORM_ARCH%"=="ARM64" (
+  SET ALL_RENDERERS=ARM64
+  GOTO :BUILD_ALL_RENDERERS
 )
 
 rem Configure buid arguments and set environment variables
@@ -607,8 +649,8 @@ ECHO -----------------------------------------------------
 ECHO.
 GOTO :END
 
-:BUILD_ALL_AMD_RENDERERS
-FOR %%P IN ( x86, x86_64 ) DO (
+:BUILD_ALL_RENDERERS
+FOR %%P IN ( %ALL_RENDERERS% ) DO (
   SET PLATFORM_ARCH=%%P
   rem Configure build arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
@@ -629,38 +671,51 @@ ECHO.
 ECHO -Set MSBuild platform toolset...
 IF %PLATFORM_ARCH%==x86_64 (
   IF "%LP3D_CONDA_BUILD%" NEQ "True" (
-    SET LP3D_MSC_VER=1941
-    SET LP3D_VCSDKVER=10.0
-    SET LP3D_VCTOOLSET=v143
-    SET LP3D_VCVARSALL_VER=-vcvars_ver=14.4
+    SET LP3D_MSC_VER=1944
+    SET LP3D_VCSDKVER=%LP3D_VC64SDKVER%
+    SET LP3D_VCTOOLSET=%LP3D_VC64TOOLSET%
+    SET LP3D_VCVARSALL_VER%LP3D_VC64VARSALL_VER%
   )
 ) ELSE (
-  SET LP3D_VCSDKVER=8.1
-  SET LP3D_VCTOOLSET=v141
-  SET LP3D_VCVARSALL_VER=-vcvars_ver=14.1
+  IF %PLATFORM_ARCH%==ARM64 (
+    SET LP3D_MSC_VER=%LP3D_MSCARM64_VER%
+    SET LP3D_VCSDKVER=%LP3D_VCARM64SDKVER%
+    SET LP3D_VCTOOLSET=%LP3D_VCARM64TOOLSET%
+    SET LP3D_VCVARSALL_VER=%LP3D_VCARM64VARSALL_VER%
+  ) ELSE (
+    SET LP3D_MSC_VER=%LP3D_MSC32_VER%
+    SET LP3D_VCSDKVER=%LP3D_VC32SDKVER%
+    SET LP3D_VCTOOLSET=%LP3D_VC32TOOLSET%
+    SET LP3D_VCVARSALL_VER=%LP3D_VC32VARSALL_VER%
+  )
 )
 ECHO.
 ECHO   PLATFORM_ARCHITECTURE..........[%PLATFORM_ARCH%]
-ECHO   MSVS_VERSION...................[%LP3D_VSVERSION%]
-IF "%PLATFORM_ARCH%"=="-all_amd" (
-  ECHO   MSVC_QT32_VERSION..............[%LP3D_QT32VCVERSION%]
-  ECHO   MSVC_QT64_VERSION..............[%LP3D_QT64VCVERSION%]
+ECHO   MSVS_VERSION...........[%LP3D_VSVERSION%]
+IF %PLATFORM_ARCH%==-all_amd (
+  ECHO   MSVC_QT32_VERSION......[%LP3D_QT32VCVERSION%]
+  ECHO   MSVC_QT64_VERSION......[%LP3D_QT64VCVERSION%]
 ) ELSE (
   IF %PLATFORM_ARCH%==x86 (
-    ECHO   MSVC_QT32_VERSION..............[%LP3D_QT32VCVERSION%]
+    ECHO   MSVC_QT32_VERSION......[%LP3D_QT32VCVERSION%]
   )
   IF %PLATFORM_ARCH%==x86_64 (
-    ECHO   MSVC_QT64_VERSION..............[%LP3D_QT64VCVERSION%]
+    ECHO   MSVC_QT64_VERSION......[%LP3D_QT64VCVERSION%]
+  )
+  IF %PLATFORM_ARCH%==ARM64 (
+    ECHO   MSVC_QT64_VERSION......[%LP3D_QT64VCVERSION%]
   )
 )
-ECHO   MSVC_SDK_VERSION...............[%LP3D_VCSDKVER%]
-ECHO   MSVC_TOOLSET...................[%LP3D_VCTOOLSET%]
+ECHO   MSVC_MSC_VERSION.......[%LP3D_MSC_VER%]
+ECHO   MSVC_SDK_VERSION.......[%LP3D_VCSDKVER%]
+ECHO   MSVC_TOOLSET...........[%LP3D_VCTOOLSET%]
 IF "%LP3D_CONDA_BUILD%" NEQ "True" (
-  IF %PLATFORM_ARCH%==x86 (ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%])
+  IF %PLATFORM_ARCH%==x86 (ECHO   LP3D_QT32_MSVC.........[%LP3D_QT32_MSVC%])
 )
-IF %PLATFORM_ARCH%==x86_64 (ECHO   LP3D_QT64_MSVC.................[%LP3D_QT64_MSVC%])
-ECHO   MSVC_VCVARSALL_VER.............[%LP3D_VCVARSALL_VER%]
-ECHO   MSVC_VCVARSALL_DIR.............[%LP3D_VCVARSALL_DIR%]
+IF %PLATFORM_ARCH%==x86_64 (ECHO   LP3D_QT64_MSVC.........[%LP3D_QT64_MSVC%])
+IF %PLATFORM_ARCH%==ARM64 (ECHO   LP3D_QT64_MSVC.........[%LP3D_QT64_MSVC%])
+ECHO   MSVC_VCVARSALL_VER.....[%LP3D_VCVARSALL_VER%]
+ECHO   MSVC_VCVARSALL_DIR.....[%LP3D_VCVARSALL_DIR%]
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
@@ -753,6 +808,12 @@ IF "%BUILD_WORKER%" NEQ "True" (
   )
 )
 
+IF %PLATFORM_ARCH% EQU x86_64 (
+  SET LP3D_VCVARS=vcvars64.bat
+)
+IF %PLATFORM_ARCH% EQU ARM64 (
+  SET LP3D_VCVARS=vcvarsamd64_arm64.bat
+)
 rem Set vcvars for AppVeyor or local build environments
 IF "%LP3D_CONDA_BUILD%" NEQ "True" (
   IF %PLATFORM_ARCH% EQU x86 (
@@ -775,8 +836,8 @@ IF "%LP3D_CONDA_BUILD%" NEQ "True" (
     ) ELSE (
       SET "PATH=%LP3D_QT64_MSVC%;%PATH%"
     )
-    IF EXIST "%LP3D_VCVARSALL_DIR%\vcvars64.bat" (
-      CALL "%LP3D_VCVARSALL_DIR%\vcvars64.bat" %LP3D_VCVARSALL_VER%
+    IF EXIST "%LP3D_VCVARSALL_DIR%\%LP3D_VCVARS%" (
+      CALL "%LP3D_VCVARSALL_DIR%\%LP3D_VCVARS%" %LP3D_VCVARSALL_VER%
     ) ELSE (
       ECHO -ERROR - vcvars64.bat not found.
       GOTO :ERROR_END
@@ -1245,7 +1306,7 @@ EXIT /b
 ECHO.
 CALL :USAGE
 ECHO.
-ECHO -01. (FLAG ERROR) Platform or usage flag is invalid. Use x86, x86_64 or -all_amd [%~nx0 %*].
+ECHO -01. (FLAG ERROR) Platform or usage flag is invalid. Use x86, x86_64, arm64 or -all_amd [%~nx0 %*].
 ECHO      See Usage.
 GOTO :ERROR_END
 
@@ -1279,48 +1340,50 @@ ECHO.
 ECHO %PACKAGE% Windows auto build script.
 ECHO.
 ECHO NOTE: To successfully run all options of this script locally,
-ECHO you must have both Win32 and Win64 Qt for MSVC. Qt for MSVC 2019
-ECHO supports both 32 and 64bit so this version is a convenient choice.
+ECHO you must have Win32, Win64 and ARM64 Qt. Qt5.15.2 MSVC 2019
+ECHO supports 32bit AMD and Qt6.2 MSVC 2022 supports both 64bit AMD
+ECHO and ARM64 so these versions are a convenient choice.
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
 ECHO  build [ -help]
-ECHO  build [ x86 ^| x86_64 ^| -all_amd ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -asl  ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ] [ -chk ^| -asl ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ]
+ECHO  build [ x86 ^| x86_64 ^| arm64 ^| -all_amd ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -asl  ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ] [ -chk ^| -asl ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ]
 ECHO.
 ECHO ----------------------------------------------------------------
-ECHO Build 64bit, Release and perform build check
+ECHO Build AMD 64bit, Release and perform build check
 ECHO build x86_64 -chk
 ECHO.
-ECHO Build 64bit, Release and perform install and build check
-ECHO build x86_64 -ins -chk
+ECHO Build ARM 64bit, Release and perform install and build check
+ECHO build arm64 -ins -chk
 ECHO.
-ECHO Build 32bit, Release and perform build check
+ECHO Build AMD 32bit, Release and perform build check
 ECHO build x86 -chk
 ECHO.
-ECHO Build 64bit and 32bit, 3rdParty renderers
+ECHO Build AMD 64bit and 32bit, 3rdParty renderers
 ECHO build -all_amd -ren
 ECHO.
-ECHO Build 64bit and 32bit, Release and perform build check
+ECHO Build AMD 64bit and 32bit, Release and perform build check
 ECHO build -all_amd -ren
 ECHO.
-ECHO Build 64bit and 32bit, Release, perform install and build check
+ECHO Build AMD 64bit and 32bit, Release, perform install and build check
 ECHO build -all_amd -ins -chk
 ECHO.
-ECHO Build 64bit and 32bit, Release, build 3rd party renderers, perform install and build check
+ECHO Build AMD 64bit and 32bit, Release, build 3rd party renderers, perform install and build check
 ECHO build -all_amd -ins -chk
 ECHO.
 ECHO Commands:
 ECHO ----------------------------------------------------------------
-ECHO [PowerShell]: cmd.exe /c builds\windows\AutoBuild.cmd [Flags]
-ECHO [cmd.exe]   : builds\windows\AutoBuild.cmd [Flags]
+ECHO [PowerShell]: cmd.exe /c builds\windows\AutoBuild.bat [Flags]
+ECHO [cmd.exe]   : builds\windows\AutoBuild.bat [Flags]
 ECHO.
 ECHO Flags:
 ECHO ----------------------------------------------------------------
 ECHO ^| Flag     ^| Pos  ^| Type              ^| Description
 ECHO ----------------------------------------------------------------
 ECHO  -help.......1........Useage flag         [Default=Off] Display useage.
-ECHO  x86.........1........Platform flag       [Default=Off] Build 32bit platform.
-ECHO  x86_64......1........Platform flag       [Default=Off] Build 64bit platform.
+ECHO  x86.........1........Platform flag       [Default=Off] Build AMD 32bit platform.
+ECHO  x86_64......1........Platform flag       [Default=Off] Build AMD 64bit platform.
+ECHO  arm64.......1........Platform flag       [Default=Off] Build ARM 64bit platform.
 ECHO  -all_amd....1........Configuraiton flag  [Default=On ] Build both AMD 32bit and 64bit PLATFORM_ARCHs - Requries Qt libraries for both PLATFORMs.
 ECHO  -3rd..........2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
 ECHO  -ren..........2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
@@ -1335,7 +1398,7 @@ ECHO  -vexiq..........3,4..Project flag        [Default=Off] Force update VEXiQ 
 ECHO.
 ECHO Be sure the set your LDraw directory in the variables section above if you expect to use the '-chk' option.
 ECHO.
-ECHO Flags are case sensitive, use lowere case.
+ECHO Flags are case insensitive; however, it better to use lowere case.
 ECHO.
 ECHO If no flag is supplied, 64bit platform, Release Configuration built by default.
 ECHO ----------------------------------------------------------------
