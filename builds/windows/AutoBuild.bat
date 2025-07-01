@@ -230,7 +230,7 @@ rem Verify 1st input flag options
 IF NOT [%1]==[] (
   IF NOT "%1"=="x86" (
     IF NOT "%1"=="x86_64" (
-      IF NOT "%1"=="-all" (
+      IF NOT "%1"=="-all_amd" (
         IF NOT "%1"=="-help" GOTO :PLATFORM_ERROR
       )
     )
@@ -241,7 +241,7 @@ rem Parse platform input flags
 IF [%1]==[] (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
-  SET PLATFORM_ARCH=-all
+  SET PLATFORM_ARCH=-all_amd
   GOTO :SET_CONFIGURATION
 )
 
@@ -257,10 +257,10 @@ IF /I "%1"=="x86_64" (
   GOTO :SET_CONFIGURATION
 )
 
-IF /I "%1"=="-all" (
+IF /I "%1"=="-all_amd" (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
-  SET PLATFORM_ARCH=-all
+  SET PLATFORM_ARCH=-all_amd
   GOTO :SET_CONFIGURATION
 )
 
@@ -496,8 +496,8 @@ IF /I "%RENDERERS_ONLY%"=="1" (
 )
 
 rem Check if build all platforms
-IF /I "%PLATFORM_ARCH%"=="-all" (
-  GOTO :BUILD_ALL
+IF /I "%PLATFORM_ARCH%"=="-all_amd" (
+  GOTO :BUILD_ALL_AMD
 )
 
 rem If build Win32, set to vs2017 for WinXP compat
@@ -551,7 +551,7 @@ IF ERRORLEVEL 0 (
 )
 GOTO :END
 
-:BUILD_ALL
+:BUILD_ALL_AMD
 rem Launch qmake/make across all platform builds
 ECHO.
 ECHO -Build LPub3D x86 and x86_64 platforms...
@@ -590,8 +590,8 @@ GOTO :END
 
 :BUILD_RENDERERS
 rem Check if build all platforms
-IF /I "%PLATFORM_ARCH%"=="-all" (
-  GOTO :BUILD_ALL_RENDERERS
+IF /I "%PLATFORM_ARCH%"=="-all_amd" (
+  GOTO :BUILD_ALL_AMD_RENDERERS
 )
 
 rem Configure buid arguments and set environment variables
@@ -607,7 +607,7 @@ ECHO -----------------------------------------------------
 ECHO.
 GOTO :END
 
-:BUILD_ALL_RENDERERS
+:BUILD_ALL_AMD_RENDERERS
 FOR %%P IN ( x86, x86_64 ) DO (
   SET PLATFORM_ARCH=%%P
   rem Configure build arguments and set environment variables
@@ -642,7 +642,7 @@ IF %PLATFORM_ARCH%==x86_64 (
 ECHO.
 ECHO   PLATFORM_ARCHITECTURE..........[%PLATFORM_ARCH%]
 ECHO   MSVS_VERSION...................[%LP3D_VSVERSION%]
-IF "%PLATFORM_ARCH%"=="-all" (
+IF "%PLATFORM_ARCH%"=="-all_amd" (
   ECHO   MSVC_QT32_VERSION..............[%LP3D_QT32VCVERSION%]
   ECHO   MSVC_QT64_VERSION..............[%LP3D_QT64VCVERSION%]
 ) ELSE (
@@ -1245,7 +1245,7 @@ EXIT /b
 ECHO.
 CALL :USAGE
 ECHO.
-ECHO -01. (FLAG ERROR) Platform or usage flag is invalid. Use x86, x86_64 or -all [%~nx0 %*].
+ECHO -01. (FLAG ERROR) Platform or usage flag is invalid. Use x86, x86_64 or -all_amd [%~nx0 %*].
 ECHO      See Usage.
 GOTO :ERROR_END
 
@@ -1279,13 +1279,13 @@ ECHO.
 ECHO %PACKAGE% Windows auto build script.
 ECHO.
 ECHO NOTE: To successfully run all options of this script locally,
-ECHO you must have both Win32 and Win64 Qt for MSVC. Qt for MSVC 2015
+ECHO you must have both Win32 and Win64 Qt for MSVC. Qt for MSVC 2019
 ECHO supports both 32 and 64bit so this version is a convenient choice.
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
 ECHO  build [ -help]
-ECHO  build [ x86 ^| x86_64 ^| -all ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -asl  ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ] [ -chk ^| -asl ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ]
+ECHO  build [ x86 ^| x86_64 ^| -all_amd ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -asl  ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ] [ -chk ^| -asl ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ]
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Build 64bit, Release and perform build check
@@ -1298,16 +1298,16 @@ ECHO Build 32bit, Release and perform build check
 ECHO build x86 -chk
 ECHO.
 ECHO Build 64bit and 32bit, 3rdParty renderers
-ECHO build -all -ren
+ECHO build -all_amd -ren
 ECHO.
 ECHO Build 64bit and 32bit, Release and perform build check
-ECHO build -all -ren
+ECHO build -all_amd -ren
 ECHO.
 ECHO Build 64bit and 32bit, Release, perform install and build check
-ECHO build -all -ins -chk
+ECHO build -all_amd -ins -chk
 ECHO.
 ECHO Build 64bit and 32bit, Release, build 3rd party renderers, perform install and build check
-ECHO build -all -ins -chk
+ECHO build -all_amd -ins -chk
 ECHO.
 ECHO Commands:
 ECHO ----------------------------------------------------------------
@@ -1321,7 +1321,7 @@ ECHO ----------------------------------------------------------------
 ECHO  -help.......1........Useage flag         [Default=Off] Display useage.
 ECHO  x86.........1........Platform flag       [Default=Off] Build 32bit platform.
 ECHO  x86_64......1........Platform flag       [Default=Off] Build 64bit platform.
-ECHO  -all........1........Configuraiton flag  [Default=On ] Build both 32bit and 64bit PLATFORM_ARCHs - Requries Qt libraries for both PLATFORMs.
+ECHO  -all_amd....1........Configuraiton flag  [Default=On ] Build both AMD 32bit and 64bit PLATFORM_ARCHs - Requries Qt libraries for both PLATFORMs.
 ECHO  -3rd..........2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
 ECHO  -ren..........2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
 ECHO  -ins..........2,3....Project flag        [Default=Off] Install LPub3D distribution and 3rd party artefacts to 'product' folder
