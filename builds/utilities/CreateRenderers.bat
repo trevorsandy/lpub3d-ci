@@ -54,28 +54,6 @@ IF "%APPVEYOR%"=="True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 )
-IF "%BUILD_WORKER%" NEQ "True" (
-  IF "%APPVEYOR%" NEQ "True" (
-    IF [%DIST_DIR%] == [] (
-      CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
-      ECHO.
-      SETLOCAL ENABLEDELAYEDEXPANSION
-      ECHO  -WARNING: Distribution not found. Using [!DIST_DIR!].
-      ENDLOCAL
-    )
-    SET BUILD_OUTPUT_PATH=%ABS_WD%
-    SET LDRAW_DIR=%USERPROFILE%\LDraw
-    IF "%LP3D_QT32_MSVC%"=="" (
-      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
-    )
-    IF "%LP3D_QT64_MSVC%"=="" (
-      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
-    )
-    IF "%LP3D_WIN_GIT%"=="" (
-      SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
-    )
-  )
-)
 IF "%LP3D_SYS_DIR%"=="" (
   SET LP3D_SYS_DIR=%SystemRoot%\System32
 )
@@ -96,9 +74,32 @@ rem Check if invalid platform flag
 IF NOT [%1]==[] (
   IF NOT "%1"=="x86" (
     IF NOT "%1"=="x86_64" (
-      IF NOT "%1"=="-all" (
+      IF NOT "%1"=="-all_amd" (
         IF NOT "%1"=="-help" GOTO :COMMAND_ERROR
       )
+    )
+  )
+)
+
+IF "%BUILD_WORKER%" NEQ "True" (
+  IF "%APPVEYOR%" NEQ "True" (
+    IF [%DIST_DIR%] == [] (
+      CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
+      ECHO.
+      SETLOCAL ENABLEDELAYEDEXPANSION
+      ECHO  -WARNING: Distribution not found. Using [!DIST_DIR!].
+      ENDLOCAL
+    )
+    SET BUILD_OUTPUT_PATH=%ABS_WD%
+    SET LDRAW_DIR=%USERPROFILE%\LDraw
+    IF "%LP3D_QT32_MSVC%"=="" (
+      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
+    )
+    IF "%LP3D_QT64_MSVC%"=="" (
+      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
+    )
+    IF "%LP3D_WIN_GIT%"=="" (
+      SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
     )
   )
 )
@@ -125,10 +126,10 @@ CALL :CHECK_VALID_ZIP
 CALL :CHECK_LDRAW_LIB
 
 IF [%1]==[] (
-  GOTO :BUILD_ALL
+  GOTO :BUILD_ALL_AMD
 )
-IF /I "%1"=="-all" (
-  GOTO :BUILD_ALL
+IF /I "%1"=="--all_amd" (
+  GOTO :BUILD_ALL_AMD
 )
 IF /I "%1"=="x86" (
   SET BUILD_ARCH=%1
@@ -144,7 +145,7 @@ IF /I "%1"=="-help" (
 rem If we get here display invalid command message.
 GOTO :COMMAND_ERROR
 
-:BUILD_ALL
+:BUILD_ALL_AMD
 FOR %%A IN ( x86, x86_64 ) DO (
   SET BUILD_ARCH=%%A
   CALL :BUILD
@@ -618,17 +619,17 @@ ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
 ECHO  build [ -help]
-ECHO  build [ x86 ^| x86_64 ^| -all ]
+ECHO  build [ x86 ^| x86_64 ^| -all_amd ]
 ECHO.
 ECHO ----------------------------------------------------------------
-ECHO Build 64bit, Releases
+ECHO Build AMD 64bit, Releases
 ECHO build x86_64
 ECHO.
-ECHO Build 32bit, Releases
+ECHO Build AMD 32bit, Releases
 ECHO build x86
 ECHO.
-ECHO Build 64bit and32bit, Releases
-ECHO build -all
+ECHO Build AMD 64bit and32bit, Releases
+ECHO build -all_amd
 ECHO.
 ECHO Commands:
 ECHO ----------------------------------------------------------------
@@ -640,9 +641,9 @@ ECHO ----------------------------------------------------------------
 ECHO ^| Flag    ^| Pos ^| Type             ^| Description
 ECHO ----------------------------------------------------------------
 ECHO  -help......1......Useage flag         [Default=Off] Display useage.
-ECHO  x86........1......Platform flag       [Default=Off] Build 32bit architecture.
-ECHO  x86_64.....1......Platform flag       [Default=Off] Build 64bit architecture.
-ECHO  -all.......1......Configuraiton flag  [Default=On ] Build both 32bit and 64bit architectures
+ECHO  x86........1......Platform flag       [Default=Off] Build AMD 32bit architecture.
+ECHO  x86_64.....1......Platform flag       [Default=Off] Build AMD 64bit architecture.
+ECHO  -all_amd...1......Configuraiton flag  [Default=On ] Build both AMD 32bit and 64bit architectures
 ECHO.
 ECHO Flags are case sensitive, use lowere case.
 ECHO.

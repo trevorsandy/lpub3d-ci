@@ -17,7 +17,7 @@ rem .\builds\utilities\ci\github\windows-build.bat
 
 SET GITHUB=True
 SET GITHUB_CONFIG=release
-SET BUILD_ARCH=-all
+SET BUILD_ARCH=-all_amd
 SET BUILD_OPT=default
 SET UPDATE_LDRAW_LIBS=False
 SET LP3D_VSVERSION=2022
