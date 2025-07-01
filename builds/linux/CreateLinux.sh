@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 12, 2025
+# Last Update June 30, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -332,10 +332,14 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
 
   # qmake setup
   export QT_SELECT=qt5
-  if which qmake-qt5 >/dev/null 2>&1; then
+  if which qmake-qt6 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake-qt6
+  elif which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
-  else
+  elif which qmake >/dev/null 2>&1; then
     QMAKE_EXEC=qmake
+  else
+    Info "QMake was not found - exiting..." && exit 1
   fi
   ${QMAKE_EXEC} -v
 
