@@ -88,10 +88,6 @@
 %define get_local_libs 1
 %endif
 
-%if 0%{?scientificlinux_version}
-%define build_sdl2 1
-%endif
-
 %if 0%{?centos_version}==800
 %define get_local_libs 1
 %define skip_local_POVRay_libs 1
@@ -105,16 +101,12 @@
 %define fedora_version %{fedora}
 %endif
 
-%if 0%{?mageia}
-%define mageia_version %{mageia}
-%endif
-
 # distro group settings
 %if 0%{?suse_version} || 0%{?sle_version}
 Group: Productivity/Graphics/Viewers
 %endif
 
-%if 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?rhel_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 Group: Graphics
 %endif
 
@@ -122,7 +114,7 @@ Group: Graphics
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora_version} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?centos_version} || 0%{?fedora_version} || 0%{?rhel_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 License: GPLv2+
 %endif
 
@@ -151,22 +143,11 @@ Source0: lpub3d-ci-git.tar.gz
 Source10: lpub3d-ci-rpmlintrc
 
 # package requirements
-%if 0%{?centos_version}==600 || 0%{?rhel_version}==700 || 0%{?scientificlinux_version}
-%define get_qt5 1
-BuildRequires: cmake
-%endif
-
 %if 0%{?fedora_version} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=800 || 0%{?openeuler_version} || 0%{?almalinux_version}
-BuildRequires: qt5-qtbase-devel
-%if 0%{?fedora_version}==36
-BuildRequires: util-linux
-%endif
-%if 0%{?fedora_version}==37
-BuildRequires: libverto-libevent
-%endif
+BuildRequires: qt6-qtbase-devel, qt6-qttools-devel, qt6-qt5compat-devel
 %endif
 
-%if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 BuildRequires: hostname
 %if !0%{?rhel_version}
 BuildRequires: OpenEXR-devel
@@ -190,11 +171,11 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
-%if 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?openeuler_version}
 BuildRequires: gnu-free-sans-fonts
 %endif
-%if 0%{?centos_version}==800 || 0%{?scientificlinux_version}==700
+%if 0%{?centos_version}==800
 BuildRequires: mesa-libwayland-egl
 %endif
 BuildRequires: libjpeg-turbo-devel
@@ -209,7 +190,7 @@ BuildRequires: libXext-devel
 
 %if 0%{?fedora_version}
 BuildRequires: libjpeg-turbo-devel, gl2ps-devel
-BuildRequires: qt5-linguist, SDL2-devel
+BuildRequires: SDL2-devel
 %if 0%{?fedora_version}>30
 BuildRequires: autoconf >= 2.69
 BuildRequires: automake
@@ -217,20 +198,6 @@ BuildRequires: libXext-devel
 %endif
 %if 0%{?buildservice}
 BuildRequires: samba4-libs
-%if 0%{?fedora_version}==23
-BuildRequires: qca, gnu-free-sans-fonts
-%endif
-%if 0%{?fedora_version}==25
-BuildRequires: llvm-libs
-%define build_osmesa 1
-%endif
-%if 0%{?fedora_version}==26
-BuildRequires: openssl-devel, storaged
-%define build_osmesa 1
-%endif
-%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
-%define build_osmesa 1
-%endif
 %endif
 %endif
 
@@ -238,7 +205,6 @@ BuildRequires: openssl-devel, storaged
 %if (0%{?sle_version}!=150000)
 BuildRequires: freeglut-devel
 %endif
-BuildRequires: libqt5-qtbase-devel
 # exclude libOSMesa from openSUSE:Leap:Factory - suse_version 1699
 %if (0%{?suse_version}==1699)
 # set platform flags that will build OSMesa from Mesa-Amber - Mesa 21.3.9
@@ -275,35 +241,8 @@ BuildRequires: -post-build-checks
 %endif
 %endif
 
-%if 0%{?mageia_version}
-%define prebuilt_3ds 1
-#BuildRequires: qttools5
-%ifarch x86_64
-BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel
-BuildRequires: lib64boost-devel, lib64gl2ps-devel, lib64tiff-devel
-%if 0%{?mageia_version}>5
-BuildRequires: lib64openexr-devel
-%endif
-%if 0%{?buildservice}
-BuildRequires: lib64sane1, lib64proxy-webkit
-%if 0%{?mageia_version}>=7
-BuildRequires: lib64openssl-devel
-%endif
-%endif
-%else
-BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel
-BuildRequires: libboost-devel, libgl2ps-devel, libtiff-devel
-%if 0%{?mageia_version}>5
-BuildRequires: libopenexr-devel
-%endif
-%if 0%{?buildservice}
-BuildRequires: libsane1, libproxy-webkit
-%if 0%{?mageia_version}>=7
-BuildRequires: libopenssl-devel
-%endif
-%endif
-%endif
-%endif
+# magia build on OBS only goes to Qt5
+
 
 %if 0%{?sle_version}
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
@@ -316,31 +255,20 @@ BuildRequires: -post-build-checks
 BuildRequires: hostname
 Requires(post): desktop-file-utils
 %endif
-%if 0%{?scientificlinux_version}
-BuildRequires: python-gobject
-BuildRequires: python-gobject-base
-%endif
 
 # -----minizip dependency------
-%if ( 0%{?fedora} || 0%{?centos_version}>=700 || ( 0%{?rhel_version}>=700 && !0%{?scientificlinux_version} ) || 0%{?almalinux})
+%if ( 0%{?fedora} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?almalinux})
 BuildRequires: minizip-compat-devel
 %endif
 
-%if ( 0%{?suse_version} || 0%{?openeuler_version} || 0%{?scientificlinux_version}>=700 )
+%if ( 0%{?suse_version} || 0%{?openeuler_version} )
 BuildRequires: minizip-devel
 %endif
 
-%if 0%{?mageia}
-%ifarch x86_64
-BuildRequires: lib64minizip-devel
-%else
-BuildRequires: libminizip-devel
-%endif
-%endif
 # -----------------------------
 
 # POV-Ray dependencies - SUSE/CentOS builds
-%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: gcc-c++
@@ -369,7 +297,7 @@ BuildRequires: libXpm-devel
 BuildRequires: pkgconfig(OpenEXR)
 %endif
 # We are building sdl2 for these instances, so do not load here
-%if (0%{?suse_version}!=1315 && !0%{?rhel_version} && !0%{?scientificlinux_version} && 0%{?centos_version}>700)
+%if (0%{?suse_version}!=1315 && !0%{?rhel_version} && 0%{?centos_version}>700)
 BuildRequires: pkgconfig(sdl2)
 %endif
 %endif
@@ -531,10 +459,6 @@ BuildRequires: pkgconfig(libdrm_intel) >= 2.4.75
 BuildRequires:  libelf-devel
 %endif
 %endif
-# Requirements for wayland bumped up from 17.0
-%if 0%{?scientificlinux_version}==700
-BuildRequires: wayland-devel
-%endif
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
@@ -587,11 +511,11 @@ BuildRequires: pkgconfig(egl)
 %endif
 BuildRequires: pkgconfig(gl)
 %if !0%{?centos_version}
-%if !0%{?rhel_version} && !0%{?scientificlinux_version}
+%if !0%{?rhel_version}
 BuildRequires: pkgconfig(glesv1_cm)
 BuildRequires: pkgconfig(wayland-server)
 %endif
-%if !0%{?rhel_version} && 0%{?scientificlinux_version}!=600
+%if !0%{?rhel_version}
 BuildRequires: pkgconfig(glesv2)
 %endif
 %endif
@@ -603,7 +527,7 @@ BuildRequires: pkgconfig(ice)
 BuildRequires: pkgconfig(ibus-1.0)
 BuildRequires: pkgconfig(gbm) >= 9.0.0
 %endif
-%if 0%{?rhel_version}==600 || 0%{?scientificlinux_version}==600
+%if 0%{?rhel_version}==600
 BuildRequires: pkgconfig(libdrm)
 %else
 BuildRequires: pkgconfig(libdrm) >= 2.4.46
@@ -638,7 +562,7 @@ BuildRequires: pkgconfig(xxf86vm)
  LeoCAD© 2022 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- Copyright © 2015 - 2022 Trevor SANDY
+ Copyright © 2015 - 2025 Trevor SANDY
 
 # workaround from fc27 onwards build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-ci-git/debugsourcefiles.list
 %if 0%{?fedora_version}>=27
@@ -664,12 +588,6 @@ echo "openEuler......................%{openeuler_version}"
 %endif
 %if 0%{?rhel_version}
 echo "RedHat Enterprise Linux........%{rhel_version}"
-%endif
-%if 0%{?scientificlinux_version}
-echo "Scientific Linux...............%{scientificlinux_version}"
-%endif
-%if 0%{?mageia_version}
-echo "Mageia.........................%{mageia_version}"
 %endif
 %if 0%{?buildservice}
 echo "Using OpenBuildService.........%{usingbuildservice}"
@@ -713,19 +631,14 @@ for LDrawLibFile in \
     echo "Error: ${LDrawLibFile} not found."
   fi
 done
-# move 3rd party renderer source archives and Qt5 libraries
+# move 3rd party renderer source archives and Qt libraries
 for TarballFile in \
   ${SrcPath}/ldglite.tar.gz \
   ${SrcPath}/ldview.tar.gz \
   ${SrcPath}/povray.tar.gz \
-  ${SrcPath}/mesa-17.2.6.tar.gz \
-  ${SrcPath}/mesa-18.3.5.tar.gz \
   ${SrcPath}/mesa-21.3.9.tar.xz \
-  ${SrcPath}/glu-9.0.0.tar.bz2 \
   ${SrcPath}/glu-9.0.1.tar.xz \
-  ${SrcPath}/zstd-1.5.7.tar.gz \
-  ${SrcPath}/qt5-5.9.3-gcc_64-el.tar.gz \
-  ${SrcPath}/locallibs.el.x86_64.tar.gz; do
+  ${SrcPath}/zstd-1.5.7.tar.gz; do
   LibFile="$(basename ${TarballFile})"
   if [ -f "${TarballFile}" ]; then
     mv -f ${TarballFile} ../ || \
@@ -781,16 +694,6 @@ export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
 export PLATFORM_VER_OBS=%{rhel_version}
 export PLATFORM_CODE="rh"
 %endif
-%if 0%{?scientificlinux_version}
-export PLATFORM_PRETTY_OBS="Scientific Linux"
-export PLATFORM_VER_OBS=%{scientificlinux_version}
-export PLATFORM_CODE="sl"
-%endif
-%if 0%{?mageia_version}
-export PLATFORM_PRETTY_OBS="Mageia"
-export PLATFORM_VER_OBS=%{mageia_version}
-export PLATFORM_CODE="mga"
-%endif
 export PLATFORM_VER=${PLATFORM_VER_OBS}
 set +x
 # 3rd-party renderers build-from-source requirements
@@ -823,10 +726,6 @@ export prebuilt_3ds=%{prebuilt_3ds}
 %else
 echo "Build 3DS from source..........yes"
 %endif
-%if 0%{?get_qt5}
-echo "Get Qt5 library................yes"
-export get_qt5=%{get_qt5}
-%endif
 %if 0%{?get_local_libs}
 echo "Get local libraries............yes"
 export get_local_libs=%{get_local_libs}
@@ -853,12 +752,6 @@ export LPUB3D=%{name}
 export RPM_BUILD=true
 export RPM_STAGE=build
 export LDRAWDIR=${HOME}/ldraw
-# set Qt5 Library for platforms that don't have Qt5 from qt5-5.9.3-gcc_64-el.tar.gz tarball
-%if 0%{?get_qt5}
-source builds/linux/obs/alldeps/GetQt5Libs.sh
-%else
-export QT_SELECT=qt5
-%endif
 # set OSMesa, LLVM, OpenEXR and their dependent libs from locallibs.el.x86_64.tar.gz tarball
 %if 0%{?get_local_libs}
 source builds/linux/obs/alldeps/GetLocalLibs.sh
@@ -885,27 +778,20 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
 # Qt setup
-if which qmake-qt5 >/dev/null 2>/dev/null ; then
+if which qmake6 >/dev/null 2>/dev/null ; then
+  QMAKE_EXEC=qmake6
+elif which qmake-qt5 >/dev/null 2>/dev/null ; then
   QMAKE_EXEC=qmake-qt5
 elif test -d "$LP3D_QT5_BIN" ; then
   QMAKE_EXEC=$LP3D_QT5_BIN/qmake
-else
+elif which qmake >/dev/null 2>/dev/null ; then
   QMAKE_EXEC=qmake
 fi
 echo && ${QMAKE_EXEC} -v && echo
 # configure and build LPub3d
-${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+${QMAKE_EXEC} -makefile -nocache CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d LPub3D.pro
 make clean
 make %{?_smp_mflags}
-# check generated and updated config files
-%if 0%{?get_qt5}
-[ -f "mainApp/qt.conf" ] && echo "Check generated qt.conf..." && \
-cat mainApp/qt.conf || echo "ERROR - Could not find qt.conf"
-[ -f "mainApp/lpub3d.qrc" ] && echo "Check updated lpub3d.qrc..." && \
-tail mainApp/lpub3d.qrc || echo "ERROR - Could not find lpub3d.qrc"
-[ -f "mainApp/lpub3d-qtlibs.conf" ] && echo "Check generated qtlibs.conf..." && \
-cat mainApp/lpub3d-qtlibs.conf || echo "ERROR - Could not find lpub3d-qtlibs.conf"
-%endif
 %if 0%{?get_local_libs}
 [ -f "mainApp/lpub3d-libs.conf" ] && echo "Check generated lpub3d-libs.conf..." && \
 cat mainApp/lpub3d-libs.conf || echo "ERROR - Could not find lpub3d-libs.conf"
@@ -914,9 +800,7 @@ echo "Check updated local OpenEXR library pc file..." && \
 cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || \
 echo "ERROR - Could not find %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc"
 %endif
-%endif
 # set LDLibrary_Path if using local or custom libraries
-%if 0%{?get_qt5} || 0%{?get_local_libs}
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
 %endif
 # check lpub3d dependencies
@@ -956,7 +840,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,-,-) %{_mandir}/man1/*
 %attr(644,-,-) %doc %{_docdir}/lpub3d/*
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%if 0%{?get_qt5} || 0%{?get_local_libs}
+%if 0%{?get_local_libs}
 %{_libdir}/*
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/*
 %if 0%{?get_local_libs} && !0%{?skip_local_POVRay_libs}

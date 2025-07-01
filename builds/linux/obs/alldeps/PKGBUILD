@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: June 3, 2025
+#  Last Update: July 28, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d-ci
 pkgver=2.4.9.4373
@@ -9,7 +9,7 @@ url="https://trevorsandy.github.io/lpub3d"
 arch=('x86_64' 'i686')
 license=('GPL3')
 makedepends=('cmake' 'elfutils' 'gcc' 'glu' 'libdrm' 'libglvnd' 'libunwind' 'libx11' 'libxdamage' 'libxml2' 'libxrandr' 'libxshmfence' 'libxxf86vm' 'make' 'meson' 'python-mako' 'python-packaging' 'valgrind' 'wayland' 'wayland-protocols' 'xorgproto')
-depends=('boost' 'boost-libs' 'freeglut' 'gl2ps' 'libelf' 'libjpeg-turbo' 'libpng' 'libtiff' 'llvm' 'llvm-libs' 'mesa' 'mesa-libgl' 'minizip' 'openexr' 'qt5-base' 'qt5-tools' 'sdl2' 'unzip' 'xorg-util-macros')
+depends=('boost' 'boost-libs' 'freeglut' 'gl2ps' 'libelf' 'libjpeg-turbo' 'libpng' 'libtiff' 'llvm' 'llvm-libs' 'mesa' 'mesa-libgl' 'minizip' 'openexr' 'qt6-base' 'qt6-tools' 'qt6-5compat' 'sdl2' 'unzip' 'xorg-util-macros')
 conflicts=()
 replaces=()
 backup=()
@@ -86,13 +86,12 @@ prepare() {
 	# build 3rd-party renderers
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# set qmake and generate Makefiles
-	export QT_SELECT=qt5
-	if [ -x /usr/bin/qmake ] ; then
+	if [ -x /usr/bin/qmake6 ] ; then
+		QMAKE_EXEC=qmake6
+	elif [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake
-	elif [ -x /usr/bin/qmake-qt5 ] ; then
-		QMAKE_EXEC=qmake-qt5
 	fi
-	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=pkg
+	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=pkg LPub3D.pro
 }
 
 build() {

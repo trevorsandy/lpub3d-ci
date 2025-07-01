@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: June 3, 2025
+#  Last Update: July 28, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d-ci
 pkgver=2.4.9.4373
@@ -9,7 +9,7 @@ url="https://trevorsandy.github.io/lpub3d"
 arch=('x86_64' 'i686')
 license=('GPL3')
 makedepends=('glu' 'gcc' 'make')
-depends=('unzip' 'qt5-tools' 'qt5-base' 'libjpeg-turbo' 'mesa-libgl' 'gl2ps' 'tinyxml' 'minizip' 'llvm' 'mesa')
+depends=('unzip' 'qt6-tools' 'qt6-base' 'qt6-5compat' 'libjpeg-turbo' 'mesa-libgl' 'gl2ps' 'minizip' 'llvm' 'mesa')
 conflicts=()
 replaces=()
 backup=()
@@ -80,14 +80,13 @@ prepare() {
 	export build_tinyxml=1
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# location is ../src/${pkgname}-git
-	export QT_SELECT=qt5
 	export LDRAWDIR=${HOME}/ldraw
-	if [ -x /usr/bin/qmake ] ; then
+	if [ -x /usr/bin/qmake6 ] ; then
+		QMAKE_EXEC=qmake6
+	elif [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake
-	elif [ -x /usr/bin/qmake-qt5 ] ; then
-		QMAKE_EXEC=qmake-qt5
 	fi
-	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=pkg
+	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=pkg LPub3D.pro
 }
 
 build() {
