@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: March 14, 2025
+# Last Update: July 16, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -20,7 +20,7 @@ on:
 jobs:
   build-linux:
     # if: ${{ false }} # uncomment to disable
-    name: build ${{ matrix.BUILD }}
+    name: Build ${{ matrix.BUILD }}
     runs-on: ${{ matrix.OS }}
     strategy:
       fail-fast: false
@@ -133,8 +133,33 @@ jobs:
 
   build-windows:
     # if: ${{ false }} # uncomment to disable
-    name: Build Windows 2022
-    runs-on: windows-2022
+    name: 'Build Windows ${{ matrix.name }}'
+    runs-on: ${{ matrix.runner-os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner-os: [ windows-2025, windows-11-arm ]
+        platform: [ AMD, ARM ]
+        exclude:
+          - runner-os: windows-2025
+            platform: ARM
+          - runner-os: windows-11-arm
+            platform: AMD
+        include:
+          - runner-os: windows-2025
+          - runner-os: windows-11-arm
+          - platform: AMD
+            name: 2025 AMD
+            host: ''
+            arch: _64
+            build: -all_amd
+            toolset-32bit: v142
+          - platform: ARM
+            name: 11 ARM
+            host: _arm64
+            arch: _arm64
+            build: arm64
+            toolset-32bit: v143
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -158,7 +183,8 @@ jobs:
         with:
           path: ${{ env.LP3D_BUILD_BASE }}\Qt
           key: qt-windows-${{ env.QT_CACHE }}
-      - name: VC 141 Build Tools
+      - name: VC 141 Build Tools AMD
+        if: "${{ matrix.platform == 'AMD' && matrix.toolset-32bit == 'v141' }}"
         run: |
           Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
           $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
@@ -169,33 +195,38 @@ jobs:
           $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
           $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
         shell: powershell
-      - name: Windows 8.1 SDK
+      - name: Windows 8.1 SDK AMD
+        if: "${{ matrix.platform == 'AMD' && matrix.toolset-32bit == 'v141' }}"
         run: |
           Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
           Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
         shell: powershell
-      - name: Qt MSVC 2022 64bit # path: ..\Qt\6.9.1\msvc2022_64\bin
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: 6.9.1
-          host: windows
-          arch: win64_msvc2022_64
-          dir: ${{ env.LP3D_BUILD_BASE }}
-          cache: true
-          cache-key-prefix: install-qt-action
-      - name: Qt MSVC 2019 32bit # path: ..\Qt\5.15.2\msvc2019\bin
+      - name: Qt MSVC 2019 32bit AMD # path: ..\Qt\5.15.2\msvc2019\bin
+        if: "${{ matrix.platform == 'AMD' }}"
         uses: jurplel/install-qt-action@v4
         with:
           version: 5.15.2
-          host: windows
+          host: windows${{ matrix.host }}
           arch: win32_msvc2019
           dir: ${{ env.LP3D_BUILD_BASE }}
           cache: true
           cache-key-prefix: install-qt-action
-      - name: Build Windows
+      - name: Qt MSVC 2022 64bit ${{ matrix.platform }} # path: ..\Qt\6.9.1\msvc2022_[64/arm64]\bin
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.9.1
+          host: windows${{ matrix.host }}
+          target: desktop
+          modules: qt5compat
+          arch: win64_msvc2022${{ matrix.arch }}
+          dir: ${{ env.LP3D_BUILD_BASE }}
+          cache: true
+          cache-key-prefix: install-qt-action
+      - name: Build Windows ${{ matrix.platform }}
         run: .\builds\utilities\ci\github\windows-build.bat | .\builds\utilities\win_tee.cmd "${{ env.LP3D_BUILDPKG_PATH }}\windows_build.log" append
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LP3D_BUILD_ARCH: ${{ matrix.build }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
         shell: cmd
       - name: List Artifacts
