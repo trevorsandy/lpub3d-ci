@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 3, 2025
+# Last Update June 30, 2025
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -279,7 +279,9 @@ if [ -n "${LP3D_ANALYZE}" ]; then
   ls -al ${LP3D_DIST_DIR_PATH}/ && echo "DEBUG END" && echo
 
   # Qmake setup
-  if which qmake-qt5 >/dev/null 2>&1; then
+  if which qmake-qt6 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake-qt6
+  elif which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
   else
     QMAKE_EXEC=qmake
