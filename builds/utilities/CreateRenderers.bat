@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 01, 2025
+rem  Last Update: July 16, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -54,6 +54,7 @@ IF "%APPVEYOR%"=="True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 )
+
 IF "%LP3D_SYS_DIR%"=="" (
   SET LP3D_SYS_DIR=%SystemRoot%\System32
 )
@@ -74,13 +75,20 @@ rem Check if invalid platform flag
 IF NOT [%1]==[] (
   IF NOT "%1"=="x86" (
     IF NOT "%1"=="x86_64" (
-      IF NOT "%1"=="-all_amd" (
-        IF NOT "%1"=="-help" GOTO :COMMAND_ERROR
+      IF NOT "%1"=="arm64" (
+        IF NOT "%1"=="-all_amd" (
+          IF NOT "%1"=="-help" GOTO :COMMAND_ERROR
+        )
       )
     )
   )
 )
 
+IF %1==arm64 (
+  SET LP3D_QTARCH=ARM64
+) ELSE (
+  SET LP3D_QTARCH=64
+)
 IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
     IF [%DIST_DIR%] == [] (
@@ -92,13 +100,13 @@ IF "%BUILD_WORKER%" NEQ "True" (
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
-    IF "%LP3D_QT32_MSVC%"=="" (
+    IF "%LP3D_QT32_MSVC%" == "" (
       SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
     )
-    IF "%LP3D_QT64_MSVC%"=="" (
-      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
+    IF "%LP3D_QT64_MSVC%" == "" (
+      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_%LP3D_QTARCH%\bin
     )
-    IF "%LP3D_WIN_GIT%"=="" (
+    IF "%LP3D_WIN_GIT%" == "" (
       SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
     )
   )
@@ -126,10 +134,10 @@ CALL :CHECK_VALID_ZIP
 CALL :CHECK_LDRAW_LIB
 
 IF [%1]==[] (
-  GOTO :BUILD_ALL_AMD
+  GOTO :BUILD_ALL
 )
-IF /I "%1"=="--all_amd" (
-  GOTO :BUILD_ALL_AMD
+IF /I "%1"=="-all_amd" (
+  GOTO :BUILD_ALL
 )
 IF /I "%1"=="x86" (
   SET BUILD_ARCH=%1
@@ -139,13 +147,18 @@ IF /I "%1"=="x86_64" (
   SET BUILD_ARCH=%1
   GOTO :BUILD
 )
+IF /I "%1"=="arm64" (
+  SET BUILD_ARCH=%1
+  GOTO :BUILD
+)
+
 IF /I "%1"=="-help" (
   GOTO :USAGE
 )
 rem If we get here display invalid command message.
 GOTO :COMMAND_ERROR
 
-:BUILD_ALL_AMD
+:BUILD_ALL
 FOR %%A IN ( x86, x86_64 ) DO (
   SET BUILD_ARCH=%%A
   CALL :BUILD
@@ -191,14 +204,14 @@ FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
   IF %ERRORLEVEL% NEQ 0 (GOTO :FATAL_ERROR)
 )
 
-IF "%BUILD_ARCH%"=="x86_64" (
-  IF "%CAN_PACKAGE%"=="True" (
+IF "%CAN_PACKAGE%"=="True" (
+  IF "%BUILD_ARCH%"=="x86_64" (
     IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe" ( GOTO :END )
     IF NOT EXIST "%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe" ( GOTO :END )
     IF NOT EXIST "%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe" ( GOTO :END )
-    ECHO -Package renderers for download disabled.
-    REM CALL :PACKAGE_RENDERERS
   )
+  ECHO -Package renderers for download disabled.
+  REM CALL :PACKAGE_RENDERERS
 )
 GOTO :END
 
@@ -619,16 +632,19 @@ ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
 ECHO  build [ -help]
-ECHO  build [ x86 ^| x86_64 ^| -all_amd ]
+ECHO  build [ x86 ^| x86_64 ^| arm64 ^| -all_amd ]
 ECHO.
 ECHO ----------------------------------------------------------------
-ECHO Build AMD 64bit, Releases
+ECHO Build AMD 64bit Releases
 ECHO build x86_64
 ECHO.
-ECHO Build AMD 32bit, Releases
+ECHO Build ARM 32bit Releases
+ECHO build arm64
+ECHO.
+ECHO Build AMD 32bit Releases
 ECHO build x86
 ECHO.
-ECHO Build AMD 64bit and32bit, Releases
+ECHO Build AMD 64bit and 32bit Releases
 ECHO build -all_amd
 ECHO.
 ECHO Commands:
@@ -643,9 +659,10 @@ ECHO ----------------------------------------------------------------
 ECHO  -help......1......Useage flag         [Default=Off] Display useage.
 ECHO  x86........1......Platform flag       [Default=Off] Build AMD 32bit architecture.
 ECHO  x86_64.....1......Platform flag       [Default=Off] Build AMD 64bit architecture.
+ECHO  arm64......1......Platform flag       [Default=Off] Build ARM 64bit architecture.
 ECHO  -all_amd...1......Configuraiton flag  [Default=On ] Build both AMD 32bit and 64bit architectures
 ECHO.
-ECHO Flags are case sensitive, use lowere case.
+ECHO Flags are case insensitive; however, it is better to use lowere case.
 ECHO.
 ECHO If no flag is supplied, 64bit platform, Release Configuration built by default.
 ECHO ----------------------------------------------------------------
