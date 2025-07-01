@@ -307,7 +307,7 @@ equals(QT_MAJOR_VERSION, 5) {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
         system("g++ --help -v 2>/dev/null| grep -q std=c++17") {
-            message("~~~ C++17 feature found ~~~")
+            message("~~~ $${LPUB3D} C++17 language feature found ~~~")
         }
         # Greater than or equal to Qt 5.11
         greaterThan(QT_MINOR_VERSION, 11) {
@@ -323,7 +323,7 @@ equals(QT_MAJOR_VERSION, 6) {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
         system("g++ --help -v 2>/dev/null| grep -q std=c++17"){
-            message("~~~ C++17 feature found ~~~")
+            message("~~~ $${LPUB3D} C++17 language feature foundd ~~~")
         }
         CONFIG += c++17
     }
