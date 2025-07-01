@@ -174,12 +174,12 @@ jobs:
           Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
           Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
         shell: powershell
-      - name: Qt MSVC 2019 64bit # path: ..\Qt\5.15.2\msvc2019_64\bin
+      - name: Qt MSVC 2022 64bit # path: ..\Qt\6.9.1\msvc2022_64\bin
         uses: jurplel/install-qt-action@v4
         with:
-          version: 5.15.2
+          version: 6.9.1
           host: windows
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64
           dir: ${{ env.LP3D_BUILD_BASE }}
           cache: true
           cache-key-prefix: install-qt-action
