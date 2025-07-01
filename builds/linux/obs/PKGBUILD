@@ -83,6 +83,8 @@ prepare() {
 	export LDRAWDIR=${HOME}/ldraw
 	if [ -x /usr/bin/qmake-qt6 ] ; then
 		QMAKE_EXEC=qmake-qt6
+	elif [ -x /usr/bin/qmake6 ] ; then
+		QMAKE_EXEC=qmake6
 	elif [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake
 	fi

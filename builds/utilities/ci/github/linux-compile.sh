@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 3, 2025
+# Last Update July 26, 2025
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -237,7 +237,7 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   # Trigger rebuild renderers if specified
   LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
   ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
-  ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.5
+  ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.6
   povray_path=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8
   [[ "${LP3D_COMMIT_MSG}" == *"ALL_RENDERERS"* ]] && \
   echo "'Build LDGLite, LDView and POV-Ray' detected." && \
@@ -279,7 +279,9 @@ if [ -n "${LP3D_ANALYZE}" ]; then
   ls -al ${LP3D_DIST_DIR_PATH}/ && echo "DEBUG END" && echo
 
   # Qmake setup
-  if which qmake-qt5 >/dev/null 2>&1; then
+  if which qmake6 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake6
+  elif which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
   else
     QMAKE_EXEC=qmake

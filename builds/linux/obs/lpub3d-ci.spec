@@ -231,6 +231,8 @@ chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRender
 # Qt setup
 if which qmake-qt6 >/dev/null 2>&1; then
   QMAKE_EXEC=qmake-qt6
+elif which qmake6 >/dev/null 2>&1; then
+  QMAKE_EXEC=qmake6
 elif which qmake >/dev/null 2>&1; then
   QMAKE_EXEC=qmake
 fi
