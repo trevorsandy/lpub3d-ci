@@ -295,7 +295,8 @@ win32-msvc* {
 
 # USE CPP 11
 contains(USE_CPP11,NO) {
-    message("~~~ DO NOT USE CPP11 SPECIFIED ~~~")
+    if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)): \
+        message("~~~ DO NOT USE CPP11 SPECIFIED ~~~")
 } else {
     DEFINES += USE_CPP11
 }
@@ -306,8 +307,9 @@ equals(QT_MAJOR_VERSION, 5) {
     win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
-        system("g++ --help -v 2>/dev/null| grep -q std=c++17") {
-            message("~~~ C++17 feature found ~~~")
+        if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)) {
+            system("g++ --help -v 2>/dev/null| grep -q std=c++17"): \
+                message("~~~ $${TARGET} C++17 language feature found ~~~")
         }
         # Greater than or equal to Qt 5.11
         greaterThan(QT_MINOR_VERSION, 11) {
@@ -322,8 +324,9 @@ equals(QT_MAJOR_VERSION, 6) {
     win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
-        system("g++ --help -v 2>/dev/null| grep -q std=c++17"){
-            message("~~~ C++17 feature found ~~~")
+        if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)) {
+            system("g++ --help -v 2>/dev/null| grep -q std=c++17"): \
+                message("~~~ $${TARGET} C++17 language feature found ~~~")
         }
         CONFIG += c++17
     }
