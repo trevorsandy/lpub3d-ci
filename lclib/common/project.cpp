@@ -2240,7 +2240,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN + 1], int>> PieceTable;
 	size_t NumColors = gColorList.size();
-	std::vector<std::array<char, LC_MAX_COLOR_NAME + 3>> LgeoColorTable(NumColors);
+	std::vector<std::string> LgeoColorTable(NumColors);
 	std::vector<std::array<char, LC_MAX_COLOR_NAME + 3>> ColorTable(NumColors);
 
 	const std::vector<std::unique_ptr<lcLight>>& Lights = gMainWindow->GetActiveModel()->GetLights();
@@ -2625,7 +2625,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 			if (sscanf(Line,"%128s%128s%10s", Src, Dst, Flags) != 3)
 				continue;
 
-			strncat(Src, ".dat", 4);
+			strcat(Src, ".dat");
 
 			PieceInfo* Info = Library->FindPiece(Src, nullptr, false, false);
 			if (!Info)
@@ -2676,12 +2676,12 @@ bool Project::ExportPOVRay(const QString& FileName)
 			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
 				continue;
 
-			size_t ColorIdx = lcGetColorIndex(Code);
-			if (ColorIdx >= NumColors)
+			size_t ColorIndex = lcGetColorIndex(Code);
+
+			if (ColorIndex >= NumColors)
 				continue;
 
-			strncpy(LgeoColorTable[ColorIdx].data(), Name, LgeoColorTable[ColorIdx].size());
-			LgeoColorTable[ColorIdx][LgeoColorTable[ColorIdx].size() - 1] = 0;
+			LgeoColorTable[ColorIndex] = Name;
 		}
 	}
 
@@ -2693,7 +2693,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 		{
 			lcColor* Color = &gColorList[ColorIdx];
 
-			if (!LgeoColorTable[ColorIdx][0])
+			if (LgeoColorTable[ColorIdx].empty())
 			{
 				sprintf(ColorTable[ColorIdx].data(), "lc_%s", Color->SafeName);
 
@@ -2724,7 +2724,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 				sprintf(ColorTable[ColorIdx].data(), "LDXColor%i", Color->Code);
 
 				sprintf(Line,"#ifndef (LDXColor%i) // %s\n#declare LDXColor%i = material { texture { %s } }\n#end\n\n",
-						Color->Code, Color->Name, Color->Code, LgeoColorTable[ColorIdx].data());
+						Color->Code, Color->Name, Color->Code, LgeoColorTable[ColorIdx].c_str());
 			}
 
 			POVFile.WriteLine(Line);
@@ -2739,12 +2739,12 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		sprintf(ColorTable[ColorIdx].data(), "LDXColor%i", Color->Code);
 
-		if (!LgeoColorTable[ColorIdx][0])
+		if (LgeoColorTable[ColorIdx].empty())
 			sprintf(Line, "#ifndef (lc_%s)\n#declare lc_%s = OpaqueColor(%g, %g, %g)\n#end\n\n",
 					Color->SafeName, Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
 		else
 			sprintf(Line,"#ifndef (LDXColor%i) // %s\n#declare LDXColor%i = material { texture { %s } }\n#end\n\n",
-					Color->Code, Color->Name, Color->Code, LgeoColorTable[ColorIdx].data());
+					Color->Code, Color->Name, Color->Code, LgeoColorTable[ColorIdx].c_str());
 
 		POVFile.WriteLine(Line);
 	}
