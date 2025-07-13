@@ -2240,8 +2240,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN + 1], int>> PieceTable;
 	size_t NumColors = gColorList.size();
-	std::vector<std::array<char, LC_MAX_COLOR_NAME>> LgeoColorTable(NumColors);
-	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
+	std::vector<std::array<char, LC_MAX_COLOR_NAME + 3>> LgeoColorTable(NumColors);
+	std::vector<std::array<char, LC_MAX_COLOR_NAME + 3>> ColorTable(NumColors);
 
 	const std::vector<std::unique_ptr<lcLight>>& Lights = gMainWindow->GetActiveModel()->GetLights();
 	const lcCamera* Camera = gMainWindow->GetActiveView()->GetCamera();
@@ -2680,7 +2680,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 			if (ColorIdx >= NumColors)
 				continue;
 
-			strncpy(LgeoColorTable[ColorIdx].data(), Name, LC_MAX_COLOR_NAME);
+			strncpy(LgeoColorTable[ColorIdx].data(), Name, LgeoColorTable[ColorIdx].size());
+			LgeoColorTable[ColorIdx][LgeoColorTable[ColorIdx].size() - 1] = 0;
 		}
 	}
 
@@ -2706,16 +2707,16 @@ bool Project::ExportPOVRay(const QString& FileName)
 				}
 				else
 				{
-					char MacroName[LC_MAX_COLOR_NAME];
-					if (lcIsColorChrome(ColorIdx))
-						sprintf(MacroName, "Chrome");
-					else if (lcIsColorRubber(ColorIdx))
-						sprintf(MacroName, "Rubber");
-					else
-						sprintf(MacroName, "Opaque");
+					const char* MacroName;
 
-					sprintf(Line, "#ifndef (lc_%s)\n#declare lc_%s = %sColor(%g, %g, %g)\n#end\n\n",
-							Color->SafeName, Color->SafeName, MacroName, Color->Value[0], Color->Value[1], Color->Value[2]);
+					if (lcIsColorChrome(ColorIdx))
+						MacroName = "Chrome";
+					else if (lcIsColorRubber(ColorIdx))
+						MacroName = "Rubber";
+					else
+						MacroName = "Opaque";
+
+					sprintf(Line, "#ifndef (lc_%s)\n#declare lc_%s = %sColor(%g, %g, %g)\n#end\n\n", Color->SafeName, Color->SafeName, MacroName, Color->Value[0], Color->Value[1], Color->Value[2]);
 				}
 			}
 			else
@@ -2788,6 +2789,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char (&Name)[LC_PIECE_NAME_LEN])
 	{
 		strncpy(Name, ModelPart.Info->mFileName, sizeof(Name));
+		Name[sizeof(Name) - 1] = 0;
 
 		for (char* c = Name; *c; c++)
 			if (*c == '-' || *c == '.')
@@ -2818,7 +2820,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 		if (!ModelPart.Mesh)
 		{
 			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
-			strncpy(Entry.first, "lc_", 3);
+			strcpy(Entry.first, "lc_");
 			strncat(Entry.first, Name, sizeof(Entry.first) - 1);
 			Entry.first[sizeof(Entry.first) - 1] = 0;
 		}
