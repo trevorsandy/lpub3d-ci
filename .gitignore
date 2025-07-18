@@ -61,11 +61,13 @@
 ehthumbs.db
 Thumbs.db
 .gitignore.autosave
+.qmake.stash
 
 # Build generated files
 mainApp/temp.txt
 mainApp/build.h
 mainApp/docs/temp.txt
+builds/utilities/ci/set_bash_vars.sh
 builds/utilities/json/lpub3dupdates.json
 builds/utilities/nsis-scripts/AppVersion.nsh
 builds/utilities/update-config-files.log
@@ -92,40 +94,54 @@ lclib/debug/*
 lclib/release/*
 lclib/64bit_debug/*
 lclib/64bit_release/*
+lclib/32bit_debug/*
+lclib/32bit_release/*
 lclib/*.vcxproj.*
+ldvlib/LDVQt/64bit_debug/*
+ldvlib/LDVQt/64bit_release/*
+ldvlib/LDVQt/32bit_debug/*
+ldvlib/LDVQt/32bit_release/*
 ldrawini/release/*
 ldrawini/debug/*
 ldrawini/64bit_debug/*
 ldrawini/64bit_release/*
+ldrawini/32bit_debug/*
+ldrawini/32bit_release/*
 ldrawini/*.vcxproj.*
 ldvlib/release/*
 ldvlib/debug/*
-ldvlib/64bit_debug/*
-ldvlib/64bit_release/*
 ldvlib/*.vcxproj.*
 ldvlib/LDViewMessages.ini
 mainApp/release/*
 mainApp/debug/*
 mainApp/64bit_debug/*
 mainApp/64bit_release/*
+mainApp/32bit_debug/*
+mainApp/32bit_release/*
 mainApp/*.vcxproj.*
 mainApp/info.plist
 mainApp/LDViewMessages.h
 mainApp/StudStyle.h
+
 quazip/release/*
 quazip/debug/*
 quazip/64bit_debug/*
 quazip/64bit_release/*
+quazip/32bit_debug/*
+quazip/32bit_release/*
 quazip/*.vcxproj.*
 
 waitingspinner/release/*
 waitingspinner/debug/*
 waitingspinner/64bit_debug/*
 waitingspinner/64bit_release/*
+waitingspinner/32bit_debug/*
+waitingspinner/32bit_release/*
 waitingspinner/*.vcxproj.*
 
 builds/macx/dmgbuilds/*
 builds/windows/release/*
+builds/windows/debug/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*
@@ -133,9 +149,16 @@ builds/linux/pkgbuild/*
 # 3rdParty assets
 builds/3rdparty/*
 
+lclib/Makefile.lclib
+ldvlib/LDVQt/Makefile-ldvqt
 quazip/Makefile
+quazip/Makefile.quazip
 mainApp/Makefile
+mainApp/Makefile.mainapp
 ldrawini/Makefile
+ldrawini/Makefile.ldrawini
+waitingspinner/Makefile.waitingspinner
+Makefile
 
 .vs
 LPub3D.sln
@@ -145,6 +168,7 @@ builds/windows/release/*
 builds/windows/libs/*
 mainApp/lpub3dsd_plugin_import.cpp
 mainApp/uic_wrapper.bat
+mainApp/LPub3D_resource.rc
 
 # Windows setup archives
 builds/windows/archives/*
