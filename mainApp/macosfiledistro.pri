@@ -70,7 +70,7 @@ ldglite_ini.path = Contents/Resources
 nativexport_ini.files += $$_PRO_FILE_PWD_/extras/ldvExport.ini
 nativexport_ini.path = Contents/Resources
 
-ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
+ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
 ldv_messages_ini.path = Contents/Resources
 
 QMAKE_BUNDLE_DATA += \
