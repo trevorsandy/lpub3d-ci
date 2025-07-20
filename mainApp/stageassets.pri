@@ -33,9 +33,16 @@ INSTALLS += \
 contains(option, con) {
     message("~~~ $${LPUB3D} CONDA BUILD - Qt PLUGLINS AND LIBS WILL NOT BE STAGED ~~~")
 } else {
+    equals(QT_MAJOR_VERSION, 5) {
     lpub3d_plugin_bearer.files += \
         $$[QT_INSTALL_PLUGINS]/bearer/qgenericbearer.dll
     lpub3d_plugin_bearer.path = $$LPUB3D_STG_PATH/bearer
+    }
+    equals(QT_MAJOR_VERSION, 6) {
+    lpub3d_plugin_generic.files += \
+        $$[QT_INSTALL_PLUGINS]/generic/qtuiotouchplugin.dll
+    lpub3d_plugin_generic.path = $$LPUB3D_STG_PATH/generic
+    }
 
     lpub3d_plugin_iconengines.files += \
         $$[QT_INSTALL_PLUGINS]/iconengines/qsvgicon.dll
@@ -43,15 +50,23 @@ contains(option, con) {
 
     lpub3d_plugin_imageformats.files += \
         $$[QT_INSTALL_PLUGINS]/imageformats/qgif.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qicns.dll \
         $$[QT_INSTALL_PLUGINS]/imageformats/qico.dll \
         $$[QT_INSTALL_PLUGINS]/imageformats/qjpeg.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qsvg.dll \
+        $$[QT_INSTALL_PLUGINS]/imageformats/qsvg.dll
+    equals(QT_MAJOR_VERSION, 5): \
+    lpub3d_plugin_imageformats.files += \
+        $$[QT_INSTALL_PLUGINS]/imageformats/qicns.dll \
         $$[QT_INSTALL_PLUGINS]/imageformats/qtga.dll \
         $$[QT_INSTALL_PLUGINS]/imageformats/qtiff.dll \
         $$[QT_INSTALL_PLUGINS]/imageformats/qwbmp.dll \
         $$[QT_INSTALL_PLUGINS]/imageformats/qwebp.dll
     lpub3d_plugin_imageformats.path = $$LPUB3D_STG_PATH/imageformats
+
+    equals(QT_MAJOR_VERSION, 6) {
+    lpub3d_plugin_networkinformation.files += \
+        $$[QT_INSTALL_PLUGINS]/networkinformation/qnetworklistmanager.dll
+    lpub3d_plugin_networkinformation.path = $$LPUB3D_STG_PATH/networkinformation
+    }
 
     lpub3d_plugin_platforms.files += \
         $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
@@ -61,31 +76,56 @@ contains(option, con) {
         $$[QT_INSTALL_PLUGINS]/printsupport/windowsprintersupport.dll
     lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
 
+    equals(QT_MAJOR_VERSION, 5): \
     lpub3d_plugin_styles.files += \
         $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyle.dll
+    equals(QT_MAJOR_VERSION, 6): \
+    lpub3d_plugin_styles.files += \
+        $$[QT_INSTALL_PLUGINS]/styles/qmodernwindowsstyle.dll
     lpub3d_plugin_styles.path = $$LPUB3D_STG_PATH/styles
 
+    equals(QT_MAJOR_VERSION, 6) {
+    lpub3d_plugin_tls.files += \
+        $$[QT_INSTALL_PLUGINS]/tls/qcertonlybackend.dll \
+        $$[QT_INSTALL_PLUGINS]/tls/qopensslbackend.dll \
+        $$[QT_INSTALL_PLUGINS]/tls/qschannelbackend.dll
+    lpub3d_plugin_tls.path = $$LPUB3D_STG_PATH/tls
+    }
+
     lpub3d_bins_qtlibs.files += \
-        $$[QT_INSTALL_BINS]/Qt5Concurrent.dll \
-        $$[QT_INSTALL_BINS]/Qt5Core.dll \
-        $$[QT_INSTALL_BINS]/Qt5Gui.dll \
-        $$[QT_INSTALL_BINS]/Qt5Network.dll \
-        $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
-        $$[QT_INSTALL_BINS]/Qt5PrintSupport.dll \
-        $$[QT_INSTALL_BINS]/Qt5Svg.dll \
-        $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
-        $$[QT_INSTALL_BINS]/Qt5Xml.dll
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Concurrent.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Core.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Gui.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Network.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}OpenGL.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}PrintSupport.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Svg.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Widgets.dll \
+        $$[QT_INSTALL_BINS]/Qt$${QT_MAJOR_VERSION}Xml.dll
+    equals(QT_MAJOR_VERSION, 6): \
+    lpub3d_bins_qtlibs.files += \
+        $$[QT_INSTALL_BINS]/Qt6Core5Compat.dll \
+        $$[QT_INSTALL_BINS]/Qt6OpenGLWidgets.dll
     lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
 
     lpub3d_bins_additional_libs.files += \
-        $$[QT_INSTALL_BINS]/D3Dcompiler_47.dll \
-        $$[QT_INSTALL_BINS]/libEGL.dll \
-        $$[QT_INSTALL_BINS]/libGLESV2.dll \
+        $$[QT_INSTALL_BINS]/d3dcompiler_47.dll \
         $$[QT_INSTALL_BINS]/opengl32sw.dll
+    equals(QT_MAJOR_VERSION, 5): \
+    lpub3d_bins_additional_libs.files += \
+        $$[QT_INSTALL_BINS]/libEGL.dll \
+        $$[QT_INSTALL_BINS]/libGLESV2.dll
     lpub3d_bins_additional_libs.path = $$LPUB3D_STG_PATH
 
+    equals(QT_MAJOR_VERSION, 5): \
     INSTALLS += \
-        lpub3d_plugin_bearer \
+        lpub3d_plugin_bearer
+    equals(QT_MAJOR_VERSION, 6): \
+    INSTALLS += \
+        lpub3d_plugin_generic \
+        lpub3d_plugin_networkinformation \
+        lpub3d_plugin_tls
+    INSTALLS += \
         lpub3d_plugin_iconengines \
         lpub3d_plugin_imageformats \
         lpub3d_plugin_platforms \
