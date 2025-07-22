@@ -69,11 +69,11 @@ stage3rdassets {
     isEmpty(LPUB3D_STG_LIBS):LPUB3D_STG_LIBS        = $$_PRO_FILE_PWD_/..
 
     # stage directories
-    isEmpty(LPUB3D_STG_PATH):LPUB3D_STG_PATH        = $$LPUB3D_STAGE/$$DIST/$$LPUB3D_STG_DIRNAME/$$LPUB3D_STG_PRODUCT"_"$$STG_ARCH
-    message("~~~ $${LPUB3D} WIN_DIST_STAGE_TO: $$absolute_path($$LPUB3D_STG_PATH) ~~~")
+    isEmpty(LPUB3D_STG_PATH):LPUB3D_STG_PATH        = $$absolute_path($$LPUB3D_STAGE/$$DIST/$$LPUB3D_STG_DIRNAME/$$LPUB3D_STG_PRODUCT"_"$$STG_ARCH)
+    message("~~~ $${LPUB3D} WIN_DIST_STAGE_TO: $$LPUB3D_STG_PATH ~~~")
 
     isEmpty(LPUB3D_STG_3RD_PATH):LPUB3D_STG_3RD_PATH= $$LPUB3D_STG_PATH/3rdParty
-    message("~~~ $${LPUB3D} 3RD_DIST_STAGE_TO: $$absolute_path($$LPUB3D_STG_3RD_PATH) ~~~")
+    message("~~~ $${LPUB3D} 3RD_DIST_STAGE_TO: $$LPUB3D_STG_3RD_PATH ~~~")
 
     # destination data directories - 3rd party components
     isEmpty(LDGLITE_STG_DIR):LDGLITE_STG_DIR           = $$LPUB3D_STG_3RD_PATH/$$VER_LDGLITE/bin

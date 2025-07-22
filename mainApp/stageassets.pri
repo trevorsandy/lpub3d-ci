@@ -108,6 +108,7 @@ contains(option, con) {
         $$[QT_INSTALL_BINS]/Qt6OpenGLWidgets.dll
     lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
 
+    !win32-arm64-msvc: \
     lpub3d_bins_additional_libs.files += \
         $$[QT_INSTALL_BINS]/d3dcompiler_47.dll \
         $$[QT_INSTALL_BINS]/opengl32sw.dll
