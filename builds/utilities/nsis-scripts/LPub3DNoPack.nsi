@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: June 11, 2021
+;Last Update: July 22, 2025
 ;Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -14,7 +14,6 @@
 !include Registry.nsh
 !include StdUtils.nsh
 ; !include Utils.nsh
-
 ;--------------------------------
 ;generated define statements
 !include AppVersion.nsh
@@ -126,7 +125,7 @@ SetCompressor /SOLID lzma
 !define MUI_PAGE_HEADER_SUBTEXT "Please review the readme file before installing ${PRODUCT_NAME} ${VERSION} ${PLATFORM}."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down to see the rest of the readme file."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "When you have finished reading, click on Next to continue the installation."
-!insertmacro MUI_PAGE_LICENSE Empty.txt
+!insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${LICENSE_FILE}"
 
 !define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION PageInstallModeChangeMode
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
@@ -293,6 +292,22 @@ Section "Core Files (required)" SectionCoreFiles
   ; or this if you're using signing:
   ; File "${UNINSTALL_FILENAME}"
   !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
+
+  ; See http://nsis.sourceforge.io/Check_if_a_file_exists_at_compile_time for documentation
+  !macro !defineifexist _VAR_NAME _FILE_NAME
+    !tempfile _TEMPFILE
+    !ifdef NSIS_WIN32_MAKENSIS
+      ; Windows - cmd.exe
+      !system 'if exist "${_FILE_NAME}" echo !define ${_VAR_NAME} > "${_TEMPFILE}"'
+    !else
+      ; Posix - sh
+      !system 'if [ -e "${_FILE_NAME}" ]; then echo "!define ${_VAR_NAME}" > "${_TEMPFILE}"; fi'
+    !endif
+    !include '${_TEMPFILE}'
+    !delfile '${_TEMPFILE}'
+    !undef _TEMPFILE
+  !macroend
+  !define !defineifexist "!insertmacro !defineifexist"
 
   ; Core files to be installed.
   !include "LPub3DInstallFiles.nsh"
