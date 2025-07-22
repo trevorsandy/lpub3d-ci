@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 04, 2025
+rem  Last Update: August 05, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -64,12 +64,9 @@ SET LP3D_QT_MAJ_VER=5
 rem Set ARM64 cross compilation
 IF /I "%LP3D_BUILD_ARCH%" EQU "arm64" (
   SET LP3D_BUILD_ARCH=ARM64
-  IF /I "%COMMANDPROMPTTYPE%" == "Cross" (
-    IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
-      SET LP3D_AMD64_ARM64_CROSS=1
-    )
+  IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
+    SET LP3D_AMD64_ARM64_CROSS=1
   )
-  SET RUN_NSIS=0
 )
 
 rem Set Windows built-in Tar
@@ -121,10 +118,8 @@ IF /I "%APPVEYOR%" EQU "True" (
 )
 
 IF %AUTO% NEQ 1 (
-  IF /I "%LP3D_BUILD_ARCH%" NEQ "ARM64" (
-    ECHO.
-    SET /p RUN_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
-  )
+  ECHO.
+  SET /p RUN_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
   ECHO.
   SET /p CREATE_PORTABLE= - Create Portable Distributions? Type 1 to create, 0 to ignore or 'Enter' to accept default [%CREATE_PORTABLE%]:
   ECHO.
@@ -156,11 +151,7 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% == 0 ECHO   MULTI-ARCH BUILD.....................[
 IF %AUTO%            == 0 ECHO   AUTOMATIC BUILD......................[No]
 
 IF %RUN_NSIS% == 0 ECHO.
-IF /I "%LP3D_BUILD_ARCH%" EQU "ARM64" (
-  ECHO - Start build process...
-) ELSE (
-  IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...
-)
+IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start build process...
 
@@ -277,10 +268,6 @@ IF NOT EXIST "%ZIP_UTILITY%" (
 )
 
 :MAIN
-SET LP3D_DISTRO_ARCH=unknown
-SET LP3D_DISTRO_ARCH_EXT=unknown
-SET LP3D_64BIT_ARCH=unknown
-
 SET LP3D_PRODUCT=unknown
 SET LP3D_COMPANY=unknown
 SET LP3D_COMMENTS=unknown
@@ -289,6 +276,7 @@ SET LP3D_COMPANY_URL=unknown
 SET LP3D_BUILD_DATE_ALT=unknown
 SET LP3D_REVISION_FILE=unknown
 SET LP3D_SUPPORT=unknown
+SET LP3D_DISTRO_ARCH=unknown
 SET LPUB3D_BUILD_FILE=unknown
 
 SET LP3D_ALTERNATE_VERSIONS_exe=unknown
@@ -386,11 +374,14 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_SUPPORT_STR" versi
 SET LP3D_PRODUCT=%LP3D_PRODUCT:"=%
 SET LP3D_DATE_TIME=%LP3D_YEAR% %LP3D_MONTH% %LP3D_DAY% %LP3D_TIME%
 SET LP3D_PRODUCT_DIR=%LP3D_PRODUCT%-Any-%LP3D_APP_VERSION_LONG%
-SET LP3D_DOWNLOAD_PRODUCT=%LP3D_PRODUCT%-%LP3D_APP_VERSION_LONG%
-rem SET LP3D_BUILD_FILE=%LP3D_PRODUCT%%LP3D_VER_MAJOR%%LP3D_VER_MINOR%.exe
-rem SET LPUB3D_BUILD_FILE=%LP3D_BUILD_FILE%
 SET LP3D_BUILD_FILE=%LP3D_PRODUCT%.exe
 SET LPUB3D_BUILD_FILE=%LP3D_BUILD_FILE%
+IF %LP3D_AMD_UNIVERSAL_BUILD% == 1 (
+  SET LP3D_OUTPUT_FILENAME=%LP3D_APP_VERSION_LONG%
+) ELSE (
+  SET LP3D_OUTPUT_FILENAME=%LP3D_BUILD_ARCH%-%LP3D_APP_VERSION_LONG%
+)
+SET LP3D_DOWNLOAD_PRODUCT=%LP3D_PRODUCT%-%LP3D_OUTPUT_FILENAME%
 
 IF /I "%LP3D_BUILD_TYPE%" EQU "Continuous" (
   SET LP3D_VER_TAG_NAME=continuous
@@ -471,8 +462,11 @@ ECHO   BUILD_WORKER_IMAGE...................[%GITHUB_RUNNER_IMAGE%]
 IF /I "%APPVEYOR%" EQU "True" (
 ECHO   BUILD_WORKER_IMAGE...................[%APPVEYOR_BUILD_WORKER_IMAGE%]
 )
+IF /I "%PLATFORM_ARCH%" == "ARM64" (
+ECHO   PROCESSOR_ARCH.......................[%PROCESSOR_ARCHITECTURE%]
 IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
 ECHO   COMPILATION..........................[ARM64 on AMD64 host]
+)
 )
 ECHO.
 ECHO   LP3D_AVAILABLE_VERSIONS_exe..........[%LP3D_AVAILABLE_VERSIONS_exe%]
@@ -513,7 +507,6 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
         )
       )
       IF "!LP3D_DISTRO_ARCH!" NEQ "x86" (
-        SET LP3D_64BIT_ARCH=!LP3D_DISTRO_ARCH!
         IF "!LP3D_DISTRO_ARCH!" NEQ "x86_64" (
           IF "!LP3D_DISTRO_ARCH!" NEQ "ARM64" (
             ECHO.
@@ -524,7 +517,6 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
       )
     )
   )
-  REM LP3D_DISTRO_ARCH_EXT is deprecated, it is used by AppVersion.nsh to delete AMD files with old names if exist
   SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_!LP3D_DISTRO_ARCH!
   SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_!LP3D_DISTRO_ARCH!-%LP3D_APP_VERSION_LONG%
   ECHO.
@@ -541,7 +533,6 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     CALL :SETSSLVERSION %LP3D_QT32VCVERSION%
     CALL :DOWNLOADOPENSSLLIBS
     CALL :DOWNLOADMSVCREDIST %LP3D_MSC32_VER% !LP3D_DISTRO_ARCH!
-    SET LP3D_DISTRO_ARCH_EXT=x32
   ) ELSE (
     rem !LP3D_DISTRO_ARCH!==x86_64 or !LP3D_DISTRO_ARCH!==ARM64
     ECHO   LP3D_MSC64_VER....................[%LP3D_MSC64_VER%]
@@ -554,8 +545,8 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     IF !WIN64_SSL! EQU 1 CALL :DOWNLOADOPENSSLLIBS
     IF /I !LP3D_DISTRO_ARCH!==x86_64 CALL :DOWNLOADMSVCREDIST %LP3D_MSC64_VER% !LP3D_DISTRO_ARCH!
     IF /I !LP3D_DISTRO_ARCH!==ARM64 CALL :DOWNLOADMSVCREDIST %LP3D_MSCARM64_VER% !LP3D_DISTRO_ARCH!
-    SET LP3D_DISTRO_ARCH_EXT=x64
   )
+  SET LP3D_DOWNLOAD_PRODUCT=%LP3D_PRODUCT%-!LP3D_DISTRO_ARCH!-%LP3D_APP_VERSION_LONG%
   CALL :COPYFILES
   CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
@@ -600,9 +591,6 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     CALL :COPYFILES
     ENDLOCAL DISABLEDELAYEDEXPANSION
   )
-  REM LP3D_DISTRO_ARCH_EXT is deprecated, it is used by AppVersion.nsh to delete AMD files with old names if exist
-  SET LP3D_DISTRO_ARCH_EXT=x32
-  SET LP3D_64BIT_ARCH=x86_64
   CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
@@ -681,13 +669,15 @@ EXIT /b
 
 :GENERATENSISPARAMS
 REM pwd = builds\windows\release\LP3D_PRODUCT_DIR
-SET LP3D_WIN64_LDGLITE=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
-SET LP3D_WIN64_LDVIEW=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty\%VER_LDVIEW%\bin\%LDVIEW_EXE%64.exe
-SET LP3D_WIN64_LPUB3D_TRACE=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%64.exe
+SET LP3D_WIN64_3RDPARTY=%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%\3rdParty
+SET LP3D_WIN64_LDGLITE=%LP3D_WIN64_3RDPARTY%\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
+SET LP3D_WIN64_LDVIEW=%LP3D_WIN64_3RDPARTY%\%VER_LDVIEW%\bin\%LDVIEW_EXE%64.exe
+SET LP3D_WIN64_LPUB3D_TRACE=%LP3D_WIN64_3RDPARTY%\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%64.exe
 
-SET LP3D_WIN32_LDGLITE=%LP3D_PRODUCT%_x86\3rdParty\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
-SET LP3D_WIN32_LDVIEW=%LP3D_PRODUCT%_x86\3rdParty\%VER_LDVIEW%\bin\%LDVIEW_EXE%.exe
-SET LP3D_WIN32_LPUB3D_TRACE=%LP3D_PRODUCT%_x86\3rdParty\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%32.exe
+SET LP3D_WIN32_3RDPARTY=%LP3D_PRODUCT%_x86\3rdParty
+SET LP3D_WIN32_LDGLITE=%LP3D_WIN32_3RDPARTY%\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
+SET LP3D_WIN32_LDVIEW=%LP3D_WIN32_3RDPARTY%\%VER_LDVIEW%\bin\%LDVIEW_EXE%.exe
+SET LP3D_WIN32_LPUB3D_TRACE=%LP3D_WIN32_3RDPARTY%\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%32.exe
 REM AppVersion.nsh pwd = builds\utilities\nsis-scripts
 SET LP3D_BUILD_DIR=..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%
 
@@ -703,35 +693,36 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
   IF NOT EXIST "%LP3D_WIN64_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
   IF NOT EXIST "%LP3D_WIN64_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-  ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN64_LDGLITE%]
-  ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN64_LDVIEW%]
-  ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN64_LPUB3D_TRACE%]
+  ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN64_LDGLITE%]
+  ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN64_LDVIEW%]
+  ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN64_LPUB3D_TRACE%]
 
   IF NOT EXIST "%LP3D_WIN32_LDGLITE%" ( SET LP3D_LDGLITE_STATUS=Not Found )
   IF NOT EXIST "%LP3D_WIN32_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
   IF NOT EXIST "%LP3D_WIN32_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-  ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN32_LDGLITE%]
-  ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN32_LDVIEW%]
-  ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN32_LPUB3D_TRACE%]
+  ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN32_LDGLITE%]
+  ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN32_LDVIEW%]
+  ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN32_LPUB3D_TRACE%]
 ) ELSE (
   IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
     IF NOT EXIST "%LP3D_WIN32_LDGLITE%" ( SET LP3D_LDGLITE_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN32_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN32_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-    ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN32_LDGLITE%]
-    ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN32_LDVIEW%]
-    ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN32_LPUB3D_TRACE%]
+    ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN32_LDGLITE%]
+    ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN32_LDVIEW%]
+    ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN32_LPUB3D_TRACE%]
   ) ELSE (
     IF NOT EXIST "%LP3D_WIN64_LDGLITE%" ( SET LP3D_LDGLITE_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN64_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN64_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-    ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN64_LDGLITE%]
-    ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN64_LDVIEW%]
-    ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN64_LPUB3D_TRACE%]
+    ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN64_LDGLITE%]
+    ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN64_LDVIEW%]
+    ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN64_LPUB3D_TRACE%]
   )
+  SET LP3D_OUTPUT_FILENAME=%LP3D_DISTRO_ARCH%-%LP3D_APP_VERSION_LONG%
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 
@@ -760,27 +751,45 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% !define VersionMinor "%LP3D_VER_MINOR%"
 >>%genVersion% ; ${VersionMinor}
 >>%genVersion%.
->>%genVersion% !define CompleteVersion "%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%"
->>%genVersion% ; ${CompleteVersion}
+>>%genVersion% !define OutputFilename "%LP3D_OUTPUT_FILENAME%"
+>>%genVersion% ; ${OutputFilename}
 >>%genVersion%.
 >>%genVersion% !define UniversalBuild %LP3D_AMD_UNIVERSAL_BUILD%
 >>%genVersion% ; ${UniversalBuild}
->>%genVersion%.
->>%genVersion% !define Architecture %LP3D_DISTRO_ARCH%
->>%genVersion% ; ${Architecture}
->>%genVersion%.
->>%genVersion% !define ArchExt %LP3D_DISTRO_ARCH_EXT%
->>%genVersion% ; ${ArchExt}
 >>%genVersion%.
 >>%genVersion% !define ProductDir "..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
 >>%genVersion% ; ${ProductDir}
 >>%genVersion%.
 >>%genVersion% !define OutFileDir "..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
 >>%genVersion% ; ${OutFileDir} - Output path
-IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
+>>%genVersion%.
+>>%genVersion% !define LDGliteDir "%VER_LDGLITE%"
+>>%genVersion% ; ${LDGliteDir}
+>>%genVersion%.
+>>%genVersion% !define LDGliteExe "%LDGLITE_EXE%"
+>>%genVersion% ; ${LDGliteExe}
+>>%genVersion%.
+>>%genVersion% !define LDViewDir "%VER_LDVIEW%"
+>>%genVersion% ; ${LDViewDir}
+>>%genVersion%.
+>>%genVersion% !define LDViewExe "%LDVIEW_EXE%"
+>>%genVersion% ; ${LDViewExe}
+>>%genVersion%.
+>>%genVersion% !define LPub3DTraceDir "%VER_LPUB3D_TRACE%"
+>>%genVersion% ; ${LPub3DTraceDir}
+>>%genVersion%.
+>>%genVersion% !define LPub3DTraceExe "%LPUB3D_TRACE_EXE%"
+>>%genVersion% ; ${LPub3DTraceExe}
 >>%genVersion%.
 >>%genVersion% !define WinBuildDir "%LP3D_BUILD_DIR%_%LP3D_DISTRO_ARCH%"
 >>%genVersion% ; ${WinBuildDir} - Input path for documents and extras - using %LP3D_DISTRO_ARCH% location
+IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
+>>%genVersion%.
+>>%genVersion% !define X86_INSTALL
+>>%genVersion% ; X86_INSTALL
+>>%genVersion%.
+>>%genVersion% !define X64_INSTALL
+>>%genVersion% ; X64_INSTALL
 >>%genVersion%.
 >>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_x86_64"
 >>%genVersion% ; ${Win64BuildDir} - Input path for x86_64 architecture
@@ -790,17 +799,31 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
 ) ELSE (
 IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
 >>%genVersion%.
+>>%genVersion% !define X86_INSTALL
+>>%genVersion% ; X86_INSTALL
+>>%genVersion%.
 >>%genVersion% !define Win32BuildDir "%LP3D_BUILD_DIR%_x86"
 >>%genVersion% ; ${Win32BuildDir} - Input path for x86 architecture
 ) ELSE (
 >>%genVersion%.
->>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_%LP3D_64BIT_ARCH%"
->>%genVersion% ; ${Win64BuildDir} - Input path for %LP3D_64BIT_ARCH% architecture
+>>%genVersion% !define X64_INSTALL
+>>%genVersion% ; X64_INSTALL
+IF "%LP3D_DISTRO_ARCH%" EQU "ARM64" (
+>>%genVersion%.
+>>%genVersion% !define ARM64_INSTALL
+>>%genVersion% ; ARM64_INSTALL
+)
+>>%genVersion%.
+>>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_%LP3D_DISTRO_ARCH%"
+>>%genVersion% ; ${Win64BuildDir} - Input path for %LP3D_DISTRO_ARCH% architecture
 )
 )
 IF "%OPENSSL_VER%" EQU "v1.1" (
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
 IF %WIN64_SSL% == 1 (
+>>%genVersion%.
+>>%genVersion% !define WIN64_SSL
+>>%genVersion% ; WIN64_SSL
 >>%genVersion%.
 >>%genVersion% !define OpenSSL64LibCrypto "libcrypto-1_1-x64.dll"
 >>%genVersion% ; ${OpenSSL64LibCrypto}
@@ -869,51 +892,6 @@ IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
-IF "%LP3D_LDGLITE_STATUS%" EQU "Installed" (
->>%genVersion%.
->>%genVersion% !define LDGLiteInstalled 1
->>%genVersion% ; ${LDGLiteInstalled}
->>%genVersion%.
->>%genVersion% !define LDGliteDir "%VER_LDGLITE%"
->>%genVersion% ; ${LDGliteDir}
->>%genVersion%.
->>%genVersion% !define LDGliteExe "%LDGLITE_EXE%"
->>%genVersion% ; ${LDGliteExe}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define LDGLiteInstalled 0
->>%genVersion% ; ${LDGLiteInstalled}
-)
-IF "%LP3D_LDVIEW_STATUS%" EQU "Installed" (
->>%genVersion%.
->>%genVersion% !define LDViewInstalled 1
->>%genVersion% ; ${LDViewInstalled}
->>%genVersion%.
->>%genVersion% !define LDViewDir "%VER_LDVIEW%"
->>%genVersion% ; ${LDViewDir}
->>%genVersion%.
->>%genVersion% !define LDViewExe "%LDVIEW_EXE%"
->>%genVersion% ; ${LDViewExe}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define LDViewInstalled 0
->>%genVersion% ; ${LDViewInstalled}
-)
-IF "%LP3D_LPUB3D_TRACE_STATUS%" EQU "Installed" (
->>%genVersion%.
->>%genVersion% !define LPub3DTraceDir "%VER_LPUB3D_TRACE%"
->>%genVersion% ; ${LPub3DTraceDir}
->>%genVersion%.
->>%genVersion% !define LPub3DTraceInstalled 1
->>%genVersion% ; ${LPub3DTraceInstalled}
->>%genVersion%.
->>%genVersion% !define LPub3DTraceExe "%LPUB3D_TRACE_EXE%"
->>%genVersion% ; ${LPub3DTraceExe}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define LPub3DTraceInstalled 0
->>%genVersion% ; ${LPub3DTraceInstalled}
-)
 >>%genVersion%.
 >>%genVersion% !define BuildRevision "%LP3D_VER_REVISION%"
 >>%genVersion% ; ${BuildRevision}
@@ -1547,7 +1525,7 @@ IF "%LP3D_DISTRO_ARCH%" == "ARM64" (
 )
 ECHO.
 ECHO - Rename %WebCONTENT% %RedistCONTENT%
-REN "%WebCONTENT%" "%RedistCONTENT%" 
+REN "%WebCONTENT%" "%RedistCONTENT%"
 
 IF EXIST "%OutputPATH%\%RedistCONTENT%" (
   ECHO.
@@ -1719,7 +1697,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
     COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - LDraw archive lib %OfficialCONTENT% does not exist in %LDRAW_LIBS%\.
+    ECHO - ERROR - LDraw archive lib %OfficialCONTENT% does not exist in %LDRAW_LIBS%\.
   )
 ) ELSE (
   ECHO.
@@ -1730,7 +1708,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%TenteCONTENT%" (
     COPY /V /Y "%LDRAW_LIBS%\%TenteCONTENT%" "%PKG_TARGET_DIR%\extras\" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - LDraw archive lib %TenteCONTENT% does not exist in %LDRAW_LIBS%\.
+    ECHO - ERROR - LDraw archive lib %TenteCONTENT% does not exist in %LDRAW_LIBS%\.
   )
 ) ELSE (
   ECHO.
@@ -1741,7 +1719,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%VexiqCONTENT%" (
     COPY /V /Y "%LDRAW_LIBS%\%VexiqCONTENT%" "%PKG_TARGET_DIR%\extras\" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - LDraw archive lib %VexiqCONTENT% does not exist in %LDRAW_LIBS%\.
+    ECHO - ERROR - LDraw archive lib %VexiqCONTENT% does not exist in %LDRAW_LIBS%\.
   )
 ) ELSE (
   ECHO.
@@ -1752,7 +1730,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%LPub3DCONTENT%" (
     COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - LDraw archive lib %LPub3DCONTENT% does not exist in %LDRAW_LIBS%\.
+    ECHO - ERROR - LDraw archive lib %LPub3DCONTENT% does not exist in %LDRAW_LIBS%\.
   )
 ) ELSE (
   ECHO.

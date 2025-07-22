@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: June 11, 2021
+;Last Update: August 05, 2025
 ;Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -13,8 +13,8 @@
 !include LogicLib.nsh
 !include Registry.nsh
 !include StdUtils.nsh
+!include x64.nsh
 ; !include Utils.nsh
-
 ;--------------------------------
 ;generated define statements
 !include AppVersion.nsh
@@ -91,11 +91,11 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "©2021 ${COMPANY_NAME}"
+BrandingText "©2025 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else
-  OutFile "${OutFileDir}\${PRODUCT_NAME}-${CompleteVersion}.exe"
+  OutFile "${OutFileDir}\${PRODUCT_NAME}-${OutputFilename}.exe"
 !endif
 
 AllowSkipFiles off
@@ -126,7 +126,7 @@ SetCompressor /SOLID lzma
 !define MUI_PAGE_HEADER_SUBTEXT "Please review the readme file before installing ${PRODUCT_NAME} ${VERSION} ${PLATFORM}."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down to see the rest of the readme file."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "When you have finished reading, click on Next to continue the installation."
-!insertmacro MUI_PAGE_LICENSE Empty.txt
+!insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${LICENSE_FILE}"
 
 !define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION PageInstallModeChangeMode
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
@@ -180,6 +180,9 @@ InstType "Minimal"
 InstType "Full"
 
 Section "Core Files (required)" SectionCoreFiles
+!ifdef ARM64_INSTALL
+  ${DisableX64FSRedirection}
+!endif
   SectionIn 1 2 3 RO
 
   ; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
@@ -294,14 +297,30 @@ Section "Core Files (required)" SectionCoreFiles
   ; File "${UNINSTALL_FILENAME}"
   !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
 
+  ; See http://nsis.sourceforge.io/Check_if_a_file_exists_at_compile_time for documentation
+  !macro !defineifexist _VAR_NAME _FILE_NAME
+    !tempfile _TEMPFILE
+    !ifdef NSIS_WIN32_MAKENSIS
+      ; Windows - cmd.exe
+      !system 'if exist "${_FILE_NAME}" echo !define ${_VAR_NAME} > "${_TEMPFILE}"'
+    !else
+      ; Posix - sh
+      !system 'if [ -e "${_FILE_NAME}" ]; then echo "!define ${_VAR_NAME}" > "${_TEMPFILE}"; fi'
+    !endif
+    !include '${_TEMPFILE}'
+    !delfile '${_TEMPFILE}'
+    !undef _TEMPFILE
+  !macroend
+  !define !defineifexist "!insertmacro !defineifexist"
+
   ; Core files to be installed.
   !include "LPub3DInstallFiles.nsh"
 
   ;Install MSVC Redistributable
   ${If} ${RunningX64}
-     ExecWait '"vcredist_x86_64.exe"  /quiet /norestart'
+     ExecWait '"vc_redist.x64.exe"  /quiet /norestart'
   ${Else}
-     ExecWait '"vcredist_x86.exe"  /quiet /norestart'
+     ExecWait '"vc_redist.x86.exe"  /quiet /norestart'
   ${EndIf}
 
   !ifdef LICENSE_FILE
@@ -367,15 +386,24 @@ Section "Core Files (required)" SectionCoreFiles
     File "${WinBuildDir}\extras\fadeStepColorParts.lst"
     GoToEnd:
   ${EndIf}
+!ifdef ARM64_INSTALL
+  ${EnableX64FSRedirection}
+!endif
 SectionEnd
 
 Section "Documentation" SectionDocumentation
+!ifdef ARM64_INSTALL
+  ${DisableX64FSRedirection}
+!endif
   SectionIn 1 3
 
   SetOutPath $INSTDIR
   File "${WinBuildDir}\docs\${README_FILE}"
   File "${WinBuildDir}\docs\${RELEASE_NOTES_FILE}"
 
+!ifdef ARM64_INSTALL
+  ${EnableX64FSRedirection}
+!endif
 SectionEnd
 
 SectionGroup /e "Integration" SectionGroupIntegration
@@ -445,6 +473,13 @@ SectionEnd
 
 ; Callbacks
 Function .onInit
+   !ifdef ARM64_INSTALL
+	${IfNot} ${IsNativeARM64}
+	  MessageBox MB_ICONSTOP "This distribution only supports ARM64!"
+	  Quit
+	${EndIf}
+	SetRegView 64
+   !endif
    ; Set the MULTIUSER_INSTALLMODE_64_BIT flag
    ${If} ${RunningX64}
      StrCpy $X64Flag 1
@@ -485,13 +520,15 @@ Function .onInit
   ; Set caption according to architecture
   StrCmp ${UniversalBuild} "1" 0 SignleArchBuild
   StrCpy $CaptionMessage "${PRODUCT_NAME} 32,64bit Setup"
-  GoTo InitDataVars
+  Goto InitDataVars
 
   SignleArchBuild:
-  StrCmp ${ArchExt} "x64" 0 +2
-  StrCpy $CaptionMessage "${PRODUCT_NAME} 64bit Setup"
-  StrCpy $CaptionMessage "${PRODUCT_NAME} 32bit Setup"
-
+  !ifdef X64_INSTALL
+    StrCpy $CaptionMessage "${PRODUCT_NAME} 64bit Setup"
+  !else
+	StrCpy $CaptionMessage "${PRODUCT_NAME} 32bit Setup"
+  !endif
+  
   InitDataVars:
   ;Initialize user data vars
   Call fnInitializeUserDataVars
