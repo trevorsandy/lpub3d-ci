@@ -681,13 +681,15 @@ EXIT /b
 
 :GENERATENSISPARAMS
 REM pwd = builds\windows\release\LP3D_PRODUCT_DIR
-SET LP3D_WIN64_LDGLITE=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
-SET LP3D_WIN64_LDVIEW=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty\%VER_LDVIEW%\bin\%LDVIEW_EXE%64.exe
-SET LP3D_WIN64_LPUB3D_TRACE=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%64.exe
+SET LP3D_WIN64_3RDPARTY=%LP3D_PRODUCT%_%LP3D_64BIT_ARCH%\3rdParty
+SET LP3D_WIN64_LDGLITE=%LP3D_WIN64_3RDPARTY%\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
+SET LP3D_WIN64_LDVIEW=%LP3D_WIN64_3RDPARTY%\%VER_LDVIEW%\bin\%LDVIEW_EXE%64.exe
+SET LP3D_WIN64_LPUB3D_TRACE=%LP3D_WIN64_3RDPARTY%\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%64.exe
 
-SET LP3D_WIN32_LDGLITE=%LP3D_PRODUCT%_x86\3rdParty\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
-SET LP3D_WIN32_LDVIEW=%LP3D_PRODUCT%_x86\3rdParty\%VER_LDVIEW%\bin\%LDVIEW_EXE%.exe
-SET LP3D_WIN32_LPUB3D_TRACE=%LP3D_PRODUCT%_x86\3rdParty\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%32.exe
+SET LP3D_WIN32_3RDPARTY=%LP3D_PRODUCT%_x86\3rdParty
+SET LP3D_WIN32_LDGLITE=%LP3D_WIN32_3RDPARTY%\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
+SET LP3D_WIN32_LDVIEW=%LP3D_WIN32_3RDPARTY%\%VER_LDVIEW%\bin\%LDVIEW_EXE%.exe
+SET LP3D_WIN32_LPUB3D_TRACE=%LP3D_WIN32_3RDPARTY%\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%32.exe
 REM AppVersion.nsh pwd = builds\utilities\nsis-scripts
 SET LP3D_BUILD_DIR=..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%
 
@@ -703,34 +705,34 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
   IF NOT EXIST "%LP3D_WIN64_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
   IF NOT EXIST "%LP3D_WIN64_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-  ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN64_LDGLITE%]
-  ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN64_LDVIEW%]
-  ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN64_LPUB3D_TRACE%]
+  ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN64_LDGLITE%]
+  ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN64_LDVIEW%]
+  ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN64_LPUB3D_TRACE%]
 
   IF NOT EXIST "%LP3D_WIN32_LDGLITE%" ( SET LP3D_LDGLITE_STATUS=Not Found )
   IF NOT EXIST "%LP3D_WIN32_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
   IF NOT EXIST "%LP3D_WIN32_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-  ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN32_LDGLITE%]
-  ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN32_LDVIEW%]
-  ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN32_LPUB3D_TRACE%]
+  ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN32_LDGLITE%]
+  ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN32_LDVIEW%]
+  ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN32_LPUB3D_TRACE%]
 ) ELSE (
   IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
     IF NOT EXIST "%LP3D_WIN32_LDGLITE%" ( SET LP3D_LDGLITE_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN32_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN32_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-    ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN32_LDGLITE%]
-    ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN32_LDVIEW%]
-    ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN32_LPUB3D_TRACE%]
+    ECHO   LP3D_WIN32_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN32_LDGLITE%]
+    ECHO   LP3D_WIN32_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN32_LDVIEW%]
+    ECHO   LP3D_WIN32_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN32_LPUB3D_TRACE%]
   ) ELSE (
     IF NOT EXIST "%LP3D_WIN64_LDGLITE%" ( SET LP3D_LDGLITE_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN64_LDVIEW%" ( SET LP3D_LDVIEW_STATUS=Not Found )
     IF NOT EXIST "%LP3D_WIN64_LPUB3D_TRACE%" ( SET LP3D_LPUB3D_TRACE_STATUS=Not Found )
 
-    ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)..[%LP3D_WIN64_LDGLITE%]
-    ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)..[%LP3D_WIN64_LDVIEW%]
-    ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)..[%LP3D_WIN64_LPUB3D_TRACE%]
+    ECHO   LP3D_WIN64_LDGLITE.........^(!LP3D_LDGLITE_STATUS!^)[%LP3D_WIN64_LDGLITE%]
+    ECHO   LP3D_WIN64_LDVIEW..........^(!LP3D_LDVIEW_STATUS!^)[%LP3D_WIN64_LDVIEW%]
+    ECHO   LP3D_WIN64_LPUB3D_TRACE....^(!LP3D_LPUB3D_TRACE_STATUS!^)[%LP3D_WIN64_LPUB3D_TRACE%]
   )
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
@@ -777,6 +779,24 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion%.
 >>%genVersion% !define OutFileDir "..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
 >>%genVersion% ; ${OutFileDir} - Output path
+>>%genVersion%.
+>>%genVersion% !define LDGliteDir "%VER_LDGLITE%"
+>>%genVersion% ; ${LDGliteDir}
+>>%genVersion%.
+>>%genVersion% !define LDGliteExe "%LDGLITE_EXE%"
+>>%genVersion% ; ${LDGliteExe}
+>>%genVersion%.
+>>%genVersion% !define LDViewDir "%VER_LDVIEW%"
+>>%genVersion% ; ${LDViewDir}
+>>%genVersion%.
+>>%genVersion% !define LDViewExe "%LDVIEW_EXE%"
+>>%genVersion% ; ${LDViewExe}
+>>%genVersion%.
+>>%genVersion% !define LPub3DTraceDir "%VER_LPUB3D_TRACE%"
+>>%genVersion% ; ${LPub3DTraceDir}
+>>%genVersion%.
+>>%genVersion% !define LPub3DTraceExe "%LPUB3D_TRACE_EXE%"
+>>%genVersion% ; ${LPub3DTraceExe}
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion%.
 >>%genVersion% !define WinBuildDir "%LP3D_BUILD_DIR%_x86_64"
@@ -869,51 +889,6 @@ IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
-IF "%LP3D_LDGLITE_STATUS%" EQU "Installed" (
->>%genVersion%.
->>%genVersion% !define LDGLiteInstalled 1
->>%genVersion% ; ${LDGLiteInstalled}
->>%genVersion%.
->>%genVersion% !define LDGliteDir "%VER_LDGLITE%"
->>%genVersion% ; ${LDGliteDir}
->>%genVersion%.
->>%genVersion% !define LDGliteExe "%LDGLITE_EXE%"
->>%genVersion% ; ${LDGliteExe}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define LDGLiteInstalled 0
->>%genVersion% ; ${LDGLiteInstalled}
-)
-IF "%LP3D_LDVIEW_STATUS%" EQU "Installed" (
->>%genVersion%.
->>%genVersion% !define LDViewInstalled 1
->>%genVersion% ; ${LDViewInstalled}
->>%genVersion%.
->>%genVersion% !define LDViewDir "%VER_LDVIEW%"
->>%genVersion% ; ${LDViewDir}
->>%genVersion%.
->>%genVersion% !define LDViewExe "%LDVIEW_EXE%"
->>%genVersion% ; ${LDViewExe}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define LDViewInstalled 0
->>%genVersion% ; ${LDViewInstalled}
-)
-IF "%LP3D_LPUB3D_TRACE_STATUS%" EQU "Installed" (
->>%genVersion%.
->>%genVersion% !define LPub3DTraceDir "%VER_LPUB3D_TRACE%"
->>%genVersion% ; ${LPub3DTraceDir}
->>%genVersion%.
->>%genVersion% !define LPub3DTraceInstalled 1
->>%genVersion% ; ${LPub3DTraceInstalled}
->>%genVersion%.
->>%genVersion% !define LPub3DTraceExe "%LPUB3D_TRACE_EXE%"
->>%genVersion% ; ${LPub3DTraceExe}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define LPub3DTraceInstalled 0
->>%genVersion% ; ${LPub3DTraceInstalled}
-)
 >>%genVersion%.
 >>%genVersion% !define BuildRevision "%LP3D_VER_REVISION%"
 >>%genVersion% ; ${BuildRevision}
