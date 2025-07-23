@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LDVAlertHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDVExtensionsSetup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDVHtmlInventory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDVMisc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDVPreferences.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDVWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDViewExportOption.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LDViewPartList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LDVAlertHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LDVExtensionsSetup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LDVHtmlInventory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LDVMisc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="LDVPreferences.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LDVWidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="LDVWidgetDefaultKeys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="LDViewExportOption.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LDViewPartList.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="64bit_debug\.moc\moc_LDVPreferences.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDVPreferences.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_debug\.moc\moc_LDVWidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDVWidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_debug\.moc\moc_LDViewExportOption.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDViewExportOption.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_debug\.moc\moc_LDViewPartList.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDViewPartList.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <CustomBuild Include="64bit_debug\.moc\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="64bit_release\.moc\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <ClCompile Include="64bit_debug\.qrc\qrc_resources.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.qrc\qrc_resources.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClInclude Include="64bit_debug\.ui\ui_LDVExportOptionPanel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="64bit_release\.ui\ui_LDVExportOptionPanel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="64bit_debug\.ui\ui_LDVPartList.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="64bit_release\.ui\ui_LDVPartList.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="64bit_debug\.ui\ui_LDVPreferencesPanel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="64bit_release\.ui\ui_LDVPreferencesPanel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="LDVExportOptionPanel.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LDVPartList.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LDVPreferencesPanel.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\LPub32.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLL.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLL@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLLOff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLLOff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLM.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLM@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLMOff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLMOff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLR.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLR@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLROff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleLROff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleML.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleML@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMLOff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMLOff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMM.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMM@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMMOff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMMOff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMR.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMR@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMROff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleMROff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUL.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUL@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleULOff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleULOff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUM.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUM@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUMOff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUMOff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUR.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUR@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUROff.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\LightAngleUROff@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\SansSerif.fnt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\SansSerif@2x.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\StudLogo.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <CustomBuild Include="resources.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
