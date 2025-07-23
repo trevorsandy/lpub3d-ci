@@ -37,7 +37,7 @@ LIBS_INC                 = $${LIBINC_}
 # ===============================
 BUILD_ZLIB {
     ZLIB_INC             = $${_PRO_FILE_PWD_}/../zlib
-} else: win32-msvc* {
+} else: win32-arm64-msvc|win32-msvc* {
     ZLIB_INC             = $${LIBINC_}
 } else:unix|msys {
     # System prefix
@@ -74,7 +74,7 @@ INCLUDEPATH             += $${ZLIB_INC}
 unix|msys:!macx: \
 DEFINES                 += _GNU_SOURCE
 
-win32-msvc* {
+win32-arm64-msvc|win32-msvc* {
     QMAKE_CXXFLAGS_RELEASE += \
     /FI winsock2.h /FI winsock.h \
     /wd4675
