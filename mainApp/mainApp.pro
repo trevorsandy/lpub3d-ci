@@ -56,7 +56,7 @@ win32 {
     DEFINES      +=  QUAZIP_STATIC
     DEFINES      += _TC_STATIC
 
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         DEFINES += _WINSOCKAPI_
         DEFINES += QT_NODLL
         DEFINES += _WIN_UTF8_PATHS
@@ -132,7 +132,7 @@ static {                                # everything below takes effect with CON
     QMAKE_LFLAGS += -static             # same as LIBS += -static
     macx: \
     TARGET   = $$join(TARGET,,,_static) # this adds an _static in the end, so you can seperate static build from non static build
-    win32-msvc*: \
+    win32-arm64-msvc|win32-msvc*: \
     TARGET   = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 } else {
     BUILD    = Shared
@@ -312,7 +312,7 @@ if(!isEmpty(option)) {
         else:include(posixfiledistro.pri)
     }
 
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         CONFIG += stage3rdexe
         CONFIG += stage3rdassets
         CONFIG += stage3rdconfig
@@ -343,7 +343,7 @@ equals(VER_USE_LDVIEW_DEV,True) {
     INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty
     INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY} $${VER_LDVIEW_DEV_REPOSITORY}/include
 } else {
-    USE_LDV_SYSTEM_LIBS:win32-msvc*: \
+    USE_LDV_SYSTEM_LIBS:win32-arm64-msvc|win32-msvc*: \
     INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
     INCLUDEPATH += $${VER_LDVIEW_THIRD_PARTY}
     INCLUDEPATH += $${VER_LDVIEW_DIR_PATH} $${VER_LDVIEW_INCLUDE}
@@ -392,7 +392,7 @@ msys {
     OPENGL_LIBS    = $$QMAKE_LIBS_OPENGL
     else: \
     OPENGL_LIBS    = -L$${SYSTEM_PREFIX_}/lib -lOpenGL32 -lglu32
-} else:win32-msvc* {
+} else:win32-arm64-msvc|win32-msvc* {
     ldviewqt: \
     OPENGL_LIBS    = $$QMAKE_LIBS_OPENGL
     else: \

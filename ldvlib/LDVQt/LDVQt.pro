@@ -45,13 +45,13 @@ DEFINES += QT_THREAD_SUPPORT
 DEFINES += EXPORT_3DS
 
 # specify flag for ARM platforms to use System OpenGL headers
-!macx:contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
+unix:!macx:contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
 UNIX_ARM_BUILD_ARCH = True
 
 win32 {
     QMAKE_EXT_OBJ  = .obj
     DEFINES       += _TC_STATIC
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         DEFINES   += _WINSOCKAPI_
         DEFINES   += _WIN_UTF8_PATHS
     }

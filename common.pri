@@ -15,14 +15,14 @@ BUILD_ARCH = UNKNOWN ARCH
 BUILD_TARGET                 = $$(TARGET_VENDOR)
 isEmpty(BUILD_TARGET) {
     msys:BUILD_TARGET        = MSYS2 MICROSOFT WINDOWS
-    win32-msvc*:BUILD_TARGET = $$system(systeminfo | findstr /B /C:\"OS Name\")
+    win32-arm64-msvc|win32-msvc*:BUILD_TARGET = $$system(systeminfo | findstr /B /C:\"OS Name\")
     unix:!macx:BUILD_TARGET  = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
     macx:BUILD_TARGET        = $$system(echo `sw_vers -productName`)
 }
 # platform version
 HOST_VERSION                 = $$(PLATFORM_VER)
 isEmpty(HOST_VERSION) {
-    win32-msvc*:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
+    win32-arm64-msvc|win32-msvc*:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
     unix:!macx:HOST_VERSION  = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
     macx:HOST_VERSION        = $$system(echo `sw_vers -productVersion`)
     mingw:ide_qtcreator:HOST_VERSION = MinGW_2025
@@ -86,7 +86,7 @@ ldviewqt {
         DEFINES    -= _QT
         DEFINES    += _LP3D_CUI_WGL
     }
-} else:!win32-msvc* {
+} else:!win32-arm64-msvc:!win32-msvc* {
     BUILD           = OSMesa
     POSTFIX         = -osmesa
     CONFIG         += OSMesa
@@ -162,7 +162,7 @@ THIRD_PARTY_DIST_DIR_PATH     = $${PWD}/builds/3rdparty
 !BUILD_LDV_LIBS {
     unix|msys: \
     LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
-    else:win32-msvc*: \
+    else:win32-arm64-msvc|win32-msvc*: \
     LIB_LDVIEW  = TCFoundation.lib
     LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH}
     !exists($${LIB_LDVIEW_PATH}) {
@@ -194,7 +194,7 @@ BUILD_LDV_LIBS {
         CONFIG += BUILD_ZLIB
     } else {
         CONFIG += BUILD_TINYXML
-        win32-msvc*: \
+        win32-arm64-msvc|win32-msvc*: \
         CONFIG += BUILD_GL2PS
         else: \
         CONFIG += BUILD_3DS
@@ -221,7 +221,7 @@ SUFFIX                  = $${BUILD}
 
 #~~ extensions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-win32-msvc* {
+win32-arm64-msvc|win32-msvc* {
     EXT_S = lib
     EXT_D = dll
 } else {
@@ -245,7 +245,7 @@ CONFIG(debug, debug|release) {
         # they also define the ldview git extract folder name - you can set as you like
         mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
         else:unix|msys:      VER_LDVIEW_DEV = ldview
-        else:win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
+        else:win32-arm64-msvc|win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
         # This line defines the path of the ldview git extract relative to this project file
         VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $${PWD}/../$${VER_LDVIEW_DEV} )
         equals(TARGET, LPub3D): \
@@ -270,7 +270,7 @@ BUILD_LDV_LIBS {
     VER_LDVIEW_3RD_LIBS = $${PWD}/ldvlib/LDVQt/LDView/lib$${LDVLIB_ARCH}
 } else:equals(VER_USE_LDVIEW_DEV,True) {
     VER_LDVIEW_3RD_LIBS = $${VER_LDVIEW_DEV_REPOSITORY}/lib$${LDVLIB_ARCH}
-} else:win32-msvc*:CONFIG(debug, debug|release) {
+} else:win32-arm64-msvc|win32-msvc*:CONFIG(debug, debug|release) {
     VER_LDVIEW_3RD_LIBS = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/Build/Debug$${LIB_ARCH}
 } else {
     VER_LDVIEW_3RD_LIBS = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$$QT_ARCH
@@ -278,13 +278,14 @@ BUILD_LDV_LIBS {
 
 #~~ LDVQt MSVC 3rdParty libs suffix ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-win32-msvc* {
+win32-arm64-msvc|win32-msvc* {
     BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
     isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
     lessThan(BUILD_WORKER_VERSION, 2019) {
         VSVER=vs2015
     } else {
         contains(QT_ARCH, i386): VSVER=vs2017
+        else:win32-arm64-msvc: VSVER=vs2022
         else: VSVER=vs2019
     }
     equals(TARGET, LDVQt) {
@@ -306,7 +307,7 @@ contains(USE_CPP11,NO) {
 #~~ CXXFLAGS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 equals(QT_MAJOR_VERSION, 5) {
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
         if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)) {
@@ -323,7 +324,7 @@ equals(QT_MAJOR_VERSION, 5) {
 }
 
 equals(QT_MAJOR_VERSION, 6) {
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         QMAKE_CXXFLAGS += /std:c++17
     } else:unix|msys {
         if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)) {
@@ -342,7 +343,7 @@ win32 {
     DEFINES                    += _CRT_SECURE_NO_WARNINGS \
                                   _CRT_SECURE_NO_DEPRECATE=1 \
                                   _CRT_NONSTDC_NO_WARNINGS=1
-win32-msvc* {
+win32-arm64-msvc|win32-msvc* {
     # warning C4996: 'stdext::make_checked_array_iterator': warning STL4043: stdext::checked_array_iterator,
     # stdext::unchecked_array_iterator, and related factory functions are non-Standard extensions a
     # nd will be removed in the future. std::span (since C++20) and gsl::span can be used instead.
@@ -366,7 +367,7 @@ win32-msvc* {
         QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
     }
     QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
-} # win32-msvc*
+} # win32-arm64-msvc|win32-msvc*
 } # win32
 
 if (unix|msys) {

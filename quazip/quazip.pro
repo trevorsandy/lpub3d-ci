@@ -41,7 +41,7 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
 
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
     } else {
         LIBS += -lz

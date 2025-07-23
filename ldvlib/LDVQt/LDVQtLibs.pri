@@ -22,7 +22,7 @@ contains(LOAD_LDV_HEADERS,True) {
         isEmpty(LDV3RDHDR):LDV3RDHDR       = $${LDV3RDHDRDIR}
     }
 
-    USE_LDV_SYSTEM_LIBS:win32-msvc*: \
+    USE_LDV_SYSTEM_LIBS:win32-arm64-msvc|win32-msvc*: \
     INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
     DEPENDPATH  += $${LDVHDRDIR}
     INCLUDEPATH += $${LDVHDRDIR}
@@ -101,7 +101,7 @@ contains(LOAD_LDV_HEADERS,True) {
         message("~~~ lib$${TARGET} system library header for libz FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/zlib.h)|exists($${LDVHDRDIR}/zlib.h) {
         message("~~~ lib$${TARGET} local library header for libz FOUND ~~~")
-    } else:win32-msvc*:exists($$[QT_INSTALL_HEADERS]/QtZlib) {
+    } else:win32-arm64-msvc|win32-msvc*:exists($$[QT_INSTALL_HEADERS]/QtZlib) {
         message("~~~ lib$${TARGET} Qt library header for libz FOUND ~~~")
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for libz NOT FOUND ~~~")
@@ -117,7 +117,7 @@ contains(LOAD_LDV_HEADERS,True) {
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
 contains(LOAD_LDV_LIBS,True) {
-    CONFIG(debug, debug|release):!BUILD_LDV_LIBS:win32-msvc* {
+    if (win32-arm64-msvc|win32-msvc*):CONFIG(debug, debug|release):!BUILD_LDV_LIBS {
         equals(VER_USE_LDVIEW_DEV,True) {
             LDVLIBDIR    = $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH
             LDV3RDLIBDIR = $${VER_LDVIEW_3RD_LIBS}
@@ -139,7 +139,7 @@ contains(LOAD_LDV_LIBS,True) {
         LIBS            += -L$${LDV3RDLIBS}
     } else {
         LIBS            += -L$${LDVLIBDIR}
-        win32-msvc*:CONFIG(debug, debug|release): \
+        if (win32-arm64-msvc|win32-msvc*):CONFIG(debug, debug|release): \
         LIBS            += -L$${LDV3RDLIBDIR}
     }
     message("~~~ $${LPUB3D} ADD LDVIEW LIBRARIES PATH TO LIBS: $$LDVLIBDIR ~~~ ")
@@ -149,7 +149,7 @@ contains(LOAD_LDV_LIBS,True) {
 #message("~~~ $${LPUB3D} Library path: $$LDVLIBRARY ~~~ ")
 
     # Set library names, source paths and local paths
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         # library name
         LDLIB_LIB        = -lLDLib
         LDEXPORTER_LIB   = -lLDExporter
@@ -385,7 +385,7 @@ contains(LOAD_LDV_LIBS,True) {
 
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (mingw:ide_qtcreator)|win32-msvc* {
+    if (mingw:ide_qtcreator)|win32-arm64-msvc|win32-msvc* {
         LDV_COPY_CMD    = COPY /V /Y
         LDV_CONCAT_CMD  = TYPE
     } else {

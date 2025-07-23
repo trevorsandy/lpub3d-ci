@@ -25,7 +25,7 @@ TARGET   = LDLib$$POSTFIX
 
 message("~~~ lib$${TARGET}.$${EXT_S} LIBRARY - $$BUILD ~~~")
 
-win32-msvc*: \
+win32-arm64-msvc|win32-msvc*: \
 DEFINES     -= UNICODE
 
 INCLUDEPATH  = . .. $${LIBS_INC}

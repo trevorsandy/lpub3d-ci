@@ -2,7 +2,7 @@
 VERSION = 2.4.9
 
 # Need to discard STDERR so get path to NULL device
-if (mingw:ide_qtcreator)|win32-msvc* {
+if (mingw:ide_qtcreator)|win32-arm64-msvc|win32-msvc* {
     NULL_DEVICE = NUL # Windows doesn't have /dev/null but has NUL
 } else {
     NULL_DEVICE = /dev/null
