@@ -16,7 +16,7 @@ else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.pa
 # common directives
 include(../common.pri)
 
-win32-msvc*: \
+win32-arm64-msvc|win32-msvc*: \
 DEFINES += _WIN_UTF8_PATHS
 
 

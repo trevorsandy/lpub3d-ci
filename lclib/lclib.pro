@@ -41,7 +41,7 @@ INCLUDEPATH += .
 INCLUDEPATH += qt common
 INCLUDEPATH += ../mainApp ../qsimpleupdater/include ../qsimpleupdater/src
 INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
-win32-msvc*: \
+win32-arm64-msvc|win32-msvc*: \
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 
 CONFIG += incremental precompile_header
@@ -56,7 +56,7 @@ win32 {
     DEFINES += _WINSOCKAPI_
 
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
-    !win32-msvc*: \
+    !win32-arm64-msvc:!win32-msvc*: \
     LIBS += -lz
 } else {
     PRECOMPILED_HEADER = common/lc_global.h

@@ -299,7 +299,7 @@ ldvqt_$${POSTFIX}.depends  = TRE_$${POSTFIX} \
                              LDLoader_$${POSTFIX} \
                              LDExporter_$${POSTFIX} \
                              3rdParty_tinyxml
-win32-msvc*: \
+win32-arm64-msvc|win32-msvc*: \
 ldvqt_$${POSTFIX}.depends += 3rdParty_gl2ps
 else: \
 ldvqt_$${POSTFIX}.depends += 3rdParty_3ds

@@ -72,7 +72,7 @@ MINIZIP_INC     = $${LIBINC_}
 JPEG_INC        = $${LIBINC_}
 PNG_INC         = $${LIBINC_}
 ZLIB_INC        = $${LIBINC_}
-win32-msvc* {
+win32-arm64-msvc|win32-msvc* {
     # Always build libgl2ps for MSVC
     GL2PS_INC   = $${3RD_PARTY_PREFIX_}/gl2ps
     USE_LDV_SYSTEM_LIBS {
@@ -197,7 +197,7 @@ equals(TARGET, TCFoundation) {
         message("~~~ LDVQt system header for library z FOUND ~~~")
     } else:exists($${3RD_PARTY_PREFIX_}/zlib/zlib.h)|exists($${LIBINC_}/zlib.h) {
         message("~~~ LDVQt local header for library z FOUND ~~~")
-    } else:win32-msvc*:exists($$[QT_INSTALL_HEADERS]/QtZlib) {
+    } else:win32-arm64-msvc|win32-msvc*:exists($$[QT_INSTALL_HEADERS]/QtZlib) {
         message("~~~ LDVQt Qt header for libz FOUND ~~~")
     } else {
         message("~~~ ERROR LDVQt: header for library z NOT FOUND ~~~")
@@ -224,7 +224,7 @@ unix|msys:!macx: DEFINES += _GNU_SOURCE
 # Platform-specific
 win32 {
     QMAKE_EXT_OBJ = .obj
-    win32-msvc* {
+    win32-arm64-msvc|win32-msvc* {
         QMAKE_CXXFLAGS += \
             /FI winsock2.h /FI winsock.h \
             /wd4675
