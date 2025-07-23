@@ -4,8 +4,9 @@
 
 TARGET = jpeg
 include(../../3rdParty.pri)
+LIB_NAME=$${TARGET}.$${EXT_S}
 
-message("~~~ libjpeg.a LIBRARY $${BUILD} ~~~")
+message("~~~ $${LIB_NAME} LIBRARY $${BUILD} ~~~")
 
 # Input
 HEADERS +=  jerror.h jmorecfg.h jpeglib.h cderror.h \

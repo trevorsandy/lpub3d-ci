@@ -67,8 +67,22 @@ BUILD_ZLIB {
 }
 
 INCLUDEPATH             += .
+
+unix: \
 !equals(TARGET, z): \
 INCLUDEPATH             += $${ZLIB_INC}
+
+win32-arm64-msvc|win32-msvc*: \
+!equals(TARGET, zlib): \
+INCLUDEPATH             += $${ZLIB_INC}
+
+win32-arm64-msvc {
+    if (equals(TARGET, 3ds)|equals(TARGET, jpeg)|equals(TARGET, png16)): \
+        TARGET=lib$${TARGET}-$${VSVER}
+
+    if (equals(TARGET, zlib)): \
+        TARGET=$${TARGET}-$${VSVER}
+}
 
 # USE GNU_SOURCE
 unix|msys:!macx: \
