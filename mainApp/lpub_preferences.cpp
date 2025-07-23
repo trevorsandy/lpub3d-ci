@@ -2617,7 +2617,7 @@ void Preferences::rendererPreferences()
 #if defined __i386__ || defined _M_IX86
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui32.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
-#elif defined __x86_64__ || defined _M_X64
+#elif defined __x86_64__ || defined _M_X64 || defined _M_ARM64 || defined _M_ARM64EC
     static const bool msys2 =
     #if defined LP3D_MSYS2
         true;
