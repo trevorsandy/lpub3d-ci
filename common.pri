@@ -38,7 +38,9 @@ if (equals(TEMPLATE, subdirs)|equals(COMMON, LDViewGlobal)) {
 # processor architecture - for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH     = 64
+    contains(QT_ARCH, x86_64): \
     STG_ARCH = x86_64
+    else: STG_ARCH = ARM64
     LIB_ARCH = 64
 } else {
     ARCH     = 32
@@ -398,7 +400,7 @@ QMAKE_CFLAGS_WARN_ON += \
     -Wno-unused-variable
 QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-class-memaccess  \
-    -Wno-type-limits    
+    -Wno-type-limits
 CUI_WGL: \
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-missing-field-initializers
