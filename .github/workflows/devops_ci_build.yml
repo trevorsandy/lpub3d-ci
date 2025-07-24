@@ -227,6 +227,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           LP3D_BUILD_ARCH: ${{ matrix.build }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
+          LP3D_VC32TOOLSET: ${{ matrix.toolset-32bit }}
+          LP3D_MSC32_VER: 1929
         shell: cmd
       - name: List Artifacts
         if: always()

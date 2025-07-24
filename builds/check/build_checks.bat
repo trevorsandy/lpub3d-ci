@@ -305,7 +305,7 @@ SET "PKG_LOG_EMPTY=%1"
 SET "PKG_CHECK_RESULT=undefined"
 SET "PKG_CHECK_SUCCESS=Application terminated with return code 0."
 IF "%PKG_LOG_EMPTY%" EQU "True" GOTO :PKG_CHECK_STATUS
-FOR /F "tokens=3*" %%i IN ('findstr /c:"%PKG_CHECK_SUCCESS%" %PKG_LOG_FILE%') DO SET "PKG_CHECK_RESULT=%%i %%j"
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"%PKG_CHECK_SUCCESS%" %PKG_LOG_FILE%') DO SET "PKG_CHECK_RESULT=%%i %%j"
 
 :PKG_CHECK_STATUS
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -332,43 +332,43 @@ IF "%PKG_CHECK_RESULT%" EQU "%PKG_CHECK_SUCCESS%" (
 >%PKG_UPDATE_CHECKS_FAIL% !PKG_CHECKS_FAIL!
   IF EXIST "%PKG_TARGET_FILE%" (
     ECHO  -Copying CHECK %PKG_CHECK% %PKG_TARGET_FILE% to run asset...
-    COPY /V /Y "%PKG_TARGET_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_TARGET_FILE%" "%PKG_CHECK_DIR%" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_TARGET_FILE% was not found.
   )
   IF EXIST "%PKG_PDB_FILE%" (
     ECHO  -Copying CHECK %PKG_CHECK% %PKG_PDB_FILE% to run asset...
-    COPY /V /Y "%PKG_PDB_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_PDB_FILE%" "%PKG_CHECK_DIR%" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_PDB_FILE% was not found.
   )
   IF EXIST "%PKG_DUMP_FILE%" (
     ECHO  -Copying CHECK %PKG_CHECK% %PKG_DUMP_FILE% to run asset...
-    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_CHECK_DIR%" /B | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     IF EXIST "%LOCALAPPDATA%\Temp\%PACKAGE%.dmp" (
 	  ECHO  -Copying CHECK %PKG_CHECK% %LOCALAPPDATA%\Temp\%PACKAGE%.dmp to run asset...
-	  COPY /V /Y "%LOCALAPPDATA%\Temp\%PACKAGE%.dmp" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+	  COPY /V /Y "%LOCALAPPDATA%\Temp\%PACKAGE%.dmp" "%PKG_CHECK_DIR%" /B | FINDSTR /i /v /r /c:"copied\>"
 	) ELSE (
       ECHO  -WARNING - %PKG_DUMP_FILE% was not found.
 	)
   )
   IF EXIST "%PKG_LOG_FILE%" (
     ECHO  -Copying CHECK %PKG_CHECK% %PKG_LOG_FILE% to run asset...
-    COPY /V /Y "%PKG_LOG_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_LOG_FILE%" "%PKG_CHECK_DIR%" /A | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_LOG_FILE% was not found.
   )
   IF %PKG_CHECK% EQU 5 (
     IF EXIST "%PKG_POV_CONF_DIR%\povray.conf" (
       ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.conf to run asset...
-      COPY /V /Y "%PKG_POV_CONF_DIR%\povray.conf" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+      COPY /V /Y "%PKG_POV_CONF_DIR%\povray.conf" "%PKG_CHECK_DIR%" /A | FINDSTR /i /v /r /c:"copied\>"
     ) ELSE (
       ECHO  -WARNING - %PKG_POV_CONF_DIR%\povray.conf was not found.
     )
     IF EXIST "%PKG_POV_CONF_DIR%\povray.ini" (
       ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.ini to run asset...
-      COPY /V /Y "%PKG_POV_CONF_DIR%\povray.ini" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+      COPY /V /Y "%PKG_POV_CONF_DIR%\povray.ini" "%PKG_CHECK_DIR%" /A | FINDSTR /i /v /r /c:"copied\>"
     ) ELSE (
       ECHO  -WARNING - %PKG_POV_CONF_DIR%\povray.ini was not found.
     )
@@ -445,7 +445,7 @@ IF EXIST "%PKG_RUNLOG_FILE%" (
   ECHO.
   ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log'...
   IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
-  COPY /V /Y "%PKG_RUNLOG_FILE%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log" /A | findstr /i /v /r /c:"copied\>"
+  COPY /V /Y "%PKG_RUNLOG_FILE%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log" /A | FINDSTR /i /v /r /c:"copied\>"
 ) ELSE (
   ECHO.
   ECHO -WARNING - Could not find %PKG_RUNLOG_FILE%.
@@ -454,7 +454,7 @@ IF EXIST "%PKG_CONFIG_FILE%" (
   ECHO.
   ECHO   Copying %PKG_DISTRO_DIR%_Config.ini to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Config.ini'...
   IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
-  COPY /V /Y "%PKG_CONFIG_FILE%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Config.ini" /A | findstr /i /v /r /c:"copied\>"
+  COPY /V /Y "%PKG_CONFIG_FILE%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Config.ini" /A | FINDSTR /i /v /r /c:"copied\>"
 ) ELSE (
   ECHO.
   ECHO -WARNING - Could not find %PKG_CONFIG_FILE%.
@@ -524,7 +524,7 @@ ECHO - Copy LDraw archive libraries to extras folder...
 
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
-    COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
     ECHO -ERROR - LDraw archive lib %OfficialCONTENT% does not exist in %LDRAW_LIBS%\.
@@ -535,7 +535,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
 )
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%TenteCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%TenteCONTENT%" (
-    COPY /V /Y "%LDRAW_LIBS%\%TenteCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%LDRAW_LIBS%\%TenteCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
     ECHO -ERROR - LDraw archive lib %TenteCONTENT% does not exist in %LDRAW_LIBS%\.
@@ -546,7 +546,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%TenteCONTENT%" (
 )
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%VexiqCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%VexiqCONTENT%" (
-    COPY /V /Y "%LDRAW_LIBS%\%VexiqCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%LDRAW_LIBS%\%VexiqCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
     ECHO -ERROR - LDraw archive lib %VexiqCONTENT% does not exist in %LDRAW_LIBS%\.
@@ -557,7 +557,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%VexiqCONTENT%" (
 )
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%LPub3DCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%LPub3DCONTENT%" (
-    COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | FINDSTR /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
     ECHO -ERROR - LDraw archive lib %LPub3DCONTENT% does not exist in %LDRAW_LIBS%\.

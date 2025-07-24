@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 06, 2025
+rem  Last Update: July 22, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -14,6 +14,13 @@ rem This script is called from .github/workflows/devops_ci_build.yml
 rem
 rem Run command:
 rem .\builds\utilities\ci\github\windows-build.bat
+
+IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+  ECHO.
+  ECHO ======================================================
+  ECHO   -Start %~nx0...
+  ECHO ------------------------------------------------------
+)
 
 SET GITHUB=True
 SET GITHUB_CONFIG=release
@@ -56,6 +63,14 @@ IF "%LP3D_REMOTE%" NEQ "%LP3D_LOCAL%" (
   GOTO :END
 )
 
+ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
+  IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
+    CALL :SET_BUILD_ALL
+	ECHO.
+    ECHO - New version tag %GITHUB_REF_NAME% confirmed.
+  )
+)
+
 :CONTINUE
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
@@ -66,6 +81,12 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "UPDATE_LDRAW" >NUL && (
   SET UPDATE_LDRAW_LIBS=True
+)
+
+ECHO.%LP3D_COMMIT_MSG% | FIND /I "RELEASE_BUILD" >NUL && (
+  ECHO.
+  ECHO - Build and deploy current revision detected.
+  CALL :SET_BUILD_ALL
 )
 
 IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
@@ -146,20 +167,9 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_POVRAY" >NUL && (
   IF NOT EXIST "%LP3D_POVRAY%" ( ECHO - Cached %LP3D_POVRAY% deleted. )
 )
 
-ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
-  IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
-    CALL :SET_BUILD_ALL
-    ECHO - New version tag %GITHUB_REF_NAME% confirmed.
-  )
-)
-
-ECHO.%LP3D_COMMIT_MSG% | FIND /I "RELEASE_BUILD" >NUL && (
-  ECHO - Build and deploy current revision detected.
-  CALL :SET_BUILD_ALL
-)
-
 ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (
   ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
+    ECHO.
     ECHO - Build option verify ^(x86 architecture only^) detected.
     IF "%LP3D_BUILD_ARCH%" EQU "" SET LP3D_BUILD_ARCH=x86
     SET LP3D_CREATE_EXE_PKG=False
@@ -169,14 +179,19 @@ ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (
 
 SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% -3rd -ins -chk
 
-ECHO - Commit message: %LP3D_COMMIT_MSG%
-ECHO - Build command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
+ECHO.
+ECHO - Create Distributions: %LP3D_CREATE_EXE_PKG%
+ECHO - Commit Message: %LP3D_COMMIT_MSG%
+ECHO - Build Command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
 
-CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% 2>&1 || GOTO :ERROR_END
+rem reset ErrorLevel to 0 from 1 for unsuccessful FIND
+(CALL )
+
+CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :ERROR_END
 IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
 
 IF "%LP3D_CREATE_EXE_PKG%" EQU "True" (
-  CALL builds\windows\CreateExePkg.bat 2>&1 || GOTO :ERROR_END
+  CALL builds\windows\CreateExePkg.bat || GOTO :ERROR_END
   IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
   CALL :GENERATE_HASH_FILES
 )
@@ -248,7 +263,7 @@ EXIT /b
 
 :ERROR_END
 ECHO.
-ECHO - %~nx0 FAILED.
+ECHO - %~nx0 FAILED with return code %ERRORLEVEL%.
 ECHO - %~nx0 will terminate!
 ENDLOCAL
 EXIT /b 3
