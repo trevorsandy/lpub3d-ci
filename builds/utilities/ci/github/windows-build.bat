@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 06, 2025
+rem  Last Update: August 04, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -15,10 +15,16 @@ rem
 rem Run command:
 rem .\builds\utilities\ci\github\windows-build.bat
 
+IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+  ECHO.
+  ECHO ======================================================
+  ECHO   -Start %~nx0...
+  ECHO ------------------------------------------------------
+)
+
 SET GITHUB=True
 SET GITHUB_CONFIG=release
 SET BUILD_OPT=default
-SET LP3D_BUILD_ARCH=%LP3D_BUILD%
 SET UPDATE_LDRAW_LIBS=False
 SET LP3D_VSVERSION=2022
 SET LP3D_QT32VCVERSION=2019
@@ -30,6 +36,10 @@ SET LP3D_LDRAW_DIR_PATH=%LP3D_3RD_PARTY_PATH%\ldraw
 SET LP3D_DOWNLOADS_PATH=%LP3D_BUILDPKG_PATH%\Downloads
 SET LP3D_UPDATES_PATH=%LP3D_BUILDPKG_PATH%\Updates
 SET LP3D_LOG_PATH=%LP3D_BUILDPKG_PATH%
+
+IF [%LP3D_NO_3RD_RENDER%] EQU [] SET LP3D_3RD_RENDERS=-3rd
+IF [%LP3D_NO_INSTALL%] EQU [] SET LP3D_INSTALL=-ins
+IF [%LP3D_NO_CHECK%] EQU [] SET LP3D_CHECK=-chk
 
 CD %GITHUB_WORKSPACE%
 
@@ -56,6 +66,14 @@ IF "%LP3D_REMOTE%" NEQ "%LP3D_LOCAL%" (
   GOTO :END
 )
 
+ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
+  IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
+    CALL :SET_BUILD_ALL
+    ECHO.
+    ECHO - New version tag %GITHUB_REF_NAME% confirmed.
+  )
+)
+
 :CONTINUE
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
@@ -66,6 +84,12 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "UPDATE_LDRAW" >NUL && (
   SET UPDATE_LDRAW_LIBS=True
+)
+
+ECHO.%LP3D_COMMIT_MSG% | FIND /I "RELEASE_BUILD" >NUL && (
+  ECHO.
+  ECHO - Build and deploy current revision detected.
+  CALL :SET_BUILD_ALL
 )
 
 IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
@@ -146,37 +170,35 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_POVRAY" >NUL && (
   IF NOT EXIST "%LP3D_POVRAY%" ( ECHO - Cached %LP3D_POVRAY% deleted. )
 )
 
-ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
-  IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
-    CALL :SET_BUILD_ALL
-    ECHO - New version tag %GITHUB_REF_NAME% confirmed.
-  )
-)
-
-ECHO.%LP3D_COMMIT_MSG% | FIND /I "RELEASE_BUILD" >NUL && (
-  ECHO - Build and deploy current revision detected.
-  CALL :SET_BUILD_ALL
-)
-
 ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (
   ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
-    ECHO - Build option verify ^(x86 architecture only^) detected.
-    IF "%LP3D_BUILD_ARCH%" EQU "" SET LP3D_BUILD_ARCH=x86
+    ECHO.
+    IF "%LP3D_BUILD_ARCH%" EQU "" (
+      ECHO - Build option verify ^(x86 architecture^) detected.
+      SET LP3D_BUILD_ARCH=x86
+    ) ELSE (
+      ECHO - Build option verify ^(%LP3D_BUILD_ARCH% architecture^) detected.
+    )
     SET LP3D_CREATE_EXE_PKG=False
     SET BUILD_OPT=verify
   )
 )
 
-SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% -3rd -ins -chk
+SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% %LP3D_3RD_RENDERS% %LP3D_INSTALL% %LP3D_CHECK%
 
-ECHO - Commit message: %LP3D_COMMIT_MSG%
-ECHO - Build command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
+ECHO.
+ECHO - Create Distributions: %LP3D_CREATE_EXE_PKG%
+ECHO - Commit Message: %LP3D_COMMIT_MSG%
+ECHO - Build Command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
 
-CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% 2>&1 || GOTO :ERROR_END
+rem reset ErrorLevel to 0 from 1 for unsuccessful FIND
+(CALL )
+
+CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :ERROR_END
 IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
 
 IF "%LP3D_CREATE_EXE_PKG%" EQU "True" (
-  CALL builds\windows\CreateExePkg.bat 2>&1 || GOTO :ERROR_END
+  CALL builds\windows\CreateExePkg.bat || GOTO :ERROR_END
   IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
   CALL :GENERATE_HASH_FILES
 )
@@ -236,7 +258,7 @@ IF "%LP3D_BUILD_ARCH%" EQU "" SET LP3D_BUILD_ARCH=-all_amd
 IF "%LP3D_BUILD_ARCH%" NEQ "-all_amd" (
   IF "%LP3D_BUILD_ARCH%" NEQ "arm64" (
     SET LP3D_CREATE_EXE_PKG=False
-  ) 
+  )
 )
 EXIT /b
 
@@ -248,7 +270,7 @@ EXIT /b
 
 :ERROR_END
 ECHO.
-ECHO - %~nx0 FAILED.
+ECHO - %~nx0 FAILED with return code %ERRORLEVEL%.
 ECHO - %~nx0 will terminate!
 ENDLOCAL
 EXIT /b 3

@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: July 16, 2025
+# Last Update: July 28, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -228,6 +228,18 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           LP3D_BUILD_ARCH: ${{ matrix.build }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
+          LP3D_MSC32_VER: 1942
+          LP3D_VC32SDKVER: 10.0
+          LP3D_VC32TOOLSET: ${{ matrix.toolset-32bit }}
+          LP3D_VC32VARSALL_VER: -vcvars_ver=14.2
+          LP3D_MSC64_VER: 1944
+          LP3D_VC64SDKVER: 10.0
+          LP3D_VC64TOOLSET: v143
+          LP3D_VC64VARSALL_VER: -vcvars_ver=14.4
+          LP3D_MSCARM64_VER: 1944
+          LP3D_VCARM64SDKVER: 10.0
+          LP3D_VCARM64TOOLSET: v143
+          LP3D_VCARM64VARSALL_VER: -vcvars_ver=14.4
         shell: cmd
       - name: List Artifacts
         if: always()
