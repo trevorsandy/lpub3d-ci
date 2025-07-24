@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 20, 2025
+rem  Last Update: July 23, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -897,19 +897,26 @@ EXIT /b
 :BUILD_CHECK
 ECHO.
 REM DEBUG============
-IF %1 EQU x86_64 (
-  IF "%BUILD_WORKER%" EQU "True" (
-    IF "%LP3D_CONDA_BUILD%" EQU "True" (
-      ECHO -%PACKAGE% Build Check...
+IF %1 EQU x86 (
+  ECHO -%PACKAGE% Build Check...
+) ELSE (
+  IF %1 EQU x86_64 (
+    IF "%BUILD_WORKER%" EQU "True" (
+      IF "%LP3D_CONDA_BUILD%" EQU "True" (
+        ECHO -%PACKAGE% Build Check...
+      ) ELSE (
+        ECHO -%PACKAGE% Build Check disabled for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
+        EXIT /b
+      )
     ) ELSE (
-      ECHO -%PACKAGE% Build Check disabled for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
-      EXIT /b
+      ECHO -%PACKAGE% Build Check...
     )
   ) ELSE (
-    ECHO -%PACKAGE% Build Check...
+    IF %1 EQU ARM64 (
+	  ECHO -%PACKAGE% Build Check not supported for %PLATFORM_ARCH% cross compilation build
+	  EXIT /b
+	)
   )
-) ELSE (
-  ECHO -%PACKAGE% Build Check...
 )
 REM DEBUG============
 IF [%1] EQU [] (
@@ -924,7 +931,7 @@ IF NOT EXIST "%DIST_DIR%" (
 )
 
 SET PKG_PLATFORM=%1
-CALL :REQUEST_LDRAW_DIR
+IF %CHECK% == 1 CALL :REQUEST_LDRAW_DIR
 rem run build checks
 CALL builds\check\build_checks.bat
 EXIT /b
