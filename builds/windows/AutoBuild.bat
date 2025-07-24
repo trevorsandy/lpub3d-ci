@@ -175,7 +175,7 @@ IF /I "%1"=="x86_64" (
 )
 
 IF /I "%1"=="arm64" (
-  SET PLATFORM_ARCH=ARM64 
+  SET PLATFORM_ARCH=ARM64
   GOTO :SET_CONFIGURATION
 )
 
@@ -241,10 +241,8 @@ IF NOT [%4]==[] (
 
 rem Setup library options and set ARM64 cross compilation
 IF /I "%PLATFORM_ARCH%" == "ARM64" (
-  IF /I "%COMMANDPROMPTTYPE%" == "Cross" (
-    IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
-      SET LP3D_AMD64_ARM64_CROSS=1
-    )
+  IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
+    SET LP3D_AMD64_ARM64_CROSS=1
   )
   SET LP3D_QTARCH=arm64
 ) ELSE (
@@ -359,7 +357,7 @@ IF NOT EXIST "%LP3D_WIN_TAR%" (
   SET LP3D_WIN_TAR=
   SET LP3D_WIN_TAR_MSG=Not Found
 ) ELSE (
-  SET LP3D_VALID_TAR=1 
+  SET LP3D_VALID_TAR=1
   SET "LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%"
 )
 
@@ -437,8 +435,11 @@ ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO   BUILD_OPT......................[%BUILD_OPT%]
 ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
 ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
-IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
-ECHO   COMPILATION....................[ARM64 ON AMD64 HOST]
+IF /I "%PLATFORM_ARCH%" == "ARM64" (
+  ECHO   PROCESSOR_ARCH.................[%PROCESSOR_ARCHITECTURE%]
+  IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
+    ECHO   COMPILATION....................[ARM64 on AMD64 host]
+  )
 )
 
 IF /I "%RENDERERS_ONLY%"=="1" (
@@ -790,7 +791,7 @@ IF %PLATFORM_ARCH% EQU ARM64 (FOR /R %%I IN (
   "mainApp\64bit_*"
   "quazip\64bit_*"
   "waitingspinner\64bit_*"
-) DO RD /S /Q "%%~I" >NUL 2>&1) 
+) DO RD /S /Q "%%~I" >NUL 2>&1)
 ECHO.
 IF %CHECK% EQU 1 (
 REM DEBUG============
@@ -905,19 +906,30 @@ EXIT /b
 :BUILD_CHECK
 ECHO.
 REM DEBUG============
-IF %1 EQU x86_64 (
-  IF "%BUILD_WORKER%" EQU "True" (
-    IF "%LP3D_CONDA_BUILD%" EQU "True" (
-      ECHO -%PACKAGE% Build Check...
+IF %1 EQU x86 (
+  ECHO -%PACKAGE% %1 Build Check...
+) ELSE (
+  IF %1 EQU x86_64 (
+    IF "%BUILD_WORKER%" EQU "True" (
+      IF "%LP3D_CONDA_BUILD%" EQU "True" (
+        ECHO -%PACKAGE% %1 Build Check...
+      ) ELSE (
+        ECHO -%PACKAGE% %1 Build Check disabled for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
+        EXIT /b
+      )
     ) ELSE (
-      ECHO -%PACKAGE% Build Check disabled for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
-      EXIT /b
+      ECHO -%PACKAGE% %1 Build Check...
     )
   ) ELSE (
-    ECHO -%PACKAGE% Build Check...
+    IF %1 EQU ARM64 (
+      IF %LP3D_AMD64_ARM64_CROSS%==1 (
+        ECHO -%PACKAGE% %1 Build Check skipped on ARM64 cross compilation.
+        EXIT /b
+      ) ELSE (
+        ECHO -%PACKAGE% %1 Build Check...
+      )
+    )
   )
-) ELSE (
-  ECHO -%PACKAGE% Build Check...
 )
 REM DEBUG============
 IF [%1] EQU [] (
@@ -932,7 +944,7 @@ IF NOT EXIST "%DIST_DIR%" (
 )
 
 SET PKG_PLATFORM=%1
-CALL :REQUEST_LDRAW_DIR
+IF %CHECK% == 1 CALL :REQUEST_LDRAW_DIR
 rem run build checks
 CALL builds\check\build_checks.bat
 EXIT /b
@@ -1037,9 +1049,9 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
     ECHO.
     ECHO -Extracting %OfficialCONTENT%...
     ECHO.
-	PUSHD "%LDRAW_INSTALL_ROOT%"
+    PUSHD "%LDRAW_INSTALL_ROOT%"
     "%LP3D_WIN_TAR%" -xf "%OfficialCONTENT%"
-	POPD
+    POPD
     IF EXIST "%LDRAW_DIR%\parts" (
       ECHO.
       ECHO -LDraw directory %LDRAW_DIR% extracted.
