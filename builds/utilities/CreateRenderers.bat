@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 16, 2025
+rem  Last Update: July 28, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -37,10 +37,10 @@ rem Variables - change these as required by your build environments
 IF "%GITHUB%"=="True" SET BUILD_WORKER=True
 IF "%LP3D_CONDA_BUILD%"=="True" SET BUILD_WORKER=True
 
-IF "%LP3D_QT32VERSION%" == "" SET "LP3D_QT32VERSION=5.15.2"
-IF "%LP3D_QT64VERSION%" == "" SET "LP3D_QT64VERSION=6.9.1"
-IF "%LP3D_QT32VCVERSION%" == "" SET "LP3D_QT32VCVERSION=2019"
-IF "%LP3D_QT64VCVERSION%" == "" SET "LP3D_QT64VCVERSION=2022"
+IF "%LP3D_QT32VERSION%" == "" SET LP3D_QT32VERSION=5.15.2
+IF "%LP3D_QT64VERSION%" == "" SET LP3D_QT64VERSION=6.9.1
+IF "%LP3D_QT32VCVERSION%" == "" SET LP3D_QT32VCVERSION=2019
+IF "%LP3D_QT64VCVERSION%" == "" SET LP3D_QT64VCVERSION=2022
 
 IF "%BUILD_WORKER%"=="True" (
   SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
@@ -55,15 +55,22 @@ IF "%APPVEYOR%"=="True" (
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 )
 
-IF "%LP3D_SYS_DIR%"=="" (
-  SET LP3D_SYS_DIR=%SystemRoot%\System32
+IF "%LP3D_VALID_TAR%" == "" SET LP3D_VALID_TAR=0
+IF "%LP3D_SYS_DIR%" == "" (
+  SET LP3D_SYS_DIR=%WINDIR%\System32
 )
-IF "%LP3D_7ZIP_WIN64%"=="" (
-  SET LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe
+IF "%LP3D_WIN_TAR%" == "" (
+  SET LP3D_WIN_TAR=%LP3D_SYS_DIR%\Tar.exe
 )
-IF "%LP3D_VALID_7ZIP%"=="" (
-  SET LP3D_VALID_7ZIP=0
+IF NOT EXIST "%LP3D_WIN_TAR%" (
+  SET LP3D_WIN_TAR=
+  SET LP3D_WIN_TAR_MSG=Not Found
+) ELSE (
+  SET LP3D_VALID_TAR=1 
+  SET LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%
 )
+
+SET LP3D_AMD64_ARM64_CROSS=0
 SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
 SET VER_LDVIEW=LDView-4.6
@@ -73,18 +80,22 @@ SET LP3D_GITHUB_URL=https://github.com/trevorsandy
 
 rem Check if invalid platform flag
 IF NOT [%1]==[] (
-  IF NOT "%1"=="x86" (
-    IF NOT "%1"=="x86_64" (
-      IF NOT "%1"=="arm64" (
-        IF NOT "%1"=="-all_amd" (
-          IF NOT "%1"=="-help" GOTO :COMMAND_ERROR
+  IF /I NOT "%1"=="x86" (
+    IF /I NOT "%1"=="x86_64" (
+      IF /I NOT "%1"=="arm64" (
+        IF /I NOT "%1"=="-all_amd" (
+          IF /I NOT "%1"=="-help" GOTO :COMMAND_ERROR
         )
       )
     )
   )
 )
 
-IF %1==arm64 (
+rem Setup library options and set ARM64 cross compilation
+IF /I "%1"=="arm64" (
+  IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
+    SET LP3D_AMD64_ARM64_CROSS=1
+  )
   SET LP3D_QTARCH=ARM64
 ) ELSE (
   SET LP3D_QTARCH=64
@@ -100,12 +111,6 @@ IF "%BUILD_WORKER%" NEQ "True" (
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
-    IF "%LP3D_QT32_MSVC%" == "" (
-      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
-    )
-    IF "%LP3D_QT64_MSVC%" == "" (
-      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_%LP3D_QTARCH%\bin
-    )
     IF "%LP3D_WIN_GIT%" == "" (
       SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
     )
@@ -120,6 +125,13 @@ ECHO.
 ECHO   WORKING_DIRECTORY_RENDERERS....[%ABS_WD%]
 ECHO   DISTRIBUTION DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW LIBRARY FOLDER...........[%LDRAW_DIR%]
+ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
+IF /I "%PLATFORM_ARCH%" == "ARM64" (
+   ECHO   PROCESSOR_ARCH.................[%PROCESSOR_ARCHITECTURE%]
+  IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
+    ECHO   COMPILATION....................[ARM64 on AMD64 host]
+  )
+)
 
 rem List 'LP3D_*' environment variables
 rem ECHO   LIST LP3D_ ENVIRONMENT VARIABLES...
@@ -130,7 +142,6 @@ IF NOT EXIST "%DIST_DIR%\" (
   MKDIR "%DIST_DIR%\"
 )
 
-CALL :CHECK_VALID_ZIP
 CALL :CHECK_LDRAW_LIB
 
 IF [%1]==[] (
@@ -162,8 +173,6 @@ GOTO :COMMAND_ERROR
 FOR %%A IN ( x86, x86_64 ) DO (
   SET BUILD_ARCH=%%A
   CALL :BUILD
-  rem Reset PATH_PREPENDED
-  SET PATH_PREPENDED=False
 )
 GOTO :END
 
@@ -172,31 +181,13 @@ IF "%BUILD_ARCH%"=="x86" (
   SET "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe"
   SET "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe"
   SET "LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe"
-  IF "%PATH_PREPENDED%" NEQ "True" (
-    IF "%LP3D_CONDA_BUILD%" NEQ "True" (
-      SET "PATH=%LP3D_QT32_MSVC%;%LP3D_SYS_DIR%;%LP3D_WIN_GIT%"
-    )
-  )
 ) ELSE (
   SET "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe"
   SET "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe"
   SET "LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe"
-  IF "%PATH_PREPENDED%" NEQ "True" (
-    IF "%LP3D_CONDA_BUILD%" NEQ "True" (
-      SET "PATH=%LP3D_QT64_MSVC%;%LP3D_SYS_DIR%;%LP3D_WIN_GIT%"
-    )
-  )
 )
-
 ECHO.
-SETLOCAL ENABLEDELAYEDEXPANSION
-IF "%PATH_PREPENDED%"=="True" (
-  ECHO   PATH_ALREADY_PREPENDED.........[!PATH!]
-) ELSE (
-  ECHO   PATH_PREPEND...................[!PATH!]
-  SET PATH_PREPENDED=True
-)
-ENDLOCAL
+ECHO   PATH...........................[%PATH%]
 
 CALL :SET_BUILD_ARGS
 FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
@@ -225,7 +216,7 @@ IF "%BUILD_ARCH%"=="x86" (
     SET POVRAY_INSTALL_ARG=-ins
   )
 )
-SET LDGLITE_BUILD_ARGS=%BUILD_ARCH% -ins -chk
+SET LDGLITE_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
 SET LDVIEW_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
 SET POVRAY_BUILD_ARGS=%BUILD_ARCH% %POVRAY_INSTALL_ARG% -chk -minlog
 EXIT /b
@@ -353,22 +344,6 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
 CD /D %BUILD_OUTPUT_PATH%\%BUILD_DIR%
 EXIT /b
 
-:CHECK_VALID_ZIP
-IF %LP3D_VALID_7ZIP% == 0 (
-  "%LP3D_7ZIP_WIN64%" > %TEMP%\output.tmp 2>&1
-  FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
-    ECHO.%%a | findstr /C:"7-Zip">NUL && (
-      SET LP3D_VALID_7ZIP=1
-      ECHO   7-ZIP EXECUTABLE...............[Found at %LP3D_7ZIP_WIN64%]
-    ) || (
-      ECHO   7-ZIP EXECUTABLE...............[ERROR - not found at %LP3D_7ZIP_WIN64%]
-    )
-    GOTO :END_7ZIP_LOOP
-  )
-)
-:END_7ZIP_LOOP
-EXIT /b
-
 :CHECK_LDRAW_LIB
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
@@ -427,12 +402,14 @@ rem args: $1 = <build dir>, $2 = <valid subdir>
 IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%" (
   IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
-    IF %LP3D_VALID_7ZIP% EQU 1 (
+    IF %LP3D_VALID_TAR% EQU 1 (
       ECHO -Extracting %ARCHIVE_FILE%...
       ECHO.
-      "%LP3D_7ZIP_WIN64%" x -o"%BUILD_OUTPUT_PATH%\" "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+      PUSHD "%BUILD_OUTPUT_PATH%"
+      "%LP3D_WIN_TAR%" -xf "%ARCHIVE_FILE%"
+      POPD
     ) ELSE (
-      ECHO -ERROR: 7zip exectutable not found at %LP3D_7ZIP_WIN64%. Cannot extract %ARCHIVE_FILE%
+      ECHO -ERROR: Tar exectutable not found at %LP3D_WIN_TAR%. Cannot extract %ARCHIVE_FILE%
       GOTO :ERROR_END
     )
   ) ELSE (
@@ -467,7 +444,7 @@ IF "%CAN_PACKAGE%" NEQ "True" (
   ECHO -WARNING: Cannot package %LP3D_RENDERERS%.
   EXIT /b
 )
-IF %LP3D_VALID_7ZIP% NEQ 1 (
+IF %LP3D_VALID_TAR% NEQ 1 (
   ECHO -WARNING: Cannot archive %LP3D_RENDERERS%. 7zip not found.
   EXIT /b
 )
@@ -479,7 +456,7 @@ ECHO -Create renderer package %LP3D_RENDERERS%...
 PUSHD %DIST_DIR%
 ECHO -Archiving %LP3D_RENDERERS%...
 SETLOCAL DISABLEDELAYEDEXPANSION
-"%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
+"%LP3D_WIN_TAR%" a -tzip "%LP3D_RENDERERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
     "-x!%VER_LDVIEW%\lib" "-xr!%VER_LDVIEW%\include" "-xr!%VER_LDVIEW%\bin\*.exp"  ^
     "-xr!%VER_LDVIEW%\bin\*.lib" "-x!%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
 IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
@@ -611,7 +588,7 @@ EXIT /b
 
 :DOWNLOAD_ERROR
 ECHO.
-ECHO - [%date% %time%] - ERROR - Download %ARCHIVE_FILE% failed after %MAX_DOWNLOAD_ATTEMPTS% attempts.
+ECHO - [%date% %time%] - (DOWNLOAD_ERROR) Download %ARCHIVE_FILE% failed after %MAX_DOWNLOAD_ATTEMPTS% attempts.
 GOTO :ERROR_END
 
 :FATAL_ERROR
@@ -620,7 +597,7 @@ GOTO :ERROR_END
 
 :COMMAND_ERROR
 ECHO.
-ECHO -01. (COMMAND ERROR) Invalid command string [%~nx0 %*].
+ECHO -01. (COMMAND_ERROR) Invalid command string [%~nx0 %*].
 ECHO      See Usage.
 ECHO.
 
