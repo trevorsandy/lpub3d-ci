@@ -577,9 +577,9 @@ IF NOT ERRORLEVEL 0 (GOTO :ERROR_END)
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
-qmake -v & ECHO.
+REM qmake -v & ECHO.
 rem Configure makefiles
-qmake %LPUB3D_CONFIG_ARGS%
+IF %QMAKE_RUN% EQU 1 (qmake %LPUB3D_CONFIG_ARGS%)
 rem perform build
 nmake.exe %LPUB3D_MAKE_ARGS%
 rem Check build status
@@ -750,7 +750,7 @@ ECHO.
 ECHO -Configure LPub3D %PLATFORM_ARCH% build environment...
 ECHO.
 ECHO -Cleanup any previous LPub3D qmake config files...
-FOR /R %%I IN (
+IF %QMAKE_CLEAN% EQU 1 (FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
   "lclib\Makefile*"
@@ -771,8 +771,8 @@ FOR /R %%I IN (
   "mainApp\Makefile*"
   "quazip\Makefile*"
   "waitingspinner\Makefile*"
-) DO DEL /S /Q "%%~I" >NUL 2>&1
-IF %PLATFORM_ARCH% EQU ARM64 (FOR /R %%I IN (
+) DO DEL /S /Q "%%~I" >NUL 2>&1)
+IF %QMAKE_CLEAN% EQU 1 (FOR /R %%I IN (
   "lclib\64bit_*"
   "ldrawini\64bit_*"
   "ldvlib\LDVQt\64bit_*"
