@@ -355,6 +355,14 @@ IF NOT EXIST "%LP3D_WIN_TAR%" (
   SET "LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%"
 )
 
+rem Set GIT path
+IF "%LP3D_WIN_GIT%" == "" SET "LP3D_WIN_GIT=%ProgramFiles%\Git\cmd"
+IF NOT EXIST "%LP3D_WIN_GIT%" (
+  IF "%LP3D_WIN_GIT_MSG%" == "" SET LP3D_WIN_GIT_MSG=Not Found
+) ELSE (
+  SET "LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%"
+)
+
 rem Initialize package install to - no install
 IF [%2]==[] (
   SET PKG_INSTALL=0
@@ -398,7 +406,6 @@ IF "%BUILD_WORKER%" EQU "True" (
   )
   ECHO   BUILD_WORKER_OS................[%BUILD_WORKER_OS%]
   ECHO   PROJECT REPOSITORY.............[%BUILD_WORKER_REPO%]
-  ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
 )
 IF "%APPVEYOR%" EQU "True" (
   ECHO   BUILD_HOST.....................[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
@@ -408,7 +415,6 @@ IF "%APPVEYOR%" EQU "True" (
   ECHO   PROJECT_NAME...................[%APPVEYOR_PROJECT_NAME%]
   ECHO   REPOSITORY_NAME................[%APPVEYOR_REPO_NAME%]
   ECHO   REPO_PROVIDER..................[%APPVEYOR_REPO_PROVIDER%]
-  ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
@@ -421,14 +427,10 @@ ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO   BUILD_OPT......................[%BUILD_OPT%]
+ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
 ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
 IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
 ECHO   COMPILATION....................[ARM64 ON AMD64 HOST]
-)
-
-IF NOT EXIST "%LP3D_WIN_GIT%" (
-  SET LP3D_WIN_GIT=
-  SET LP3D_WIN_GIT_MSG=Not Found
 )
 
 IF /I "%RENDERERS_ONLY%"=="1" (
