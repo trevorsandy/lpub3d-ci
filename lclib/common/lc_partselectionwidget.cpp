@@ -561,6 +561,7 @@ lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent, lcPartSelectio
 	setDragEnabled(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	setAutoScroll(false);
+	setTextElideMode(Qt::ElideMiddle);
 
 	mListModel = new lcPartSelectionListModel(this);
 	setModel(mListModel);
