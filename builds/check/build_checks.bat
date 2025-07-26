@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 22, 2025
+rem  Last Update: July 24, 2025
 rem  Copyright (C) 2018 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -51,7 +51,17 @@ IF "%LP3D_CONDA_TEST%" NEQ "True" (
   IF NOT "%PKG_INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
   IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
 )
-IF "%LP3D_VALID_7ZIP%" =="" SET LP3D_VALID_7ZIP=0
+rem Set Windows built-in Tar
+IF "%LP3D_VALID_TAR%"=="" SET LP3D_VALID_TAR=0
+IF "%LP3D_SYS_DIR%"=="" SET "LP3D_SYS_DIR=%WINDIR%\System32"
+IF "%LP3D_WIN_TAR%"=="" SET "LP3D_WIN_TAR=%LP3D_SYS_DIR%\Tar.exe"
+IF NOT EXIST "%LP3D_WIN_TAR%" (
+  SET LP3D_WIN_TAR=
+  SET LP3D_WIN_TAR_MSG=Not Found
+) ELSE (
+  SET LP3D_VALID_TAR=1
+  SET LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%
+)
 
 SET PKG_CHECKS=7
 rem Check 1 of 7
@@ -113,8 +123,11 @@ IF "%LP3D_CONDA_TEST%" EQU "True" (
   ECHO   LP3D_CONDA_TEST...........[YES]
 )
 IF NOT [%ARCHIVE_ASSETS%]==[] (
-  ECHO   ARCHIVE_CHECK_ASSETS......[YES]
+  IF NOT %LP3D_VALID_TAR%==0 (
+    ECHO   ARCHIVE_CHECK_ASSETS......[YES]
+  )
 )
+ECHO   PKG_WIN_TAR...............[%LP3D_WIN_TAR_MSG%]
 ECHO   PKG_PLATFORM..............[%PKG_PLATFORM%]
 IF "%LP3D_CONDA_TEST%" NEQ "True" (
   ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
@@ -134,7 +147,6 @@ IF "%LP3D_CONDA_TEST%" NEQ "True" (
 )
 
 CALL :SET_LDRAW_LIBS
-CALL :SET_VALID_7ZIP
 
 SET overall_check_start=%time%
 
@@ -380,56 +392,14 @@ SETLOCAL DISABLEDELAYEDEXPANSION
 CALL :CLEANUP_CHECK_OUTPUT
 EXIT /b
 
-:SET_VALID_7ZIP
-IF "%LP3D_7ZIP_WIN64%" == "" (
-  SET "LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe"
-)
-IF %LP3D_VALID_7ZIP% == 0 (
-  "%LP3D_7ZIP_WIN64%" > %TEMP%\output.tmp 2>&1
-  FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
-    ECHO.%%a | findstr /C:"7-Zip">NUL && (
-      SET LP3D_VALID_7ZIP=1
-      ECHO.
-      ECHO -7zip x64 executable found at %LP3D_7ZIP_WIN64%
-      GOTO :END_7ZIP_LOOP
-    ) || (
-      GOTO :END_7ZIP64_LOOP
-    )
-  )
-)
-:END_7ZIP64_LOOP
-IF "%LP3D_7ZIP_WIN32%" == "" (
-  SET "LP3D_7ZIP_WIN32=C:\Program Files ^(x86^)\7-zip\7z.exe"
-)
-IF %LP3D_VALID_7ZIP% == 0 (
-  "%LP3D_7ZIP_WIN32%" > %TEMP%\output.tmp 2>&1
-  FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
-    ECHO.%%a | findstr /C:"7-Zip">NUL && (
-      SET LP3D_VALID_7ZIP=1
-      ECHO.
-      ECHO -7zip x86 executable found at %LP3D_7ZIP_WIN32%
-    ) || (
-      ECHO -WARNING - 7zip not found at %LP3D_7ZIP_WIN32% or %LP3D_7ZIP_WIN64%. Cannot archive check assets.
-    )
-    GOTO :END_7ZIP_LOOP
-  )
-)
-:END_7ZIP_LOOP
-EXIT /b
-
 :ARCHIVE_CHECK_ASSETS
 SET PKG_CHECK_ASSETS=Check_%1_%PKG_PLATFORM%_Assets.zip
-IF "%LP3D_7ZIP_WIN64%" NEQ "" (
-  SET "LP3D_7ZIP_WIN=%LP3D_7ZIP_WIN64%"
-) ELSE (
-  IF "%LP3D_7ZIP_WIN32%" == "" (
-    SET "LP3D_7ZIP_WIN=%LP3D_7ZIP_WIN32%"
-  )
-)
-IF "%LP3D_7ZIP_WIN%" NEQ "" (
+IF "%LP3D_WIN_TAR%" NEQ "" (
   ECHO  -Archiving CHECK %1 assets to %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS%
   IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% >NUL 2>&1 )
-  "%LP3D_7ZIP_WIN%" a -tzip %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS% %PKG_CHECK_DIR%\ >NUL 2>&1
+  PUSHD %PKG_CHECK_DIR%\..
+  "%LP3D_WIN_TAR%" -acf %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS% %PKG_CHECK_DIR%
+  POPD
   IF EXIST "%PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS%" ( ECHO  -Archive succeeded ) ELSE ( ECHO  -ERROR - Archive failed )
 )
 EXIT /b
