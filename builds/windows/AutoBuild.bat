@@ -121,19 +121,6 @@ IF "%LP3D_VCARM64SDKVER%" == "" SET LP3D_VCARM64SDKVER=10.0
 IF "%LP3D_VCARM64TOOLSET%" == "" SET LP3D_VCARM64TOOLSET=v143
 IF "%LP3D_VCARM64VARSALL_VER%" == "" SET LP3D_VCARM64VARSALL_VER=-vcvars_ver=14.4
 
-IF "%LP3D_VALID_7ZIP%" =="" SET LP3D_VALID_7ZIP=0
-
-IF "%LP3D_SYS_DIR%" == "" (
-  SET LP3D_SYS_DIR=%WINDIR%\System32
-)
-IF "%LP3D_7ZIP_WIN64%" == "" (
-  SET LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe
-)
-IF "%LP3D_WIN_GIT%" == "" (
-  SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
-)
-SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
-
 SET OfficialCONTENT=complete.zip
 SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET TenteCONTENT=tenteparts.zip
@@ -360,6 +347,22 @@ IF /I "%PLATFORM_ARCH%"=="-all_amd" (
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
 )
 
+rem Set Windows built-in Tar
+IF "%LP3D_VALID_TAR%" == "" SET LP3D_VALID_TAR=0
+IF "%LP3D_SYS_DIR%" == "" (
+  SET "LP3D_SYS_DIR=%WINDIR%\System32"
+)
+IF "%LP3D_WIN_TAR%" == "" (
+  SET "LP3D_WIN_TAR=%LP3D_SYS_DIR%\Tar.exe"
+)
+IF NOT EXIST "%LP3D_WIN_TAR%" (
+  SET LP3D_WIN_TAR=
+  SET LP3D_WIN_TAR_MSG=Not Found
+) ELSE (
+  SET LP3D_VALID_TAR=1 
+  SET "LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%"
+)
+
 rem Initialize package install to - no install
 IF [%2]==[] (
   SET PKG_INSTALL=0
@@ -426,6 +429,7 @@ ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO   BUILD_OPT......................[%BUILD_OPT%]
+ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
 IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
 ECHO   COMPILATION....................[ARM64 ON AMD64 HOST]
 )
@@ -1008,24 +1012,9 @@ EXIT /b
 :REQUEST_LDRAW_DIR
 ECHO.
 ECHO -Request LDraw archive libraries download...
-
 CALL :DOWNLOAD_LDRAW_LIBS
-
 ECHO.
 ECHO -Check for LDraw LEGO disk library...
-"%LP3D_7ZIP_WIN64%" > %TEMP%\output.tmp 2>&1
-FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
-  ECHO.%%a | findstr /C:"7-Zip">NUL && (
-    SET LP3D_VALID_7ZIP=1
-    ECHO.
-    ECHO -7zip exectutable found at "%LP3D_7ZIP_WIN64%"
-  ) || (
-    ECHO.
-    ECHO [WARNING] Could not find 7zip executable at %LP3D_7ZIP_WIN64%.
-  )
-  GOTO :END_7ZIP_LOOP
-)
-:END_7ZIP_LOOP
 IF NOT EXIST "%LDRAW_DIR%\parts" (
   ECHO.
   ECHO -LDraw directory %LDRAW_DIR% does not exist - creating...
@@ -1039,11 +1028,13 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
       SET CHECK=0
     )
   )
-  IF %LP3D_VALID_7ZIP% == 1 (
+  IF %LP3D_VALID_TAR% == 1 (
     ECHO.
     ECHO -Extracting %OfficialCONTENT%...
     ECHO.
-    "%LP3D_7ZIP_WIN64%" x -o"%LDRAW_INSTALL_ROOT%\" "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+	PUSHD "%LDRAW_INSTALL_ROOT%"
+    "%LP3D_WIN_TAR%" -xf "%OfficialCONTENT%"
+	POPD
     IF EXIST "%LDRAW_DIR%\parts" (
       ECHO.
       ECHO -LDraw directory %LDRAW_DIR% extracted.

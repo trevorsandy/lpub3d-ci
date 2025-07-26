@@ -72,6 +72,23 @@ IF /I "%LP3D_BUILD_ARCH%" EQU "arm64" (
   SET RUN_NSIS=0
 )
 
+rem Set Windows built-in Tar
+IF "%LP3D_VALID_TAR%" == "" SET LP3D_VALID_TAR=0
+IF "%LP3D_SYS_DIR%" == "" (
+  SET "LP3D_SYS_DIR=%WINDIR%\System32"
+)
+IF "%LP3D_WIN_TAR%" == "" (
+  SET "LP3D_WIN_TAR=%LP3D_SYS_DIR%\Tar.exe"
+)
+IF NOT EXIST "%LP3D_WIN_TAR%" (
+  SET LP3D_WIN_TAR=
+  SET LP3D_WIN_TAR_MSG=Not Found
+) ELSE (
+  SET LP3D_VALID_TAR=1
+  SET LP3D_VALID_7ZIP=0
+  SET LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%
+)
+
 SET AUTO=0
 IF "%LP3D_AMD_UNIVERSAL_BUILD%"=="" SET LP3D_AMD_UNIVERSAL_BUILD=1
 IF "%LP3D_BUILD_ARCH%" EQU "x86" SET LP3D_AMD_UNIVERSAL_BUILD=0
@@ -147,9 +164,13 @@ IF /I "%LP3D_BUILD_ARCH%" EQU "ARM64" (
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start build process...
 
-SET ZIP_UTILITY=unknown
-SET ZIP_UTILITY_64=C:\program files\7-zip
-SET ZIP_UTILITY_32=C:\Program Files (x86)\7-zip
+IF %LP3D_VALID_TAR% == 1 (
+  SET "ZIP_UTILITY=%LP3D_WIN_TAR%"
+) ELSE (
+  SET ZIP_UTILITY=unknown
+  SET "ZIP_UTILITY_64=%ProgramFiles%\7-zip"
+  SET "ZIP_UTILITY_32=%ProgramFiles(x86)%\7-zip"
+)
 
 SET "NSIS_UTILITY=%ProgramFiles(x86)%\NSIS\makensis.exe"
 SET "SIGN_UTILITY=%ProgramFiles(x86)%\Windows Kits\8.1\bin\x64\signtool.exe"
@@ -209,31 +230,36 @@ IF /I "%GITHUB%" NEQ "True" (
 )
 
 :CHK_ZIP
-IF EXIST "%ZIP_UTILITY_32%" (
-  SET ZIP_UTILITY="%ZIP_UTILITY_32%\7z.exe"
-  ECHO.
-  ECHO - Zip exectutable found at "%ZIP_UTILITY_32%"
-  GOTO :MAIN
-)
-
 IF EXIST "%ZIP_UTILITY_64%" (
-  SET ZIP_UTILITY="%ZIP_UTILITY_64%\7z.exe"
+  SET "ZIP_UTILITY=%ZIP_UTILITY_64%\7z.exe"
+  SET "LP3D_WIN_TAR_MSG=%ZIP_UTILITY%"
+  SET LP3D_VALID_7ZIP=1
   ECHO.
   ECHO - Zip exectutable found at "%ZIP_UTILITY_64%"
   GOTO :MAIN
+) ELSE (
+  IF EXIST "%ZIP_UTILITY_32%" (
+    SET "ZIP_UTILITY=%ZIP_UTILITY_32%\7z.exe"
+    SET "LP3D_WIN_TAR_MSG=%ZIP_UTILITY%"
+    SET LP3D_VALID_7ZIP=1
+    ECHO.
+    ECHO - Zip exectutable found at "%ZIP_UTILITY_32%"
+    GOTO :MAIN
+  )
 )
 
+SET OPTION=0
 IF %AUTO% NEQ 1 (
   IF NOT EXIST "%ZIP_UTILITY%" (
     ECHO.
-    ECHO * Could not find zip executable. Requested manual location entry.
+    ECHO * Could not find 7zip executable. Requested manual location entry.
     SET /p ZIP_UTILITY=Could not find any zip executable. You can manually enter a location:
   )
 
   IF EXIST "%ZIP_UTILITY%" (
     ECHO.
-    ECHO - Zip exectutable at (%ZIP_UTILITY%) will be used to archive your portable distributions.
-    SET OPTION=1
+    ECHO - 7Zip exectutable at "%ZIP_UTILITY%" will be used to archive your portable distributions.
+    SET LP3D_VALID_7ZIP=1
     SET /p OPTION= Type [1] to exit or Enter to continue:
   )
 
@@ -437,6 +463,7 @@ ECHO   LP3D_DATE_TIME.......................[%LP3D_DATE_TIME%]
 ECHO   LP3D_DOWNLOAD_PRODUCT................[%LP3D_DOWNLOAD_PRODUCT%]
 ECHO   LP3D_PRODUCT_DIR.....................[%LP3D_PRODUCT_DIR%]
 ECHO   LP3D_BUILD_FILE......................[%LP3D_BUILD_FILE%]
+ECHO   LP3D_WIN_TAR.........................[%LP3D_WIN_TAR_MSG%]
 ECHO.
 IF /I "%GITHUB%" EQU "True" (
 ECHO   BUILD_WORKER_IMAGE...................[%GITHUB_RUNNER_IMAGE%]
@@ -930,6 +957,26 @@ IF %RUN_NSIS% == 1 MOVE /Y    %LP3D_DOWNLOAD_PRODUCT%.exe %PKG_DOWNLOAD_DIR%\ | 
 IF %RUN_NSIS% == 1 ECHO   Finished NSIS Master Installer Build
 EXIT /b
 
+:CREATEPORTABLEDISTRO
+IF %CREATE_PORTABLE% == 1 ECHO.
+IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_DISTRO_ARCH% portable install archive package file...
+
+IF %CREATE_PORTABLE% == 0 ECHO.
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %LP3D_PRODUCT% portable install archive package file
+
+IF %CREATE_PORTABLE% == 1 (
+  IF %LP3D_VALID_TAR% == 1 (
+    PUSHD %PKG_DISTRO_DIR%\..
+    %ZIP_UTILITY% -acf %PKG_DOWNLOAD_DIR%\%PKG_DISTRO_PORTABLE_DIR%.zip %LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%
+    POPD
+  ) ELSE (
+    IF %LP3D_VALID_7ZIP% == 1 (
+      %ZIP_UTILITY% a -tzip %PKG_DOWNLOAD_DIR%\%PKG_DISTRO_PORTABLE_DIR%.zip %PKG_DISTRO_DIR%\ | FINDSTR /i /r /c:"^Creating\>" /c:"^Everything\>"
+    )
+  )
+)
+EXIT /b
+
 :SIGNAPP
 IF /I "%GITHUB%" EQU "True" (
   ECHO.
@@ -969,16 +1016,6 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1
 )
 
 IF %SIGN_APP% == 1 ECHO   Finished Application Code Signing
-EXIT /b
-
-:CREATEPORTABLEDISTRO
-IF %CREATE_PORTABLE% == 1 ECHO.
-IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_DISTRO_ARCH% portable install archive package file...
-
-IF %CREATE_PORTABLE% == 0 ECHO.
-IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %LP3D_PRODUCT% portable install archive package file
-
-IF %CREATE_PORTABLE% == 1 %ZIP_UTILITY% a -tzip %PKG_DOWNLOAD_DIR%\%PKG_DISTRO_PORTABLE_DIR%.zip %PKG_DISTRO_DIR%\ | findstr /i /r /c:"^Creating\>" /c:"^Everything\>"
 EXIT /b
 
 :GENERATE_JSON
