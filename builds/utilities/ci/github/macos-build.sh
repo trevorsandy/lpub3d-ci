@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: May 24, 2025
+# Last Update: June 30, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -72,7 +72,7 @@ trap FinishElapsedTime EXIT
 
 brew_install() {
   # Usage:
-  # brew_install qt@5
+  # brew_install qt@6
   if brew list $1 &>/dev/null; then
     echo "${1} is already installed."
   else
@@ -80,7 +80,7 @@ brew_install() {
     xquartz)
       brew install --cask $1
     ;;
-    qt@5)
+    qt@6|qt@5)
       brew install $1
       echo "Force linking to 'keg-only' instance of Qt..."
       brew link --force $1
@@ -189,7 +189,7 @@ fi
 
 # Make sure Qt is properly setup
 echo "Install 'cask' instance of XQuartz..." && brew_install xquartz
-echo "Install 'keg-only' instance of Qt..." && brew_install qt@5
+echo "Install 'keg-only' instance of Qt..." && brew_install qt@6
 echo "Install coreutils..." && brew_install coreutils
 echo "Install wget..." && brew_install wget
 

@@ -167,7 +167,7 @@ if [ "${TRAVIS}" != "true" ]; then
         (mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/) >$l.out 2>&1 && rm $l.out
         [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
     else
-        LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
+        LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}-*")
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
             if [ "$LOCAL" = "true" ]; then
                 echo -n "$((CMD_CNT+=1)). copy LOCAL ${LPUB3D} source to ${UPSTREAM_DIR}/..."

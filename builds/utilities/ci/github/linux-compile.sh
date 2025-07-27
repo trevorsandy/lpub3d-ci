@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 3, 2025
+# Last Update July 27, 2025
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -151,10 +151,15 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   case "${LP3D_BASE}" in
     "ubuntu")
       cp -f builds/linux/obs/alldeps/debian/control .
+      build_packages="$(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,)"
+      # downgrade to Qt5 to work around Qt6 qmake6 segfault
+      qt5_packages="qttools5-dev-tools qtbase5-dev qt5-qmake libqt5opengl5-dev"
+      qt6_packages="qt6-tools-dev qt6-base-dev qmake6 libqt6opengl6-dev libqt6core5compat6-dev"
+      build_packages=$(echo ${build_packages} | sed "s/${qt6_packages}/${qt5_packages}/g")
       sudo apt-get update > ${LIBS_LOG} 2>&1
       sudo apt-get install -y apt-utils cmake rsync unzip lintian build-essential fakeroot ccache lsb-release >> ${LIBS_LOG} 2>&1
       sudo apt-get install -y autotools-dev autoconf pkg-config automake libtool curl zip >> ${LIBS_LOG} 2>&1
-      sudo apt-get install -y $(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,) >> ${LIBS_LOG} 2>&1
+      sudo apt-get install -y ${build_packages} >> ${LIBS_LOG} 2>&1
       ;;
     "fedora")
       cp -f builds/linux/obs/alldeps/lpub3d-ci.spec .
@@ -237,7 +242,7 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   # Trigger rebuild renderers if specified
   LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
   ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
-  ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.5
+  ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.6
   povray_path=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8
   [[ "${LP3D_COMMIT_MSG}" == *"ALL_RENDERERS"* ]] && \
   echo "'Build LDGLite, LDView and POV-Ray' detected." && \
@@ -279,7 +284,11 @@ if [ -n "${LP3D_ANALYZE}" ]; then
   ls -al ${LP3D_DIST_DIR_PATH}/ && echo "DEBUG END" && echo
 
   # Qmake setup
-  if which qmake-qt5 >/dev/null 2>&1; then
+  if which qmake-qt6 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake-qt6
+  elif which qmake6 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake6
+  elif which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
   else
     QMAKE_EXEC=qmake
@@ -299,7 +308,8 @@ if [ -n "${LP3D_ANALYZE}" ]; then
   else
     distropkg=api
   fi
-  ${QMAKE_EXEC} -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
+
+  ${QMAKE_EXEC} -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg} LPub3D.pro
 
   # Compile command
   make -j$(nproc)

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 12, 2025
+# Last Update: August 17, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -176,7 +176,7 @@ if [ "${TRAVIS}" != "true" ]; then
         (mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/) >$l.out 2>&1 && rm $l.out
 		[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
     else
-        LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
+        LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}-*")
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
             if [ "$LOCAL" = "true" ]; then
                 echo -n "$((CMD_CNT+=1)). copy LOCAL ${LPUB3D} source to ${SOURCE_DIR}/..."
@@ -329,6 +329,7 @@ fi
 dwMsgShown=0
 packageFiles=(ldglite ldview povray)
 for pkgFile in "${packageFiles[@]}"; do
+    ext=tar.gz
     package="$(echo ${pkgFile} | awk '{print toupper($0)}')"
     if [ ! -f "${pkgFile}.${ext}" ]; then
         if [ "$LOCAL" = "true" ]; then
@@ -346,7 +347,6 @@ for pkgFile in "${packageFiles[@]}"; do
         else
             [ "${dwMsgShown}" -eq 0 ] && \
             echo "$((CMD_CNT+=1)). download ${LPUB3D} package source to ${SOURCE_DIR}/" || :
-            ext=tar.gz
             case "${pkgFile}" in
                 ldglite) buildBranch=${LDGLITE_BRANCH} ;;
                 ldview) buildBranch=${LDVIEW_BRANCH} ;;

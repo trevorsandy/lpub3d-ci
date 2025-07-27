@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 15, 2025
+# Last Update: June 30, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -216,9 +216,15 @@ function InstallDependencies()
         specFile="$PWD/obs/ldglite.spec"
         ;;
       ldview)
-        cp -f QT/LDView.spec QT/ldview-lp3d-qt5.spec
-        specFile="$PWD/QT/ldview-lp3d-qt5.spec"
-        sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
+	    if which -q qmake6 >/dev/null 2>&1 ; then
+		  specFile="/tmp/LDView-qt6.spec"
+          cp -f LDView.spec $specFile
+		  sed -e 's/define qt6 0/define qt6 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
+		else
+		  specFile="/tmp/LDView-qt5.spec"
+		  cp -f LDView.spec $specFile
+		  sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
+		fi
         ;;
       povray)
         specFile="$PWD/unix/obs/povray.spec"
@@ -245,7 +251,10 @@ function InstallDependencies()
         pkgbuildFile="$PWD/obs/PKGBUILD"
         ;;
       ldview)
-        pkgbuildFile="$PWD/QT/PKGBUILD"
+	    pkgbuildFile="$PWD/QT/PKGBUILD"
+	    if which -q qmake6 >/dev/null 2>&1 ; then
+          sed -e 's/qt5/qt6/g' -e 's/qmake /qmake6 /g' -e '/^depends/s/)/ '\''qt6-5compat'\'')/' -i $pkgbuildFile
+		fi
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
@@ -276,8 +285,12 @@ function InstallDependencies()
         ;;
       ldview)
         controlFile="$PWD/QT/debian/control"
-        sed -e '/^#Qt/d' -e '/libqt4-dev/d' -e '/qt6-base-dev/d' \
-            -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
+		sed -e '/^#Qt/d' -e '/libqt4-dev/d' -i $controlFile
+		if which -q qmake6 >/dev/null 2>&1 ; then
+          sed -e '/qtbase5-dev/d' -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
+		else
+          sed -e '/qt6-base-dev/d' -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
+		fi
         if [ "$LP3D_BUILD_OS" = "appimage" ]; then
           sed -e 's/ libkf5kio-dev,//g' \
               -e 's/ extra-cmake-modules,//g' \
@@ -899,7 +912,7 @@ elif [ "${OBS}" = "true" ]; then
   fi
   Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
   [ -n "$prebuilt_3ds" ] && prebuilt_3ds_msg="Use pre-built library" || prebuilt_3ds_msg="Build from source"
-  [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT5_BIN]" || true
+  [ -n "$get_qt5" ] && Info "Get Qt5 Library..........[$LP3D_QT_BIN]" || true
   [ -n "$local_freeglut" ] && Info "Freeglut.................[Using local Freeglut]" || true
   [ -n "$get_local_libs" ] && Info "Get Local Libraries......[Using OSMesa, LLVM, OpenEXR, and DRM from $LP3D_LL_USR/lib64]" || true
   [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
@@ -926,9 +939,8 @@ elif [ "$get_local_libs" = 1 ]; then
   build_mesa_msg="Use local libraries"
   llvm_libs_msg="Use local libraries"
 else
-  [ "$(which libOSMesa.so 2>/dev/null)" ] && \
-  build_mesa_msg="Use system libraries" || \
-  build_mesa_msg="Not available"
+  [ "$(ldconfig -p | grep -i libOSMesa 2>/dev/null)" ] && \
+  build_mesa_msg="Use system libraries" || build_mesa_msg="Not found"
 fi
 [ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
 [ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
@@ -1007,47 +1019,6 @@ Info "Extras Directory.........[${EXTRAS_DIR}]"
 # Travis: /home/travis/build/trevorsandy
 cd "${WD}" || :
 
-# QMake ldd and cpu cores configuration
-if [ "$OS_NAME" = "Darwin" ]; then
-  # Qt setup - MacOS
-  QMAKE_EXEC=qmake
-  # set dependency profiler and nubmer of CPUs
-  LDD_EXEC="otool -L"
-  CPU_CORES=$(sysctl -n hw.ncpu)
-else
-  if [ -n "${MSYS2}" ]; then
-    # Qt setup - MinGW
-    if [ -f "${LP3D_QT5_BIN}/qmake.exe" ] ; then
-      QMAKE_EXEC=${LP3D_QT5_BIN}/qmake.exe
-    else
-      QMAKE_EXEC=${MINGW_PREFIX}/bin/qmake.exe
-    fi
-  else
-    # Qt setup - Linux
-    if [ -f "${LP3D_QT5_BIN}/qmake" ] ; then
-      QMAKE_EXEC=$LP3D_QT5_BIN/qmake
-    else
-      export QT_SELECT=qt5
-      if [ -x "/usr/bin/qmake-qt5" ] ; then
-        QMAKE_EXEC=/usr/bin/qmake-qt5
-      else
-        QMAKE_EXEC=qmake
-      fi
-    fi
-  fi
-  # Set nubmer of CPU cores
-  LDD_EXEC=ldd
-  if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
-    CPU_CORES=1
-  else
-    if [ -n "${LP3D_CPU_CORES}" ]; then
-      CPU_CORES=${LP3D_CPU_CORES}
-    else
-      CPU_CORES=$(nproc)
-    fi
-  fi
-fi
-
 case ${LP3D_LDVIEW_CUI_OPT} in
 ldviewqt)
   LP3D_LDVIEW_CUI_OPT=Qt ;;
@@ -1059,9 +1030,6 @@ ldviewwgl)
   LP3D_LDVIEW_CUI_OPT=Default ;;
 esac
 Info "LDView CUI Graphics......[${LP3D_LDVIEW_CUI_OPT}]"
-
-Info "Target CPU...............[${TARGET_CPU}]"
-Info "Number Of CPU Cores......[${CPU_CORES}]"
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
 if [ -z "$LDRAWDIR_ROOT" ]; then
@@ -1124,39 +1092,50 @@ elif [ "$OS_NAME" != "Darwin" ]; then
   Info "LDraw Library............[${LDRAWDIR}]"
 fi
 
-# Additional macOS LDraw configuration
+# QMake, LDD and CPU cores configuration
+
 if [ "$OS_NAME" = "Darwin" ]; then
+  # Additional macOS LDraw configuration
   Info "LDraw Library............[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."
   chmod +x ${LPUB3D}/builds/utilities/set-ldrawdir.command && ./${LPUB3D}/builds/utilities/set-ldrawdir.command
   grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
   Info "set LDRAWDIR Completed."
-
   # Qt setup - MacOS
   QMAKE_EXEC=qmake
+  # Set dependency profiler and nubmer of CPUs
+  LDD_EXEC="otool -L"
+  CPU_CORES=$(sysctl -n hw.ncpu)
 else
-
   if [ -n "${MSYS2}" ]; then
     # Qt setup - MinGW
-    if [ -f "${LP3D_QT5_BIN}/qmake.exe" ] ; then
-      QMAKE_EXEC=${LP3D_QT5_BIN}/qmake.exe
+    if [ -f "${LP3D_QT_BIN}/qmake6.exe" ] ; then
+      QMAKE_EXEC=${LP3D_QT_BIN}/qmake6.exe
+    elif [ -f "${LP3D_QT_BIN}/qmake.exe" ] ; then
+      QMAKE_EXEC=${LP3D_QT_BIN}/qmake.exe
     else
       QMAKE_EXEC=${MINGW_PREFIX}/bin/qmake.exe
     fi
   else
     # Qt setup - Linux
-    if [ -f "${LP3D_QT5_BIN}/qmake" ] ; then
-      QMAKE_EXEC=$LP3D_QT5_BIN/qmake
+    export QT_SELECT=$(which qmake6 && echo qt6 || echo qt5)
+    if [ -f "${LP3D_QT_BIN}/qmake6" ] ; then
+      QMAKE_EXEC=${LP3D_QT_BIN}/qmake6
+    elif [ -f "${LP3D_QT_BIN}/qmake" ] ; then
+      QMAKE_EXEC=$LP3D_QT_BIN/qmake
     else
-      export QT_SELECT=qt5
-      if [ -x "/usr/bin/qmake-qt5" ] ; then
+      if [ -x "/usr/bin/qmake6" ] ; then
+        QMAKE_EXEC=/usr/bin/qmake6
+      elif [ -x "/usr/bin/qmake-qt5" ] ; then
         QMAKE_EXEC=/usr/bin/qmake-qt5
+      elif [ -d "$LP3D_QT5_BIN" ] ; then
+        QMAKE_EXEC=$LP3D_QT5_BIN/qmake
       else
         QMAKE_EXEC=qmake
       fi
     fi
   fi
-  # set dependency profiler and nubmer of CPUs
+  # Set dependency profiler and nubmer of CPUs
   LDD_EXEC=ldd
   if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
     CPU_CORES=1
@@ -1168,6 +1147,8 @@ else
     fi
   fi
 fi
+Info "Target CPU...............[${TARGET_CPU}]"
+Info "Number Of CPU Cores......[${CPU_CORES}]"
 
 # Get Qt version
 Info && ${QMAKE_EXEC} -v && Info
