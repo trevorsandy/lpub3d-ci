@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 3, 2025
+# Last Update: August 14, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -87,7 +87,7 @@ esac
 
 case "${LP3D_BASE}" in
     "ubuntu")
-        [ "${LP3D_APPIMAGE}" = "true" ] && LP3D_DIST="bionic" || LP3D_DIST="jammy" ;;
+        [ "${LP3D_APPIMAGE}" = "true" ] && LP3D_DIST="focal" || LP3D_DIST="noble" ;;
     "fedora")
         LP3D_DIST="36" ;;
     "archlinux")
@@ -314,7 +314,50 @@ RUN apt-get install -y apt-utils git wget cmake rsync unzip lintian build-essent
 RUN apt-get install -y libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
 RUN apt-get install -y autotools-dev autoconf pkg-config automake libtool curl zip fuse libfuse-dev
 RUN apt-get install -y xvfb desktop-file-utils
-RUN apt-get install -y $(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,)
+pbEOF
+        control_libs="$(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,)"
+        if [[ "${LP3D_APPIMAGE}" == "true" ]]; then
+            amd_archs=("amd64" "x86_64")
+            arm_archs=("arm64" "aarch64")
+            qt6_packages="qt6-tools-dev qt6-base-dev qmake6 libqt6opengl6-dev libqt6core5compat6-dev"
+            control_libs=$(echo ${control_libs} | sed "s/${qt6_packages}//")
+            if [[ "${amd_archs[*]}" =~ "${LP3D_ARCH}" ]]; then
+                aqt_ver=6.5.3
+                aqt_arch=gcc_64
+                aqt_install_path="/opt/qt/${aqt_ver}/${aqt_arch}"
+cat << pbEOF >>${out_path}/Dockerfile
+RUN apt-get install -y ${control_libs}
+# Qt6 install before v6.6 seem to be missing libxcb dependencies - so install these libraries
+RUN apt-get install -y libpulse-dev libxcb-glx0 libxcb-icccm4 libxcb-image0 \\
+                       libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-render0 \\
+                       libxcb-shape0 libxcb-shm0 libxcb-sync1 libxcb-util1 \\
+                       libxcb-xfixes0 libxcb-xinerama0 libxcb1 libxkbcommon-dev \\
+                       libxkbcommon-x11-0 libxcb-xkb-dev libxcb-cursor0 \\
+                       libcups2
+RUN apt-get install -y git python3 python3-pip libdbus-1-3 libpulse-mainloop-glib0 libfontconfig1
+RUN pip3 install aqtinstall
+RUN aqt install-qt --outputdir /opt/qt linux desktop ${aqt_ver} ${aqt_arch} -m qt5compat
+ENV PATH=${aqt_install_path}/bin:${PATH} \\
+    QT_PLUGIN_PATH=${aqt_install_path}/plugins/ \\
+    QML_IMPORT_PATH=${aqt_install_path}/qml/ \\
+    QML2_IMPORT_PATH=${aqt_install_path}/qml/
+pbEOF
+            elif [[ "${arm_archs[*]}" =~ "${LP3D_ARCH}" ]]; then
+                test ${gid} -eq 117 && gid=118 || :
+                qt5_packages="qttools5-dev-tools qtbase5-dev qt5-qmake libqt5opengl5-dev"
+cat << pbEOF >>${out_path}/Dockerfile
+RUN apt-get install -y ${control_libs}
+RUN apt-get install -y ${qt5_packages}
+pbEOF
+            else
+                echo "ERROR - Architecture ${LP3D_ARCH} is invalid for AppImage."
+            fi
+        else
+cat << pbEOF >>${out_path}/Dockerfile
+RUN apt-get install -y ${control_libs}
+pbEOF
+        fi
+cat << pbEOF >>${out_path}/Dockerfile
 RUN apt-get install -y sudo \\
 pbEOF
         ;;

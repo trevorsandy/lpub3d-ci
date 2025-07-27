@@ -179,17 +179,17 @@ if [ "${TRAVIS}" != "true" ]; then
             if [ "$LOCAL" = "true" ]; then
                 echo -n "$((CMD_CNT+=1)). copy LOCAL ${LPUB3D} source to ${SOURCE_DIR}/..."
                 (cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}) >$l.out 2>&1 && rm $l.out
-				[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+                [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
                 echo "$((CMD_CNT+=1)). copy LOCAL ${LPUB3D} renderer source to ${SOURCE_DIR}/"
                 for renderer in ldglite ldview povray; do
-				    echo -n "   copy LOCAL ${renderer} source..."
+                    echo -n "   copy LOCAL ${renderer} source..."
                     (cp -rf ${LOCAL_RESOURCE_PATH}/${renderer}.tar.gz .) >$l.out 2>&1 && rm $l.out
-					[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+                    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
                 done
             else
                 echo "$((CMD_CNT+=1)). download ${LPUB3D} source to ${SOURCE_DIR}/"
                 if [ -d "${LPUB3D_REPO}" ]; then
-				    echo "$((CMD_CNT+=1)). remove old ${LPUB3D_REPO} from ${SOURCE_DIR}/"
+                    echo "$((CMD_CNT+=1)). remove old ${LPUB3D_REPO} from ${SOURCE_DIR}/"
                     rm -rf ${LPUB3D_REPO}
                 fi
                 echo -n "$((CMD_CNT+=1)). cloning ${LPUB3D} ${LPUB3D_BRANCH} branch into ${LPUB3D}..."
@@ -207,7 +207,7 @@ if [ "${TRAVIS}" != "true" ]; then
 else
     echo -n "$((CMD_CNT+=1)). copy ${LPUB3D} source to ${SOURCE_DIR}/..."
     (cp -rf "../../${LPUB3D}" .) >$l.out 2>&1 && rm $l.out
-	[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+    [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
 
 # For Docker build, check if there is a tag after the last commit
@@ -239,10 +239,10 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 WORK_DIR=${LPUB3D}-git
 if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
     if [ -d ${WORK_DIR} ]; then
-	    echo "$((CMD_CNT+=1)). remove old ${WORK_DIR} from ${SOURCE_DIR}/"
+        echo "$((CMD_CNT+=1)). remove old ${WORK_DIR} from ${SOURCE_DIR}/"
         rm -rf ${WORK_DIR}
     fi
-	echo "$((CMD_CNT+=1)). move ${LPUB3D}/ to ${SOURCE_DIR}/${LPUB3D}-git"
+    echo "$((CMD_CNT+=1)). move ${LPUB3D}/ to ${SOURCE_DIR}/${LPUB3D}-git"
     mv -f ${LPUB3D} ${WORK_DIR}
 else
     if [ "$LOCAL" = "true" ]; then
@@ -305,13 +305,13 @@ for pkgFile in "${packageFiles[@]}"; do
             echo "$((CMD_CNT+=1)). copy ${LPUB3D} package source to ${SOURCE_DIR}/" || :
             echo -n "   copying LOCAL ${package} tarball ${pkgFile}.${ext}..."
             (cp -f ${LOCAL_RESOURCE_PATH}/${pkgFile}.${ext} .) >$l.out 2>&1 && rm $l.out
-			[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
         elif [[ "$PRESERVE" = "true" && -f ../${pkgFile}.${ext} ]]; then
             [ "${dwMsgShown}" -eq 0 ] && \
             echo "$((CMD_CNT+=1)). copy ${LPUB3D} package source to ${SOURCE_DIR}/" || :
             echo -n "   copying PRESERVE ${package} tarball ${pkgFile}.${ext}..."
             (cp -f ../${pkgFile}.${ext} .) >$l.out 2>&1 && rm $l.out
-			[ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
         else
             [ "${dwMsgShown}" -eq 0 ] && \
             echo "$((CMD_CNT+=1)). download ${LPUB3D} package source to ${SOURCE_DIR}/" || :
@@ -378,7 +378,7 @@ else
 fi
 
 echo -n "$((CMD_CNT+=1)). Check for libXext: "
-libXextCheck=$(ldconfig -p | grep libXext)
+libXextCheck=$(ldconfig -p | grep -i libXext)
 if test "$libXextCheck"; then
     echo "found $libXextCheck"
     if test "$LOCAL" = "true"; then
@@ -410,6 +410,7 @@ rpmbuild \
 --define "_lp3d_cpu_cores ${LP3D_CPU_CORES}" \
 --define "_lp3d_3rd_dist_dir ${LP3D_3RD_DIST_DIR}" \
 --define "_lp3d_3rd_exec_dir ${LP3D_3RD_EXE_PREFIX}" \
+--define 'debug_package %{nil}' \
 -vv -bb ${LPUB3D}.spec || exit 1
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
