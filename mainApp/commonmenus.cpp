@@ -8081,13 +8081,13 @@ void CommonMenus::setWhatsThis()
             "  The smoothing range calculation will use the maximum granularity<br>"
             "  value measured between this setting and the value specified<br>"
             "  by your graphics system.<br><br>"
-            "  The default smoothing granularity setting value is 1.0000.<br>"
+            "  The default smoothing granularity is 1.0000, and the minimum is 0.25.<br>"
             "  If the edge line range presented with the default smoothing granularity<br>"
             "  setting is not enough to allow you to specify your desired line width,<br>"
             "  a lower setting - e.g. 0.5000 - will yield a smaller granularity and<br>"
-            "  consequently, increase the size of the edge line range.<br>"
+            "  consequently, increase the size of the edge line setting range.<br>"
             "  If you wish to use the system specified granularity,<br>"
-            "  simply set this value to 0.0.%1<br>")
+            "  simply set this value below the minimum - e.g. 0.0.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_GUI_LINE_WIDTH_MAX_GRANULARITY")
