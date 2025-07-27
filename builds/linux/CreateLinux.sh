@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 12, 2025
+# Last Update July 31, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -331,16 +331,23 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
   fi
 
   # qmake setup
-  export QT_SELECT=qt5
-  if which qmake-qt5 >/dev/null 2>&1; then
+  export QT_SELECT=$(which qmake6 && echo qt6 || echo qt5)
+  if which qmake6 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake6
+    ln -s `which qmake6` ./qmake; \
+    export PATH=`pwd`:${PATH}; \
+    qmake -v;
+  elif which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
-  else
+  elif which qmake >/dev/null 2>&1; then
     QMAKE_EXEC=qmake
+  else
+    Info "QMake was not found - exiting..." && exit 1
   fi
   ${QMAKE_EXEC} -v
 
   # build command
-  ${QMAKE_EXEC} -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
+  ${QMAKE_EXEC} -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg} LPub3D.pro
   make || exit 1
   make INSTALL_ROOT=${AppDirBuildPath} install || exit 1
 
