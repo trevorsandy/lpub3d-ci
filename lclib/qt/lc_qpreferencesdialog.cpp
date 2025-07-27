@@ -196,6 +196,7 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 	}
 
 /*** LPub3D Mod - line width max granularity ***/
+	// Max default is 1.0f
 	float Max = mOptions->Preferences.mLineWidthMaxGranularity;
 /*** LPub3D Mod - ***/
 #ifndef LC_OPENGLES
@@ -213,8 +214,11 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 /*** LPub3D Mod - ***/
 	}
 
+	mLineWidthRange[1] = qMin(mLineWidthRange[1], 10.0f);
+	mLineWidthGranularity = qMax(mLineWidthGranularity, 0.25f);
+
 /*** LPub3D Mod - line width max granularity ***/
-	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(Max, mLineWidthGranularity));
+	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(mLineWidthGranularity, Max));
 /*** LPub3D Mod - ***/
 	ui->LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
 
