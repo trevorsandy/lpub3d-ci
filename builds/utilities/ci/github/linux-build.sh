@@ -438,7 +438,7 @@ cp -f builds/linux/CreateLinux.sh .
 cat << pbEOF >>${out_path}/Dockerfile
 ADD --chown=${name}:${name} docker-run-CMD.sh /${name}
 ADD --chown=${name}:${name} CreateLinux.sh /${name}
-CMD /bin/bash
+CMD ["/bin/bash", "-c"]
 pbEOF
 
 cat << pbEOF >${out_path}/docker-run-CMD.sh
