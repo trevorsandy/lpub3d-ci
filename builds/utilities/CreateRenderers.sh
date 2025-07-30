@@ -939,9 +939,8 @@ elif [ "$get_local_libs" = 1 ]; then
   build_mesa_msg="Use local libraries"
   llvm_libs_msg="Use local libraries"
 else
-  [ "$(which libOSMesa.so 2>/dev/null)" ] && \
-  build_mesa_msg="Use system libraries" || \
-  build_mesa_msg="Not available"
+  [ "$(ldconfig -p | grep -i libOSMesa 2>/dev/null)" ] && \
+  build_mesa_msg="Use system libraries" || build_mesa_msg="Not found"
 fi
 [ -n "$build_mesa_msg" ] && Info "OSMesa...................[${build_mesa_msg}]" || true
 [ -n "$llvm_libs_msg" ] && Info "LLVM Libraries...........[${llvm_libs_msg}]" || true
