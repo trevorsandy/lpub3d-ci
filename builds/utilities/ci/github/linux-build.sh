@@ -336,6 +336,7 @@ ENV PATH=${aqt_install_path}/bin:${PATH} \\
     QML2_IMPORT_PATH=${aqt_install_path}/qml/
 pbEOF
             elif [[ "${arm_archs[*]}" =~ "${LP3D_ARCH}" ]]; then
+                test ${gid} -eq 117 && gid=118 || :
                 qt5_packages="qttools5-dev-tools qtbase5-dev qt5-qmake libqt5opengl5-dev"
 cat << pbEOF >>${out_path}/Dockerfile
 RUN apt-get install -y ${control_libs}
