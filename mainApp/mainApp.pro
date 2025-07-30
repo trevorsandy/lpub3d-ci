@@ -26,7 +26,11 @@ greaterThan(QT_MAJOR_VERSION, 5) {
     DEFINES += QOPENGLWIDGET
 }
 
-CONFIG(debug, debug|release) { LPUB3D = $${TARGET}d } else { LPUB3D = $${TARGET} }
+CONFIG(debug, debug|release) {
+    LPUB3D = $${TARGET}d
+} else {
+    LPUB3D = $${TARGET}
+}
 
 include(../gitversion.pri)
 include(../common.pri)
@@ -79,7 +83,9 @@ DIST_TARGET = $${TARGET}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 message("~~~ $${LPUB3D} $$upper($${TARGET}) $$upper($$QT_ARCH) BUILD: $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
-message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
+message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION QMAKE_MSC_VER $$QMAKE_MSC_VER ~~~")
+!isEmpty(CPP11_MSG):  message("~~~ $${LPUB3D} $${CPP11_MSG} ~~~")
+!isEmpty(CPP17_MSG):  message("~~~ $${LPUB3D} $${CPP17_MSG} ~~~")
 
 DEFINES += VER_ARCH=\\\"$$ARCH\\\"
 DEFINES += VER_CHIPSET=\\\"$$CHIPSET\\\"
@@ -254,8 +260,8 @@ message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $$upper($${BUILD}) ($${TARGET}
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): \
-message("~~~ $${LPUB3D} $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
+!isEmpty(DIST_DIR_UNSPECIFIED_MSG): \
+message("~~~ $${LPUB3D} $${DIST_DIR_UNSPECIFIED_MSG} ~~~")
 message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 #~~configuration options~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
