@@ -322,7 +322,7 @@ pbEOF
             qt6_packages="qt6-tools-dev qt6-base-dev qmake6 libqt6opengl6-dev libqt6core5compat6-dev"
             control_libs=$(echo ${control_libs} | sed "s/${qt6_packages}//")
             if [[ "${amd_archs[*]}" =~ "${LP3D_ARCH}" ]]; then
-                aqt_ver=6.2.4
+                aqt_ver=6.5.3
                 aqt_arch=gcc_64
                 aqt_install_path="/opt/qt/${aqt_ver}/${aqt_arch}"
 cat << pbEOF >>${out_path}/Dockerfile
