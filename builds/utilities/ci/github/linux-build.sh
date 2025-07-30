@@ -327,7 +327,9 @@ pbEOF
                 aqt_install_path="/opt/qt/${aqt_ver}/${aqt_arch}"
 cat << pbEOF >>${out_path}/Dockerfile
 RUN apt-get install -y ${control_libs}
-RUN apt-get install -y git python3 python3-pip libdbus-1-3 libpulse-mainloop-glib0 libfontconfig1 libxkbcommon-x11-0
+# Early versions of Qt6 installation is missing libxcb - so install these libraries
+RUN apt-get install -y libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxcb-cursor0 libxkbcommon-x11-0
+RUN apt-get install -y git python3 python3-pip libdbus-1-3 libpulse-mainloop-glib0 libfontconfig1
 RUN pip3 install aqtinstall
 RUN aqt install-qt --outputdir /opt/qt linux desktop ${aqt_ver} ${aqt_arch} -m qt5compat
 ENV PATH=${aqt_install_path}/bin:${PATH} \\
