@@ -375,7 +375,8 @@ QMAKE_CFLAGS_WARN_ON = \
     -Wall -W \
     -Wno-deprecated-declarations \
     -Wno-unknown-pragmas \
-    -Wno-unused-result
+    -Wno-unused-result \
+    -Wno-alloc-size-larger-than
 QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
 QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-deprecated-copy \
