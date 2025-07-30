@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: July 28, 2025
+# Last Update: July 30, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -542,9 +542,9 @@ fi
 IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 LPUB3D=${LP3D_SLUGS[1]}
 
-# Docker Hub login
-echo "Login to Docker Hub..."
-echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password-stdin
+# Docker Hub login - moved to devops_ci_build.yml
+# echo "Login to Docker Hub..."
+# echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password-stdin
 
 # build docker image
 docker_build_opts=(${docker_platform})
