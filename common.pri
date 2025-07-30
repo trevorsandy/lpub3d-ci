@@ -147,12 +147,12 @@ THIRD_PARTY_DIST_DIR_PATH     = $${PWD}/builds/3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $${PWD}/../$${DIST_DIR} )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
+        DIST_DIR_UNSPECIFIED_MSG = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
     } else {
-        3RD_DIR_SOURCE_UNSPECIFIED = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
+        DIST_DIR_UNSPECIFIED_MSG = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
         THIRD_PARTY_DIST_DIR_PATH="undefined"
         if (equals(TARGET, LC)|equals(TARGET, LDVQt)): \
-        message("~~~ ERROR lib$${TARGET}: - THIRD_PARTY_DIST_DIR_PATH ($$upper(TARGET)) WAS NOT FOUND! ~~~ ")
+        DIST_DIR_NOT_FOUND_MSG = THIRD_PARTY_DIST_DIR_PATH FOR $$upper(TARGET) WAS NOT FOUND!
     }
     3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
 } else {
@@ -175,7 +175,7 @@ BUILD_LDV_LIBS {
     USE_LDV_3RD_PARTY_LIBS:USE_LDV_SYSTEM_LIBS {
         CONFIG -= USE_LDV_SYSTEM_LIBS
         contains(TEMPLATE, subdirs): \
-        message("~~~ NOTICE 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'")
+        USE_LDV_LIBRARIES_MSG = NOTICE 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'
     }
 
     # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
@@ -243,22 +243,25 @@ CONFIG(debug, debug|release) {
     } else {
         # These lines requires a git extract of ldview at the same location as the lpub3d git extract,
         # they also define the ldview git extract folder name - you can set as you like
-        mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
-        else:unix|msys:      VER_LDVIEW_DEV = ldview
-        else:win32-arm64-msvc|win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
+        mingw:ide_qtcreator: \
+        VER_LDVIEW_DEV = undefined
+        else:unix|msys: \
+        VER_LDVIEW_DEV = ldview
+        else:win32-arm64-msvc|win32-msvc*: \
+        VER_LDVIEW_DEV = ldview
         # This line defines the path of the ldview git extract relative to this project file
         VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $${PWD}/../$${VER_LDVIEW_DEV} )
-        equals(TARGET, LPub3D): \
-        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-        equals(TARGET, LDVQt): \
-        message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
         exists($$VER_LDVIEW_DEV_REPOSITORY) {
             VER_USE_LDVIEW_DEV = True
-            equals(TARGET, LDVQt): \
-            message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $${VER_LDVIEW_DEV_REPOSITORY} ~~~ ")
+            equals(TARGET, LPub3D): \
+            LDVIEW_DEV_REPO_MSG = LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY
+            equals(TARGET, LDVQt) {
+                LDVIEW_DEV_REPO_MSG = BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY
+                LDVIEW_DEV_HDRS_MSG = ADD LDVIEW HEADERS TO INCLUDEPATH: $${VER_LDVIEW_DEV_REPOSITORY}
+            }
         } else {
             equals(TARGET, LPub3D): \
-            message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $${VER_LDVIEW_DEV_REPOSITORY} ~~~ ")
+            LDVIEW_DEV_REPO_MSG = NOTICE - COULD NOT LOAD LDVIEW DEV FROM: $${VER_LDVIEW_DEV_REPOSITORY}
         }
     }
 }
@@ -289,8 +292,37 @@ win32-arm64-msvc|win32-msvc* {
         else: VSVER=vs2019
     }
     equals(TARGET, LDVQt) {
-        message("~~~ lib$${TARGET} BUILD WORKER: Visual Studio $${BUILD_WORKER_VERSION} ~~~")
-        message("~~~ lib$${TARGET} $$upper($${QT_ARCH}) MSVS LIBRARY VERSION: $${VSVER} ~~~")
+        VS_BUILD_WORKER_MSG = BUILD WORKER: Visual Studio $${BUILD_WORKER_VERSION}
+        VS_LIBRARY_VER_MSG = $$upper($${QT_ARCH}) MSVS LIBRARY VERSION: $${VSVER}
+    }
+}
+
+#~~ LDraw path and archive library ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+equals(TARGET, LPub3D) {
+    LDRAWDIR                 = $$(LDRAWDIR)
+    exists($${LDRAWDIR}/parts) {
+        LDRAW_PATH           = $$shell_path($$absolute_path($${LDRAWDIR}))
+        LDRAW_DIR_FOUND_MSG  = LDRAW PARTS LIBRARY $${LDRAW_PATH}
+        exists($${LDRAWDIR}/complete.zip) {
+            LDRAW_ZIP_FOUND_MSG = LDRAW ARCHIVE PARTS LIBRARY complete.zip FOUND
+        } else {
+            exists($${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) {
+                if (mingw:ide_qtcreator)|win32-arm64-msvc|win32-msvc* {
+                    LDRAW_ZIP_COPY_CMD = copy /v /y $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip $${LDRAWDIR}
+                } else {
+                    LDRAW_ZIP_COPY_CMD = cp -f $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip $${LDRAWDIR}
+                }
+                QMAKE_POST_LINK += $$escape_expand(\n\t) \
+                                   @$${LDRAW_ZIP_COPY_CMD}
+                exists($${LDRAWDIR}/complete.zip): \
+                LDRAW_ZIP_FOUND_MSG = LDRAW ARCHIVE PARTS LIBRARY COPIED TO LDRAW DIRECTORY
+            } else {
+                LDRAW_ZIP_FOUND_MSG = ERROR - LDRAW ARCHIVE PARTS LIBRARY NOT FOUND
+            }
+        }
+    } else {
+        LDRAW_DIR_FOUND_MSG = ERROR - LDRAW PARTS LIBRARY NOT FOUND
     }
 }
 
@@ -299,7 +331,7 @@ win32-arm64-msvc|win32-msvc* {
 # USE CPP 11
 contains(USE_CPP11,NO) {
     if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)): \
-        message("~~~ DO NOT USE CPP11 SPECIFIED ~~~")
+        CPP11_MSG = DO NOT USE CPP11 SPECIFIED
 } else {
     DEFINES += USE_CPP11
 }
@@ -312,7 +344,7 @@ equals(QT_MAJOR_VERSION, 5) {
     } else:unix|msys {
         if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)) {
             system("g++ --help -v 2>/dev/null| grep -q std=c++17"): \
-                message("~~~ $${TARGET} C++17 language feature found ~~~")
+                CPP17_MSG = C++17 LANGUAGE FEATURE FOUND
         }
         # Greater than or equal to Qt 5.11
         greaterThan(QT_MINOR_VERSION, 11) {
@@ -329,7 +361,7 @@ equals(QT_MAJOR_VERSION, 6) {
     } else:unix|msys {
         if (equals(TARGET, LPub3D)|equals(TARGET, LC)|equals(TARGET, LDVQt)) {
             system("g++ --help -v 2>/dev/null| grep -q std=c++17"): \
-                message("~~~ $${TARGET} C++17 language feature found ~~~")
+                CPP17_MSG = C++17 LANGUAGE FEATURE FOUND
         }
         CONFIG += c++17
     }
@@ -375,7 +407,8 @@ QMAKE_CFLAGS_WARN_ON = \
     -Wall -W \
     -Wno-deprecated-declarations \
     -Wno-unknown-pragmas \
-    -Wno-unused-result
+    -Wno-unused-result \
+    -Wno-alloc-size-larger-than
 QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
 QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-deprecated-copy \

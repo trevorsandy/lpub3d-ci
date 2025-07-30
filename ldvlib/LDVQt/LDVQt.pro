@@ -98,13 +98,21 @@ include(LDVQtLibs.pri)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
+win32-arm64-msvc|win32-msvc*: message("~~~ lib$${TARGET} QMAKE_MSC_VER $$QMAKE_MSC_VER ~~~")
+!isEmpty(DIST_DIR_NOT_FOUND_MSG): message("~~~ lib$${TARGET} $${DIST_DIR_NOT_FOUND_MSG} ~~~")
+!isEmpty(LDVIEW_DEV_REPO_MSG): message("~~~ lib$${TARGET} $${LDVIEW_DEV_REPO_MSG} ~~~")
+!isEmpty(LDVIEW_DEV_HDRS_MSG): message("~~~ lib$${TARGET} $${LDVIEW_DEV_HDRS_MSG} ~~~")
+!isEmpty(VS_BUILD_WORKER_MSG): message("~~~ lib$${TARGET} $${VS_BUILD_WORKER_MSG} ~~~")
+!isEmpty(VS_LIBRARY_VER_MSG): message("~~~ lib$${TARGET} $${VS_LIBRARY_VER_MSG} ~~~")
+!isEmpty(CPP11_MSG): message("~~~ lib$${TARGET} $${CPP11_MSG} ~~~")
+!isEmpty(CPP17_MSG): message("~~~ lib$${TARGET} $${CPP17_MSG} ~~~")
 
 # specify ARM platforms that need to suppress local glext.h header
 contains(UNIX_ARM_BUILD_ARCH,True): contains(BUILD_TARGET,suse): contains(HOST_VERSION,1320) {
     DEFINES += ARM_SKIP_GL_HEADERS
-    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define SKIP_LDV_GL_HEADERS ~~~")
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) BUILD - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define SKIP_LDV_GL_HEADERS ~~~")
 } else {
-    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) BUILD - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 }
 
 OBJECTS_DIR     = $$DESTDIR/.obj$${POSTFIX}

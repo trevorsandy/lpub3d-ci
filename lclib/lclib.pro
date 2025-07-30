@@ -109,6 +109,9 @@ CONFIG(debug, debug|release) {
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
+!isEmpty(DIST_DIR_NOT_FOUND_MSG): message("~~~ lib$${TARGET} $${DIST_DIR_NOT_FOUND_MSG} ~~~")
+!isEmpty(CPP11_MSG):  message("~~~ lib$${TARGET} $${CPP11_MSG} ~~~")
+!isEmpty(CPP17_MSG):  message("~~~ lib$${TARGET} $${CPP17_MSG} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj

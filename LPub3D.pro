@@ -160,6 +160,8 @@ static|staticlib {
 POSTFIX     = $${SUFFIX}
 
 message("~~~ $$upper($${LPUB3D}) $$upper($$BUILD_ARCH) $${TYPE} $${BUILD} ON $$upper($$HOST) ~~~")
+!isEmpty(USE_LDV_LIBRARIES_MSG): message("~~~ $$upper($${LPUB3D}) $${USE_LDV_LIBRARIES_MSG} ~~~")
+!isEmpty(LDVIEW_DEV_REPO_MSG): message("~~~ $$upper($${LPUB3D}) $${LDVIEW_DEV_REPO_MSG} ~~~")
 
 BUILD_LDV_LIBS {
     USE_LDV_SYSTEM_LIBS:          WHICH_LIBS = SYSTEM
