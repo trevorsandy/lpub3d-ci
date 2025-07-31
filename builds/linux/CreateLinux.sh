@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 28, 2025
+# Last Update July 31, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -334,6 +334,9 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
   export QT_SELECT=$(which qmake6 && echo qt6 || echo qt5)
   if which qmake6 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake6
+    ln -s `which qmake6` ./qmake; \
+    export PATH=`pwd`:${PATH}; \
+    qmake -v;
   elif which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
   elif which qmake >/dev/null 2>&1; then
