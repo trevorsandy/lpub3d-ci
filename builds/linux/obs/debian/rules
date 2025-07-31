@@ -116,13 +116,13 @@ override_dh_auto_configure:
         ln -s `which qmake6` ./qmake; \
         export PATH=`pwd`:$(PATH); \
         qmake -v; \
+        ! test `which qtchooser` && echo "ERROR - could not configure qtchooser for ${QT_SELECT}"; \
         [ `which qtchooser` ] && [ ! -f "/usr/share/qtchooser/qt6.conf" ] && \
         (echo "Configure qtchooser for ${QT_SELECT}" && \
          qtchooser -install qt6 `which qmake6` && \
          sudo mv ~/.config/qtchooser/qt6.conf /usr/share/qtchooser/qt6.conf && \
          sudo mkdir -p /usr/lib/`uname -p`-linux-gnu/qt-default/qtchooser && \
-         sudo ln -n /usr/share/qtchooser/qt6.conf /usr/lib/`uname -p`-linux-gnu/qt-default/qtchooser/default.conf) || \
-         ! test `which qtchooser` && echo "ERROR - could not configure qtchooser for ${QT_SELECT}"; \
+         sudo ln -n /usr/share/qtchooser/qt6.conf /usr/lib/`uname -p`-linux-gnu/qt-default/qtchooser/default.conf) || :; \
     elif which qmake >/dev/null 2>/dev/null; then \
         qmake -v; \
     else \
