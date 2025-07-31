@@ -179,13 +179,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
-          key: third-party-windows-${{ secrets.THIRD_PARTY_CACHE }}
-      - name: Cache QtMSVC 2019
-        id: cache-qt
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.LP3D_BUILD_BASE }}\Qt
-          key: qt-windows-${{ env.QT_CACHE }}
+          key: third-party-${{ matrix.runner-os }}-${{ secrets.THIRD_PARTY_CACHE }}
       - name: VC 141 Build Tools AMD
         if: "${{ matrix.platform == 'AMD' && matrix.toolset-32bit == 'v141' }}"
         run: |
