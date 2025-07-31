@@ -106,7 +106,7 @@ rem Visual C++ 2015 -vcvars_ver=14.0 Toolset v140 VSVersion 14.0    _MSC_VER 190
 rem Visual C++ 2017 -vcvars_ver=14.1 Toolset v141 VSVersion 15.9    _MSC_VER 1916
 rem Visual C++ 2019 -vcvars_ver=14.2 Toolset v142 VSVersion 16.11.3 _MSC_VER 1929
 rem Visual C++ 2022 -vcvars_ver=14.4 Toolset v143 VSVersion 17.14.0 _MSC_VER 1944
-IF "%LP3D_MSC32_VER%" == "" SET LP3D_MSC32_VER=1929
+IF "%LP3D_MSC32_VER%" == "" SET LP3D_MSC32_VER=141
 IF "%LP3D_VC32SDKVER%" == "" SET LP3D_VC32SDKVER=8.1
 IF "%LP3D_VC32TOOLSET%" == "" SET LP3D_VC32TOOLSET=v141
 IF "%LP3D_VC32VARSALL_VER%" == "" SET LP3D_VC32VARSALL_VER=-vcvars_ver=14.1
