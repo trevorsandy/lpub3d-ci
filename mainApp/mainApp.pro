@@ -116,20 +116,20 @@ DEFINES    += EXPORT_3DS
 INCLUDEPATH += . ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
 DEPENDPATH  += .
 
-#~~ LDVQt paths ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LDV_LDVQT_DIR               = $$absolute_path( ../ldvlib/LDVQt )
-BUILD_LDV_LIBS {
+USE_3RD_PARTY_DIST_HDRS {
+    VER_LDVIEW_INCLUDE      = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+    VER_LDVIEW_THIRD_PARTY  = $${VER_LDVIEW_INCLUDE}/3rdparty
+    LDV_LDVIEW_RESOURCE_DIR = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources
+    LDV_EXPORT_RESOURCE_DIR = $${LDV_LDVIEW_RESOURCE_DIR}
+} else {
     VER_LDVIEW_DIR_PATH     = $${LDV_LDVQT_DIR}/LDView
     VER_LDVIEW_INCLUDE      = $${VER_LDVIEW_DIR_PATH}/include
     VER_LDVIEW_THIRD_PARTY  = $${VER_LDVIEW_DIR_PATH}/3rdParty
     LDV_LDVIEW_RESOURCE_DIR = $${VER_LDVIEW_DIR_PATH}
     LDV_EXPORT_RESOURCE_DIR = $${VER_LDVIEW_DIR_PATH}/LDExporter
-} else {
-    VER_LDVIEW_INCLUDE      = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-    VER_LDVIEW_THIRD_PARTY  = $${VER_LDVIEW_INCLUDE}/3rdparty
-    LDV_LDVIEW_RESOURCE_DIR = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources
-    LDV_EXPORT_RESOURCE_DIR = $${LDV_LDVIEW_RESOURCE_DIR}
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

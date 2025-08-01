@@ -243,12 +243,15 @@ CONFIG(debug, debug|release) {
     } else {
         # These lines requires a git extract of ldview at the same location as the lpub3d git extract,
         # they also define the ldview git extract folder name - you can set as you like
-        mingw:ide_qtcreator: \
-        VER_LDVIEW_DEV = undefined
-        else:unix|msys: \
-        VER_LDVIEW_DEV = ldview
-        else:win32-arm64-msvc|win32-msvc*: \
-        VER_LDVIEW_DEV = ldview
+        VER_LDVIEW_DEV = $$(LDVIEW_DEV)
+        isEmpty(VER_LDVIEW_DEV) {
+            mingw:ide_qtcreator: \
+            VER_LDVIEW_DEV = undefined
+            else:unix|msys: \
+            VER_LDVIEW_DEV = ldview
+            else:win32-arm64-msvc|win32-msvc*: \
+            VER_LDVIEW_DEV = ldview
+        }
         # This line defines the path of the ldview git extract relative to this project file
         VER_LDVIEW_DEV_REPOSITORY = $$clean_path( $$absolute_path( $${PWD}/../$${VER_LDVIEW_DEV} ) )
         exists($$VER_LDVIEW_DEV_REPOSITORY) {
@@ -276,8 +279,8 @@ contains(LIB_ARCH, 64) {
 }
 equals(VER_USE_LDVIEW_DEV,True) {
     VER_LDVIEW_3RD_LIBS = $$clean_path( $${VER_LDVIEW_DEV_REPOSITORY}/lib$${LDVLIB_ARCH} )
-} else:USE_3RD_PARTY_DIST_DIR {
-    VER_LDVIEW_3RD_LIBS = $$clean_path( $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$$QT_ARCH )
+} else:BUILD_LDV_LIBS {
+    VER_LDVIEW_3RD_LIBS = $$clean_path( $${PWD}/ldvlib/LDVQt/LDView/lib$${LDVLIB_ARCH} )
 } else {
     VER_LDVIEW_3RD_LIBS = $$clean_path( ldvlib/LDVQt/LDView/lib$${LDVLIB_ARCH} )
 }

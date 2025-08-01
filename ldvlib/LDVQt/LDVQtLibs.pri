@@ -2,13 +2,13 @@
 
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    BUILD_LDV_LIBS {
+    USE_3RD_PARTY_DIST_HDRS {
+        VER_LDVIEW_INCLUDE     = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+        VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
+    } else {
         VER_LDVIEW_DIR_PATH    = LDView
         VER_LDVIEW_INCLUDE     = $${VER_LDVIEW_DIR_PATH}
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
-    } else {
-        VER_LDVIEW_INCLUDE     = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-        VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
     }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Header source path
@@ -27,7 +27,7 @@ contains(LOAD_LDV_HEADERS,True) {
     DEPENDPATH  += $${LDVHDRDIR}
     INCLUDEPATH += $${LDVHDRDIR}
     INCLUDEPATH += $${LDV3RDHDRDIR}
-    BUILD_LDV_LIBS {
+    !VER_USE_LDVIEW_DEV:!USE_3RD_PARTY_DIST_HDRS {
         LDVHDRDIR    = $${VER_LDVIEW_DIR_PATH}/include
         INCLUDEPATH += $${LDVHDRDIR}
     }
@@ -117,14 +117,10 @@ contains(LOAD_LDV_HEADERS,True) {
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
 contains(LOAD_LDV_LIBS,True) {
-    if (win32-arm64-msvc|win32-msvc*):CONFIG(debug, debug|release):!BUILD_LDV_LIBS {
-        equals(VER_USE_LDVIEW_DEV,True) {
-            LDVLIBDIR    = $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH
-            LDV3RDLIBDIR = $${VER_LDVIEW_3RD_LIBS}
-        } else {
-            LDVLIBDIR    = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH
-            LDV3RDLIBDIR = $$LDVLIBDIR
-        }
+    if (win32-arm64-msvc|win32-msvc*):CONFIG(debug, debug|release): \
+        equals(VER_USE_LDVIEW_DEV,True):!BUILD_LDV_LIBS {
+        LDVLIBDIR    = $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH
+        LDV3RDLIBDIR = $${VER_LDVIEW_3RD_LIBS}
     } else {
         BUILD_LDV_LIBS {
             LDVLIBDIR    = $$clean_path( $$absolute_path( $${OUT_PWD}/../ldvlib/LDVQt/LDView ) )
@@ -385,12 +381,15 @@ contains(LOAD_LDV_LIBS,True) {
 
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    LDV_EXTRAS_DIR      = $${OUT_PWD}/$${DESTDIR}/extras
     if (mingw:ide_qtcreator)|win32-arm64-msvc|win32-msvc* {
         LDV_COPY_CMD    = COPY /V /Y
         LDV_CONCAT_CMD  = TYPE
+        LDV_EXTRAS_DIR_CMD = IF NOT EXIST $${LDV_EXTRAS_DIR} MD $${LDV_EXTRAS_DIR}
     } else {
         LDV_COPY_CMD    = cp -f
         LDV_CONCAT_CMD  = cat
+        LDV_EXTRAS_DIR_CMD = if ! test -d $${LDV_EXTRAS_DIR}; then mkdir -p $${LDV_EXTRAS_DIR}; fi
     }
     # LDV_LDVIEW_RESOURCE_DIR, LDV_EXPORT_RESOURCE_DIR, LDV_LDVQT_DIR and LDV_MESSAGES_INI defined in mainApp.pro
     LDV_LDVIEW_MESSAGES = $$shell_path( $$absolute_path( $${LDV_LDVIEW_RESOURCE_DIR}/LDViewMessages.ini ) )
@@ -401,9 +400,11 @@ contains(LOAD_LDV_LIBS,True) {
     $$LDV_CONCAT_CMD $$LDV_LDVIEW_MESSAGES $$LDV_EXPORT_MESSAGES $$LDV_WIDGET_MESSAGES > $$LDV_CONCAT_MESSAGES
     # When compiling from QtCreator, add ldvMessages.ini to destination directory extras folder - except for macOS
     contains(DEVL_LDV_MESSAGES_INI,True) {
-        LDV_MESSAGES_DEVL = $$shell_path( $${OUT_PWD}/$${DESTDIR}/extras/$$LDV_MESSAGES_INI )
+        LDV_MESSAGES_DEVL = $$shell_path( $${LDV_EXTRAS_DIR}/$$LDV_MESSAGES_INI )
         message("~~~ $${LPUB3D} COPY LDV_MESSAGES_INI TO: ./$${DESTDIR}/extras/$$LDV_MESSAGES_INI ~~~")
         LDV_CONCAT_MESSAGES_CMD += \
+        $$escape_expand(\n\t) \
+        $$LDV_EXTRAS_DIR_CMD \
         $$escape_expand(\n\t) \
         $$LDV_COPY_CMD \
         $$LDV_CONCAT_MESSAGES $$LDV_MESSAGES_DEVL

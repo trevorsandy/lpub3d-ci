@@ -67,17 +67,16 @@ if (unix|msys):!macx: TARGET = $$lower($$TARGET)
 
 #~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-BUILD_LDV_LIBS {
+equals(VER_USE_LDVIEW_DEV,True) {
+    VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DEV_REPOSITORY}
+} else:USE_3RD_PARTY_DIST_HDRS {
+    VER_LDVIEW_INCLUDE  = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+} else {
     VER_LDVIEW_DIR_PATH = $$absolute_path( ../ldvlib/LDVQt/LDView )
     VER_LDVIEW_INCLUDE  = $${VER_LDVIEW_DIR_PATH}/include
-    INCLUDEPATH += $$VER_LDVIEW_DIR_PATH $$VER_LDVIEW_INCLUDE
-} else {
-    equals(VER_USE_LDVIEW_DEV,True): \
-    VER_LDVIEW_INCLUDE = $${VER_LDVIEW_DEV_REPOSITORY}
-    else: \
-    VER_LDVIEW_INCLUDE = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-    INCLUDEPATH += $$VER_LDVIEW_INCLUDE
+    INCLUDEPATH        += $$clean_path( $$VER_LDVIEW_DIR_PATH )
 }
+INCLUDEPATH            += $$clean_path( $$VER_LDVIEW_INCLUDE )
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
