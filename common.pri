@@ -245,7 +245,7 @@ CONFIG(debug, debug|release) {
         # they also define the ldview git extract folder name - you can set as you like
         mingw:ide_qtcreator: VER_LDVIEW_DEV = undefined
         else:unix|msys:      VER_LDVIEW_DEV = ldview
-        else:win32-arm64-msvc|win32-msvc*:    VER_LDVIEW_DEV = ldview_vs_build
+        else:win32-arm64-msvc|win32-msvc*:    VER_LDVIEW_DEV = ldview
         # This line defines the path of the ldview git extract relative to this project file
         VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $${PWD}/../$${VER_LDVIEW_DEV} )
         equals(TARGET, LPub3D): \
