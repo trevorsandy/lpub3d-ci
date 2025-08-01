@@ -1,24 +1,25 @@
 # LPub3D QMake Configuration settings
-# CONFIG+=ldviewqt               # build LDVQt LDView libs using Qt OpenGL
-# CONFIG+=ldviewwgl              # build LDVQt LDView libs using WGL OpenGL - default for Windows
-# CONFIG+=ldviewosmesa           # build LDVQt LDView libs using OSMesa OpenGL - default for Linux and macOS
+# CONFIG+=ldviewqt                # build LDVQt LDView libs using Qt OpenGL
+# CONFIG+=ldviewwgl               # build LDVQt LDView libs using WGL OpenGL - default for Windows
+# CONFIG+=ldviewosmesa            # build LDVQt LDView libs using OSMesa OpenGL - default for Linux and macOS
 
 # LDV Libraries QMake Configuration settings
-# CONFIG+=BUILD_LDV_LIBS         # build LDView libs from source
-# CONFIG+=USE_LDV_SYSTEM_LIBS    # override using pre-compiled 3rdParty libraries
-# CONFIG+=USE_LDV_3RD_PARTY_LIBS # override using pre-compiled and system 3rdParty libraries
-# CONFIG+=USE_SYSTEM_PNG         # override USE_LDV_3RD_PARTY_LIBS for libpng
-# CONFIG+=USE_SYSTEM_GL2PS       # override USE_LDV_3RD_PARTY_LIBS for libgl2ps
-# CONFIG+=USE_SYSTEM_JPEG        # override USE_LDV_3RD_PARTY_LIBS for libjpeg
-# CONFIG+=USE_SYSTEM_MINIZIP     # override USE_LDV_3RD_PARTY_LIBS for libminizip
-# CONFIG+=USE_SYSTEM_ZLIB        # override USE_LDV_3RD_PARTY_LIBS for libz
-# CONFIG+=BUILD_3DS              # override USE_LDV_SYSTEM_LIBS for lib3ds - always built except for MSVC
-# CONFIG+=BUILD_JPEG             # override USE_LDV_SYSTEM_LIBS for libjpeg
-# CONFIG+=BUILD_PNG              # override USE_LDV_SYSTEM_LIBS for libpng
-# CONFIG+=BUILD_GL2PS            # override USE_LDV_SYSTEM_LIBS for libgl2ps - always built for MSVC
-# CONFIG+=BUILD_TINYXML          # override USE_LDV_SYSTEM_LIBS for libtinyxml - always built
-# CONFIG+=BUILD_MINIZIP          # override USE_LDV_SYSTEM_LIBS for libminizip
-# CONFIG+=BUILD_ZLIB             # override USE_LDV_SYSTEM_LIBS for libz
+# CONFIG+=BUILD_LDV_LIBS          # build LDView libs from source
+# CONFIG+=USE_LDV_SYSTEM_LIBS     # override using pre-compiled 3rdParty libraries
+# CONFIG+=USE_LDV_3RD_PARTY_LIBS  # override using pre-compiled and system 3rdParty libraries
+# CONFIG+=USE_3RD_PARTY_DIST_HDRS # use third party distribution LDView library headers
+# CONFIG+=USE_SYSTEM_PNG          # override USE_LDV_3RD_PARTY_LIBS for libpng
+# CONFIG+=USE_SYSTEM_GL2PS        # override USE_LDV_3RD_PARTY_LIBS for libgl2ps
+# CONFIG+=USE_SYSTEM_JPEG         # override USE_LDV_3RD_PARTY_LIBS for libjpeg
+# CONFIG+=USE_SYSTEM_MINIZIP      # override USE_LDV_3RD_PARTY_LIBS for libminizip
+# CONFIG+=USE_SYSTEM_ZLIB         # override USE_LDV_3RD_PARTY_LIBS for libz
+# CONFIG+=BUILD_3DS               # override USE_LDV_SYSTEM_LIBS for lib3ds - always built except for MSVC
+# CONFIG+=BUILD_JPEG              # override USE_LDV_SYSTEM_LIBS for libjpeg
+# CONFIG+=BUILD_PNG               # override USE_LDV_SYSTEM_LIBS for libpng
+# CONFIG+=BUILD_GL2PS             # override USE_LDV_SYSTEM_LIBS for libgl2ps - always built for MSVC
+# CONFIG+=BUILD_TINYXML           # override USE_LDV_SYSTEM_LIBS for libtinyxml - always built
+# CONFIG+=BUILD_MINIZIP           # override USE_LDV_SYSTEM_LIBS for libminizip
+# CONFIG+=BUILD_ZLIB              # override USE_LDV_SYSTEM_LIBS for libz
 
 # LPub3D QMake directory and project file structre
 # ------------------------------------------
