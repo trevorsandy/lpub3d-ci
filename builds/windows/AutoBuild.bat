@@ -577,9 +577,11 @@ IF NOT ERRORLEVEL 0 (GOTO :ERROR_END)
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
-qmake -v & ECHO.
+IF "%QMAKE_VER%" EQU "" SET QMAKE_VER=1
+IF "%QMAKE_VER%" EQU "1" (qmake -v & ECHO.)
 rem Configure makefiles
-qmake %LPUB3D_CONFIG_ARGS%
+IF "%QMAKE_RUN%" EQU "" SET QMAKE_RUN=1
+IF "%QMAKE_RUN%" EQU "1" (qmake %LPUB3D_CONFIG_ARGS%)
 rem perform build
 nmake.exe %LPUB3D_MAKE_ARGS%
 rem Check build status
@@ -750,7 +752,8 @@ ECHO.
 ECHO -Configure LPub3D %PLATFORM_ARCH% build environment...
 ECHO.
 ECHO -Cleanup any previous LPub3D qmake config files...
-FOR /R %%I IN (
+IF "%QMAKE_CLEAN%" EQU "" SET QMAKE_CLEAN=1
+IF "%QMAKE_CLEAN%" EQU "1" (FOR %%I IN (
   ".qmake.stash"
   "Makefile*"
   "lclib\Makefile*"
@@ -771,27 +774,30 @@ FOR /R %%I IN (
   "mainApp\Makefile*"
   "quazip\Makefile*"
   "waitingspinner\Makefile*"
-) DO DEL /S /Q "%%~I" >NUL 2>&1
-IF %PLATFORM_ARCH% EQU ARM64 (FOR /R %%I IN (
-  "lclib\64bit_*"
-  "ldrawini\64bit_*"
-  "ldvlib\LDVQt\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\gl2ps\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\lib3ds\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\libjpeg\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\libpng\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\minizip\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\tinyxml\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\zlib\64bit_*"
-  "ldvlib\LDVQt\LDView\LDExporter\64bit_*"
-  "ldvlib\LDVQt\LDView\LDLib\64bit_*"
-  "ldvlib\LDVQt\LDView\LDLoader\64bit_*"
-  "ldvlib\LDVQt\LDView\TCFoundation\64bit_*"
-  "ldvlib\LDVQt\LDView\TRE\64bit_*"
-  "mainApp\64bit_*"
-  "quazip\64bit_*"
-  "waitingspinner\64bit_*"
-) DO RD /S /Q "%%~I" >NUL 2>&1)
+) DO IF EXIST "%%~I" (ECHO   Clean %%~I & DEL /S /Q "%%~I" >NUL 2>&1))
+IF %PLATFORM_ARCH%==x86 (SET _AR=32) ELSE (SET _AR=64)
+ECHO.
+ECHO -Cleanup any previous LPub3D %_AR%bit build folders...
+IF "%QMAKE_CLEAN%" EQU "1" (FOR %%I IN (
+  "lclib\%_AR%bit_%CONFIGURATION%"
+  "ldrawini\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\gl2ps\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\lib3ds\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\libjpeg\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\libpng\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\minizip\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\tinyxml\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\3rdParty\zlib\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\LDExporter\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\LDLib\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\LDLoader\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\TCFoundation\%_AR%bit_%CONFIGURATION%"
+  "ldvlib\LDVQt\LDView\TRE\%_AR%bit_%CONFIGURATION%"
+  "mainApp\%_AR%bit_%CONFIGURATION%"
+  "quazip\%_AR%bit_%CONFIGURATION%"
+  "waitingspinner\%_AR%bit_%CONFIGURATION%"
+) DO IF EXIST "%%~I" (ECHO   Clean %%~I & RD /S /Q "%%~I" >NUL 2>&1))
 ECHO.
 IF %CHECK% EQU 1 (
 REM DEBUG============
