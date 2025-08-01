@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 26, 2025
+rem  Last Update: August 01, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -601,7 +601,8 @@ IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
 qmake -v & ECHO.
 rem Configure makefiles
-qmake %LPUB3D_CONFIG_ARGS%
+IF [%QMAKE_RUN%] == [] SET QMAKE_RUN=1
+IF %QMAKE_RUN% EQU 1 (qmake %LPUB3D_CONFIG_ARGS%)
 rem perform build
 nmake.exe %LPUB3D_MAKE_ARGS%
 rem Check build status
@@ -768,11 +769,13 @@ EXIT /b
 
 :CONFIGURE_BUILD_ENV
 CD /D %ABS_WD%
+IF %PLATFORM_ARCH%==x86 (SET ARCH=32) ELSE (SET ARCH=64)
 ECHO.
 ECHO -Configure LPub3D %PLATFORM_ARCH% build environment...
 ECHO.
 ECHO -Cleanup any previous LPub3D qmake config files...
-FOR /R %%I IN (
+IF [%QMAKE_CLEAN%] == [] SET QMAKE_CLEAN=1
+IF %QMAKE_CLEAN% EQU 1 (FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
   "lclib\Makefile*"
@@ -793,26 +796,27 @@ FOR /R %%I IN (
   "mainApp\Makefile*"
   "quazip\Makefile*"
   "waitingspinner\Makefile*"
-) DO DEL /S /Q "%%~I" >NUL 2>&1
-IF %PLATFORM_ARCH% EQU ARM64 (FOR /R %%I IN (
-  "lclib\64bit_*"
-  "ldrawini\64bit_*"
-  "ldvlib\LDVQt\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\gl2ps\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\lib3ds\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\libjpeg\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\libpng\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\minizip\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\tinyxml\64bit_*"
-  "ldvlib\LDVQt\LDView\3rdParty\zlib\64bit_*"
-  "ldvlib\LDVQt\LDView\LDExporter\64bit_*"
-  "ldvlib\LDVQt\LDView\LDLib\64bit_*"
-  "ldvlib\LDVQt\LDView\LDLoader\64bit_*"
-  "ldvlib\LDVQt\LDView\TCFoundation\64bit_*"
-  "ldvlib\LDVQt\LDView\TRE\64bit_*"
-  "mainApp\64bit_*"
-  "quazip\64bit_*"
-  "waitingspinner\64bit_*"
+) DO DEL /S /Q "%%~I" >NUL 2>&1)
+ECHO -Cleanup any previous LPub3D %ARCH%bit build folders...
+IF %QMAKE_CLEAN% EQU 1 (FOR /R %%I IN (
+  "lclib\%ARCH%bit_*"
+  "ldrawini\%ARCH%bit_*"
+  "ldvlib\LDVQt\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\gl2ps\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\lib3ds\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\libjpeg\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\libpng\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\minizip\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\tinyxml\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\3rdParty\zlib\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\LDExporter\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\LDLib\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\LDLoader\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\TCFoundation\%ARCH%bit_*"
+  "ldvlib\LDVQt\LDView\TRE\%ARCH%bit_*"
+  "mainApp\%ARCH%bit_*"
+  "quazip\%ARCH%bit_*"
+  "waitingspinner\%ARCH%bit_*"
 ) DO RD /S /Q "%%~I" >NUL 2>&1)
 ECHO.
 IF %CHECK% EQU 1 (
