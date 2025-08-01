@@ -1,6 +1,12 @@
 #ifndef __TCDEFINES_H__
 #define __TCDEFINES_H__
 
+#ifdef _QT
+#if (_MSC_VER == 1933)
+#define _MSC_VER 1944
+#endif
+#endif // _QT
+
 #include <string>
 #include <vector>
 #include <set>
