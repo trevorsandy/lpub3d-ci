@@ -2,35 +2,22 @@
 
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    BUILD_LDV_LIBS {
-        VER_LDVIEW_DIR_PATH    = LDView
-        VER_LDVIEW_INCLUDE     = $${VER_LDVIEW_DIR_PATH}
-        VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
-    } else {
-        VER_LDVIEW_INCLUDE     = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-        VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
-    }
+    VER_LDVIEW_DIR_PATH    = LDView
+    VER_LDVIEW_INCLUDE     = $${VER_LDVIEW_DIR_PATH}
+    VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Header source path
-    equals(VER_USE_LDVIEW_DEV,True) {
-        isEmpty(LDVHDRDIR):LDVHDRDIR       = $${VER_LDVIEW_DEV_REPOSITORY}/include
-        isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $$LDVHDRDIR
-        isEmpty(LDV3RDHDR):LDV3RDHDR       = $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty
-    } else {
-        isEmpty(LDVHDRDIR):LDVHDRDIR       = $${VER_LDVIEW_INCLUDE}
-        isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $${VER_LDVIEW_THIRD_PARTY}
-        isEmpty(LDV3RDHDR):LDV3RDHDR       = $${LDV3RDHDRDIR}
-    }
+    isEmpty(LDVHDRDIR):LDVHDRDIR       = $${VER_LDVIEW_INCLUDE}
+    isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $${VER_LDVIEW_THIRD_PARTY}
+    isEmpty(LDV3RDHDR):LDV3RDHDR       = $${LDV3RDHDRDIR}
 
     USE_LDV_SYSTEM_LIBS:win32-arm64-msvc|win32-msvc*: \
     INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
     DEPENDPATH  += $${LDVHDRDIR}
     INCLUDEPATH += $${LDVHDRDIR}
     INCLUDEPATH += $${LDV3RDHDRDIR}
-    BUILD_LDV_LIBS {
-        LDVHDRDIR    = $${VER_LDVIEW_DIR_PATH}/include
-        INCLUDEPATH += $${LDVHDRDIR}
-    }
+    LDVHDRDIR    = $${VER_LDVIEW_DIR_PATH}/include
+    INCLUDEPATH += $${LDVHDRDIR}
 
     message("~~~ lib$${TARGET} ADD LDVIEW 3RDPARTY HEADERS TO INCLUDEPATH: $$LDVHDRDIR ~~~ ")
 
