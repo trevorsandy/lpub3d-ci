@@ -2,13 +2,13 @@
 
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    BUILD_LDV_LIBS {
+    USE_3RD_PARTY_DIST_HDRS {
+        VER_LDVIEW_INCLUDE     = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
+        VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
+    } else {
         VER_LDVIEW_DIR_PATH    = LDView
         VER_LDVIEW_INCLUDE     = $${VER_LDVIEW_DIR_PATH}
         VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_DIR_PATH}/3rdParty
-    } else {
-        VER_LDVIEW_INCLUDE     = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
-        VER_LDVIEW_THIRD_PARTY = $${VER_LDVIEW_INCLUDE}/3rdParty
     }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Header source path
@@ -27,7 +27,7 @@ contains(LOAD_LDV_HEADERS,True) {
     DEPENDPATH  += $${LDVHDRDIR}
     INCLUDEPATH += $${LDVHDRDIR}
     INCLUDEPATH += $${LDV3RDHDRDIR}
-    BUILD_LDV_LIBS {
+    !VER_USE_LDVIEW_DEV:!USE_3RD_PARTY_DIST_HDRS {
         LDVHDRDIR    = $${VER_LDVIEW_DIR_PATH}/include
         INCLUDEPATH += $${LDVHDRDIR}
     }
@@ -117,14 +117,10 @@ contains(LOAD_LDV_HEADERS,True) {
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
 contains(LOAD_LDV_LIBS,True) {
-    if (win32-arm64-msvc|win32-msvc*):CONFIG(debug, debug|release):!BUILD_LDV_LIBS {
-        equals(VER_USE_LDVIEW_DEV,True) {
-            LDVLIBDIR    = $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH
-            LDV3RDLIBDIR = $${VER_LDVIEW_3RD_LIBS}
-        } else {
-            LDVLIBDIR    = $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH
-            LDV3RDLIBDIR = $$LDVLIBDIR
-        }
+    if (win32-arm64-msvc|win32-msvc*):CONFIG(debug, debug|release): \
+        equals(VER_USE_LDVIEW_DEV,True):!BUILD_LDV_LIBS {
+        LDVLIBDIR    = $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH
+        LDV3RDLIBDIR = $${VER_LDVIEW_3RD_LIBS}
     } else {
         BUILD_LDV_LIBS {
             LDVLIBDIR    = $$clean_path( $$absolute_path( $${OUT_PWD}/../ldvlib/LDVQt/LDView ) )
