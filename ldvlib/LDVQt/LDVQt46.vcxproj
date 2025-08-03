@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1BDCEEF4-A23E-308B-A280-D438C1A5E372}</ProjectGuid>
+    <RootNamespace>LDVQt46</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.26100.0</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="Configuration">
+    <PlatformToolset>v143</PlatformToolset>
+    <OutputDirectory>64bit_release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>64bit_release\.obj\</IntermediateDirectory>
+    <PrimaryOutput>LDVQt46</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
+    <PlatformToolset>v143</PlatformToolset>
+    <OutputDirectory>64bit_debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>64bit_debug\.obj\</IntermediateDirectory>
+    <PrimaryOutput>LDVQtd46</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.obj\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDVQt46</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</IgnoreImportLibrary>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.obj\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDVQtd46</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.;..\..\mainApp;..\..\lclib\common;..\..\qslog;/include;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include\3rdParty;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include\GL;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include\3rdParty;C:\Qt\IDE\6.9.1\msvc2022_64\include;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtOpenGLWidgets;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtOpenGL;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtPrintSupport;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtWidgets;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtGui;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtNetwork;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtConcurrent;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtCore5Compat;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtCore;64bit_release\.moc;64bit_release\.ui;/include;C:\Qt\IDE\6.9.1\msvc2022_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>64bit_release\.obj\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4005;4456;4458;4805;4838;4700;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>64bit_release\.obj\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QOPENGLWIDGET;USE_CPP11;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NONSTDC_NO_WARNINGS=1;_NO_BOOST;QT_THREAD_SUPPORT;EXPORT_3DS;_TC_STATIC;_WINSOCKAPI_;_WIN_UTF8_PATHS;HAVE_MINIZIP;NDEBUG;QT_NO_DEBUG;QT_OPENGLWIDGETS_LIB;QT_OPENGL_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CONCURRENT_LIB;QT_CORE5COMPAT_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level1</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\LDVQt46.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QOPENGLWIDGET;USE_CPP11;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NONSTDC_NO_WARNINGS=1;_NO_BOOST;QT_THREAD_SUPPORT;EXPORT_3DS;_TC_STATIC;_WINSOCKAPI_;_WIN_UTF8_PATHS;HAVE_MINIZIP;NDEBUG;QT_NO_DEBUG;QT_OPENGLWIDGETS_LIB;QT_OPENGL_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CONCURRENT_LIB;QT_CORE5COMPAT_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.;..\..\mainApp;..\..\lclib\common;..\..\qslog;/include;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include\3rdParty;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include\GL;..\..\..\lpub3d_windows_3rdparty\ldview-4.6\include\3rdParty;C:\Qt\IDE\6.9.1\msvc2022_64\include;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtOpenGLWidgets;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtOpenGL;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtPrintSupport;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtWidgets;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtGui;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtNetwork;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtConcurrent;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtCore5Compat;C:\Qt\IDE\6.9.1\msvc2022_64\include\QtCore;64bit_debug\.moc;64bit_debug\.ui;/include;C:\Qt\IDE\6.9.1\msvc2022_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>64bit_debug\.obj\</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CallingConvention>Cdecl</CallingConvention>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4005;4456;4458;4459;4127;4701;4714;4305;4099;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>64bit_debug\.obj\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QOPENGLWIDGET;USE_CPP11;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NONSTDC_NO_WARNINGS=1;_NO_BOOST;QT_THREAD_SUPPORT;EXPORT_3DS;_TC_STATIC;_WINSOCKAPI_;_WIN_UTF8_PATHS;QT_DEBUG_MODE;HAVE_MINIZIP;QT_OPENGLWIDGETS_LIB;QT_OPENGL_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CONCURRENT_LIB;QT_CORE5COMPAT_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\LDVQtd46.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QOPENGLWIDGET;USE_CPP11;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NONSTDC_NO_WARNINGS=1;_NO_BOOST;QT_THREAD_SUPPORT;EXPORT_3DS;_TC_STATIC;_WINSOCKAPI_;_WIN_UTF8_PATHS;QT_DEBUG_MODE;HAVE_MINIZIP;QT_OPENGLWIDGETS_LIB;QT_OPENGL_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CONCURRENT_LIB;QT_CORE5COMPAT_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="LDVAlertHandler.cpp" />
+    <ClCompile Include="LDVExtensionsSetup.cpp" />
+    <ClCompile Include="LDVHtmlInventory.cpp" />
+    <ClCompile Include="LDVMisc.cpp" />
+    <ClCompile Include="LDVPreferences.cpp" />
+    <ClCompile Include="LDVWidget.cpp" />
+    <ClCompile Include="LDViewExportOption.cpp" />
+    <ClCompile Include="LDViewPartList.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LDVAlertHandler.h" />
+    <ClInclude Include="LDVExtensionsSetup.h" />
+    <ClInclude Include="LDVHtmlInventory.h" />
+    <ClInclude Include="LDVMisc.h" />
+    <CustomBuild Include="LDVPreferences.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDVPreferences.h;64bit_release\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DHAVE_MINIZIP -DNDEBUG -DQT_NO_DEBUG -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_release/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDVPreferences.h -o 64bit_release\.moc\moc_LDVPreferences.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC LDVPreferences.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.moc\moc_LDVPreferences.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDVPreferences.h;64bit_debug\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DQT_DEBUG_MODE -DHAVE_MINIZIP -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_debug/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDVPreferences.h -o 64bit_debug\.moc\moc_LDVPreferences.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC LDVPreferences.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.moc\moc_LDVPreferences.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="LDVWidget.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDVWidget.h;64bit_release\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DHAVE_MINIZIP -DNDEBUG -DQT_NO_DEBUG -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_release/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDVWidget.h -o 64bit_release\.moc\moc_LDVWidget.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC LDVWidget.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.moc\moc_LDVWidget.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDVWidget.h;64bit_debug\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DQT_DEBUG_MODE -DHAVE_MINIZIP -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_debug/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDVWidget.h -o 64bit_debug\.moc\moc_LDVWidget.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC LDVWidget.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.moc\moc_LDVWidget.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="LDVWidgetDefaultKeys.h" />
+    <CustomBuild Include="LDViewExportOption.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDViewExportOption.h;64bit_release\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DHAVE_MINIZIP -DNDEBUG -DQT_NO_DEBUG -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_release/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDViewExportOption.h -o 64bit_release\.moc\moc_LDViewExportOption.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC LDViewExportOption.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.moc\moc_LDViewExportOption.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDViewExportOption.h;64bit_debug\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DQT_DEBUG_MODE -DHAVE_MINIZIP -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_debug/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDViewExportOption.h -o 64bit_debug\.moc\moc_LDViewExportOption.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC LDViewExportOption.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.moc\moc_LDViewExportOption.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="LDViewPartList.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDViewPartList.h;64bit_release\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DHAVE_MINIZIP -DNDEBUG -DQT_NO_DEBUG -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_release/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDViewPartList.h -o 64bit_release\.moc\moc_LDViewPartList.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC LDViewPartList.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.moc\moc_LDViewPartList.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDViewPartList.h;64bit_debug\.moc\moc_predefs.h;C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DQOPENGLWIDGET -DUSE_CPP11 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1 -D_NO_BOOST -DQT_THREAD_SUPPORT -DEXPORT_3DS -D_TC_STATIC -D_WINSOCKAPI_ -D_WIN_UTF8_PATHS -DQT_DEBUG_MODE -DHAVE_MINIZIP -DQT_OPENGLWIDGETS_LIB -DQT_OPENGL_LIB -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CONCURRENT_LIB -DQT_CORE5COMPAT_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt/64bit_debug/.moc/moc_predefs.h -IC:/Qt/IDE/6.9.1/msvc2022_64/mkspecs/win32-msvc -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/ldvlib/LDVQt -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/mainApp -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/lclib/common -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d-ci/qslog -IC:/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/GL -IC:/Users/Trevor/Projects/Working/CI_Build_Local/lpub3d_windows_3rdparty/ldview-4.6/include/3rdParty -IC:/Qt/IDE/6.9.1/msvc2022_64/include -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGLWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtOpenGL -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtPrintSupport -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtWidgets -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtGui -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtNetwork -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtConcurrent -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore5Compat -IC:/Qt/IDE/6.9.1/msvc2022_64/include/QtCore -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\ATLMFC\include&quot; -I&quot;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\10.0.26100.0\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\\include\10.0.26100.0\\cppwinrt&quot; LDViewPartList.h -o 64bit_debug\.moc\moc_LDViewPartList.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC LDViewPartList.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.moc\moc_LDViewPartList.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="64bit_debug\.moc\moc_LDVPreferences.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDVPreferences.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_debug\.moc\moc_LDVWidget.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDVWidget.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_debug\.moc\moc_LDViewExportOption.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDViewExportOption.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_debug\.moc\moc_LDViewPartList.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.moc\moc_LDViewPartList.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <CustomBuild Include="64bit_debug\.moc\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">cl -BxC:\Qt\IDE\6.9.1\msvc2022_64\bin\qmake.exe -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr /std:c++17 -Zi -MDd -RTC1 -WX- -GS -Gd -fp:precise -Zc:forScope -std:c++17 -utf-8 -w44456 -w44457 -w44458 -W4 -wd4005 -wd4456 -wd4458 -wd4459 -wd4127 -wd4701 -wd4714 -wd4305 -wd4099 -E C:\Qt\IDE\6.9.1\msvc2022_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;64bit_debug\.moc\moc_predefs.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">Generate moc_predefs.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.moc\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="64bit_release\.moc\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">cl -BxC:\Qt\IDE\6.9.1\msvc2022_64\bin\qmake.exe -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr /std:c++17 -O2 -Zi -MD -std:c++17 -utf-8 -w44456 -w44457 -w44458 -W1 -WX- -wd4005 -wd4456 -wd4458 -wd4805 -wd4838 -wd4700 -wd4098 -E C:\Qt\IDE\6.9.1\msvc2022_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;64bit_release\.moc\moc_predefs.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">Generate moc_predefs.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.moc\moc_predefs.h;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClCompile Include="64bit_debug\.qrc\qrc_resources.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="64bit_release\.qrc\qrc_resources.cpp">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="64bit_debug\.ui\ui_LDVExportOptionPanel.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="64bit_release\.ui\ui_LDVExportOptionPanel.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="64bit_debug\.ui\ui_LDVPartList.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="64bit_release\.ui\ui_LDVPartList.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="64bit_debug\.ui\ui_LDVPreferencesPanel.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="64bit_release\.ui\ui_LDVPreferencesPanel.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="LDVExportOptionPanel.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDVExportOptionPanel.ui;C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe LDVExportOptionPanel.ui -o 64bit_release\.ui\ui_LDVExportOptionPanel.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">UIC LDVExportOptionPanel.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.ui\ui_LDVExportOptionPanel.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDVExportOptionPanel.ui;C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe LDVExportOptionPanel.ui -o 64bit_debug\.ui\ui_LDVExportOptionPanel.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">UIC LDVExportOptionPanel.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.ui\ui_LDVExportOptionPanel.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="LDVPartList.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDVPartList.ui;C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe LDVPartList.ui -o 64bit_release\.ui\ui_LDVPartList.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">UIC LDVPartList.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.ui\ui_LDVPartList.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDVPartList.ui;C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe LDVPartList.ui -o 64bit_debug\.ui\ui_LDVPartList.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">UIC LDVPartList.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.ui\ui_LDVPartList.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="LDVPreferencesPanel.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">LDVPreferencesPanel.ui;C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe LDVPreferencesPanel.ui -o 64bit_release\.ui\ui_LDVPreferencesPanel.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">UIC LDVPreferencesPanel.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.ui\ui_LDVPreferencesPanel.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">LDVPreferencesPanel.ui;C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\uic.exe LDVPreferencesPanel.ui -o 64bit_debug\.ui\ui_LDVPreferencesPanel.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">UIC LDVPreferencesPanel.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.ui\ui_LDVPreferencesPanel.h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\LPub32.png" />
+    <None Include="resources\LightAngleLL.png" />
+    <None Include="resources\LightAngleLL@2x.png" />
+    <None Include="resources\LightAngleLLOff.png" />
+    <None Include="resources\LightAngleLLOff@2x.png" />
+    <None Include="resources\LightAngleLM.png" />
+    <None Include="resources\LightAngleLM@2x.png" />
+    <None Include="resources\LightAngleLMOff.png" />
+    <None Include="resources\LightAngleLMOff@2x.png" />
+    <None Include="resources\LightAngleLR.png" />
+    <None Include="resources\LightAngleLR@2x.png" />
+    <None Include="resources\LightAngleLROff.png" />
+    <None Include="resources\LightAngleLROff@2x.png" />
+    <None Include="resources\LightAngleML.png" />
+    <None Include="resources\LightAngleML@2x.png" />
+    <None Include="resources\LightAngleMLOff.png" />
+    <None Include="resources\LightAngleMLOff@2x.png" />
+    <None Include="resources\LightAngleMM.png" />
+    <None Include="resources\LightAngleMM@2x.png" />
+    <None Include="resources\LightAngleMMOff.png" />
+    <None Include="resources\LightAngleMMOff@2x.png" />
+    <None Include="resources\LightAngleMR.png" />
+    <None Include="resources\LightAngleMR@2x.png" />
+    <None Include="resources\LightAngleMROff.png" />
+    <None Include="resources\LightAngleMROff@2x.png" />
+    <None Include="resources\LightAngleUL.png" />
+    <None Include="resources\LightAngleUL@2x.png" />
+    <None Include="resources\LightAngleULOff.png" />
+    <None Include="resources\LightAngleULOff@2x.png" />
+    <None Include="resources\LightAngleUM.png" />
+    <None Include="resources\LightAngleUM@2x.png" />
+    <None Include="resources\LightAngleUMOff.png" />
+    <None Include="resources\LightAngleUMOff@2x.png" />
+    <None Include="resources\LightAngleUR.png" />
+    <None Include="resources\LightAngleUR@2x.png" />
+    <None Include="resources\LightAngleUROff.png" />
+    <None Include="resources\LightAngleUROff@2x.png" />
+    <None Include="resources\SansSerif.fnt" />
+    <None Include="resources\SansSerif@2x.png" />
+    <None Include="resources\StudLogo.png" />
+    <CustomBuild Include="resources.qrc">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">resources.qrc;C:\Qt\IDE\6.9.1\msvc2022_64\bin\rcc.exe;resources\LightAngleLROff.png;resources\LightAngleUMOff.png;resources\LightAngleMM.png;resources\LightAngleMLOff@2x.png;resources\LightAngleLR.png;resources\StudLogo.png;resources\LightAngleMLOff.png;resources\LightAngleUMOff@2x.png;resources\LightAngleLROff@2x.png;resources\LightAngleUL@2x.png;resources\SansSerif@2x.png;resources\SansSerif.fnt;resources\LightAngleML.png;resources\LightAngleLR@2x.png;resources\LightAngleLMOff@2x.png;resources\LightAngleMR@2x.png;resources\LightAngleMM@2x.png;resources\LightAngleLM@2x.png;resources\LightAngleMMOff.png;resources\LightAngleLL.png;resources\LightAngleUROff@2x.png;resources\LightAngleUM.png;resources\LightAngleUM@2x.png;resources\LightAngleMROff@2x.png;resources\LightAngleUR.png;resources\LightAngleUL.png;resources\LightAngleLLOff.png;resources\LightAngleLL@2x.png;resources\LightAngleMR.png;resources\LightAngleML@2x.png;resources\LightAngleLLOff@2x.png;resources\LightAngleMROff.png;resources\LightAngleLM.png;resources\LightAngleMMOff@2x.png;resources\LPub32.png;resources\LightAngleUR@2x.png;resources\LightAngleUROff.png;resources\LightAngleULOff@2x.png;resources\LightAngleULOff.png;resources\LightAngleLMOff.png;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\rcc.exe -name resources --no-zstd resources.qrc -o 64bit_release\.qrc\qrc_resources.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">RCC resources.qrc</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">64bit_release\.qrc\qrc_resources.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">resources.qrc;C:\Qt\IDE\6.9.1\msvc2022_64\bin\rcc.exe;resources\LightAngleLROff.png;resources\LightAngleUMOff.png;resources\LightAngleMM.png;resources\LightAngleMLOff@2x.png;resources\LightAngleLR.png;resources\StudLogo.png;resources\LightAngleMLOff.png;resources\LightAngleUMOff@2x.png;resources\LightAngleLROff@2x.png;resources\LightAngleUL@2x.png;resources\SansSerif@2x.png;resources\SansSerif.fnt;resources\LightAngleML.png;resources\LightAngleLR@2x.png;resources\LightAngleLMOff@2x.png;resources\LightAngleMR@2x.png;resources\LightAngleMM@2x.png;resources\LightAngleLM@2x.png;resources\LightAngleMMOff.png;resources\LightAngleLL.png;resources\LightAngleUROff@2x.png;resources\LightAngleUM.png;resources\LightAngleUM@2x.png;resources\LightAngleMROff@2x.png;resources\LightAngleUR.png;resources\LightAngleUL.png;resources\LightAngleLLOff.png;resources\LightAngleLL@2x.png;resources\LightAngleMR.png;resources\LightAngleML@2x.png;resources\LightAngleLLOff@2x.png;resources\LightAngleMROff.png;resources\LightAngleLM.png;resources\LightAngleMMOff@2x.png;resources\LPub32.png;resources\LightAngleUR@2x.png;resources\LightAngleUROff.png;resources\LightAngleULOff@2x.png;resources\LightAngleULOff.png;resources\LightAngleLMOff.png;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\IDE\6.9.1\msvc2022_64\bin\rcc.exe -name resources --no-zstd resources.qrc -o 64bit_debug\.qrc\qrc_resources.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">RCC resources.qrc</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">64bit_debug\.qrc\qrc_resources.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
