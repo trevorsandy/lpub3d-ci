@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 30, 2025
+# Last Update: August 18, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -218,11 +218,11 @@ function InstallDependencies()
       ldview)
         if which -q qmake6 >/dev/null 2>&1 ; then
           specFile="/tmp/LDView-qt6.spec"
-          cp -f LDView.spec $specFile
+          cp -f $PWD/QT/LDView.spec $specFile
           sed -e 's/define qt6 0/define qt6 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
         else
           specFile="/tmp/LDView-qt5.spec"
-          cp -f LDView.spec $specFile
+          cp -f $PWD/QT/LDView.spec $specFile
           sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
         fi
         ;;
@@ -583,6 +583,7 @@ function BuildLDView()
   if [ "$build_gl2ps" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
+  BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_HEADERS_INSTALL"
   if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     if [ "$llvm_not_used" = 1 ]; then
       BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OSMESA_NO_LLVM"

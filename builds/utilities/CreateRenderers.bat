@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 28, 2025
+rem  Last Update: August 03, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -66,7 +66,7 @@ IF NOT EXIST "%LP3D_WIN_TAR%" (
   SET LP3D_WIN_TAR=
   SET LP3D_WIN_TAR_MSG=Not Found
 ) ELSE (
-  SET LP3D_VALID_TAR=1 
+  SET LP3D_VALID_TAR=1
   SET LP3D_WIN_TAR_MSG=%LP3D_WIN_TAR%
 )
 
@@ -217,7 +217,7 @@ IF "%BUILD_ARCH%"=="x86" (
   )
 )
 SET LDGLITE_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
-SET LDVIEW_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
+SET LDVIEW_BUILD_ARGS=%BUILD_ARCH% -ins_libs -chk -minlog
 SET POVRAY_BUILD_ARGS=%BUILD_ARCH% %POVRAY_INSTALL_ARG% -chk -minlog
 EXIT /b
 
