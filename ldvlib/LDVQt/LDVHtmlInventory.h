@@ -39,7 +39,7 @@ class LDVHtmlInventory : public TCObject
 public:
 	LDVHtmlInventory(void);
 
-    enum LookUp { Bricklink, Peeron, Brickset, Rebrickable, PTracker };
+	enum LookUp { Bricklink, Peeron, Brickset, Rebrickable, PTracker };
 	enum ElementSrc { BL, LEGO };
 
 	void setShowModelFlag(bool value);
@@ -94,9 +94,9 @@ public:
 
 	void loadOtherSettings(void);
 
-    void setModelWidget(LDVWidget *modelWidget) { m_modelWidget = modelWidget; }
+	void setModelWidget(LDVWidget *modelWidget) { m_modelWidget = modelWidget; }
 
-    int getElementSource(void) { return m_elementSource; }
+	int getElementSource(void) { return m_elementSource; }
 	int getLookupSite(void) { return m_lookupSite; }
 	std::string getRebrickableKey(void) { return m_rebrickableKey; }
 
