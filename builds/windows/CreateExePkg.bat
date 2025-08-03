@@ -308,7 +308,7 @@ SET "LP3D_GITHUB_BASE=%LP3D_GITHUB_URL%/%LPUB3D_DIR%"
 SET "LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net"
 SET "LP3D_SOURCEFORGE_UPDATE_BASE=https://lpub3d.sourceforge.io"
 SET "LP3D_LIBS_BASE=%LP3D_GITHUB_URL%/lpub3d_libs/releases/download/v1.0.1"
-SET LP3D_DEB=jammy
+SET LP3D_DEB=noble
 SET LP3D_FCV=fc36
 
 ECHO.
@@ -1418,7 +1418,7 @@ IF "%LP3D_DISTRO_ARCH%" EQU "x86_64" (
     REN "%WebCONTENT%" %OpensslVERIFIED%
     ECHO.
     IF EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-      ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_DISTRO_ARCH% is availble
+      ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_DISTRO_ARCH% is available
     ) ELSE (
       ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_DISTRO_ARCH% not found
     )
@@ -1529,7 +1529,7 @@ REN "%WebCONTENT%" "%RedistCONTENT%"
 
 IF EXIST "%OutputPATH%\%RedistCONTENT%" (
   ECHO.
-  ECHO - MSVC %1 %LP3D_DISTRO_ARCH% Redistributable %RedistCONTENT% is availble
+  ECHO - MSVC %1 %LP3D_DISTRO_ARCH% Redistributable %RedistCONTENT% is available
 )
 EXIT /b
 
@@ -1637,7 +1637,7 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %OfficialCONTENT% is availble
+  ECHO - LDraw archive library %OfficialCONTENT% is available
 )
 EXIT /b
 
@@ -1651,7 +1651,7 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF EXIST "%OutputPATH%\%TenteCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %TenteCONTENT% is availble
+  ECHO - LDraw archive library %TenteCONTENT% is available
 )
 EXIT /b
 
@@ -1665,7 +1665,7 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %VexiqCONTENT% is availble
+  ECHO - LDraw archive library %VexiqCONTENT% is available
 )
 EXIT /b
 
@@ -1682,7 +1682,7 @@ ECHO - Rename %WebCONTENT% to %LPub3DCONTENT%
 REN "%WebCONTENT%" %LPub3DCONTENT%
 IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %LPub3DCONTENT% is availble
+  ECHO - LDraw archive library %LPub3DCONTENT% is available
 )
 EXIT /b
 

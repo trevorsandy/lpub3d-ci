@@ -216,15 +216,15 @@ function InstallDependencies()
         specFile="$PWD/obs/ldglite.spec"
         ;;
       ldview)
-	    if which -q qmake6 >/dev/null 2>&1 ; then
-		  specFile="/tmp/LDView-qt6.spec"
+        if which -q qmake6 >/dev/null 2>&1 ; then
+          specFile="/tmp/LDView-qt6.spec"
           cp -f LDView.spec $specFile
-		  sed -e 's/define qt6 0/define qt6 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
-		else
-		  specFile="/tmp/LDView-qt5.spec"
-		  cp -f LDView.spec $specFile
-		  sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
-		fi
+          sed -e 's/define qt6 0/define qt6 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
+        else
+          specFile="/tmp/LDView-qt5.spec"
+          cp -f LDView.spec $specFile
+          sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
+        fi
         ;;
       povray)
         specFile="$PWD/unix/obs/povray.spec"
@@ -251,10 +251,10 @@ function InstallDependencies()
         pkgbuildFile="$PWD/obs/PKGBUILD"
         ;;
       ldview)
-	    pkgbuildFile="$PWD/QT/PKGBUILD"
-	    if which -q qmake6 >/dev/null 2>&1 ; then
+        pkgbuildFile="$PWD/QT/PKGBUILD"
+        if which -q qmake6 >/dev/null 2>&1 ; then
           sed -e 's/qt5/qt6/g' -e 's/qmake /qmake6 /g' -e '/^depends/s/)/ '\''qt6-5compat'\'')/' -i $pkgbuildFile
-		fi
+        fi
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
@@ -285,12 +285,12 @@ function InstallDependencies()
         ;;
       ldview)
         controlFile="$PWD/QT/debian/control"
-		sed -e '/^#Qt/d' -e '/libqt4-dev/d' -i $controlFile
-		if which -q qmake6 >/dev/null 2>&1 ; then
+        sed -e '/^#Qt/d' -e '/libqt4-dev/d' -i $controlFile
+        if which -q qmake6 >/dev/null 2>&1 ; then
           sed -e '/qtbase5-dev/d' -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
-		else
+        else
           sed -e '/qt6-base-dev/d' -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
-		fi
+        fi
         if [ "$LP3D_BUILD_OS" = "appimage" ]; then
           sed -e 's/ libkf5kio-dev,//g' \
               -e 's/ extra-cmake-modules,//g' \

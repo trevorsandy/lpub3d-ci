@@ -3,7 +3,7 @@
 Title Perform a stand-alone build check
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 01, 2025
+rem  Last Update: August 03, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 
 rem  To Run:
@@ -361,7 +361,7 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %OfficialCONTENT% is availble
+  ECHO - LDraw archive library %OfficialCONTENT% is available
 )
 EXIT /b
 
@@ -375,7 +375,7 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF EXIST "%OutputPATH%\%TenteCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %TenteCONTENT% is availble
+  ECHO - LDraw archive library %TenteCONTENT% is available
 )
 EXIT /b
 
@@ -389,7 +389,7 @@ ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %VexiqCONTENT% is availble
+  ECHO - LDraw archive library %VexiqCONTENT% is available
 )
 EXIT /b
 
@@ -406,7 +406,7 @@ ECHO - Rename %WebCONTENT% to %LPub3DCONTENT%
 REN "%WebCONTENT%" %LPub3DCONTENT%
 IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   ECHO.
-  ECHO - LDraw archive library %LPub3DCONTENT% is availble
+  ECHO - LDraw archive library %LPub3DCONTENT% is available
 )
 EXIT /b
 
