@@ -12,13 +12,14 @@
 **
 ****************************************************************************/
 
-#include <stdlib.h>
+//#include <stdlib.h>
 // On the Mac, when using Qt, glextmacosqt.h has to be included prior to anything
 // else that might include GL/gl.h, to override and force-load the needed extensions,
 // otherwise things don't compile. This is annoying, but it doesn't appear to hurt anything.
 #ifdef __APPLE__
 #include <GL/glextmacosqt.h>
 #endif // __APPLE__
+#include <QtGlobal>
 #include <TRE/TREGLExtensions.h>
 #include <LDLoader/LDLModel.h>
 #include <LDLoader/LDLPalette.h>
