@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 30, 2025
+# Last Update: August 03, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -583,6 +583,7 @@ function BuildLDView()
   if [ "$build_gl2ps" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_GL2PS"
   fi
+  BUILD_CONFIG="$BUILD_CONFIG CONFIG+=NO_HEADERS_INSTALL"
   if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     if [ "$llvm_not_used" = 1 ]; then
       BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OSMESA_NO_LLVM"
