@@ -66,7 +66,12 @@ win32 {
         DEFINES += _WIN_UTF8_PATHS
         QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
         QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
-
+        greaterThan(QMAKE_MSC_VER, 1933) {
+            # Visual Studio 2022 (17.14) / Visual C++ 19.29 and up
+            MSVC_VER          = 17.14
+            MSVC_TOOLSET_VER  = 144
+            DEFINES          += QMAKE_MSC_VER=$$QMAKE_MSC_VER
+        }
     } else {
         QMAKE_LFLAGS += -Wl,--stack,4194304
     }
