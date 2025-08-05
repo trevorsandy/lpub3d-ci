@@ -66,7 +66,13 @@ win32 {
         DEFINES += _WIN_UTF8_PATHS
         QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
         QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
-
+        greaterThan(QMAKE_MSC_VER, 1933) {
+            # Visual Studio 2022 (17.14) / Visual C++ 19.29 and up
+            MSVC_VER          = 17.14
+            MSVC_TOOLSET_VER  = 144
+            DEFINES          += QMAKE_MSC_VER=$$QMAKE_MSC_VER
+        }
+        QMAKE_MSC_VER_MSG     = QMAKE_MSC_VER $$QMAKE_MSC_VER
     } else {
         QMAKE_LFLAGS += -Wl,--stack,4194304
     }
@@ -84,11 +90,11 @@ DIST_TARGET = $${TARGET}
 
 message("~~~ $${LPUB3D} $$upper($${TARGET}) $$upper($$QT_ARCH) BUILD: $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
+!isEmpty(QMAKE_MSC_VER_MSG): message("~~~ $${LPUB3D} $${QMAKE_MSC_VER_MSG} ~~~")
 !isEmpty(LDRAW_DIR_FOUND_MSG): message("~~~ $${LPUB3D} $${LDRAW_DIR_FOUND_MSG} ~~~")
 !isEmpty(LDRAW_ZIP_FOUND_MSG): message("~~~ $${LPUB3D} $${LDRAW_ZIP_FOUND_MSG} ~~~")
 !isEmpty(CPP11_MSG):  message("~~~ $${LPUB3D} $${CPP11_MSG} ~~~")
 !isEmpty(CPP17_MSG):  message("~~~ $${LPUB3D} $${CPP17_MSG} ~~~")
-win32-arm64-msvc|win32-msvc*: message("~~~ $${LPUB3D} QMAKE_MSC_VER $$QMAKE_MSC_VER ~~~")
 
 DEFINES += VER_ARCH=\\\"$$ARCH\\\"
 DEFINES += VER_CHIPSET=\\\"$$CHIPSET\\\"

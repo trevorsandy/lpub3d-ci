@@ -228,6 +228,12 @@ win32 {
         QMAKE_CXXFLAGS += \
             /FI winsock2.h /FI winsock.h \
             /wd4675
+        greaterThan(QMAKE_MSC_VER, 1933) {
+            # Visual Studio 2022 (17.14) / Visual C++ 19.29 and up
+            MSVC_VER          = 17.14
+            MSVC_TOOLSET_VER  = 144
+            DEFINES          += QMAKE_MSC_VER=$$QMAKE_MSC_VER
+        }
     }
     # Windows doesn't have /dev/null but has NUL
     NULL_DEVICE = NUL
