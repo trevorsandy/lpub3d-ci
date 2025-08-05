@@ -8,7 +8,7 @@
 #define LC_WINDOWS_SHELL               "cmd.exe"
 #define LC_BLENDER_ADDON_BLEND_FILE    "leocad.blend"
 #define LC_BLENDER_ADDON_IMPORT_MODULE "TN"
-#define LC_BLENDER_ADDON_FOLDER_STR    "io_scene_render_ldraw"
+#define LC_BLENDER_ADDON_RENDER_FOLDER "io_scene_render_ldraw"
 
 class QFormLayout;
 class QGridLayout;
@@ -64,7 +64,7 @@ public:
 	static void SaveSettings();
 	static bool ExportParameterFile();
 	static bool SettingsModified(bool Update = true, QString const& Module = QString());
-	static int ShowMessage(QString const& Header, QString const& Title = QString(), QString const& Body = QString(), QString const& Detail = QString(), const int Buttons = MBB_OK, const int Icon = 3 /*QMessageBox::Critical*/);
+	static int ShowMessage(QWidget* Parent, QString const& Header, QString const& Title = QString(), QString const& Body = QString(), QString const& Detail = QString(), const int Buttons = MBB_OK, const int Icon = 3 /*QMessageBox::Critical*/);
 
 	void Apply(const int Response = QDialog::Accepted);
 
@@ -76,8 +76,8 @@ protected:
 	static int NumPaths(bool DefaultSettings = false);
 	static int NumSettings(bool DefaultSettings = false);
 	static int NumSettingsMM(bool DefaultSettings = false);
-	static int GetBlenderAddon(const QString& BlenderDir);
-	static bool ExtractBlenderAddon(const QString& BlenderDir);
+	int GetBlenderAddon(const QString& BlenderDir);
+	bool ExtractBlenderAddon(const QString& BlenderDir);
 	static void LoadDefaultParameters(QByteArray& Buffer, int Which);
 	static bool OverwriteFile(const QString& File);
 
@@ -158,7 +158,7 @@ private:
 		LBL_POSITION_CAMERA,                    // 17   QCheckBox
 		LBL_REMOVE_DOUBLES,                     // 18   QCheckBox
 		LBL_RENDER_WINDOW,                      // 19   QCheckBox
-		LBL_USE_ARCHIVE_LIBS,                   // 20   QChekcBox
+		LBL_USE_ARCHIVE_LIBRARY,                // 20   QChekcBox
 		LBL_SEARCH_ADDL_PATHS,                  // 21   QCheckBox
 		LBL_SMOOTH_SHADING,                     // 22   QCheckBox
 		LBL_TRANSPARENT_BACKGROUND,             // 23   QCheckBox

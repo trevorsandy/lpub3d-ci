@@ -492,7 +492,7 @@ void lcApplication::SetProject(Project* Project)
 	delete mProject;
 	mProject = Project;
 
-	Project->SetActiveModel(0);
+	Project->SetActiveModel(0, true);
 	lcGetPiecesLibrary()->RemoveTemporaryPieces();
 
 /*** LPub3D Mod - Render Image ***/
@@ -1231,7 +1231,7 @@ int lcApplication::Process3DViewerCommandLine()
 	if (ProjectLoaded)
 	{
 		if (!mOptions.ModelName.isEmpty())
-			mProject->SetActiveModel(mOptions.ModelName);
+			mProject->SetActiveModel(mOptions.ModelName, true);
 
 		std::unique_ptr<lcView> ActiveView;
 
