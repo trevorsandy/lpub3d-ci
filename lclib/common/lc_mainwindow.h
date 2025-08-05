@@ -19,9 +19,7 @@ class lcColorList;
 class lcPropertiesWidget;
 class lcTimelineWidget;
 class lcElidedLabel;
-#ifdef QT_NO_PRINTER
-class QPrinter;
-#endif
+enum class lcRenderDialogMode;
 
 #define LC_MAX_RECENT_FILES 4
 
@@ -476,7 +474,8 @@ protected:
 	void ShowUpdatesDialog();
 	void ShowAboutDialog();
 	void ShowHTMLDialog();
-	void ShowRenderDialog(int Command);
+	void ShowExportPOVRayDialog();
+	void ShowRenderDialog(lcRenderDialogMode RenderDialogMode);
 	void ShowInstructionsDialog();
 	void ShowPrintDialog();
 /*** LPub3D Mod - preview widget for LPub3D ***/
