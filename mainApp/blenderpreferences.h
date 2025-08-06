@@ -462,6 +462,7 @@ private:
     QLabel      *mBlenderVersionLabel;
     QLineEdit   *mAddonVersionEdit;
     QLabel      *mAddonVersionLabel;
+    QCheckBox   *mUACPromptCheck;
     QGroupBox   *mModulesBox;
     QCheckBox   *mImportActBox;
     QCheckBox   *mImportMMActBox;
