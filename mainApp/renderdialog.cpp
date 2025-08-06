@@ -11,10 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "renderdialog.h"
 #include "ui_renderdialog.h"
-#include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "render.h"
 #include "paths.h"
@@ -25,12 +23,40 @@
 #include "parmswindow.h"
 #include "commonmenus.h"
 
+#ifndef LC_DISABLE_RENDER_DIALOG
+
 #define LP3D_CA 0.01
 #define LP3D_CDF 1.0
 
 #ifdef Q_OS_WIN
 #include <TlHelp32.h>
 #endif
+
+void RenderPreviewWidget::resizeEvent(QResizeEvent* Event)
+{
+    mScaledImage = QImage();
+
+    QWidget::resizeEvent(Event);
+}
+
+void RenderPreviewWidget::paintEvent(QPaintEvent* PaintEvent)
+{
+    Q_UNUSED(PaintEvent);
+
+    QPainter Painter(this);
+
+    if (!mImage.isNull())
+    {
+        QSize Size = size();
+
+        if (mScaledImage.isNull())
+            mScaledImage = mImage.scaled(Size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        Painter.drawImage((Size.width() - mScaledImage.width()) / 2, (Size.height() - mScaledImage.height()) / 2, mScaledImage);
+    }
+    else
+        Painter.fillRect(rect(), Qt::transparent);
+}
 
 RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     : QDialog(Parent),
@@ -40,9 +66,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 {
     ui->setupUi(this);
 
-#ifndef QT_NO_PROCESS
     mProcess = nullptr;
-#endif
 
     mWidth      = RENDER_DEFAULT_WIDTH;
     mHeight     = RENDER_DEFAULT_HEIGHT;
@@ -134,7 +158,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         ui->RenderButton->setEnabled(mHaveKeys);
 
-        ui->RenderButton->setToolTip(tr("Render LDraw model"));
+        ui->RenderButton->setToolTip(tr("Render LDraw Model"));
 
         mOutputBuffer    = nullptr;
 
@@ -144,13 +168,13 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         QImage Image(QPixmap(":/resources/1024px-Povray_logo_sphere.png").toImage());
         Image = Image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-        ui->preview->setPixmap(QPixmap::fromImage(Image.scaled(mWidth, mHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+        ui->preview->SetImage(Image.scaled(mWidth, mHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
         setMinimumSize(100, 100);
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        setWindowTitle(tr("Blender %1").arg(mImportOnly ? tr("LDraw Import") : tr("Image Render")));
+        setWindowTitle(mImportOnly ? tr("Blender LDraw Import") : tr("Blender Image Render"));
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
 
@@ -175,7 +199,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         if (mImportOnly) {
             labelMessage = tr("Open%1 in Blender using %2")
-                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
+                              .arg(mMn.isEmpty() ? "" : QString(" <b>%1</b>").arg(mMn), mImportModule);
 
             ui->InputLabel->setMinimumWidth(0);
             ui->InputBrowseButton->setMinimumWidth(0);
@@ -202,12 +226,12 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
             ui->OutputLine->hide();
             ui->RenderLine->hide();
 
-            setMinimumWidth(600);
             adjustSize();
+            setMinimumWidth(ui->preview->geometry().width());
             ui->preview->hide();
         } else {
-            int scaledWidth = 768;
-            int scaledHeight = 432;
+            int scaledWidth = RENDER_DEFAULT_WIDTH;
+            int scaledHeight = RENDER_DEFAULT_HEIGHT;
 
             ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
 
@@ -223,7 +247,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
             QImage Image(QPixmap(":/resources/blenderlogo1280x720.png").toImage());
             Image = Image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-            ui->preview->setPixmap(QPixmap::fromImage(Image.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+            ui->preview->SetImage(Image.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
 
         connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
@@ -277,7 +301,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
                         : tr("LDraw Import MM");
 
                 QString labelMessage = tr("Open%1 in Blender using %2")
-                                          .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
+                                          .arg(mMn.isEmpty() ? "" : QString(" <b>%1</b>").arg(mMn), mImportModule);
                 ui->RenderLabel->setText(labelMessage);
                 ui->RenderLabel->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
             }
@@ -290,30 +314,6 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
 void RenderDialog::on_RenderButton_clicked()
 {
-    std::function<QStringList()> getFileContent;
-    getFileContent = [&] ()
-    {
-        QStringList contents, fileContents;
-        QFile file(mModelFile);
-        if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            emit gui->messageSig(LOG_ERROR, QString("Cannot read external file %1<br>%2")
-                                                .arg(mModelFile, file.errorString()));
-            return fileContents;
-        }
-
-        QTextStream in(&file);
-        while ( ! in.atEnd()) {
-            QString sLine = in.readLine(0);
-            contents << sLine.trimmed();
-        }
-        file.close();
-
-        fileContents = gui->getModelFileContent(&contents, QFileInfo(mModelFile).fileName());
-
-        return fileContents;
-    };
-
-#ifndef QT_NO_PROCESS
     if (mProcess)
     {
         PromptCancel();
@@ -329,470 +329,507 @@ void RenderDialog::on_RenderButton_clicked()
 
     mRenderTime.start();
 
+    if (mRenderType == POVRAY_RENDER)
+        RenderPOVRay();
+    else
+        RenderBlender();
+}
+
+void RenderDialog::RenderPOVRay()
+{
+    QFuture<QStringList> getFileContent = QtConcurrent::run([&]()
+    {
+        QStringList contents, fileContents;
+        QFile file(mModelFile);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            emit gui->messageSig(LOG_ERROR, tr("Cannot read external file %1<br>%2")
+                                               .arg(mModelFile, file.errorString()));
+            return fileContents;
+        }
+
+        QTextStream in(&file);
+        while ( ! in.atEnd()) {
+            QString sLine = in.readLine(0);
+            contents << sLine.trimmed();
+        }
+        file.close();
+
+        fileContents = gui->getModelFileContent(&contents, QFileInfo(mModelFile).fileName());
+
+        return fileContents;
+    });
+
     QString message;
 
-    if (mRenderType == POVRAY_RENDER) {
+    lpub->getAct("povrayRenderAct.4")->setEnabled(false);
 
-        lpub->getAct("povrayRenderAct.4")->setEnabled(false);
+    ui->RenderLabel->setText(tr("Generating POV-Ray scene file..."));
 
-        ui->RenderLabel->setText(tr("Generating POV-Ray scene file..."));
+    QImage Image(mPreviewWidth, mPreviewHeight, QImage::Format_RGB32);
+    Image.fill(QColor(255, 255, 255));
+    ui->preview->SetImage(Image);
 
-        QImage Image(mPreviewWidth, mPreviewHeight, QImage::Format_RGB32);
-        Image.fill(QColor(255, 255, 255));
-        ui->preview->setPixmap(QPixmap::fromImage(Image));
+    QApplication::processEvents();
 
-        QApplication::processEvents();
+    mModelFile = Render::getRenderModelFile(mRenderType);
 
-        mModelFile = Render::getRenderModelFile(mRenderType);
-
-        QString errorEncountered;
-        QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerStepKey);
-        if (csiParts.isEmpty())
-        {
-            if (!ui->InputGenerateCheck->isChecked() && QFileInfo::exists(mModelFile)) {
-                csiParts = getFileContent();
-                if (csiParts.isEmpty())
-                    errorEncountered = tr("Could not get LDraw content for %1.").arg(mModelFile);
-            } else {
-                Where here;
-                int stepNumber = 0;
-                QString model;
-                if (lpub->extractStepKey(here, stepNumber))
-                    model = tr(" for %1%2")
-                               .arg(here.modelName,
-                                    stepNumber ? QString(" STEP %1").arg(stepNumber) : "");
-                errorEncountered = tr("Could not find LDraw content%1.").arg(model);
-            }
-
-            if (!errorEncountered.isEmpty()) {
-                ui->RenderLabel->setText(tr("Error encountered."));
-                emit gui->messageSig(LOG_ERROR, errorEncountered);
-                lpub->getAct("povrayRenderAct.4")->setEnabled(true);
-                return;
-            }
-        }
-
-        const QStringList povrayLights = gui->get3DViewerPOVLightList();
-
-        // Camera angle keys
-        QString caKey =
-                mCsiKeyList.at(K_LATITUDE)+" "+          // latitude
-                mCsiKeyList.at(K_LONGITUDE);             // longitude
-
-        // Target keys
-        QString mKey =
-                mCsiKeyList.at(K_TARGETX)+" "+           // target[X]
-                mCsiKeyList.at(K_TARGETY)+" "+           // target[Y]
-                mCsiKeyList.at(K_TARGETZ);               // target[Z]
-
-        // Rotstep keys
-        QString rsKey =
-                mCsiKeyList.at(K_ROTSX)+" "+             // rots[X]
-                mCsiKeyList.at(K_ROTSY)+" "+             // rots[Y]
-                mCsiKeyList.at(K_ROTSZ)+" "+             // rots[Z]
-                mCsiKeyList.at(K_ROTSTYPE);              // type [REL|ABS]
-
-        // RotateParts #1 - 5 parms, rotate parts for ldvExport - apply rotstep and camera angles
-        if ((Render::rotatePartsRD(csiParts, mModelFile, rsKey, caKey, Options::CSI)) != 0) {
-            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
-            ui->RenderLabel->setText(tr("Error encountered."));
-            return ;
-        }
-
-        // Camera distance keys
-        QString cdKey =
-                QString::number(mWidth)+" "+             // imageWidth
-                QString::number(mHeight)+" "+            // imageHeight
-                mCsiKeyList.at(K_MODELSCALE)+" "+        // modelScale
-                mCsiKeyList.at(K_RESOLUTION)+" "+        // resolution
-                mCsiKeyList.at(K_RESOLUTIONTYPE);        // resolutionType (DPI,DPCM)
-
-        /* perspective projection settings */
-        bool pp    = Preferences::perspectiveProjection;
-
-        /* set camera angles */
-        bool noCA  = Preferences::applyCALocally;
-
-        /* determine camera distance - use LDView POV file generation values */
-        int cd = int((double(Render::getPovrayRenderCameraDistance(cdKey))*0.455)*1700/1000);
-
-        /* set LDV arguments */
-        QString CA = QString("-ca%1") .arg(0.01);        // Effectively defaults to orthographic projection.
-        QString cg = QString("-cg%1,%2,%3")
-                .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LATITUDE).toDouble())
-                .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble())
-                .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
-
-        QString m  = mKey == "0 0 0" ? QString() : mKey.trimmed();
-        QString w  = QString("-SaveWidth=%1")  .arg(mWidth);
-        QString h  = QString("-SaveHeight=%1") .arg(mHeight);
-        QString f  = QString("-ExportFile=%1") .arg(GetPOVFileName());
-        QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
-
-        QStringList Arguments;
-        Arguments << CA;
-        Arguments << cg;
-
-        /*
-            K_STEPNUMBER = 0,  // 0  not used
-            K_IMAGEWIDTH,      // 1  not used
-            K_RESOLUTION,      // 2
-            K_RESOLUTIONTYPE,  // 3
-            K_MODELSCALE,      // 4
-            K_FOV,             // 5  not used
-            K_LATITUDE,        // 6
-            K_LONGITUDE,       // 7
-            K_TARGETX,         // 8
-            K_TARGETY,         // 9
-            K_TARGETZ,         // 10
-            K_ROTSX,           // 11
-            K_ROTSY,           // 12
-            K_ROTSZ,           // 13
-            K_ROTSTYPE         // 14
-        */
-
-        // replace CA with FOV
-        if (pp) {
-            QString df = QString("-FOV=%1").arg(mCsiKeyList.at(K_FOV).toDouble());
-            Arguments.replace(Arguments.indexOf(CA),df);
-        }
-
-        // Set alternate target position or use specified image size
-        if (!m.isEmpty()) {
-            Arguments.removeAt(Arguments.indexOf(cg)); // remove camera globe
-            QString dz = QString("-DefaultZoom=%1")
-                    .arg(mCsiKeyList.at(K_MODELSCALE).toDouble());
-            QString dl = QString("-DefaultLatLong=%1,%2")
-                    .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LATITUDE).toDouble())
-                    .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble());
-            Render::addArgument(Arguments, dz, "-DefaultZoom");
-            Render::addArgument(Arguments, dl, "-DefaultLatLong");
-            Arguments << m;
-        }
-
-        Arguments << w;
-        Arguments << h;
-        Arguments << f;
-        Arguments << l;
-
-        if (povrayLights.size() && povrayLights[0] != "")
-        {
-            QString p = QString("-PovExporter/PovLights=\"%1\"").arg(povrayLights.join(";"));
-            Arguments << p;
-        }
-
-        if (!Preferences::altLDConfigPath.isEmpty()) {
-            Arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-        }
-
-        Arguments << QDir::toNativeSeparators(mModelFile);
-
-        message = tr("LDV CSI POV File Generation Arguments: %1 %2")
-                     .arg(Preferences::ldviewExe, Arguments.join(" "));
-        emit gui->messageSig(LOG_INFO, message);
-
-        // generate POV file
-        if (!Render::doLDVCommand(Arguments,POVRAY_RENDER)) {
-            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
-            ui->RenderLabel->setText(tr("Error encountered."));
-            return ;
+    QString errorEncountered;
+    QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerStepKey);
+    if (csiParts.isEmpty())
+    {
+        if (!ui->InputGenerateCheck->isChecked() && QFileInfo::exists(mModelFile)) {
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            while (!getFileContent.isFinished())
+                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+            QGuiApplication::restoreOverrideCursor();
+            csiParts = getFileContent.result();
+            if (csiParts.isEmpty())
+                errorEncountered = tr("Could not get LDraw content for %1.").arg(mModelFile);
         } else {
-            ui->RenderLabel->setText(tr("Rendering POV-Ray scene..."));
+            Where here;
+            int stepNumber = 0;
+            QString model;
+            if (lpub->extractStepKey(here, stepNumber))
+                model = tr(" for %1%2")
+                           .arg(here.modelName,
+                                stepNumber ? QString(" STEP %1").arg(stepNumber) : "");
+            errorEncountered = tr("Could not find LDraw content%1.").arg(model);
         }
 
-        message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName(), Gui::elapsedTime(mRenderTime.elapsed()));
-        emit gui->messageSig(LOG_INFO, message);
-
-        /* set POV-Ray arguments */
-        Arguments.clear();
-
-        if (mTransBackground) {
-            Arguments << QString("+UA");
-        }
-
-        Arguments << QString("+D");
-        Arguments << QString("-O-");
-        Arguments << Render::getPovrayRenderQuality(mQuality);
-        Arguments << QString("+W%1").arg(mWidth);
-        Arguments << QString("+H%1").arg(mHeight);
-        Arguments << QString("+I\"%1\"").arg(Render::fixupDirname(GetPOVFileName()));
-        Arguments << QString("+SM\"%1\"").arg(Render::fixupDirname(GetOutputFileName()));
-
-        bool hasSTL       = Preferences::lgeoStlLib;
-        bool hasLGEO      = Preferences::lgeoPath != "";
-        bool hasPOVRayIni = Preferences::povrayIniPath != "";
-        bool hasPOVRayInc = Preferences::povrayIncPath != "";
-
-        if(hasPOVRayInc) {
-            QString povinc = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
-            Arguments << povinc;
-        }
-        if(hasPOVRayIni) {
-            QString povini = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
-            Arguments << povini;
-        }
-        if(hasLGEO) {
-            QString lgeoLg = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
-            QString lgeoAr = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
-            Arguments << lgeoLg;
-            Arguments << lgeoAr;
-            if (hasSTL) {
-                QString lgeoStl = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
-                Arguments << lgeoStl;
-            }
-        }
-
-        message = tr("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe, Arguments.join(" "));
-        emit gui->messageSig(LOG_INFO, message);
-
-        QStringList povrayEnv = Render::splitParms(lpub->page.meta.LPub.assem.povrayEnvVars.value());
-        povrayEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
-        emit gui->messageSig(LOG_INFO,QObject::tr("POVRay Model Renderer Environment Variables: %1")
-                                                  .arg(povrayEnv.join(" ")));
-
-        RenderProcess *Process = new RenderProcess(this);
-        povrayEnv << QProcess::systemEnvironment();
-        Process->setEnvironment(povrayEnv);
-        Process->setWorkingDirectory(QDir::currentPath() + QDir::separator() + Paths::tmpDir); // pov win console app will not write to dir different from cwd or source file dir
-        Process->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
-        Process->start(Preferences::povrayExe, Arguments);
-        if (Process->waitForStarted())
-        {
-            mProcess = Process;
-            ui->RenderButton->setText(tr("Cancel"));
-            ui->RenderProgress->setValue(ui->RenderProgress->minimum());
-        }
-        else
-        {
-            delete Process;
+        if (!errorEncountered.isEmpty()) {
+            ui->RenderLabel->setText(tr("Error encountered."));
+            emit gui->messageSig(LOG_ERROR, errorEncountered);
             lpub->getAct("povrayRenderAct.4")->setEnabled(true);
-            message = tr("Error starting POV-Ray.");
-            emit gui->messageSig(LOG_ERROR, message);
-            ui->RenderLabel->setText(tr("Error encountered."));
-            CloseProcess();
-        }
-
-    } else if (mRenderType == BLENDER_RENDER) {
-
-        QString const option = mImportOnly ? tr("import") : tr("render");
-
-        if (!mPopulatedFile && ui->InputGenerateCheck->isChecked()) {
-
-            ui->RenderLabel->setText(tr("Saving Blender %1 model...").arg(option));
-
-            mModelFile = Render::getRenderModelFile(mRenderType);
-        }
-
-        mBlendProgValue = 0;
-        mBlendProgMax   = 0;
-
-        if (!QFileInfo(Preferences::blenderLDrawConfigFile).isReadable() &&
-            !Preferences::blenderImportModule.isEmpty())
-            BlenderPreferences::saveSettings();
-
-        QString defaultBlendFile = QString("%1/Blender/config/%2")
-                                           .arg(Preferences::lpub3d3rdPartyConfigDir,
-                                                VER_BLENDER_DEFAULT_BLEND_FILE);
-        bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
-        int renderPercentage = mHaveKeys ? qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100) : 100;
-
-        QString message;
-        QStringList Arguments;
-        QString pythonExpression;
-        pythonExpression.append(QString("\"import bpy; bpy.ops.render_scene.lpub3d_render_ldraw("
-                                        "'EXEC_DEFAULT', "
-                                        "resolution_width=%1, resolution_height=%2, "
-                                        "render_percentage=%3, model_file=r'%4', "
-                                        "image_file=r'%5'")
-                                .arg(mWidth).arg(mHeight)
-                                .arg(renderPercentage)
-                                .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"),
-                                     QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\")));
-        if (Preferences::blenderImportModule == QLatin1String("MM"))
-            pythonExpression.append(", use_ldraw_import_mm=True");
-        if (searchCustomDir)
-            pythonExpression.append(", search_additional_paths=True");
-        if (mImportOnly) {
-            pythonExpression.append(", import_only=True");
-
-            Arguments << QLatin1String("--window-geometry");
-            Arguments << QLatin1String("200 100 1440 900");
-        } else {
-            Arguments << QLatin1String("--background");
-            lpub->getAct("blenderRenderAct.4")->setEnabled(false);
-        }
-
-        pythonExpression.append(", cli_render=True)\"");
-
-        if (Preferences::defaultBlendFile)
-            Arguments << QDir::toNativeSeparators(defaultBlendFile);
-        Arguments << QString("--python-expr");
-        Arguments << pythonExpression;
-
-        QString scriptDir, scriptName, scriptCommand, shellProgram;
-
-        QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-        scriptDir = configPathList.first();
-
-         QFile script;
-        if (QFileInfo::exists(scriptDir)) {
-
-#ifdef Q_OS_WIN
-            scriptName =  QLatin1String("render_ldraw_model.bat");
-#else
-            scriptName =  QLatin1String("render_ldraw_model.sh");
-#endif
-            scriptCommand = QString("%1 %2").arg(Preferences::blenderExe, Arguments.join(" "));
-
-            message = tr("Blender %1 command: %2").arg(option, scriptCommand);
-#ifdef QT_DEBUG_MODE
-            qDebug() << qPrintable(message);
-#else
-            emit gui->messageSig(LOG_INFO, message);
-#endif
-            if (mImportOnly)
-                scriptCommand.append(QString(" > %1").arg(QDir::toNativeSeparators(GetLogFileName(true/*stdOut*/))));
-
-            script.setFileName(QString("%1/%2").arg(scriptDir, scriptName));
-            if (script.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream stream(&script);
-#ifdef Q_OS_WIN
-                stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
-#else
-                stream << QLatin1String("#!/bin/bash") << lpub_endl;
-#endif
-                stream << scriptCommand << lpub_endl;
-                script.close();
-                message = tr("Blender %1 script: %2").arg(option, QDir::toNativeSeparators(script.fileName()));
-#ifdef QT_DEBUG_MODE
-                qDebug() << qPrintable(message);
-#else
-                emit gui->messageSig(LOG_INFO, message);
-#endif
-            } else {
-                emit gui->messageSig(LOG_ERROR, tr("Cannot write Blender render script file [%1] %2.")
-                                     .arg(script.fileName(),
-                                          script.errorString()));
-                lpub->getAct("blenderRenderAct.4")->setEnabled(true);
-                ui->RenderLabel->setText(tr("Error encountered."));
-                return;
-            }
-        } else {
-            emit gui->messageSig(LOG_ERROR, tr("Cannot create Blender render script temp path."));
-            lpub->getAct("blenderRenderAct.4")->setEnabled(true);
-            ui->RenderLabel->setText(tr("Error encountered."));
             return;
         }
+    }
 
-        QThread::sleep(2);
+    const QStringList povrayLights = gui->get3DViewerPOVLightList();
+
+    // Camera angle keys
+    QString caKey =
+            mCsiKeyList.at(K_LATITUDE)+" "+          // latitude
+            mCsiKeyList.at(K_LONGITUDE);             // longitude
+
+    // Target keys
+    QString mKey =
+            mCsiKeyList.at(K_TARGETX)+" "+           // target[X]
+            mCsiKeyList.at(K_TARGETY)+" "+           // target[Y]
+            mCsiKeyList.at(K_TARGETZ);               // target[Z]
+
+    // Rotstep keys
+    QString rsKey =
+            mCsiKeyList.at(K_ROTSX)+" "+             // rots[X]
+            mCsiKeyList.at(K_ROTSY)+" "+             // rots[Y]
+            mCsiKeyList.at(K_ROTSZ)+" "+             // rots[Z]
+            mCsiKeyList.at(K_ROTSTYPE);              // type [REL|ABS]
+
+    // RotateParts #1 - 5 parms, rotate parts for ldvExport - apply rotstep and camera angles
+    if ((Render::rotatePartsRD(csiParts, mModelFile, rsKey, caKey, Options::CSI)) != 0) {
+        lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+        ui->RenderLabel->setText(tr("Error encountered."));
+        return ;
+    }
+
+    // Camera distance keys
+    QString cdKey =
+            QString::number(mWidth)+" "+             // imageWidth
+            QString::number(mHeight)+" "+            // imageHeight
+            mCsiKeyList.at(K_MODELSCALE)+" "+        // modelScale
+            mCsiKeyList.at(K_RESOLUTION)+" "+        // resolution
+            mCsiKeyList.at(K_RESOLUTIONTYPE);        // resolutionType (DPI,DPCM)
+
+    /* perspective projection settings */
+    bool pp    = Preferences::perspectiveProjection;
+
+    /* set camera angles */
+    bool noCA  = Preferences::applyCALocally;
+
+    /* determine camera distance - use LDView POV file generation values */
+    int cd = int((double(Render::getPovrayRenderCameraDistance(cdKey))*0.455)*1700/1000);
+
+    /* set LDV arguments */
+    QString CA = QString("-ca%1") .arg(0.01);        // Effectively defaults to orthographic projection.
+    QString cg = QString("-cg%1,%2,%3")
+            .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LATITUDE).toDouble())
+            .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble())
+            .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
+
+    QString m  = mKey == "0 0 0" ? QString() : mKey.trimmed();
+    QString w  = QString("-SaveWidth=%1")  .arg(mWidth);
+    QString h  = QString("-SaveHeight=%1") .arg(mHeight);
+    QString f  = QString("-ExportFile=%1") .arg(GetPOVFileName());
+    QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
+
+    QStringList Arguments;
+    Arguments << CA;
+    Arguments << cg;
+
+    /*
+        K_STEPNUMBER = 0,  // 0  not used
+        K_IMAGEWIDTH,      // 1  not used
+        K_RESOLUTION,      // 2
+        K_RESOLUTIONTYPE,  // 3
+        K_MODELSCALE,      // 4
+        K_FOV,             // 5  not used
+        K_LATITUDE,        // 6
+        K_LONGITUDE,       // 7
+        K_TARGETX,         // 8
+        K_TARGETY,         // 9
+        K_TARGETZ,         // 10
+        K_ROTSX,           // 11
+        K_ROTSY,           // 12
+        K_ROTSZ,           // 13
+        K_ROTSTYPE         // 14
+    */
+
+    // replace CA with FOV
+    if (pp) {
+        QString df = QString("-FOV=%1").arg(mCsiKeyList.at(K_FOV).toDouble());
+        Arguments.replace(Arguments.indexOf(CA),df);
+    }
+
+    // Set alternate target position or use specified image size
+    if (!m.isEmpty()) {
+        Arguments.removeAt(Arguments.indexOf(cg)); // remove camera globe
+        QString dz = QString("-DefaultZoom=%1")
+                .arg(mCsiKeyList.at(K_MODELSCALE).toDouble());
+        QString dl = QString("-DefaultLatLong=%1,%2")
+                .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LATITUDE).toDouble())
+                .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble());
+        Render::addArgument(Arguments, dz, "-DefaultZoom");
+        Render::addArgument(Arguments, dl, "-DefaultLatLong");
+        Arguments << m;
+    }
+
+    Arguments << w;
+    Arguments << h;
+    Arguments << f;
+    Arguments << l;
+
+    if (povrayLights.size() && povrayLights[0] != "")
+    {
+        QString p = QString("-PovExporter/PovLights=\"%1\"").arg(povrayLights.join(";"));
+        Arguments << p;
+    }
+
+    if (!Preferences::altLDConfigPath.isEmpty()) {
+        Arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    }
+
+    Arguments << QDir::toNativeSeparators(mModelFile);
+
+    message = tr("LDV CSI POV File Generation Arguments: %1 %2")
+                 .arg(Preferences::ldviewExe, Arguments.join(" "));
+    emit gui->messageSig(LOG_INFO, message);
+
+    // generate POV file
+    if (!Render::doLDVCommand(Arguments,POVRAY_RENDER)) {
+        lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+        ui->RenderLabel->setText(tr("Error encountered."));
+        return ;
+    } else {
+        ui->RenderLabel->setText(tr("Rendering POV-Ray scene..."));
+    }
+
+    message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName(), Gui::elapsedTime(mRenderTime.elapsed()));
+    emit gui->messageSig(LOG_INFO, message);
+
+    /* set POV-Ray arguments */
+    Arguments.clear();
+
+    if (mTransBackground) {
+        Arguments << QString("+UA");
+    }
+
+    Arguments << QString("+D");
+    Arguments << QString("-O-");
+    Arguments << Render::getPovrayRenderQuality(mQuality);
+    Arguments << QString("+W%1").arg(mWidth);
+    Arguments << QString("+H%1").arg(mHeight);
+    Arguments << QString("+I\"%1\"").arg(Render::fixupDirname(GetPOVFileName()));
+    Arguments << QString("+SM\"%1\"").arg(Render::fixupDirname(GetOutputFileName()));
+
+    bool hasSTL       = Preferences::lgeoStlLib;
+    bool hasLGEO      = Preferences::lgeoPath != "";
+    bool hasPOVRayIni = Preferences::povrayIniPath != "";
+    bool hasPOVRayInc = Preferences::povrayIncPath != "";
+
+    if(hasPOVRayInc) {
+        QString povinc = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
+        Arguments << povinc;
+    }
+    if(hasPOVRayIni) {
+        QString povini = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
+        Arguments << povini;
+    }
+    if(hasLGEO) {
+        QString lgeoLg = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
+        QString lgeoAr = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+        Arguments << lgeoLg;
+        Arguments << lgeoAr;
+        if (hasSTL) {
+            QString lgeoStl = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
+            Arguments << lgeoStl;
+        }
+    }
+
+    message = tr("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe, Arguments.join(" "));
+    emit gui->messageSig(LOG_INFO, message);
+
+    QStringList povrayEnv = Render::splitParms(lpub->page.meta.LPub.assem.povrayEnvVars.value());
+    povrayEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
+    emit gui->messageSig(LOG_INFO, QObject::tr("POVRay Model Renderer Environment Variables: %1")
+                                               .arg(povrayEnv.join(" ")));
+
+    RenderProcess *Process = new RenderProcess(this);
+    povrayEnv << QProcess::systemEnvironment();
+    Process->setEnvironment(povrayEnv);
+    Process->setWorkingDirectory(QDir::currentPath() + QDir::separator() + Paths::tmpDir); // pov win console app will not write to dir different from cwd or source file dir
+    Process->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
+    Process->start(Preferences::povrayExe, Arguments);
+
+    mImage = QImage(mWidth, mHeight, QImage::Format_ARGB32);
+    mImage.fill(Qt::transparent);
+    ui->preview->SetImage(mImage);
+
+    if (Process->waitForStarted())
+    {
+        mProcess = Process;
+        ui->RenderButton->setText(tr("Cancel"));
+        ui->RenderProgress->setValue(ui->RenderProgress->minimum());
+        mStdOutList.clear();
+    }
+    else
+    {
+        delete Process;
+        lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+        message = tr("Error starting POV-Ray.");
+        emit gui->messageSig(LOG_ERROR, message);
+        ui->RenderLabel->setText(tr("Error encountered."));
+        CloseProcess();
+    }
+}
+
+void RenderDialog::RenderBlender()
+{
+    QString const option = mImportOnly ? tr("import") : tr("render");
+
+    if (!mPopulatedFile && ui->InputGenerateCheck->isChecked()) {
+
+        ui->RenderLabel->setText(tr("Saving Blender %1 model...").arg(option));
+
+        mModelFile = Render::getRenderModelFile(mRenderType);
+    }
+
+    mBlendProgValue = 0;
+    mBlendProgMax   = 0;
+
+    if (!QFileInfo(Preferences::blenderLDrawConfigFile).isReadable() &&
+            !Preferences::blenderImportModule.isEmpty())
+        BlenderPreferences::saveSettings();
+
+    QString defaultBlendFile = QString("%1/Blender/config/%2")
+                                       .arg(Preferences::lpub3d3rdPartyConfigDir,
+                                            VER_BLENDER_DEFAULT_BLEND_FILE);
+    bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
+    int renderPercentage = mHaveKeys ? qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100) : 100;
+
+    QString message;
+    QStringList Arguments;
+    QString pythonExpression;
+    pythonExpression.append(QString("\"import bpy; bpy.ops.render_scene.lpub3d_render_ldraw("
+                                    "'EXEC_DEFAULT', "
+                                    "resolution_width=%1, resolution_height=%2, "
+                                    "render_percentage=%3, model_file=r'%4', "
+                                    "image_file=r'%5'")
+                                    .arg(mWidth).arg(mHeight)
+                                    .arg(renderPercentage)
+                                    .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"),
+                                         QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\")));
+    if (Preferences::blenderImportModule == QLatin1String("MM"))
+        pythonExpression.append(", use_ldraw_import_mm=True");
+    if (searchCustomDir)
+        pythonExpression.append(", search_additional_paths=True");
+    if (mImportOnly) {
+        pythonExpression.append(", import_only=True");
+
+        Arguments << QLatin1String("--window-geometry");
+        Arguments << QLatin1String("200 100 1440 900");
+    } else {
+        Arguments << QLatin1String("--background");
+        lpub->getAct("blenderRenderAct.4")->setEnabled(false);
+    }
+
+    pythonExpression.append(", cli_render=True)\"");
+
+    if (Preferences::defaultBlendFile)
+        Arguments << QDir::toNativeSeparators(defaultBlendFile);
+    Arguments << QString("--python-expr");
+    Arguments << pythonExpression;
+
+    QString scriptDir, scriptName, scriptCommand, shellProgram;
+
+    QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    scriptDir = configPathList.first();
+
+    QFile script;
+    if (QFileInfo::exists(scriptDir)) {
 
 #ifdef Q_OS_WIN
-        shellProgram = QLatin1String(WINDOWS_SHELL);
+        scriptName =  QLatin1String("render_ldraw_model.bat");
 #else
-        shellProgram = QLatin1String(UNIX_SHELL);
+        scriptName =  QLatin1String("render_ldraw_model.sh");
 #endif
+        scriptCommand = QString("\"%1\" %2").arg(Preferences::blenderExe, Arguments.join(" "));
 
-        mProcess = new RenderProcess(this);
-
-        connect(mProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(ReadStdOut()));
-
-        QStringList blenderEnvironment = Render::splitParms(lpub->page.meta.LPub.assem.blenderEnvVars.value());
-
-        blenderEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
-
-        emit gui->messageSig(LOG_INFO,QObject::tr("Blender Model Renderer Environment Variables: %1")
-                                                  .arg(blenderEnvironment.join(" ")));
-
-        blenderEnvironment << QProcess::systemEnvironment();
-
-        mProcess->setEnvironment(blenderEnvironment);
-
-        mProcess->setWorkingDirectory(QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath(), Paths::blenderRenderDir)));
-
-        mProcess->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
-
-        message = tr("Blender process output: %1").arg(GetLogFileName(true/*stdOut*/));
+        message = tr("Blender %1 command: %2").arg(option, scriptCommand);
 #ifdef QT_DEBUG_MODE
         qDebug() << qPrintable(message);
 #else
         emit gui->messageSig(LOG_INFO, message);
 #endif
-        if (mImportOnly) {
-            QFileInfo info(GetLogFileName(true/*stdOut*/));
-            if (info.exists())
-                QFile::remove(info.absoluteFilePath());
+        if (mImportOnly)
+            scriptCommand.append(QString(" > %1").arg(QDir::toNativeSeparators(GetLogFileName(true/*stdOut*/))));
+
+        script.setFileName(QString("%1/%2").arg(scriptDir, scriptName));
+        if (script.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream stream(&script);
 #ifdef Q_OS_WIN
-            mProcess->startDetached(shellProgram, QStringList() << "/C" << script.fileName());
+            stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
 #else
-            mProcess->startDetached(shellProgram, QStringList() << script.fileName());
+            stream << QLatin1String("#!/bin/bash") << lpub_endl;
 #endif
-            if (mProcess)
+            stream << scriptCommand << lpub_endl;
+            script.close();
+            message = tr("Blender %1 script: %2").arg(option, QDir::toNativeSeparators(script.fileName()));
+#ifdef QT_DEBUG_MODE
+            qDebug() << qPrintable(message);
+#else
+            emit gui->messageSig(LOG_INFO, message);
+#endif
+        } else {
+            emit gui->messageSig(LOG_ERROR, tr("Cannot write Blender render script file [%1] %2.")
+                                               .arg(script.fileName(),
+                                               script.errorString()));
+            lpub->getAct("blenderRenderAct.4")->setEnabled(true);
+            ui->RenderLabel->setText(tr("Error encountered."));
+            return;
+        }
+    } else {
+        emit gui->messageSig(LOG_ERROR, tr("Cannot create Blender render script temp path."));
+        lpub->getAct("blenderRenderAct.4")->setEnabled(true);
+        ui->RenderLabel->setText(tr("Error encountered."));
+        return;
+    }
+
+    QThread::sleep(2);
+
+#ifdef Q_OS_WIN
+    shellProgram = QLatin1String(WINDOWS_SHELL);
+#else
+    shellProgram = QLatin1String(UNIX_SHELL);
+#endif
+
+    mProcess = new RenderProcess(this);
+
+    connect(mProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(ReadStdOut()));
+
+    QStringList blenderEnvironment = Render::splitParms(lpub->page.meta.LPub.assem.blenderEnvVars.value());
+
+    blenderEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
+
+    emit gui->messageSig(LOG_INFO,QObject::tr("Blender Model Renderer Environment Variables: %1")
+                         .arg(blenderEnvironment.join(" ")));
+
+    blenderEnvironment << QProcess::systemEnvironment();
+
+    mProcess->setEnvironment(blenderEnvironment);
+
+    mProcess->setWorkingDirectory(QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath(), Paths::blenderRenderDir)));
+
+    mProcess->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
+
+    message = tr("Blender process output: %1").arg(GetLogFileName(true/*stdOut*/));
+#ifdef QT_DEBUG_MODE
+    qDebug() << qPrintable(message);
+#else
+    emit gui->messageSig(LOG_INFO, message);
+#endif
+    if (mImportOnly) {
+        QFileInfo info(GetLogFileName(true/*stdOut*/));
+        if (info.exists())
+            QFile::remove(info.absoluteFilePath());
+#ifdef Q_OS_WIN
+        mProcess->startDetached(shellProgram, QStringList() << "/C" << script.fileName());
+#else
+        mProcess->startDetached(shellProgram, QStringList() << script.fileName());
+#endif
+        if (mProcess)
+        {
+            static QRegularExpression errorRx("(?:\\w)*ERROR: ", QRegularExpression::CaseInsensitiveOption);
+            static QRegularExpression warningRx("(?:\\w)*WARNING: ", QRegularExpression::CaseInsensitiveOption);
+            mProcess->kill();
+            CloseProcess();
+            if (mStdOutList.size())
+                WriteStdOut();
+            if (info.exists())
             {
-                static QRegularExpression errorRx("(?:\\w)*ERROR: ", QRegularExpression::CaseInsensitiveOption);
-                static QRegularExpression warningRx("(?:\\w)*WARNING: ", QRegularExpression::CaseInsensitiveOption);
-                mProcess->kill();
-                CloseProcess();
-                if (mStdOutList.size())
-                    WriteStdOut();
-                if (info.exists())
-                {
-                    QFile log(info.absoluteFilePath());
-                    QTime waiting = QTime::currentTime().addSecs(3);
-                    while (!log.size() || QTime::currentTime() < waiting)
-                        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-                    if (log.size()) {
-                        if (log.open(QFile::ReadOnly | QFile::Text))
+                QFile log(info.absoluteFilePath());
+                QTime waiting = QTime::currentTime().addSecs(3);
+                while (!log.size() || QTime::currentTime() < waiting)
+                    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                if (log.size()) {
+                    if (log.open(QFile::ReadOnly | QFile::Text))
+                    {
+                        QByteArray ba = log.readAll();
+                        bool const error = QString(ba).contains(errorRx);
+                        bool const warning = QString(ba).contains(warningRx);
+                        if (error || warning)
                         {
-                            QByteArray ba = log.readAll();
-                            bool const error = QString(ba).contains(errorRx);
-                            bool const warning = QString(ba).contains(warningRx);
-                            if (error || warning)
-                            {
-                                QMessageBox::Icon icon = error ? QMessageBox::Critical : QMessageBox::Warning;
-                                QString const &items = error ? tr("errors%1").arg(warning ? tr(" and warnings") : "") : warning ? tr("warnings") : "";
-                                QString const &title = tr("Open in Blender standard output");
-                                QString const &body = tr("Open in Blender encountered %1. See Show Details...").arg(items);
-                                BlenderPreferences::showMessage(body, title, QString(), QString(ba), 0, icon);
-                            }
+                            QMessageBox::Icon icon = error ? QMessageBox::Critical : QMessageBox::Warning;
+                            QString const &items = error ? tr("errors%1").arg(warning ? tr(" and warnings") : "") : warning ? tr("warnings") : "";
+                            QString const &title = tr("Open in Blender standard output");
+                            QString const &body = tr("Open in Blender encountered %1. See Show Details...").arg(items);
+                            BlenderPreferences::showMessage(this, body, title, QString(), QString(ba), 0, icon);
                         }
                     }
                 }
-                if (mBannerLoaded && lpub->currentStep) {
-                    lpub->currentStep->loadTheViewer();
-                    mBannerLoaded = false;
-                }
-                close();
-                return;
             }
-        } else {
-            ui->RenderProgress->setRange(mBlendProgValue, mBlendProgMax);
-            ui->RenderProgress->setValue(1);
+            if (mBannerLoaded && lpub->currentStep) {
+                lpub->currentStep->loadTheViewer();
+                mBannerLoaded = false;
+            }
+            close();
+            return;
+        }
+    } else {
+        ui->RenderProgress->setRange(mBlendProgValue, mBlendProgMax);
+        ui->RenderProgress->setValue(1);
 #ifdef Q_OS_WIN
-            mProcess->start(shellProgram, QStringList() << "/C" << script.fileName());
+        mProcess->start(shellProgram, QStringList() << "/C" << script.fileName());
 #else
-            mProcess->start(shellProgram, QStringList() << script.fileName());
+        mProcess->start(shellProgram, QStringList() << script.fileName());
 #endif
-        }
+    }
 
-        if (mProcess->waitForStarted())
-        {
-            ui->RenderButton->setText(tr("Cancel"));
-            ui->RenderProgress->setValue(ui->RenderProgress->minimum());
-            ui->RenderLabel->setText(tr("Loading LDraw model... %1")
-                                      .arg(Gui::elapsedTime(mRenderTime.elapsed())));
-            QApplication::processEvents();
-            emit gui->messageSig(LOG_INFO, tr("Blender render process [%1] running...").arg(mProcess->processId()));
-        }
-        else
-        {
-            lpub->getAct("blenderRenderAct.4")->setEnabled(true);
-            message = tr("Error starting Blender render process");
-            emit gui->messageSig(LOG_ERROR, message);
-            ui->RenderLabel->setText(tr("Error encountered."));
-            CloseProcess();
-        }
-    }  // BLENDER_RENDER
-#endif // ndef QT_NO_PROCESS
+    if (mProcess->waitForStarted())
+    {
+        ui->RenderButton->setText(tr("Cancel"));
+        ui->RenderProgress->setValue(ui->RenderProgress->minimum());
+        ui->RenderLabel->setText(tr("Loading LDraw Model... %1")
+                                 .arg(Gui::elapsedTime(mRenderTime.elapsed())));
+        QApplication::processEvents();
+        emit gui->messageSig(LOG_INFO, tr("Blender render process [%1] running...").arg(mProcess->processId()));
+    }
+    else
+    {
+        lpub->getAct("blenderRenderAct.4")->setEnabled(true);
+        message = tr("Error starting Blender render process");
+        emit gui->messageSig(LOG_ERROR, message);
+        ui->RenderLabel->setText(tr("Error encountered."));
+        CloseProcess();
+    }
 }
 
 #ifdef Q_OS_WIN
@@ -853,7 +890,7 @@ void RenderDialog::ReadStdOut()
     QRegExp rxRenderProgress;
     rxRenderProgress.setCaseSensitivity(Qt::CaseInsensitive);
 #endif
-    int blenderVersionNum = QString(Preferences::blenderVersion.at(1)).toInt();
+    int blenderVersionNum = QString(Preferences::blenderVersion.mid(1, 1)).toInt();
     bool const blenderVersion3OrGreater = blenderVersionNum > 2;
     if (blenderVersion3OrGreater)
     {
@@ -896,7 +933,7 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
 
     file.setFileName(GetLogFileName(false/*stdOut*/));
 
-    if ( ! file.open(QFile::ReadOnly | QFile::Text))
+    if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         QString message = tr("Failed to open log file: %1:\n%2")
                              .arg(file.fileName(), file.errorString());
@@ -904,7 +941,7 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
     }
 
     QTextStream in(&file);
-    while ( ! in.atEnd())
+    while (!in.atEnd())
     {
         QString line = in.readLine(0);
         returnLines << line.trimmed() + "<br>";
@@ -944,7 +981,6 @@ void RenderDialog::WriteStdOut()
 
 void RenderDialog::Update()
 {
-#ifndef QT_NO_PROCESS
     if (!mProcess)
         return;
 
@@ -955,7 +991,6 @@ void RenderDialog::Update()
         ShowResult();
         CloseProcess();
     }
-#endif
 
     if (mRenderType == POVRAY_RENDER) {
 
@@ -1009,19 +1044,18 @@ void RenderDialog::Update()
 
         Header->PixelsRead = quint32(PixelsWritten);
 
-        ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
-
         ui->RenderProgress->setMaximum(mImage.width() * mImage.height());
         ui->RenderProgress->setValue(int(Header->PixelsRead));
 
         if (PixelsWritten == Width * Height)
             ui->RenderProgress->setValue(ui->RenderProgress->maximum());
+
+        ui->preview->SetImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 }
 
 void RenderDialog::ShowResult()
 {
-#ifndef QT_NO_PROCESS
     bool hasError;
 
     const QString StdErrLog = ReadStdErr(hasError);
@@ -1035,12 +1069,11 @@ void RenderDialog::ShowResult()
         ui->RenderProgress->setValue(0);
         QString const &title = mRenderType == BLENDER_RENDER ? tr("Blender Render") : tr("POV-Ray Render");
         QString const &body = tr("An error occurred while rendering. See Show Details...");
-        BlenderPreferences::showMessage(body, title, QString(), StdErrLog, 0, QMessageBox::Critical);
+        BlenderPreferences::showMessage(this, body, title, QString(), StdErrLog, 0, QMessageBox::Critical);
         return;
     } else {
         ui->RenderProgress->setValue(ui->RenderProgress->maximum());
     }
-#endif
 
     QString message;
 
@@ -1052,7 +1085,7 @@ void RenderDialog::ShowResult()
 
         lpub->getAct("povrayRenderAct.4")->setEnabled(true);
 
-        ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+        ui->preview->SetImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
         emit gui->messageSig(LOG_INFO,tr("Writing POV-Ray rendered image '%1'...").arg(ui->OutputEdit->text()));
 
@@ -1082,7 +1115,7 @@ void RenderDialog::ShowResult()
             mPreviewWidth  = mImage.width();
             mPreviewHeight = mImage.height();
 
-            ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+            ui->preview->SetImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
     }
 
@@ -1141,10 +1174,8 @@ void RenderDialog::UpdateElapsedTime()
 
 void RenderDialog::CloseProcess()
 {
-#ifndef QT_NO_PROCESS
     delete mProcess;
     mProcess = nullptr;
-#endif
 
     if (mRenderType == POVRAY_RENDER) {
 
@@ -1166,7 +1197,6 @@ void RenderDialog::CloseProcess()
 
 bool RenderDialog::PromptCancel()
 {
-#ifndef QT_NO_PROCESS
     if (mProcess)
     {
         if (QMessageBox::question(this,
@@ -1201,7 +1231,6 @@ bool RenderDialog::PromptCancel()
         else
             return false;
     }
-#endif
 
     return true;
 }
@@ -1322,13 +1351,6 @@ void RenderDialog::validateInput()
     }
 }
 
-void RenderDialog::resizeEvent(QResizeEvent* event)
-{
-    QDialog::resizeEvent(event);
-    mPreviewWidth  = ui->preview->geometry().width();
-    mPreviewHeight = ui->preview->geometry().height();
-}
-
 RenderProcess::~RenderProcess() {
     if(state() == QProcess::Running ||
        state() == QProcess::Starting)
@@ -1342,20 +1364,22 @@ void RenderDialog::on_RenderOutputButton_clicked()
 {
     QString renderType = QLatin1String("Blender");
     QFileInfo fileInfo(GetLogFileName(true/*stdOut*/));
-    QString message = tr("Blender standard output file not found: %1.").arg(fileInfo.absoluteFilePath());
+    QString message = tr("Blender standard output log not found: %1.").arg(fileInfo.absoluteFilePath());
     if (mRenderType == POVRAY_RENDER)
     {
         renderType = QLatin1String("POV-Ray");
         fileInfo.setFile(GetLogFileName(false/*stdOut*/));
-        message = tr("POV-Ray standard error file not found: %1.").arg(fileInfo.absoluteFilePath());
+        message = tr("POV-Ray standard error log not found: %1.").arg(fileInfo.absoluteFilePath());
     }
     if (!fileInfo.exists()) {
         emit gui->messageSig(LOG_ERROR, message);
         return;
     }
-    QString title = tr("%1 Render Output").arg(renderType);
-    QString status = tr("View %1 render process standard output").arg(renderType);
+    QString title = tr("%1 Render Log").arg(renderType);
+    QString status = tr("View %1 render process standard output log").arg(renderType);
     gui->displayParmsFile(fileInfo.absoluteFilePath());
     gui->parmsWindow->setWindowTitle(tr(title.toLatin1(),status.toLatin1()));
     gui->parmsWindow->show();
 }
+
+#endif // LC_DISABLE_RENDER_DIALOG

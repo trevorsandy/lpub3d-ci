@@ -70,7 +70,7 @@
         <item>
          <widget class="Line" name="InputLine">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -136,7 +136,7 @@
         <item>
          <widget class="Line" name="OutputLine">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -190,7 +190,7 @@
         <item>
          <widget class="Line" name="RenderLine">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -206,7 +206,7 @@
            <string>View render process standard output</string>
           </property>
           <property name="text">
-           <string>Output...</string>
+           <string>Log...</string>
           </property>
          </widget>
         </item>
@@ -216,23 +216,28 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="preview">
+    <widget class="RenderPreviewWidget" name="preview" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="text">
-      <string/>
+     <property name="toolTip">
+      <string>View log</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>RenderPreviewWidget</class>
+   <extends>QWidget</extends>
+   <header>renderdialog.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>InputEdit</tabstop>
   <tabstop>InputBrowseButton</tabstop>

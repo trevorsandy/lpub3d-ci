@@ -4023,12 +4023,19 @@ void Gui::addEditLDrawIniFileAction()
 
 void Gui::showRenderDialog()
 {
-    int importOnly = sender() == gui->blenderImportAct ? BLENDER_IMPORT : 0;
-    int renderType = sender() == gui->blenderRenderAct || importOnly ? BLENDER_RENDER : POVRAY_RENDER;
+#ifndef LC_DISABLE_RENDER_DIALOG
+    int importOnly = 0, renderType = 0;
+    if (sender() == gui->blenderImportAct)
+        importOnly = BLENDER_IMPORT;
+    if (sender() == gui->blenderRenderAct || importOnly)
+        renderType = BLENDER_RENDER;
+    else if (sender() == gui->povrayRenderAct)
+        renderType = POVRAY_RENDER;
 
-    RenderDialog *dialog = new RenderDialog(nullptr/*set null for full non-modal*/, renderType, importOnly);
-    dialog->setModal(false);
-    dialog->show();
+    RenderDialog *Dialog = new RenderDialog(nullptr/*set null for full non-modal*/, renderType, importOnly);
+    Dialog->setModal(false);
+    Dialog->show();
+#endif
 }
 
 void Gui::aboutDialog()

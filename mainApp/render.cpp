@@ -3951,7 +3951,9 @@ bool Render::NativeExport(const NativeOptions *Options) {
     else
     if (Options->ExportMode == EXPORT_POVRAY)
     {
-        lcGetActiveProject()->ExportPOVRay(Options->ExportFileName);
+        auto [Success, ErrorMessage] = lcGetActiveProject()->ExportPOVRay(Options->ExportFileName);
+        if (!Success && !ErrorMessage.isEmpty())
+            emit gui->messageSig(LOG_ERROR, ErrorMessage);
     }
     else
     if (Options->ExportMode == EXPORT_3DS_MAX)
@@ -4104,7 +4106,10 @@ const QString Render::getRenderModelFile(int renderType, bool saveCurrentModel) 
             QFuture<void> future = QtConcurrent::run([&]() {
                 gui->SaveCurrent3DViewerModel(modelFile);
             });
-            future.waitForFinished();
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            while (!future.isFinished())
+                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+            QGuiApplication::restoreOverrideCursor();
         }
     }
     return modelFile;
