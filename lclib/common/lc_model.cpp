@@ -2009,7 +2009,7 @@ void lcModel::SetActive(bool Active)
 	if (Active && !mIsPreview && gMainWindow && !lcGetActiveProject()->IsRenderImage())
 	{
 		if (mProperties.mModelName != VIEWER_MODEL_DEFAULT)
-			emit gMainWindow->SetActiveModelSig(mProperties.mModelName);
+			emit gMainWindow->SetCurrentModelSig(mProperties.mModelName);
 	}
 /*** LPub3D Mod end ***/
 }
