@@ -471,6 +471,9 @@ private:
     QPushButton *mAddonUpdateButton;
     QPushButton *mAddonStdOutButton;
     QPushButton *mPathsGroupButton;
+#ifdef Q_OS_WIN
+    QCheckBox   *mUACPromptCheck;
+#endif
 
     QAction      *mDefaultColourEditAction;
     QProgressBar *mProgressBar;
@@ -486,6 +489,7 @@ private:
     bool mDocumentRender;
     bool mDialogCancelled;
     bool mBlenderVersionFound;
+    bool mDownloading;
 };
 
 extern class BlenderPreferences *gBlenderAddonPreferences;

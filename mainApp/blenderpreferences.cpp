@@ -211,6 +211,9 @@ BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITE
 };
 
 BlenderPreferences *gBlenderAddonPreferences;
+#ifdef Q_OS_WIN
+static const QRegularExpression programFilesRx(PROGRAM_FILES_RX, QRegularExpression::CaseInsensitiveOption);
+#endif
 
 enum AddonEnc
 {
@@ -359,6 +362,7 @@ BlenderPreferences::BlenderPreferences(
     mDocumentRender = docRender;
 
     mDialogCancelled = false;
+    mDownloading = false;
 
     QVBoxLayout *layout = new QVBoxLayout(parent);
 
@@ -423,7 +427,8 @@ BlenderPreferences::BlenderPreferences(
     mAddonGridLayout = new QGridLayout(blenderAddonVersionBox);
     blenderAddonVersionBox->setLayout(mAddonGridLayout);
 
-    QCheckBox* addonVersionCheck = new QCheckBox(tr("Prompt to download new addon version when available"), blenderAddonVersionBox);
+    QCheckBox *addonVersionCheck = new QCheckBox(tr("Prompt to download new addon"), blenderAddonVersionBox);
+    addonVersionCheck->setToolTip(tr("When available, prompt to download new addon version"));
     addonVersionCheck->setChecked(Preferences::blenderAddonVersionCheck);
 #if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
     QObject::connect(addonVersionCheck, &QCheckBox::checkStateChanged, [](int State)
@@ -434,8 +439,17 @@ BlenderPreferences::BlenderPreferences(
          const bool Enabled = static_cast<Qt::CheckState>(State) == Qt::CheckState::Checked;
          Preferences::setBlenderAddonVersionCheck(Enabled);
     });
-    mAddonGridLayout->addWidget(addonVersionCheck,0,0,1,4);
 
+#ifndef Q_OS_WIN
+    mAddonGridLayout->addWidget(addonVersionCheck,0,0,1,4);
+#else
+    mAddonGridLayout->addWidget(addonVersionCheck,0,0,1,3);
+
+    mUACPromptCheck = new QCheckBox(tr("UAC Prompt"), blenderAddonVersionBox);
+    mUACPromptCheck->setChecked(Preferences::blenderExe.contains(programFilesRx));
+    mUACPromptCheck->setToolTip(tr("User access control prompt to install in restricted location"));
+    mAddonGridLayout->addWidget(mUACPromptCheck,0,3,1,1);
+#endif
     mAddonVersionLabel = new QLabel(blenderAddonVersionBox);
     mAddonGridLayout->addWidget(mAddonVersionLabel,1,0);
 
@@ -521,7 +535,7 @@ BlenderPreferences::BlenderPreferences(
         } else
             mBlenderVersionEdit->setText(mBlenderVersion);
 
-        if (QFileInfo(QString("%1/Blender/%2").arg(Preferences::lpub3d3rdPartyConfigDir, VER_BLENDER_ADDON_FILE)).isReadable()) {
+        if (!QFileInfo(QString("%1/Blender/%2").arg(Preferences::lpub3d3rdPartyConfigDir, VER_BLENDER_ADDON_FILE)).isReadable()) {
             mModulesBox->setEnabled(false);
             mImportActBox->setChecked(true);
             mAddonUpdateButton->setEnabled(true);
@@ -925,7 +939,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir, VER_BLENDER_ADDON_INSTALL_FILE));
         QString const blenderTestString  = QLatin1String("###TEST_BLENDER###");
         QByteArray addonPathsAndModuleNames;
-        QString message, shellProgram;
+        QString message;
         QStringList arguments;
         ProcEnc result = PR_OK;
         QFile script;
@@ -935,8 +949,56 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         if (mConfigured && !addonUpdate && !moduleChange && !newBlenderExe)
             return;
 
+#ifdef Q_OS_WIN
+        if (!mUACPromptCheck->isChecked())
+            mUACPromptCheck->setChecked(blenderExe.contains(programFilesRx));
+#endif
+
         // Process command
         auto processCommand = [&] (ProcEnc action) {
+
+            QString scriptName, scriptCommand;
+
+            const QString baseName = action == PR_INSTALL ? "blender_addon_install" : "blender_test";
+
+#ifdef Q_OS_WIN
+            scriptName =  QString("%1.bat").arg(baseName);
+#else
+            scriptName =  QString("%1.sh").arg(baseName);
+#endif
+            scriptCommand = QString("\"%1\" %2").arg(blenderExe, arguments.join(" "));
+
+            message = tr("%1 Command: %2").arg(baseName, scriptCommand);
+#ifdef QT_DEBUG_MODE
+            qDebug() << qPrintable(message);
+#else
+            emit gui->messageSig(LOG_INFO, message);
+#endif
+            script.setFileName(QString("%1/%2").arg(QDir::tempPath(), scriptName));
+            if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream stream(&script);
+#ifdef Q_OS_WIN
+                stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
+                if (action == PR_INSTALL && mUACPromptCheck->isChecked())
+                    stream << QLatin1String("NET FILE > NUL 2>&1 || POWERSHELL -ex Unrestricted -Command \"Start-Process -Verb RunAs -FilePath '%ComSpec%' -ArgumentList '/c \\\"%~fnx0\\\" %*'\" && EXIT /b") << lpub_endl;
+#else
+                stream << QLatin1String("#!/bin/bash") << lpub_endl;
+#endif
+                stream << scriptCommand << lpub_endl;
+                script.close();
+                message = tr("%1 Script: %2").arg(baseName, QDir::toNativeSeparators(script.fileName()));
+#ifdef QT_DEBUG_MODE
+                qDebug() << qPrintable(message);
+#else
+                emit gui->messageSig(LOG_INFO, message);
+#endif
+            } else {
+                message = tr("Cannot write Blender render script file [%1] %2.")
+                        .arg(script.fileName(), script.errorString());
+                return PR_FAIL;
+            }
+
+            QThread::sleep(1);
 
             mProcess = new QProcess();
 
@@ -959,15 +1021,11 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
 
             mProcess->setStandardErrorFile(QString("%1/stderr-blender-addon-install").arg(blenderDir));
 
-            if (action == PR_INSTALL) {
-                mProcess->start(blenderExe, arguments);
-            } else {
 #ifdef Q_OS_WIN
-                mProcess->start(shellProgram, QStringList() << "/C" << script.fileName());
+            mProcess->start(QLatin1String(WINDOWS_SHELL), QStringList() << "/C" << script.fileName());
 #else
-                mProcess->start(shellProgram, QStringList() << script.fileName());
+            mProcess->start(QLatin1String(UNIX_SHELL), QStringList() << script.fileName());
 #endif
-            }
 
             if (!mProcess->waitForStarted()) {
                 message = tr("Cannot start Blender %1 mProcess.\n%2")
@@ -1035,8 +1093,8 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             // Test Blender executable
             testBlender |= sender() == mPathLineEditList[PATH_BLENDER];
             if (testBlender) {
+                mBlenderVersionLabel->setText(tr("Blender Check..."));
                 mExeGridLayout->replaceWidget(mBlenderVersionEdit, mProgressBar);
-                mAddonVersionLabel->setText(tr("Installing..."));
                 mProgressBar->show();
 
                 arguments << QString("--factory-startup");
@@ -1044,67 +1102,15 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                 arguments << QString("--python-expr");
                 arguments << QString("\"import sys;print('%1');sys.stdout.flush();sys.exit()\"").arg(blenderTestString);
 
-                bool error = false;
-
-                QString scriptName, scriptCommand;
-
-#ifdef Q_OS_WIN
-                scriptName =  QLatin1String("blender_test.bat");
-#else
-                scriptName =  QLatin1String("blender_test.sh");
-#endif
-                scriptCommand = QString("\"%1\" %2").arg(blenderExe, arguments.join(" "));
-
-                message = tr("Blender Test Command: %1").arg(scriptCommand);
-#ifdef QT_DEBUG_MODE
-                qDebug() << qPrintable(message);
-#else
-                emit gui->messageSig(LOG_INFO, message);
-#endif
-                script.setFileName(QString("%1/%2").arg(QDir::tempPath(), scriptName));
-                if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                    QTextStream stream(&script);
-#ifdef Q_OS_WIN
-                    stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
-#else
-                    stream << QLatin1String("#!/bin/bash") << lpub_endl;
-#endif
-                    stream << scriptCommand << lpub_endl;
-                    script.close();
-                    message = tr("Blender Test Script: %2").arg(QDir::toNativeSeparators(script.fileName()));
-#ifdef QT_DEBUG_MODE
-                    qDebug() << qPrintable(message);
-#else
-                    emit gui->messageSig(LOG_INFO, message);
-#endif
-                } else {
-                    message = tr("Cannot write Blender render script file [%1] %2.")
-                                  .arg(script.fileName(), script.errorString());
-                    error = true;
-                }
-
-                if (error) {
-                    emit gui->messageSig(LOG_ERROR, message);
-                    gBlenderAddonPreferences->statusUpdate(false/*addon*/);
-                    return;
-                }
-
-                QThread::sleep(1);
-
-#ifdef Q_OS_WIN
-                shellProgram = QLatin1String(WINDOWS_SHELL);
-#else
-                shellProgram = QLatin1String(UNIX_SHELL);
-#endif
                 result = processCommand(PR_TEST);
-                bool testOk = result != PR_FAIL;
-                QString const statusLabel = testOk ? "" : tr("Blender test failed.");
-                LogType logType = testOk ? LOG_INFO : LOG_ERROR;
-                emit gui->messageSig(logType, message);
-                gBlenderAddonPreferences->statusUpdate(false/*addon*/, testOk, statusLabel);
+                if (result == PR_FAIL) {
+                    emit gui->messageSig(LOG_ERROR, message);
+                    gBlenderAddonPreferences->statusUpdate(false/*addon*/, true/*error*/, tr("Blender test failed."));
+                } else
+                    mBlenderVersionLabel->setText(tr("Blender"));
                 mExeGridLayout->replaceWidget(mProgressBar, mBlenderVersionEdit);
                 mProgressBar->hide();
-                if (testOk) {
+                if (result == PR_OK) {
                     Preferences::setBlenderVersionPreference(mBlenderVersion);
                     Preferences::setBlenderExePathPreference(blenderExe);
                 } else {
@@ -1125,7 +1131,6 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                         return;
                     }
                 }
-
                 mImportActBox->setChecked(true);
             }
 
@@ -1188,10 +1193,11 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         // Save initial settings
         BlenderPreferences::saveSettings();
 
+        // Construct install command
         arguments.clear();
         arguments << QString("--background");
         arguments << QString("--python");
-        arguments << blenderInstallFile;
+        arguments << QString("\"%1\"").arg(blenderInstallFile);
         arguments << "--";
         if (!mRenderActBox->isChecked() &&
             !mImportActBox->isChecked() &&
@@ -1262,12 +1268,10 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         }
 
         result = processCommand(PR_INSTALL);
-
-        emit gui->messageSig(result == PR_OK ? LOG_INFO : LOG_ERROR, message);
-
-        if (result != PR_OK)
-            gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/, tr("Install failed."));
-
+        if (result == PR_FAIL) {
+            emit gui->messageSig(LOG_ERROR, message);
+            gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/, tr("Blender install failed."));
+        }
     } else {
         emit gui->messageSig(LOG_ERROR, tr("Blender executable not found at [%1]").arg(blenderExe), true);
     }
@@ -1336,8 +1340,10 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     auto getBlenderAddonVersionMatch = [&] ()
     {
+        gBlenderAddonPreferences->mDownloading = true;
         lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray response_data = lpub->getDownloadedFile();
+        gBlenderAddonPreferences->mDownloading = false;
         if (!response_data.isEmpty()) {
             QJsonDocument json = QJsonDocument::fromJson(response_data);
             onlineVersion = json.object()["tag_name"].toString();
@@ -1465,8 +1471,10 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     // Download Blender addon
     blenderAddonValidated = false;
+    gBlenderAddonPreferences->mDownloading = true;
     lpub->downloadFile(VER_BLENDER_ADDON_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
     QByteArray Buffer = lpub->getDownloadedFile();
+    gBlenderAddonPreferences->mDownloading = false;
 
     if (!Buffer.isEmpty()) {
         QFileInfo const fileInfo(blenderAddonFile);
@@ -1502,7 +1510,9 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 }
                 file.close();
                 QString const shaCalculated = sha256Hash.result().toHex();
+                gBlenderAddonPreferences->mDownloading = true;
                 lpub->downloadFile(VER_BLENDER_ADDON_SHA_HASH_URL, tr("Addon SHA Hash"),false/*promptRedirect*/,false/*showProgress*/);
+                gBlenderAddonPreferences->mDownloading = false;
                 QByteArray response_data = lpub->getDownloadedFile();
 
                 if (!response_data.isEmpty()) {
@@ -1630,11 +1640,11 @@ void BlenderPreferences::showResult()
         mBlenderVersionEdit->setVisible(mConfigured);
         mPathsBox->setEnabled(mConfigured);
         mSettingsBox->setEnabled(mConfigured);
+        mAddonVersionEdit->setVisible(true);
         if (!mAddonVersion.isEmpty()) {
             mAddonVersionLabel->setText(tr("Blender Addon"));
             mAddonVersionLabel->setStyleSheet(textColour);
             mAddonVersionEdit->setText(mAddonVersion);
-            mAddonVersionEdit->setVisible(true);
             mModulesBox->setEnabled(true);
             mAddonUpdateButton->setEnabled(true);
             Preferences::setBlenderVersionPreference(
@@ -1642,9 +1652,11 @@ void BlenderPreferences::showResult()
             gBlenderAddonPreferences->setModelSize(true/*update*/);
             BlenderPreferences::saveSettings();
             mDialogCancelled = false;
-        }
+        } else
+            mAddonVersionEdit->setText(tr("undefined"));
         message = tr("Blender version %1").arg(mBlenderVersion);
     }
+    mDownloading = false;
 
     // Close mProcess
     delete mProcess;
@@ -1943,13 +1955,13 @@ void BlenderPreferences::update()
     if (!mProcess)
         return;
 
-    if (mProcess->state() == QProcess::NotRunning)
+    if (mProcess->state() == QProcess::NotRunning && !mDownloading)
     {
         emit gui->messageSig(LOG_INFO, tr("Addon install finished"));
         gBlenderAddonPreferences->showResult();
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 #endif
-    QApplication::processEvents();
 }
 
 void BlenderPreferences::apply(const int response)

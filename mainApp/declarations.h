@@ -784,7 +784,10 @@ enum ThemeColorType {
 #define SUBMODELINSTANCE_ZVALUE_DEFAULT            Z_VALUE_DEFAULT
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
 
-#define GLOBAL_META_RX                              "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
+#define GLOBAL_META_RX                         "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
+#ifdef Q_OS_WIN
+#define PROGRAM_FILES_RX                       "^[A-Z]{1}:\\\\Program Files(?: {1}\\({1}[X]{1}86{1}\\){1})?\\\\.*$"
+#endif
 
 // registry sections
 #define DEFAULTS                               "Defaults"
