@@ -786,11 +786,13 @@ void Gui::create3DMenus()
 
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&Visual Editor"));
+#ifndef LC_DISABLE_RENDER_DIALOG
      // Render menu
      ViewerMenu->addAction(blenderRenderAct);
      ViewerMenu->addAction(blenderImportAct);
      ViewerMenu->addAction(povrayRenderAct);
      ViewerMenu->addSeparator();
+#endif
      // Save Image menu
      ViewerMenu->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
      // Save Step As menu

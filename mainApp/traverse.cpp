@@ -6594,98 +6594,98 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
         QStringList tokens;
         split(line,tokens);
         if (tokens.size()) {
-          if (tokens[0] != "0") {
-              if (! buildModIgnore && ! partIgnore)
-              fileContent << line;
-          } else {
+            if (tokens[0] != "0") {
+                if (! buildModIgnore && ! partIgnore)
+                fileContent << line;
+            } else {
 
-              Where here(fileName,i);
-              rc =  meta.parse(line,here,false);
+                Where here(fileName,i);
+                rc =  meta.parse(line,here,false);
 
-              switch (rc) {
-              /* do not capture display model lines */
-              case InsertDisplayModelRc:
-              displayModelLine = true;
-              break;
+                switch (rc) {
+                /* do not capture display model lines */
+                case InsertDisplayModelRc:
+                displayModelLine = true;
+                break;
 
-              case NoStepRc:
-              case RotStepRc:
-              case StepRc:
-              displayModelLine = false;
-              break;
+                case NoStepRc:
+                case RotStepRc:
+                case StepRc:
+                displayModelLine = false;
+                break;
 
-              /* buffer exchange */
-              case BufferStoreRc:
-              bfx[meta.bfx.value()] = fileContent;
-              break;
+                /* buffer exchange */
+                case BufferStoreRc:
+                bfx[meta.bfx.value()] = fileContent;
+                break;
 
-              case BufferLoadRc:
-              fileContent = bfx[meta.bfx.value()];
-              break;
+                case BufferLoadRc:
+                fileContent = bfx[meta.bfx.value()];
+                break;
 
-              /* get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction */
-              case BuildModBeginRc:
-              buildModIgnore = true;
-              break;
+                /* get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction */
+                case BuildModBeginRc:
+                buildModIgnore = true;
+                break;
 
-              /* set modActionLineNum and buildModIgnore based on 'next' step buildModAction */
-              case BuildModEndModRc:
-              if (getLevel(QString(), BM_END) == BM_BEGIN)
-                      buildModIgnore = false;
-              break;
+                /* set modActionLineNum and buildModIgnore based on 'next' step buildModAction */
+                case BuildModEndModRc:
+                if (getLevel(QString(), BM_END) == BM_BEGIN)
+                        buildModIgnore = false;
+                break;
 
-              case PartBeginIgnRc:
-              partIgnore = true;
-              break;
+                case PartBeginIgnRc:
+                partIgnore = true;
+                break;
 
-              case PartEndRc:
-              partIgnore = false;
-              break;
+                case PartEndRc:
+                partIgnore = false;
+                break;
 
-              case PartNameRc:
-              case PartTypeRc:
-              case MLCadGroupRc:
-              case LDCadGroupRc:
-              case LeoCadModelRc:
-              case LeoCadPieceRc:
-              case LeoCadCameraRc:
-              case LeoCadSynthRc:
-              case LeoCadGroupBeginRc:
-              case LeoCadGroupEndRc:
-              fileContent << line;
-              break;
+                case PartNameRc:
+                case PartTypeRc:
+                case MLCadGroupRc:
+                case LDCadGroupRc:
+                case LeoCadModelRc:
+                case LeoCadPieceRc:
+                case LeoCadCameraRc:
+                case LeoCadSynthRc:
+                case LeoCadGroupBeginRc:
+                case LeoCadGroupEndRc:
+                fileContent << line;
+                break;
 
-              case LeoCadLightRc:
-              case LeoCadLightTypeRc:
-              case LeoCadLightPOVRayRc:
-              case LeoCadLightShadowless:
-              if (line.contains(" LOCAL "))
-                  line.remove("LOCAL ");
-              fileContent << line;
-              break;
+                case LeoCadLightRc:
+                case LeoCadLightTypeRc:
+                case LeoCadLightPOVRayRc:
+                case LeoCadLightShadowless:
+                if (line.contains(" LOCAL "))
+                    line.remove("LOCAL ");
+                fileContent << line;
+                break;
 
-              /* remove a group or all instances of a part type */
-              case RemoveGroupRc:
-              case RemovePartTypeRc:
-              case RemovePartNameRc:
-              if (! buildModIgnore) {
-                      QStringList newFileContent;
-                      QVector<int> dummy;
-                      if (rc == RemoveGroupRc) {
-                          Gui::remove_group(fileContent,dummy,meta.LPub.remove.group.value(),newFileContent,dummy,&meta);
-                      } else if (rc == RemovePartTypeRc) {
-                          Gui::remove_parttype(fileContent,dummy,meta.LPub.remove.parttype.value(),newFileContent,dummy);
-                      } else {
-                          Gui::remove_partname(fileContent,dummy,meta.LPub.remove.partname.value(),newFileContent,dummy);
-                      }
-                      fileContent = newFileContent;
-              }
-              break;
+                /* remove a group or all instances of a part type */
+                case RemoveGroupRc:
+                case RemovePartTypeRc:
+                case RemovePartNameRc:
+                if (! buildModIgnore) {
+                    QStringList newFileContent;
+                    QVector<int> dummy;
+                    if (rc == RemoveGroupRc) {
+                        Gui::remove_group(fileContent,dummy,meta.LPub.remove.group.value(),newFileContent,dummy,&meta);
+                    } else if (rc == RemovePartTypeRc) {
+                        Gui::remove_parttype(fileContent,dummy,meta.LPub.remove.parttype.value(),newFileContent,dummy);
+                    } else {
+                        Gui::remove_partname(fileContent,dummy,meta.LPub.remove.partname.value(),newFileContent,dummy);
+                    }
+                    fileContent = newFileContent;
+                }
+                break;
 
-              default:
-              break;
-              }
-          }
+                default:
+                break;
+                }
+            }
         }
     } // for each line
 

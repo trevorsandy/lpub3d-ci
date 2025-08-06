@@ -15,6 +15,8 @@
 #ifndef RENDERDIALOG_H
 #define RENDERDIALOG_H
 
+#ifndef LC_DISABLE_RENDER_DIALOG
+
 #include <QDialog>
 #include <QFile>
 #include <QTimer>
@@ -39,6 +41,31 @@ public:
     ~RenderProcess();
 };
 
+class RenderPreviewWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    RenderPreviewWidget(QWidget* Parent)
+        : QWidget(Parent)
+    {
+    }
+
+    void SetImage(QImage Image)
+    {
+        mImage = Image;
+        mScaledImage = QImage();
+        update();
+    }
+
+protected:
+    void resizeEvent(QResizeEvent* Event) override;
+    void paintEvent(QPaintEvent* PaintEvent) override;
+
+    QImage mImage;
+    QImage mScaledImage;
+};
+
 class RenderDialog : public QDialog
 {
     Q_OBJECT
@@ -48,10 +75,10 @@ public:
             QWidget* Parent = nullptr,
             int renderType = 0,
             int importOnly = 0);
-    ~RenderDialog();
+    virtual ~RenderDialog();
 
 private slots:
-    void reject();
+    void reject() override;
     void on_RenderSettingsButton_clicked();
     void on_RenderButton_clicked();
     void on_InputBrowseButton_clicked();
@@ -69,11 +96,12 @@ protected slots:
     void UpdateElapsedTime();
 
 protected:
-    void resizeEvent(QResizeEvent* event);
     QString GetOutputFileName() const;
     QString GetPOVFileName() const;
     QString GetLogFileName(bool = true) const;
     QString ReadStdErr(bool &hasError) const;
+    void RenderPOVRay();
+    void RenderBlender();
     void CloseProcess();
     bool PromptCancel();
     void ShowResult();
@@ -81,10 +109,8 @@ protected:
     int TerminateChildProcess(const qint64 pid, const qint64 ppid);
 #endif
 
-#ifndef QT_NO_PROCESS
-//    QProcess* mProcess;
     RenderProcess* mProcess;
-#endif
+
     QAction   *resetInputAct;
     QAction   *resetOutputAct;
 
@@ -121,5 +147,7 @@ protected:
 
     Ui::RenderDialog* ui;
 };
+
+#endif // LC_DISABLE_RENDER_DIALOG
 
 #endif // RENDERDIALOG_H_
