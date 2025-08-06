@@ -55,13 +55,13 @@ lcRenderDialog::lcRenderDialog(QWidget* Parent, lcRenderDialogMode RenderDialogM
 	ui->OutputEdit->setText(lcGetActiveProject()->GetImageFileName(false));
 
 	mRenderButton = new QPushButton(tr("Render"), ui->buttonBox);
-    ui->buttonBox->addButton(mRenderButton, QDialogButtonBox::ActionRole);
+	ui->buttonBox->addButton(mRenderButton, QDialogButtonBox::ActionRole);
 
 	mSettingsButton = new QPushButton(tr("Settings..."), ui->buttonBox);
 	ui->buttonBox->addButton(mSettingsButton, QDialogButtonBox::ResetRole);
 
 	mLogButton = new QPushButton(tr("View Log..."), ui->buttonBox);
-    ui->buttonBox->addButton(mLogButton, QDialogButtonBox::ResetRole);
+	ui->buttonBox->addButton(mLogButton, QDialogButtonBox::ResetRole);
 	mLogButton->setEnabled(false);
 
 	connect(mRenderButton, &QPushButton::clicked, this, &lcRenderDialog::RenderButtonClicked);
