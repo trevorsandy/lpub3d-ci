@@ -127,7 +127,7 @@ contains(LOAD_LDV_LIBS,True) {
         }
     } else {
         BUILD_LDV_LIBS {
-            LDVLIBDIR    = $$absolute_path( $${OUT_PWD}/../ldvlib/LDVQt/LDView )
+            LDVLIBDIR    = $$clean_path( $$absolute_path( $${OUT_PWD}/../ldvlib/LDVQt/LDView ) )
             LDV3RDLIBDIR = $${LDVLIBDIR}/3rdParty
             LDV3RDLIBS   = $${VER_LDVIEW_3RD_LIBS}
         } else {
