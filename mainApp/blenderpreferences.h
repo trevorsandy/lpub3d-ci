@@ -95,7 +95,8 @@ public:
     static void saveSettings();
     static bool exportParameterFile();
     static bool settingsModified(bool update = true, QString const &module = QString());
-    static int showMessage(QString const &header,
+    static int showMessage(QWidget *parent,
+                           QString const &header,
                            QString const &title = QString(),
                            QString const &body = QString(),
                            QString const &detail = QString(),
