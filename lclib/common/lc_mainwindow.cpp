@@ -1744,7 +1744,9 @@ void lcMainWindow::ShowExportPOVRayDialog()
 	auto [Success, ErrorMessage] = lcGetActiveProject()->ExportPOVRay(QString());
 
 	if (!Success && !ErrorMessage.isEmpty())
-		QMessageBox::warning(this, tr("POV-Ray Export" ), ErrorMessage);
+/*** LPub3D Mod - set Visual Editor message ***/
+		emit gui->messageSig(LOG_ERROR, ErrorMessage);
+/*** LPub3D Mod end ***/
 }
 
 void lcMainWindow::ShowRenderDialog(lcRenderDialogMode RenderDialogMode)
