@@ -138,14 +138,14 @@ VER_POVRAY          = lpub3d_trace_cui-3.8
 }
 #   Local path
 isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-THIRD_PARTY_DIST_DIR_PATH     = $${PWD}/builds/3rdparty
+THIRD_PARTY_DIST_DIR_PATH     = $$clean_path( $${PWD}/builds/3rdparty )
 #   Default path
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
     else:msys:  DIST_DIR      = lpub3d_msys_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$absolute_path( $${PWD}/../$${DIST_DIR} )
+    THIRD_PARTY_DIST_DIR_PATH = $$clean_path( $$absolute_path( $${PWD}/../$${DIST_DIR} ) )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
         DIST_DIR_UNSPECIFIED_MSG = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
     } else {
@@ -164,7 +164,7 @@ THIRD_PARTY_DIST_DIR_PATH     = $${PWD}/builds/3rdparty
     LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
     else:win32-arm64-msvc|win32-msvc*: \
     LIB_LDVIEW  = TCFoundation.lib
-    LIB_LDVIEW_PATH = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH}
+    LIB_LDVIEW_PATH = $$clean_path( $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH} )
     !exists($${LIB_LDVIEW_PATH}) {
         CONFIG += BUILD_LDV_LIBS
         NO_LDVIEW_DIST_LIBS = True
@@ -250,7 +250,7 @@ CONFIG(debug, debug|release) {
         else:win32-arm64-msvc|win32-msvc*: \
         VER_LDVIEW_DEV = ldview
         # This line defines the path of the ldview git extract relative to this project file
-        VER_LDVIEW_DEV_REPOSITORY = $$absolute_path( $${PWD}/../$${VER_LDVIEW_DEV} )
+        VER_LDVIEW_DEV_REPOSITORY = $$clean_path( $$absolute_path( $${PWD}/../$${VER_LDVIEW_DEV} ) )
         exists($$VER_LDVIEW_DEV_REPOSITORY) {
             VER_USE_LDVIEW_DEV = True
             equals(TARGET, LPub3D): \
@@ -268,15 +268,18 @@ CONFIG(debug, debug|release) {
 
 #~~ LDVQt 3rdParty libs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-contains(LIB_ARCH, 64): LDVLIB_ARCH = /x64
-BUILD_LDV_LIBS {
-    VER_LDVIEW_3RD_LIBS = $${PWD}/ldvlib/LDVQt/LDView/lib$${LDVLIB_ARCH}
-} else:equals(VER_USE_LDVIEW_DEV,True) {
-    VER_LDVIEW_3RD_LIBS = $${VER_LDVIEW_DEV_REPOSITORY}/lib$${LDVLIB_ARCH}
-} else:win32-arm64-msvc|win32-msvc*:CONFIG(debug, debug|release) {
-    VER_LDVIEW_3RD_LIBS = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/Build/Debug$${LIB_ARCH}
+contains(LIB_ARCH, 64) {
+    win32-arm64-msvc: \
+    LDVLIB_ARCH = /ARM64
+    else: \
+    LDVLIB_ARCH = /x64
+}
+equals(VER_USE_LDVIEW_DEV,True) {
+    VER_LDVIEW_3RD_LIBS = $$clean_path( $${VER_LDVIEW_DEV_REPOSITORY}/lib$${LDVLIB_ARCH} )
+} else:USE_3RD_PARTY_DIST_DIR {
+    VER_LDVIEW_3RD_LIBS = $$clean_path( $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$$QT_ARCH )
 } else {
-    VER_LDVIEW_3RD_LIBS = $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$$QT_ARCH
+    VER_LDVIEW_3RD_LIBS = $$clean_path( ldvlib/LDVQt/LDView/lib$${LDVLIB_ARCH} )
 }
 
 #~~ LDVQt MSVC 3rdParty libs suffix ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
