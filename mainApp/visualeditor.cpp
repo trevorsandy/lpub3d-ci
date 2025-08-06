@@ -992,8 +992,8 @@ void Gui::initiaizeVisualEditor()
     connect(this,        SIGNAL(clearViewerWindowSig()),
             gMainWindow, SLOT(  NewProject()));
 
-    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&)),
-            this,          SLOT(   SetActiveModel(const QString&)));
+    connect(gMainWindow, SIGNAL(SetCurrentModelSig(const QString&)),
+            this,          SLOT(   SetCurrentModel(const QString&)));
 
     connect(this,        SIGNAL(setSelectedPiecesSig(const QVector<int>&)),
             gMainWindow, SLOT(  SetSelectedPieces(const QVector<int>&)));
@@ -2654,7 +2654,7 @@ void Gui::writeVisualEditorSettings(QSettings& Settings)
         gMainWindow->mPartSelectionWidget->SaveState(Settings);
 }
 
-void Gui::SetActiveModel(const QString &modelName)
+void Gui::SetCurrentModel(const QString &modelName)
 {
     QString const &stepKey = lcGetActiveProject()->GetStepKey();
 

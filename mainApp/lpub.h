@@ -1263,7 +1263,7 @@ public slots:
   void SetRotStepCommand();
 
   void ShowStepRotationStatus();
-  void SetActiveModel(const QString &modelName);
+  void SetCurrentModel(const QString &modelName);
   void SelectedPartLines(const QVector<TypeLine> &indexes, const PartSource source);
   void openFolderSelect(const QString &absoluteFilePath);
   void clearBuildModRange();
