@@ -1624,6 +1624,8 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                         shaReceived = QString(response_data).trimmed().split(" ", SkipEmptyParts);
                 }
                 if (!shaReceived.isEmpty()) {
+                    qDebug() << qPrintable(QString("DEBUG FILE: %1\nDEBUG SHA256 Calculated: %2\nDEBUG SHA256 Received:   %3")
+                                                   .arg(fileInfo.fileName(), shaCalculated, shaReceived.first()));
                     if (shaReceived.first() == shaCalculated) {
                         archiveFileName = fileInfo.fileName();
                         if (archiveFileName == shaReceived.last()) {
