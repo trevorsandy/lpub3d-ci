@@ -1325,7 +1325,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             // 1. get list of addons
             QStringList addonDirs = QDir(blenderAddonDir).entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
             // 2. search each addon folder for addon file __init__.py
-            for (QString const &addon : addonDirs) {
+            for (QString &addon : addonDirs) {
                 // First, check if there are files in the addon
                 QDir dir(QString("%1/%2").arg(blenderAddonDir, addon));
                 dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -1412,7 +1412,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     bool extractedAddon            = QFileInfo(addonVersionFile).isReadable();
     bool blenderAddonValidated     = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
     AddonEnc addonAction           = ADDON_DOWNLOAD;
-    QString localVersion, onlineVersion;
+    QString localVersion, onlineVersion, onlineDigest;
 
     using namespace std;
     auto versionStringCompare = [](string v1, string v2)
@@ -1445,8 +1445,10 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         QByteArray response_data = lpub->getDownloadedFile();
         gBlenderAddonPreferences->mDownloading = false;
         if (!response_data.isEmpty()) {
-            QJsonDocument json = QJsonDocument::fromJson(response_data);
-            onlineVersion = json.object()["tag_name"].toString();
+            QJsonObject jsonObj = QJsonDocument::fromJson(response_data).object();
+            onlineVersion = jsonObj["tag_name"].toString();
+            QJsonObject assetObj = jsonObj["assets"].toArray().first().toObject();
+            onlineDigest = assetObj["digest"].toString().split(":").last();
         } else {
             emit gui->messageSig(LOG_WARNING, tr("Check latest addon version failed."));
             return true; // Reload existing archive
@@ -1520,8 +1522,8 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 addonAction = ADDON_EXTRACT;
         } else if (Preferences::modeGUI) {
             if (Preferences::blenderAddonVersionCheck) {
-                if (localVersion.isEmpty())
-                    localVersion = gBlenderAddonPreferences->mAddonVersion;
+                if (localVersion.isEmpty() && !gBlenderAddonPreferences->mAddonVersion.isEmpty())
+                    localVersion = gBlenderAddonPreferences->mAddonVersion.split(" ").first();
                 QString const &title = tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR);
                 QString const &header = tr ("Detected %1 Blender LDraw addon %2. A newer version %3 exists.")
                                             .arg(VER_PRODUCTNAME_STR, localVersion, onlineVersion);
@@ -1543,7 +1545,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     }
 
     // Remove old extracted addon if exist
-    auto revoveBlenderAddonsDir = [&] (const QString oldBlenderAddonFile) {
+    auto removeBlenderAddonsDir = [&] (const QString oldBlenderAddonFile) {
         if (QFileInfo::exists(blenderAddonDir)) {
             bool result = true;
             QDir dir(blenderAddonDir);
@@ -1575,7 +1577,6 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     lpub->downloadFile(VER_BLENDER_ADDON_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
     QByteArray Buffer = lpub->getDownloadedFile();
     gBlenderAddonPreferences->mDownloading = false;
-
     if (!Buffer.isEmpty()) {
         QFileInfo const fileInfo(blenderAddonFile);
         QString const oldBlenderAddonFile = QString("%1-%2.%3").arg(fileInfo.baseName()).arg(randomFour()).arg(fileInfo.suffix());
@@ -1591,13 +1592,12 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         if (file.open(QIODevice::WriteOnly)) {
             file.write(Buffer);
             file.close();
-
             if (file.open(QIODevice::ReadOnly)) {
                 QCryptographicHash sha256Hash(QCryptographicHash::Sha256);
                 qint64 imageSize = file.size();
                 const qint64 bufferSize = Q_INT64_C(1000);
                 char buf[bufferSize];
-                int bytesRead;
+                int bytesRead = 0;
                 int readSize = qMin(imageSize, bufferSize);
                 while (readSize > 0 && (bytesRead = file.read(buf, readSize)) > 0) {
                     imageSize -= bytesRead;
@@ -1610,20 +1610,39 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 }
                 file.close();
                 QString const shaCalculated = sha256Hash.result().toHex();
-                gBlenderAddonPreferences->mDownloading = true;
-                lpub->downloadFile(VER_BLENDER_ADDON_SHA_HASH_URL, tr("Addon SHA Hash"),false/*promptRedirect*/,false/*showProgress*/);
-                gBlenderAddonPreferences->mDownloading = false;
-                QByteArray response_data = lpub->getDownloadedFile();
-
-                if (!response_data.isEmpty()) {
-                    QStringList const shaReceived = QString(response_data).trimmed().split(" ", SkipEmptyParts);
+                QStringList shaReceived;
+                if (!onlineDigest.isEmpty()) {
+                    shaReceived = QStringList() << onlineDigest << fileInfo.fileName();
+                } else {
+                    emit gui->messageSig(LOG_NOTICE, tr("Failed to receive SHA digest for Blender addon %1.")
+                                                         .arg(VER_BLENDER_ADDON_FILE));
+                    gBlenderAddonPreferences->mDownloading = true;
+                    lpub->downloadFile(VER_BLENDER_ADDON_SHA_HASH_URL, tr("Addon SHA Hash"),false/*promptRedirect*/,false/*showProgress*/);
+                    QByteArray response_data = lpub->getDownloadedFile();
+                    gBlenderAddonPreferences->mDownloading = false;
+                    if (!response_data.isEmpty())
+                        shaReceived = QString(response_data).trimmed().split(" ", SkipEmptyParts);
+                }
+                if (!shaReceived.isEmpty()) {
                     if (shaReceived.first() == shaCalculated) {
                         archiveFileName = fileInfo.fileName();
                         if (archiveFileName == shaReceived.last()) {
                             emit gui->messageSig(LOG_INFO, tr("Blender addon %1 validated - SHA<br>Calculated:%2<br>Received:%3")
                                                                .arg(archiveFileName, shaCalculated, shaReceived.first()));
                             blenderAddonValidated = true;
-                            revoveBlenderAddonsDir(oldBlenderAddonFile);
+                            removeBlenderAddonsDir(oldBlenderAddonFile);
+                            gBlenderAddonPreferences->mDownloading = true;
+                            QString const latestCommitURL = QString("%1/%2").arg(VER_BLENDER_ADDON_LATEST_COMMIT_URL, onlineVersion);
+                            lpub->downloadFile(latestCommitURL, tr("Latest Addon Commit"),false/*promptRedirect*/,false/*showProgress*/);
+                            QByteArray response_data = lpub->getDownloadedFile();
+                            gBlenderAddonPreferences->mDownloading = false;
+                            if (!response_data.isEmpty()) {
+                                QJsonObject jsonObj = QJsonDocument::fromJson(response_data).object()["object"].toObject();
+                                gBlenderAddonPreferences->mAddonCommitSHA = jsonObj["sha"].toString();
+                            } else {
+                                emit gui->messageSig(LOG_WARNING, tr("Failed to receive commit SHA for Blender addon %2.")
+                                                                      .arg(VER_BLENDER_ADDON_FILE));
+                            }
                         } else {
                             emit gui->messageSig(LOG_ERROR, tr("Failed to validate Blender addon archive name"
                                                                "<br>Downloaded:%1<br>Received:%2")
@@ -1921,7 +1940,9 @@ void BlenderPreferences::readStdOut(const QString &stdOutput, QString &errors)
         } else if (stdOutLine.contains(rxAddonVersion)) {
             // Get Addon version
             items = stdOutLine.split(":");
-            mAddonVersion = tr("v%1").arg(items.at(1).trimmed()); // 1 addon version
+            mAddonVersion = QString("v%1").arg(items.at(1).trimmed()); // 1 addon version
+            if (!mAddonCommitSHA.isEmpty())
+                mAddonVersion.append(QString(" (hash %1)").arg(mAddonCommitSHA.left(12)));
             mAddonVersionEdit->setText(mAddonVersion);
             // Set Image Render module
             mRenderActBox->setChecked(true);
