@@ -486,6 +486,7 @@ private:
 
     QString mBlenderVersion;
     QString mAddonVersion;
+    QString mAddonCommitSHA;
     bool mConfigured;
     bool mDocumentRender;
     bool mDialogCancelled;
