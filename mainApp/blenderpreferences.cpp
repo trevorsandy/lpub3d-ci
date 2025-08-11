@@ -413,6 +413,7 @@ BlenderPreferences::BlenderPreferences(
     mDocumentRender = docRender;
 
     mDialogCancelled = false;
+    mDownloading = false;
 
     QVBoxLayout *layout = new QVBoxLayout(parent);
 
@@ -977,7 +978,6 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
     if (blenderExe.isEmpty()) {
         mBlenderVersion.clear();
         mConfigured = false;
-        statusUpdate(false/*addon*/,true/*error*/);
         mAddonUpdateButton->setEnabled(mConfigured);
         mPathsBox->setEnabled(mConfigured);
         mSettingsBox->setEnabled(mConfigured);
@@ -1201,9 +1201,8 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                 if (result == PR_OK) {
                     Preferences::setBlenderVersionPreference(mBlenderVersion);
                     Preferences::setBlenderExePathPreference(blenderExe);
-                } else {
+                } else
                     return;
-                }
             } // Test Blender
 
             if (!mBlenderVersion.isEmpty() && !mImportMMActBox->isChecked() && !mImportActBox->isChecked()) {
@@ -1441,8 +1440,10 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     auto getBlenderAddonVersionMatch = [&] ()
     {
+        gBlenderAddonPreferences->mDownloading = true;
         lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray response_data = lpub->getDownloadedFile();
+        gBlenderAddonPreferences->mDownloading = false;
         if (!response_data.isEmpty()) {
             QJsonDocument json = QJsonDocument::fromJson(response_data);
             onlineVersion = json.object()["tag_name"].toString();
@@ -1570,8 +1571,10 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     // Download Blender addon
     blenderAddonValidated = false;
+    gBlenderAddonPreferences->mDownloading = true;
     lpub->downloadFile(VER_BLENDER_ADDON_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
     QByteArray Buffer = lpub->getDownloadedFile();
+    gBlenderAddonPreferences->mDownloading = false;
 
     if (!Buffer.isEmpty()) {
         QFileInfo const fileInfo(blenderAddonFile);
@@ -1607,7 +1610,9 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 }
                 file.close();
                 QString const shaCalculated = sha256Hash.result().toHex();
+                gBlenderAddonPreferences->mDownloading = true;
                 lpub->downloadFile(VER_BLENDER_ADDON_SHA_HASH_URL, tr("Addon SHA Hash"),false/*promptRedirect*/,false/*showProgress*/);
+                gBlenderAddonPreferences->mDownloading = false;
                 QByteArray response_data = lpub->getDownloadedFile();
 
                 if (!response_data.isEmpty()) {
@@ -1751,6 +1756,7 @@ void BlenderPreferences::showResult()
             mAddonVersionEdit->setText(tr("undefined"));
         message = tr("Blender version %1").arg(mBlenderVersion);
     }
+    mDownloading = false;
 
     // Close mProcess
     delete mProcess;
@@ -2047,17 +2053,19 @@ bool BlenderPreferences::promptCancel()
 
 void BlenderPreferences::update()
 {
+    if (mDownloading)
+        return;
+
 #ifndef QT_NO_PROCESS
     if (!mProcess)
         return;
 
-    if (mProcess->state() == QProcess::NotRunning)
-    {
+    if (mProcess->state() == QProcess::NotRunning) {
         emit gui->messageSig(LOG_INFO, tr("Addon install finished"));
         gBlenderAddonPreferences->showResult();
-        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 #endif
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
 void BlenderPreferences::apply(const int response)
