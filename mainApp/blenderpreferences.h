@@ -490,6 +490,7 @@ private:
     bool mDocumentRender;
     bool mDialogCancelled;
     bool mBlenderVersionFound;
+    bool mDownloading;
 };
 
 extern class BlenderPreferences *gBlenderAddonPreferences;
