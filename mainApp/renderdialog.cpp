@@ -307,6 +307,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
             }
 
             ui->RenderButton->setEnabled(true);
+            ui->RenderButton->setToolTip(tr("Import and open LDraw model in Blender"));
         } else
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
     }
@@ -1271,7 +1272,7 @@ void RenderDialog::on_InputGenerateCheck_toggled()
     bool const generateModelFile = ui->InputGenerateCheck->isChecked();
     ui->InputEdit->setEnabled(!generateModelFile);
     ui->InputBrowseButton->setEnabled(!generateModelFile);
-    if (generateModelFile && !mModelFile.isEmpty()) {
+    if (generateModelFile) {
         mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
         ui->InputEdit->setText(mModelFile);
     } else {
