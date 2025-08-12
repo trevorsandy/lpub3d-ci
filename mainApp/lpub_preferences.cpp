@@ -419,6 +419,8 @@ QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_MACOS;
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_LINUX;
 #elif defined Q_OS_WIN
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_WINDOWS;
+QString Preferences::programFiles               = qgetenv("ProgramFiles");
+QString Preferences::programFilesX86            = qgetenv("ProgramFiles(x86)");
 #endif
 
 bool    Preferences::usingDefaultLibrary        = true;
@@ -745,19 +747,19 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
 
 void Preferences::setDistribution() {
 #ifdef Q_OS_WIN
+    QString const applicationPath = QCoreApplication::applicationDirPath();
     // Windows portable distribution
-    if ((portableDistribution = QDir(QString("%1/extras").arg(QCoreApplication::applicationDirPath())).exists())) {
-
+    if ((portableDistribution = QDir(QString("%1/extras").arg(applicationPath)).exists())) {
         // Config path
-        bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
-                             QCoreApplication::applicationDirPath().contains("Program Files (x86)");
+        bool isProgramFolder = applicationPath.contains(programFiles, Qt::CaseInsensitive) ||
+                               applicationPath.contains(programFilesX86, Qt::CaseInsensitive);
         QStringList const dataPathList =
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
             QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
 #else
             QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
 #endif
-        lpubDataPath = QDir::toNativeSeparators(programFolder ? dataPathList.first() : QCoreApplication::applicationDirPath());
+        lpubDataPath = QDir::toNativeSeparators(isProgramFolder ? dataPathList.first() : QCoreApplication::applicationDirPath());
         lpub3dConfigPath = QDir::toNativeSeparators(QString("%1/config").arg(lpubDataPath));
 
         QDir configDir(lpub3dConfigPath);
@@ -783,7 +785,7 @@ void Preferences::setDistribution() {
         }
 
         // Program folder and not using settings
-        if (programFolder && !usingSettings) {             // ...installed in Windows Program Folder
+        if (isProgramFolder && !usingSettings) {             // ...installed in Windows Program Folder
 
             const QStringList arguments = Application::instance()->arguments();
             for (int i = 1; i < arguments.size(); i++) {
@@ -845,7 +847,7 @@ void Preferences::setDistribution() {
                 qInfo() << qUtf8Printable(result);
             }
 
-        } // programFolder and !usingSettings
+        } // isProgramFolder and !usingSettings
 
         // Update configDir
         if (QDir::toNativeSeparators(configDir.absolutePath()) != QDir::toNativeSeparators(lpub3dConfigPath)) {
@@ -4234,7 +4236,7 @@ void Preferences::userInterfacePreferences()
   QString const systemEditorKey("SystemEditor");
   systemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,systemEditorKey)).toString();
   QFileInfo systemEditorInfo(systemEditor);
-  usingNPP = systemEditorInfo.fileName() == QFileInfo(WINDOWS_NPP).fileName();
+  usingNPP = systemEditorInfo.fileName().endsWith(WINDOWS_NPP_EDITOR, Qt::CaseInsensitive);
   if (!systemEditorInfo.exists() || !systemEditorInfo.isFile()) {
       bool found = false;
       QString command = "which";
@@ -4244,11 +4246,10 @@ void Preferences::userInterfacePreferences()
 #elif defined Q_OS_LINUX
       arguments << LINUX_SYS_EDITOR;
 #elif defined Q_OS_WIN
-      const QString systemDrive = QProcessEnvironment::systemEnvironment().value("SYSTEMDRIVE", "C:");
-      if((found = QFileInfo::exists(systemDrive + "\\" + WINDOWS_NPP_X64))) {
-        systemEditor = systemDrive + "\\" + WINDOWS_NPP_X64;
-      } else if ((found = QFileInfo::exists(systemDrive + "\\" + WINDOWS_NPP))) {
-        systemEditor = systemDrive + "\\" + WINDOWS_NPP;
+      if((found = QFileInfo::exists(programFiles + WINDOWS_NPP_PATH))) {
+        systemEditor = programFiles + WINDOWS_NPP_PATH;
+      } else if ((found = QFileInfo::exists(programFilesX86 + WINDOWS_NPP_PATH))) {
+        systemEditor = programFilesX86 + WINDOWS_NPP_PATH;
       }
       usingNPP = found;
       if (found) {

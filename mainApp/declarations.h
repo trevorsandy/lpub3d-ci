@@ -784,7 +784,7 @@ enum ThemeColorType {
 #define SUBMODELINSTANCE_ZVALUE_DEFAULT            Z_VALUE_DEFAULT
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
 
-#define GLOBAL_META_RX                              "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
+#define GLOBAL_META_RX                         "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
 
 // registry sections
 #define DEFAULTS                               "Defaults"
@@ -898,8 +898,8 @@ enum ThemeColorType {
 #define LINUX_SYS_EDITOR                        "gedit"
 #define MACOS_SYS_EDITOR                        "textedit"
 #define WINDOWS_SYS_EDITOR                      "notepad.exe"
-#define WINDOWS_NPP                             "Program Files (x86)\\Notepad++\\notepad++.exe"
-#define WINDOWS_NPP_X64                         "Program Files\\Notepad++\\notepad++.exe"
+#define WINDOWS_NPP_EDITOR                      "notepad++.exe"
+#define WINDOWS_NPP_PATH                        "\\Notepad++\\" WINDOWS_NPP_EDITOR
 #define WINDOWS_NPP_LPUB3D_UDL_ARG              "-udl=LPUB3D"
 
 #define LIBXQUARTZ_MACOS_VERSION                "11.0"   // base 11.0
