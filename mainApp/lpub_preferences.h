@@ -285,7 +285,10 @@ class Preferences
     static QString sceneGuideColor;
     static QString currentLibrarySave;
     static QString editorFont;
-#ifdef Q_OS_MACOS
+#ifdef Q_OS_WIN
+    static QString programFiles;
+    static QString programFilesX86;
+#elif defined Q_OS_MACOS
     static QString homebrewPathPrefix;
     static QString homebrewPathInsert;
 
