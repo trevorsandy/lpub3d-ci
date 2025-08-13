@@ -111,6 +111,30 @@ static bool runElevatedProcess(const LPCWSTR ExeName, const LPCWSTR Arguments, c
 }
 #endif
 
+using namespace std;
+static int versionStringCompare(string v1, string v2)
+{   // Returns 1 if v2 is smaller, -1 if v1 is smaller, 0 if equal
+    int vnum1 = 0, vnum2 = 0;
+    for (quint32 i = 0, j = 0; (i < v1.length() || j < v2.length());) {
+        while (i < v1.length() && v1[i] != '.') {
+            vnum1 = vnum1 * 10 + (v1[i] - '0');
+            i++;
+        }
+        while (j < v2.length() && v2[j] != '.') {
+            vnum2 = vnum2 * 10 + (v2[j] - '0');
+            j++;
+        }
+        if (vnum1 > vnum2)
+            return 1;
+        if (vnum2 > vnum1)
+            return -1;
+        vnum1 = vnum2 = 0;
+        i++;
+        j++;
+    }
+    return 0;
+}
+
 BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_PATHS];
 BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_PATHS] =
 {
@@ -1278,11 +1302,21 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         arguments << "--";
 
 #ifdef Q_OS_WIN
-        if (UACPrompt)
-        {
-            result = processCommand(PR_PACKAGE);
-            if (result == PR_FAIL)
-            {
+        if (UACPrompt) {
+            if (addonUpdate) {
+                const QString addonVersion = gBlenderAddonPreferences->mAddonVersion.split(" ").first();
+                if (versionStringCompare(addonVersion.toStdString(), "v1.6.2") > 0) {
+                    result = processCommand(PR_PACKAGE);
+                } else {
+                    UACPrompt = false;
+                    result = PR_FAIL;
+                    emit gui->messageSig(LOG_ERROR, tr("Blender Addon %1 does not support Package install.<br>"
+                                                       "Download the latest Blender Addon version").arg(addonVersion));
+                }
+            } else
+                result = processCommand(PR_PACKAGE);
+
+            if (result == PR_FAIL) {
                 gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/, tr("Packages failed"));
                 return;
             }
@@ -1403,30 +1437,6 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     bool blenderAddonValidated     = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
     AddonEnc addonAction           = ADDON_DOWNLOAD;
     QString localVersion, onlineVersion, onlineDigest;
-
-    using namespace std;
-    auto versionStringCompare = [](string v1, string v2)
-    {   // Returns 1 if v2 is smaller, -1 if v1 is smaller, 0 if equal
-        int vnum1 = 0, vnum2 = 0;
-        for (quint32 i = 0, j = 0; (i < v1.length() || j < v2.length());) {
-            while (i < v1.length() && v1[i] != '.') {
-                vnum1 = vnum1 * 10 + (v1[i] - '0');
-                i++;
-            }
-            while (j < v2.length() && v2[j] != '.') {
-                vnum2 = vnum2 * 10 + (v2[j] - '0');
-                j++;
-            }
-            if (vnum1 > vnum2)
-                return 1;
-            if (vnum2 > vnum1)
-                return -1;
-            vnum1 = vnum2 = 0;
-            i++;
-            j++;
-        }
-        return 0;
-    };
 
     auto getBlenderAddonVersionMatch = [&] ()
     {
