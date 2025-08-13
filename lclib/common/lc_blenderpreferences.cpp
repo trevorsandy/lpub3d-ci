@@ -970,8 +970,11 @@ void lcBlenderPreferences::ConfigureBlenderAddon(bool TestBlender, bool AddonUpd
 #ifdef Q_OS_WIN
 			if (Action == PR_INSTALL)
 			{
+/*** LPub3D Mod - Disable lcRunElevatedProcess - requires windows.h in lc_qutils.h ***/
+/***
 				lcRunElevatedProcess(ShellProgram.toStdWString().c_str(), QString("/C %1").arg(ScriptFile.fileName()).toStdWString().c_str(), BlenderDir.toStdWString().c_str());
-
+***/
+/*** LPub3D Mod end ***/
 				mAddonVersionLabel->clear();
 
 				if (mProgressBar)
