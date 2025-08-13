@@ -846,9 +846,7 @@ void lcMainWindow::CreateToolBars()
 	mColorButton->setAutoRaise(true);
 	mColorButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	mColorButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
-/*** LPub3D Mod - add tooltip to color button ***/
-	mColorButton->setToolTip(tr("Paint Selected Parts"));
-/*** LPub3D Mod end ***/
+	mColorButton->setToolTip(tr("Change Selection Color"));
 	ColorButtonLayout->addWidget(mColorButton);
 
 	connect(mColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
@@ -2777,6 +2775,7 @@ void lcMainWindow::UpdateColor()
 /*** LPub3D Mod - add code to selected color name display ***/
 	mColorButton->setText(QString("	 %1 (%2)").arg(gColorList[mColorIndex].Name).arg(gColorList[mColorIndex].Code));
 /*** LPub3D Mod end ***/
+
 	mColorList->SetCurrentColor(mColorIndex);
 }
 
