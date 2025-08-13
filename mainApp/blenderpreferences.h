@@ -472,9 +472,6 @@ private:
     QPushButton *mAddonStdOutButton;
     QPushButton *mPathsGroupButton;
     QCheckBox   *mInstallDebugPyCheck;
-#ifdef Q_OS_WIN
-    QCheckBox   *mUACPromptCheck;
-#endif
 
     QAction      *mDefaultColourEditAction;
     QProgressBar *mProgressBar;
