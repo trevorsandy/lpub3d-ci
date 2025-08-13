@@ -79,6 +79,7 @@ static bool haveFolderWritePermissions(const QString& Path)
 
     return retval;
 }
+
 static bool runElevatedProcess(const LPCWSTR ExeName, const LPCWSTR Arguments, const LPCWSTR WorkingFolder)
 {
     SHELLEXECUTEINFO ShellExecuteInfo = {};
@@ -490,21 +491,11 @@ BlenderPreferences::BlenderPreferences(
         const bool Enabled = static_cast<Qt::CheckState>(State) == Qt::CheckState::Checked;
         Preferences::setBlenderAddonVersionCheck(Enabled);
     });
-
-    mInstallDebugPyCheck = new QCheckBox(tr("DebugPy"), blenderAddonVersionBox);
-    mInstallDebugPyCheck->setToolTip(tr("Include Python debugger module with addon install"));
-#ifndef Q_OS_WIN
-    mAddonGridLayout->addWidget(addonVersionCheck,0,0,1,3);
-    mAddonGridLayout->addWidget(mInstallDebugPyCheck,0,3,1,1);
-#else
-    mUACPromptCheck = new QCheckBox(tr("UAC Prompt"), blenderAddonVersionBox);
-    mUACPromptCheck->setChecked(!haveFolderWritePermissions(Preferences::blenderExe));
-    mUACPromptCheck->setToolTip(tr("User access control administrator prompt for admin install"));
-
     mAddonGridLayout->addWidget(addonVersionCheck,0,0,1,2);
-    mAddonGridLayout->addWidget(mUACPromptCheck,0,2,1,1);
-    mAddonGridLayout->addWidget(mInstallDebugPyCheck,0,3,1,1);
-#endif
+
+    mInstallDebugPyCheck = new QCheckBox(tr("Install DebugPy"), blenderAddonVersionBox);
+    mInstallDebugPyCheck->setToolTip(tr("Include debugger package with addon install"));
+    mAddonGridLayout->addWidget(mInstallDebugPyCheck,0,2,1,2);
 
     mAddonVersionLabel = new QLabel(blenderAddonVersionBox);
     mAddonGridLayout->addWidget(mAddonVersionLabel,1,0);
@@ -1005,8 +996,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             return;
 
 #ifdef Q_OS_WIN
-        if (!mUACPromptCheck->isChecked())
-            mUACPromptCheck->setChecked(!haveFolderWritePermissions(blenderExe));
+        bool UACPrompt = !haveFolderWritePermissions(blenderExe);
 #endif
 
         // Process command
@@ -1050,7 +1040,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                 stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
                 if (action == PR_PACKAGE)
                     scriptCommand.append(QString(" --required_packages 2> \"%1\"").arg(stdErr));
-                if (mInstallDebugPyCheck->isChecked() && (action == PR_PACKAGE || !mUACPromptCheck->isChecked()))
+                if (mInstallDebugPyCheck->isChecked() && (action == PR_PACKAGE || !UACPrompt))
                     stream << QLatin1String("SET INSTALL_DEBUGPY=1") << lpub_endl;
 #else
                 stream << QLatin1String("#!/bin/bash") << lpub_endl;
@@ -1288,7 +1278,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         arguments << "--";
 
 #ifdef Q_OS_WIN
-        if (mUACPromptCheck->isChecked())
+        if (UACPrompt)
         {
             result = processCommand(PR_PACKAGE);
             if (result == PR_FAIL)
