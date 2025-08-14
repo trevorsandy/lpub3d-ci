@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 27, 2025
+rem  Last Update: August 15, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -50,7 +50,9 @@ IF [%3] EQU [] (
     ECHO  capture version info using version.info file...
     CALL :PARSE_VERSION_INFO_FILE
   ) ELSE (
-    ECHO  capture version info using git queries...
+    IF [%2] NEQ [QuietConfiguration] (
+      ECHO  capture version info using git queries...
+	)
     CALL :GET_GIT_VERSION
   )
   IF ERRORLEVEL 1 (
@@ -101,13 +103,16 @@ IF "%LP3D_CONDA_BUILD%" EQU "True" (
 
 CD /D "%LP3D_BUILDS_DIR%"
 
-IF [%2] NEQ [NoFileUpdates] CALL :UPDATE_CONFIG_FILES
+IF [%2] NEQ [NoFileUpdates] (
+  IF [%2] NEQ [QuietConfiguration] CALL :UPDATE_CONFIG_FILES
+)
 
 IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
   ECHO   LP3D_BUILD_TYPE................[Continuous]
 ) ELSE (
   ECHO   LP3D_BUILD_TYPE................[Release]
 )
+IF [%2] EQU [QuietConfiguration] GOTO :WRITE_VERSION_INFO
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
@@ -135,18 +140,22 @@ REM ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
+
+:WRITE_VERSION_INFO
 IF [%2] NEQ [ParseVersionInfoFile] (
   IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
   ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
   IF EXIST "%LP3D_VER_INFO_FILE%" (
-    ECHO   FILE version.info..............[written to builds\utilities\version.info]
+    IF [%2] NEQ [QuietConfiguration] (
+      ECHO   FILE version.info..............[written to builds\utilities\version.info]
+    )
   ) ELSE (
     ECHO   FILE version.info..............[ERROR - file %LP3D_VER_INFO_FILE% not found]
   )
 )
 GOTO :END
 
-: UPDATE_CONFIG_FILES
+:UPDATE_CONFIG_FILES
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\RELEASE_NOTES.html"
 ECHO  update RELEASE_NOTES.html build version [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%

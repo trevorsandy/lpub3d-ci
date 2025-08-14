@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 04, 2025
+rem  Last Update: August 15, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -194,6 +194,23 @@ ECHO - Build Command: builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND%
 rem reset ErrorLevel to 0 from 1 for unsuccessful FIND
 (CALL )
 
+rem if we are cross compiling an ARM64 build
+IF /I "%LP3D_BUILD_ARCH%" NEQ "arm64" (GOTO :AUTO_BUILD)
+IF /I "%PROCESSOR_ARCHITECTURE%" NEQ "amd64" (GOTO :AUTO_BUILD)
+SET LP3D_QMAKE_VER=0
+SET LP3D_QMAKE_RUN=1
+SET LP3D_QMAKE_CLEAN=1
+SET LP3D_ARM64_QMAKE=1
+SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% %LP3D_INSTALL% %LP3D_CHECK%
+CALL builds\windows\AutoBuild.bat %LP3D_BUILD_ARCH% %LP3D_3RD_RENDERS% || GOTO :ERROR_END
+
+:ARM64_BUILD
+IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
+SET LP3D_QMAKE_RUN=0
+SET LP3D_QMAKE_CLEAN=0
+SET LP3D_ARM64_BUILD=1
+
+:AUTO_BUILD
 CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :ERROR_END
 IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
 

@@ -129,7 +129,7 @@ ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
 IF /I "%PLATFORM_ARCH%" == "ARM64" (
    ECHO   PROCESSOR_ARCH.................[%PROCESSOR_ARCHITECTURE%]
   IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
-    ECHO   COMPILATION....................[ARM64 on AMD64 host]
+    ECHO   COMPILATION....................[Cross compile ARM64 build on AMD64 host]
   )
 )
 
