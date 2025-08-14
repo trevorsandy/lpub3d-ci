@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: July 30, 2025
+# Last Update: August 15, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -141,26 +141,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner-os: [ windows-2025, windows-11-arm ]
+        runner-os: [ windows-2025 ]
         platform: [ AMD, ARM ]
-        exclude:
-          - runner-os: windows-2025
-            platform: ARM
-          - runner-os: windows-11-arm
-            platform: AMD
         include:
           - runner-os: windows-2025
-          - runner-os: windows-11-arm
           - platform: AMD
             name: 2025 AMD
             host: ''
             arch: _64
             build: -all_amd
             toolset-32bit: v142
+            # Windows ARM64 cross compiled on AMD64 to enable Qt6OpenGL and Qt6OpenGLWidgets
+            # See - [QtOpenGL missing for WoA packages](https://bugreports.qt.io/browse/QTBUG-136551)
           - platform: ARM
-            name: 11 ARM
-            host: _arm64
-            arch: _arm64
+            name: ARM CROSS
+            host: ''
+            arch: _arm64_cross_compiled
             build: arm64
             toolset-32bit: v143
     steps:

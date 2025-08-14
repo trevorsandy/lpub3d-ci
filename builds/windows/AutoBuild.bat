@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 05, 2025
+rem  Last Update: August 15, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -425,6 +425,10 @@ GOTO :COMMAND_ERROR
 :BUILD
 rem Display build settings
 ECHO.
+IF "%LP3D_ARM64_QMAKE%" EQU "1" (
+  ECHO   AUTO_BUILD_MODE................[QMake Makefile]
+  GOTO :ARM64_BUILD
+)
 IF "%BUILD_WORKER%" EQU "True" (
   ECHO   BUILD_HOST.....................[%BUILD_WORKER_HOST%]
   ECHO   BUILD_WORKER_IMAGE.............[%BUILD_WORKER_IMAGE%]
@@ -460,7 +464,10 @@ ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
 IF /I "%PLATFORM_ARCH%" == "ARM64" (
   ECHO   PROCESSOR_ARCH.................[%PROCESSOR_ARCHITECTURE%]
   IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
-    ECHO   COMPILATION....................[ARM64 on AMD64 host]
+    ECHO   COMPILATION....................[Cross compile ARM64 build on AMD64 host]
+  )
+  IF "%LP3D_ARM64_BUILD%" == "1" (
+    ECHO   AUTO_BUILD_MODE................[NMake Build]
   )
 )
 
@@ -471,9 +478,14 @@ IF /I "%RENDERERS_ONLY%"=="1" (
 )
 
 rem set application version variables
+:ARM64_BUILD
 SET UPDATE_CONFIG_ARGS=%ABS_WD%\mainApp
 IF "%LP3D_CONDA_BUILD%" EQU "True" (
   SET UPDATE_CONFIG_ARGS=%UPDATE_CONFIG_ARGS% ParseVersionInfoFile
+) ELSE (
+  IF "%LP3D_ARM64_QMAKE%" EQU "1" (
+    SET UPDATE_CONFIG_ARGS=%UPDATE_CONFIG_ARGS% QuietConfiguration
+  )
 )
 ECHO.
 CALL builds\utilities\update-config-files.bat %UPDATE_CONFIG_ARGS%
@@ -591,19 +603,28 @@ CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
 ECHO.
 ECHO -Building %PACKAGE% %PLATFORM_ARCH% platform, %CONFIGURATION% configuration...
+ECHO.
 rem Build 3rd party build from source
-IF %BUILD_THIRD%==1 ECHO.
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 (CALL builds\utilities\CreateRenderers.bat %PLATFORM_ARCH%)
 IF NOT ERRORLEVEL 0 (GOTO :ERROR_END)
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
-IF "%QMAKE_VER%" EQU "" SET QMAKE_VER=1
-IF "%QMAKE_VER%" EQU "1" (qmake -v & ECHO.)
+IF "%LP3D_QMAKE_VER%" EQU "" SET LP3D_QMAKE_VER=1
+IF "%LP3D_QMAKE_VER%" EQU "1" (qmake -v & ECHO.)
 rem Configure makefiles
-IF "%QMAKE_RUN%" EQU "" SET QMAKE_RUN=1
-IF "%QMAKE_RUN%" EQU "1" (qmake %LPUB3D_CONFIG_ARGS%)
+IF "%LP3D_QMAKE_RUN%" EQU "" SET LP3D_QMAKE_RUN=1
+IF "%LP3D_QMAKE_RUN%" EQU "1" (
+  qmake %LPUB3D_CONFIG_ARGS%
+  IF "%LP3D_ARM64_QMAKE%" == "1" (
+    SET LP3D_ARM64_QMAKE=0
+    ECHO.
+    GOTO :ARM64_BUILD
+  ) ELSE (
+    GOTO :END
+  )
+)
 rem perform build
 nmake.exe %LPUB3D_MAKE_ARGS%
 rem Check build status
@@ -770,82 +791,86 @@ EXIT /b
 
 :CONFIGURE_BUILD_ENV
 CD /D %ABS_WD%
-ECHO.
-ECHO -Configure LPub3D %PLATFORM_ARCH% build environment...
-ECHO.
-ECHO -Cleanup any previous LPub3D qmake config files...
-IF "%QMAKE_CLEAN%" EQU "" SET QMAKE_CLEAN=1
-IF "%QMAKE_CLEAN%" EQU "1" (FOR %%I IN (
-  ".qmake.stash"
-  "Makefile*"
-  "lclib\Makefile*"
-  "ldrawini\Makefile*"
-  "ldvlib\LDVQt\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\gl2ps\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\lib3ds\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\libjpeg\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\libpng\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\minizip\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\tinyxml\Makefile*"
-  "ldvlib\LDVQt\LDView\3rdParty\zlib\Makefile*"
-  "ldvlib\LDVQt\LDView\LDExporter\Makefile*"
-  "ldvlib\LDVQt\LDView\LDLib\Makefile*"
-  "ldvlib\LDVQt\LDView\LDLoader\Makefile*"
-  "ldvlib\LDVQt\LDView\TCFoundation\Makefile*"
-  "ldvlib\LDVQt\LDView\TRE\Makefile*"
-  "mainApp\Makefile*"
-  "quazip\Makefile*"
-  "waitingspinner\Makefile*"
-) DO IF EXIST "%%~I" (ECHO   Clean %%~I & DEL /S /Q "%%~I" >NUL 2>&1))
 IF %PLATFORM_ARCH%==x86 (SET _AR=32) ELSE (SET _AR=64)
+IF "%LP3D_QMAKE_CLEAN%" EQU "" SET LP3D_QMAKE_CLEAN=1
+IF "%LP3D_QMAKE_CLEAN%" EQU "1" (
+  ECHO.
+  ECHO -Configure LPub3D %PLATFORM_ARCH% build environment...
+  ECHO.
+  ECHO -Cleanup any previous LPub3D qmake config files...
+  FOR %%I IN (
+    ".qmake.stash"
+    "Makefile*"
+    "lclib\Makefile*"
+    "ldrawini\Makefile*"
+    "ldvlib\LDVQt\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\gl2ps\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\lib3ds\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\libjpeg\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\libpng\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\minizip\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\tinyxml\Makefile*"
+    "ldvlib\LDVQt\LDView\3rdParty\zlib\Makefile*"
+    "ldvlib\LDVQt\LDView\LDExporter\Makefile*"
+    "ldvlib\LDVQt\LDView\LDLib\Makefile*"
+    "ldvlib\LDVQt\LDView\LDLoader\Makefile*"
+    "ldvlib\LDVQt\LDView\TCFoundation\Makefile*"
+    "ldvlib\LDVQt\LDView\TRE\Makefile*"
+    "mainApp\Makefile*"
+    "quazip\Makefile*"
+    "waitingspinner\Makefile*"
+  ) DO IF EXIST "%%~I" (ECHO   Clean %%~I & DEL /S /Q "%%~I" >NUL 2>&1)
+  ECHO.
+  ECHO -Cleanup any previous LPub3D %_AR%bit build folders...
+  FOR %%I IN (
+    "lclib\%_AR%bit_%CONFIGURATION%"
+    "ldrawini\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\gl2ps\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\lib3ds\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\libjpeg\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\libpng\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\minizip\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\tinyxml\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\3rdParty\zlib\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\LDExporter\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\LDLib\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\LDLoader\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\TCFoundation\%_AR%bit_%CONFIGURATION%"
+    "ldvlib\LDVQt\LDView\TRE\%_AR%bit_%CONFIGURATION%"
+    "mainApp\%_AR%bit_%CONFIGURATION%"
+    "quazip\%_AR%bit_%CONFIGURATION%"
+    "waitingspinner\%_AR%bit_%CONFIGURATION%"
+  ) DO IF EXIST "%%~I" (ECHO   Clean %%~I & RD /S /Q "%%~I" >NUL 2>&1)
+)
 ECHO.
-ECHO -Cleanup any previous LPub3D %_AR%bit build folders...
-IF "%QMAKE_CLEAN%" EQU "1" (FOR %%I IN (
-  "lclib\%_AR%bit_%CONFIGURATION%"
-  "ldrawini\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\gl2ps\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\lib3ds\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\libjpeg\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\libpng\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\minizip\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\tinyxml\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\3rdParty\zlib\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\LDExporter\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\LDLib\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\LDLoader\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\TCFoundation\%_AR%bit_%CONFIGURATION%"
-  "ldvlib\LDVQt\LDView\TRE\%_AR%bit_%CONFIGURATION%"
-  "mainApp\%_AR%bit_%CONFIGURATION%"
-  "quazip\%_AR%bit_%CONFIGURATION%"
-  "waitingspinner\%_AR%bit_%CONFIGURATION%"
-) DO IF EXIST "%%~I" (ECHO   Clean %%~I & RD /S /Q "%%~I" >NUL 2>&1))
-ECHO.
-IF %CHECK% EQU 1 (
-REM DEBUG============
-  IF %PLATFORM_ARCH% EQU x86_64 (
-    IF "%BUILD_WORKER%" EQU "True" (
-      IF "%LP3D_CONDA_BUILD%" EQU "True" (
-        ECHO   LP3D_BUILD_CHECK...............[Yes]
+IF "%LP3D_ARM64_QMAKE%" NEQ "1" (
+  IF %CHECK% EQU 1 (
+    IF %PLATFORM_ARCH% EQU x86_64 (
+      IF "%BUILD_WORKER%" EQU "True" (
+        IF "%LP3D_CONDA_BUILD%" EQU "True" (
+          ECHO   LP3D_BUILD_CHECK...............[Yes]
+        ) ELSE (
+          ECHO   -Disable Build Check for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
+          ECHO.
+          ECHO   LP3D_BUILD_CHECK...............[No]
+        )
       ) ELSE (
-        ECHO   -Disable Build Check for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
-        ECHO.
-        ECHO   LP3D_BUILD_CHECK...............[No]
+        ECHO   LP3D_BUILD_CHECK...............[Yes]
       )
     ) ELSE (
       ECHO   LP3D_BUILD_CHECK...............[Yes]
     )
   ) ELSE (
-    ECHO   LP3D_BUILD_CHECK...............[Yes]
+    ECHO   LP3D_BUILD_CHECK...............[No]
   )
-REM DEBUG============
-) ELSE (
-  ECHO   LP3D_BUILD_CHECK...............[No]
 )
 
 SET "LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release"
 SET LPUB3D_MAKE_ARGS=-c -f Makefile
-ECHO   LPUB3D_MAKE_ARGS...............[%LPUB3D_MAKE_ARGS%]
+IF "%LP3D_ARM64_BUILD%" NEQ "1" (
+  ECHO   LPUB3D_MAKE_ARGS...............[%LPUB3D_MAKE_ARGS%]
+)
 IF "%BUILD_WORKER%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=%CONFIG_CI%
 )
@@ -877,7 +902,9 @@ IF %PLATFORM_ARCH% EQU ARM64 (
   SET LP3D_VCVARS=vcvarsamd64_arm64.bat
   SET LPUB3D_CONFIG_ARGS=-config %CONFIGURATION% %LPUB3D_CONFIG_ARGS%
 )
-ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
+IF "%LP3D_ARM64_BUILD%" NEQ "1" (
+  ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
+)
 ECHO.
 IF %PLATFORM_ARCH% EQU x86 (
   IF EXIST "%LP3D_VCVARSALL_DIR%\vcvars32.bat" (
@@ -906,23 +933,22 @@ IF %PLATFORM_ARCH% EQU x86 (
     SET "LP3D_QT_MSVC_PATH=%LP3D_QT64_MSVC%"
   )
 )
+
 SET PATH_PREPENDED=True
 CALL "%LP3D_VCVARSALL_BAT%" %LP3D_VCVARSALL_VER%
 ECHO.
-IF "%LP3D_QTENV_BAT%" NEQ "" (
-  CALL "%LP3D_QTENV_BAT%"
-  ECHO(   PATH_PREPEND............["%PATH%"])
-) ELSE (
-  IF "%LP3D_QT_MSVC_PATH%" EQU "" (
-    GOTO :COMPILER_SETTINGS
-  )
-)
-IF "%QTDIR%" EQU "" (FOR %%I IN ("%LP3D_QT_MSVC_PATH%") DO SET QTDIR=%%~dpI)
-IF "%QTDIR:~-1%" EQU "\" (SET QTDIR=%QTDIR:~0,-1%)
+IF "%LP3D_QTENV_BAT%" EQU "" (GOTO :ADD_QT_MSVC_PATH)
+CALL "%LP3D_QTENV_BAT%"
+ECHO(   PATH_QTENV_PREPEND......[%PATH%])
+GOTO :COMPILER_SETTINGS
+
+:ADD_QT_MSVC_PATH
+IF "%LP3D_QT_MSVC_PATH%" EQU "" (GOTO :COMPILER_SETTINGS)
 SET "PATH=%LP3D_QT_MSVC_PATH%;%PATH%"
-ECHO(   PATH_PREPEND............[%PATH%])
+ECHO(   PATH_QTMSVC_PREPEND.....[%PATH%])
 
 :COMPILER_SETTINGS
+IF "%LP3D_ARM64_QMAKE%" NEQ "1" (EXIT /b)
 rem Display MSVC Compiler settings
 ECHO.
 ECHO -Display _MSC_VER %LP3D_MSC_VER% compiler settings
