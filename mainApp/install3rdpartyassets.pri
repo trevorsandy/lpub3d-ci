@@ -24,6 +24,8 @@ install3rdexe {
         CONFIG                  += ldglite_install
 
         message("~~~ $${LPUB3D} 1 OF 3 $$upper($${VER_LDGLITE}) RENDERER INSTALLED ~~~")
+    } else:BUILD_LDV_LIBS {
+        message("~~~ $${LPUB3D} 1 OF 3 $$upper($${VER_LDVIEW}) RENDERER BUILT FROM SOURCE ~~~")
     } else {
         message("~~~ NOTICE 1 OF 3 $$upper($${VER_LDGLITE}) RENDERER NOT FOUND ~~~")
     }
@@ -38,6 +40,8 @@ install3rdexe {
         CONFIG                  += ldview_install
 
         message("~~~ $${LPUB3D} 2 OF 3 $$upper($${VER_LDVIEW}) RENDERER INSTALLED ~~~")
+    } else:BUILD_LDV_LIBS {
+        message("~~~ $${LPUB3D} 2 OF 3 $$upper($${VER_LDVIEW}) RENDERER BUILT FROM SOURCE ~~~")
     } else {
         message("~~~ NOTICE 2 OF 3 $$upper($${VER_LDVIEW}) RENDERER NOT FOUND ~~~")
     }
@@ -52,6 +56,8 @@ install3rdexe {
         CONFIG                  += raytracer_install
 
         message("~~~ $${LPUB3D} 3 OF 3 $$upper($${VER_POVRAY}) RENDERER INSTALLED ~~~")
+    } else:BUILD_LDV_LIBS {
+        message("~~~ $${LPUB3D} 3 OF 3 $$upper($${VER_POVRAY}) RENDERER BUILT FROM SOURCE ~~~")
     } else {
         message("~~~ NOTICE 3 OF 3 $$upper($${VER_POVRAY}) RENDERER NOT FOUND ~~~")
     }

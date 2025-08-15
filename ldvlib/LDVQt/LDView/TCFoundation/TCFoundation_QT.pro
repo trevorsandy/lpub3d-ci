@@ -6,7 +6,7 @@ include(TCFoundation.pri)
 
 MISC_HEADER = $$shell_path( $$absolute_path( $$_PRO_FILE_PWD_/../../LDVMisc.h ) )
 UTILS_DIR = $$shell_path( $$absolute_path( $$_PRO_FILE_PWD_/../Utilities ) )
-if (mingw:ide_qtcreator)|win32-msvc*: \
+if (mingw:ide_qtcreator)|win32-arm64-msvc|win32-msvc*: \
 LINK_CMD = cd $${UTILS_DIR} & if not exist \"misc.h\" \( mklink misc.h $${MISC_HEADER} \)
 else: \
 LINK_CMD = cd $${UTILS_DIR}; if ! test -f misc.h; then ln -s $${MISC_HEADER} misc.h; fi
