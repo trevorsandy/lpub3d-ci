@@ -107,12 +107,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 /*** LPub3D Mod - Build mod object selected colour ***/
 	connect(ui->BMObjectSelectedColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
 /*** LPub3D Mod end ***/
-	connect(ui->categoriesTree, SIGNAL(itemSelectionChanged()), this, SLOT(updateParts()));
+	connect(ui->categoriesTree, &QTreeWidget::itemSelectionChanged, this, &lcQPreferencesDialog::updateParts);
 	ui->shortcutEdit->installEventFilter(this);
-	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
-	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
-	connect(ui->HighContrastButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
-	connect(ui->AutomateEdgeColorButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
+	connect(ui->commandList, &QTreeWidget::currentItemChanged, this, &lcQPreferencesDialog::commandChanged);
+	connect(ui->mouseTree, &QTreeWidget::currentItemChanged, this, &lcQPreferencesDialog::MouseTreeItemChanged);
+	connect(ui->HighContrastButton, &QToolButton::clicked, this, &lcQPreferencesDialog::AutomateEdgeColor);
+	connect(ui->AutomateEdgeColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::AutomateEdgeColor);
 /*** LPub3D Mod - Reset fade/highlight default colours ***/
 	connect(ui->ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 	connect(ui->ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
