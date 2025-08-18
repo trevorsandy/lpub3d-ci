@@ -11,6 +11,7 @@ QString lcFormatValueLocalized(float Value);
 float lcParseValueLocalized(const QString& Value);
 
 #ifdef Q_OS_WIN
+
 int lcTerminateChildProcess(QWidget* Parent, const qint64 Pid, const qint64 Ppid);
 /*** LPub3D Mod - Disable lcRunElevatedProcess - requires windows.h in lc_qutils.h ***/
 /***
@@ -29,12 +30,12 @@ public:
 	bool eventFilter(QObject* Object, QEvent* Event) override;
 
 private slots:
-	void sectionResized(int LogicalIndex, int OldSize, int NewSize);
+	void SectionResized(int LogicalIndex, int OldSize, int NewSize);
 
 private:
-	const int m_columnToStretch;
-	bool m_interactiveResize;
-	int m_stretchWidth;
+	const int mColumnToStretch;
+	bool mInteractiveResize;
+	int mStretchWidth;
 };
 
 class lcSmallLineEdit : public QLineEdit

@@ -238,7 +238,7 @@
 // ~~~~~~ LeoCAD Version ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LC_VERSION_TEXT                 "23.03"
-#define VER_LC_VERSION_SHA                  "f5d4fac"
+#define VER_LC_VERSION_SHA                  "b91acb1"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
