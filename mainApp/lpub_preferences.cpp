@@ -6778,6 +6778,14 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
     prefSetRx.setPattern("^(\\bNative POV\\b|\\bNative STL\\b|\\bNative 3DS\\b|\\bNative Part List\\b|\\bPOV-Ray Render\\b)");
     prefSetRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
+    if (!confFile.exists()) {
+        logError() << qUtf8Printable(QObject::tr("Update LDV ExtraSearchDirs failed - %1.")
+                                     .arg(iniFile.isEmpty()
+                                          ? QObject::tr("no ini file specified")
+                                          : QObject::tr("%1 does not exist").arg(confFile.fileName())));
+        return false;
+    }
+
     logInfo() << qUtf8Printable(QObject::tr("Updating LDV ExtraSearchDirs in %1").arg(iniFile));
 
     auto processContent = [&](const QString &line )
@@ -6912,7 +6920,7 @@ bool Preferences::extractLDrawLib() {
 
     message = QMessageBox::tr("Extracting %1 LDraw library, please wait...").arg(validLDrawLibrary);
 
-    emit Application::instance()->splashMsgSig(QObject::tr("10% - ").arg(message));
+    emit Application::instance()->splashMsgSig(QObject::tr("10% - %1").arg(message));
 
     if (!modeGUI) {
         fprintf(stdout,"%s\n",qUtf8Printable(message));
