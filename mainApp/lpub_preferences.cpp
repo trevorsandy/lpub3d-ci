@@ -6776,6 +6776,12 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
     static QRegularExpression prefSetRx("^(Native POV|Native STL|Native 3DS|Native Part List|POV-Ray Render)", QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionMatch match;
 
+    if (!confFile.exists()) {
+        QString insert = iniFile.isEmpty() ? QObject::tr("no ini file specified") : confFile.fileName();
+        logError() << qUtf8Printable(QObject::tr("Update LDV ExtraSearchDirs failed - %1 does not exist.").arg(insert));
+        return false;
+    }
+
     logInfo() << qUtf8Printable(QObject::tr("Updating LDV ExtraSearchDirs in %1").arg(iniFile));
 
     auto processContent = [&](const QString &line )
@@ -6910,7 +6916,7 @@ bool Preferences::extractLDrawLib() {
 
     message = QMessageBox::tr("Extracting %1 LDraw library, please wait...").arg(validLDrawLibrary);
 
-    emit Application::instance()->splashMsgSig(QObject::tr("10% - ").arg(message));
+    emit Application::instance()->splashMsgSig(QObject::tr("10% - %1").arg(message));
 
     if (!modeGUI) {
         fprintf(stdout,"%s\n",qUtf8Printable(message));
