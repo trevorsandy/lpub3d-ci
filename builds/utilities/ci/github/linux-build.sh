@@ -371,6 +371,8 @@ RUN dnf install -y git wget unzip rsync which rpmlint ccache dnf-plugins-core rp
 RUN dnf install -y glib2-devel libfdt-devel pixman-devel zlib-devel bzip2 ninja-build python3
 RUN dnf install -y xorg-x11-server-Xvfb desktop-file-utils
 RUN dnf builddep -y /lpub3d-ci.spec
+# Permissions workaround for 'sudo: PAM account management error' due to non-readable shadow file
+RUN chmod 0640 /etc/shadow
 RUN dnf install -y sudo \\
 pbEOF
         ;;
