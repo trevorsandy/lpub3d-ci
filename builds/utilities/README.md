@@ -230,9 +230,9 @@ CALL .\%APP_INSTANCE%\builds\utilities\ci\github\windows-build.bat > %APP_INSTAN
 
 **Note:** Be sure to set C as a Shared Drive available to your containers  
 **Note:** Compose instructions below are quite likely the same for Docker on Linux or macOS  
-**Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux][dockerarch], [Ubuntu][dockerubuntu] and [Fedora 36][dockerfedora] are available.
+**Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux][dockerarch], [Ubuntu][dockerubuntu] and [Fedora 41][dockerfedora] are available.
 **Note:** [WSL - Windows Subsystem for Linux][wsl] is not essential (but highly recommended) and can be substitued with Git Bash.  
-**Note:** You can substitue [Fedora 36][dockerfedora] with [archlinux][dockerarch] or [Ubuntu][dockerubuntu] in the steps below.
+**Note:** You can substitue [Fedora 41][dockerfedora] with [archlinux][dockerarch] or [Ubuntu][dockerubuntu] in the steps below.
 
 **Steps:**
 - [ ] 1. make and enter build directories  

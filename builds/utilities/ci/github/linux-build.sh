@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 16, 2025
+# Last Update: August 20, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -89,7 +89,7 @@ case "${LP3D_BASE}" in
     "ubuntu")
         [ "${LP3D_APPIMAGE}" = "true" ] && LP3D_DIST="focal" || LP3D_DIST="noble" ;;
     "fedora")
-        LP3D_DIST="36" ;;
+        LP3D_DIST="41" ;;
     "archlinux")
         LP3D_DIST="latest" ;;
     *)
@@ -173,7 +173,7 @@ esac
 # resolve docker image options
 docker_tag=
 docker_image=
-docker_dist="${LP3D_DIST:-jammy}"
+docker_dist="${LP3D_DIST:-noble}"
 docker_arch="${LP3D_ARCH:-amd64}"
 docker_base="${LP3D_BASE:-ubuntu}"
 docker_platform="--platform linux/${LP3D_ARCH}"

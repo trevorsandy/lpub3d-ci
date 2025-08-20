@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: August 17, 2025
+# Last Update: August 20, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -30,19 +30,19 @@ jobs:
             NAME: Ubuntu 24.04 AMD
             OS: ubuntu-24.04
           - BUILD: fedora-amd64
-            NAME: Fedora 36 AMD
+            NAME: Fedora 41 AMD
             OS: ubuntu-24.04
           - BUILD: archlinux-amd64
             NAME: Arch Linux AMD
             OS: ubuntu-24.04
           - BUILD: ubuntu-amd64-appimage
-            NAME: Ubuntu 20.04 AMD
+            NAME: Ubuntu 20.04 AppImage AMD
             OS: ubuntu-24.04
           - BUILD: ubuntu-arm64
             NAME: Ubuntu 24.04 ARM
             OS: ubuntu-24.04-arm
           - BUILD: ubuntu-arm64-appimage
-            NAME: Ubuntu 20.04 ARM
+            NAME: Ubuntu 20.04 AppImage ARM
             OS: ubuntu-24.04-arm
     steps:
       - name: Checkout
