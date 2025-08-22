@@ -6777,8 +6777,10 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
     QRegularExpressionMatch match;
 
     if (!confFile.exists()) {
-        QString insert = iniFile.isEmpty() ? QObject::tr("no ini file specified") : confFile.fileName();
-        logError() << qUtf8Printable(QObject::tr("Update LDV ExtraSearchDirs failed - %1 does not exist.").arg(insert));
+        logError() << qUtf8Printable(QObject::tr("Update LDV ExtraSearchDirs failed - %1.")
+                                     .arg(iniFile.isEmpty()
+                                          ? QObject::tr("no ini file specified")
+                                          : QObject::tr("%1 does not exist").arg(confFile.fileName())));
         return false;
     }
 
