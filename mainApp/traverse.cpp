@@ -530,8 +530,9 @@ int Gui::drawPage(
         static QRegularExpression multiStepRx(" MULTI_STEP BEGIN$");
         bool stepGroup = fin ? multiStep : Gui::stepContains(where, multiStepRx);
         QString const message = tr("%1 %2 draw-page for page %3, step %4, model '%5'%6")
-                .arg(fin ? tr("Processed") : tr("Processing")).arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"),
-                     Gui::displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
+                .arg(fin ? tr("Processed") : tr("Processing"))
+                .arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"))
+                .arg(Gui::displayPageNum).arg(opts.stepNum).arg(elidedModelName, fin ? "" : "...");
         emit gui->messageSig(LOG_STATUS, message);
         emit gui->messageSig(fin ? LOG_TRACE : LOG_INFO, message);
     };
@@ -542,9 +543,11 @@ int Gui::drawPage(
             pageRenderMessage += tr("using %1 ").arg(rendererNames[Render::getRenderer()]);
             QString renderAttributes;
             if (Render::getRenderer() == RENDERER_LDVIEW) {
-                if (Preferences::enableLDViewSingleCall)
+                if (Preferences::enableLDViewSingleCall) {
                     renderAttributes += tr("Single Call");
-                if (Preferences::enableLDViewSnaphsotList)
+                    if (Preferences::enableLDViewSnaphsotList)
+                        renderAttributes += tr(", Snapshot List");
+                } else if (Preferences::enableLDViewSnaphsotList)
                     renderAttributes += tr(", Snapshot List");
             }
             if (!renderAttributes.isEmpty())
