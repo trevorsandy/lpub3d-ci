@@ -1817,6 +1817,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
     int subfileIndx          = -1;
     int lineIndx             = -1;
+    int smLineNum            = 0;
     bool alreadyLoaded       = false;
     bool subfileFound        = false;
     bool isDatafile          = false;
@@ -1919,8 +1920,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         if (smLine.isEmpty())
             continue;
+
         bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
         bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
+
+        smLineNum = (sof ? 0 : smLineNum++);
 
         // load LDCad groups
         if (!ldcadGroupsLoaded) {
@@ -1978,7 +1982,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         if ((sof || !hdrFILENotFound) && !modelHeaderFinished) {
             if (sof) {
                 hdrFILENotFound = false;        /* we have an LDraw submodel */
-                hdrDescLine = lineIndx + 1;     /* next line should be description */
+                hdrDescLine = smLineNum + 1;    /* next line should be description */
                 if (!externalFile)
                     modelHeaderFinished = false;/* set model header flag */
                 // One time populate top level file name
@@ -1989,7 +1993,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         smLine = QString("0 FILE %1").arg(topFile);
                         const QString message = QObject::tr("MPD %1 '%2' header 'FILE %3' was added by %4 (file: %5, line: %6).")
                                                             .arg(fileType(), fileInfo.fileName(), topFile, VER_PRODUCTNAME_STR,
-                                                                 fileInfo.fileName()).arg(lineIndx + 1);
+                                                                 fileInfo.fileName()).arg(smLineNum + 1);
                         const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(fileInfo.fileName(), message);
                         loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
                     }
@@ -1997,7 +2001,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     topFileNotFound = false;
                 }
             } else {
-                if (hdrDescNotFound && lineIndx == hdrDescLine) {
+                if (hdrDescNotFound && smLineNum == hdrDescLine) {
                     if (smLine.contains(_fileRegExp[DES_RX]) && ! isHeader(smLine)) {
                         _description = _fileRegExp[DES_RX].match(smLine).captured(1);
                         if (topLevelModel)
@@ -2016,7 +2020,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         hdrNameKey = true;
                     }
                     if (!hdrNameNotFound || hdrNameKey)
-                        hdrNameLine = lineIndx;
+                        hdrNameLine = smLineNum;
                 }
 
                 if (hdrAuthorNotFound && !hdrAuthorKey) {
@@ -2030,7 +2034,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         hdrAuthorKey = true;
                     }
                     if (!hdrAuthorNotFound || hdrAuthorKey)
-                        hdrAuthorLine = lineIndx;
+                        hdrAuthorLine = smLineNum;
                 }
 
                 // One time populate model category (not used)
@@ -6173,7 +6177,7 @@ LDrawFile::LDrawFile()
         << QRegularExpression("^0\\s+AUTHOR:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)    // AUT_RX - Author Header
         << QRegularExpression("^0\\s+AUTHOR:\\s*$", QRegularExpression::CaseInsensitiveOption)        // AUK_RX - Author Header Key
         << QRegularExpression("^0\\s+!?CATEGORY\\s+(.*)$", QRegularExpression::CaseInsensitiveOption) // CAT_RX - Category Header
-        << QRegularExpression("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$", QRegularExpression::CaseInsensitiveOption)                          // INC_RX - Include File
+        << QRegularExpression("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$", QRegularExpression::CaseInsensitiveOption)                              // INC_RX - Include File
         << QRegularExpression("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$", QRegularExpression::CaseInsensitiveOption) // LDG_RX - LDCad Group
         << QRegularExpression("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
         << QRegularExpression("^[0-5]\\s+!?(?:LPUB)*\\s?(?:STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|ROTATION|\\d)[^\n]*")               // EOH_RX - End of Header
