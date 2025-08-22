@@ -664,7 +664,7 @@ int Render::executeLDViewProcess(QStringList &arguments, QStringList &environmen
   if ( ! ldview.waitForFinished(rendererTimeout())) {
       if (ldview.exitCode() != 0 || 1) {
           const QString result(ldview.readAll());
-          emit gui->messageSig(LOG_ERROR,QObject::tr("LDView %1 %2 render failed with code %2 %3")
+          emit gui->messageSig(LOG_ERROR,QObject::tr("LDView %1 %2 render failed with code %3 %4")
                                .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
                                .arg(render)
                                .arg(ldview.exitCode())
