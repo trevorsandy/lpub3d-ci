@@ -3521,7 +3521,7 @@ void LDrawFile::loadStatusEntry(const int messageType,
 
   bool alreadyLoaded = false, emitStatusMessage = true;
 
-  if (_itemsLoaded.contains(type)) {
+  if (_itemsLoaded.contains(type) && Preferences::modeGUI) {
     emitStatusMessage = false;
     if (msgType < MPD_SUBMODEL_LOAD_MSG)
       alreadyLoaded = true;
