@@ -1302,7 +1302,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         arguments << "--";
 
 #ifdef Q_OS_WIN
-        if (UACPrompt) {
+        if (UACPrompt && !moduleChange) {
             if (addonUpdate) {
                 const QString addonVersion = gBlenderAddonPreferences->mAddonVersion.split(" ").first();
                 if (versionStringCompare(addonVersion.toStdString(), "v1.6.2") > 0) {
