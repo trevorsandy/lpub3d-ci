@@ -189,6 +189,7 @@ int Render::rotatePartsRD(
     FloatPairMeta cameraAngles;
     cameraAngles.setValues(latitude,longitude);
 
+    // use RotateParts #2
     return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(), cameraAngles, DT_LDV_FUNCTION, imageType);
 }
 
@@ -212,7 +213,7 @@ int Render::rotateParts(
 
   QStringList rotatedParts = parts;
 
-  // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
+  // use RotateParts #3 - do not apply camera angles for native renderer
   if (!nativeRenderer || (nativeRenderer && !singleSubfile))
       rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
 
@@ -235,7 +236,7 @@ int Render::rotateParts(
       if (Preferences::buildModEnabled && imageType == Options::SMI) {
           rc = mergeSubmodelContent(rotatedParts);
       } else {
-          // rotate single subfile before merging content
+          // use RotateParts #3 - rotate single subfile before merging content
           rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType,singleSubfile);
           if (singleSubfile)
               rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer, singleSubfile);
@@ -269,7 +270,7 @@ int Render::rotateParts(
   return 0;
 }
 
-// RotateParts #3 - 5 parms - updates the parts list
+// RotateParts #3 - 6 parms - updates the parts list
 int Render::rotateParts(
         const QString &addLine,
         RotStepMeta   &rotStep,
@@ -365,6 +366,8 @@ int Render::rotateParts(
       // on singleSubfile only rotate first subfile
       if (singleSubfile && line == QLatin1String("0 NOFILE"))
         break;
+      else
+        continue;
     } else if (tokens[0] == "1") {
       v[0][0] = tokens[2].toFloat();
       v[0][1] = tokens[3].toFloat();

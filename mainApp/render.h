@@ -106,7 +106,7 @@ public:
                                      const QString &modelName,
                                      int imageType,
                                      int displayType = 0);       /*DT_DEFAULT*/
-  static int            rotatePartsRD(const QStringList &parts,   // RotateParts #1 - 5 parms - used exclusively by RenderDialog
+  static int            rotatePartsRD(const QStringList &parts,  // RotateParts #1 - 5 parms - used exclusively by RenderDialog
                                      QString &ldrName,
                                      const QString &rs,
                                      QString &ca,
@@ -119,7 +119,7 @@ public:
                                      FloatPairMeta &ca,
                                      int option,
                                      int imageType);
-  static int             rotateParts(const QString &addLine,     // RotateParts #3 - 5 parms
+  static int             rotateParts(const QString &addLine,     // RotateParts #3 - 6 parms
                                      RotStepMeta &rotStep,
                                      QStringList &parts,
                                      FloatPairMeta &ca,
