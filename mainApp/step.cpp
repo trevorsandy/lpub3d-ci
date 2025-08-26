@@ -525,7 +525,7 @@ int Step::createCsi(
                   renderer->createNativeModelFile(viewerParts,doFadeSteps,doHighlightStep,Options::CSI,singleSubfile);
 
               QStringList futureParts = viewerParts;
-              // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
+              // RotateParts #3 - 6 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
               if (renderer->rotateParts(
                           addLine,
                           rotStepMeta,
