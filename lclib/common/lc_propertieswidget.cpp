@@ -14,7 +14,6 @@
 #include "lc_partselectionpopup.h"
 
 /*** LPub3D Mod - Camera Globe ***/
-#include "lpub_qtcompat.h"
 #include "project.h"
 /*** LPub3D Mod end ***/
 
@@ -1785,6 +1784,14 @@ void lcPropertiesWidget::SetLight(const std::vector<lcObject*>& Selection, lcObj
 	UpdateStringList(lcObjectPropertyId::LightFormat);
 
 	const bool IsBlenderLightFormat = (LightFormat == lcLightFormat::BlenderLight);
+	const bool IsPOVRayLightFormat = (LightFormat == lcLightFormat::POVRayLight);
+
+	SetCategoryVisible(CategoryIndex::LightBlender, IsBlenderLightFormat);
+	SetCategoryVisible(CategoryIndex::LightPOVRay, IsPOVRayLightFormat);
+
+	SetPropertyVisible(lcObjectPropertyId::LightBlenderPower, IsBlenderLightFormat);
+	SetPropertyVisible(lcObjectPropertyId::LightPOVRayPower, IsPOVRayLightFormat);
+
 	SetPropertyVisible(lcObjectPropertyId::LightBlenderCutoffDistance, IsBlenderLightFormat);
 	SetPropertyVisible(lcObjectPropertyId::LightBlenderDiffuse, IsBlenderLightFormat);
 	SetPropertyVisible(lcObjectPropertyId::LightBlenderSpecular, IsBlenderLightFormat);
@@ -1795,36 +1802,41 @@ void lcPropertiesWidget::SetLight(const std::vector<lcObject*>& Selection, lcObj
 		UpdateInteger(lcObjectPropertyId::LightBlenderDiffuse);
 		UpdateInteger(lcObjectPropertyId::LightBlenderSpecular);
 	}
-/*** LPub3D Mod end ***/
 
-	UpdateFloat(lcObjectPropertyId::LightPOVRayFadeDistance, POVRayFadeDistance);
-	UpdateFloat(lcObjectPropertyId::LightPOVRayFadePower, POVRayFadePower);
+	if (IsPOVRayLightFormat)
+	{
+		UpdateFloat(lcObjectPropertyId::LightPOVRayFadeDistance, POVRayFadeDistance);
+		UpdateFloat(lcObjectPropertyId::LightPOVRayFadePower, POVRayFadePower);
+	}
 
 	const bool IsPointLight = (LightType == lcLightType::Point);
-	SetPropertyVisible(lcObjectPropertyId::LightPointBlenderRadius, IsPointLight);
+	SetPropertyVisible(lcObjectPropertyId::LightPointBlenderRadius, IsPointLight && IsBlenderLightFormat);
 
-	if (IsPointLight)
+	if (IsPointLight && IsBlenderLightFormat)
 		UpdateFloat(lcObjectPropertyId::LightPointBlenderRadius, PointBlenderRadius);
 
 	const bool IsSpotLight = (LightType == lcLightType::Spot);
-	SetPropertyVisible(lcObjectPropertyId::LightSpotBlenderRadius, IsSpotLight);
 	SetPropertyVisible(lcObjectPropertyId::LightSpotConeAngle, IsSpotLight);
 	SetPropertyVisible(lcObjectPropertyId::LightSpotPenumbraAngle, IsSpotLight);
-	SetPropertyVisible(lcObjectPropertyId::LightSpotPOVRayTightness, IsSpotLight);
+	SetPropertyVisible(lcObjectPropertyId::LightSpotBlenderRadius, IsSpotLight && IsBlenderLightFormat);
+	SetPropertyVisible(lcObjectPropertyId::LightSpotPOVRayTightness, IsSpotLight && IsPOVRayLightFormat);
 
 	if (IsSpotLight)
 	{
-		UpdateFloat(lcObjectPropertyId::LightSpotBlenderRadius, SpotBlenderRadius);
 		UpdateFloat(lcObjectPropertyId::LightSpotConeAngle, SpotConeAngle);
 		UpdateFloat(lcObjectPropertyId::LightSpotPenumbraAngle, SpotPenumbraAngle);
-		UpdateFloat(lcObjectPropertyId::LightSpotPOVRayTightness, SpotTightness);
+		if (IsBlenderLightFormat)
+			UpdateFloat(lcObjectPropertyId::LightSpotBlenderRadius, SpotBlenderRadius);
+		if (IsPOVRayLightFormat)
+			UpdateFloat(lcObjectPropertyId::LightSpotPOVRayTightness, SpotTightness);
 	}
 
 	const bool IsDirectionalLight = (LightType == lcLightType::Directional);
-	SetPropertyVisible(lcObjectPropertyId::LightDirectionalBlenderAngle, IsDirectionalLight);
+	SetPropertyVisible(lcObjectPropertyId::LightDirectionalBlenderAngle, IsDirectionalLight && IsBlenderLightFormat);
 
-	if (IsDirectionalLight)
+	if (IsDirectionalLight && IsBlenderLightFormat)
 		UpdateFloat(lcObjectPropertyId::LightDirectionalBlenderAngle, DirectionalBlenderAngle);
+/*** LPub3D Mod end ***/
 
 	const bool IsAreaLight = (LightType == lcLightType::Area);
 	SetPropertyVisible(lcObjectPropertyId::LightAreaShape, IsAreaLight);
@@ -1833,16 +1845,23 @@ void lcPropertiesWidget::SetLight(const std::vector<lcObject*>& Selection, lcObj
 	SetPropertyVisible(lcObjectPropertyId::LightAreaSizeX, IsAreaLight);
 	SetPropertyVisible(lcObjectPropertyId::LightAreaSizeY, IsAreaLight && !IsSquare);
 
-	SetPropertyVisible(lcObjectPropertyId::LightAreaPOVRayGridX, IsAreaLight);
-	SetPropertyVisible(lcObjectPropertyId::LightAreaPOVRayGridY, IsAreaLight);
+/*** LPub3D Mod - LPUB meta properties ***/
+	SetPropertyVisible(lcObjectPropertyId::LightAreaPOVRayGridX, IsAreaLight && IsPOVRayLightFormat);
+	SetPropertyVisible(lcObjectPropertyId::LightAreaPOVRayGridY, IsAreaLight && IsPOVRayLightFormat);
+/*** LPub3D Mod end ***/
 
 	if (IsAreaLight)
 	{
 		UpdateStringList(lcObjectPropertyId::LightAreaShape);
 		UpdateFloat(lcObjectPropertyId::LightAreaSizeX, AreaSizeX);
 		UpdateFloat(lcObjectPropertyId::LightAreaSizeY, AreaSizeY);
-		UpdateInteger(lcObjectPropertyId::LightAreaPOVRayGridX);
-		UpdateInteger(lcObjectPropertyId::LightAreaPOVRayGridY);
+/*** LPub3D Mod - LPUB meta properties ***/
+		if (IsPOVRayLightFormat)
+		{
+			UpdateInteger(lcObjectPropertyId::LightAreaPOVRayGridX);
+			UpdateInteger(lcObjectPropertyId::LightAreaPOVRayGridY);
+		}
+/*** LPub3D Mod end ***/
 	}
 
 	UpdateFloat(lcObjectPropertyId::ObjectPositionX, Position[0]);
