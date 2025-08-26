@@ -1565,7 +1565,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
          cameraAngles.setValues(latitude,longitude);
 
         bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
-        // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
+        // RotateParts #3 - 6 parms, do not apply camera angles for native renderer
         if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
             emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate type: %1.").arg(typeName));
 
