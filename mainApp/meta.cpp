@@ -617,7 +617,9 @@ Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 }
 QString StringMeta::format(bool local, bool global)
 {
-  QString foo = delim + _value[pushed] + delim;
+  QString foo = _nodelim
+    ? _value[pushed]
+    : delim + _value[pushed] + delim;
   return LeafMeta::format(local,global,foo);
 }
 
@@ -651,7 +653,9 @@ QString StringListMeta::format(bool local, bool global)
 {
   QString foo;
   for (int i = 0; i < _value[pushed].size() ; i++) {
-    foo += delim + _value[pushed][i] + delim + " ";
+    foo += _nodelim
+      ? _value[pushed][i] + " "
+      : delim + _value[pushed][i] + delim + " ";
   }
   return LeafMeta::format(local,global,foo);
 }
