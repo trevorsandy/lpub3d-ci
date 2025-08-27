@@ -815,6 +815,7 @@ public:
 class StringMeta : public RcMeta
 {
 protected:
+  bool _nodelim;
   QString _value[2];
   QString delim;
 
@@ -823,8 +824,9 @@ public:
   {
     return _value[pushed];
   }
-  void setValue(QString value)
+  void setValue(QString value, bool nodelim = false)
   {
+    _nodelim = nodelim;
     _value[pushed] = value;
   }
   StringMeta() : RcMeta()
@@ -837,6 +839,7 @@ public:
   {
     if (pushed)
     {
+      _nodelim = false;
       _value[1].clear();
       pushed = 0;
     }
@@ -850,6 +853,7 @@ public:
 class StringListMeta : public RcMeta
 {
 public:
+  bool _nodelim;
   QStringList _value[2];
   QString     delim;
   QString value(int i)
@@ -868,20 +872,23 @@ public:
   {
     return _value[pushed];
   }
-  void setValue(QString value)
+  void setValue(QString value, bool nodelim = false)
   {
+    _nodelim = nodelim;
     _value[pushed] << value;
   }
-  void setValue(int pos, QString value)
+  void setValue(int pos, QString value, bool nodelim = false)
   {
+    _nodelim = nodelim;
     if ((_value[pushed].size() >= pos) && (pos >= 0))
     {
       _value[pushed].removeAt(pos);
       _value[pushed].insert(pos, value);
     }
   }
-  void setValue(QStringList value)
+  void setValue(QStringList value, bool nodelim = false)
   {
+    _nodelim = nodelim;
     _value[pushed] = value;
   }
   StringListMeta() : RcMeta()
@@ -895,6 +902,7 @@ public:
     if (pushed)
     {
       _value[1].clear();
+      _nodelim = false;
       pushed = 0;
     }
   }
