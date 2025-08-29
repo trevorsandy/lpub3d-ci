@@ -892,99 +892,29 @@ public:
 class LightData
 {
 public:
-  LightData() :
-      type(typeNames[Point]),
-      areaShape("SQUARE"),
-      specular(1.0f),
-      spotConeAngle(80.0f),
-      cutoffDistance(40.0f),
-      povrayPower(1.0f),
-      blenderPower(10.0f),
-      diffuse(1.0f),
-      sunAngle(11.4f),
-      pointRadius(0.25f),
-      spotRadius(0.25f),
-      spotBlend(0.15f),
-      fadePower(0.0f),
-      fadeDistance(0.0f),
-      spotTightness(0.0f),
-      spotPenumbraAngle(0.0f),
-      areaGridX(2), // 10
-      areaGridY(2), // 10
-      areaWidth(0.0f),
-      areaHeight(0.0f),
-      areaSizeX(250.0f), // 0.25f
-      areaSizeY(250.0f), // 0.25f
-      areaSize(250.0f),  // 0.25f
-      latitude(32.0f),
-      longitude(45.0f),
-      povrayLight(false),
-      shadowless(false),
-      defaultLight(true)
-  {
-    if (typeMap.size() == 0)
-    {
-       typeMap[typeNames[Point]] = Point;
-       typeMap[typeNames[Area]] = Area;
-       typeMap[typeNames[Sun]] = Sun;
-       typeMap[typeNames[Spot]] = Spot;
-    }
-    color[0] = 1.0f;
-    color[1] = 1.0f;
-    color[2] = 1.0f;
-    target[X] = 0.0f;
-    target[Y] = 0.0f;
-    target[Z] = 0.0f;
-    position[X] = 0.0f;
-    position[Y] = 0.0f;
-    position[Z] = 0.0f;
-    rotation1[X] = 0.0f;
-    rotation1[Y] = 0.0f;
-    rotation1[Z] = 0.0f;
-    rotation2[X] = 0.0f;
-    rotation2[Y] = 0.0f;
-    rotation2[Z] = 0.0f;
-    rotation3[X] = 0.0f;
-    rotation3[Y] = 0.0f;
-    rotation3[Z] = 0.0f;
-  }
+  enum TypeEnc { Point, Area, Sun, Spot, NumTypes };
+  enum AreaShapeEnc { Rectangle, Square, Disk, Ellipse, NumAreaShapes };
 
-  QString getPOVLightMacroString() const
-  {
-    if (povrayLight)
-    {
-       const int typeEnc = typeMap[type];
-       const float spotFalloff = spotConeAngle / 2.0f;
-       const bool isCircle = areaShape.toUpper() == QLatin1String("DISK") || areaShape.toUpper() == QLatin1String("CIRCLE");
-       return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 %15 %16 %17")
-           /*01 LightType    */ .arg(typeEnc)
-           /*02 Shadowless   */ .arg(shadowless)
-           /*03 Latitude     */ .arg(double(latitude),1)
-           /*04 Longitude    */ .arg(double(longitude),1)
-           /*05 LightTarget  */ .arg(QString("<%1,%2,%3>").arg(double(target[0]),1).arg(double(target[1]),1).arg(double(target[2]),1))
-           /*06 LightColor   */ .arg(QString("<%1,%2,%3>").arg(color[0]).arg(color[1]).arg(color[2]))
-           /*07 Power        */ .arg(double(povrayPower),1)
-           /*08 FadeDistance */ .arg(double(fadeDistance),1)
-           /*09 FadePower    */ .arg(double(fadePower),1)
-           /*10 SpotRadius   */ .arg(double(typeEnc == Spot ? spotFalloff - spotPenumbraAngle : 0),1)
-           /*11 SpotFalloff  */ .arg(double(spotFalloff),1)
-           /*12 SpotTightness*/ .arg(double(spotTightness),1)
-           /*13 AreaCircle   */ .arg(isCircle ? "1" : "0")
-           /*14 AreaWidth    */ .arg(double(areaWidth),1)
-           /*15 AreaHeight   */ .arg(double(areaHeight),1)
-           /*16 AreaGrid.x   */ .arg(int(areaGridX))
-           /*17 AreaGrid.y   */ .arg(int(areaGridY));
-    }
-    return QString();
-  }
+  QString typeNames[NumTypes] = {
+    QLatin1String("POINT"),
+    QLatin1String("AREA"),
+    QLatin1String("SUN"),
+    QLatin1String("SPOT")
+  };
+  QString areaShapeNames[NumAreaShapes] = {
+    QLatin1String("RECTANGLE"),
+    QLatin1String("SQUARE"),
+    QLatin1String("DISK"),
+    QLatin1String("ELLIPSE")
+  };
 
   QHash<QString, int>typeMap;
-  enum TypeEnc { Point, Area, Sun, Spot, NumTypes };
-  QString typeNames[NumTypes] = { "POINT", "AREA", "SUN", "SPOT" };
+  QHash<QString, int>areaShapeMap;
 
-  QString name;              // QString   mName;
-  QString type;              // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  QString name;              // QString   mName; (NAME mName written on TYPE line)
   QString areaShape;         // QString   mAreaShape;
+  QString type;              // QString   mLightType string value;
+  int     typeEnc;           // int       mLightType integer value;
 
   float   specular;          // float     mBlenderSpecular;
   float   spotConeAngle;     // float     mSpotConeAngle;
@@ -1024,6 +954,72 @@ public:
   bool    povrayLight;       // bool      mPOVRayLight
   bool    shadowless;        // bool      mShadowless
   bool    defaultLight;
+
+  LightData() :
+    name(""),
+    areaShape(areaShapeNames[LightData::Square]),
+    type(typeNames[LightData::Point]),
+    typeEnc(typeMap[type]),
+    specular(1.0f),
+    spotConeAngle(80.0f),
+    cutoffDistance(40.0f),
+    povrayPower(1.0f),
+    blenderPower(10.0f),
+    diffuse(1.0f),
+    sunAngle(11.4f),
+    pointRadius(0.25f),
+    spotRadius(0.25f),
+    spotBlend(0.15f),
+    fadePower(0.0f),
+    fadeDistance(0.0f),
+    spotTightness(0.0f),
+    spotPenumbraAngle(0.0f),
+    areaGridX(2), // 10
+    areaGridY(2), // 10
+    areaWidth(0.0f),
+    areaHeight(0.0f),
+    areaSizeX(250.0f), // 0.25f
+    areaSizeY(250.0f), // 0.25f
+    areaSize(250.0f),  // 0.25f
+    latitude(32.0f),
+    longitude(45.0f),
+    povrayLight(false),
+    shadowless(false),
+    defaultLight(true)
+  {
+    if (typeMap.size() == 0)
+    {
+      typeMap[typeNames[LightData::Point]] = LightData::Point;
+      typeMap[typeNames[LightData::Area]] = LightData::Area;
+      typeMap[typeNames[LightData::Sun]] = LightData::Sun;
+      typeMap[typeNames[LightData::Spot]] = LightData::Spot;
+    }
+    if (areaShapeMap.size() == 0)
+    {
+      areaShapeMap[areaShapeNames[LightData::Rectangle]] = LightData::Rectangle;
+      areaShapeMap[areaShapeNames[LightData::Square]] = LightData::Square;
+      areaShapeMap[areaShapeNames[LightData::Disk]] = LightData::Disk;
+      areaShapeMap[areaShapeNames[LightData::Ellipse]] = LightData::Ellipse;
+    }
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
+    target[X] = 0.0f;
+    target[Y] = 0.0f;
+    target[Z] = 0.0f;
+    position[X] = 0.0f;
+    position[Y] = 0.0f;
+    position[Z] = 0.0f;
+    rotation1[X] = 0.0f;
+    rotation1[Y] = 0.0f;
+    rotation1[Z] = 0.0f;
+    rotation2[X] = 0.0f;
+    rotation2[Y] = 0.0f;
+    rotation2[Z] = 0.0f;
+    rotation3[X] = 0.0f;
+    rotation3[Y] = 0.0f;
+    rotation3[Z] = 0.0f;
+  }
 };
 
 /*********************************************
