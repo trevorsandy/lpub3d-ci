@@ -3768,9 +3768,10 @@ public:
 class LightMeta : public BranchMeta
 {
 public:
-  StringMeta  name;              // QString   mName;
-  StringMeta  type;              // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  StringMeta  name;              // QString   mName; (NAME mName written on TYPE line)
   StringMeta  areaShape;         // QString   mAreaShape;
+  StringMeta  type;              // QString   mLightType string value;
+  IntMeta     typeEnc;           // int       mLightType;
 
   FloatMeta   specular;          // float     mBlenderSpecular;
   FloatMeta   spotConeAngle;     // float     mSpotConeAngle;
@@ -3802,124 +3803,26 @@ public:
   Vector33Meta rotation;         // lcVector33 mRotation
 
   RcMeta      _povrayLight;
-  bool        povrayLight;       // bool      mPOVRayLight
+  BoolMeta    povrayLight;       // bool      mPOVRayLight
   RcMeta      _shadowless;
-  bool        shadowless;        // bool      mShadowless
+  BoolMeta    shadowless;        // bool      mShadowless
 
-  float       latitude;          // float Calculated
-  float       longitude;         // float Calculated
+  FloatMeta   latitude;          // float Calculated
+  FloatMeta   longitude;         // float Calculated
 
-  LightData value()
-  {
-    LightData               value;
-    value.name              = name.value();
-    value.type              = type.value();
-    value.areaShape         = areaShape.value();
+  LightData value();
 
-    value.specular          = specular.value();
-    value.spotConeAngle     = spotConeAngle.value();
-    value.cutoffDistance    = cutoffDistance.value();
-    value.povrayPower       = povrayPower.value();
-    value.blenderPower      = blenderPower.value();
-    value.diffuse           = diffuse.value();
-
-    value.sunAngle          = sunAngle.value();
-    value.pointRadius       = pointRadius.value();
-    value.spotRadius        = spotRadius.value();
-    value.areaSizeX         = areaSizeX.value();
-    value.areaSizeY         = areaSizeY.value();
-    value.areaSize          = areaSize.value();
-    value.spotBlend         = spotBlend.value();
-    value.fadePower         = fadePower.value();
-    value.fadeDistance      = fadeDistance.value();
-    value.spotTightness     = spotTightness.value();
-    value.spotPenumbraAngle = spotPenumbraAngle.value();
-
-    value.areaGridX         = areaGridX.value();
-    value.areaGridY         = areaGridY.value();
-
-    value.color[X]          = color.x();
-    value.color[Y]          = color.y();
-    value.color[Z]          = color.z();
-
-    value.target[X]         = target.x();
-    value.target[Y]         = target.y();
-    value.target[Z]         = target.z();
-
-    value.position[X]       = position.x();
-    value.position[Y]       = position.y();
-    value.position[Z]       = position.z();
-
-    value.rotation1[X]      = rotation.x1();
-    value.rotation1[Y]      = rotation.y1();
-    value.rotation1[Z]      = rotation.z1();
-    value.rotation2[X]      = rotation.x2();
-    value.rotation2[Y]      = rotation.y2();
-    value.rotation2[Z]      = rotation.z2();
-    value.rotation3[X]      = rotation.x3();
-    value.rotation3[Y]      = rotation.y3();
-    value.rotation3[Z]      = rotation.z3();
-
-    setLatLong();
-
-    value.latitude          = latitude;
-    value.longitude         = longitude;
-
-    value.povrayLight       = povrayLight;
-    value.shadowless        = shadowless;
-    value.defaultLight      = name.value().isEmpty();
-
-    return value;
-  }
-
-  void setValue(LightData &value)
-  {
-    name             .setValue(value.name);
-    type             .setValue(value.type);
-    areaShape        .setValue(value.areaShape);
-
-    specular         .setValue(value.specular);
-    spotConeAngle    .setValue(value.spotConeAngle);
-    cutoffDistance   .setValue(value.cutoffDistance);
-    povrayPower      .setValue(value.povrayPower);
-    blenderPower     .setValue(value.blenderPower);
-    diffuse          .setValue(value.diffuse);
-
-    sunAngle         .setValue(value.sunAngle);
-    pointRadius      .setValue(value.pointRadius);
-    spotRadius       .setValue(value.spotRadius);
-    areaSizeX        .setValue(value.areaSizeX);
-    areaSizeY        .setValue(value.areaSizeY);
-    areaSize         .setValue(value.areaSize);
-    spotBlend        .setValue(value.spotBlend);
-    fadePower        .setValue(value.fadePower);
-    fadeDistance     .setValue(value.fadeDistance);
-    spotTightness    .setValue(value.spotTightness);
-    spotPenumbraAngle.setValue(value.spotPenumbraAngle);
-
-    areaGridX        .setValue(value.areaGridX);
-    areaGridY        .setValue(value.areaGridY);
-
-    color            .setValues(value.color[X],value.color[Y],value.color[Z]);
-    target           .setValues(value.target[X],value.target[Y],value.target[Z]);
-    position         .setValues(value.position[X],value.position[Y],value.position[Z]);
-    rotation         .setValues(value.rotation1[X],value.rotation2[X],value.rotation3[X],
-                                value.rotation1[Y],value.rotation2[Y],value.rotation3[Y],
-                                value.rotation1[Z],value.rotation2[Z],value.rotation3[Z]);
-
-    povrayLight = value.povrayLight;
-    shadowless  = value.shadowless;
-
-    setLatLong();
-  }
+  void setValue(LightData &value);
 
   void reset()
   {
-    LightData values;
-    setValue(values);
+    LightData value;
+    setValue(value);
   }
 
   void setLatLong();
+
+  QString getPOVLightString();
 
   LightMeta();
   virtual void init(BranchMeta *parent, QString name);

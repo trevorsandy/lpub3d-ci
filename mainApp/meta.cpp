@@ -6629,80 +6629,164 @@ void ResolutionMeta::metaKeywords(QStringList &out, QString preamble)
 
 LightMeta::LightMeta() : BranchMeta()
 {
-  color.setValues(1.0f,1.0f,1.0f);
-
   specular.setFormats(9,1,"######9.9");
   specular.setRange(0.0f,9999.0f);
-  specular.setValue(1.0f);
 
   spotConeAngle.setFormats(9,1,"######9.9");
   spotConeAngle.setRange(0.0f,FLT_MAX);
-  spotConeAngle.setValue(80.0f);
 
   cutoffDistance.setFormats(9,1,"######9.9");
   cutoffDistance.setRange(0.0f,FLT_MAX);
-  cutoffDistance.setValue(40.0f);
 
   povrayPower.setFormats(9,1,"######9.9");
   povrayPower.setRange(0.0f,FLT_MAX);
-  povrayPower.setValue(1.0f);
 
   blenderPower.setFormats(9,1,"######9.9");
   blenderPower.setRange(0.0f,FLT_MAX);
-  blenderPower.setValue(10.0f);
 
   diffuse.setFormats(4,2,"9.99");
   diffuse.setRange(0.0f,FLT_MAX);
-  diffuse.setValue(1.0f);
 
   sunAngle.setFormats(5,1,"##9.9");
   sunAngle.setRange(0.0f,180.0f);
-  sunAngle.setValue(11.4f);
 
   pointRadius.setFormats(9,1,"######9.9");
   pointRadius.setRange(0.0f,FLT_MAX);
-  pointRadius.setValue(0.25f);
 
   spotRadius.setFormats(9,1,"######9.9");
   spotRadius.setRange(0.0f,FLT_MAX);
-  spotRadius.setValue(0.25f);
 
   areaSizeX.setFormats(9,1,"######9.9");
   areaSizeX.setRange(0.0f,FLT_MAX);
-  areaSizeX.setValue(250.0f);
 
   areaSizeY.setFormats(9,1,"######9.9");
   areaSizeY.setRange(0.0f,FLT_MAX);
-  areaSizeY.setValue(250.0f);
 
   areaSize.setFormats(9,1,"######9.9");
   areaSize.setRange(0.0f,FLT_MAX);
-  areaSize.setValue(250.0f);
 
   spotBlend.setFormats(4,2,"9.99");
   spotBlend.setRange(0.0f,FLT_MAX);
-  spotBlend.setValue(0.15f);
 
   fadePower.setFormats(4,2,"9.99");
   fadePower.setRange(0.0f,FLT_MAX);
-  fadePower.setValue(0.0f);
 
   fadeDistance.setFormats(4,2,"9.99");
   fadeDistance.setRange(0.0f,FLT_MAX);
-  fadeDistance.setValue(0.0f);
 
   spotTightness.setFormats(4,2,"9.99");
   spotTightness.setRange(0.0f,FLT_MAX);
-  spotTightness.setValue(0.0f);
 
   areaGridX.setRange(2,10000);
   areaGridY.setRange(2,10000);
 
-  povrayLight = false;
-  shadowless  = false;
+  LightData value;
+  setValue(value);
+}
 
-  type.setValue("POINT");
-  areaShape.setValue("SQUARE");
+LightData LightMeta::value()
+{
+  LightData               value;
+  value.name              = name.value();
+  value.areaShape         = areaShape.value();
+  value.type              = type.value();
+  value.typeEnc           = typeEnc.value();
+
+  value.specular          = specular.value();
+  value.spotConeAngle     = spotConeAngle.value();
+  value.cutoffDistance    = cutoffDistance.value();
+  value.povrayPower       = povrayPower.value();
+  value.blenderPower      = blenderPower.value();
+  value.diffuse           = diffuse.value();
+
+  value.sunAngle          = sunAngle.value();
+  value.pointRadius       = pointRadius.value();
+  value.spotRadius        = spotRadius.value();
+  value.areaSizeX         = areaSizeX.value();
+  value.areaSizeY         = areaSizeY.value();
+  value.areaSize          = areaSize.value();
+  value.spotBlend         = spotBlend.value();
+  value.fadePower         = fadePower.value();
+  value.fadeDistance      = fadeDistance.value();
+  value.spotTightness     = spotTightness.value();
+  value.spotPenumbraAngle = spotPenumbraAngle.value();
+
+  value.areaGridX         = areaGridX.value();
+  value.areaGridY         = areaGridY.value();
+
+  value.color[X]          = color.x();
+  value.color[Y]          = color.y();
+  value.color[Z]          = color.z();
+
+  value.target[X]         = target.x();
+  value.target[Y]         = target.y();
+  value.target[Z]         = target.z();
+
+  value.position[X]       = position.x();
+  value.position[Y]       = position.y();
+  value.position[Z]       = position.z();
+
+  value.rotation1[X]      = rotation.x1();
+  value.rotation1[Y]      = rotation.y1();
+  value.rotation1[Z]      = rotation.z1();
+  value.rotation2[X]      = rotation.x2();
+  value.rotation2[Y]      = rotation.y2();
+  value.rotation2[Z]      = rotation.z2();
+  value.rotation3[X]      = rotation.x3();
+  value.rotation3[Y]      = rotation.y3();
+  value.rotation3[Z]      = rotation.z3();
+
+  value.povrayLight       = povrayLight.value();
+  value.shadowless        = shadowless.value();
+  value.defaultLight      = name.value().isEmpty();
+
+  setLatLong();
+
+  value.latitude          = latitude.value();
+  value.longitude         = longitude.value();
+
+  return value;
+}
+
+void LightMeta::setValue(LightData &value)
+{
+  name             .setValue(value.name);
+  type             .setValue(value.type);
+  areaShape        .setValue(value.areaShape);
+
+  specular         .setValue(value.specular);
+  spotConeAngle    .setValue(value.spotConeAngle);
+  cutoffDistance   .setValue(value.cutoffDistance);
+  povrayPower      .setValue(value.povrayPower);
+  blenderPower     .setValue(value.blenderPower);
+  diffuse          .setValue(value.diffuse);
+
+  sunAngle         .setValue(value.sunAngle);
+  pointRadius      .setValue(value.pointRadius);
+  spotRadius       .setValue(value.spotRadius);
+  areaSizeX        .setValue(value.areaSizeX);
+  areaSizeY        .setValue(value.areaSizeY);
+  areaSize         .setValue(value.areaSize);
+  spotBlend        .setValue(value.spotBlend);
+  fadePower        .setValue(value.fadePower);
+  fadeDistance     .setValue(value.fadeDistance);
+  spotTightness    .setValue(value.spotTightness);
+  spotPenumbraAngle.setValue(value.spotPenumbraAngle);
+
+  areaGridX        .setValue(value.areaGridX);
+  areaGridY        .setValue(value.areaGridY);
+
+  color            .setValues(value.color[X],value.color[Y],value.color[Z]);
+  target           .setValues(value.target[X],value.target[Y],value.target[Z]);
+  position         .setValues(value.position[X],value.position[Y],value.position[Z]);
+  rotation         .setValues(value.rotation1[X],value.rotation2[X],value.rotation3[X],
+                              value.rotation1[Y],value.rotation2[Y],value.rotation3[Y],
+                              value.rotation1[Z],value.rotation2[Z],value.rotation3[Z]);
+
+  povrayLight      .setValue(value.povrayLight);
+  shadowless       .setValue(value.shadowless);
+
+  setLatLong();
 }
 
 void LightMeta::setLatLong()
@@ -6715,13 +6799,46 @@ void LightMeta::setLatLong()
   lcVector3 frontVector(lightPosition - lightTarget);
 
   frontVector.Normalize();
-  latitude = acos(lcDot(-frontVector, axisZ)) * LC_RTOD - 90.0f;
+  latitude.setValue(acos(lcDot(-frontVector, axisZ)) * LC_RTOD - 90.0f);
 
   const lcVector3 axisXY = -lcNormalize(lcVector3(frontVector.x, frontVector.y, 0.0f));
-  longitude = acos(lcDot(axisXY, axisY)) * LC_RTOD;
+  longitude.setValue(acos(lcDot(axisXY, axisY)) * LC_RTOD);
 
   if (lcDot(axisXY, axisX) > 0)
-    longitude = -longitude;
+    longitude.setValue(-longitude.value());
+}
+
+QString LightMeta::getPOVLightString()
+{
+  if (povrayLight.value())
+  {
+    // Switch XYZ coordinates from LeoCAD where +Z is up to LDraw where -Y is up, so  (X, Y, Z) => (X, -Z, Y)
+    // Then switch from LDraw to POVRay where +Y is up, so (X, -Z, Y) => (Z, X, Y)
+    // LeoCAD to LDraw to POVRay: (X, Y, Z) => (X, -Z, Y) => (Z, X, Y)
+    // From LeoCAD directly to POVRay is be (X, Y, Z) => (Y, X, Z)
+    const float spotFalloff = spotConeAngle.value() / 2.0f;
+    const bool isOval = areaShape.value() == QLatin1String("DISK") || areaShape.value() == QLatin1String("ELLIPSE");
+    return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 %15 %16 %17")
+    /*01 LightType    */ .arg(typeEnc.value())
+    /*02 Shadowless   */ .arg(shadowless.value())
+    /*03 Latitude     */ .arg(double(latitude.value()),1)
+    /*04 Longitude    */ .arg(double(longitude.value()),1)
+    /*05 LightTarget  */ .arg(QString("<%1,%2,%3>").arg(double(target.y()),1).arg(double(target.x()),1).arg(double(target.z()),1),
+    /*06 LightColor   */      QString("<%1,%2,%3>").arg(color.x()).arg(color.y()).arg(color.x()))
+    /*07 Power        */ .arg(double(povrayPower.value()),1)
+    /*08 FadeDistance */ .arg(double(fadeDistance.value()),1)
+    /*09 FadePower    */ .arg(double(fadePower.value()),1)
+    /*10 SpotRadius   */ .arg(double(spotFalloff - spotPenumbraAngle.value()),1)
+    /*11 SpotFalloff  */ .arg(double(spotFalloff),1)
+    /*12 SpotTightness*/ .arg(double(spotTightness.value()),1)
+    /*13 AreaCircle   */ .arg(isOval ? "1" : "0")
+    /*14 AreaWidth    */ .arg(double(areaWidth.value()),1)
+    /*15 AreaHeight   */ .arg(double(areaHeight.value()),1)
+    /*16 AreaGrid.x   */ .arg(int(areaGridX.value()))
+    /*17 AreaGrid.y   */ .arg(int(areaGridY.value()));
+  }
+
+  return QString();
 }
 
 void LightMeta::init(BranchMeta *parent, QString _name)
