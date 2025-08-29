@@ -226,13 +226,6 @@ public:
 		return mWorldMatrix;
 	}
 
-/*** LPub3D Mod - rotation as euler angles in degrees ***/
-	lcVector3 GetTargetPosition() const
-	{
-		return lcMatrix44ToEulerAngles(mWorldMatrix) * LC_RTOD;
-	}
-/*** LPub3D Mod end ***/
-
 	void SaveLDraw(QTextStream& Stream) const;
 	bool ParseLDrawLine(QTextStream& Stream);
 

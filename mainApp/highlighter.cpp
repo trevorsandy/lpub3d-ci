@@ -383,6 +383,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bFONT\\b"),
         QStringLiteral("\\bFONT_COLOR\\b"),
         QStringLiteral("\\bFOR_SUBMODEL\\b"),
+        QStringLiteral("\\bFOV\\b"),
         QStringLiteral("\\bFRONT\\b"),
         QStringLiteral("\\bFREEFORM\\b"),
         QStringLiteral("\\bGRADIENT\\b"),
@@ -596,6 +597,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bTOP_RIGHT\\b"),
         QStringLiteral("\\bTRANSPARENT\\b"),
         QStringLiteral("\\bTYPE\\b"),
+        QStringLiteral("\\bUP_VECTOR\\b"),
         QStringLiteral("\\bUSE\\b"),
         QStringLiteral("\\bUSE_FREE_FORM\\b"),
         QStringLiteral("\\bUSE_TITLE\\b"),
@@ -605,7 +607,9 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bVERTICAL\\b"),
         QStringLiteral("\\bVIEW_ANGLE\\b"),
         QStringLiteral("\\bWHOLE\\b"),
-        QStringLiteral("\\bWIDTH\\b")
+        QStringLiteral("\\bWIDTH\\b"),
+        QStringLiteral("\\bZFAR\\b"),
+        QStringLiteral("\\bZNEAR\\b")
     };
 
     for (const QString &pattern : LPubBodyMetaPatterns) {

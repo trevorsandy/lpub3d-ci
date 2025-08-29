@@ -9,8 +9,8 @@
 	template void lcObjectProperty<T>::RemoveTime(lcStep Start, lcStep Time); \
 	template bool lcObjectProperty<T>::HasKeyFrame(lcStep Time) const; \
 	template bool lcObjectProperty<T>::SetKeyFrame(lcStep Time, bool KeyFrame); \
-	template void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta) const; \
-	template bool lcObjectProperty<T>::Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta);
+	template void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta, bool POVRayLight) const; \
+	template bool lcObjectProperty<T>::Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta, bool POVRayLight);
 
 LC_OBJECT_PROPERTY(float)
 LC_OBJECT_PROPERTY(int)
@@ -257,7 +257,7 @@ bool lcObjectProperty<T>::SetKeyFrame(lcStep Time, bool KeyFrame)
 
 template<typename T>
 /*** LPub3D Mod - LPUB meta command ***/
-void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta) const
+void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta, bool POVRayLight) const
 {
 	QLatin1String Meta(LPubMeta ? "0 !LPUB " : "0 !LEOCAD ");
 	const bool SwitchAxis = LPubMeta && (QString(VariableName) == "POSITION" ||
@@ -274,7 +274,7 @@ void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, cons
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 			T Value = mValue;
-			if (SwitchAxis)
+			if (SwitchAxis && !POVRayLight)
 			{
 				constexpr int Count = sizeof(T) / sizeof(float);
 				if (Count == 3)
@@ -298,7 +298,7 @@ void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, cons
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 			T Value = Key.Value;
-			if (SwitchAxis)
+			if (SwitchAxis && !POVRayLight)
 			{
 				constexpr int Count = sizeof(T) / sizeof(float);
 				if (Count == 3)
@@ -317,7 +317,7 @@ void lcObjectProperty<T>::Save(QTextStream& Stream, const char* ObjectName, cons
 
 template<typename T>
 /*** LPub3D Mod - LPUB meta command ***/
-bool lcObjectProperty<T>::Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta)
+bool lcObjectProperty<T>::Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta, bool POVRayLight)
 {
 	const bool SwitchAxis = LPubMeta && (QString(VariableName) == "POSITION" ||
 										 QString(VariableName) == "TARGET_POSITION" ||
@@ -326,7 +326,7 @@ bool lcObjectProperty<T>::Load(QTextStream& Stream, const QString& Token, const 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	if (Token == VariableName)
 	{
-		if (SwitchAxis && (sizeof(T) / sizeof(float) == 3))
+		if (SwitchAxis && !POVRayLight && (sizeof(T) / sizeof(float) == 3))
 		{
 			QString Line;
 			QTextStream SwitchStream(&Line, QIODevice::ReadWrite);
@@ -355,7 +355,7 @@ bool lcObjectProperty<T>::Load(QTextStream& Stream, const QString& Token, const 
 
 		constexpr int Count = sizeof(T) / sizeof(float);
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-		if (SwitchAxis && Count == 3)
+		if (SwitchAxis && !POVRayLight && Count == 3)
 		{
 			lcVector3 Vector;
 			Stream >> Vector[0] >> Vector[1] >> Vector[2];

@@ -123,8 +123,8 @@ public:
 	bool SetKeyFrame(lcStep Time, bool KeyFrame);
 
 /*** LPub3D Mod - LPUB meta command ***/
-	void Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta = true) const;
-	bool Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta = true);
+	void Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta = true, bool POVRayLight = false) const;
+	bool Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta = true, bool POVRayLight = false);
 /*** LPub3D Mod end ***/
 
 protected:
