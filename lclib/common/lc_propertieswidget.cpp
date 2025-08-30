@@ -1722,7 +1722,7 @@ void lcPropertiesWidget::SetLight(const std::vector<lcObject*>& Selection, lcObj
 		SpotBlenderRadius = Light->GetSpotBlenderRadius();
 		DirectionalBlenderAngle = Light->GetDirectionalBlenderAngle();
 		AreaSizeX = Light->GetAreaSizeX();
-		AreaSizeY = Light->GetAreaSizeX();
+		AreaSizeY = Light->GetAreaSizeY();
 	}
 	else
 	{
