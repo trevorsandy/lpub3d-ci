@@ -139,14 +139,16 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 	if (!mCastShadow)
 		Stream << QLatin1String(Meta + " LIGHT SHADOWLESS") << LineEnding;
 
-	mPosition.Save(Stream, "LIGHT", "POSITION", true, !mLCMeta);
-	mRotation.Save(Stream, "LIGHT", "ROTATION", true, !mLCMeta);
+	mPosition.Save(Stream, "LIGHT", "POSITION", true, !mLCMeta, POVRayLight);
 
-	if (POVRayLight && mLightType != lcLightType::Point)
+	if (!POVRayLight)
+		mRotation.Save(Stream, "LIGHT", "ROTATION", true, !mLCMeta);
+	else if (mLightType != lcLightType::Point)
 	{
-		const lcVector3 Target = !mLCMeta ? lcVector3LeoCADToLDraw(GetTargetPosition()) : GetTargetPosition();
-		Stream << QLatin1String(Meta + " LIGHT TARGET_POSITION ") << Target[0] << ' ' << Target[1] << ' ' << Target[2] << LineEnding;
+		lcVector3 TargetPosition = GetPosition() + GetDirection();
+		Stream << QLatin1String(Meta + " LIGHT TARGET_POSITION ") << TargetPosition[0] << ' ' << TargetPosition[1] << ' ' << TargetPosition[2] << LineEnding;
 	}
+
 	mColor.Save(Stream, "LIGHT", "COLOR", true, !mLCMeta);
 
 	if (POVRayLight)
@@ -271,13 +273,20 @@ void lcLight::CreateName(const std::vector<std::unique_ptr<lcLight>>& Lights)
 
 bool lcLight::ParseLDrawLine(QTextStream& Stream)
 {
+	bool POVRayLight = mLightFormat == lcLightFormat::POVRayLight;
+
 	while (!Stream.atEnd())
 	{
 		QString Token;
 		Stream >> Token;
 
+/*** LPub3D Mod - LPUB meta properties ***/
+		if (Token == QLatin1String("POV_RAY"))
+			mLightFormat = lcLightFormat::POVRayLight;
+		else
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - LeoCAD meta command ***/
-		if (mPosition.Load(Stream, Token, "POSITION", !mLCMeta))
+		if (mPosition.Load(Stream, Token, "POSITION", !mLCMeta, POVRayLight))
 			continue;
 		else if (mRotation.Load(Stream, Token, "ROTATION", !mLCMeta))
 			continue;
@@ -322,6 +331,21 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 			continue;
 		}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Target Position - set rotation ***/
+		else if (Token == QLatin1String("TARGET_POSITION"))
+		{
+			lcVector3 TargetPosition;
+			Stream >> TargetPosition[0] >> TargetPosition[1] >> TargetPosition[2];
+			if (POVRayLight)
+				TargetPosition = TargetPosition * LC_DTOR;
+			else
+				TargetPosition = lcVector3LDrawToLeoCAD(TargetPosition) * LC_DTOR;
+
+			lcMatrix33 RotationMatrix = lcMatrix33FromEulerAngles(TargetPosition);
+
+			SetRotation(RotationMatrix, 1, false);
+		}
+/*** LPub3D Mod end ***/
 		else if (Token == QLatin1String("AREA_SHAPE"))
 		{
 			QString AreaShape;
@@ -354,12 +378,6 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		{
 			mCastShadow = false;
 		}
-/*** LPub3D Mod - LPUB meta properties ***/
-		else if (Token == QLatin1String("POV_RAY"))
-		{
-			mLightFormat = lcLightFormat::POVRayLight;
-		}
-/*** LPub3D Mod end ***/
 		else if (Token == QLatin1String("NAME"))
 		{
 			mName = Stream.readAll().trimmed();
