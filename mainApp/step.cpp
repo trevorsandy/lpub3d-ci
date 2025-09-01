@@ -732,8 +732,10 @@ int Step::createCsi(
                 }
                 int i = 0;
                 QString ls = QString("'-PovExporter/PovLights=\"");
+                 LightMeta lm;
                 for (LightData &ld : lightList) {
-                    ls.append(QString("%1%2").arg(i ? ";" : "").arg(ld.getPOVLightMacroString()));
+                    lm.setValue(ld);
+                    ls.append(QString("%1%2").arg(i ? ";" : "").arg(lm.getPOVLightString()));
                     i++;
                 }
                 ls.append("\"'");

@@ -1395,22 +1395,25 @@ int Gui::drawPage(
                 if (line.contains(" LOCAL "))
                     line.remove("LOCAL ");
                 CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
-                if (rc == LeoCadLightTypeRc) {
-                    // Light TYPE and NAME written on same line
-                    int index = line.size() - line.lastIndexOf("NAME") - 5;
-                    const QString name = line.right(index).replace("\"", "");
-                    curMeta.LeoCad.light.name.setValue(name);
-
-                    LightData lightData = curMeta.LeoCad.light.value();
-                    const QString lightKey = QString("%1 %2").arg(lightData.type, name);
-                    lightList.insert(lightKey, lightData);
+                if (rc > LeoCadCameraRc) {
+                    const bool isLPubMeta = line.startsWith(QLatin1String("0 !LPUB "));
+                    LightMeta &light = isLPubMeta
+                            ? curMeta.LPub.light
+                            : curMeta.LeoCad.light;
+                    if (rc == LeoCadLightTypeRc) {
+                        // Light TYPE and NAME written on same line
+                        int index = line.size() - line.lastIndexOf("NAME") - 5;
+                        const QString name = line.right(index).replace("\"", "");
+                        light.name.setValue(name);
+                        LightData lightData = curMeta.LeoCad.light.value();
+                        const QString lightKey = QString("%1 %2").arg(lightData.type, name);
+                        lightList.insert(lightKey, lightData);
+                    } else if (rc == LeoCadLightPOVRayRc) {
+                        light.povrayLight.setValue(true);
+                    } else if (rc == LeoCadLightShadowless) {
+                        light.shadowless.setValue(true);
+                    }
                 }
-                else
-                    if (rc == LeoCadLightPOVRayRc)
-                        curMeta.LeoCad.light.povrayLight = true;
-                    else
-                    if (rc == LeoCadLightShadowless)
-                        curMeta.LeoCad.light.shadowless = true;
                 break;
 
             case IncludeRc:
