@@ -196,7 +196,7 @@ void Downloader::startRequest(const QUrl &url)
     // LPub3D Mod
     m_startTime =
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-    QDateTime::currentMSecsSinceEpoch();
+    QDateTime::currentSecsSinceEpoch();
 #else
     QDateTime::currentDateTime().toTime_t();
 #endif
@@ -621,7 +621,7 @@ void Downloader::calculateTimeRemaining (qint64 received, qint64 total)
     // LPub3D Mod
     uint difference =
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-    QDateTime::currentMSecsSinceEpoch() - m_startTime;
+    QDateTime::currentSecsSinceEpoch() - m_startTime;
 #else
     QDateTime::currentDateTime().toTime_t() - m_startTime;
 #endif
