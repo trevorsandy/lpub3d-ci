@@ -218,7 +218,7 @@ void lcPropertiesWidget::BoolChanged()
 		return;
 
 	const bool Value = Widget->isChecked();
-	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
+	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value, true);
 }
 
 void lcPropertiesWidget::UpdateBool(lcObjectPropertyId PropertyId)
@@ -324,6 +324,8 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 	bool DefaultCamera = Camera && Camera->GetName().isEmpty();
 /*** LPub3D Mod end ***/
 
+	mDisableUpdates = true;
+
 	if (PropertyId == lcObjectPropertyId::ObjectPositionX || PropertyId == lcObjectPropertyId::ObjectPositionY || PropertyId == lcObjectPropertyId::ObjectPositionZ)
 	{
 		lcVector3 Center;
@@ -368,7 +370,7 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 	}
 	else if (Piece || Light)
 	{
-		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
+		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value, !Dragging);
 	}
 
 	if (PropertyId == lcObjectPropertyId::CameraPositionX || PropertyId == lcObjectPropertyId::CameraPositionY || PropertyId == lcObjectPropertyId::CameraPositionZ)
@@ -536,6 +538,8 @@ void lcPropertiesWidget::ChangeFloatValue(lcObjectPropertyId PropertyId, float V
 			Model->SetCameraZFar(Camera, Value, !Dragging);
 		}
 	}
+
+	mDisableUpdates = false;
 }
 
 void lcPropertiesWidget::UpdateFloat(lcObjectPropertyId PropertyId, float Value)
@@ -699,7 +703,7 @@ void lcPropertiesWidget::IntegerChanged()
 		return;
 
 	const int Value = LineEdit->text().toInt();
-	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
+	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value, true);
 }
 
 void lcPropertiesWidget::UpdateInteger(lcObjectPropertyId PropertyId)
@@ -832,7 +836,7 @@ void lcPropertiesWidget::StringChanged()
 		return;
 
 	QString Value = LineEdit->text();
-	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
+	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value, true);
 }
 
 void lcPropertiesWidget::UpdateString(lcObjectPropertyId PropertyId)
@@ -903,7 +907,7 @@ void lcPropertiesWidget::StringListChanged(int Value)
 	if (!Model)
 		return;
 
-	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
+	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value, true);
 }
 
 void lcPropertiesWidget::UpdateStringList(lcObjectPropertyId PropertyId)
@@ -1005,7 +1009,7 @@ void lcPropertiesWidget::ColorChanged(QColor Color)
 		return;
 
 	const lcVector3 FloatColor = lcVector3FromQColor(Color);
-	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, QVariant::fromValue<lcVector3>(FloatColor));
+	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, QVariant::fromValue<lcVector3>(FloatColor), true);
 }
 
 void lcPropertiesWidget::UpdateColor(lcObjectPropertyId PropertyId)
@@ -1071,7 +1075,7 @@ void lcPropertiesWidget::PieceColorChanged(int ColorIndex)
 	if (!Model)
 		return;
 
-	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, ColorIndex);
+	Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, ColorIndex, true);
 }
 
 void lcPropertiesWidget::PieceColorButtonClicked()
@@ -1202,7 +1206,7 @@ void lcPropertiesWidget::PieceIdButtonClicked()
 		if (!Model || !Info)
 			return;
 
-		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, QVariant::fromValue<void*>(Info));
+		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, QVariant::fromValue<void*>(Info), true);
 	}
 }
 
@@ -1871,6 +1875,9 @@ void lcPropertiesWidget::SetLight(const std::vector<lcObject*>& Selection, lcObj
 
 void lcPropertiesWidget::Update(const std::vector<lcObject*>& Selection, lcObject* Focus)
 {
+	if (mDisableUpdates)
+		return;
+
 	mFocusObject = nullptr;
 	mSelection.clear();
 

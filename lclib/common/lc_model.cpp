@@ -3883,7 +3883,7 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 }
 /*** LPub3D Mod end ***/
 
-void lcModel::SetObjectsProperty(const std::vector<lcObject*>& Objects, lcObjectPropertyId PropertyId, QVariant Value)
+void lcModel::SetObjectsProperty(const std::vector<lcObject*>& Objects, lcObjectPropertyId PropertyId, QVariant Value, bool AddUndo)
 {
 	bool Modified = false;
 
@@ -3901,7 +3901,9 @@ void lcModel::SetObjectsProperty(const std::vector<lcObject*>& Objects, lcObject
 	if (!Modified)
 		return;
 
-	SaveCheckpoint(lcObject::GetCheckpointString(PropertyId));
+	if (AddUndo)
+		SaveCheckpoint(lcObject::GetCheckpointString(PropertyId));
+
 	gMainWindow->UpdateSelectedObjects(false);
 	UpdateAllViews();
 
@@ -3988,6 +3990,8 @@ void lcModel::EndPropertyEdit(lcObjectPropertyId PropertyId, bool Accept)
 	case lcObjectPropertyId::LightFormat:
 /*** LPub3D Mod end ***/
 	case lcObjectPropertyId::LightColor:
+		break;
+
 	case lcObjectPropertyId::LightBlenderPower:
 /*** LPub3D Mod - LPUB meta properties ***/
 	case lcObjectPropertyId::LightBlenderCutoffDistance:
@@ -3995,7 +3999,12 @@ void lcModel::EndPropertyEdit(lcObjectPropertyId PropertyId, bool Accept)
 	case lcObjectPropertyId::LightBlenderSpecular:
 /*** LPub3D Mod end ***/
 	case lcObjectPropertyId::LightPOVRayPower:
+		SaveCheckpoint(lcObject::GetCheckpointString(PropertyId));
+		break;
+
 	case lcObjectPropertyId::LightCastShadow:
+		break;
+
 	case lcObjectPropertyId::LightPOVRayFadeDistance:
 	case lcObjectPropertyId::LightPOVRayFadePower:
 	case lcObjectPropertyId::LightBlenderRadius:
@@ -4005,6 +4014,9 @@ void lcModel::EndPropertyEdit(lcObjectPropertyId PropertyId, bool Accept)
 	case lcObjectPropertyId::LightSpotConeAngle:
 	case lcObjectPropertyId::LightSpotPenumbraAngle:
 	case lcObjectPropertyId::LightPOVRaySpotTightness:
+		SaveCheckpoint(lcObject::GetCheckpointString(PropertyId));
+		break;
+
 	case lcObjectPropertyId::LightAreaShape:
 	case lcObjectPropertyId::LightPOVRayAreaGridX:
 	case lcObjectPropertyId::LightPOVRayAreaGridY:

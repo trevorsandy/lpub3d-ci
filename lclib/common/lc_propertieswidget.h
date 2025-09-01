@@ -140,6 +140,7 @@ protected:
 
 	std::vector<lcObject*> mSelection;
 	lcObject* mFocusObject = nullptr;
+	bool mDisableUpdates = false;
 
 	std::array<PropertyWidgets, static_cast<int>(lcObjectPropertyId::Count)> mPropertyWidgets = {};
 	std::array<CategoryWidgets, static_cast<int>(CategoryIndex::Count)> mCategoryWidgets = {};
