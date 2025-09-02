@@ -18,8 +18,8 @@ greaterThan(QT_MAJOR_VERSION, 5) {
 
 # The ABI version.
 # REMINDER: Update LC_LIB = LC233 in mainApp.pro on version change
-VER_MAJ = 23
-VER_MIN = 3
+VER_MAJ = 25
+VER_MIN = 9
 VER_PAT = 0
 VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
