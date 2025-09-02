@@ -24,6 +24,7 @@ Revisions:
 - Fix - Cannot edit AnnotationStyle list from menu action #810
 - Fix - Pointer Tip of a page pointer cannot be hidden #813
 - Fix - Submodel preview rotation #803
+- Fix - Unexpected behaviour of the page pointer #823
 
 --------------------------------------------------------------------------------------------------
 
