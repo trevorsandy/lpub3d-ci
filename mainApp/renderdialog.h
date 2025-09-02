@@ -139,7 +139,7 @@ protected:
     double mScale;
 
     int mRenderType;
-    int mImportOnly;
+    int mOpenInBlender;
     int mPreviewWidth;
     int mPreviewHeight;
     int mBlendProgValue;
