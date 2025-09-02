@@ -1660,7 +1660,7 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv, c
       if (haveHideTip)
         _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
       else
-        _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // set show/hide arrow tip
+        _result.lineData.hideTip  = false; // default hideTip set to false
       _result.lineHere.modelName  = here.modelName;
       _result.lineHere.lineNumber = here.lineNumber;
       _result.lineData.useDefault = false;
