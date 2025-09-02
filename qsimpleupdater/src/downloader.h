@@ -113,6 +113,7 @@ private:
     QNetworkAccessManager* m_manager;
 
     // LPub3D Mod
+    bool   m_downloadCancelled;
     bool   m_exportingContent; // indicate export/printing underway
     bool   m_exportingObjects; // indicate exporting non-image object file content
     int    m_workerJobResult;

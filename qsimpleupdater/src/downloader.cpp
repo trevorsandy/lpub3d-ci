@@ -200,6 +200,7 @@ void Downloader::startRequest(const QUrl &url)
 #else
     QDateTime::currentDateTime().toTime_t();
 #endif
+    m_downloadCancelled = false;
     // Mod End
 
     // Whenever more data is received from the network,
@@ -244,6 +245,16 @@ void Downloader::setUserAgentString (const QString& agent)
 
 void Downloader::finished()
 {
+    // LPub3D Mod
+    if (m_downloadCancelled) {
+        m_reply->close();
+        m_reply->deleteLater();
+        m_reply = nullptr;
+        m_manager = nullptr;
+        return;
+    }
+    // Mod End
+
     /* Download finished normally */
     m_file->flush();
     m_file->close();
@@ -447,7 +458,6 @@ void Downloader::installUpdate()
         {
             // LPub3D Mod
             if (m_portableDistro) {
-                QString showMessage;
                 QDir cwd(QCoreApplication::applicationDirPath());
                 cwd.cdUp();
                 if (cwd.dirName().contains("LPub3D_x86_"))
@@ -502,6 +512,9 @@ void Downloader::cancelDownload()
         box.setText (tr ("Are you sure you want to cancel the download?"));
 
         if (box.exec() == QMessageBox::Yes) {
+            // LPub3D Mod
+            m_downloadCancelled = true;
+            // Mod End
             disconnect(m_reply, SIGNAL (finished()),
                      this,      SLOT (finished()));
 
@@ -512,8 +525,16 @@ void Downloader::cancelDownload()
                 m_file = nullptr;
             }
 
+// LPub3D Mod
+#if QT_VERSION >= QT_VERSION_CHECK(5, 9, 4)
+            // If HTTP/2 may be in use, we cannot abort the connection.
+            Q_UNUSED(m_reply);
+#else
             m_reply->abort();
             m_reply->deleteLater();
+            m_reply = nullptr;
+#endif
+// Mod End
             emit downloadCancelled();
             hide();
         }
