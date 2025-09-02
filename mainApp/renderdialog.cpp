@@ -61,7 +61,7 @@ void RenderPreviewWidget::paintEvent(QPaintEvent* PaintEvent)
 RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     : QDialog(Parent),
       mRenderType(renderType),
-      mImportOnly(importOnly),
+      mOpenInBlender(importOnly),
       ui(new Ui::RenderDialog)
 {
     ui->setupUi(this);
@@ -174,7 +174,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        setWindowTitle(mImportOnly ? tr("Blender LDraw Import") : tr("Blender Image Render"));
+        setWindowTitle(mOpenInBlender ? tr("Blender LDraw Import") : tr("Blender Image Render"));
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
 
@@ -197,7 +197,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
                                         ? tr("Render LDraw Model")
                                         : tr("Blender not configured. Use Settings... to configure."));
 
-        if (mImportOnly) {
+        if (mOpenInBlender) {
             labelMessage = tr("Open%1 in Blender using %2")
                               .arg(mMn.isEmpty() ? "" : QString(" <b>%1</b>").arg(mMn), mImportModule);
 
@@ -248,9 +248,9 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
             QImage Image(QPixmap(":/resources/blenderlogo1280x720.png").toImage());
             Image = Image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             ui->preview->SetImage(Image.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        }
 
-        connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
+            connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
+        }
     }
 
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
@@ -295,7 +295,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
         {
             mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
 
-            if (mImportOnly) {
+            if (mOpenInBlender) {
                 mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
                         ? tr("LDraw Import TN")
                         : tr("LDraw Import MM");
@@ -614,7 +614,7 @@ void RenderDialog::RenderPOVRay()
 
 void RenderDialog::RenderBlender()
 {
-    QString const option = mImportOnly ? tr("import") : tr("render");
+    QString const option = mOpenInBlender ? tr("import") : tr("render");
 
     if (!mPopulatedFile && ui->InputGenerateCheck->isChecked()) {
 
@@ -652,7 +652,7 @@ void RenderDialog::RenderBlender()
         pythonExpression.append(", use_ldraw_import_mm=True");
     if (searchCustomDir)
         pythonExpression.append(", search_additional_paths=True");
-    if (mImportOnly) {
+    if (mOpenInBlender) {
         pythonExpression.append(", import_only=True");
 
         Arguments << QLatin1String("--window-geometry");
@@ -690,7 +690,7 @@ void RenderDialog::RenderBlender()
 #else
         emit gui->messageSig(LOG_INFO, message);
 #endif
-        if (mImportOnly)
+        if (mOpenInBlender)
             scriptCommand.append(QString(" > %1").arg(QDir::toNativeSeparators(GetLogFileName(true/*stdOut*/))));
 
         script.setFileName(QString("%1/%2").arg(scriptDir, scriptName));
@@ -757,7 +757,7 @@ void RenderDialog::RenderBlender()
 #else
     emit gui->messageSig(LOG_INFO, message);
 #endif
-    if (mImportOnly) {
+    if (mOpenInBlender) {
         QFileInfo info(GetLogFileName(true/*stdOut*/));
         if (info.exists())
             QFile::remove(info.absoluteFilePath());
@@ -1136,7 +1136,7 @@ void RenderDialog::ShowResult()
 
     message = QString("%1 CSI %2. %3")
                       .arg(imageType,
-                           Success ? mImportOnly ? tr("completed") :
+                           Success ? mOpenInBlender ? tr("completed") :
                                                    tr("generated %1").arg(FileName) :
                                                    tr("failed (unknown reason)"),
                            Gui::elapsedTime(mRenderTime.elapsed()));
@@ -1162,7 +1162,7 @@ QString RenderDialog::GetLogFileName(bool stdOut) const
 
 void RenderDialog::UpdateElapsedTime()
 {
-    if (mProcess && !mImportOnly)
+    if (mProcess && !mOpenInBlender)
     {
         QString const renderType = Preferences::blenderVersion.startsWith("v3") ? QLatin1String("Samples") : QLatin1String("Tiles");
         ui->RenderLabel->setText(tr("%1: %2/%3, %4")
@@ -1192,7 +1192,7 @@ void RenderDialog::CloseProcess()
         emit gui->messageSig(LOG_INFO, tr("Blender process closed"));
     }
 
-    if (!mImportOnly)
+    if (!mOpenInBlender)
         ui->RenderButton->setText(tr("Render"));
 }
 
@@ -1207,7 +1207,7 @@ bool RenderDialog::PromptCancel()
         {
             if (mRenderType == POVRAY_RENDER)
                 lpub->getAct("povrayRenderAct.4")->setEnabled(true);
-            else if (mRenderType == BLENDER_RENDER && !mImportOnly)
+            else if (mRenderType == BLENDER_RENDER && !mOpenInBlender)
                 lpub->getAct("blenderRenderAct.4")->setEnabled(true);
 #ifdef Q_OS_WIN
             TerminateChildProcess(mProcess->processId(),
@@ -1333,7 +1333,7 @@ void RenderDialog::validateInput()
     } else {
         QString mMn = fileInfo.fileName(), labelMessage;
         mMn = mMn.replace(mMn.indexOf(mMn.at(0)),1,mMn.at(0).toUpper());
-        if (mImportOnly)
+        if (mOpenInBlender)
             labelMessage = tr("Open%1 in Blender using %2")
                                .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn), mImportModule);
         else
