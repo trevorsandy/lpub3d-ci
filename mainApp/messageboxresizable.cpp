@@ -92,7 +92,9 @@ void QMessageBoxResizable::setDetailedText(const QString &text, bool html) {
             addButton(detailsPushButton, QMessageBox::ActionRole);
             autoAddOkButton = _autoAddOkButton;
 
-            detailsPushButton->disconnect(); // disconnect all actions to disable automatic close, re-add clicked action
+            // disconnect clicked actions to disable automatic close, then restore the following clicked actions
+            disconnect(detailsPushButton, &DetailPushButton::clicked, nullptr, nullptr);
+
             connect(detailsPushButton, &DetailPushButton::clicked, this, [=]()
             {
                 detailsPushButton->setLabel(detailsTextBrowser->isHidden() ? ShowLabel : HideLabel);
