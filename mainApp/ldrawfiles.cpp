@@ -1185,6 +1185,8 @@ void LDrawFile::insertLine(const QString &mcFileName, int lineNumber, const QStr
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i != _subFiles.end()) {
+    if (lineNumber == i.value()._contents.size()+1)
+      lineNumber--;
     i.value()._contents.insert(lineNumber,line);
     i.value()._modified = true;
  //   i.value()._datetime = QDateTime::currentDateTime();
