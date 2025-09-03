@@ -142,6 +142,7 @@ enum LDrawFileRegExpType {
     DAT_RX,  // Imbedded Image Data
     B64_RX,  // Base 64 Image Data Line
     EOF_RX,  // End of File
+    EOS_RX,  // End of Step
     LDR_RX,  // LDraw File
     DES_RX,  // Model Description
     NAM_RX,  // Name Header
@@ -157,6 +158,7 @@ enum LDrawFileRegExpType {
     LDS_RX,  // LDraw Step boundry
     FHE_RX,  // Fade or Highlight Enabled (or Setup)
     LFH_RX   // LPub Fade or LPub Highlight
+
 };
 
 enum DisplayType { DT_DEFAULT,

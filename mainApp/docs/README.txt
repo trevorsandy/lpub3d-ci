@@ -21,6 +21,7 @@ Revisions:
 - HowTo - Set annotation style attributes #809
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
 - Regression - Library Update failed #804
+- Fix - Adding Page Pointer causes Crash #818
 - Fix - Cannot edit AnnotationStyle list from menu action #810
 - Fix - PLI CONSTRAIN GLOBAL HEIGHT not applied #819
 - Fix - Pointer Tip of a page pointer cannot be hidden #813
