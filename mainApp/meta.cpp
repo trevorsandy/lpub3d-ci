@@ -3711,15 +3711,16 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc != OkRc && !Gui::abortProcess()) {
     if (Gui::pageProcessRunning != PROC_NONE) {
+      static QRegularExpression errorRx;
+      static QRegularExpression stepRx("0 STEP|0 ROTSTEP");
+      QRegularExpressionMatch match;
       QString line;
       bool errorFound = false;
       here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
       Where start(here.modelName,here.modelIndex,here.lineNumber);
       Where top(here.modelName,here.modelIndex,0);
       lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
-      static QRegularExpression errorRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
-      static QRegularExpression stepRx("0 STEP|0 ROTSTEP");
-      QRegularExpressionMatch match;
+      errorRx.setPattern("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(0 STEP|0 ROTSTEP)");
       for (; start.lineNumber > top.lineNumber; start--) {
         line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
         match = errorRx.match(line);
@@ -4601,10 +4602,12 @@ void LPubFaHiMeta::metaKeywords(QStringList &out, QString preamble)
 Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  static QRegularExpression hexRx("^(0x|#)([\\da-fA-F]+)$");
   if (argv.size() - index >= 1) {
     QColor parsedColor = QColor();
-    QRegularExpressionMatch match = hexRx.match(argv[index]);
+    static QRegularExpression hexRx;
+    QRegularExpressionMatch match;
+    hexRx.setPattern("^(0x|#)([\\da-fA-F]+)$");
+    match = hexRx.match(argv[index]);
     if (match.hasMatch())
       parsedColor = QColor(QString("#%1").arg(match.captured(2)));
     if (parsedColor.isValid()) {
@@ -7209,8 +7212,9 @@ Rc Meta::parse( QString &line,Where &here, bool reportErrors)
   auto parseGroupMeta = [&line]()
   {
     QHash<Rc, QRegularExpression>::const_iterator i = groupRegExMap.constBegin();
+    QRegularExpressionMatch match;
     while (i != groupRegExMap.constEnd()) {
-      QRegularExpressionMatch match = i.value().match(line);
+      match = i.value().match(line);
       if (match.hasMatch())
         return QStringList() << match.captured(1) << match.captured(2) << match.captured(3);
       ++i;
@@ -7376,8 +7380,10 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {
-  static QRegularExpression parseRx("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
-  QRegularExpressionMatch match = parseRx.match(line);
+  static QRegularExpression parseRx;
+  QRegularExpressionMatch match;
+  parseRx.setPattern("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
+  match = parseRx.match(line);
   if (!match.hasMatch())
     return;
 

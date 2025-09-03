@@ -1275,9 +1275,10 @@ void LPub::loadCommandCollection()
     QStringList commands;
     meta.doc(commands);
 
-    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
+    static QRegularExpression rx;
     QRegularExpressionMatch match;
-    Q_FOREACH(QString command, commands) {
+    rx.setPattern("^([^\\[\\(<\\\n]*)");
+    for (QString &command : commands) {
         QString preamble;
         match = rx.match(command);
         if (match.hasMatch())

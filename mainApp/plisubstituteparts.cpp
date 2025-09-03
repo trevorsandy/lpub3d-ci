@@ -33,9 +33,10 @@ PliSubstituteParts::PliSubstituteParts()
 {
     if (substituteParts.size() == 0) {
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
-        static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
-        static QRegularExpression rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
+        static QRegularExpression rxin;
+        static QRegularExpression rx;
         QRegularExpressionMatch match;
+        rx.setPattern("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
         if (!substitutePartsFile.isEmpty()) {
             QFile file(substitutePartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -54,6 +55,7 @@ PliSubstituteParts::PliSubstituteParts()
             QTextStream in(&file);
 
             // Load RegExp from file;
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 match = rxin.match(sLine);

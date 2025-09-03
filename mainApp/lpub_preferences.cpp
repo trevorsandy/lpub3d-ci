@@ -6773,8 +6773,10 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile)
     int dirNum = 0;
     bool foundExtraSearchDirs = false;
     bool inExtraSearchDirsSection = false;
-    static QRegularExpression prefSetRx("^(Native POV|Native STL|Native 3DS|Native Part List|POV-Ray Render)", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression prefSetRx;
     QRegularExpressionMatch match;
+    prefSetRx.setPattern("^(\\bNative POV\\b|\\bNative STL\\b|\\bNative 3DS\\b|\\bNative Part List\\b|\\bPOV-Ray Render\\b)");
+    prefSetRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     logInfo() << qUtf8Printable(QObject::tr("Updating LDV ExtraSearchDirs in %1").arg(iniFile));
 

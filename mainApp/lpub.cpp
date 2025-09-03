@@ -620,8 +620,10 @@ void Gui::saveDisplayedPage()
 void Gui::nextPage()
 {
   QString string = setPageLineEdit->displayText();
-  static QRegularExpression rx("^(\\d+).*$");
-  QRegularExpressionMatch match = rx.match(string);
+  static QRegularExpression rx;
+  QRegularExpressionMatch match;
+  rx.setPattern("^(\\d+).*$");
+  match = rx.match(string);
   if (match.hasMatch()) {
     bool ok;
     int inputPageNum = match.captured(1).toInt(&ok);
@@ -714,8 +716,10 @@ void Gui::nextPageContinuous()
 void Gui::previousPage()
 {
   QString string = setPageLineEdit->displayText();
-  static QRegularExpression rx("^(\\d+).*$");
-  QRegularExpressionMatch match = rx.match(string);
+  static QRegularExpression rx;
+  QRegularExpressionMatch match;
+  rx.setPattern("^(\\d+).*$");
+  match = rx.match(string);
   if (match.hasMatch()) {
     bool ok;
     int inputPageNum;
@@ -1215,11 +1219,18 @@ bool Gui::processPageRange(const QString &range)
       bool ok[2] = {false, false};
       bool multiRange = range.contains(',');
       bool ofPages = range.contains("of", Qt::CaseInsensitive);
-      static QRegularExpression startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", QRegularExpression::CaseInsensitiveOption);
-      static QRegularExpression endRx("(?:[^\\w\\-\\,\\s]*)(\\d+)$", QRegularExpression::CaseInsensitiveOption);
-      static QRegularExpression ofToRx("of|to", QRegularExpression::CaseInsensitiveOption);
+      QRegularExpressionMatch match;
+      static QRegularExpression startRx;
+      static QRegularExpression endRx;
+      static QRegularExpression ofToRx;
+      startRx.setPattern("^(\\d+)(?:[\\w\\-\\,\\s]*)$");
+      startRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+      endRx.setPattern("(?:[^\\w\\-\\,\\s]*)(\\d+)$");
+      endRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+      ofToRx.setPattern("of|to");
+      ofToRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
       QString cleanRange = range.trimmed().replace(ofToRx,"-").replace(" ", "");
-      QRegularExpressionMatch match = startRx.match(cleanRange);
+      match = startRx.match(cleanRange);
       if (match.hasMatch()) {
           rangeMin = match.captured(1).toInt(&ok[0]);
           match = endRx.match(cleanRange);
@@ -1302,8 +1313,10 @@ void Gui::lastPage()
 void Gui::setPage()
 {
   QString string = setPageLineEdit->displayText();
-  static QRegularExpression rx("^(\\d+).*$");
-  QRegularExpressionMatch match = rx.match(string);
+  static QRegularExpression rx;
+  QRegularExpressionMatch match;
+  rx.setPattern("^(\\d+).*$");
+  match = rx.match(string);
   if (match.hasMatch()) {
     bool ok;
     const int inputPageNum = match.captured(1).toInt(&ok);

@@ -221,11 +221,13 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
 void HighlighterSimple::highlightBlock(const QString &text)
 {
     // apply the predefined rules
+    QRegularExpressionMatchIterator matchIterator;
+    QRegularExpressionMatch match;
     const QVector<HighlightingRule> rules = highlightingRules;
     for (const HighlightingRule &rule : rules) {
-        QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+        matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
-            QRegularExpressionMatch match = matchIterator.next();
+            match = matchIterator.next();
             setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
     }
@@ -238,7 +240,7 @@ void HighlighterSimple::highlightBlock(const QString &text)
         startIndex = text.indexOf(LDrawMultiLineCommentStartExpression);
 
     while (startIndex >= 0) {
-        QRegularExpressionMatch match = LDrawMultiLineCommentEndExpression.match(text, startIndex);
+        match = LDrawMultiLineCommentEndExpression.match(text, startIndex);
         int endIndex = match.capturedStart();
         int commentLength = 0;
         if (endIndex == -1) {

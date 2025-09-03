@@ -34,9 +34,11 @@ bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
     QTextStream in(&file);
 
     // Load RegExp from file;
-    static QRegularExpression rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$"); // 3 groups (file, libtype, desc)
-    static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+    static QRegularExpression rx;
+    static QRegularExpression rxin;
     QRegularExpressionMatch match;
+    rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$"); // 3 groups (file, libtype, desc)
+    rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
     while ( ! in.atEnd()) {
         QString sLine = in.readLine(0);
         match = rxin.match(sLine);

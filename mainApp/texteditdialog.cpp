@@ -357,9 +357,10 @@ bool TextEditDialog::getText(
     if (!goods.isEmpty()) {
         QChar esc('\\');
         QStringList list;
-        static QRegularExpression rx("\"");
+        static QRegularExpression rx;
         QRegularExpressionMatch match;
         QRegularExpressionMatchIterator matchIt;
+        rx.setPattern("\"");
         const QStringList goodsList = goods.split("\\n");
         for (const QString &item : goodsList) {
             QString string = item.trimmed();

@@ -203,8 +203,11 @@ QColor LDrawColor::color(const QString& argument)
 {
   //qDebug() << qUtf8Printable(QString("RECEIVED Color ARGUMENT [%1] for LDrawColor::color").arg(argument));
   QString key(argument.toLower());
-  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatch match = hexRx.match(key);
+  static QRegularExpression hexRx;
+  QRegularExpressionMatch match;
+  hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = hexRx.match(key);
   bool isHexRGB = match.hasMatch();
   bool isVexColour = Preferences::validLDrawLibrary == VEXIQ_LIBRARY;
   bool isValidName = false;
@@ -254,8 +257,11 @@ QColor LDrawColor::color(const QString& argument)
 QString LDrawColor::name(const QString &codeorvalue)
 {
   QString key(codeorvalue.toLower());
-  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatch match = hexRx.match(key);
+  static QRegularExpression hexRx;
+  QRegularExpressionMatch match;
+  hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = hexRx.match(key);
   bool isHexRGB = match.hasMatch();
   //qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::name").arg(isHexRGB ? "VALUE" : "CODE").arg(codeorvalue));
 
@@ -350,8 +356,11 @@ QString LDrawColor::value(const QString& code)
 QString LDrawColor::code(const QString& name)
 {
   QString key(name.toLower());
-  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatch match = hexRx.match(key);
+  static QRegularExpression hexRx;
+  QRegularExpressionMatch match;
+  hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = hexRx.match(key);
   bool isHexRGB = match.hasMatch();
   //qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::code").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
   bool isHexARGB = match.captured(2).size() == 8;

@@ -555,8 +555,9 @@ const QStringList Render::getImageAttributes(const QString &pngName)
         cleanStringList[nType].replace(";", "_");
 
     // treat parts with renderer index prefix
-    static QRegularExpression renderIdRx("-([0-3])$");
+    static QRegularExpression renderIdRx;
     QRegularExpressionMatch match;
+    renderIdRx.setPattern("-([0-3])$");
     int rendererIndex = cleanStringList.at(nType).lastIndexOf(renderIdRx, -1, &match);
     if (rendererIndex > -1) {
         int rendererId = match.captured(1).toInt();

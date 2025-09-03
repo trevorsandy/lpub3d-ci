@@ -1685,8 +1685,10 @@ int Gui::drawPage(
                 QString message = tr("%1 command must be preceded by 0 [ROT]STEP before part (type 1 - 5) at line");
                 if (includeFileFound)
                     message = message.arg(QLatin1String("INCLUDE command containing %1"));
-                static QRegularExpression rx("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
-                QRegularExpressionMatch match = rx.match(line);
+                static QRegularExpression rx;
+                QRegularExpressionMatch match;
+                rx.setPattern("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
+                match = rx.match(line);
                 if (match.hasMatch() && match.captured(1) == "BACK") {
                     lpub->page.backCover  = true;
                     lpub->page.frontCover = false;

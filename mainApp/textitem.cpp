@@ -68,9 +68,10 @@ TextItem::TextItem(InsertMeta meta,
   QChar esc('\\');
   QStringList text;
 
-  static QRegularExpression rx("\"");
+  static QRegularExpression rx;
   QRegularExpressionMatch match;
   QRegularExpressionMatchIterator matchIt;
+  rx.setPattern("\"");
   const QStringList goodsList = data.text.split("\\n");
   for (const QString &item : goodsList) {
     QString string = item.trimmed();
@@ -121,10 +122,11 @@ void TextItem::formatText(const QString &input, QString &output)
     QChar esc('\\');
     QStringList text;
 
-    static QRegularExpression rx("\"");
+    static QRegularExpression rx;
     QRegularExpressionMatch match;
     QRegularExpressionMatchIterator matchIt;
     const QStringList textList = input.split("\n");
+    rx.setPattern("\"");
     for (const QString &item : textList) {
       QString string = item.trimmed();
       int pos = 0;

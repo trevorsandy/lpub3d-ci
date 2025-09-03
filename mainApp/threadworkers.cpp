@@ -3161,8 +3161,9 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
         }
 
         QStringList subFiles;
-        static QRegularExpression sofRx("^0\\s+FILE\\s+(.*)$");  //start of file
+        static QRegularExpression sofRx;  //start of file
         QRegularExpressionMatch match;
+        sofRx.setPattern("^0\\s+FILE\\s+(.*)$");
         for (int i = 0; i < contentList.size(); i++) {
              match = sofRx.match(contentList.at(i));
              if(match.hasMatch())

@@ -6308,8 +6308,11 @@ QString joinLine(const QStringList &argv)
  */
 bool isSubstitute(const QString &line, QString &lineOut)
 {
-  static QRegularExpression substitutePartRx("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})", QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatch match = substitutePartRx.match(line);
+  static QRegularExpression substitutePartRx;
+  QRegularExpressionMatch match;
+  substitutePartRx.setPattern("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})");
+  substitutePartRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = substitutePartRx.match(line);
   if (match.hasMatch()) {
     lineOut = match.captured(1);
     return true;
@@ -6325,10 +6328,12 @@ bool isSubstitute(const QString &line)
 
 bool isGhost(const QString &line)
 {
-  static QRegularExpression ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
-  QRegularExpressionMatch match = ghostMeta.match(line);
+  static QRegularExpression ghostMeta;
+  QRegularExpressionMatch match;
+  ghostMeta.setPattern("^\\s*0\\s+GHOST\\s+.*$");
+  match = ghostMeta.match(line);
   if (match.hasMatch())
-      return true;
+    return true;
   return false;
 }
 
@@ -6366,8 +6371,10 @@ QStringList asynchronous(const QFuture<QStringList> &future)
 
 int getUnofficialFileType(QString &line)
 {
-  static QRegularExpression unnoffTypeRx("^0\\s+!?(LDCAD GENERATED)[^\n]*");
-  QRegularExpressionMatch match = unnoffTypeRx.match(line);
+  static QRegularExpression unnoffTypeRx;
+  QRegularExpressionMatch match;
+  unnoffTypeRx.setPattern("^0\\s+!?(LDCAD GENERATED)[^\n]*");
+  match = unnoffTypeRx.match(line);
   if (match.hasMatch()) {
     return UNOFFICIAL_GENERATED_PART;
   }

@@ -33,10 +33,16 @@ ExcludedParts::ExcludedParts()
     qRegisterMetaType<ExcludedPartType>("ExcludedPartType");
     if (excludedParts.size() == 0) {
         QString excludedPartsFile = Preferences::excludedPartsFile;
-        static QRegularExpression rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-        static QRegularExpression helperRx("^Helper", QRegularExpression::CaseInsensitiveOption);
-        static QRegularExpression lsynthRx("^~?LSynth", QRegularExpression::CaseInsensitiveOption);
+        static QRegularExpression rx;
+        static QRegularExpression rxin;
+        static QRegularExpression helperRx;
+        static QRegularExpression lsynthRx;
         QRegularExpressionMatch match;
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        helperRx.setPattern("^Helper");
+        helperRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+        lsynthRx.setPattern("^~?LSynth");
+        lsynthRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         if (!excludedPartsFile.isEmpty()) {
             QFile file(excludedPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -52,10 +58,11 @@ ExcludedParts::ExcludedParts()
                 }
                 return;
             }
+
             QTextStream in(&file);
 
             // Load RegExp from file;
-            static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 match = rxin.match(sLine);
@@ -144,8 +151,10 @@ int ExcludedParts::isExcludedSupportPart(const QString &part)
 
 bool ExcludedParts::lineHasExcludedPart(const QString &line)
 {
-    static QRegularExpression rx("^([1-5]) ");
-    QRegularExpressionMatch match = rx.match(line);
+    static QRegularExpression rx;
+    QRegularExpressionMatch match;
+    rx.setPattern("^([1-5]) ");
+    match = rx.match(line);
     if (!match.hasMatch())
         return false;
 

@@ -34,9 +34,10 @@ StickerParts::StickerParts()
 {
     if (stickerParts.size() == 0) {
         QString stickerPartsFile = Preferences::stickerPartsFile;
-        static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
-        static QRegularExpression rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        static QRegularExpression rxin;
+        static QRegularExpression rx;
         QRegularExpressionMatch match;
+        rx.setPattern("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         if (!stickerPartsFile.isEmpty()) {
             QFile file(stickerPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -55,7 +56,7 @@ StickerParts::StickerParts()
             QTextStream in(&file);
 
             // Load RegExp from file;
-
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 match = rxin.match(sLine);

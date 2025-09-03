@@ -294,8 +294,9 @@ bool Gui::stepContains(Where &topOfStep, QRegularExpression &lineRx, bool displa
   Where walk = topOfStep;
   LDrawFile &ldrawFile = lpub->ldrawFile;
   int  numLines = ldrawFile.size(walk.modelName);
-  static QRegularExpression endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+!DATA");
+  static QRegularExpression endRx;
   QRegularExpressionMatch match;
+  endRx.setPattern("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+!DATA");
   for (; walk < numLines; ++walk) {
     const QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
     match = lineRx.match(line);

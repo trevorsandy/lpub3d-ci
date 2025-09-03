@@ -1392,8 +1392,11 @@ int Step::setCsiAnnotationMetas(Meta &_meta, int &_adjust, bool force)
                 QString typeName = QFileInfo(part->type).completeBaseName();
                 Where walk = start;
                 line = gui->readLine(++walk); // check next line - skip if meta exist
-                static QRegularExpression rx(QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$"));
-                QRegularExpressionMatch match = rx.match(line);
+
+                static QRegularExpression rx;
+                QRegularExpressionMatch match;
+                rx.setPattern(QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$"));
+                match = rx.match(line);
                 if (((match.hasMatch() && typeName == match.captured(2)) ||
                      (match.captured(2) == "HIDDEN" || match.captured(2) == "HIDE")) && ! force)
                     continue;

@@ -45,9 +45,13 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     QString const cleanRange = gui->setPageLineEdit->displayText().trimmed().replace(" ", "");
     bool multiRange = cleanRange.contains(',');
     bool ofPages = cleanRange.contains("of",Qt::CaseInsensitive);
-    static QRegularExpression startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", QRegularExpression::CaseInsensitiveOption);
-    static QRegularExpression endRx("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
-    QRegularExpressionMatch match = startRx.match(cleanRange) ;
+    static QRegularExpression startRx;
+    static QRegularExpression endRx;
+    QRegularExpressionMatch match;
+    startRx.setPattern("^(\\d+)(?:[\\w\\-\\,\\s]*)$");
+    startRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+    endRx.setPattern("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
+    match = startRx.match(cleanRange);
     if (match.hasMatch()) {
         rangeMin = match.captured(1).toInt(&ok[0]);
         match = endRx.match(cleanRange);

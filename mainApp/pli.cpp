@@ -1592,18 +1592,21 @@ void Pli::partClass(
   pclass = description;
 
   if (pclass.length()) {
-      static QRegularExpression rx("^(\\w+)\\s+([0-9a-zA-Z]+).*$");
-      QRegularExpressionMatch match = rx.match(description);
+      static QRegularExpression rx;
+      QRegularExpressionMatch match;
+      QLatin1String technicClass("Technic");
+      rx.setPattern("^(\\w+)\\s+([0-9a-zA-Z]+).*$");
+      match = rx.match(description);
       if (match.hasMatch()) {
           pclass = match.captured(1);
-          if (rx.captureCount() == 2 && match.captured(1).contains("Technic", Qt::CaseInsensitive)) {
+          if (rx.captureCount() == 2 && match.captured(1).contains(technicClass, Qt::CaseInsensitive)) {
               pclass += match.captured(2);
           }
         } else {
-          pclass = "NoCat";
+          pclass = QLatin1String("NoCat");
         }
     } else {
-      pclass = "NoCat";
+      pclass = QLatin1String("NoCat");
     }
 }
 

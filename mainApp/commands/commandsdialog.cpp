@@ -363,8 +363,11 @@ void CommandsDialog::commandTextChanged()
     const QString commandStr = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
     QString description = commandTextEdit->toPlainText();
 
-    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
-    QRegularExpressionMatch match = rx.match(commandStr);
+    static QRegularExpression rx;
+    QRegularExpressionMatch match;
+    rx.setPattern("^([^\\[\\(<\\\n]*)");
+    match = rx.match(commandStr);
+
     if (description != commandStr && match.hasMatch()) {
       Command command = commandCollection->command(match.captured(1).trimmed());
       command.description = commandTextEdit->toPlainText();
@@ -382,8 +385,11 @@ void CommandsDialog::resetCommandButtonClicked()
     const QString commandStr = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
     const QString description = commandTextEdit->toPlainText();
 
-    static QRegularExpression rx("^([^\\[\\(<\\\n]*)");
-    QRegularExpressionMatch match = rx.match(commandStr);
+    static QRegularExpression rx;
+    QRegularExpressionMatch match;
+    rx.setPattern("^([^\\[\\(<\\\n]*)");
+    match = rx.match(commandStr);
+
     if (description != commandStr && match.hasMatch()) {
       Command command = commandCollection->command(match.captured(1).trimmed());
       command.description = command.command;

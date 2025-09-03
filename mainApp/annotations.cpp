@@ -1296,12 +1296,14 @@ Annotations::Annotations()
     returnString = QString();
     AnnotationErrors.clear();
 
-    static QRegularExpression rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
-    static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+    static QRegularExpression rx;
+    static QRegularExpression rxin;
     QRegularExpressionMatch match;
+
     QString message, title;
     if (titleAnnotations.size() == 0) {
         QString titleAnnotationsFile = Preferences::titleAnnotationsFile;
+        rx.setPattern("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
         if (QFileInfo::exists(titleAnnotationsFile)) {
             QFile file(titleAnnotationsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1314,6 +1316,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file if exist;
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 match = rxin.match(sLine);
@@ -1755,7 +1758,7 @@ bool Annotations::loadBLCodes() {
     if (blCodes.size() == 0) {
         QString message;
         QString blCodesFile = Preferences::blCodesFile;
-        static QRegularExpression rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        static QRegularExpression rx;
         QRegularExpressionMatch match;
         if (QFileInfo::exists(blCodesFile)) {
             QFile file(blCodesFile);
@@ -1774,6 +1777,7 @@ bool Annotations::loadBLCodes() {
 //            QTextStream Stream(&File);
 // DEBUG <<<---
             // Load input values
+            rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
             in.seek(0);
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
@@ -1805,13 +1809,14 @@ bool Annotations::loadBLCodes() {
 bool Annotations::loadBLCodes(QByteArray &Buffer) {
     if (blCodes.size() == 0) {
         QString message;
-        static QRegularExpression rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        static QRegularExpression rx;
         QRegularExpressionMatch match;
         QTextStream instream(Buffer);
 
         instream.seek(0);
 
         //     Load input values from instream
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
             QChar comment = sLine.at(0);
@@ -1872,10 +1877,11 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
                                   ? QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_USERELEMENTS_FILE))
                                   : Preferences::userElementsFile;
         bool fileFound = QFileInfo::exists(userElementsFile);
+        static QRegularExpression rx;
         // kept localElements for backwards compatability
         if (!fileFound)
             userElementsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE);
-        static QRegularExpression rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        rx.setPattern("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         QRegularExpressionMatch match;
         if (fileFound || QFileInfo::exists(userElementsFile)) {
             QFile file(userElementsFile);
@@ -1889,7 +1895,8 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
             QTextStream in(&file);
 
             // Load RegExp from file;
-            static QRegularExpression rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
+            static QRegularExpression rxin;
+            rxin.setPattern("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 match = rxin.match(sLine);
