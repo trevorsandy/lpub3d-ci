@@ -1809,6 +1809,21 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         return NoneMissing;
     };
 
+    auto setEndStepMeta = [&] (QStringList &contents)
+    {
+        for (int i = contents.size() - 1; i >= 0; i--) {
+            const QString line = contents.at(i).trimmed();
+            if (line == "0" || line.isEmpty())
+                continue;
+            if (line.contains(_fileRegExp[EOS_RX]))
+                return false;
+            if (!line.startsWith("0"))
+                break;
+        }
+        contents.append("0 STEP");
+        return true;
+    };
+
     QFileInfo   fileInfo(fileName);
 
     QFile file(fileName);
@@ -1824,9 +1839,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     bool alreadyLoaded       = false;
     bool subfileFound        = false;
     bool isDatafile          = false;
+    bool endStepMetaMissing  = false;
     bool partHeaderFinished  = false;
     bool stagedSubfilesFound = externalFile;
     bool modelHeaderFinished = externalFile ? true : false;
+    bool sof  = false;
+    bool eof  = false;
     bool sosf = false;
     bool eosf = false;
     _mpd      = true;
@@ -1924,8 +1942,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         if (smLine.isEmpty())
             continue;
 
-        bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
-        bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
+        sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
+        if (!topFileNotFound && sof && !eof && !eosf)
+            endStepMetaMissing = true;
+        eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
 
         smLineNum = (sof ? 0 : smLineNum++);
 
@@ -2146,6 +2166,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         const QString statusEntry = QObject::tr("%1|%2|%3").arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName, message);
                         loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
                     } else {
+                        if (endStepMetaMissing) {
+                            if ((eof = setEndStepMeta(contents))) {
+                                const QString message = QObject::tr("MPD %1 '%2' end STEP and was added by %3 (file: %4, line: %5).")
+                                                                    .arg(fileType(), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
+                                const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
+                                loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
+                            }
+                            endStepMetaMissing = false;
+                        }
                         insert(subfileName,
                                contents,
                                datetime,
@@ -2266,6 +2295,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 const QString statusEntry = QObject::tr("%1|%2|%3").arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName, message);
                 loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
             } else {
+                if (!eof && !eosf) {
+                    if (setEndStepMeta(contents)) {
+                        const QString message = QObject::tr("MPD %1 '%2' end STEP and was added by %3 (file: %4, line: %5).")
+                                                            .arg(fileType(), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
+                        const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
+                        loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
+                    }
+                }
                 insert(subfileName,
                        contents,
                        datetime,
@@ -6179,10 +6216,11 @@ LDrawFile::LDrawFile()
 {
   {
     _fileRegExp
-        << QRegularExpression("^0\\s+FILE\\s?(.*)$", QRegularExpression::CaseInsensitiveOption)       // SOF_RX - Start of File
-        << QRegularExpression("^0\\s+!?DATA\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)     // DAT_RX - Imbedded Image Data
-        << QRegularExpression("^0\\s+!:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)         // B64_RX - Base 64 Image Data Line
-        << QRegularExpression("^0\\s+NOFILE\\s*$", QRegularExpression::CaseInsensitiveOption)         // EOF_RX - End of File
+        << QRegularExpression("^0\\s+FILE\\s?(.*)$")                                                  // SOF_RX - Start of File
+        << QRegularExpression("^0\\s+!?DATA\\s+(.*)$")                                                // DAT_RX - Imbedded Image Data
+        << QRegularExpression("^0\\s+!:\\s+(.*)$")                                                    // B64_RX - Base 64 Image Data Line
+        << QRegularExpression("^0\\s+NOFILE\\s*$")                                                    // EOF_RX - End of File
+        << QRegularExpression("^0\\s+(STEP|ROTSTEP)[^\n]*")                                           // EOS_RX - End of Step
         << QRegularExpression("^1\\s+.*$", QRegularExpression::CaseInsensitiveOption)                 // LDR_RX - LDraw File
         << QRegularExpression("^0\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)               // DES_RX - Model Description
         << QRegularExpression("^0\\s+NAME:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)      // NAM_RX - Name Header
@@ -6195,7 +6233,7 @@ LDrawFile::LDrawFile()
         << QRegularExpression("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
         << QRegularExpression("^[0-5]\\s+!?(?:LPUB)*\\s?(?:STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|ROTATION|\\d)[^\n]*")               // EOH_RX - End of Header
         << QRegularExpression("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")                                              // DMS_RX - Display Model Step
-        << QRegularExpression("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*")                                        // LDS_RX - LDraw Step boundry
+        << QRegularExpression("^0\\s+(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*")                                                       // LDS_RX - LDraw Step boundry
         << QRegularExpression("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(SETUP|ENABLED)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")              // FHE_RX - Fade or Highlight Enabled (or Setup)
         << QRegularExpression("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(LPUB_FADE|LPUB_HIGHLIGHT)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")   // LFH_RX - LPub Fade or LPub Highlight
         ;
