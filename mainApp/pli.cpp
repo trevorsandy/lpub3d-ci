@@ -2914,7 +2914,9 @@ int Pli::resizePli(
       placement = meta->LPub.callout.pli.placement;
       break;
     default:
-      placement = meta->LPub.pli.placement;
+      placement = bom
+              ? meta->LPub.bom.placement
+              : meta->LPub.pli.placement;
       break;
   }
 
@@ -3314,7 +3316,7 @@ PliBackgroundItem::PliBackgroundItem(
 
   QString toolTip;
 
-  if (_pli->bom) {
+  if (pli->bom) {
       toolTip = QObject::tr("Bill Of Materials");
     } else {
       toolTip = QObject::tr("Part List");
@@ -3324,11 +3326,9 @@ PliBackgroundItem::PliBackgroundItem(
                          .arg(height);
 
   if (parentRelativeType == StepGroupType /* && pli->perStep == false */) {
-      if (pli->bom) {
-          placement = pli->meta->LPub.bom.placement;
-        } else {
-          placement = pli->meta->LPub.multiStep.pli.placement;
-        }
+      placement = pli->bom
+              ? pli->meta->LPub.bom.placement
+              : pli->meta->LPub.multiStep.pli.placement;
     } else {
       placement = pli->pliMeta.placement;
     }
