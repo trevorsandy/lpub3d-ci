@@ -23,6 +23,7 @@ Revisions:
 - Regression - Library Update failed #804
 - Fix - Adding Page Pointer causes Crash #818
 - Fix - Cannot edit AnnotationStyle list from menu action #810
+- Fix - Crash on change meta command BOM MODEL_SCALE GLOBAL #808
 - Fix - PLI CONSTRAIN GLOBAL HEIGHT not applied #819
 - Fix - Pointer Tip of a page pointer cannot be hidden #813
 - Fix - Submodel preview rotation #803
