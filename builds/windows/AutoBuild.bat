@@ -617,7 +617,7 @@ rem Configure makefiles
 IF "%LP3D_QMAKE_RUN%" EQU "" SET LP3D_QMAKE_RUN=1
 IF "%LP3D_QMAKE_RUN%" EQU "1" (
   qmake %LPUB3D_CONFIG_ARGS%
-  IF "%LP3D_ARM64_QMAKE%" == "1" (
+  IF "%LP3D_ARM64_QMAKE%" EQU "1" (
     SET LP3D_ARM64_QMAKE=0
     ECHO.
     GOTO :ARM64_BUILD
@@ -846,7 +846,7 @@ IF "%LP3D_QMAKE_CLEAN%" EQU "1" (
 ECHO.
 IF "%LP3D_ARM64_QMAKE%" NEQ "1" (
   IF %CHECK% EQU 1 (
-    IF %PLATFORM_ARCH% EQU x86_64 (
+    IF "%PLATFORM_ARCH%" EQU "x86_64" (
       IF "%BUILD_WORKER%" EQU "True" (
         IF "%LP3D_CONDA_BUILD%" EQU "True" (
           ECHO   LP3D_BUILD_CHECK...............[Yes]
@@ -895,10 +895,10 @@ IF "%LP3D_WIN_GIT%" NEQ "" (
   SET "PATH_ADDITIONS=%PATH_ADDITIONS%;%LP3D_WIN_GIT%"
 )
 SET "PATH=%PATH_ADDITIONS%;%PATH%"
-IF %PLATFORM_ARCH% EQU x86_64 (
+IF "%PLATFORM_ARCH%" EQU "x86_64" (
   SET LP3D_VCVARS=vcvars64.bat
 )
-IF %PLATFORM_ARCH% EQU ARM64 (
+IF "%PLATFORM_ARCH%" EQU "ARM64" (
   SET LP3D_VCVARS=vcvarsamd64_arm64.bat
   SET LPUB3D_CONFIG_ARGS=-config %CONFIGURATION% %LPUB3D_CONFIG_ARGS%
 )
@@ -906,7 +906,7 @@ IF "%LP3D_ARM64_BUILD%" NEQ "1" (
   ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
 )
 ECHO.
-IF %PLATFORM_ARCH% EQU x86 (
+IF "%PLATFORM_ARCH%" EQU "x86" (
   IF EXIST "%LP3D_VCVARSALL_DIR%\vcvars32.bat" (
     SET "LP3D_VCVARSALL_BAT=%LP3D_VCVARSALL_DIR%\vcvars32.bat"
   ) ELSE (
@@ -960,10 +960,10 @@ EXIT /b
 :BUILD_CHECK
 ECHO.
 REM DEBUG============
-IF %1 EQU x86 (
+IF "%1" EQU "x86" (
   ECHO -%PACKAGE% %1 Build Check...
 ) ELSE (
-  IF %1 EQU x86_64 (
+  IF "%1" EQU "x86_64" (
     IF "%BUILD_WORKER%" EQU "True" (
       IF "%LP3D_CONDA_BUILD%" EQU "True" (
         ECHO -%PACKAGE% %1 Build Check...
@@ -975,8 +975,8 @@ IF %1 EQU x86 (
       ECHO -%PACKAGE% %1 Build Check...
     )
   ) ELSE (
-    IF %1 EQU ARM64 (
-      IF %LP3D_AMD64_ARM64_CROSS%==1 (
+    IF "%1" EQU "ARM64" (
+      IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
         ECHO -%PACKAGE% %1 Build Check skipped on ARM64 cross compilation.
         EXIT /b
       ) ELSE (
