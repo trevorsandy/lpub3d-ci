@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 15, 2025
+rem  Last Update: September 04, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -130,10 +130,13 @@ IF NOT EXIST "%LP3D_DOWNLOADS_PATH%" (
 IF NOT EXIST "%USERPROFILE%\LDraw" (
   IF EXIST "%LP3D_LDRAW_DIR_PATH%" (
     MKLINK /d %USERPROFILE%\LDraw %LP3D_LDRAW_DIR_PATH% 2>&1
+    SET LDRAWDIR=%USERPROFILE%\LDraw
   ) ELSE (
     ECHO.
     ECHO - WARNING - %LP3D_LDRAW_DIR_PATH% path not defined
   )
+) ELSE (
+  SET LDRAWDIR=%USERPROFILE%\LDraw
 )
 
 PUSHD %LP3D_BUILD_BASE%

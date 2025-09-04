@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 20, 2025
+rem  Last Update: September 04, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -398,25 +398,32 @@ IF NOT EXIST "%CONFIGURATION%\%LP3D_PRODUCT_DIR%" (
   GOTO :ERROR_END
 )
 
-REM pwd = windows/release/LP3D_PRODUCT_DIR [holds _PKG_DIST_DIR, PKG_UPDATE_DIR, PKG_DOWNLOAD_DIR]
+REM pwd = windows/release/LP3D_PRODUCT_DIR [holds _PKG_DIST_DIR, PKG_UPDATE_DIR, PKG_DOWNLOAD_DIR, PKG_LOGS_DIR]
 CD /D "%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
 
 ECHO.
 ECHO - Create folders and delete old content...
 
-IF NOT EXIST "%LP3D_PRODUCT%_Download\" (
-  MKDIR "%LP3D_PRODUCT%_Download\"
-)
 SET PKG_DOWNLOAD_DIR=%LP3D_PRODUCT%_Download
-
-IF NOT EXIST "%LP3D_PRODUCT%_Update\" (
-  MKDIR "%LP3D_PRODUCT%_Update\"
+IF NOT EXIST "%PKG_DOWNLOAD_DIR%" (
+  MKDIR "%PKG_DOWNLOAD_DIR%"
+) ELSE (
+  DEL /Q "%PKG_DOWNLOAD_DIR%\*.*"
 )
+
 SET PKG_UPDATE_DIR=%LP3D_PRODUCT%_Update
+IF NOT EXIST "%PKG_UPDATE_DIR%" (
+  MKDIR "%PKG_UPDATE_DIR%"
+) ELSE (
+  DEL /Q "%PKG_UPDATE_DIR%\*.*"
+)
 
-DEL /Q "%PKG_DOWNLOAD_DIR%\*.*"
-
-DEL /Q "%PKG_UPDATE_DIR%\*.*"
+SET PKG_LOGS_DIR=%LP3D_PRODUCT%_Logs
+IF NOT EXIST "%PKG_LOGS_DIR%" (
+  MKDIR "%PKG_LOGS_DIR%"
+) ELSE (
+  DEL /Q "%PKG_LOGS_DIR%\*.*"
+)
 
 ECHO.
 ECHO - Building distribution package...
@@ -606,7 +613,9 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
 CALL :GENERATE_JSON
 
 IF "%GITHUB%" EQU "True" (
-  CALL :MOVE_ASSETS_TO_UPLOAD_PATH
+  CALL :MOVE_ASSETS_TO_DISTRO_PATH
+  REM reset ErrorLevel to 0 from 1 for unsuccessful FINDSTR in MOVE_ASSETS_TO_DISTRO_PATH
+  (CALL )
 )
 
 IF %AUTO% NEQ 1 (
@@ -631,11 +640,12 @@ REM LPub3D  _ 2.0.20  . 106      . 752   _ 20170929
 
 REM Directory Structure Format:
 REM Windows                                                            - builds/windows
-REM   |_ Release                                                       - windows/release
+REM   |_Release                                                        - windows/release
 REM        |_PRODUCT_DIR          = LP3D_PRODUCT LP3D_APP_VERSION_LONG - LPub3D_2.0.20.106.752_20170929
 REM            |_PKG_DIST_DIR     = LP3D_PRODUCT LP3D_DISTRO_ARCH      - LPub3D_x86_64
-REM            |_PKG_DOWNLOAD_DIR = PRODUCT_Download                   - LPub3D_Download
-REM            |_PKG_UPDATE_DIR   = PRODUCT_Update                     - LPub3D_Update
+REM            |_PKG_DOWNLOAD_DIR = LP3D_PRODUCT_Download              - LPub3D_Download
+REM            |_PKG_UPDATE_DIR   = LP3D_PRODUCT_Update                - LPub3D_Update
+REM            |_PKG_LOGS_DIR     = LP3D_PRODUCT_Logs                  - LPub3D_Logs
 IF NOT EXIST "%PKG_DISTRO_DIR%" (
   ECHO.
   ECHO * Did not find distribution package directory.
@@ -669,7 +679,12 @@ EXIT /b
 
 :GENERATENSISPARAMS
 REM pwd = builds\windows\release\LP3D_PRODUCT_DIR
-SET LP3D_WIN64_3RDPARTY=%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%\3rdParty
+PUSHD "%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
+IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
+  SET LP3D_WIN64_3RDPARTY=%LP3D_PRODUCT%_x86_64\3rdParty
+) ELSE (
+  SET LP3D_WIN64_3RDPARTY=%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%\3rdParty
+)
 SET LP3D_WIN64_LDGLITE=%LP3D_WIN64_3RDPARTY%\%VER_LDGLITE%\bin\%LDGLITE_EXE%.exe
 SET LP3D_WIN64_LDVIEW=%LP3D_WIN64_3RDPARTY%\%VER_LDVIEW%\bin\%LDVIEW_EXE%64.exe
 SET LP3D_WIN64_LPUB3D_TRACE=%LP3D_WIN64_3RDPARTY%\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%64.exe
@@ -680,6 +695,7 @@ SET LP3D_WIN32_LDVIEW=%LP3D_WIN32_3RDPARTY%\%VER_LDVIEW%\bin\%LDVIEW_EXE%.exe
 SET LP3D_WIN32_LPUB3D_TRACE=%LP3D_WIN32_3RDPARTY%\%VER_LPUB3D_TRACE%\bin\%LPUB3D_TRACE_EXE%32.exe
 REM AppVersion.nsh pwd = builds\utilities\nsis-scripts
 SET LP3D_BUILD_DIR=..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%
+POPD
 
 SET LP3D_LDGLITE_STATUS=Installed
 SET LP3D_LDVIEW_STATUS=Installed
@@ -1589,45 +1605,31 @@ SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET TenteCONTENT=tenteparts.zip
 SET VexiqCONTENT=vexiqparts.zip
 
-CALL :CREATEWEBCONTENTDOWNLOADVBS
+(CALL :CREATEWEBCONTENTDOWNLOADVBS )
 
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
-IF NOT EXIST "%OutputPATH%\%OfficialCONTENT%" (
-  CALL :GET_OFFICIAL_LIBRARY
-)  ELSE (
-  ECHO.
-  ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
-)
-IF NOT EXIST "%OutputPATH%\%TenteCONTENT%" (
-  CALL :GET_TENTE_LIBRARY
-) ELSE (
-  ECHO.
-  ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
-)
-IF NOT EXIST "%OutputPATH%\%VexiqCONTENT%" (
-  CALL :GET_VEXIQ_LIBRARY
-) ELSE (
-  ECHO.
-  ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
-)
-IF NOT EXIST "%OutputPATH%\%LPub3DCONTENT%" (
-  CALL :GET_UNOFFICIAL_LIBRARY
-) ELSE (
-  ECHO.
-  ECHO - LDraw archive library %LPub3DCONTENT% exist. Nothing to do.
-)
+CALL :GET_OFFICIAL_LIBRARY
+CALL :GET_TENTE_LIBRARY
+CALL :GET_VEXIQ_LIBRARY
+CALL :GET_UNOFFICIAL_LIBRARY
 
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
-  FOR %%A IN ( x86_64, x86 ) DO (CALL :SET_LDRAW_LIBRARIES %%A)
+  CALL :SET_LDRAW_LIBRARIES x86_64
+  CALL :SET_LDRAW_LIBRARIES x86
 ) ELSE (
   CALL :SET_LDRAW_LIBRARIES %LP3D_DISTRO_ARCH%
 )
-
 EXIT /b
 
 :GET_OFFICIAL_LIBRARY
+IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
+  EXIT /b
+)
+
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%OfficialCONTENT%
 
@@ -1642,6 +1644,12 @@ IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
 EXIT /b
 
 :GET_TENTE_LIBRARY
+IF EXIST "%OutputPATH%\%TenteCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
+  EXIT /b
+)
+
 SET WebCONTENT="%OutputPATH%\%TenteCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%TenteCONTENT%
 
@@ -1656,6 +1664,12 @@ IF EXIST "%OutputPATH%\%TenteCONTENT%" (
 EXIT /b
 
 :GET_VEXIQ_LIBRARY
+IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
+  EXIT /b
+)
+
 SET WebCONTENT="%OutputPATH%\%VexiqCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%VexiqCONTENT%
 
@@ -1670,6 +1684,12 @@ IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
 EXIT /b
 
 :GET_UNOFFICIAL_LIBRARY
+IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %LPub3DCONTENT% exist. Nothing to do.
+  EXIT /b
+)
+
 SET WebCONTENT="%OutputPATH%\%LPub3DCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%LPub3DCONTENT%
 
@@ -1688,10 +1708,8 @@ EXIT /b
 
 :SET_LDRAW_LIBRARIES
 SET "PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1"
-
 ECHO.
 ECHO - Copy LDraw archive libraries to %PKG_TARGET_DIR%\extras folder...
-
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
     COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /B | FINDSTR /i /v /r /c:"copied\>"
@@ -1925,8 +1943,8 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_AVAILABLE_VERSIONS="%LP3D_AVAILABLE_VERSIONS%"
 >>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PRODUCT%-Any-%LP3D_APP_VERSION_LONG%"
 >>%genFile% export LP3D_BUILD_TARGET="%LP3D_PACKAGE_PATH_BASH%/${LP3D_BUILD_PACKAGE}"
->>%genFile% export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PRODUCT%_Download"
->>%genFile% export LP3D_UPDATE_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PRODUCT%_Update"
+>>%genFile% export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_TARGET}/%PKG_DOWNLOAD_DIR%"
+>>%genFile% export LP3D_UPDATE_ASSETS="${LP3D_BUILD_TARGET}/%PKG_UPDATE_DIR%"
 >>%genFile% echo ^&^& echo "- Update-config-files environment variables set in Bash"
 >>%genFile% echo ^&^& echo "- LP3D BUILD Environment Variables:" ^&^& env ^| sort ^| grep 'LP3D_BUILD_*'
 IF EXIST "%set_bash_vars%" (
@@ -1936,16 +1954,16 @@ IF EXIST "%set_bash_vars%" (
 )
 EXIT /b
 
-:MOVE_ASSETS_TO_UPLOAD_PATH
+:MOVE_ASSETS_TO_DISTRO_PATH
 CD %GITHUB_WORKSPACE%
 ECHO.
 ECHO - Move assets and logs to output folder...
 SET LP3D_BUILD_PACKAGE=%LP3D_PRODUCT%-Any-%LP3D_APP_VERSION_LONG%
 SET LP3D_PACKAGE_PATH=%CD%\builds\windows\%CONFIGURATION%
 SET LP3D_BUILD_TARGET=%LP3D_PACKAGE_PATH%\%LP3D_BUILD_PACKAGE%
-SET LP3D_DOWNLOAD_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PRODUCT%_Download
-SET LP3D_UPDATE_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PRODUCT%_Update
-SET LP3D_RUNLOG_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PRODUCT%_Logs
+SET LP3D_DOWNLOAD_ASSETS=%LP3D_BUILD_TARGET%\%PKG_DOWNLOAD_DIR%
+SET LP3D_UPDATE_ASSETS=%LP3D_BUILD_TARGET%\%PKG_UPDATE_DIR%
+SET LP3D_RUNLOG_ASSETS=%LP3D_BUILD_TARGET%\%PKG_LOGS_DIR%
 SET FILTER_LIST=LP3D_BUILD_* LP3D_PACKAGE_* LP3D_DOWNLOAD_* LP3D_UPDATE_* LP3D_RUNLOG_*
 ECHO.
 FOR /f "delims== tokens=1,2" %%a IN ('SET ^| FINDSTR / "%FILTER_LIST%"') DO (ECHO - %%a = %%b)
@@ -1967,6 +1985,8 @@ IF EXIST "%LP3D_DOWNLOAD_ASSETS%" (
   GOTO :ERROR_END
 )
 
+IF "%LP3D_BUILD_ARCH%" EQU "ARM64" (GOTO :MOVE_RUNLOG_ASSETS)
+
 IF EXIST "%LP3D_UPDATE_ASSETS%" (
   ECHO.
   ECHO - Move update assets to LP3D_UPDATES_PATH %LP3D_UPDATES_PATH%...
@@ -1985,6 +2005,7 @@ IF EXIST "%LP3D_UPDATE_ASSETS%" (
   GOTO :ERROR_END
 )
 
+:MOVE_RUNLOG_ASSETS
 IF EXIST "%LP3D_RUNLOG_ASSETS%" (
   ECHO.
   ECHO - Move runlog assets to LP3D_DOWNLOADS_PATH %LP3D_DOWNLOADS_PATH%...

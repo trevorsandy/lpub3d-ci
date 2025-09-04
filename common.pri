@@ -309,6 +309,12 @@ win32-arm64-msvc|win32-msvc* {
 
 equals(TARGET, LPub3D) {
     LDRAWDIR                 = $$(LDRAWDIR)
+    isEmpty(LDRAWDIR) {
+        win32-arm64-msvc|win32-msvc*: \
+            LDRAWDIR         = $$(USERPROFILE)
+        else: \
+            LDRAWDIR         = $$(HOME)
+    }
     exists($${LDRAWDIR}/parts) {
         LDRAW_PATH           = $$shell_path($$absolute_path($${LDRAWDIR}))
         LDRAW_DIR_FOUND_MSG  = LDRAW PARTS LIBRARY $${LDRAW_PATH}
