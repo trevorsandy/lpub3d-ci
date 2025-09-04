@@ -164,10 +164,12 @@ THIRD_PARTY_DIST_DIR_PATH     = $$clean_path( $${PWD}/builds/3rdparty )
     LIB_LDVIEW  = libTCFoundation$${POSTFIX}.a
     else:win32-arm64-msvc|win32-msvc*: \
     LIB_LDVIEW  = TCFoundation.lib
-    LIB_LDVIEW_PATH = $$clean_path( $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW_PATH} )
+    LIB_LDVIEW_PATH = $$clean_path( $${THIRD_PARTY_DIST_DIR_PATH}/$${VER_LDVIEW}/lib/$${QT_ARCH}/$${LIB_LDVIEW} )
     !exists($${LIB_LDVIEW_PATH}) {
         CONFIG += BUILD_LDV_LIBS
         NO_LDVIEW_DIST_LIBS = True
+        contains(TEMPLATE, subdirs): \
+        LDVIEW_DIST_LIBS_MSG = $$upper($${VER_LDVIEW}) LDV LIBRARIES BUILT FROM SOURCE
     }
 }
 
