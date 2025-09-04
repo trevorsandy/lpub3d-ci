@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 30, 2025
+# Last Update: September 04, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -83,7 +83,7 @@ brew_install() {
     qt@6|qt@5)
       brew install $1
       echo "Force linking to 'keg-only' instance of Qt..."
-      brew link --force $1
+      brew link --force --overwrite $1 2>/dev/null
     ;;
     *)
       brew install $1
