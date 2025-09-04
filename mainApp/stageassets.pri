@@ -155,8 +155,6 @@ stage3rdassets {
                 CONFIG              += ldglite_stage
 
                 message("~~~ $${LPUB3D} 1 OF 3 $$upper($${VER_LDGLITE}) RENDERER STAGED ~~~")
-            } else:BUILD_LDV_LIBS {
-                message("~~~ $${LPUB3D} 1 OF 3 $$upper($${VER_LDGLITE}) RENDERER BUILT FROM SOURCE ~~~")
             } else {
                 message("~~~ NOTICE 1 OF 3 $$upper($${VER_LDGLITE}) RENDERER NOT FOUND ~~~")
             }
@@ -169,8 +167,6 @@ stage3rdassets {
                 CONFIG              += ldview_stage
 
                 message("~~~ $${LPUB3D} 2 OF 3 $$upper($${VER_LDVIEW}) RENDERER STAGED ~~~")
-            } else:BUILD_LDV_LIBS {
-                message("~~~ $${LPUB3D} 2 OF 3 $$upper($${VER_LDVIEW}) RENDERER BUILT FROM SOURCE ~~~")
             } else {
                 message("~~~ NOTICE 2 OF 3 $$upper($${VER_LDVIEW}) RENDERER NOT FOUND ~~~")
             }
@@ -183,8 +179,6 @@ stage3rdassets {
                 CONFIG              += raytracer_stage
 
                 message("~~~ $${LPUB3D} 3 OF 3 $$upper($${VER_POVRAY}) RENDERER STAGED ~~~")
-            } else:BUILD_LDV_LIBS {
-                message("~~~ $${LPUB3D} 3 OF 3 $$upper($${VER_POVRAY}) RENDERER BUILT FROM SOURCE ~~~")
             } else {
                 message("~~~ NOTICE 3 OF 3 $$upper($${VER_POVRAY}) RENDERER NOT FOUND ~~~")
             }
