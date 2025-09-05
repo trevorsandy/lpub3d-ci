@@ -635,6 +635,8 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     ENDLOCAL DISABLEDELAYEDEXPANSION
   )
   CALL :DOWNLOADLDRAWLIBS
+  REM reset ErrorLevel to 0 from 1 for unsuccessful DOWNLOADLDRAWLIBS
+  REM (CALL )
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
   IF %SIGN_APP% == 1 CALL :SIGNAPP
@@ -974,6 +976,7 @@ EXIT /b
 
 REM pwd = windows/release/LP3D_PRODUCT_DIR
 :NSISBUILD
+SET RUN_NSIS=0 & ::DEBUG ONLY
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Installer Build...
 
@@ -988,6 +991,7 @@ IF %RUN_NSIS% == 1 ECHO   Finished NSIS Master Installer Build
 EXIT /b
 
 :CREATEPORTABLEDISTRO
+SET CREATE_PORTABLE=0 & ::DEBUG ONLY
 IF %CREATE_PORTABLE% == 1 ECHO.
 IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_DISTRO_ARCH% portable install archive package file...
 
@@ -1292,6 +1296,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
     SET "amd_dmg=!dmg!"
     REM LP3D_EXT expands to the file extension - if %1 is 'api', %LP3D_EXT% is '-api.AppImage'
     CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
+    ECHO   DEBUG LP3D_EXT %LP3D_EXT% LP3D_EXT %%%LP3D_EXT%%% LP3D_DIST_SUFFIX !LP3D_DIST_SUFFIX!
     SET LP3D_ALT_VERSION_LONG=%%V
     IF !I! LSS 2020 (
       >>%genVersionInsert%   "open-url": "https://trevorsandy.github.io/lpub3d/",
