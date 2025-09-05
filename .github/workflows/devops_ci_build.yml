@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: August 20, 2025
+# Last Update: September 04, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -29,23 +29,29 @@ jobs:
           - BUILD: ubuntu-amd64
             NAME: Ubuntu 24.04 AMD
             OS: ubuntu-24.04
+            VER: 24.04
           - BUILD: fedora-amd64
             NAME: Fedora 41 AMD
             OS: ubuntu-24.04
+            VER: 41
           - BUILD: archlinux-amd64
             NAME: Arch Linux AMD
             OS: ubuntu-24.04
+            VER: 2025
           - BUILD: ubuntu-amd64-appimage
             NAME: Ubuntu 20.04 AppImage AMD
             OS: ubuntu-24.04
+            VER: 20.04
           - BUILD: ubuntu-arm64
             NAME: Ubuntu 24.04 ARM
             OS: ubuntu-24.04-arm
+            VER: 24.04
           - BUILD: ubuntu-arm64-appimage
             NAME: Ubuntu 20.04 AppImage ARM
             OS: ubuntu-24.04-arm
+            VER: 20.04
     steps:
-      - name: Checkout
+      - name: Checkout Source
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -53,7 +59,7 @@ jobs:
         run: |
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && mkdir buildpkg && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
-      - name: Cache Third-party
+      - name: Cache ${{ matrix.NAME }} Third-party Assets
         id: cache-third-party
         uses: actions/cache@v4
         with:
@@ -62,7 +68,7 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      - name: docker-login
+      - name: Docker-login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -74,20 +80,20 @@ jobs:
           BUILD: ${{ matrix.BUILD }}
           LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
-      - name: List Artifacts
+      - name: List ${{ matrix.NAME }} Artifacts
         if: always()
         run: test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
-      - name: Upload Artifacts
+      - name: Upload ${{ matrix.NAME }} Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.BUILD }}-download
+          name: ${{ matrix.BUILD }}-${{ matrix.VER }}-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
-      - name: Diagnostics
+      - name: ${{ matrix.NAME }} Diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.BUILD }}-logs
+          name: ${{ matrix.BUILD }}-${{ matrix.VER }}-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
 
@@ -100,7 +106,7 @@ jobs:
       matrix:
         runner-version: [ 13, 14 ]
     steps:
-      - name: Checkout
+      - name: Checkout Source
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -108,7 +114,7 @@ jobs:
         run: |
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && mkdir buildpkg && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
-      - name: Cache Third-party
+      - name: Cache macOS ${{ matrix.runner-version }} Third-party Assets
         id: cache-third-party
         uses: actions/cache@v4
         with:
@@ -123,16 +129,16 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
-      - name: List Artifacts
+      - name: List macOS ${{ matrix.runner-version }} Artifacts
         if: always()
         run:  test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
-      - name: Upload Artifacts
+      - name: Upload macOS ${{ matrix.runner-version }} Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macos-${{ matrix.runner-version }}-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
-      - name: Diagnostics
+      - name: macOS ${{ matrix.runner-version }} Diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
@@ -166,7 +172,7 @@ jobs:
             build: arm64
             toolset-32bit: v143
     steps:
-      - name: Checkout
+      - name: Checkout Source
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -176,13 +182,13 @@ jobs:
           Echo "LP3D_BUILDPKG_PATH=$(Join-Path (resolve-path ..\) 'buildpkg')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           Echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           New-Item -Path ..\ -Name 'buildpkg' -ItemType 'directory'
-      - name: Cache Third-party # distribution folder
+      - name: Cache Windows ${{ matrix.name }} Third-party Assets # distribution folder
         id: cache-third-party
         uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-${{ matrix.runner-os }}-${{ secrets.THIRD_PARTY_CACHE }}
-      - name: VC 141 Build Tools AMD
+      - name: Windows VC 141 Build Tools AMD
         if: "${{ matrix.platform == 'AMD' && matrix.toolset-32bit == 'v141' }}"
         run: |
           Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
@@ -244,26 +250,27 @@ jobs:
           LP3D_VCARM64TOOLSET: v143
           LP3D_VCARM64VARSALL_VER: -vcvars_ver=14.4
         shell: cmd
-      - name: List Artifacts
+      - name: List Windows ${{ matrix.name }} Artifacts
         if: always()
         run: If (Test-Path -Path ${{ env.LP3D_BUILDPKG_PATH }}) { Get-ChildItem -Path ${{ env.LP3D_BUILDPKG_PATH }} –Recurse }
-      - name: Upload Update Artifacts
+      - name: Upload Windows ${{ matrix.name }} Update Artifacts
+        if: "${{ matrix.platform == 'AMD' }}"
         uses: actions/upload-artifact@v4
         with:
           name: updates
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\
           if-no-files-found: ignore
-      - name: Upload Download Artifacts
+      - name: Upload Windows ${{ matrix.name }} Download Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-download
+          name: ${{ matrix.runner-os }}-${{ matrix.platform }}-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
           if-no-files-found: ignore
-      - name: Diagnostics
+      - name: Windows ${{ matrix.name }} Diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: windows-logs
+          name: ${{ matrix.runner-os }}-${{ matrix.platform }}-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
 
@@ -280,20 +287,20 @@ jobs:
     needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Deploy Assets
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Assets Path
+      - name: Deploy Assets Path
         run: echo "LP3D_BUILD_ASSETS=$(cd ../ && echo "$PWD/assets")" >> ${GITHUB_ENV}
-      - name: Download Artifacts
+      - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with: # omit 'with: name:' to download all artifacts
           path: ${{ env.LP3D_BUILD_ASSETS }}
-      - name: List Assets
+      - name: List Deploy Assets
         run: ls -alFR
         working-directory: ${{ env.LP3D_BUILD_ASSETS }}
-      - name: Deploy Assets
+      - name: Deploy Build Assets
         run: bash -ex builds/utilities/ci/github/build-deploy.sh
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -303,10 +310,10 @@ jobs:
           GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
           GPG_SIGN_KEY_BASE64: ${{ secrets.GPG_SIGN_KEY_BASE64 }}
           SFDEPLOY_ED25519_BASE64: ${{ secrets.SFDEPLOY_ED25519_BASE64 }}
-      - name: Diagnostics
+      - name: Deploy Diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: publish-logs
+          name: deploy-publish-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
