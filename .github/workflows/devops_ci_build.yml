@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 04, 2025
+# Last Update: September 05, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -52,7 +52,7 @@ jobs:
             VER: 20.04
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -68,7 +68,7 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      - name: Docker-login
+      - name: Docker Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -107,7 +107,7 @@ jobs:
         runner-version: [ 13, 14 ]
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -166,14 +166,14 @@ jobs:
             # Windows ARM64 cross compiled on AMD64 to enable Qt6OpenGL and Qt6OpenGLWidgets
             # See - [QtOpenGL missing for WoA packages](https://bugreports.qt.io/browse/QTBUG-136551)
           - platform: ARM
-            name: ARM CROSS
+            name: 2025 ARM Cross
             host: ''
             arch: _arm64_cross_compiled
             build: arm64
             toolset-32bit: v143
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -288,7 +288,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Deploy Assets
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Deploy Assets Path
