@@ -216,10 +216,10 @@ jobs:
           dir: ${{ env.LP3D_BUILD_BASE }}
           cache: true
           cache-key-prefix: install-qt-action
-      - name: Qt MSVC 2022 64bit ${{ matrix.platform }} # path: ..\Qt\6.9.1\msvc2022_[64/arm64]\bin
+      - name: Qt MSVC 2022 64bit ${{ matrix.platform }} # path: ..\Qt\6.9.2\msvc2022_[64/arm64]\bin
         uses: jurplel/install-qt-action@v4
         with:
-          version: 6.9.1
+          version: 6.9.2
           host: windows${{ matrix.host }}
           target: desktop
           modules: qt5compat
