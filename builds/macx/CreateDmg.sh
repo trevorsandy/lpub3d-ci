@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 14, 2025
+# Last Update: September 05, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -105,10 +105,10 @@ l=Log
 # when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
-  if [ -d ~/Qt/IDE/5.15.16/clang_64 ]; then
-    export PATH=~/Qt/IDE/5.15.16/clang_64:~/Qt/IDE/5.15.16/clang_64/bin:$PATH
+  if [ -d ~/Qt/IDE/6.9.2/clang_64 ]; then
+    export PATH=~/Qt/IDE/6.9.2/clang_64:~/Qt/IDE/6.9.2/clang_64/bin:$PATH
   else
-    echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.15.0/clang_64"
+    echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/6.9.2/clang_64"
     exit 1
   fi
   echo
