@@ -221,7 +221,11 @@ jobs:
           dir: ${{ env.LP3D_BUILD_BASE }}
           cache: true
           cache-key-prefix: install-qt-action
-      - name: Build Windows ${{ matrix.platform }}
+      - name: Install NSIS with EnVar plugin
+        uses: repolevedavaj/install-nsis@v1.0.3
+        with:
+          nsis-version: 3.11
+      - name: Build Windows ${{ matrix.name }}
         run: .\builds\utilities\ci\github\windows-build.bat | .\builds\utilities\win_tee.cmd "${{ env.LP3D_BUILDPKG_PATH }}\windows_build.log" append
         env:
           GITHUB_TOKEN: ${{ github.token }}
