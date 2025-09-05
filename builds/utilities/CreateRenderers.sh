@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: August 20, 2025
+# Last Update: September 05, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -939,6 +939,8 @@ if [[ "$build_osmesa" = 1 && "$get_local_libs" != 1 ]]; then
 elif [ "$get_local_libs" = 1 ]; then
   build_mesa_msg="Use local libraries"
   llvm_libs_msg="Use local libraries"
+elif [ "$OS_NAME" = "Darwin" ]; then
+  build_mesa_msg="Use system libraries"
 else
   [ "$(ldconfig -p | grep -i libOSMesa 2>/dev/null)" ] && \
   build_mesa_msg="Use system libraries" || build_mesa_msg="Not found"
@@ -1007,7 +1009,11 @@ if [ -z "$DIST_DIR" ]; then
     DIST_DIR=lpub3d_linux_3rdparty
   fi
 fi
-DIST_PKG_DIR=${WD}/${DIST_DIR}
+if [ -z "${LP3D_DIST_DIR_PATH}" ]; then
+  DIST_PKG_DIR=${WD}/${DIST_DIR}
+else
+  DIST_PKG_DIR=${LP3D_DIST_DIR_PATH}/${DIST_DIR}
+fi
 if [ ! -d "${DIST_PKG_DIR}" ]; then
   mkdir -p ${DIST_PKG_DIR}
 fi

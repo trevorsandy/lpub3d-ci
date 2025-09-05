@@ -294,7 +294,7 @@ else
     done
 fi
 
-# download 3rd party packages defined as source in pkgbuild/
+# download 3rd party packages defined as source in rpmbuild/SOURCES/
 dwMsgShown=0
 packageFiles=(ldglite ldview povray)
 for pkgFile in "${packageFiles[@]}"; do
