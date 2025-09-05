@@ -44,12 +44,16 @@ OTHER_FILES += \
     $$PWD/../builds/linux/obs/alldeps/AppRun \
     $$PWD/../builds/linux/obs/alldeps/debian/changelog \
     $$PWD/../builds/linux/obs/alldeps/debian/control \
+    $$PWD/../builds/linux/obs/alldeps/debian/control-qt5 \
     $$PWD/../builds/linux/obs/alldeps/debian/lpub3d-ci.dsc \
+    $$PWD/../builds/linux/obs/alldeps/debian/lpub3d-ci-qt5.dsc \
     $$PWD/../builds/linux/obs/alldeps/GetLocalLibs.sh \
     $$PWD/../builds/linux/obs/alldeps/GetQt5Libs.sh \
     $$PWD/../builds/linux/obs/alldeps/LcLibPCH.sh \
     $$PWD/../builds/linux/obs/alldeps/lpub3d-ci.spec \
+    $$PWD/../builds/linux/obs/alldeps/lpub3d-ci-qt5.spec \
     $$PWD/../builds/linux/obs/alldeps/PKGBUILD \
+    $$PWD/../builds/linux/obs/alldeps/PKGBUILD-qt5 \
     $$PWD/../builds/linux/obs/debian/changelog \
     $$PWD/../builds/linux/obs/debian/compat \
     $$PWD/../builds/linux/obs/debian/control \
@@ -65,6 +69,7 @@ OTHER_FILES += \
     $$PWD/../builds/linux/obs/lpub3d-ci.spec \
     $$PWD/../builds/linux/obs/PKGBUILD \
     $$PWD/../builds/linux/obs/_service \
+    $$PWD/../builds/linux/obs/_service-qt5 \
     $$PWD/../builds/macx/CreateDmg.sh \
     $$PWD/../builds/utilities/mesa/build_osmesa.sh \
     $$PWD/../builds/utilities/mesa/glu.spec \
