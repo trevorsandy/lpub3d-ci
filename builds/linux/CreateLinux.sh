@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 31, 2025
+# Last Update September 05, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -119,7 +119,7 @@ finish () {
 trap finish EXIT
 
 # Move to build directory
-cd $BUILD_DIR || exit 1
+cd ${BUILD_DIR} || exit 1
 
 export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_PATH:-/dist/${LP3D_BASE}_${LP3D_ARCH}}
 export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}
@@ -382,6 +382,21 @@ else
   fi
 fi
 
+# Copy LDraw archive libraries to extras folder
+ExtrasFolder=${AppDirBuildPath}/usr/share/lpub3d/3rdParty/extras
+if [ -d "${ExtrasFolder}" ]; then
+  Info "Copy LDraw libraries to ${ExtrasFolder}"
+  for libFile in "${ldrawLibFiles[@]}"; do
+    if [ ! -f "${ExtrasFolder}/${libFile}" ]; then
+      echo -n " - Copyinging ${libFile}..."
+      ( cp -ar ${BUILD_DIR}/${libFile}  ${ExtrasFolder}) >$l.out 2>&1 && rm -f $l.out
+      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+    fi
+  done
+else
+  Error "LPub3D extras directory was not found."
+fi
+
 # AppImage pre-package build check
 if [[ -n "${LP3D_PRE_PACKAGE_CHECK}" ]]; then
   Info "Build check LPub3D bundle..."
@@ -396,13 +411,15 @@ fi
 # ..........AppImage Build..................#
 
 # Setup AppImage tools - linuxdeployqt, lconvert
+p=LinuxDeployQt
 Info && Info "Installing AppImage tools..."
 if [[ -z "${LP3D_AI_BUILD_TOOLS}" ]]; then
   cd "${AppDirBuildPath}" || exit 1
   CommandArg=-version
   if [ ! -e linuxdeployqt ]; then
     Info "Insalling linuxdeployqt for ${LP3D_ARCH}..."
-    wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O linuxdeployqt
+    linuxdeployqtDownload="https://github.com/probonopd/linuxdeployqt/releases/download/continuous"
+    wget -c -nv "${linuxdeployqtDownload}/linuxdeployqt-continuous-${LP3D_ARCH}.AppImage" -O linuxdeployqt
   fi
   ( chmod a+x linuxdeployqt && ./linuxdeployqt ${CommandArg} ) >$p.out 2>&1 && rm -f $p.out
   if [ ! -f $p.out ]; then
@@ -419,7 +436,6 @@ else
   export PATH="${WD}/bin":"${PATH}"
   CommandArg=-version
   # LinuxDeployQt
-  p=LinuxDeployQt
   if [ ! -e ${AppDirBuildPath}/linuxdeployqt ]; then
     [ -d "$p" ] && rm -rf $p || :
     Info "Building $p for ${LP3D_ARCH} at ${PWD}..."
