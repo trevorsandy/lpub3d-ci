@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 31, 2025
+# Last Update September 06, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -119,7 +119,7 @@ finish () {
 trap finish EXIT
 
 # Move to build directory
-cd $BUILD_DIR || exit 1
+cd ${BUILD_DIR} || exit 1
 
 export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_PATH:-/dist/${LP3D_BASE}_${LP3D_ARCH}}
 export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}
@@ -145,6 +145,7 @@ LP3D_GITHUB_URL="https://github.com/trevorsandy"
 [ -n "${GITHUB}" ] && Info "GITHUB.............${GITHUB}" || :
 [ -n "${LP3D_APPIMAGE}" ] && Info "APPIMAGE...........${LP3D_APPIMAGE}" || :
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
+  Info "BUILD AI ARCH......${LP3D_AI_ARCH}"
   Info "BUILD AI TOOLS.....$([ -n "${LP3D_AI_BUILD_TOOLS}" ] && echo "true" || echo "false")"
   Info "PATCH MAGIC_BYTES..$([ -n "${LP3D_AI_MAGIC_BYTES}" ] && echo "true" || echo "false")"
   Info "EXTRACT AI PAYLOAD.$([ -n "${LP3D_AI_EXTRACT_PAYLOAD}" ] && echo "true" || echo "false")"
@@ -315,8 +316,10 @@ LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
 AppDirBuildPath=$(readlink -f AppDir/)
 export AppDirBuildPath=$AppDirBuildPath
 
+AppDirDistPath="${LP3D_DIST_DIR_PATH}/AppDir"
+
 # Build LPub3D
-if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/AppDir/usr)" ]]; then
+if [[ ! -d "${AppDirDistPath}/usr" || -z "$(ls -A ${AppDirDistPath}/usr)" ]]; then
   if [[ "${LP3D_APPIMAGE}" == "false" ]]; then
     case ${LP3D_BASE} in
       "ubuntu")
@@ -364,22 +367,37 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
   fi
 else
   Info "LPub3D build artifacts exists - build skipped."
-  [ -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" ] && \
-  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/usr ${AppDirBuildPath}/ || :
-  [ -d "${LP3D_DIST_DIR_PATH}/AppDir/opt" ] && \
-  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/opt ${AppDirBuildPath}/ || :
-  if [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools" ]; then
-    [ -f "${LP3D_DIST_DIR_PATH}/AppDir/tools/linuxdeployqt" ] && \
-    cp -af ${LP3D_DIST_DIR_PATH}/AppDir/tools/linuxdeployqt ${AppDirBuildPath}/ || :
+  [ -d "${AppDirDistPath}/usr" ] && \
+  cp -ar ${AppDirDistPath}/usr ${AppDirBuildPath}/ || :
+  [ -d "${AppDirDistPath}/opt" ] && \
+  cp -ar ${AppDirDistPath}/opt ${AppDirBuildPath}/ || :
+  if [ -d "${AppDirDistPath}/tools" ]; then
+    [ -f "${AppDirDistPath}/tools/linuxdeployqt" ] && \
+    cp -af ${AppDirDistPath}/tools/linuxdeployqt ${AppDirBuildPath}/ || :
     if [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
-      [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools/bin" ] && \
-      cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/tools/bin ${WD}/ || :
-      [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools/share" ] && \
-      cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/tools/share ${WD}/ || :
-      [ -f "${LP3D_DIST_DIR_PATH}/AppDir/tools/patchelf-0.9.tar.bz2" ] && \
-      cp -af ${LP3D_DIST_DIR_PATH}/AppDir/tools/patchelf-0.9.tar.bz2 ${WD}/ || :
+      [ -d "${AppDirDistPath}/tools/bin" ] && \
+      cp -ar ${AppDirDistPath}/tools/bin ${WD}/ || :
+      [ -d "${AppDirDistPath}/tools/share" ] && \
+      cp -ar ${AppDirDistPath}/tools/share ${WD}/ || :
+      [ -f "${AppDirDistPath}/tools/patchelf-0.9.tar.bz2" ] && \
+      cp -af ${AppDirDistPath}/tools/patchelf-0.9.tar.bz2 ${WD}/ || :
     fi
   fi
+fi
+
+# Copy LDraw archive libraries to share/lpub3d folder
+AppDirLPub3DPath=${AppDirBuildPath}/usr/share/lpub3d
+if [ -d "${AppDirLPub3DPath}" ]; then
+  Info "Copy LDraw libraries to ${AppDirLPub3DPath}"
+  for libFile in "${ldrawLibFiles[@]}"; do
+    if [ ! -f "${AppDirLPub3DPath}/${libFile}" ]; then
+      echo -n " - Copyinging ${libFile}..."
+      ( cp -ar ${BUILD_DIR}/${libFile}  ${AppDirLPub3DPath} ) >$l.out 2>&1 && rm -f $l.out
+      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+    fi
+  done
+else
+  Error "Path ${AppDirLPub3DPath} was not found."
 fi
 
 # AppImage pre-package build check
@@ -396,13 +414,21 @@ fi
 # ..........AppImage Build..................#
 
 # Setup AppImage tools - linuxdeployqt, lconvert
+p=LinuxDeployQt
 Info && Info "Installing AppImage tools..."
 if [[ -z "${LP3D_AI_BUILD_TOOLS}" ]]; then
   cd "${AppDirBuildPath}" || exit 1
   CommandArg=-version
   if [ ! -e linuxdeployqt ]; then
-    Info "Insalling linuxdeployqt for ${LP3D_ARCH}..."
-    wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O linuxdeployqt
+    Info "Insalling $p for ${LP3D_AI_ARCH}..."
+    deployqtAppImage="linuxdeployqt-continuous-${LP3D_AI_ARCH}.AppImage"
+    deployqtDownloadURL="https://github.com/probonopd/linuxdeployqt/releases/download/continuous"
+    ( wget -c -nv "${deployqtDownloadURL}/${deployqtAppImage}" -O linuxdeployqt ) >$p.out 2>&1 && rm -f $p.out
+    if [[ -f $p.out || ! -f linuxdeployqt ]]; then
+      Error Download $p FAILED
+      tail -80 $p.out
+      exit 5
+    fi
   fi
   ( chmod a+x linuxdeployqt && ./linuxdeployqt ${CommandArg} ) >$p.out 2>&1 && rm -f $p.out
   if [ ! -f $p.out ]; then
@@ -419,7 +445,6 @@ else
   export PATH="${WD}/bin":"${PATH}"
   CommandArg=-version
   # LinuxDeployQt
-  p=LinuxDeployQt
   if [ ! -e ${AppDirBuildPath}/linuxdeployqt ]; then
     [ -d "$p" ] && rm -rf $p || :
     Info "Building $p for ${LP3D_ARCH} at ${PWD}..."

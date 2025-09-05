@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 20, 2025
+# Last Update: September 06, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -607,6 +607,7 @@ common_docker_opts=(
     -e LP3D_ARCH="${LP3D_ARCH}"
     -e LP3D_DIST="${LP3D_DIST}"
     -e LP3D_LOG_PATH="/out"
+    -e LP3D_AI_ARCH="${aik_arch}"
     -e LP3D_APPIMAGE="${LP3D_APPIMAGE}"
     -e LP3D_CPU_CORES="${LP3D_CPU_CORES}"
     -e LP3D_NO_CLEANUP="${LP3D_NO_CLEANUP}"
