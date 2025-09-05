@@ -599,6 +599,8 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     ENDLOCAL DISABLEDELAYEDEXPANSION
   )
   CALL :DOWNLOADLDRAWLIBS
+  REM reset ErrorLevel to 0 from 1 for unsuccessful DOWNLOADLDRAWLIBS
+  REM (CALL )
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
   IF %SIGN_APP% == 1 CALL :SIGNAPP
@@ -944,9 +946,9 @@ IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Installer Build...
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Installer Build
 
-IF %RUN_NSIS% == 1 "%NSIS_UTILITY%" /DDownloadMaster ..\..\..\utilities\nsis-scripts\LPub3DNoPack.nsi | FINDSTR /i /r /c:"^Processing\>" /c:"^Output\>"
+REM IF %RUN_NSIS% == 1 "%NSIS_UTILITY%" /DDownloadMaster ..\..\..\utilities\nsis-scripts\LPub3DNoPack.nsi | FINDSTR /i /r /c:"^Processing\>" /c:"^Output\>"
 
-IF %RUN_NSIS% == 1 MOVE /Y    %LP3D_DOWNLOAD_PRODUCT%.exe %PKG_DOWNLOAD_DIR%\ | FINDSTR /i /v /r /c:"moved\>"
+REM IF %RUN_NSIS% == 1 MOVE /Y    %LP3D_DOWNLOAD_PRODUCT%.exe %PKG_DOWNLOAD_DIR%\ | FINDSTR /i /v /r /c:"moved\>"
 
 IF %RUN_NSIS% == 1 ECHO   Finished NSIS Master Installer Build
 EXIT /b
