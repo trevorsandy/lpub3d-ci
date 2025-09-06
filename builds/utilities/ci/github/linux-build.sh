@@ -293,23 +293,56 @@ rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"PUBLISH_RENDERERS"* ]] && \
 export LP3D_PUBLISH_RENDERERS="true" || export LP3D_PUBLISH_RENDERERS="false"
 
+# set Dockerfile
+DockerFile="${out_path}/Dockerfile"
+
 # run builds with privileged user account required to load library dependency
 gid="$(id -g)"
 uid="$(id -u)"
 name="$(id -un)"
 
 # generate Dockerfile and build image
-cat << pbEOF >${out_path}/Dockerfile
+cat << pbEOF >${DockerFile}
 FROM ${docker_tag}
+pbEOF
+
+# generate Dockerfile package config and locale
+case "${docker_base}" in
+    "ubuntu")
+        cp -f builds/linux/obs/alldeps/debian/control .
+cat << pbEOF >>${DockerFile}
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update
+RUN apt-get install -y locales
+RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+pbEOF
+        ;;
+    "fedora")
+        cp -f builds/linux/obs/alldeps/lpub3d-ci.spec .
+cat << pbEOF >>${DockerFile}
+RUN dnf install -y glibc-locale-source
+RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+pbEOF
+        ;;
+    "archlinux")
+        cp -f builds/linux/obs/alldeps/PKGBUILD .
+        ;;
+    *)
+        echo "Unknown distribution base: ${docker_base}"
+        exit 3
+        ;;
+esac
+
+cat << pbEOF >>${DockerFile}
+ENV LANG=en_US.UTF-8 \\
+    LANGUAGE=en_US:en \\
+    LC_ALL=en_US.UTF-8
 pbEOF
 
 # generate Dockerfile packages to install
 case "${docker_base}" in
     "ubuntu")
-        cp -f builds/linux/obs/alldeps/debian/control .
-cat << pbEOF >>${out_path}/Dockerfile
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update
+cat << pbEOF >>${DockerFile}
 RUN apt-get install -y apt-utils git wget cmake rsync unzip lintian build-essential debhelper fakeroot ccache lsb-release
 RUN apt-get install -y libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
 RUN apt-get install -y autotools-dev autoconf pkg-config automake libtool curl zip fuse libfuse-dev
@@ -325,7 +358,7 @@ pbEOF
                 aqt_ver=6.5.3
                 aqt_arch=gcc_64
                 aqt_install_path="/opt/qt/${aqt_ver}/${aqt_arch}"
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN apt-get install -y ${control_libs}
 # Qt6 install before v6.6 seem to be missing libxcb dependencies - so install these libraries
 RUN apt-get install -y libpulse-dev libxcb-glx0 libxcb-icccm4 libxcb-image0 \\
@@ -345,7 +378,7 @@ pbEOF
             elif [[ "${arm_archs[*]}" =~ "${LP3D_ARCH}" ]]; then
                 test ${gid} -eq 117 && gid=118 || :
                 qt5_packages="qttools5-dev-tools qtbase5-dev qt5-qmake libqt5opengl5-dev"
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN apt-get install -y ${control_libs}
 RUN apt-get install -y ${qt5_packages}
 pbEOF
@@ -353,19 +386,18 @@ pbEOF
                 echo "ERROR - Architecture ${LP3D_ARCH} is invalid for AppImage."
             fi
         else
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN apt-get install -y ${control_libs}
 pbEOF
         fi
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN apt-get install -y sudo \\
 pbEOF
         ;;
     "fedora")
-        cp -f builds/linux/obs/alldeps/lpub3d-ci.spec .
         sed -e 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' \
             -e 's/<B_CNT>/1/' -i lpub3d-ci.spec
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 ADD lpub3d-ci.spec /
 RUN dnf install -y git wget unzip rsync which rpmlint ccache dnf-plugins-core rpm-build fuse fuse-devel
 RUN dnf install -y glib2-devel libfdt-devel pixman-devel zlib-devel bzip2 ninja-build python3
@@ -377,8 +409,7 @@ RUN dnf install -y sudo \\
 pbEOF
         ;;
     "archlinux")
-        cp -f builds/linux/obs/alldeps/PKGBUILD .
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN pacman -Suy --noconfirm
 RUN pacman -Sy --noconfirm git wget unzip rsync ccache base-devel binutils fakeroot awk file inetutils
 RUN pacman -S --noconfirm --needed xorg-server-xvfb desktop-file-utils
@@ -386,14 +417,10 @@ RUN pacman -S --noconfirm --needed $(grep depends PKGBUILD | cut -f2 -d=|tr -d \
 RUN pacman -S --noconfirm --needed sudo \\
 pbEOF
         ;;
-    *)
-        echo "Unknown distribution base: ${docker_base}"
-        exit 3
-        ;;
 esac
 
 # generate Dockerfile build user privilages
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
     && groupadd -r ${name} -g ${gid} \\
     && useradd -u ${uid} -r -g ${name} -m -d /${name} -s /sbin/nologin -c "Build pkg user" ${name} \\
     && chmod 755 /${name} \\
@@ -409,7 +436,7 @@ if [[ "${LP3D_APPIMAGE}" != "true" ]]; then
     case "${docker_base}" in
         "ubuntu")
             cp -f builds/linux/CreateDeb.sh .
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN mkdir -p /${name}/debbuild/SOURCES
 ADD CreateDeb.sh /${name}
 pbEOF
@@ -417,7 +444,7 @@ pbEOF
         "fedora")
             cp -f builds/linux/obs/lpub3d-ci-rpmlintrc .
             cp -f builds/linux/CreateRpm.sh .
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN mkdir -p /${name}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 ADD CreateRpm.sh /${name}
 ADD lpub3d-ci.spec /${name}
@@ -426,7 +453,7 @@ pbEOF
             ;;
        "archlinux")
             cp -f builds/linux/CreatePkg.sh .
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 RUN mkdir -p /${name}/pkgbuild/{src,upstream}
 ADD CreatePkg.sh /${name}
 pbEOF
@@ -437,7 +464,7 @@ fi
 cp -f builds/linux/CreateLinux.sh .
 
 # generate Dockerfile run command and CreateLinux.sh call
-cat << pbEOF >>${out_path}/Dockerfile
+cat << pbEOF >>${DockerFile}
 ADD --chown=${name}:${name} docker-run-CMD.sh /${name}
 ADD --chown=${name}:${name} CreateLinux.sh /${name}
 CMD ["/bin/bash", "-c"]
@@ -460,7 +487,7 @@ echo "----------------------------------------------------"
 pbEOF
 
 # add Dockerfile to context
-cp -f ${out_path}/Dockerfile .
+cp -f ${DockerFile} .
 
 # add run CMD script to context and set executable
 cp -f ${out_path}/docker-run-CMD.sh . && chmod a+x docker-run-CMD.sh
