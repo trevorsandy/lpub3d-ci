@@ -607,7 +607,9 @@ int LPub::processCommandLine()
       if (ParsedColor.isValid() &&
           fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower())
       {
-          static QRegularExpression rx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
+          static QRegularExpression rx;
+          rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+          rx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
           bool isHexRGB = fadeStepsColour.contains(rx);
           QString const validColourName = isHexRGB ? LDrawColor::name(fadeStepsColour) : fadeStepsColour;
           message = tr("Fade Steps Color preference changed from %1 to %2.")

@@ -491,7 +491,8 @@ void Gui::openWithSetup()
 
 void Gui::setOpenWithProgramAndArgs(QString &program, QStringList &arguments)
 {
-    static QRegularExpression quoteRx("\"|'");
+    static QRegularExpression quoteRx;
+    quoteRx.setPattern("\"|'");
     QString valueAt0 = program.at(0);
     bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
     QStringList list = program.split(quoteRx, SkipEmptyParts);            // Split by " or '

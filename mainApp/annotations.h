@@ -37,6 +37,7 @@ class Annotations {
     static QHash<QString, QString>     ld2rbColorsXRef;
     static QHash<QString, QString>     ld2rbCodesXRef;
     static QList<Where>                AnnotationErrors;
+    static QRegularExpression          rx;
   public:
     Annotations();
     static const QString &freeformAnnotation(QString part);

@@ -26,6 +26,7 @@
 #include "lpub_qtcompat.h"
 #include "QsLog.h"
 
+QRegularExpression          Annotations::rx;
 int                         Annotations::returnInt;
 QString                     Annotations::returnString;
 QList<QString>              Annotations::titleAnnotations;
@@ -1296,7 +1297,6 @@ Annotations::Annotations()
     returnString = QString();
     AnnotationErrors.clear();
 
-    static QRegularExpression rx;
     static QRegularExpression rxin;
     QRegularExpressionMatch match;
 
@@ -1758,7 +1758,6 @@ bool Annotations::loadBLCodes() {
     if (blCodes.size() == 0) {
         QString message;
         QString blCodesFile = Preferences::blCodesFile;
-        static QRegularExpression rx;
         QRegularExpressionMatch match;
         if (QFileInfo::exists(blCodesFile)) {
             QFile file(blCodesFile);
@@ -1809,7 +1808,6 @@ bool Annotations::loadBLCodes() {
 bool Annotations::loadBLCodes(QByteArray &Buffer) {
     if (blCodes.size() == 0) {
         QString message;
-        static QRegularExpression rx;
         QRegularExpressionMatch match;
         QTextStream instream(Buffer);
 
@@ -1877,7 +1875,6 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
                                   ? QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_USERELEMENTS_FILE))
                                   : Preferences::userElementsFile;
         bool fileFound = QFileInfo::exists(userElementsFile);
-        static QRegularExpression rx;
         // kept localElements for backwards compatability
         if (!fileFound)
             userElementsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE);

@@ -455,7 +455,8 @@ QStringList CommandsTextEdit::extractDistinctWordsFromDocument() const
 
 QStringList CommandsTextEdit::retrieveAllWordsFromDocument() const
 {
-    static QRegularExpression rx("\\W+");
+    static QRegularExpression rx;
+    rx.setPattern("\\W+");
     return toPlainText().split(rx, SkipEmptyParts);
 }
 

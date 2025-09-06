@@ -2897,7 +2897,8 @@ void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
                     out.setCodec(QTextCodec::codecForName("UTF-8"));
 #endif
                     QStringList const scl = lpub->ldrawFile.getViewerStepRotatedContents(currentStep->viewerStepKey);
-                    static QRegularExpression insertRx("^0 // ROTSTEP ");
+                    static QRegularExpression insertRx;
+                    insertRx.setPattern("^0 // ROTSTEP ");
                     bool inserted = false;
                     for (QString const &sl : scl) {
                         if (!inserted) {
@@ -3424,7 +3425,8 @@ void Gui::ReloadVisualEditor() {
 
              const QByteArray LPMeta("0 !LPUB");
 
-             static QRegularExpression rx("(\\r\\n)|\\r|\\n");
+             static QRegularExpression rx;
+             rx.setPattern("(\\r\\n)|\\r|\\n");
 
              // Check that the the build mod and current step shares the same submodel
              if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
@@ -3457,7 +3459,8 @@ void Gui::ReloadVisualEditor() {
              }
 
              // Check if there is an existing build modification in this Step
-             static QRegularExpression lineRx("^0 !?LPUB BUILD_MOD BEGIN ");
+             static QRegularExpression lineRx;
+             lineRx.setPattern("^0 !?LPUB BUILD_MOD BEGIN ");
              if (Gui::stepContains(currentStep->top, lineRx) && !Update) {
 
                  QMessageBox box;

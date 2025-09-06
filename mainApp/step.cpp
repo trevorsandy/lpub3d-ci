@@ -720,7 +720,8 @@ int Step::createCsi(
             if (lightList.size()) {
                 QStringList pl;
                 if (!meta.LPub.assem.ldviewParms.value().isEmpty()) {
-                    static QRegularExpression quotedRx("\"|'");
+                    static QRegularExpression quotedRx;
+                    quotedRx.setPattern("\"|'");
                     pl = meta.LPub.assem.ldviewParms.value().split(' ');
                     for (int i = 0; i < pl.size(); i++) {
                         if (QString(pl.at(i)).contains(quotedRx))
@@ -964,7 +965,9 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade opacity value is invalid [%1] ").arg(argv[2]));
             } else
             if (argv.size() == 4) {
-              static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
+              static QRegularExpression hexRx;
+              hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+              hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
               if (argv[3].contains(hexRx)) {
                 QColor colour(argv[3]);
                 if (colour.isValid())
@@ -1068,7 +1071,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
             {
               QStringList const &contents = lpub->ldrawFile.contents(submodelName);
               if (contents.size()) {
-                static QRegularExpression invalidMetaRx("^0 STEP|^0 ROTSTEP|^0 !?FADE|^0 !?SILHOUETTE|^0 !?LPUB (?:MULTI_STEP|CALLOUT|INSERT (?:PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE))");
+                static QRegularExpression invalidMetaRx;
+                invalidMetaRx.setPattern("^0 STEP|^0 ROTSTEP|^0 !?FADE|^0 !?SILHOUETTE|^0 !?LPUB (?:MULTI_STEP|CALLOUT|INSERT (?:PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE))");
                 for (int i = 0; i < contents.size(); i++) {
                   QString const &line = contents.at(i);
                   if(line.isEmpty())

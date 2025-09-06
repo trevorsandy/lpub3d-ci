@@ -21,6 +21,7 @@
 #include "lc_colors.h"
 #include "lpub_object.h"
 
+QRegularExpression LDrawColor::rx;
 QStringList        LDrawColor::userdefinedcolors;
 QHash<QString,int> LDrawColor::color2alpha;
 QMultiHash<QString,int> LDrawColor::value2code;
@@ -203,11 +204,10 @@ QColor LDrawColor::color(const QString& argument)
 {
   //qDebug() << qUtf8Printable(QString("RECEIVED Color ARGUMENT [%1] for LDrawColor::color").arg(argument));
   QString key(argument.toLower());
-  static QRegularExpression hexRx;
   QRegularExpressionMatch match;
-  hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
-  hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-  match = hexRx.match(key);
+  rx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = rx.match(key);
   bool isHexRGB = match.hasMatch();
   bool isVexColour = Preferences::validLDrawLibrary == VEXIQ_LIBRARY;
   bool isValidName = false;
@@ -257,11 +257,10 @@ QColor LDrawColor::color(const QString& argument)
 QString LDrawColor::name(const QString &codeorvalue)
 {
   QString key(codeorvalue.toLower());
-  static QRegularExpression hexRx;
   QRegularExpressionMatch match;
-  hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
-  hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-  match = hexRx.match(key);
+  rx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = rx.match(key);
   bool isHexRGB = match.hasMatch();
   //qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::name").arg(isHexRGB ? "VALUE" : "CODE").arg(codeorvalue));
 
@@ -304,10 +303,11 @@ QString LDrawColor::name(const QString &codeorvalue)
 QStringList LDrawColor::names()
 {
   QStringList colorNames;
-  static QRegularExpression hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$", QRegularExpression::CaseInsensitiveOption);
+  rx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
   const QStringList keys = color2name.keys();
   for (const QString &key : keys) {
-    if (! key.contains(hexRx))
+    if (! key.contains(rx))
       colorNames << color2name[key];
   }
 
@@ -356,11 +356,10 @@ QString LDrawColor::value(const QString& code)
 QString LDrawColor::code(const QString& name)
 {
   QString key(name.toLower());
-  static QRegularExpression hexRx;
   QRegularExpressionMatch match;
-  hexRx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
-  hexRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-  match = hexRx.match(key);
+  rx.setPattern("\\s*(0x|#)([\\dA-F]+)\\s*$");
+  rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  match = rx.match(key);
   bool isHexRGB = match.hasMatch();
   //qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::code").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
   bool isHexARGB = match.captured(2).size() == 8;

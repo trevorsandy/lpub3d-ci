@@ -430,7 +430,8 @@ int Gui::drawPage(
 
     LGraphicsView *view = opts.printing ? &gui->KexportView : gui->KpageView;
 
-    static QRegularExpression partTypeLineRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)");
+    static QRegularExpression partTypeLineRx;
+    partTypeLineRx.setPattern("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)");
     QStringList configuredCsiParts; // fade and highlight configuration
     QString  line;
     Callout *callout         = nullptr;
@@ -527,7 +528,8 @@ int Gui::drawPage(
                                                             Qt::ElideRight, charWidth * 30/*characters*/);
         Where where = topOfStep;
         bool fin = status == end;
-        static QRegularExpression multiStepRx(" MULTI_STEP BEGIN$");
+        static QRegularExpression multiStepRx;
+        multiStepRx.setPattern(" MULTI_STEP BEGIN$");
         bool stepGroup = fin ? multiStep : Gui::stepContains(where, multiStepRx);
         QString const message = tr("%1 %2 draw-page for page %3, step %4, model '%5'%6")
                 .arg(fin ? tr("Processed") : tr("Processing")).arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"),
@@ -6105,7 +6107,8 @@ int Gui::setBuildModForNextStep(
                         } else {
                             bool buildModFound = false;
                             if (walk.modelIndex == topOfNextStep.modelIndex) {
-                                static QRegularExpression buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
+                                static QRegularExpression buildModBeginRx;
+                                buildModBeginRx.setPattern("^0 !?LPUB BUILD_MOD BEGIN ");
                                 if ((buildModFound = Gui::stepContains(walk, buildModBeginRx)))
                                     walk--; // Adjust for line increment
                             }

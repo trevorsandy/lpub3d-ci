@@ -441,7 +441,9 @@ void Updater::onReply (QNetworkReply* reply)
 
     /* There was a network error */
     if (reply->error() != QNetworkReply::NoError) {
-        static QRegularExpression rx("Host.*not found");
+        static QRegularExpression rx;
+        rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+        rx.setPattern("Host.*not found");
         if (reply->errorString().contains(rx)) {
             showErrorMessage("Error connecting to update server - newtork access may be interrupted: <br>" + reply->errorString() + ".");
         } else {

@@ -1096,8 +1096,10 @@ void Highlighter::highlightBlock(const QString &text)
     // 3 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3
     // 4 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
     // 5 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
-    static QRegularExpression typeRx("^([1-5])\\s+");
-    static QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)");
+    static QRegularExpression typeRx;
+    typeRx.setPattern("^([1-5])\\s+");
+    static QRegularExpression texmapRx;
+    texmapRx.setPattern("^0\\s+!?TEXMAP\\s+(?:START|NEXT)");
     QRegularExpressionMatch typeMatch = typeRx.match(text);
     int index = -1;
     bool texmap = false, type1_5 = false, type1 = false, type2_5 = false;

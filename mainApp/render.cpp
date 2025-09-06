@@ -746,12 +746,13 @@ QStringList Render::splitParms(const QString &parms)
     QStringList values;
     if (parms.isEmpty())
         return values;
-    static QRegularExpression quoteRx("\"|'");
-    bool quoted = QString(parms.at(0)).contains(quoteRx);      // true if the first character is " or '
+    static QRegularExpression rx;
+    rx.setPattern("\"|'");
+    bool quoted = QString(parms.at(0)).contains(rx);      // true if the first character is " or '
     if (!quoted)
         return parms.split(' ');                               // if not quoted split on space
     bool inside = true;
-    QStringList list = parms.split(quoteRx, SkipEmptyParts);   // Split by " or '
+    QStringList list = parms.split(rx, SkipEmptyParts);   // Split by " or '
     if (list.size() == 1) {
         values << list.first();
     } else {
@@ -4126,7 +4127,8 @@ bool Render::isSingleSubfile(const QStringList &partLines)
         singleSubfile = lpub->ldrawFile.isSingleSubfileLine(partLines.first());
     } else {
         int partCount = 0;
-        static QRegularExpression rx("^[1-5]\\s+");
+        static QRegularExpression rx;
+        rx.setPattern("^[1-5]\\s+");
         for (int i = 0; i < partLines.count(); i++) {
             const QString &partLine = partLines[i];
             if (!partLine.contains(rx))

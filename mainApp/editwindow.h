@@ -280,6 +280,8 @@ protected:
     int                _pageIndx;
     int                _saveSubfileIndex;
 
+    static QRegularExpression rx;
+
     QMenu         *removeMenu;
     QScrollBar    *verticalScrollBar;
     QList<QAction *> openWithActList;

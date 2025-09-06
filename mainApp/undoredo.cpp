@@ -224,7 +224,8 @@ void Gui::scanPast(Where &topOfStep, const QRegularExpression &lineRx)
 {
   const bool isScanPastGlobal = lineRx.pattern() == QStringLiteral(GLOBAL_META_RX);
   const bool onStepMeta = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber) == QStringLiteral("0 STEP");
-  static QRegularExpression endRx("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP");
+  static QRegularExpression endRx;
+  endRx.setPattern("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP");
   if (isScanPastGlobal) {
     if (onStepMeta)
       return;
@@ -283,7 +284,9 @@ bool Gui::stepContains(Where &here, const QRegularExpression &lineRx, QString &r
 // general case string
 bool Gui::stepContains(Where &topOfStep, const QString &value)
 {
-    static QRegularExpression lineRx(value, QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression lineRx;
+    lineRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+    lineRx.setPattern(value);
     return Gui::stepContains(topOfStep, lineRx);
 }
 

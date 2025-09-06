@@ -58,7 +58,8 @@ void PageAttributeTextItem::setAttributes(
     QColor color(LDrawColor::color(textColor.value()));
     setDefaultTextColor(color);
 
-    static QRegularExpression rx("\\\\n");
+    static QRegularExpression rx;
+    rx.setPattern("\\\\n");
     QStringList list = content.value().split(rx);
     QString  text = list.join("\n");
 
@@ -406,7 +407,8 @@ void PageAttributeTextItem::focusOutEvent(QFocusEvent *event)
   if (textValueChanged) {
       Where topLevelFile = page->topOfSteps();
 
-      static QRegularExpression rx("\\n");
+      static QRegularExpression rx;
+      rx.setPattern("\\n");
       QStringList list = toPlainText().split(rx);
 
       QStringList list2;

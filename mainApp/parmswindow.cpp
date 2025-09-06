@@ -334,7 +334,9 @@ void ParmsWindow::showContextMenu(const QPoint &pt)
 
 void ParmsWindow::systemEditor()
 {
-    static QRegularExpression ldrawExtRx("\\.mpd$|\\.ldr$|\\.dat$|\\.lst", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression ldrawExtRx;
+    ldrawExtRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+    ldrawExtRx.setPattern("\\.mpd$|\\.ldr$|\\.dat$|\\.lst");
     bool hasLDrawExtension = fileName.contains(ldrawExtRx);
     if (hasLDrawExtension && !Preferences::systemEditor.isEmpty()) {
         QString const program = Preferences::systemEditor;

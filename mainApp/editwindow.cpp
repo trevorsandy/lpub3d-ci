@@ -100,6 +100,7 @@ enum DecorationType { SIMPLE_DECORATION, STANDARD_DECORATION };
 
 EditWindow *cmdEditor;
 EditWindow *cmdModEditor;
+QRegularExpression EditWindow::rx;
 
 EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
   QMainWindow(parent),isIncludeFile(false),_modelFileEdit(_modelFileEdit_),_pageIndx(0)
@@ -424,10 +425,10 @@ void EditWindow::updateOpenWithActions()
 
 void EditWindow::setOpenWithProgramAndArgs(QString &program, QStringList &arguments)
 {
-    static QRegularExpression quoteRx("\"|'");
+    rx.setPattern("\"|'");
     QString valueAt0 = program.at(0);
-    bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
-    QStringList list = program.split(quoteRx, SkipEmptyParts);            // Split by " or '
+    bool inside = valueAt0.contains(rx);                             // true if the first character is " or '
+    QStringList list = program.split(rx, SkipEmptyParts);            // Split by " or '
     if (list.size() == 1) {
         program = list.first();
     } else {
@@ -1180,7 +1181,7 @@ bool EditWindow::setValidPartLine()
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
     const int lineNumber = cursor.blockNumber();
     const bool stepSet = modelFileEdit() ? false : setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
-    static QRegularExpression rxBeginSub("\\sBEGIN\\sSUB\\s");
+    rx.setPattern("\\sBEGIN\\sSUB\\s");
 
     Step *currentStep = lpub->currentStep;
     if (currentStep) isDisplayType = currentStep->displayStep != DT_DEFAULT;
@@ -1219,7 +1220,7 @@ bool EditWindow::setValidPartLine()
         for (int i = 14; i < list.size(); i++)
             partType += (list[i]+" ");
 
-    } else if (selection.contains(rxBeginSub)) {
+    } else if (selection.contains(rx)) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", SkipEmptyParts);
@@ -2642,7 +2643,7 @@ void EditWindow::setPagedContent(const QStringList & content)
 void EditWindow::setPlainText(const QString &content)
 {
 #ifdef QT_DEBUG_MODE
-    static QRegularExpression rx("\\r\\n?|\\n");
+    rx.setPattern("\\r\\n?|\\n");
     emit lpub->messageSig(LOG_DEBUG,QString("Set plain text line count: %1, content size %2")
                                .arg(lineCount)
                                .arg(content.count(rx) + 1));
@@ -3478,7 +3479,8 @@ QStringList TextEditor::extractDistinctWordsFromDocument() const
 
 QStringList TextEditor::retrieveAllWordsFromDocument() const
 {
-    static QRegularExpression rx("\\W+");
+    static QRegularExpression rx;
+    rx.setPattern("\\W+");
     return toPlainText().split(rx, SkipEmptyParts);
 }
 

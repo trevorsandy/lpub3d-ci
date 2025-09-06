@@ -124,6 +124,8 @@ class LDrawColor {
      * and returns true if found or false if not found
      */
     static bool exist(const QString& code);
+
+    static QRegularExpression rx;
 };
 
 #endif

@@ -1621,7 +1621,8 @@ bool LDrawFile::loadIncludeFile(const QString &mcFileName)
     in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
 #endif
 
-    static QRegularExpression subRx("^0\\s+!?(?:LPUB)*\\s?(PLI BEGIN SUB|PART BEGIN IGN|PLI END|PART END)[^\n]*");
+    static QRegularExpression subRx;
+    subRx.setPattern("^0\\s+!?(?:LPUB)*\\s?(PLI BEGIN SUB|PART BEGIN IGN|PLI END|PART END)[^\n]*");
 
     auto isValidLine = [&] (const int lineNumber, const QString &smLine) {
         if (smLine.isEmpty())
@@ -3577,7 +3578,8 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                            ? QObject::tr("Recounting")
                                            : QObject::tr("Counting"), top.modelName);
 
-    static QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)\\s+(\\b\\w+\\b)");
+    static QRegularExpression texmapRx;
+    texmapRx.setPattern("^0\\s+!?TEXMAP\\s+(?:START|NEXT)\\s+(\\b\\w+\\b)");
 
     LDrawUnofficialFileType subFileType;
     std::function<void(Where&)> countModelParts;
@@ -3967,8 +3969,12 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                 _savedLines++;
             }
 
-            static QRegularExpression newLineBeforeRx("^\\s*0\\s+\\/\\/\\s*(Segments| Segment |Start cap |End cap |Fixed color segments)[^\n]*", QRegularExpression::CaseInsensitiveOption);
-            static QRegularExpression newLineAfterRx("^\\s*0\\s+\\/\\/\\s*( The path is approx | License: )[^\n]*", QRegularExpression::CaseInsensitiveOption);
+            static QRegularExpression newLineBeforeRx;
+            newLineBeforeRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+            newLineBeforeRx.setPattern("^\\s*0\\s+\\/\\/\\s*(Segments| Segment |Start cap |End cap |Fixed color segments)[^\n]*");
+            static QRegularExpression newLineAfterRx;
+            newLineAfterRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+            newLineAfterRx.setPattern("^\\s*0\\s+\\/\\/\\s*( The path is approx | License: )[^\n]*");
             for (int j = 0; j < f.value()._contents.size(); j++) {
 
                 _savedLines++;
@@ -4400,7 +4406,9 @@ QList<QVector<int> > LDrawFile::getBuildModStepActions(
     QMultiMap<int, BuildModStep>::const_iterator i = _buildModSteps.constFind(modStepIndex);
     while (i != _buildModSteps.constEnd() && i.key() == modStepIndex) {
         QVector<int> modAction = { BM_INVALID_INDEX, BM_INIT, BM_INIT };
-        static QRegularExpression buildModKeyRx(i.value()._buildModKey, QRegularExpression::CaseInsensitiveOption);
+        static QRegularExpression buildModKeyRx;
+        buildModKeyRx.setPattern(i.value()._buildModKey);
+        buildModKeyRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         int modBeginStepIndex = getBuildModStepIndex(i.value()._buildModKey);
         modAction[BM_ACTION_KEY_INDEX] = _buildModList.indexOf(buildModKeyRx);
         if (modBeginStepIndex == modStepIndex) {        // step index has BuildModBeginRc
@@ -4512,7 +4520,9 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
     if (i != _buildMods.end()) {
         _buildMods.erase(i);
         if (_buildModList.contains(buildModKey, Qt::CaseInsensitive)) {
-            static QRegularExpression buildModKeyRx(buildModKey, QRegularExpression::CaseInsensitiveOption);
+            static QRegularExpression buildModKeyRx;
+            buildModKeyRx.setPattern(buildModKey);
+            buildModKeyRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
             const int buildModListIndex = _buildModList.indexOf(buildModKeyRx);
             if (buildModListIndex > -1)
                 _buildModList.removeAt(buildModListIndex);
@@ -5559,7 +5569,8 @@ void LDrawFile::setBuildModsCount(const QString &mcFileName, const int value)
 bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buildModKey)
 {
     QString fileName = mcFileName.toLower();
-    static QRegularExpression buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
+    static QRegularExpression buildModBeginRx;
+    buildModBeginRx.setPattern("^0 !?LPUB BUILD_MOD BEGIN ");
     for(QString &line : lpub->ldrawFile.contents(fileName)) {
         if (line[0] == '1')
             continue;
@@ -6283,7 +6294,8 @@ bool isHeader(const QString &line)
 }
 
 bool isComment(const QString &line) {
-  static QRegularExpression commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
+  static QRegularExpression commentLine;
+  commentLine.setPattern("^\\s*0\\s+\\/\\/\\s*.*$");
   if (line.contains(commentLine))
     return true;
   return false;
