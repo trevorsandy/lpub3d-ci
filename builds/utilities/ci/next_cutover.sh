@@ -1,8 +1,14 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 18, 2025
+# Last Update: June 14, 2025
 # Copyright (C) 2024 by Trevor SANDY
-
+#
+# Build Commit
+# Command: (cd ~/projects/lpub3d-ci && env COMMIT="LPub3D continuous build" ../build_commit.sh)
+# Pre-release Commit
+# Command: (cd ~/projects/lpub3d-ci && env PRE=1 ../build_commit.sh)
+# Cutover
+# Command: (cd ~/projects && ./next_cutover.sh)
 set +x
 
 VER_TAG=${TAG:-}

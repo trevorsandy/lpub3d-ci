@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 05, 2025
+# Last Update: September 06, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -166,7 +166,7 @@ jobs:
             # Windows ARM64 cross compiled on AMD64 to enable Qt6OpenGL and Qt6OpenGLWidgets
             # See - [QtOpenGL missing for WoA packages](https://bugreports.qt.io/browse/QTBUG-136551)
           - platform: ARM
-            name: 2025 ARM Cross
+            name: 2025 ARM64 Cross
             host: ''
             arch: _arm64_cross_compiled
             build: arm64
@@ -279,7 +279,8 @@ jobs:
     if: |
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
-      (contains(github.event.head_commit.message, 'RELEASE_BUILD') ||
+      (contains(github.event.head_commit.message, 'PRE_RELEASE_BUILD') ||
+       contains(github.event.head_commit.message, 'RELEASE_BUILD') ||
        contains(github.event.head_commit.message, 'BUILD_ALL') ||
        startsWith(github.event.ref, 'refs/tags/v') ||
        github.event_name == 'workflow_dispatch')

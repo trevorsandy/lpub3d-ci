@@ -137,9 +137,8 @@ if [ -f upload.sh -a -r upload.sh ]; then
        export LP3D_VERSION="${LP3D_GIT_TAG:1}"
     fi
     LP3D_RELEASE_TITLE="LPub3D ${LP3D_RELEASE_DATE}"
-    sed -i    "s/      RELEASE_TITLE=\"Release build.*\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
+    sed -i    "s/^      RELEASE_TITLE=\"Release build.*\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
     LP3D_RELEASE_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
-    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/" "upload.sh"
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
@@ -150,10 +149,11 @@ if [ -f upload.sh -a -r upload.sh ]; then
         LP3D_BUILD_TYPE="DevOps Build" ;;
     esac
     LP3D_RELEASE_TITLE="Continuous ${LP3D_BUILD_TYPE} ${LP3D_VER_BUILD} (${LP3D_VERSION}-r${LP3D_VER_REVISION})"
-    sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
+    sed -i    "s/^      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
     LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG}"
-    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/" "upload.sh"
+    export UPLOADTOOL_ISPRERELEASE=1
   fi
+  export UPLOADTOOL_BODY="${LP3D_RELEASE_BODY}"
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
 fi
