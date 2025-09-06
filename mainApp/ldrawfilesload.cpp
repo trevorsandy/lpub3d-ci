@@ -430,15 +430,16 @@ void LdrawFilesLoad::summary() const
     messages.append(suffix);
 
     if (mpc) {
-        QString const partsStr  = tr("%1").arg(mpc > 1 ? QObject::tr("Some parts") : QObject::tr("A part"));
+        QString const parts1Str = tr("%1").arg(mpc > 1 ? QObject::tr("Some parts") : QObject::tr("A part"));
+        QString const parts2Str = tr("%1").arg(mpc > 1 ? QObject::tr("parts")      : QObject::tr("part"));
         QString const wereStr   = tr("%1").arg(mpc > 1 ? QObject::tr("were")       : QObject::tr("was"));
         QString const theseStr  = tr("%1").arg(mpc > 1 ? QObject::tr("these are")  : QObject::tr("this is"));
         QString const theirStr  = tr("%1").arg(mpc > 1 ? QObject::tr("their")      : QObject::tr("its"));
         messages.append(QObject::tr("<br><br>%1 %2 not found. The following locations were searched;<br>"
                                     "model file, LDraw search paths, %3 and %4 library archives.<br>"
-                                    "If %5 custom %1, be sure %6 location is in the LDraw search directory list.<br>"
-                                    "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
-                                    .arg(partsStr,wereStr,VER_LPUB3D_UNOFFICIAL_ARCHIVE,VER_LDRAW_OFFICIAL_ARCHIVE,theseStr,theirStr));
+                                    "If %5 custom %6, be sure %7 location is in the LDraw search directory list.<br>"
+                                    "If %5 new unofficial %6, be sure the unofficial archive library is up to date.")
+                                    .arg(parts1Str,wereStr,VER_LPUB3D_UNOFFICIAL_ARCHIVE,VER_LDRAW_OFFICIAL_ARCHIVE,theseStr,parts2Str,theirStr));
     }
     if (esmc) {
         QString const subModStr = tr("%1").arg(esmc > 1 ? QObject::tr("submodels") : QObject::tr("submodel"));
