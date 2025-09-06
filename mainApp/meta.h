@@ -288,6 +288,7 @@ public:
   QString   preamble;
 
   static bool reportErrors;
+  static QRegularExpression rx;
 
   AbstractMeta()
   {

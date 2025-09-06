@@ -1181,9 +1181,9 @@ bool Gui::continuousPageDialog(PageDirection d)
           if (Gui::messageList.size()) {
               int errorSet = 0;
               int warnSet  = 0;
-              static QRegularExpression errorRx(">ERROR<");
-              static QRegularExpression fatalRx(">FATAL<");
-              static QRegularExpression warnRx(">WARNING<");
+              const QLatin1String errorRx(">ERROR<");
+              const QLatin1String fatalRx(">FATAL<");
+              const QLatin1String warnRx(">WARNING<");
               for (QString &item : Gui::messageList)
                   if (item.contains(errorRx) || item.contains(fatalRx))
                       errorSet++;
@@ -1224,9 +1224,7 @@ bool Gui::processPageRange(const QString &range)
       static QRegularExpression endRx;
       static QRegularExpression ofToRx;
       startRx.setPattern("^(\\d+)(?:[\\w\\-\\,\\s]*)$");
-      startRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
       endRx.setPattern("(?:[^\\w\\-\\,\\s]*)(\\d+)$");
-      endRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
       ofToRx.setPattern("of|to");
       ofToRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
       QString cleanRange = range.trimmed().replace(ofToRx,"-").replace(" ", "");

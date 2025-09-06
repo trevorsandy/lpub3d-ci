@@ -52,6 +52,7 @@ QHash<QString, int> tokenMap;
 QHash<Rc, QRegularExpression> groupRegExMap;
 
 bool AbstractMeta::reportErrors = false;
+QRegularExpression AbstractMeta::rx;
 
 void AbstractMeta::init(BranchMeta *parent, QString name)
 {
@@ -177,7 +178,6 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
       offset = local || global;
 
       if (index + offset < size) {
-        static QRegularExpression rx;
         for (i = list.begin(); i != list.end(); i++) {
           rx.setPattern(i.key());
           if (argv[index + offset].contains(rx)) {
@@ -665,7 +665,7 @@ void StringListMeta::doc(QStringList &out, QString preamble)
 
 Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
 {
-  static QRegularExpression rx("^(TRUE|FALSE)$");
+  rx.setPattern("^(TRUE|FALSE)$");
   if (index == argv.size() - 1 && argv[index].contains(rx)) {
       _value[pushed] = argv[index] == "TRUE";
       _here[pushed] = here;
@@ -859,7 +859,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
   PlacementType _relativeTo; //_value[pushed].relativeTo;
   QString placement, justification, preposition, relativeTo;
 
-  static QRegularExpression rx("^(TOP|BOTTOM)$");
+  rx.setPattern("^(TOP|BOTTOM)$");
   if (argv[index].contains(rx)) {
     placement = argv[index++];
 
@@ -1511,7 +1511,6 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index, Where &here)
 
 PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv, const Where &here, const int indx, int &arge, Rc &rc)
 {
-  static QRegularExpression rx;
   QRegularExpressionMatch match;
   int index = indx;
   rx.setPattern("^(LINE|BORDER|TIP)$");
@@ -1869,7 +1868,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
                 ;
 #endif
 //*/
-    static QRegularExpression rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
+    rx.setPattern("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
     // legacy single-segment pattern - base included
     if (argv[index].contains(rx) && n_tokens == 4) {
@@ -2066,7 +2065,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 
 QString PointerMeta::format(bool local, bool global)
 {
-  static QRegularExpression rx("^\\s*0.*\\s+(PAGE POINTER|PAGE_POINTER)\\s+.*$");
+  rx.setPattern("^\\s*0.*\\s+(PAGE POINTER|PAGE_POINTER)\\s+.*$");
   bool pagePointer = preamble.contains(rx);
   QString foo;
   switch(_value[pushed].placement) {
@@ -2171,7 +2170,6 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 //*/
   CsiAnnotationIconData annotationData;
   Rc rc = FailureRc;
-  static QRegularExpression rx;
   if (argv.size() - index == 1) {
       rx.setPattern("^(HIDE|HIDDEN)$");
       if (argv[index].contains(rx)) {
@@ -2443,7 +2441,7 @@ Rc FreeFormMeta::parse(QStringList &argv, int index,Where &here)
     rc = OkRc;
   } else if (argv.size() - index == 2) {
     _value[pushed].mode = true;
-    static QRegularExpression rx("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
+    rx.setPattern("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
     if (argv[index].contains(rx)) {
       rx.setPattern("^(LEFT|RIGHT|TOP|BOTTOM|CENTER)$");
       if (argv[index+1].contains(rx)) {
@@ -2491,7 +2489,6 @@ Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
   bool ok;
-  static QRegularExpression rx;
   switch(argv.size() - index) {
     case 1:
       rx.setPattern("^(AREA|SQUARE)$");
@@ -2573,7 +2570,7 @@ AllocMeta::AllocMeta() : LeafMeta()
 
 Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(HORIZONTAL|VERTICAL)$");
+  rx.setPattern("^(HORIZONTAL|VERTICAL)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed] = AllocEnc(tokenMap[argv[index]]);
       _here[pushed] = here;
@@ -2617,7 +2614,7 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
   using namespace Options;
   using namespace CameraViews;
   QString message = QObject::tr("The specified latitude %1 or longitude %2 value is not within the mininum %3 or maximum %4 allowed \"%5\".");
-  static QRegularExpression rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
+  rx.setPattern("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
   if (argv.size() - index == 1) {
     if (argv[index].contains(rx)) {
       float latitude  = 30.0f;
@@ -2767,7 +2764,7 @@ FillMeta::FillMeta() : LeafMeta()
 
 Rc FillMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(ASPECT|STRETCH|TILE)$");
+  rx.setPattern("^(ASPECT|STRETCH|TILE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed] = FillEnc(tokenMap[argv[index]]);
       _here[pushed] = here;
@@ -2812,7 +2809,7 @@ JustifyStepMeta::JustifyStepMeta() : LeafMeta()
 }
 Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)$");
+  rx.setPattern("^(JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)$");
   if (argv[index].contains(rx)) {
     if (argv.size() - index >= 1)
       _value[pushed].type = JustifyStepEnc(tokenMap[argv[index]]);
@@ -2869,7 +2866,7 @@ PageOrientationMeta::PageOrientationMeta() : LeafMeta()
 }
 Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(PORTRAIT|LANDSCAPE)$");
+  rx.setPattern("^(PORTRAIT|LANDSCAPE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     type[pushed] = OrientationEnc(tokenMap[argv[index]]);
     _here[pushed] = here;
@@ -2916,7 +2913,7 @@ CountInstanceMeta::CountInstanceMeta() : LeafMeta()
 
 Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)$");
+  rx.setPattern("^(AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed]  = CountInstanceEnc(countInstanceMap[argv[index]]);;
       _here[pushed] = here;
@@ -2973,7 +2970,7 @@ ContStepNumMeta::ContStepNumMeta() : LeafMeta()
 
 Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(TRUE|FALSE)$");
+  rx.setPattern("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     type[pushed]  = ContStepNumEnc(contStepNumMap[argv[index]]);;
     _here[pushed] = here;
@@ -3023,7 +3020,7 @@ BuildModEnabledMeta::BuildModEnabledMeta() : LeafMeta()
 
 Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(TRUE|FALSE)$");
+  rx.setPattern("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     type[pushed]  = BuildModEnabledEnc(buildModEnabledMap[argv[index]]);
     _here[pushed] = here;
@@ -3075,7 +3072,7 @@ FinalModelEnabledMeta::FinalModelEnabledMeta() : LeafMeta()
 
 Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(TRUE|FALSE)$");
+  rx.setPattern("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed]  = FinalModelEnabledEnc(finalModelEnabledMap[argv[index]]);
       _here[pushed] = here;
@@ -3125,7 +3122,7 @@ void PageSizeMeta::init(
 }
 Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
 {
-  static QRegularExpression rx("^(PORTRAIT|LANDSCAPE)$");
+  rx.setPattern("^(PORTRAIT|LANDSCAPE)$");
   bool ok[2];
   bool sizeIDFound = false;
   bool sizeWandHFound = false;
@@ -3318,7 +3315,7 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
     }
   } else
   if (argv.size() - index == 6) {
-    static QRegularExpression rx("CUSTOM|CUSTOM_LENGTH"); // legacy
+    rx.setPattern("CUSTOM|CUSTOM_LENGTH"); // legacy
     if (argv[index].contains(rx)) {
       argv[index+1].toFloat(&good);
       argv[index+2].toFloat(&ok);
@@ -3436,7 +3433,7 @@ void SepMeta::metaKeywords(QStringList &out, QString preamble)
 
 Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
 {
-  static QRegularExpression rx("^(BRING_TO_FRONT|SEND_TO_BACK)$");
+  rx.setPattern("^(BRING_TO_FRONT|SEND_TO_BACK)$");
   if (argv.size() - index == 3 && argv[index].contains(rx)) {
     bool good, ok;
     float x = argv[index+1].toFloat(&good);
@@ -3502,7 +3499,7 @@ StudStyleMeta::StudStyleMeta() : LeafMeta()
 Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
-  static QRegularExpression rx("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
+  rx.setPattern("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
   if (argv.size() - index == 1) {
     if (!argv[index].contains(rx)) {
       bool ok;
@@ -3585,9 +3582,9 @@ Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
   if (argv.size() - index == 1) {
-    static QRegularExpression hexRx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
+    rx.setPattern("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
     QColor color;
-    if (argv[index].contains(hexRx)) {
+    if (argv[index].contains(rx)) {
       color = QColor(argv[index]);
       _format = argv[index].length() == 7 ? QColor::HexRgb : QColor::HexArgb;
     } else {
@@ -3712,7 +3709,6 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   if (rc != OkRc && !Gui::abortProcess()) {
     if (Gui::pageProcessRunning != PROC_NONE) {
       static QRegularExpression errorRx;
-      static QRegularExpression stepRx("0 STEP|0 ROTSTEP");
       QRegularExpressionMatch match;
       QString line;
       bool errorFound = false;
@@ -3721,17 +3717,19 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       Where top(here.modelName,here.modelIndex,0);
       lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
       errorRx.setPattern("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(0 STEP|0 ROTSTEP)");
+      rx.setPattern("0 STEP|0 ROTSTEP");
       for (; start.lineNumber > top.lineNumber; start--) {
         line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
         match = errorRx.match(line);
         if (match.hasMatch()) {
-          errorFound = !match.captured(3).contains(stepRx);
+          errorFound = !match.captured(3).contains(rx);
           break;
         }
       }
 
       if (!errorFound) {
         start = here;
+        static QRegularExpression dispModRx;
         errorRx.setPattern("^[1-5]\\s+|(\\bBEGIN SUB\\b)");
         if (lpub->ldrawFile.size(here.modelName) > here.lineNumber) {
           start++;                                            // advance past current line
@@ -3740,7 +3738,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           errorFound = Gui::stepContains(start, errorRx, line, 1, displayModel/*allow type 1-5 lines if display model*/);
         } else {
           top = start;
-          static QRegularExpression dispModRx("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
+          dispModRx.setPattern("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
           if (! Gui::stepContains(top, dispModRx)) {           // Check if step contain display model
             line = QObject::tr("type 1-5 line");
             errorFound = Gui::stepContains(start, errorRx); // check for type 1-5 parts
@@ -4480,7 +4478,7 @@ void SceneItemMeta::init(BranchMeta *parent, QString name)
 Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  static QRegularExpression rx("^(TRUE|FALSE)$");
+  rx.setPattern("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
@@ -4541,7 +4539,7 @@ void EnableMeta::metaKeywords(QStringList &out, QString preamble)
 Rc LPubFaHiMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  static QRegularExpression rx("^(TRUE|FALSE)$");
+  rx.setPattern("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
@@ -4604,10 +4602,9 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
   Rc rc = FailureRc;
   if (argv.size() - index >= 1) {
     QColor parsedColor = QColor();
-    static QRegularExpression hexRx;
     QRegularExpressionMatch match;
-    hexRx.setPattern("^(0x|#)([\\da-fA-F]+)$");
-    match = hexRx.match(argv[index]);
+    rx.setPattern("^(0x|#)([\\da-fA-F]+)$");
+    match = rx.match(argv[index]);
     if (match.hasMatch())
       parsedColor = QColor(QString("#%1").arg(match.captured(2)));
     if (parsedColor.isValid()) {
@@ -4824,7 +4821,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   int argc = argv.size() - index;
   QString originalColor;
   QString attributes = "undefined;";
-  static QRegularExpression rx("^(ABS|REL|ADD)$");
+  rx.setPattern("^(ABS|REL|ADD)$");
   if (argc > 0) {
     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")) {
       // the last item is an ldrawType - specified when substitute is a generated part
@@ -5072,7 +5069,7 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       _value.rots[0] = rotX;
       _value.rots[1] = rotY;
       _value.rots[2] = rotZ;
-      static QRegularExpression rx("^(ABS|REL|ADD)$");
+      rx.setPattern("^(ABS|REL|ADD)$");
       if (argv.size() == index+4 && argv[index+3].contains(rx))
          _value.type   = argv[index+3];
       _value.populated = !(_value.rots[0] == 0 && _value.rots[1] == 0 && _value.rots[2] == 0);
@@ -5119,9 +5116,10 @@ void RotStepMeta::metaKeywords(QStringList &out, QString preamble)
 Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (index + 2 == argv.size()) {
-    static QRegularExpression b("^[A-Z]$");
-    static QRegularExpression t("^(STORE|RETRIEVE)$");
-    if (argv[index].contains(b) && argv[index+1].contains(t)) {
+    static QRegularExpression tRx;
+    rx.setPattern("^[A-Z]$");
+    tRx.setPattern("^(STORE|RETRIEVE)$");
+    if (argv[index].contains(rx) && argv[index+1].contains(tRx)) {
       _value.buffer = argv[index];
       _here[0] = here;
       _here[1] = here;
@@ -5160,9 +5158,9 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
   QString missingMeta;
-  static QRegularExpression actionRx("^(BEGIN|END_MOD|END|APPLY|REMOVE)$");
+  rx.setPattern("^(BEGIN|END_MOD|END|APPLY|REMOVE)$");
   if (index + 1 == argv.size()) {
-    if (argv[index].contains(actionRx)) {
+    if (argv[index].contains(rx)) {
       if (argv[index] == "BEGIN")
         missingMeta = argv[index];
       else if (argv[index] == "END_MOD")
@@ -5178,8 +5176,9 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
       _here[1] = here;
     }
   } else if (index + 2 == argv.size()) {
-    static QRegularExpression keyRx("^.*$", QRegularExpression::CaseInsensitiveOption);
-    if (argv[index].contains(actionRx) && argv[index + 1].contains(keyRx)) {
+    static QRegularExpression keyRx;
+    keyRx.setPattern("^.*$");
+    if (argv[index].contains(rx) && argv[index + 1].contains(keyRx)) {
       if (argv[index] == "BEGIN")
         rc = BuildModBeginRc;
       else if (argv[index] == "END_MOD")
@@ -7380,10 +7379,9 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {
-  static QRegularExpression parseRx;
   QRegularExpressionMatch match;
-  parseRx.setPattern("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
-  match = parseRx.match(line);
+  rx.setPattern("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
+  match = rx.match(line);
   if (!match.hasMatch())
     return;
 
@@ -7416,8 +7414,8 @@ void Meta::processSpecialCases(QString &line, Where &here) {
     if (Gui::parsedMessages.contains(here)) {
       line = "0 // IGNORED";
     } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
-      parseRx.setPattern("\\s+(ASSEM|PLI|BOM|SUBMODEL|LOCAL)\\s+");
-      if (line.contains(parseRx)) {
+      rx.setPattern("\\s+(ASSEM|PLI|BOM|SUBMODEL|LOCAL)\\s+");
+      if (line.contains(rx)) {
         QString const message = QObject::tr("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
                                             "Only application at GLOBAL scope is permitted. "
                                             "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "

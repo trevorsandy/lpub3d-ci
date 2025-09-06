@@ -481,6 +481,8 @@ class Preferences
     static int     submodelCameraLatitude;
     static int     submodelCameraLongitude;
 
+    static QRegularExpression rx;
+
     static QMap<QString, QKeySequence> keyboardShortcuts;
 
     virtual ~Preferences() {}

@@ -85,6 +85,8 @@ const QString MetaItem::stepGroupDividerMetaCmd  = "0 !LPUB MULTI_STEP DIVIDER";
 const QString MetaItem::stepGroupEndMetaCmd      = "0 !LPUB MULTI_STEP END";
 const QString MetaItem::stepMetaCmd              = "0 STEP";
 
+QRegularExpression MetaItem::rx;
+
 void MetaItem::setGlobalMeta(
   QString  &topLevelFile,
   LeafMeta *leaf)
@@ -1420,7 +1422,7 @@ void MetaItem::convertToPart(Meta *meta)
   if (tokens.size() == 15) {
     //check for spaces in model name and wrap in quotes if yes
     QString modelName = tokens[14];
-    static QRegularExpression rx("\\s+");
+    rx.setPattern("\\s+");
     if (modelName.contains(rx)) {
         modelName = "\"" + modelName + "\"";
     }
@@ -2069,7 +2071,7 @@ void MetaItem::setRendererArguments(const Where &top,
     if (ok && !arguments.isEmpty()) {
         QChar esc('\\');
         QStringList list;
-        static QRegularExpression rx("\"");
+        rx.setPattern("\"");
         QRegularExpressionMatch match;
         QRegularExpressionMatchIterator matchIt;
         const QStringList textList = arguments.split("\n");
@@ -2864,14 +2866,14 @@ void MetaItem::insertCoverPage()
 
 bool MetaItem::frontCoverPageExist()
 {
-  static QRegularExpression rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
+  rx.setPattern("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
   Where here(lpub->ldrawFile.topLevelFile(), 0, 0); //start at top of file 
   return Gui::stepContains(here, rx);
 }
 
 bool MetaItem::backCoverPageExist()
 {
-  static QRegularExpression rx("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
+  rx.setPattern("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
   int end = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
   Where here(lpub->ldrawFile.topLevelFile(), 0, end); //start at bottom of file
   if (!here.lineNumber)
@@ -3257,7 +3259,7 @@ void MetaItem::updateText(
     if (stepOk && !text.isEmpty()) {
         QChar esc('\\');
         QStringList list;
-        static QRegularExpression rx("\"");
+        rx.setPattern("\"");
         QRegularExpressionMatch match;
         QRegularExpressionMatchIterator matchIt;
         const QStringList textList = text.split("\n");
@@ -3446,7 +3448,7 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
         saveHere = Where();
       }
     } else {                                                 //else keep walking back until 1_5 or substitute line
-      static QRegularExpression rx("^0 !?LPUB PLI END\\s*$");
+      rx.setPattern("^0 !?LPUB PLI END\\s*$");
       QStringList args;
       split(line,args);
       bool validLine = args.size() && args[0] >= '0' && args[0] <= '1';
@@ -3478,7 +3480,7 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
 
 void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
 {
-    static QRegularExpression rx("^0 STEP$");
+    rx.setPattern("^0 STEP$");
     bool isNotFinalStep = lpub->ldrawFile.readLine(here.modelName,here.lineNumber).contains(rx);
     if (!isNotFinalStep)
         isNotFinalStep = here.lineNumber < lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()) - 1; //adjust lineNumber for zero-start index
@@ -3579,7 +3581,9 @@ bool MetaItem::deleteFinalModelStep(bool force) {
   } else return foundFinalModel;
 
   if (foundFinalModel && (rc == StepRc || rc == RotStepRc || rc == EndOfFileRc)) {
-    static QRegularExpression rx("^\\s*0\\s+\\/\\/\\s*These 6 command lines were auto-generated for (?:fade previous steps(?: and)? highlight current step).$", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression rx;
+    rx.setPattern("^\\s*0\\s+\\/\\/\\s*These 6 command lines were auto-generated for (?:fade previous steps(?: and)? highlight current step).$");
+    rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
     bool eof = rc == EndOfFileRc;
     int disclaimerTextLines = eof ? 4 : 3;                        //if EOF (final step), account for 0 STEP command before insert INSERT MODEL
     for (int i = 0; i < disclaimerTextLines; i++) {
@@ -3612,9 +3616,6 @@ bool MetaItem::deleteFinalModelStep(bool force) {
 
 QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepCheck)
 {
-    static QRegularExpression bufExLoadRx("^0 BUFEXCHG \\S+ RETRIEVE$");                   // _bfx
-    static QRegularExpression dispModelRx("^0 !?LPUB INSERT DISPLAY_MODEL$");              // _dm
-    static QRegularExpression buildModActRx("^0 !?LPUB BUILD_MOD (?:REMOVE|APPLY) \\S+$"); // _bm
     Where here;
     bool partsAdded = false;
     bool hasDispModel = false;
@@ -3623,7 +3624,8 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
     if (!(hasDispModel = step ? step->displayStep >= DT_MODEL_DEFAULT : false)) {
         if (stepCheck) {
             here = top;
-            hasDispModel = Gui::stepContains(here, dispModelRx);
+            rx.setPattern("^0 !?LPUB INSERT DISPLAY_MODEL$"); // _dm
+            hasDispModel = Gui::stepContains(here, rx);
         }
     } else if (!(hasBuildModAct = step ? step->buildModActionStep : false)) {
         if (stepCheck) {
@@ -3631,7 +3633,8 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
             scanForward(here, StepMask|StepGroupMask, partsAdded);
             if (!partsAdded) {
                 here = top;
-                hasBuildModAct = Gui::stepContains(here, buildModActRx);
+                rx.setPattern("^0 !?LPUB BUILD_MOD (?:REMOVE|APPLY) \\S+$"); // _bm
+                hasBuildModAct = Gui::stepContains(here, rx);
             }
         }
     } else if (!(hasBufExLoad = step ? step->bfxLoadStep : false)) {
@@ -3640,7 +3643,8 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
             scanForward(here, StepMask|StepGroupMask, partsAdded);
             if (!partsAdded) {
                 here = top;
-                hasBufExLoad = Gui::stepContains(here, bufExLoadRx);
+                rx.setPattern("^0 BUFEXCHG \\S+ RETRIEVE$"); // _bfx
+                hasBufExLoad = Gui::stepContains(here, rx);
             }
         }
     }
@@ -3672,19 +3676,11 @@ void MetaItem::changePreferredRenderer(
   ok = PreferredRendererDialog::getPreferredRenderer(_meta,title,gui);
 
   if (ok && _meta.value().renderer != meta->value().renderer) {
-//    bool reloadFile = false;
-    static QRegularExpression rx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
+    rx.setPattern("CALLOUT BEGIN");
     bool useTop = !Gui::stepContains(here, rx);
-//    beginMacro("PreferredRenderer");
     meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
-//    reloadFile = true;
-//    setSuspendFileDisplayFlag(true);
-//    endMacro();
-//    if (reloadFile) {
-//      reloadDisplayPage(true);
-//    }
   }
 }
 
@@ -3704,8 +3700,8 @@ QString         title,
   bool ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
   if (ok) {
     bool reloadFile = false;
-    static QRegularExpression rx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
+    rx.setPattern("CALLOUT BEGIN");
     bool useTop = !Gui::stepContains(here, rx);
     beginMacro("SetFadeSteps");
     if(_meta.enable.value() != meta->enable.value()) {
@@ -3748,8 +3744,8 @@ void MetaItem::setHighlightStep(
   bool ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
   if (ok) {
     bool reloadFile = false;
-    static QRegularExpression rx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
+    rx.setPattern("CALLOUT BEGIN");
     bool useTop = (append = !Gui::stepContains(here, rx));
     beginMacro("SetHighlightStep");
     if(_meta.enable.value() != meta->enable.value()) {
@@ -3889,7 +3885,7 @@ void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand) {
   Where walk = topOfStep + 1;                                     // advance past STEP meta
   int numLines = lpub->ldrawFile.size(topOfStep.modelName);
   scanPastGlobal(topOfStep);
-  static QRegularExpression rx("^\\s*0\\s+!LPUB\\s+.*"+metaCommand);
+  rx.setPattern("^\\s*0\\s+!LPUB\\s+.*"+metaCommand);
   for ( ; walk < numLines; walk++) {
       QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
       if (line.contains(rx)) {
@@ -3922,7 +3918,7 @@ void MetaItem::scanPastLPubMeta(
   int  numLines  = lpub->ldrawFile.size(walk.modelName);
   if (walk < numLines) {
     QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-    static QRegularExpression rx("^\\s*0\\s+!LPUB\\s+.*");
+    rx.setPattern("^\\s*0\\s+!LPUB\\s+.*");
     if (line.contains(rx) || isHeader(line) || isComment(line)) {
       for ( ++walk; walk < numLines; ++walk) {
         line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
@@ -4105,8 +4101,8 @@ void MetaItem::endMacro()
 void MetaItem::scanPastGlobal(
   Where &topOfStep)
 {
-  static QRegularExpression globalLine(GLOBAL_META_RX);
-  Gui::scanPast(topOfStep,globalLine);
+  rx.setPattern(GLOBAL_META_RX);
+  Gui::scanPast(topOfStep, rx);
 }
 
 Where MetaItem::firstLine(
@@ -4311,7 +4307,7 @@ void MetaItem::addCalloutMetas(
   if (! assembled) {
     numLines = lpub->ldrawFile.size(modelName);
     walk.lineNumber = numLines - 1;
-    static QRegularExpression rx("^\\s*0\\s+\\!*LPUB\\s+MULTI_STEP\\s+");
+    rx.setPattern("^\\s*0\\s+\\!*LPUB\\s+MULTI_STEP\\s+");
 
     do {
       QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
@@ -4960,13 +4956,13 @@ void MetaItem::removeCallout(
     }
   } while (rc != EndOfFileRc);
 
-  static QRegularExpression callout("^\\s*0\\s+\\!*LPUB\\s+CALLOUT");
+  rx.setPattern("^\\s*0\\s+\\!*LPUB\\s+CALLOUT");
   for (walk = bottomOfCallout;
        walk >= topOfCallout.lineNumber;
        walk--)
   {
     QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-    if (line.contains(callout)) {
+    if (line.contains(rx)) {
       deleteMeta(walk);
     }
   }
@@ -5044,8 +5040,8 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
      deleteMeta(here);
   } else {
      Where walk = here;
-     static QRegularExpression rx("^.*(POINTER_ATTRIBUTE (LINE|BORDER)).*$");
      QString line = lpub->ldrawFile.readLine(walk.modelName,++walk.lineNumber); // advance 1 line
+     rx.setPattern("^.*(POINTER_ATTRIBUTE (LINE|BORDER)).*$");
      if (line.contains(rx)) {
          deleteMeta(walk);                 // check first line
      }
@@ -5568,7 +5564,6 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
       bool bmMeta = false;
       bool bmLine = false;
       bool bomIns = false;
-      static QRegularExpression rx;
       QRegularExpressionMatch match;
 
       for (Where walk = bottom; walk >= top.lineNumber; walk--) {

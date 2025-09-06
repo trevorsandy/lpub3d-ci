@@ -579,6 +579,7 @@ protected:
   static const QString stepMetaCmd;
   static const QString monoColor[];
   static const QString monoColorCode[];
+  static QRegularExpression rx;
 };
 
 #endif

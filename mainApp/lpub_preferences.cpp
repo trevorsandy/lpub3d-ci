@@ -630,6 +630,8 @@ int     Preferences::fileLoadWaitTime           = FILE_LOAD_WAIT_TIME;
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
+QRegularExpression Preferences::rx;
+
 /*
  * [DATA PATHS]
  * dataLocation            - the data location at install
@@ -3100,7 +3102,7 @@ void Preferences::setLDGLiteIniParams()
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut;
-    static QRegularExpression rx("^__NOTE:");
+    rx.setPattern("^__NOTE:");
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, VER_LDGLITE_INI_FILE));
     if (!resourceFile.exists()) {
@@ -3168,7 +3170,6 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
-    static QRegularExpression rx;
 
     resourceFile.setFile(QString("%1/%2").arg(lpub3dLDVConfigDir, VER_NATIVE_EXPORT_INI_FILE));
     if (resourceFile.exists())
@@ -3256,7 +3257,6 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
-    static QRegularExpression rx;
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE));
     if (resourceFile.exists())
@@ -3333,7 +3333,6 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
-    static QRegularExpression rx;
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE));
     if (resourceFile.exists())
@@ -3416,7 +3415,6 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
-    static QRegularExpression rx;
 
     // POV-Ray Conf
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR ,VER_POVRAY_CONF_FILE));
@@ -4264,7 +4262,7 @@ void Preferences::userInterfacePreferences()
         findProcess.start(command, arguments);
         findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
         if(findProcess.waitForFinished()) {
-          static QRegularExpression rx("\n|\r\n|\r");
+          rx.setPattern("\n|\r\n|\r");
           systemEditor = QString(findProcess.readAll()).split(rx).first().trimmed();
           systemEditorInfo.setFile(systemEditor);
         }
