@@ -328,11 +328,24 @@ void QSimpleUpdater::setNotifyOnFinish (const QString& url,
  * \a url.
  *
  * If the platform key is empty, then the system will use the following keys:
- *    - On iOS: \c ios
- *    - On Mac OSX: \c osx
+ *    - On Microsoft Windows AMD: \c windows-amd_exe
+ *    - On Microsoft Windows ARM: \c windows-arm_exe
+ *    - On Microsoft Windows Conda: \c windows-con_exe
+ *    - On Microsoft Windows Msys2: \c windows-msys_exe
+ *    - On Apple macOS AMD: \c macos-amd_dmg
+ *    - On Apple macOS ARM: \c macos-arm_dmg
+ *    - On GNU/Linux Debian AMD: \c linux-amd_deb
+ *    - On GNU/Linux Debian ARM: \c linux-arm_deb 
+ *    - On GNU/Linux Fedora AMD: \c linux-amd_rpm
+ *    - On GNU/Linux Arch AMD: \c linux-amd_pkg
+ *    - On GNU/Linux AppImage AMD: \c linux-amd_api
+ *    - On GNU/Linux AppImage ARM: \c linux-arm_api
+ *    - On GNU/Linux Snapcraft AMD: \c linux-amd_snp
+ *    - On GNU/Linux Snapcraft ARM: \c linux-arm_snp
+ *    - On GNU/Linux FlatPak AMD: \c linux-amd_flp
+ *    - On GNU/Linux FlatPak ARM: \c linux-arm_flp
  *    - On Android: \c android
- *    - On GNU/Linux: \c linux
- *    - On Microsoft Windows: \c windows
+ *    - On iOS: \c ios
  *
  * \note If an \c Updater instance registered with the given \a url is not
  *       found, that \c Updater instance will be initialized automatically

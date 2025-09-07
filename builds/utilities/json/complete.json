@@ -2,52 +2,52 @@
   "updates": {
     "windows": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "windows-exe": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "windows-conda": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },	
     "macos-dmg": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-deb": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-rpm": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-pkg": {
     "download-name": "complete.zip",
-    "open-url": "https://www.ldraw.org/direct-parts-access",
+    "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-api": {
     "download-name": "complete.zip",
-      "open-url": "https://www.ldraw.org/direct-parts-access",
+      "open-url": "https://library.ldraw.org/",
     "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-snp": {
     "download-name": "complete.zip",
-      "open-url": "https://www.ldraw.org/direct-parts-access",
+      "open-url": "https://library.ldraw.org/",
     "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-flp": {
     "download-name": "complete.zip",
-      "open-url": "https://www.ldraw.org/direct-parts-access",
+      "open-url": "https://library.ldraw.org/",
     "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     }
   }

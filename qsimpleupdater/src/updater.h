@@ -166,17 +166,18 @@ private:
     QNetworkAccessManager* m_manager;
 
     // LPub3D Mod
+    enum distroType { DistCode, DistPfrm, DistVer, DistArch };
+    QString m_moduleDescStr;
     QString m_changelogUrl;
     QString m_latestRevision;
     QString m_moduleRevision;
+    QString m_fileName;
+    QString m_availableVersions;
+    QStringList m_distroItems;
     bool m_directDownload;
     bool m_promptedDownload;
     bool m_versionsRequest;
     bool m_changeLogOnly;
-    int  m_winPortable;
-    QString m_fileName;
-    QString m_availableVersions;
-
     ProgressDialog *m_progressDialog;
     // Mod End
 };

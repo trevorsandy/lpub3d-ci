@@ -58,54 +58,46 @@ Updater::Updater()
     m_notifyOnFinish = false;
     m_updateAvailable = false;
     m_downloaderEnabled = true;
-    //m_moduleName = qApp->applicationName(); // Can't use this again cuz its set to the exe name.
-    m_moduleName = QString("%1").arg(VER_PRODUCTNAME_STR);
+    m_moduleName = QString::fromLatin1(VER_PRODUCTNAME_STR);
     m_moduleVersion = qApp->applicationVersion();
 
     // LPub3D Mod
     m_fileName = "";
     m_latestRevision = "";
     m_availableVersions = "";
-    m_winPortable = 0; // 0 = installer, 1 = x86Portable, 2 = x86_64Portable
+    m_moduleDescStr = "";
     m_changeLogOnly = false;
     m_directDownload = false;
     m_promptedDownload = false;
     m_versionsRequest = false;
     m_moduleRevision = QString::fromLatin1(VER_REVISION_STR);
-
-    //m_progressDialog = new ProgressDialog();
+    m_distroItems = QString::fromLatin1(VER_DISTRO_PACKAGE_STR).split("-");
     // End Mod
 
     m_downloader = new Downloader();
     m_manager = new QNetworkAccessManager();
 
 // LPub3D Mod
+    const QString arch = m_distroItems.at(DistArch) == QLatin1String("arm64") ? QLatin1String("arm") : QLatin1String("amd");
 #if defined Q_OS_WIN
 #if defined LP3D_CONDA
-    m_platform = "windows-conda";
+    m_platform = QString("windows-%1_con_%2").arg(arch, m_distroItems.at(DistCode));
+#elif defined LP3D_MSYS2
+    m_platform = QString("windows-%1_msys_%2").arg(arch, m_distroItems.at(DistCode));
 #else
-    m_platform = "windows-exe";
+    m_platform = QString("windows-%1_%2").arg(arch, m_distroItems.at(DistCode));
 #endif
 #elif defined Q_OS_MACOS
-    m_platform = QLatin1String("macos-dmg");
+    m_platform = QString("macos-%1_%2").arg(arch, m_distroItems.at(DistCode));
 #elif defined Q_OS_LINUX
-#if defined LP3D_APPIMAGE
-    m_platform = QLatin1String("linux-api");
-#elif defined LP3D_SNAP
-    m_platform = QLatin1String("linux-snp");
-#elif defined LP3D_FLATPACK
-    m_platform = QLatin1String("linux-flp");
-#else
-    m_platform = QLatin1String("linux");
-#endif
+    m_platform = QString("linux-%1_%2").arg(arch, m_distroItems.at(DistCode));
 #elif defined Q_OS_ANDROID
     m_platform = QLatin1String("android");
 #elif defined Q_OS_IOS
     m_platform = QLatin1String("ios");
 #endif
-// End Mod
-
     //qDebug() << qPrintable(QString("DISTRO_PACKAGE_CODE (m_platform): %1").arg(m_platform));
+// End Mod
 
     setUserAgentString(QString ("%1/%2 (Qt; QSimpleUpdater)").arg(qApp->applicationName(),
                         qApp->applicationVersion()));
@@ -393,11 +385,24 @@ void Updater::setDownloaderEnabled (const bool enabled)
 /**
  * Changes the platform key.
  * If the platform key is empty, then the system will use the following keys:
- *    - On iOS: \c ios
- *    - On macOS: \c macos-dmg
+ *    - On Microsoft Windows AMD: \c windows-amd_exe
+ *    - On Microsoft Windows ARM: \c windows-arm_exe
+ *    - On Microsoft Windows Conda: \c windows-con_exe
+ *    - On Microsoft Windows Msys2: \c windows-msys_exe
+ *    - On Apple macOS AMD: \c macos-amd_dmg
+ *    - On Apple macOS ARM: \c macos-arm_dmg
+ *    - On GNU/Linux Debian AMD: \c linux-amd_deb
+ *    - On GNU/Linux Debian ARM: \c linux-arm_deb 
+ *    - On GNU/Linux Fedora AMD: \c linux-amd_rpm
+ *    - On GNU/Linux Arch AMD: \c linux-amd_pkg
+ *    - On GNU/Linux AppImage AMD: \c linux-amd_api
+ *    - On GNU/Linux AppImage ARM: \c linux-arm_api
+ *    - On GNU/Linux Snapcraft AMD: \c linux-amd_snp
+ *    - On GNU/Linux Snapcraft ARM: \c linux-arm_snp
+ *    - On GNU/Linux FlatPak AMD: \c linux-amd_flp
+ *    - On GNU/Linux FlatPak ARM: \c linux-arm_flp
  *    - On Android: \c android
- *    - On GNU/Linux: \c linux
- *    - On Microsoft Windows: \c windows-exe
+ *    - On iOS: \c ios
  */
 void Updater::setPlatformKey (const QString& platformKey)
 {
@@ -445,9 +450,10 @@ void Updater::onReply (QNetworkReply* reply)
         rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         rx.setPattern("Host.*not found");
         if (reply->errorString().contains(rx)) {
-            showErrorMessage("Error connecting to update server - newtork access may be interrupted: <br>" + reply->errorString() + ".");
+            showErrorMessage(tr("Error connecting to update server - "
+                                "newtork access may be interrupted: <br>%1.").arg(reply->errorString()));
         } else {
-            showErrorMessage("Error connecting to update server: <br>" + reply->errorString() + ".");
+            showErrorMessage(tr("Error connecting to update server: <br>%1").arg(reply->errorString()));
         }
         emit checkingFinished (url());
         return;
@@ -465,7 +471,7 @@ void Updater::onReply (QNetworkReply* reply)
 
     /* JSON is invalid */
     if (document.isNull()) {
-        showErrorMessage("Error retrieving JSON data: JSON document is empty.");
+        showErrorMessage(tr("Error retrieving JSON data: JSON document is empty."));
         emit checkingFinished (url());
         return;
     }
@@ -505,11 +511,16 @@ void Updater::onReply (QNetworkReply* reply)
             m_latestRevision = platform.value ("latest-revision").toString();
             if (Preferences::portableDistribution) {
                 if (QString::fromLatin1(VER_BUILD_ARCH_STR).toInt() == 64) {
-                   m_downloadUrl = platform.value ("x86_64-win-portable-download-url").toString();
-                   m_winPortable = 2;
+                    if (m_distroItems.at(DistArch) == QLatin1String("arm64")) {
+                        m_downloadUrl = platform.value ("arm64-win-portable-download-url").toString();
+                        m_moduleDescStr = tr("ARM64 Windows Portable");
+                    } else {
+                        m_downloadUrl = platform.value ("x86_64-win-portable-download-url").toString();
+                        m_moduleDescStr = tr("x86_64 Windows Portable");
+                    }
                 } else {
-                   m_downloadUrl = platform.value ("x86-win-portable-download-url").toString();
-                   m_winPortable = 1;
+                    m_downloadUrl = platform.value ("x86-win-portable-download-url").toString();
+                    m_moduleDescStr = tr("x86 Windows Portable");
                 }
                 if (!m_downloadUrl.isEmpty()) {
                     setPortableDistro(true);
@@ -535,8 +546,7 @@ void Updater::onReply (QNetworkReply* reply)
             box.setWindowTitle(tr ("Software Update"));
 
             QString title = "<b>" + tr ("This is a version %1 update.")
-                                        .arg(rollback ? "rollback" : "rollforwad")
-                                        + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
+                                        .arg(rollback ? "rollback" : "rollforwad") + "</b>";
             QString text = tr ("Your current %1 install is v%2 and the requested update is v%3.\n"
                                "Be sure you are comfortable with this type of update as advanced "
                                "system configuration may be necessary and user data loss may occur.\n\n"
@@ -549,16 +559,15 @@ void Updater::onReply (QNetworkReply* reply)
             if (box.exec() == QMessageBox::Ok) {
                 QStringList versions = platform.value ("available-versions").toString().split(",");
                 QString latestVersion = platform.value ("latest-version").toString();
-
                 // sort versions descending 0...10...
                 std::sort(versions.begin(),versions.end());
                 //qDebug() << "Versions (sorted): " << versions;
-                for (int i = 0; i < versions.size(); i++) {
+                int versionsCount = versions.size();
+                for (int i = 0; i < versionsCount; i++) {
                     if (versions[i] == moduleVersion()) {
                         _updateAvailable = true;
-                        int updateIndex = i;
-                        (updateIndex + 1) == versions.size() ? updateIndex = i : updateIndex = updateIndex + 1;
-                        //qDebug() << "Update to version: " << versions[updateIndex];
+                        int updateIndex = i + 1;
+                        // qDebug() << "Update to version: " << versions[updateIndex];
                         if (versions[updateIndex] == latestVersion){
                             // Update to version is same as latest version - i.e. reinstall latest version
                             m_openUrl = platform.value ("open-url").toString();
@@ -567,11 +576,16 @@ void Updater::onReply (QNetworkReply* reply)
                             m_changelogUrl = platform.value ("changelog-url").toString();
                             if (Preferences::portableDistribution) {
                                 if (QString::fromLatin1(VER_BUILD_ARCH_STR).toInt() == 64) {
-                                   m_downloadUrl = platform.value ("x86_64-win-portable-download-url").toString();
-                                   m_winPortable = 2;
+                                    if (m_distroItems.at(DistArch) == QLatin1String("arm64")) {
+                                        m_downloadUrl = platform.value ("arm64-win-portable-download-url").toString();
+                                        m_moduleDescStr = tr("ARM64 Windows Portable");
+                                    } else {
+                                        m_downloadUrl = platform.value ("x86_64-win-portable-download-url").toString();
+                                        m_moduleDescStr = tr("x86_64 Windows Portable");
+                                    }
                                 } else {
-                                   m_downloadUrl = platform.value ("x86-win-portable-download-url").toString();
-                                   m_winPortable = 1;
+                                    m_downloadUrl = platform.value ("x86-win-portable-download-url").toString();
+                                    m_moduleDescStr = tr("x86 Windows Portable");
                                 }
                                 if (!m_downloadUrl.isEmpty()) {
                                     setPortableDistro(true);
@@ -581,12 +595,11 @@ void Updater::onReply (QNetworkReply* reply)
                             }
                         } else {
                             // Update to version is other than the latest version
-                            QString distro_suffix = m_platform.section("-",1);
                             QJsonObject altVersion = platform.value(QString("alternate-version-%1-%2")
-                                                                    .arg(versions[updateIndex])
-                                                                    .arg(distro_suffix)).toObject();
+                                                                            .arg(versions[updateIndex],
+                                                                                 m_platform.section("-", 1))).toObject();
                             if (altVersion.isEmpty()) {
-                                showErrorMessage("Unable to retrieve version " + versions[updateIndex] + ". Version number not found.");
+                                showErrorMessage(tr("Unable to retrieve version %1. Version number not found.").arg(versions[updateIndex]));
                                 return;
                             }
                             m_openUrl = altVersion.value ("open-url").toString();
@@ -595,11 +608,16 @@ void Updater::onReply (QNetworkReply* reply)
                             m_changelogUrl = altVersion.value ("changelog-url").toString();
                             if (Preferences::portableDistribution) {
                                 if (QString::fromLatin1(VER_BUILD_ARCH_STR).toInt() == 64) {
-                                   m_downloadUrl = altVersion.value ("x86_64-win-portable-download-url").toString();
-                                   m_winPortable = 2;
+                                    if (m_distroItems.at(DistArch) == QLatin1String("arm64")) {
+                                        m_downloadUrl = altVersion.value ("arm64-win-portable-download-url").toString();
+                                        m_moduleDescStr = tr("ARM64 Windows Portable");
+                                    } else {
+                                        m_downloadUrl = altVersion.value ("x86_64-win-portable-download-url").toString();
+                                        m_moduleDescStr = tr("x86_64 Windows Portable");
+                                    }
                                 } else {
-                                   m_downloadUrl = altVersion.value ("x86-win-portable-download-url").toString();
-                                   m_winPortable = 1;
+                                    m_downloadUrl = altVersion.value ("x86-win-portable-download-url").toString();
+                                    m_moduleDescStr = tr("x86 Windows Portable");
                                 }
                                 if (!m_downloadUrl.isEmpty()) {
                                     setPortableDistro(true);
@@ -664,15 +682,14 @@ void Updater::setUpdateAvailable (const bool available)
 
         box.setWindowTitle(tr ("Library Update"));
 
-        QString title = "<b>" + tr ("Download LDraw library archive %1 ?")
-                                    .arg(fileName()) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
+        QString title = "<b>" + tr ("Download LDraw library archive %1 ?").arg(fileName()) + "</b>";
         QString text = tr ("The latest version of %1 will be downloaded and written to\n'%2'.\n\n"
                            "NOTICE: %3 will restart to properly load the LDraw %4 Library archive.\n\n"
                            "Click \"OK\" to continue.")
-                            .arg(fileName())
-                            .arg(QDir::toNativeSeparators(Preferences::lpubDataPath+"/libraries/"+fileName()))
-                            .arg(VER_PRODUCTNAME_STR)
-                            .arg(fileName() == VER_LDRAW_OFFICIAL_ARCHIVE ? "Official" : "Unofficial");
+                           .arg(fileName(),
+                                QDir::toNativeSeparators(QString("%1/libraries/%2").arg(Preferences::lpubDataPath, fileName())),
+                                QLatin1String(VER_PRODUCTNAME_STR),
+                                fileName() == VER_LDRAW_OFFICIAL_ARCHIVE ? QLatin1String("Official") : QLatin1String("Unofficial"));
         box.setText (title);
         box.setInformativeText (text);
         box.setDefaultButton   (QMessageBox::Ok);
@@ -697,29 +714,18 @@ void Updater::setUpdateAvailable (const bool available)
 
             box.setWindowTitle(tr ("Software Update"));
 
-            QString versionStr = compare (latestRevision(), moduleRevision()) ? "revision" : "version";
-            QString moduleDescStr = m_winPortable == 2 ? " x86_64 Windows Portable" : m_winPortable == 1 ? " x86 Windows Portable" : "" ;
+            QString versionStr = compare (latestRevision(), moduleRevision()) ? QLatin1String("revision") : QLatin1String("version");
+            QString moduleDescStr = m_moduleDescStr;
             QString title = "<b>" + tr ("A new %1 of %2 is available!")
-                                        .arg(versionStr)
-                                        .arg (moduleName() + moduleDescStr) +
-                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
+                                        .arg(versionStr, moduleName() + moduleDescStr) + "</b>";
             QString versionMessage;
             if (latestVersion() == moduleVersion()) {
-                versionMessage = tr ("revision %1")
-                                     .arg(moduleRevision());
+                versionMessage = tr ("revision %1").arg(moduleRevision());
             } else {
-                versionMessage = tr ("v%1 revision %2")
-                                     .arg(moduleVersion())
-                                     .arg(moduleRevision());
+                versionMessage = tr ("v%1 revision %2").arg(moduleVersion(), moduleRevision());
             }
             QString text = tr ("%1 v%2 revision %3 is available - you have %4.\n\nClick \"OK\" to download it now.")
-                    .arg(moduleName())
-                    .arg(latestVersion())
-                    .arg(latestRevision())
-                    .arg(versionMessage);
+                               .arg(moduleName(), latestVersion(), latestRevision(), versionMessage);
 
             box.setText (title);
             box.setInformativeText (text);
@@ -729,6 +735,10 @@ void Updater::setUpdateAvailable (const bool available)
 
             if (box.exec() == QMessageBox::Ok) {
                 // LPub3D Mod
+                const bool enabled = m_distroItems.at(DistCode) != QLatin1String("flp") &&
+                                     m_distroItems.at(DistCode) != QLatin1String("snp");
+                setDownloaderEnabled(enabled);
+
                 if (!openUrl().isEmpty() && !downloaderEnabled())
                     QDesktopServices::openUrl (QUrl (openUrl()));
                 // Mod End
@@ -737,7 +747,6 @@ void Updater::setUpdateAvailable (const bool available)
                     m_downloader->setFileName (downloadUrl().split ("/").last());
                     m_downloader->startDownload (QUrl (downloadUrl()));
                 }
-
                 else
                     QDesktopServices::openUrl (QUrl (downloadUrl()));
             } else {
@@ -755,8 +764,7 @@ void Updater::setUpdateAvailable (const bool available)
 
             box.setStandardButtons (QMessageBox::Close);
 
-            box.setText ("<b>" + tr ("The latest version of %1 is already installed.")
-                         .arg(moduleName()) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
+            box.setText ("<b>" + tr ("The latest version of %1 is already installed.").arg(moduleName()) + "</b>");
             box.setInformativeText (
                         tr ("%1 %2.%3 is currently the latest version available.")
                             .arg (moduleName(),moduleVersion(),moduleRevision()));
@@ -843,7 +851,7 @@ void Updater::setDirectDownload (const bool& enabled)
 
 /**
  * If \a enabled is set to true, then the user will be prompted
- * to download the requeste dcontent with an option to proceed.
+ * to download the requested content with an option to proceed.
  * This is used for in-applicaton content download like library files
  */
 void Updater::setPromptedDownload (const bool& enabled)
@@ -1018,8 +1026,8 @@ void Updater::changeLogRequest(const QUrl &_url)
 {
     QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
 
-    connect (_manager, SIGNAL (finished(QNetworkReply *)),
-             this,     SLOT (changeLogReply(QNetworkReply *)));
+    connect (_manager, SIGNAL (finished(QNetworkReply*)),
+             this,     SLOT   (changeLogReply(QNetworkReply*)));
 
     if (!sslIsSupported()) {
         emit downloadCancelled();
@@ -1058,7 +1066,7 @@ void Updater::changeLogReply (QNetworkReply *reply)
         m_changelog = _reply;
 
      } else {
-         showErrorMessage("Error receiving change log: " + reply->errorString() + ".");
+         showErrorMessage(tr("Error receiving change log: %1.").arg(reply->errorString()));
      }
      emit changeLogReplyFinished();
 }
@@ -1077,19 +1085,19 @@ void Updater::showErrorMessage (QString error)
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
       box.setWindowTitle(customProcedure() ? tr ("Library Update") : tr ("Software Update"));
       QString title = customProcedure() ?
-            "<b>" + tr ("An error occured while downloading %1.&nbsp;&nbsp;&nbsp;&nbsp;")
+            "<b>" + tr ("An error occured while downloading %1.")
                         .arg(fileName().isEmpty() ? QString("archive ibrary") : fileName()) + "</b>" :
-            "<b>" + tr ("An error occured while checking for %1 update.&nbsp;&nbsp;&nbsp;")
+            "<b>" + tr ("An error occured while checking for %1 update.")
                         .arg(moduleName().isEmpty() ? QString(VER_PRODUCTNAME_STR) : moduleName()) + "</b>";
-      QString text = tr("%1").arg(error);
+      QString text = error;
 
       box.setText (title);
       box.setInformativeText (text);
       box.exec();
     } else {
-      LogType logType = error.startsWith(QLatin1String("Error connecting to update server")) ? LOG_WARNING : LOG_ERROR;
+      LogType logType = error.startsWith(tr("Error connecting to update server")) ? LOG_WARNING : LOG_ERROR;
       bool showMessage = logType == LOG_WARNING;
       emit lpub->messageSig(logType,error,showMessage);
     }
 }
-    // Mod End
+// Mod End

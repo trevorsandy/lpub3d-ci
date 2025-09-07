@@ -19,6 +19,20 @@ CONFIG(debug, debug|release) { DIST = debug } else { DIST = release }
 #
 # Additionally, when using QtCreator be sure 'Shadow Build' is enabled.
 #
+BUILD_CODE = $${option}
+isEmpty(BUILD_CODE): BUILD_CODE = exe
+DISTRO_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
+DISTRO_VERSION = $$member(DISTRO_VERSION, 2)
+isEmpty(STG_ARCH): STG_ARCH = $${QT_ARCH}
+con: PACKAGE_CODE = windows-con
+else:msys: PACKAGE_CODE = windows-msys
+else:win32-arm64-msvc: PACKAGE_CODE = arm64-windows-exe
+else: PACKAGE_CODE = amd-windows-exe
+DISTRO_PACKAGE = $${BUILD_CODE}-win-$${DISTRO_VERSION}-$${STG_ARCH}
+message("~~~ $${LPUB3D} DISTRO_PACKAGE_CODE: $$PACKAGE_CODE ~~~")
+message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
+DEFINES += VER_DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
+
 # source path
 isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC        = $$THIRD_PARTY_DIST_DIR_PATH
 

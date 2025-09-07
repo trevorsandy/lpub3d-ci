@@ -54,6 +54,11 @@
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR                  // "LPub3D Software Maint"
 #define VER_CHIPSET_STR                     VER_CHIPSET
 #define VER_BUILD_ARCH_STR                  VER_ARCH
+#ifdef VER_DISTRO_PACKAGE
+#define VER_DISTRO_PACKAGE_STR              VER_DISTRO_PACKAGE
+#else
+#define VER_DISTRO_PACKAGE_STR              "null-null-null-null"
+#endif
 
 #define VER_APPIMAGE_BUILD_STR              "Appimage"
 #define VER_FLATPAK_BUILD_STR               "Flatpak"
@@ -84,6 +89,11 @@
 #else
   #define    VER_BUILD_TYPE_STR             "Version"
 #endif
+
+// ~~~~~~ LeoCAD (LCLib) Version ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+#define VER_LC_VERSION_TEXT                 "25.09"
+#define VER_LC_VERSION_SHA                  "fe5df95"
 
 // ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -236,11 +246,6 @@
 #define VER_HOMEBREW_PATH_INSERT            "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin:"
 #endif
 
-// ~~~~~~ LeoCAD Version ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
-#define VER_LC_VERSION_TEXT                 "25.09"
-#define VER_LC_VERSION_SHA                  "fe5df95"
-
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #ifdef __GNUC__
@@ -248,12 +253,12 @@
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 17.0.1 on Qt 6.9.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
+    #define VER_IDE                     "Qt Creator 17.0.1 on Qt 6.9.2 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 17.0.1 on Qt 6.9.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
+    #define VER_IDE                     "Qt Creator 17.0.1 on Qt 6.9.2 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
   #elif __APPLE__
     #define VER_COMPILED_ON             "Clang (x86" VER_BUILD_ARCH_STR "bit) Apple"
     #define VER_COMPILED_FOR            "macOS " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
@@ -263,12 +268,12 @@
     #define VER_COMPILED_ON             "GCC (9.1 20220914)"
     #define VER_COMPILED_FOR            "Linux " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
-    #define VER_IDE                     "Qt Creator 9.0.0 on Qt 6.3.1 (GCC 9.1, x64)"
+    #define VER_IDE                     "Qt Creator 13.0.0 on Qt 6.3.1 (GCC 9.1, x64)"
   #elif defined(_POSIX_VERSION)
     #define VER_COMPILED_ON             "GCC (9.1 20220914)"
     #define VER_COMPILED_FOR            "POSIX " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
-    #define VER_IDE                     "Qt Creator 9.0.0 on Qt 6.3.1 (GCC 9.1, x64)"
+    #define VER_IDE                     "Qt Creator 13.0.0 on Qt 6.3.1 (GCC 9.1, x64)"
   #else
     #error "Unknown compiler"
   #endif
@@ -276,7 +281,7 @@
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2022"
   #define VER_COMPILED_FOR               "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2022 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 17.0.1 on Qt 6.9.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
+  #define VER_IDE                        "Qt Creator 17.0.1 on Qt 6.9.2 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
 #endif
 
 #endif // VERSION_H

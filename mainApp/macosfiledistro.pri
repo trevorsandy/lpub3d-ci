@@ -14,6 +14,15 @@ system( $$PLIST_COMMAND \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com
 system( $$PLIST_COMMAND \"Set :UTExportedTypeDeclarations:1:UTTypeIdentifier com.trevorsandy.$$lower($$TARGET)\" \"$${INFO_PLIST_FILE}\" )
 system( $$PLIST_COMMAND \"Set :UTExportedTypeDeclarations:2:UTTypeIdentifier com.trevorsandy.$$lower($$TARGET)\" \"$${INFO_PLIST_FILE}\" )
 
+BUILD_CODE = $${option}
+isEmpty(BUILD_CODE): BUILD_CODE = dmg
+isEmpty(HOST_VERSION): HOST_VERSION = macOS
+isEmpty(BUILD_ARCH): BUILD_ARCH = $${QT_ARCH}
+DISTRO_PACKAGE = $${BUILD_CODE}-$${HOST_VERSION}-$${BUILD_ARCH}
+message("~~~ $${LPUB3D} DISTRO_PACKAGE_CODE: $${BUILD_ARCH}-macos-dmg ~~~")
+message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
+DEFINES += VER_DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
+
 #ICON = lpub3d.icns
 ICON = $$_PRO_FILE_PWD_/$$lower($$join(DIST_TARGET,,,.icns))
 QMAKE_INFO_PLIST = $$_PRO_FILE_PWD_/Info.plist
