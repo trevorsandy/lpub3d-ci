@@ -5162,7 +5162,7 @@ void Gui::createActions()
     lpub->actions.insert(loadStatusAct->objectName(), Action(QStringLiteral("File.View Load Status"), loadStatusAct));
     connect(loadStatusAct, SIGNAL(triggered()), gui, SLOT(loadStatus()));
 
-    QAction *recountPartsAct = new QAction(tr("Recount LDraw Parts"),gui);
+    QAction *recountPartsAct = new QAction(QIcon(":/resources/recountparts.png"),tr("Recount LDraw Parts"),gui);
     recountPartsAct->setObjectName("recountPartsAct.1");
     recountPartsAct->setStatusTip(tr("Enable recount LDraw parts on view load status"));
     recountPartsAct->setCheckable(true);

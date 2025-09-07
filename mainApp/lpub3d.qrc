@@ -238,6 +238,7 @@
         <file alias="print.png">resources/print.png</file>
         <file alias="projectsetup.png">resources/projectsetup.png</file>
         <file alias="recentfiles.png">resources/recentfiles.png</file>
+		<file alias="recountparts.png">resources/recountparts.png</file>
         <file alias="redraw.png">resources/redraw.png</file>
         <file alias="refreshoffarchive.png">resources/refreshoffarchive.png</file>
         <file alias="refreshpagecache.png">resources/refreshpagecache.png</file>
