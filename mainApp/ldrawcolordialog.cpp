@@ -29,7 +29,6 @@
 #include "lc_global.h"
 #include "lc_colorlist.h"
 #include "lc_colors.h"
-#include "color.h"
 
 LDrawColorDialog::LDrawColorDialog(
     const int &initial,

@@ -28,6 +28,7 @@ Revisions:
 - Fix - Pointer Tip of a page pointer cannot be hidden #813
 - Fix - Submodel preview rotation #803
 - Fix - Unexpected behaviour of the page pointer #823
+- Fix - Wrong color selection in the select color menu of part substitute #827
 
 --------------------------------------------------------------------------------------------------
 

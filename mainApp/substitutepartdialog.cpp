@@ -631,20 +631,20 @@ void SubstitutePartDialog::browseType(bool clicked)
 void SubstitutePartDialog::browseColor(bool clicked)
 {
   Q_UNUSED(clicked);
-  QColor colorName = lcQColorFromVector4(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].Value).name();
   int newColorIndex = ~0U;
-  QColor newColor = LDrawColorDialog::getLDrawColor(mAttributes.at(sColorCode).toInt(),newColorIndex,this);
-  QString newColorName = newColor.name();
-  if (newColor.isValid() && colorName != newColorName) {
-      mAttributes[sColorCode] = QString::number(newColorIndex);
-      colorChanged(newColor.name());
+  const int colorIndex = lcGetColorIndex(mAttributes.at(sColorCode).toUInt());
+  const QString colorName = lcQColorFromVector4(gColorList[colorIndex].Value).name();
+  QColor newQColor = LDrawColorDialog::getLDrawColor(colorIndex, newColorIndex, this);
+  if (newQColor.isValid() && colorName != newQColor.name()) {
+      mAttributes[sColorCode] = QString::number(lcGetColorCode(newColorIndex));
+      colorChanged(newQColor.name());
   }
 }
 
 void SubstitutePartDialog::transformChanged(QString const &value)
 {
-       mModified = true;
-       mAttributes[sTransform] = value;
+    mModified = true;
+    mAttributes[sTransform] = value;
 }
 
 void SubstitutePartDialog::accept()
