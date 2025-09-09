@@ -3476,14 +3476,16 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
             } else {
                 QString locationsComment = QString("You can use %HOME%, %INSTALLDIR% and the working directory "
                                                    "(e.g. %1) as the origin to define permitted paths:")
-                                                   .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
-                QString homedirComment = QString("%HOME% is hard-coded to the %1 environment variable (%2).")
+                                                   .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));                
+                QString userHome =
 #if defined Q_OS_WIN
-                                                 .arg("%USERPROFILE%",
+                    QLatin1String("%USERPROFILE%");
 #else
-                                                 .arg("$USER",
+                    QLatin1String("${HOME}");
 #endif
-                                                      QDir::toNativeSeparators(QDir::homePath()));
+                QString homedirComment = QString("%HOME% is hard-coded to the %1 environment variable (%2).")
+                                                 .arg(userHome, QDir::toNativeSeparators(QDir::homePath()));
+
                 QString workingdirComment = QString("The working directory (e.g. %1) is where %2-Trace is called from.")
                                                     .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"), VER_PRODUCTNAME_STR);
 
@@ -5724,8 +5726,8 @@ bool Preferences::getPreferences()
         }
 
         // fade previous steps and highlight current step
-        bool fadeStepsOpacityChanged = false;
-        if ((fadeStepsOpacityChanged = fadeStepsOpacity != dialog->fadeStepsOpacity()))
+        bool fadeStepsOpacityChanged = fadeStepsOpacity != dialog->fadeStepsOpacity();
+        if (fadeStepsOpacityChanged)
         {
             fadeStepsOpacity = dialog->fadeStepsOpacity();
             initFadeStepsOpacity = fadeStepsOpacity;
@@ -5736,8 +5738,8 @@ bool Preferences::getPreferences()
                                       .arg(fadeStepsOpacityCompare).arg(fadeStepsOpacity));
         }
 
-        bool fadeStepsUseColourChanged = false;
-        if ((fadeStepsUseColourChanged = fadeStepsUseColour != dialog->fadeStepsUseColour()))
+        bool fadeStepsUseColourChanged = fadeStepsUseColour != dialog->fadeStepsUseColour();
+        if (fadeStepsUseColourChanged)
         {
             fadeStepsUseColour = dialog->fadeStepsUseColour();
             initFadeStepsUseColour = fadeStepsUseColour;
@@ -5748,8 +5750,8 @@ bool Preferences::getPreferences()
                                       .arg(fadeStepsUseColour ? On : Off));
         }
 
-        bool fadeStepsColourChanged = false;
-        if ((fadeStepsColourChanged = validFadeStepsColour != dialog->fadeStepsColour()))
+        bool fadeStepsColourChanged = validFadeStepsColour != dialog->fadeStepsColour();
+        if (fadeStepsColourChanged)
         {
             validFadeStepsColour = dialog->fadeStepsColour();
             initValidFadeStepsColour = validFadeStepsColour;
@@ -5761,8 +5763,8 @@ bool Preferences::getPreferences()
                                            QString(validFadeStepsColour).replace("_"," ")));
         }
 
-        bool highlightStepColorChanged = false;
-        if ((highlightStepColorChanged = highlightStepColour != dialog->highlightStepColour()))
+        bool highlightStepColorChanged = highlightStepColour != dialog->highlightStepColour();
+        if (highlightStepColorChanged)
         {
             highlightStepColour = dialog->highlightStepColour();
             initHighlightStepColour = highlightStepColour;
@@ -5780,9 +5782,8 @@ bool Preferences::getPreferences()
             initHighlightStepLineWidth = highlightStepLineWidth;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),highlightStepLineWidth);
 
-            if (dialog->enableHighlightStep())
-                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Step line width changed from %1 to %2")
-                                      .arg(highlightStepLineWidthCompare).arg(highlightStepLineWidth));
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Step line width changed from %1 to %2")
+                                  .arg(highlightStepLineWidthCompare).arg(highlightStepLineWidth));
         }
 
         if ((reloadFile |= highlightFirstStep != dialog->highlightFirstStep()))
@@ -5804,8 +5805,8 @@ bool Preferences::getPreferences()
                                   .arg(preferCentimeters? QMessageBox::tr("Centimetres") : QMessageBox::tr("Inches")));
         }
 
-        bool addLSynthSearchDirChanged = false;
-        if ((addLSynthSearchDirChanged = addLSynthSearchDir != dialog->addLSynthSearchDir()))
+        bool addLSynthSearchDirChanged = addLSynthSearchDir != dialog->addLSynthSearchDir();
+        if (addLSynthSearchDirChanged)
         {
             addLSynthSearchDir = dialog->addLSynthSearchDir();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"AddLSynthSearchDir"),addLSynthSearchDir);
@@ -5814,8 +5815,8 @@ bool Preferences::getPreferences()
                                   .arg(addLSynthSearchDir? On : Off));
         }
 
-        bool addHelperSearchDirChanged = false;
-        if ((addHelperSearchDirChanged = addHelperSearchDir != dialog->addHelperSearchDir()))
+        bool addHelperSearchDirChanged = addHelperSearchDir != dialog->addHelperSearchDir();
+        if (addHelperSearchDirChanged)
         {
             addHelperSearchDir = dialog->addHelperSearchDir();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"AddHelperSearchDir"),addHelperSearchDir);
@@ -5824,8 +5825,8 @@ bool Preferences::getPreferences()
                                   .arg(addHelperSearchDir? On : Off));
         }
 
-        bool excludeModelsSearchDirChanged = false;
-        if ((excludeModelsSearchDirChanged = excludeModelsSearchDir != dialog->excludeModelsSearchDir()))
+        bool excludeModelsSearchDirChanged = excludeModelsSearchDir != dialog->excludeModelsSearchDir();
+        if (excludeModelsSearchDirChanged)
         {
             excludeModelsSearchDir = dialog->excludeModelsSearchDir();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExcludeModelsSearchDir"),excludeModelsSearchDir);
@@ -5903,9 +5904,9 @@ bool Preferences::getPreferences()
                                   .arg(doNotShowPageProcessDlg ? On : Off));
         }
 
-        bool displayThemeChanged = false;
         bool useSystemThemeChanged = false;
-        if ((displayThemeChanged = displayTheme != dialog->displayTheme())) {
+        bool displayThemeChanged = displayTheme != dialog->displayTheme();
+        if (displayThemeChanged) {
 
             if (dialog->displayTheme() == THEME_SYSTEM) {
                 useSystemThemeChanged = useSystemTheme == false;
@@ -5930,8 +5931,8 @@ bool Preferences::getPreferences()
                                        darkTheme ? QMessageBox::tr("Default Theme") : QMessageBox::tr("Dark Theme")));
         }
 
-        bool displayThemeColorsChanged = false;
-        if ((displayThemeColorsChanged = dialog->themeColours().size())) {
+        bool displayThemeColorsChanged = dialog->themeColours().size();
+        if (displayThemeColorsChanged) {
             const QMap<int, QString>themeColours = dialog->themeColours();
             QMap<int, QString>::ConstIterator i = themeColours.constBegin();
             bool textDecorationColorChanged = false;
@@ -5951,8 +5952,8 @@ bool Preferences::getPreferences()
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Text Decoration color have changed"));
         }
 
-        bool sceneBackgroundColorChanged = false;
-        if ((sceneBackgroundColorChanged = sceneBackgroundColor != dialog->sceneBackgroundColor())) {
+        bool sceneBackgroundColorChanged = sceneBackgroundColor != dialog->sceneBackgroundColor();
+        if (sceneBackgroundColorChanged) {
             sceneBackgroundColor = dialog->sceneBackgroundColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
             bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
@@ -5963,8 +5964,8 @@ bool Preferences::getPreferences()
                             .arg(sceneBackgroundColorCompare, sceneBackgroundColor));
         }
 
-        bool sceneGridColorChanged = false;
-        if ((reloadPage = sceneGridColor != dialog->sceneGridColor())) {
+        bool sceneGridColorChanged = sceneGridColor != dialog->sceneGridColor();
+        if ((reloadPage = sceneGridColorChanged)) {
             sceneGridColorChanged = true;
             sceneGridColor = dialog->sceneGridColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);
@@ -5976,8 +5977,8 @@ bool Preferences::getPreferences()
                                   .arg(sceneGridColorCompare, sceneGridColor));
         }
 
-        bool sceneRulerTickColorChanged = false;
-        if ((sceneRulerTickColorChanged = sceneRulerTickColor != dialog->sceneRulerTickColor())) {
+        bool sceneRulerTickColorChanged = sceneRulerTickColor != dialog->sceneRulerTickColor();
+        if (sceneRulerTickColorChanged) {
             sceneRulerTickColor = dialog->sceneRulerTickColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
             bool customColor = (sceneRulerTickColor != (darkTheme ? themeColors[THEME_DARK_RULER_TICK_PEN] :
@@ -5999,8 +6000,8 @@ bool Preferences::getPreferences()
                                   .arg(sceneRulerTrackingColorCompare, sceneRulerTrackingColor));
         }
 
-        bool sceneGuideColorChanged = false;
-        if ((sceneGuideColorChanged = sceneGuideColor != dialog->sceneGuideColor())) {
+        bool sceneGuideColorChanged = sceneGuideColor != dialog->sceneGuideColor();
+        if (sceneGuideColorChanged) {
             sceneGuideColor = dialog->sceneGuideColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
             bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_DARK_GUIDE_PEN] :
@@ -6667,6 +6668,7 @@ bool Preferences::getPreferences()
     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
         Application::instance()->splash->show();
 #endif
+
     return returnResult;
 }
 
