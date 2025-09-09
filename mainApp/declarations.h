@@ -1013,7 +1013,7 @@ enum ThemeColorType {
 #define LPUB3D_MESSAGE_ICON                     ":/icons/lpub96.png"
 
 #define HIGHLIGHT_COLOUR_DEFAULT                "#C0FFFF00"   // Bright Yellow (alpha 192 - hex CO)
-#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1             // line width 1 - 5
+#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1.0f          // line width 1 - 5
 
 #define SCENE_GUIDES_LINE_DEFAULT               2             // PenStyle - DashLine
 

@@ -760,6 +760,11 @@ void PreferencesDialog::setRenderers()
     disconnect(ui.preferredRenderer, SIGNAL(currentTextChanged(const QString&)),
                this,                   SLOT(on_preferredRenderer_currentTextChanged(const QString&)));
 
+    ui.highlightStepLineWidthSpin->setVisible(true);
+    ui.highlightStepLabel->setVisible(true);
+    ui.highlightStepLineWidthSpin->setEnabled(false);
+    ui.highlightStepLineWidthSpin->setValue(Preferences::highlightStepLineWidth);
+
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
       ui.preferredRenderer->setCurrentIndex(ldviewIndex);
       ui.preferredRenderer->setEnabled(true);
@@ -768,11 +773,11 @@ void PreferencesDialog::setRenderers()
       ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
       ui.preferredRenderer->setEnabled(true);
       ui.renderersTabWidget->setCurrentWidget(ui.LDGLiteTab);
-      ui.highlightStepLineWidthSpin->setVisible(true);
-      ui.highlightStepLabel->setVisible(true);
+      //ui.highlightStepLineWidthSpin->setVisible(true);
+      //ui.highlightStepLabel->setVisible(true);
       //ui.highlightStepSpacer->setVisible(true);
-      ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
-      ui.highlightStepLineWidthSpin->setValue(Preferences::highlightStepLineWidth);
+      //ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
+      //ui.highlightStepLineWidthSpin->setValue(Preferences::highlightStepLineWidth);
     }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
@@ -790,11 +795,11 @@ void PreferencesDialog::setRenderers()
     connect(ui.preferredRenderer, SIGNAL(                     currentTextChanged(const QString&)),
             this,                   SLOT(on_preferredRenderer_currentTextChanged(const QString&)));
 
-    if (Preferences::preferredRenderer != RENDERER_LDGLITE) {
-        ui.highlightStepLineWidthSpin->setVisible(false);
-        ui.highlightStepLabel->setVisible(false);
-        //ui.highlightStepSpacer->setVisible(false);
-    }
+    //if (Preferences::preferredRenderer != RENDERER_LDGLITE) {
+    //    ui.highlightStepLineWidthSpin->setVisible(false);
+    //    ui.highlightStepLabel->setVisible(false);
+    //    //ui.highlightStepSpacer->setVisible(false);
+    //}
 
     previousRendererIndex = ui.preferredRenderer->currentIndex();
 }
@@ -1275,11 +1280,7 @@ void PreferencesDialog::on_highlightStepGrpBox_clicked(bool checked)
 {
   ui.highlightStepBtn->setEnabled(checked);
   ui.highlightStepLabel->setEnabled(checked);
-  // Only enabled for LDGLite
-  if (ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDGLITE])
-    ui.highlightStepLineWidthSpin->setEnabled(checked);
-  else
-    ui.highlightStepLineWidthSpin->setEnabled(false);
+  ui.highlightStepLineWidthSpin->setEnabled(false);
 }
 
 void PreferencesDialog::on_preferredRenderer_currentTextChanged(const QString &currentText)
@@ -1309,7 +1310,7 @@ void PreferencesDialog::on_preferredRenderer_currentTextChanged(const QString &c
     ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
 
   if (ldgliteEnabled) {
-    bool selectLDGLite = true;
+    //bool selectLDGLite = true;
 #ifdef Q_OS_WIN
     Preferences::MsgKey msgKey(Preferences::ConfigurationErrors);
     Preferences::MsgID msgID = Preferences::MsgID(msgKey,"25968728 0");
@@ -1375,18 +1376,20 @@ void PreferencesDialog::on_preferredRenderer_currentTextChanged(const QString &c
         }
     }
 #endif
-    if (selectLDGLite) {
-        ui.highlightStepLineWidthSpin->setVisible(true);
-        ui.highlightStepLabel->setVisible(true);
-        //ui.highlightStepSpacer->setVisible(true);
-        ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
-    }
+    //if (selectLDGLite) {
+    //    ui.highlightStepLineWidthSpin->setVisible(true);
+    //    ui.highlightStepLabel->setVisible(true);
+    //    ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
+    //}
 
-  } else {
+  } /*else {
     ui.highlightStepLineWidthSpin->setVisible(false);
     ui.highlightStepLabel->setVisible(false);
-    //ui.highlightStepSpacer->setVisible(false);
-  }
+  } */
+
+  ui.highlightStepLineWidthSpin->setVisible(true);
+  ui.highlightStepLabel->setVisible(true);
+  ui.highlightStepLineWidthSpin->setEnabled(false);
 
   bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == QLatin1String("Perspective");
   ui.applyCALocallyRadio->setChecked(! applyCARenderer);
@@ -2124,7 +2127,7 @@ int PreferencesDialog::fadeStepsOpacity()
   return ui.fadeStepsOpacitySlider->value();
 }
 
-int PreferencesDialog::highlightStepLineWidth()
+float PreferencesDialog::highlightStepLineWidth()
 {
   return ui.highlightStepLineWidthSpin->value();
 }

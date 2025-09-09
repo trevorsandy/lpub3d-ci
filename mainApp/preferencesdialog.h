@@ -190,7 +190,7 @@ class PreferencesDialog : public QDialog
     int           rendererTimeout();
     int           pageDisplayPause();
     int           fadeStepsOpacity();
-    int           highlightStepLineWidth();
+    float         highlightStepLineWidth();
     bool          highlightFirstStep();
 
     void          setPreferences();

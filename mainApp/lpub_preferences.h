@@ -348,7 +348,7 @@ class Preferences
     static bool    fadeStepsUseColour;
 
     static bool    enableHighlightStep;
-    static int     highlightStepLineWidth;
+    static float   highlightStepLineWidth;
     static bool    highlightFirstStep;
     static bool    perspectiveProjection;
     static bool    saveOnRedraw;
@@ -461,7 +461,7 @@ class Preferences
     static QString initValidFadeStepsColour;
 
     static bool    initEnableHighlightStep;
-    static int     initHighlightStepLineWidth;
+    static float   initHighlightStepLineWidth;
     static QString initHighlightStepColour;
 
     static int     initPreferredRenderer;

@@ -581,7 +581,7 @@ int     Preferences::sceneGuidesPosition        = 0; // GUIDES_TOP_LEFT;
 int     Preferences::sceneGuidesLine            = SCENE_GUIDES_LINE_DEFAULT;
 int     Preferences::povrayRenderQuality        = POVRAY_RENDER_QUALITY_DEFAULT;
 int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
-int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
+float   Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
 int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
 
@@ -621,7 +621,7 @@ int     Preferences::initFadeStepsOpacity       = FADE_OPACITY_DEFAULT;
 QString Preferences::initValidFadeStepsColour   = LEGO_FADE_COLOUR_DEFAULT;
 
 bool    Preferences::initEnableHighlightStep    = false;
-int     Preferences::initHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+float   Preferences::initHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 QString Preferences::initHighlightStepColour    = HIGHLIGHT_COLOUR_DEFAULT;
 
 int     Preferences::initPreferredRenderer      = 0; //RENDERER_NATIVE;
@@ -2458,7 +2458,7 @@ void Preferences::highlightstepPreferences(bool persist)
         QVariant uValue(highlightStepLineWidth);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),uValue);
     } else {
-        highlightStepLineWidth = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")).toInt();
+        highlightStepLineWidth = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")).toFloat();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep")) || persist) {
@@ -5390,10 +5390,11 @@ bool Preferences::getPreferences()
 #endif
 
     const int fadeStepsOpacityCompare            = fadeStepsOpacity;
-    const int  highlightStepLineWidthCompare     = highlightStepLineWidth;
+    const float highlightStepLineWidthCompare    = highlightStepLineWidth;
     const bool povFileGeneratorCompare           = useNativePovGenerator;
     const int preferredRendererCompare           = preferredRenderer;
     const int povrayRenderQualityCompare         = povrayRenderQuality;
+    const int pageDisplayPauseCompare            = pageDisplayPause;
     const QString fadeStepsColourCompare         = validFadeStepsColour;
     const QString highlightStepColourCompare     = highlightStepColour;
     const QString ldrawPathCompare               = ldrawLibPath;
@@ -5626,7 +5627,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"),pageDisplayPause);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Continuous process page display pause changed from %1 to %2")
-                                  .arg(highlightStepLineWidthCompare)
+                                  .arg(pageDisplayPauseCompare)
                                   .arg(pageDisplayPause));
         }
 
@@ -5772,11 +5773,10 @@ bool Preferences::getPreferences()
                                       .arg(highlightStepColourCompare, highlightStepColour));
         }
 
-        bool highlightStepLineWidthChanged = false;
-        if (dialog->enableHighlightStep() && (highlightStepLineWidth != dialog->highlightStepLineWidth()))
+        bool highlightStepLineWidthChanged = Options.Preferences.mLineWidth != Preferences.mLineWidth;
+        if (dialog->enableHighlightStep() && highlightStepLineWidthChanged)
         {
-            highlightStepLineWidthChanged = true;
-            highlightStepLineWidth = dialog->highlightStepLineWidth();
+            highlightStepLineWidth = Options.Preferences.mLineWidth;
             initHighlightStepLineWidth = highlightStepLineWidth;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),highlightStepLineWidth);
 
