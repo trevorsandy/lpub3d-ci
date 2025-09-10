@@ -17,6 +17,7 @@ Revisions:
 - Enhancement - Inconsistency with parts list shape inputs #805
 - Enhancement - Set annotation style attributes from context menu action #812
 - Enhancement - Update LDView renderer to version 4.6 #815
+- Change - Notify when unable to retrieve LDraw library download json file #830
 - Change - Set annotation style attributes for fixed and extended types #811
 - HowTo - Set annotation style attributes #809
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
