@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: June 30, 2025
+# Last Update: September 13, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -877,6 +877,7 @@ export WD=$(readlink -e ../)
 export LP3D_LOG_PATH="%{_lp3d_log_path}"; \
 export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"; \
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"; \
+export LP3D_PUBLISH_RENDERERS="%{_lp3d_publish_renderers}"; \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # option flags and qmake settings
 %if 0%{?fedora_version}==23

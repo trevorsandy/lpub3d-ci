@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 05, 2025
+# Last Update: September 13, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -974,15 +974,8 @@ Info "Working Directory (WD)...[$WD]"
 [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD} || :
 Info "Log Path.................[${LP3D_LOG_PATH}]"
 
-# Check GitHub commit for version tag to trigger create package renderers
-if [[ -n "${GITHUB}" && "$GITHUB_REF" == "refs/tags/"* ]] ; then
-  if [ "$(echo "$GITHUB_REF_NAME" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')" = "yes" ]; then
-    [ -z "${LP3D_PACKAGE_RENDERERS}" ] && LP3D_PACKAGE_RENDERERS=${LP3D_PACKAGE_RENDERERS:-true} || :
-    [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-true} || :
-  fi
-else
-  [ -z "${LP3D_PACKAGE_RENDERERS}" ] && LP3D_PACKAGE_RENDERERS=${LP3D_PACKAGE_RENDERERS:-false} || :
-fi
+# Trigger create package renderers
+[ -z "${LP3D_PUBLISH_RENDERERS}" ] && LP3D_PACKAGE_RENDERERS=${LP3D_PUBLISH_RENDERERS:-false} || :
 Info "Package Renderers........[${LP3D_PACKAGE_RENDERERS}]"
 
 # Include LDView libraries in packaged renderers

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 17, 2025
+# Last Update: September 12, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -156,6 +156,8 @@ else
     echo "   LPUB3D BUILD TYPE........CI"
 fi
 echo "   PRESERVE BUILD REPO......$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+[ -n "${LP3D_PUBLISH_RENDERERS}" ] && \
+echo "   PUBLISH RENDERERS........${LP3D_PUBLISH_RENDERERS}" || :
 echo "   LOG PATH.................${LP3D_LOG_PATH}"
 
 echo "$((CMD_CNT+=1)). create DEB working directories in debbuild/..."

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 06, 2025
+# Last Update September 12, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -143,6 +143,7 @@ LP3D_GITHUB_URL="https://github.com/trevorsandy"
 [ -n "${LP3D_ARCH}" ] && Info "BUILD ARCH.........${LP3D_ARCH}" || :
 [ -n "${CI}" ] && Info "CI.................${CI}" || :
 [ -n "${GITHUB}" ] && Info "GITHUB.............${GITHUB}" || :
+[ -n "${LP3D_PUBLISH_RENDERERS}" ] && Info "PUBLISH RENDERERS..${LP3D_PUBLISH_RENDERERS}" || :
 [ -n "${LP3D_APPIMAGE}" ] && Info "APPIMAGE...........${LP3D_APPIMAGE}" || :
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
   Info "BUILD AI ARCH......${LP3D_AI_ARCH}"
@@ -309,6 +310,7 @@ LP3D_LOG_PATH=${LP3D_LOG_PATH} \
 LP3D_CPU_CORES=${LP3D_CPU_CORES} \
 LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP} \
 LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
+LP3D_PUBLISH_RENDERERS=${LP3D_PUBLISH_RENDERERS} \
 ./builds/utilities/CreateRenderers.sh
 
 # Set application build path

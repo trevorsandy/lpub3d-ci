@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 03, 2025
+rem  Last Update: September 12, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -75,7 +75,7 @@ SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
 SET VER_LDVIEW=LDView-4.6
 SET VER_POVRAY=lpub3d_trace_cui-3.8
-SET CAN_PACKAGE=True
+SET CAN_PACKAGE=%LP3D_PUBLISH_RENDERERS%
 SET LP3D_GITHUB_URL=https://github.com/trevorsandy
 
 rem Check if invalid platform flag
@@ -200,9 +200,15 @@ IF "%CAN_PACKAGE%"=="True" (
     IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe" ( GOTO :END )
     IF NOT EXIST "%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe" ( GOTO :END )
     IF NOT EXIST "%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe" ( GOTO :END )
+  ) ELSE (
+    IF "%BUILD_ARCH%"=="arm64" (
+      IF NOT EXIST "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe" ( GOTO :END )
+      IF NOT EXIST "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe" ( GOTO :END )
+      IF NOT EXIST "LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe" ( GOTO :END )
+    )
   )
-  ECHO -Package renderers for download disabled.
-  REM CALL :PACKAGE_RENDERERS
+  ECHO -Package renderers.
+  CALL :PACKAGE_RENDERERS
 )
 GOTO :END
 

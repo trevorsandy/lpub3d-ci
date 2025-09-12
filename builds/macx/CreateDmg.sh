@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 05, 2025
+# Last Update: September 12, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -93,6 +93,8 @@ elif [ "$BUILD_OPT" = "renderers" ]; then
 else
   echo "   BUILD OPTION...........[build package]"
 fi
+[ -n "${LP3D_PUBLISH_RENDERERS}" ] && \
+echo "   PUBLISH RENDERERS......[${LP3D_PUBLISH_RENDERERS}"] || :
 echo "   CPU CORES..............[${LP3D_CPU_CORES}]"
 echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not writing log")]" && echo
 echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
@@ -212,6 +214,7 @@ LP3D_LOG_PATH=${LP3D_LOG_PATH} \
 LP3D_CPU_CORES=${LP3D_CPU_CORES} \
 LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true} \
 LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
+LP3D_PUBLISH_RENDERERS=${LP3D_PUBLISH_RENDERERS} \
 ./builds/utilities/CreateRenderers.sh
 
 DIST_DIR="$(cd ../ && echo "$PWD/lpub3d_macos_3rdparty")"
