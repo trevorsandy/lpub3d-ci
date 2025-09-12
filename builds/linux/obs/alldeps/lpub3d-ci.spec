@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: September 05, 2025
+# Last Update: September 12, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -740,7 +740,7 @@ export skip_local_POVRay_libs=%{skip_local_POVRay_libs}
 %endif
 set -x
 %endif
-# Indicate OBS status (should always be yes for this spec file)
+# Indicate OBS status
 export OBS=%{usingbuildservice}
 # RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}
