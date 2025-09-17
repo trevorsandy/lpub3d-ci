@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: September 05, 2025
+# Last Update: September 16, 2025
 # Copyright © 2018 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -227,11 +227,8 @@ export WD=$(readlink -e ../)
 export LP3D_LOG_PATH="%{_lp3d_log_path}"
 export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"
-# parent path for 3rdParty distribution directory
-export LP3D_DIST_DIR_PATH="$(cd ${SrcPath}/.. && pwd)"
+export LP3D_DIST_DIR_PATH="${WD}/${LP3D_3RD_DIST_DIR}"
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-# append 3rdParty distribution directory
-export LP3D_DIST_DIR_PATH="${LP3D_DIST_DIR_PATH}/${LP3D_3RD_DIST_DIR}"
 # Qt setup
 if which qmake6 >/dev/null 2>&1; then
   QMAKE_EXEC=qmake6
