@@ -14,7 +14,6 @@ exists($$GIT_DIR/*) {
     message("~~~ $${LPUB3D} GIT_DIR FOUND AT $$GIT_DIR ~~~")
 } else {
     GIT_DIR = undefined
-    message("~~~ $${LPUB3D} GIT_DIR UNDEFINED AT $$PWD ~~~")
 }
 
 # enable to Test
@@ -37,6 +36,8 @@ equals(GIT_DIR, undefined) {
     } else {
         GIT_DIR_ENV = UNDEFINED
     }
+    !contains(GIT_DIR_ENV, OBS): \
+    message("~~~ $${LPUB3D} GIT_DIR UNDEFINED AT $$PWD ~~~")
 
     !isEmpty(UPDATE_CONFIG) {
         GIT_BASE_COMMAND = git -C $$PWD/.git
@@ -134,12 +135,12 @@ if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
         GIT_VER_FILE = $$PWD/builds/utilities/version.info
 
         exists($$GIT_VER_FILE) {
-            message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+            message("~~~ $${LPUB3D} $$GIT_DIR_ENV, USING VERSION_INFO FILE $$GIT_VER_FILE ~~~")
             GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
         } else {
             message("~~~ ERROR LPUB3D! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
             GIT_VERSION = $${VERSION}.92.4373.539aac30
-            message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
+            message("~~~ $${LPUB3D} $$GIT_DIR_ENV, USING VERSION $$GIT_VERSION ~~~")
             GIT_VERSION ~= s/\./" "
         }
     } else: equals(USE_VERSION_INFO_VAR, true) {
