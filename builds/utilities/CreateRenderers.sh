@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 17, 2025
+# Last Update: September 22, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -937,6 +937,7 @@ elif [ "${OBS}" = "true" ]; then
 else
   Info "Platform Pretty Name.....[${platform_pretty}]"
 fi
+[ -n "${SNAP}" ] &&  Info "Qt Bin Path..............[$LP3D_QT_BIN]" || true
 
 # LLVM and Mesa configuration
 llvm_config=$(which llvm-config 2> /dev/null)
