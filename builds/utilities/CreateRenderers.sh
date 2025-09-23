@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 22, 2025
+# Last Update: September 23, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -139,10 +139,19 @@ function DisplayCheckStatus()
     if test -z "$s_checkString"; then Info "ERROR - check string not specified."; return 1; fi
     if test -z "$s_linesBefore"; then s_linesBefore=2; Info "INFO - display 2 lines before"; fi
     if test -z "$s_linesAfter"; then s_linesAfter=10; Info "INFO - display 10 lines after"; fi
-    Info "Checking if ${s_checkString} in ${s_buildLog}..."
-    grep -B${s_linesBefore} -A${s_linesAfter} "${s_checkString}" $s_buildLog
+    Info "Searching for [${s_checkString}] in ${s_buildLog}..."
+    s_result=$(grep -B${s_linesBefore} -A${s_linesAfter} "${s_checkString}" "${s_buildLog}")
+    if [ -n "${s_result}" ]; then
+      echo "${s_result}"
+    else
+      SkipDisplayLogTail=1
+      Info && Info "WARNING - Search [${s_checkString}] was not found."
+      Info "------------------Build Log-------------------------"
+      cat ${s_buildLog}
+      Info "----------------End-Build Log-----------------------"
+    fi
   else
-    Info "ERROR - Check display [$s_buildLog] not found or is not valid!"
+    Info "ERROR - Log [$s_buildLog] not found or is not valid!"
   fi
 }
 
@@ -1406,9 +1415,10 @@ for buildDir in "${renderers[@]}"; do
     $LDD_EXEC ${validExe} 2>/dev/null || Info "ERROR - $LDD_EXEC ${validExe} failed."
     if [ "${OBS}" != "true" ]; then
       if [ -f "${validExe}" ]; then
+        unset SkipDisplayLogTail
         Info && Info "Build check - ${buildDir}..."
         DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}" && Info
-        DisplayLogTail ${buildLog} ${displayLogLines}
+        [ -n "${SkipDisplayLogTail}" ] && DisplayLogTail ${buildLog} ${displayLogLines} || :
       else
         Msg="ERROR - ${validExe} not found. Binary was not successfully built"
         Info && Info $Msg && Info $Msg >> $buildLog 2>&1
