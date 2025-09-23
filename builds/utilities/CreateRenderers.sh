@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 23, 2025
+# Last Update: September 24, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -521,7 +521,7 @@ function BuildMesaLibs()
 # Args: 1 = <build type (release|debug)>, 2 = <build log>
 function BuildLDGLite()
 {
-  BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
+  BUILD_CONFIG="CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
@@ -529,6 +529,9 @@ function BuildLDGLite()
   fi
   if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
+  fi
+  if [ "$LP3D_NO_LDGLITE_CHECK" = "false" ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_CHECK"
   fi
   if [ "$llvm_not_used" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=OSMESA_NO_LLVM"
@@ -576,13 +579,16 @@ function BuildLDView()
     esac
     ;;
   esac
-  BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
+  BUILD_CONFIG="CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
   BUILD_CONFIG="$BUILD_CONFIG CONFIG+=static CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS"
+  if [ "$LP3D_NO_LDVIEW_CHECK" = "false" ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_CHECK"
+  fi
   if [ "$prebuilt_3ds" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_3RD_PARTY_PREBUILT_3DS"
   fi
@@ -991,10 +997,19 @@ tempvar="release" || \
 Info "Build Configuration......[${LP3D_BUILD_CONFIG}]"
 LP3D_BUILD_CONFIG="${tempvar}" && unset tempvar
 
+# Set create renderer exceptions
+LP3D_NO_DEPS=${LP3D_NO_DEPS:-false}
+LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-false}
+LP3D_NO_LOG_TAIL=${LP3D_NO_LOG_TAIL:-false}
+LP3D_NO_LDVIEW_CHECK=${LP3D_NO_LDVIEW_CHECK:-false}
+LP3D_NO_LDGLITE_CHECK=${LP3D_NO_LDGLITE_CHECK:-false}
+
 Info "Platform Version.........[$platform_ver]"
-Info "No Lib Dependency Load...[${LP3D_NO_DEPS:-false}]"
-Info "No Display Log Tail......[${LP3D_NO_LOG_TAIL:-true}]"
-Info "No Build Cleanup.........[${LP3D_NO_CLEANUP:-false}]"
+Info "No Lib Dependency Load...[${LP3D_NO_DEPS}]"
+Info "No Display Log Tail......[${LP3D_NO_LOG_TAIL}]"
+Info "No Build Cleanup.........[${LP3D_NO_CLEANUP}]"
+Info "No LDGLite Check.........[${LP3D_NO_LDGLITE_CHECK}]"
+Info "No LDView Check..........[${LP3D_NO_LDVIEW_CHECK}]"
 Info "Working Directory (WD)...[$WD]"
 
 # Set log output path
