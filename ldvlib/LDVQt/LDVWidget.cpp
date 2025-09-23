@@ -554,10 +554,14 @@ bool LDVWidget::saveImage(
 	{
 		snapshotTaker =	 new LDSnapshotTaker(modelViewer);
 	}
+#ifndef QOPENGLWIDGET
 	if (TREGLExtensions::haveFramebufferObjectExtension())
 	{
 		snapshotTaker->setUseFBO(true);
 	}
+#else
+	snapshotTaker->setUseFBO(false);
+#endif
 	snapshotTaker->setImageType(getSaveImageType());
 	snapshotTaker->setTrySaveAlpha(
 		TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false));
@@ -619,10 +623,14 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
 				makeCurrent();
 				TREGLExtensions::setup();
 				snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
+#ifndef QOPENGLWIDGET
 				if (TREGLExtensions::haveFramebufferObjectExtension())
 				{
 					snapshotTaker->setUseFBO(true);
 				}
+#else
+				snapshotTaker->setUseFBO(false);
+#endif
 				if (!snapshotTaker->getUseFBO())
 				{
 					setupSnapshotBackBuffer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
