@@ -621,6 +621,9 @@ function BuildLDView()
   else
     BUILD_CONFIG="CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}"
   fi
+  if [ "${LP3D_NO_LDVIEW_INFO}" = "true" ]; then
+     test -f LDViewTest.pri && sed -i "s/ -Info=1//g" LDViewTest.pri || Info "LDViewTest.pri not found here ${PWD}"
+  fi
   #Info "DEBUG_BUILD_CONFIG: ${BUILD_CONFIG}" && Info
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} ${BUILD_CONFIG} LDView.pro
@@ -1001,6 +1004,7 @@ LP3D_BUILD_CONFIG="${tempvar}" && unset tempvar
 LP3D_NO_DEPS=${LP3D_NO_DEPS:-false}
 LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-false}
 LP3D_NO_LOG_TAIL=${LP3D_NO_LOG_TAIL:-false}
+LP3D_NO_LDVIEW_INFO=${LP3D_NO_LDVIEW_INFO:-false}
 LP3D_NO_LDVIEW_CHECK=${LP3D_NO_LDVIEW_CHECK:-false}
 LP3D_NO_LDGLITE_CHECK=${LP3D_NO_LDGLITE_CHECK:-false}
 
