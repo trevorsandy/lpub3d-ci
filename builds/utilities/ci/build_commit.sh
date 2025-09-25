@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 06, 2025
+# Last Update: September 26, 2025
 #
 # Options:
 #        PRE    pre release build default: PRE=
@@ -36,7 +36,7 @@ LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 COMMAND_COUNT=0
-COMMANDS=6
+COMMANDS=5
 
 BRANCH=${BRANCH:-master}
 COMMIT_MSG=${COMMIT:-LPub3D continuous release_build}
@@ -52,6 +52,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
   if [[ "$(git rev-parse --abbrev-ref HEAD)" != "${BRANCH}" ]]
   then
+    COMMANDS=6
     echo -n "$((COMMAND_COUNT += 1)) of ${COMMANDS} - Checking out ${BRANCH} branch..."
      o=run
     (git checkout ${BRANCH}) >$o.out 2>&1 && mv $o.out $o.ok && cat $o.ok >> ${LOG}
@@ -109,8 +110,7 @@ fi
 # update config files, increment version and increment commit count
 echo "$((COMMAND_COUNT += 1)) of ${COMMANDS} - Call update-config-files from pre-commit to set last commit version and sha..."
 chmod +x builds/utilities/hooks/pre-commit && \
-./builds/utilities/hooks/pre-commit -o && \
-./builds/utilities/hooks/pre-commit -f &>> $LOG && \
+./builds/utilities/hooks/pre-commit -f && \
 rm -f *.log
 git add . &>> $LOG
 
