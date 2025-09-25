@@ -293,6 +293,8 @@ if(!isEmpty(option)) {
     } else:contains(option, snp) {
         DEFINES += LP3D_SNAP
         DISTRO_PACKAGE = Snap
+        isEmpty(INSTALL_PREFIX): INSTALL_PREFIX = $$PREFIX
+        message("~~~ $${LPUB3D} SNAP INSTALL_PREFIX $${INSTALL_PREFIX} ~~~")
     } else:contains(option, flp) {
         DEFINES += LP3D_FLATPACK
         DISTRO_PACKAGE = FlatPak
