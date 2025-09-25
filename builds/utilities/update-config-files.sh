@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 21, 2025
+# Last Update September 25, 2025
 # Copyright (C) 2016 - 2025 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -63,15 +63,11 @@ realpath() {
   echo "$REALPATH_"
 }
 
-# Change these accordingly when respective config files are modified
-if [ "$OBS" = "true" ]
-then
-    UPDATE_OBS_ALL_DEPS=Yes
-    LP3D_CONFIG_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
-else
-    UPDATE_OBS_ALL_DEPS=No
-    LP3D_CONFIG_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
-fi
+# Always update OBS config files unless OBS specified as false
+[ "$LP3D_OS" = Darwin ] && OBS=false || :
+[ "$OBS" = "false" ] && UPDATE_OBS_ALL_DEPS=No || UPDATE_OBS_ALL_DEPS=Yes
+LP3D_OBS_DEPS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
+LP3D_OBS_ALL_DEPS_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 LP3D_UTIL_DIR=$(realpath "$LP3D_PWD/../builds/utilities")
 
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
@@ -379,74 +375,89 @@ else
     Info "   Error: Cannot read ${FILE} (be sure ${FILE_TEMPLATE} exsit) from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_CONFIG_DIR/debian/changelog"
+FILEPATH=${LP3D_OBS_DEPS_DIR}
+for FILENAME in PKGBUILD PKGBUILD PKGBUILD-qt5; do
+    FILE="${FILEPATH}/$FILENAME"
+    [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+    Info "$((LP3D_CMD_COUNT += 1)).update $FILENAME        - add version           [$FILE]" || :
+    if [[ -f "${FILE}" && -r "${FILE}" ]]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                      -e "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        else
+            sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                   -e "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+    fi
+    [ "${UPDATE_OBS_ALL_DEPS}" == "No" ] && break || :
+    FILEPATH=${LP3D_OBS_ALL_DEPS_DIR}
+done
+
+FILEPATH=${LP3D_OBS_DEPS_DIR}
+for FILENAME in ${LP3D_APP}.spec ${LP3D_APP}.spec ${LP3D_APP}-qt5.spec; do
+    FILE="${FILEPATH}/${FILENAME}"
+    [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+    Info "$((LP3D_CMD_COUNT += 1)).update ${FILENAME}  - add version and date  [$FILE]" || :
+    if [[ -f "${FILE}" && -r "${FILE}" ]]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                      -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
+                      -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
+        else
+            sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                   -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
+                   -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+    fi
+    [ "${UPDATE_OBS_ALL_DEPS}" = "No" ] && break || :
+    FILEPATH=${LP3D_OBS_ALL_DEPS_DIR}
+done
+
+FILEPATH=${LP3D_OBS_DEPS_DIR}
+for FILENAME in ${LP3D_APP}.dsc ${LP3D_APP}.dsc ${LP3D_APP}-qt5.dsc; do
+    FILE="${FILEPATH}/debian/${FILENAME}"
+    [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+    Info "$((LP3D_CMD_COUNT += 1)).update ${FILENAME}   - add version           [$FILE]" || :
+    if [[ -f "${FILE}" && -r "${FILE}" ]]
+    then
+        if [ "$LP3D_OS" = Darwin ]
+        then
+            sed -i "" "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        else
+            sed -i "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
+        fi
+    else
+        Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+    fi
+    [ "${UPDATE_OBS_ALL_DEPS}" = "No" ] && break || :
+    FILEPATH=${LP3D_OBS_ALL_DEPS_DIR}
+done
+
+FILE="${LP3D_OBS_DEPS_DIR}/debian/changelog"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "$((LP3D_CMD_COUNT += 1)).create changelog       - add version and date  [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).create changelog       - add version and date  [${FILE}]" || :
 if [[ -f "${FILE}" && -r "${FILE}" ]]
 then
-    rm ${FILE}
+    rm -f ${FILE}
 fi
 cat <<EOF >${FILE}
-${LP3D_APP} (${LP3D_APP_VERSION}) debian; urgency=medium
+${LP3D_APP} (${LP3D_APP_VERSION}) stable; urgency=low
 
-  * LPub3D version ${LP3D_APP_VERSION_LONG} for Linux
+  * LPub3D version ${LP3D_APP_VERSION_LONG} for Debian Linux
+  * See RELEASE_NOTES.html for enhancements, changes and fixes
 
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${LP3D_CHANGE_DATE_LONG}
 EOF
 
-FILE="$LP3D_CONFIG_DIR/PKGBUILD"
-[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "$((LP3D_CMD_COUNT += 1)).update PKGBUILD        - add version           [$FILE]" || :
-if [[ -f "${FILE}" && -r "${FILE}" ]]
-then
-    if [ "$LP3D_OS" = Darwin ]
-    then
-        sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
-                  -e "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
-    else
-        sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
-               -e "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
-    fi
-else
-    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-fi
-
-FILE="$LP3D_CONFIG_DIR/${LP3D_APP}.spec"
-[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "$((LP3D_CMD_COUNT += 1)).update ${LP3D_APP}.spec  - add version and date  [$FILE]" || :
-if [[ -f "${FILE}" && -r "${FILE}" ]]
-then
-    if [ "$LP3D_OS" = Darwin ]
-    then
-        sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
-                  -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
-                  -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
-
-    else
-        sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
-               -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
-               -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
-    fi
-else
-    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-fi
-
-FILE="$LP3D_CONFIG_DIR/debian/${LP3D_APP}.dsc"
-[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "$((LP3D_CMD_COUNT += 1)).update ${LP3D_APP}.dsc   - add version           [$FILE]" || :
-if [[ -f "${FILE}" && -r "${FILE}" ]]
-then
-    if [ "$LP3D_OS" = Darwin ]
-    then
-        sed -i "" "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-    else
-        sed -i "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" "${FILE}"
-    fi
-else
-    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-fi
-
-FILE="$(realpath $LP3D_PWD/../builds/linux/obs/debian/rules)"
+FILE="${LP3D_OBS_DEPS_DIR}/debian/rules"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
 Info "$((LP3D_CMD_COUNT += 1)).update debian rules    - add version suffix    [$FILE]" || :
 LP3D_OS_ARCH=32 && \
