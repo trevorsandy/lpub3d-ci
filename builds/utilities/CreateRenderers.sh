@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 24, 2025
+# Last Update: September 26, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -1435,9 +1435,13 @@ for buildDir in "${renderers[@]}"; do
     if [ "${OBS}" != "true" ]; then
       if [ -f "${validExe}" ]; then
         unset SkipDisplayLogTail
-        Info && Info "Build check - ${buildDir}..."
-        DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}" && Info
-        [ -n "${SkipDisplayLogTail}" ] && DisplayLogTail ${buildLog} ${displayLogLines} || :
+        if [ "${LP3D_NO_LDVIEW_CHECK}" = "false"  ]; then
+          Info && Info "Build check - ${buildDir}..."
+          DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}" && Info
+        elif [ "$LP3D_NO_LOG_TAIL" = "false" ]; then
+          Info && Info "Build log - ${buildDir}..." && Info
+        fi
+        [ -z "${SkipDisplayLogTail}" ] && DisplayLogTail ${buildLog} ${displayLogLines} || :
       else
         Msg="ERROR - ${validExe} not found. Binary was not successfully built"
         Info && Info $Msg && Info $Msg >> $buildLog 2>&1
