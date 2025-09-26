@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 11, 2025
+# Last Update: September 26, 2025
 # Copyright (C) 2024 by Trevor SANDY
 
 function ShowHelp() {
@@ -586,7 +586,7 @@ $COMMIT_MSG
 pbEOF
 #pre-commit is called from git-hook
 chmod a+x builds/utilities/hooks/pre-commit
-env force_all=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
+env inc_rev=$INC_REVISION inc_cnt=$INC_COUNT force_all=$FORCE_CONFIG git commit -m "$COMMIT_MSG"
 find . -name '*.log*' -type f -exec rm -f *.log {} +
 
 if [ -n "$RELEASE_COMMIT" ]; then
@@ -634,8 +634,7 @@ else
         git_tag="$(git tag -l -n $LOCAL_TAG)" && \
         [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
         # Update config files with version from new tag
-        ./builds/utilities/hooks/pre-commit -cro && \
-        ./builds/utilities/hooks/pre-commit -crf &>> $LOG && \
+        ./builds/utilities/hooks/pre-commit -rcf &>> $LOG && \
         rm -f *.log
         # Git append to amend the last commit to update config files with new version
         git add . &>> $LOG
