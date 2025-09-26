@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 24, 2025
+rem  Last Update: October 11, 2025
 rem  Copyright (C) 2018 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -141,9 +141,6 @@ ECHO   PKG_RUNLOG_DIR............[%PKG_RUNLOG_DIR%]
 ECHO   PKG_ASSETS_FOLDER.........[%PKG_CHECK_DIR%]
 IF "%LP3D_CONDA_TEST%" NEQ "True" (
   ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
-) ELSE (
-  ECHO --------------------------------------------
-  %PKG_TARGET_FILE% --version
 )
 
 CALL :SET_LDRAW_LIBS
@@ -161,6 +158,15 @@ IF NOT EXIST "%PKG_TARGET_FILE%" (
   EXIT /b
 )
 ECHO -%PKG_TARGET_FILE% found.
+ECHO.
+SET PKG_CHECK=0
+SET /A PKG_TIMEOUT=30
+SET PKG_DESCRIPTION=PKG_VERSION
+SET PKG_VERSION_COMMAND=--no-console-redirect --version 
+CALL :PKG_ELAPSED_TIME Start
+CALL :PKG_RUN_COMMAND %PKG_TARGET_FILE% %PKG_VERSION_COMMAND%
+ECHO --------------------------------------------
+ECHO.
 
 SET PKG_CHECK=1
 SET /A PKG_TIMEOUT=30
@@ -277,6 +283,7 @@ IF NOT EXIST "%TEMP%\$\%bcc%" (
 START /b "%PKG_DESCRIPTION%" CMD /c %TEMP%\$\%bcc%
 WAITFOR TwoSecondDelay /T 2 >NUL 2>&1
 CALL :PKG_CHECK_TIMER
+IF %PKG_CHECK% EQU 0 (EXIT /b)
 SETLOCAL ENABLEDELAYEDEXPANSION
 FOR %%R IN (%PKG_LOG_FILE%) DO (
   IF %%~zR LSS 1 SET EMPTY_LOG=True
