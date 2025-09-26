@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 18, 2025
+#  Last Update: September 27, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 #  Automatically generate git revision info
@@ -117,13 +117,14 @@ while getopts ":rcaof" opt; do
 done
 
 if test x"$update_alldeps_files" = x"yes" || test x"$update_all_files" = x"yes"; then
-  export OBS=true
-  config_dir=builds/linux/obs/alldeps
+  obs_alldeps=true
 elif test x"$update_alldeps_files" = x"no" && test x"$update_all_files" = x""; then
-  config_dir=builds/linux/obs
+  obs_alldeps=false
 else
   exit 0
 fi
+obs_deps_dir=builds/linux/obs
+obs_alldeps_dir=builds/linux/obs/alldeps
 
 tag_long=`git describe --tags --match v* --long`
 tag_short=`git describe --tags --match v* --abbrev=0`
@@ -151,13 +152,11 @@ if test x"$increment_commitcount" = x"yes"; then ((commit_count++)); fi
 echo "   New revision............$revision"
 echo "   New commit count........$commit_count"
 
+#                      1.     2.     3.     4.        5.            6.              7.      8.
+# Arguments: $working_dir $major $minor $patch $revision $commit_count $sha_hash_short $suffix
 working_dir=$PWD/mainApp
-chmod +x builds/utilities/update-config-files.sh
-./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
-if test x"$update_all_files" = x"yes"; then
-  export OBS=false
-  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
-fi
+chmod +x builds/utilities/update-config-files.sh && \
+env OBS=$obs_alldeps ./builds/utilities/update-config-files.sh $working_dir $major $minor $patch $revision $commit_count $sha_hash_short $suffix
 
 git add builds/utilities/version.info
 git add mainApp/docs/lpub3d${major}${minor}.1
@@ -169,20 +168,21 @@ git add mainApp/extras/LPub3D_Npp_UDL.xml
 git add README.md
 git add gitversion.pri
 
-git add ${config_dir}/PKGBUILD
-git add ${config_dir}/lpub3d-ci.spec
-git add ${config_dir}/debian/changelog
-git add ${config_dir}/debian/lpub3d-ci.dsc
-git add builds/linux/obs/debian/rules
-if test x"$update_all_files" = x"yes"; then
-  git add builds/linux/obs/PKGBUILD
-  git add builds/linux/obs/lpub3d-ci.spec
-  git add builds/linux/obs/debian/changelog
-  git add builds/linux/obs/debian/lpub3d-ci.dsc
+git add ${obs_deps_dir}/PKGBUILD
+git add ${obs_deps_dir}/lpub3d-ci.spec
+git add ${obs_deps_dir}/debian/lpub3d-ci.dsc
+git add ${obs_deps_dir}/debian/changelog
+git add ${obs_deps_dir}/debian/rules
+if test x"$obs_alldeps" = x"true"; then
+  git add ${obs_alldeps_dir}/PKGBUILD
+  git add ${obs_alldeps_dir}/PKGBUILD-qt5
+  git add ${obs_alldeps_dir}/lpub3d-ci.spec
+  git add ${obs_alldeps_dir}/lpub3d-ci-qt5.spec
+  git add ${obs_alldeps_dir}/debian/lpub3d-ci.dsc
+  git add ${obs_alldeps_dir}/debian/lpub3d-ci-qt5.dsc
 fi
 
 echo "   Staged files:"
 for file in $(git diff --name-only --cached); do
   echo "   -$file"
 done
-
