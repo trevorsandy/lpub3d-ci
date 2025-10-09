@@ -1757,9 +1757,10 @@ void ColourPartListWorker::processChildren() {
     emit gui->messageSig(LOG_INFO,tr("Processing Child Color Parts - Count: %1").arg(_partList.size()));
     static QRegularExpression rx;
 
-    QString     filePath = "";
+    QString filePath = "";
+    int startLine = 60; // skip ldrawStaticColourParts header
     for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++) {
-        QString     parentFileNameStr;
+        QString parentFileNameStr;
         bool gotoMainLoop = false;
 
         emit progressSetValueSig(part);
@@ -1768,7 +1769,7 @@ void ColourPartListWorker::processChildren() {
         if(ap != _colourParts.end()) {
 
              QString libFileName = ap.value()._fileNameStr;
-             QString libFilePath    = libFileName.remove("/" + libFileName.split("/").last());
+             QString libFilePath = QString(libFileName).remove("/"+libFileName.split("/").last());
 
             // process ColourPart content
             for (int i = 0; i < ap.value()._contents.size() && ! gotoMainLoop && endThreadNotRequested(); i++) {
@@ -1780,21 +1781,21 @@ void ColourPartListWorker::processChildren() {
                     parentFileNameStr = tokens[tokens.size()-1];                           // short name of parent part
 
                 if (tokens.size() == 15 && tokens[0] == "1") {
-
-                    QString childFileString = tokens[tokens.size()-1];                     // child part name in parent part
+                    const QString childFileRx = QString("\\b%1[^\n]*").arg(tokens[14].replace("\\","\\\\")); // child part name in parent part
+                    rx.setPattern(childFileRx);
                     // check childFileName in _ldrawStaticColourParts list
-                    for (int j = 0; j < _ldrawStaticColourParts.size() && ! gotoMainLoop && endThreadNotRequested(); ++j) {
-                        rx.setPattern("\\b"+childFileString.replace("\\","\\\\")+"[^\n]*");
-                        if (_ldrawStaticColourParts.at(j).contains(childFileString) && _ldrawStaticColourParts.at(j).contains(rx)) {
-                             if (libFilePath != filePath) {
-                                 fileSectionHeader(FADESTEP_COLOUR_CHILDREN_PARTS_HEADER, QString("# Library path: %1").arg(libFilePath));
-                                 filePath = libFilePath;
-                             }
+                    for (int j = startLine; j < _ldrawStaticColourParts.size() && ! gotoMainLoop && endThreadNotRequested(); ++j) {
+                        const QString &staticColourParts = _ldrawStaticColourParts.at(j);
+                        if (staticColourParts.contains(rx)) {
+                            if (libFilePath != filePath) {
+                                fileSectionHeader(FADESTEP_COLOUR_CHILDREN_PARTS_HEADER, QString("# Library path: %1").arg(libFilePath));
+                                filePath = libFilePath;
+                            }
                             _cpLines++;
                             QString fileEntry, libType;
                             libType = ap.value()._unOff ? "U" : "O";
                             fileEntry = QString("%1:::%2:::%3:::%4").arg(parentFileNameStr, libType, ap.value()._contents[0].remove(0,2));
-                            _ldrawStaticColourParts  << fileEntry.toLower();
+                            _ldrawStaticColourParts << fileEntry.toLower();
                             if (parentFileNameStr.size() > _colWidthFileName)
                                 _colWidthFileName = parentFileNameStr.size();
                             //emit gui->messageSig(LOG_INFO,tr("ADD CHILD COLOUR PART: %1").arg(libFileName));
