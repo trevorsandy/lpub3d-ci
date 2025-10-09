@@ -676,7 +676,8 @@ int Application::initialize(lcCommandLineOptions &Options)
     bool consoleRedirectTreated = false;
 #endif
     QString hdr, args, ldrawLibrary;
-    const int NumArgsIdx = arguments().size() - 1;
+    const int NumArgs = arguments().size();
+    const int NumArgsIdx = NumArgs - 1;
 
 int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
@@ -688,11 +689,11 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_COMPILED_FOR));
 #endif
 
-    for (int i = 1; i < arguments().size(); i++)
+    for (int i = 1; i < NumArgs; i++)
         args.append(" " + arguments().at(i));
     QString const dispAargs = args.isEmpty() ? QObject::tr("No arguments specified") : args.trimmed();
 
-    for (int ArgIdx = 1; ArgIdx < arguments().size(); ArgIdx++)
+    for (int ArgIdx = 1; ArgIdx < NumArgs; ArgIdx++)
     {
         const QString Param = arguments().at(ArgIdx);
         // Items in this condition execute in GUI mode - first item executes in command console mode also)
@@ -718,6 +719,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fprintf(stdout, "%s\n", qUtf8Printable(tr("+cr/++console-redirect is only supported on Windows.\n")));
 #endif
             }
+
             if (!header_printed) {
                 header_printed = true;
                 fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
@@ -743,6 +745,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
         // Items in this condition will execute in command console mode
         else
         {
+            int exit_status = 0;
             if (!header_printed) {
                 header_printed = true;
                 m_console_mode = true;
@@ -766,11 +769,20 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fprintf(stdout, "==========================\n");
                 fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(dispAargs)));
                 fflush(stdout);
+#ifdef Q_OS_WIN
+                if (!consoleRedirect) {
+                    if (ArgIdx == NumArgsIdx)
+                        return EXIT_SUCCESS;
+                    else
+                        continue;
+                }
+#endif
             }
 
-            if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log"))
+            if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log")) {
                 suppressFPrint = true;
-            else
+                continue;
+            } else
             // Version output
             if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
             {
@@ -782,11 +794,16 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                    return  ReleaseConsole();
+                    if (consoleRedirect)
+                        exit_status = ReleaseConsole();
+                    else
+                        exit_status = EXIT_SUCCESS;
 #else
-                    return EXIT_SUCCESS;
+                    exit_status = EXIT_SUCCESS;
 #endif
-                }
+                    return exit_status;
+                } else
+                    continue;
             }
             else
             // Visual Editor (LeoCAD) version output
@@ -799,11 +816,16 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                    return  ReleaseConsole();
+                    if (consoleRedirect)
+                        exit_status = ReleaseConsole();
+                    else
+                        exit_status = EXIT_SUCCESS;
 #else
-                    return EXIT_SUCCESS;
+                    exit_status = EXIT_SUCCESS;
 #endif
-                }
+                    return exit_status;
+                } else
+                    continue;
             }
             else
             // Help output
@@ -916,11 +938,16 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                    return  ReleaseConsole();
+                    if (consoleRedirect)
+                        exit_status = ReleaseConsole();
+                    else
+                        exit_status = EXIT_SUCCESS;
 #else
-                    return EXIT_SUCCESS;
+                    exit_status = EXIT_SUCCESS;
 #endif
-                }
+                    return exit_status;
+                } else
+                    continue;
             }
 
             // Invoke LEGO library in command console mode
@@ -943,10 +970,14 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 Preferences::lpubPreferences();
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                    return  ReleaseConsole();
+                    if (consoleRedirect)
+                        exit_status = ReleaseConsole();
+                    else
+                        exit_status = EXIT_SUCCESS;
 #else
-                    return EXIT_SUCCESS;
+                    exit_status = EXIT_SUCCESS;
 #endif
+                    return exit_status;
                 }
             }
         }
@@ -1305,6 +1336,7 @@ QString distribution = tr("Installed");
     }
 
     return RUN_APPLICATION;
+
 }
 
 void Application::mainApp()
