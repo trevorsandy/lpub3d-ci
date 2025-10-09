@@ -6000,6 +6000,7 @@ void Gui::createActions()
                                    .arg(Preferences::useSystemEditor ?
                                             Preferences::systemEditor.isEmpty() ? "the system editor" :
                                                                                   Preferences::systemEditor : "detached LDraw Editor"));
+    editModelFileAct->setEnabled(false);
     lpub->actions.insert(editModelFileAct->objectName(), Action(QStringLiteral("Configuration.Current Model File"), editModelFileAct));
     connect(editModelFileAct, SIGNAL(triggered()), gui, SLOT(editModelFile()));
 
@@ -7423,8 +7424,15 @@ void Gui::createToolBars()
     QToolBar *editParamsToolBar = addToolBar(tr("Edit Parameters Toolbar"));
     editParamsToolBar->setObjectName("editParamsToolBar");
     gui->toolbars.insert(editParamsToolBar->objectName(), editParamsToolBar);
-    editParamsToolBar->addAction(gui->getAct("editModelFileAct.1"));
+#if defined Q_OS_WIN
+    if (Preferences::portableDistribution) {
+        editParamsToolBar->addAction(gui->getAct("editLPub3DIniFileAct.1"));
+        editParamsToolBar->addSeparator();
+    }
+#else
+    editParamsToolBar->addAction(gui->getAct("editLPub3DIniFileAct.1"));
     editParamsToolBar->addSeparator();
+#endif
     editParamsToolBar->addAction(gui->getAct("editLDrawColourPartsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editPliControlFileAct.1"));
     editParamsToolBar->addAction(gui->getAct("editTitleAnnotationsAct.1"));
@@ -7441,15 +7449,6 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(gui->getAct("editLD2RBColorsXRefAct.1"));
     editParamsToolBar->addAction(gui->getAct("editLD2RBCodesXRefAct.1"));
     editParamsToolBar->addSeparator();
-#if defined Q_OS_WIN
-    if (Preferences::portableDistribution) {
-        editParamsToolBar->addAction(gui->getAct("editLPub3DIniFileAct.1"));
-        editParamsToolBar->addSeparator();
-    }
-#else
-    editParamsToolBar->addAction(gui->getAct("editLPub3DIniFileAct.1"));
-    editParamsToolBar->addSeparator();
-#endif
     if (!Preferences::blenderExe.isEmpty())
         editParamsToolBar->addAction(gui->getAct("editBlenderParametersAct.1"));
     if (Preferences::blenderInstalled && !Preferences::blenderLDrawConfigFile.isEmpty())
