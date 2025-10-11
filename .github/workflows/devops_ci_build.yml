@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 06, 2025
+# Last Update: October 11, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -104,7 +104,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner-version: [ 13, 14 ]
+        runner-version: [ 15-intel, 15 ]
     steps:
       - name: Checkout Source
         uses: actions/checkout@v5
