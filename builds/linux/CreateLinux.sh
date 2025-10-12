@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 19, 2025
+# Last Update October 12, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -826,6 +826,16 @@ if [[ -f "${AppImageCheck}" ]]; then
   fi
   if [[ -n "${LPUB3D_EXE}" ]]; then
     export LPUB3D_EXE
+    if [ "${LP3D_ARCH}" == "arm64" ]; then
+      A1Arch=${LP3D_ARCH}
+      A2Arch=${LP3D_AI_ARCH}
+    elif [ "${LP3D_ARCH}" == "amd64" ]; then
+      A1Arch=${LP3D_AI_ARCH}
+      A2Arch=${LP3D_AI_ARCH}
+    fi
+    test -f ${LP3D_DIST_DIR_PATH}/ldview-4.6/bin/${A1Arch}/ldview && export LDVIEW_EXE=ldview || :
+    test -f ${LP3D_DIST_DIR_PATH}/ldglite-1.3/bin/${A1Arch}/ldglite && export LDGLITE_EXE=ldview || :
+    test -f ${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8/bin/${A2Arch}/lpub3d_trace_cui && export POVRAY_EXE=lpub3d_trace_cui || :
     set +x && source ${SOURCE_DIR}/builds/check/build_checks.sh && set -x
   fi
   if [[ "${AppImageCheck}" == *".patched"* ]]; then
