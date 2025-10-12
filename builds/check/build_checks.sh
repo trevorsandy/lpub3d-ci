@@ -226,9 +226,9 @@ LP3D_CHECK_BAT="${LP3D_CHECK_PATH}/build_checks.bat"
 LP3D_CHECK_SH="${LP3D_CHECK_PATH}/build_checks.sh"
 LP3D_CHECK_TENTE="${LP3D_CHECK_PATH}/TENTE"
 LP3D_CHECK_VEXIQ="${LP3D_CHECK_PATH}/VEXIQ"
-LP3D_CHECK_EXCLUDE=("--exclude=\"${LP3D_CHECK_BAT}\"" "--exclude=\"${LP3D_CHECK_TENTE}\"" "--exclude=\"${LP3D_CHECK_VEXIQ}\"")
-LP3D_CHECK_TENTE_EXCLUDE=("--exclude=\"${LP3D_CHECK_BAT}\"" "--exclude=\"${LP3D_CHECK_SH}\"" "--exclude=\"${LP3D_CHECK_VEXIQ}\"")
-LP3D_CHECK_VEXIQ_EXCLUDE=("--exclude=\"${LP3D_CHECK_BAT}\"" "--exclude=\"${LP3D_CHECK_SH}\"" "--exclude=\"${LP3D_CHECK_TENTE}\"")
+LP3D_CHECK_EXCLUDE=("--exclude=${LP3D_CHECK_BAT}" "--exclude=${LP3D_CHECK_TENTE}" "--exclude=${LP3D_CHECK_VEXIQ}")
+LP3D_CHECK_TENTE_EXCLUDE=("--exclude=${LP3D_CHECK_BAT}" "--exclude=${LP3D_CHECK_SH}" "--exclude=${LP3D_CHECK_VEXIQ}")
+LP3D_CHECK_VEXIQ_EXCLUDE=("--exclude=${LP3D_CHECK_BAT}" "--exclude=${LP3D_CHECK_SH}" "--exclude=${LP3D_CHECK_TENTE}")
 LP3D_CHECK_SUCCESS="Application terminated with return code 0."
 LP3D_XVFB_ERROR="xvfb-run: error: "
 LP3D_LOG_FILE="Check.out"
@@ -370,7 +370,7 @@ for LP3D_BUILD_CHECK in "${LP3D_BUILD_CHECK_LIST[@]}"; do
                     if [ "${LP3D_CHECK_ASSETS}" ]; then
                         echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
                         echo "- Archiving assets to ${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" >/dev/null 2>&1
-                        if tar "${LP3D_CHECK_EXCLUDE[*]}" -czvf "${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
+                        if tar -czvf "${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
                             echo "Success"
                         else
                             echo "Oops - tar failed!"
