@@ -3214,17 +3214,26 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
             {
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
-            }
-            // set lgeo paths as required
-            rx.setPattern("^XmlMapPath=");
-            if (line.contains(rx))
-            {
-                line.clear();
-                if (lgeoPath.isEmpty())
+            } else
+            // set ldraw archive library
+            if (! lpub3dLibFile.isEmpty()) {
+                rx.setPattern("^LDrawZip=");
+                if (line.contains(rx)) {
+                    line.clear();
+                    line = QString("LDrawZip=%1").arg(QDir::toNativeSeparators(lpub3dLibFile));
+                }
+            } else {
+                // set lgeo paths as required
+                rx.setPattern("^XmlMapPath=");
+                if (line.contains(rx))
                 {
-                    line = QString("XmlMapPath=");
-                } else {
-                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath, VER_LGEO_XML_FILE)));
+                    line.clear();
+                    if (lgeoPath.isEmpty())
+                    {
+                        line = QString("XmlMapPath=");
+                    } else {
+                        line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath, VER_LGEO_XML_FILE)));
+                    }
                 }
             }
             logInfo() << qUtf8Printable(QObject::tr("NativePOV.ini OUT: %1").arg(line));
@@ -3296,6 +3305,14 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
             {
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
+            } else
+            // set ldraw archive library
+            if (! lpub3dLibFile.isEmpty()) {
+                rx.setPattern("^LDrawZip=");
+                if (line.contains(rx)) {
+                    line.clear();
+                    line = QString("LDrawZip=%1").arg(QDir::toNativeSeparators(lpub3dLibFile));
+                }
             }
             // set AutoCrop=0
 //            rx.setPattern("^AutoCrop=");
@@ -3372,17 +3389,26 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
             {
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
-            }
-            // set lgeo paths as required
-            rx.setPattern("^XmlMapPath=");
-            if (line.contains(rx))
-            {
-                line.clear();
-                if (lgeoPath.isEmpty())
+            } else
+            // set ldraw archive library
+            if (! lpub3dLibFile.isEmpty()) {
+                rx.setPattern("^LDrawZip=");
+                if (line.contains(rx)) {
+                    line.clear();
+                    line = QString("LDrawZip=%1").arg(QDir::toNativeSeparators(lpub3dLibFile));
+                }
+            } else {
+                // set lgeo paths as required
+                rx.setPattern("^XmlMapPath=");
+                if (line.contains(rx))
                 {
-                    line = QString("XmlMapPath=");
-                } else {
-                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath, VER_LGEO_XML_FILE)));
+                    line.clear();
+                    if (lgeoPath.isEmpty())
+                    {
+                        line = QString("XmlMapPath=");
+                    } else {
+                        line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath, VER_LGEO_XML_FILE)));
+                    }
                 }
             }
             logInfo() << qUtf8Printable(QObject::tr("LDViewPOV.ini OUT: %1").arg(line));
