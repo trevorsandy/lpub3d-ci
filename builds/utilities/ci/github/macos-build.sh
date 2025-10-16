@@ -1,18 +1,18 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 12, 2025
+# Last Update: October 17, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
 # Run command:
-# bash -ex builds/utilities/ci/github/macos-build.sh
+# builds/utilities/ci/github/macos-build.sh
 
 function ShowHelp() {
     echo
     echo "This script is called from .github/workflows/devops_ci_build.yml"
     echo
     echo "Run command:"
-    echo "bash -ex builds/utilities/ci/github/$0"
+    echo "zsh -ex builds/utilities/ci/github/$0"
     echo
     echo "Reference:"
     echo "Setting the follwing evnironment variables accordingly will trigger"
@@ -26,19 +26,21 @@ function ShowHelp() {
     echo "Set the below variables accordingly"
     echo "then cut and paste in your console to run."
     echo
-    echo "LP3D_BUILDPKG_PATH=/Users/trevorsandy/Development/buildpkg \\"
-    echo "[ ! -d \"\$LP3D_BUILDPKG_PATH\" ] && mkdir -p \"\$LP3D_BUILDPKG_PATH\" || : \\"
+    echo "LP3D_PKG_DEV_PATH=/Users/trevorsandy/Development; \\"
+    echo "LP3D_PKG_BLD_PATH=\${LP3D_PKG_DEV_PATH}/buildpkg; \\"
+    echo "[ ! -d \"\${LP3D_PKG_BLD_PATH}\" ] && mkdir -p \"\${LP3D_PKG_BLD_PATH}\" || :; \\"
     echo "chmod +x lpub3d-ci/builds/utilities/ci/github/$0 && \\"
-    echo "bash -ex env \\"
+    echo "env \\"
     echo "GITHUB=true \\"
+    echo "GITHUB_SKIP_LOCAL=1 \\"
     echo "GITHUB_REPOSITORY=trevorsandy/lpub3d-ci \\"
     echo "GITHUB_REF=refs/heads/master \\"
     echo "GITHUB_REF_NAME=master \\"
     echo "GITHUB_EVENT_NAME=push \\"
-    echo "GITHUB_WORKSPACE=/Users/trevorsandy/Development/lpub3d-ci \\"
+    echo "GITHUB_WORKSPACE=\${LP3D_PKG_DEV_PATH}/lpub3d-ci \\"
+    echo "LP3D_3RD_PARTY_PATH=\${LP3D_PKG_DEV_PATH} \\"
+    echo "LP3D_BUILDPKG_PATH=\${LP3D_PKG_BLD_PATH} \\"
     echo "LP3D_COMMIT_MSG=\"LPub3D continuous development_build\" \\"
-    echo "LP3D_3RD_PARTY_PATH=/Users/trevorsandy/Development \\"
-    echo "LP3D_BUILDPKG_PATH=\${LP3D_BUILDPKG_PATH} \\"
     echo "./lpub3d-ci/builds/utilities/ci/github/$0"
     echo
 }
@@ -145,21 +147,23 @@ mkdir -p ${LP3D_OUT_PATH} || :
 oldIFS=$IFS; IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; IFS=$oldIFS;
 export LPUB3D=${LP3D_SLUGS[1]}
 export LP3D_ARCH=${LP3D_ARCH:-$(uname -m)}
-export LP3D_LDRAW_DIR="${LP3D_3RD_PARTY_PATH}/ldraw"
 export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-$HOME/Library}
 export LDRAWDIR=${LDRAWDIR:-$LDRAWDIR_ROOT/LDraw}
+export LP3D_LDRAW_DIR=${LDRAWDIR}
 export CI=${CI:-true}
 export GITHUB=${GITHUB:-true}
 export LP3D_CPU_CORES
 
-# Check if build is on stale commit
-curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
-export LP3D_REMOTE=$(cat repo.txt | jq -r '.sha')
-export LP3D_LOCAL=$(git rev-parse HEAD)
-if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
-  echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting build."
-  [ -f "repo.txt" ] && echo "Repo response:" && cat repo.txt || :
-  exit 0
+if [ -z "${GITHUB_SKIP_LOCAL}" ]; then
+  # Check if build is on stale commit
+  curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
+  export LP3D_REMOTE=$(cat repo.txt | jq -r '.sha')
+  export LP3D_LOCAL=$(git rev-parse HEAD)
+  if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
+    echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting build."
+    [ -f "repo.txt" ] && echo "Repo response:" && cat repo.txt || :
+    exit 0
+  fi
 fi
 
 # Check commit for version tag
@@ -175,19 +179,6 @@ if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (PUBLISH_RENDERERS) ]]; t
 fi
 if [[ "${GITHUB_EVENT_NAME}" == "push" && ! "${LP3D_COMMIT_MSG}" == *"BUILD_ALL"* ]]; then
   export BUILD_OPT="verify"
-fi
-
-# Setup ldraw parts library directory
-if [ ! -d "$LP3D_LDRAW_DIR" ]; then
-  mkdir -p "$LP3D_LDRAW_DIR" && echo "Created LDraw library $LP3D_LDRAW_DIR"
-else
-  echo "Using cached LDraw library $LP3D_LDRAW_DIR"
-fi
-
-# Setup LDraw parts test path link
-if [ ! -d "$LDRAWDIR" ]; then
-  ln -sf "$LP3D_LDRAW_DIR" "LDRAWDIR" && \
-  echo "$LP3D_LDRAW_DIR linked to $LDRAWDIR"
 fi
 
 # Make sure Qt is properly setup
@@ -274,6 +265,27 @@ echo -n "copying vexiqparts.zip to mainApp/extras..."
 (cp -f ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
 [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
+# Setup ldraw parts library directory
+if [ -d "${LP3D_3RD_PARTY_PATH}" ]; then
+  LDRAWDIR_ROOT=“${LP3D_3RD_PARTY_PATH}“
+  LP3D_LDRAW_DIR="${LDRAWDIR_ROOT}/LDraw"
+  if [ ! -d "$LP3D_LDRAW_DIR" ]; then
+    if test -f "${LDRAWDIR_ROOT}/complete.zip"; then
+      echo -n "Extracting LDraw library..."
+      (unzip -od ${LDRAWDIR_ROOT} -q complete.zip) >$l.out 2>&1 && rm $l.out
+      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok.";echo "Created LDraw library $LP3D_LDRAW_DIR"
+    fi
+  else
+    echo "Using cached LDraw library $LP3D_LDRAW_DIR"
+  fi
+fi
+
+# Setup LDraw parts test path link
+if [ -d "$LP3D_LDRAW_DIR" ]; then
+  export LDRAWDIR_ROOT=${LDRAWDIR_ROOT}
+  export LDRAWDIR=${LP3D_LDRAW_DIR}
+fi
+
 # Trigger rebuild renderers if specified
 ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
 ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.6
@@ -299,6 +311,8 @@ chmod a+x builds/macx/CreateDmg.sh && \
 env BUILD_OPT="${BUILD_OPT}" \
 CI="${CI}" \
 GITHUB="${GITHUB}" \
+GITHUB_REF="${GITHUB_REF}" \
+GITHUB_SHA="${GITHUB_SHA}" \
 LDRAWDIR_ROOT="${LDRAWDIR_ROOT}" \
 LDRAWDIR="${LDRAWDIR}" \
 LP3D_3RD_DIST_DIR="${LP3D_3RD_DIST_DIR}" \
