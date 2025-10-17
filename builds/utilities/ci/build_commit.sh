@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 26, 2025
+# Last Update: October 22, 2025
 #
 # Options:
 #        PRE    pre release build default: PRE=
@@ -45,21 +45,22 @@ PRE_RELEASE=${PRE:-}
 COMMIT_MSG=${COMMIT:-LPub3D continuous pre_release_build} || :
 
 # confirmation
-echo "${COMMANDS} commits on ${BRANCH} branch will be processed." && echo
+echo "Commits on ${BRANCH} branch will be processed." && echo
 sleep 1s && read -p "  Do you want to continue (y/n)? " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
   if [[ "$(git rev-parse --abbrev-ref HEAD)" != "${BRANCH}" ]]
   then
-    COMMANDS=6
-    echo -n "$((COMMAND_COUNT += 1)) of ${COMMANDS} - Checking out ${BRANCH} branch..."
-     o=run
+    newLine=1 && echo
+    echo -n "$((COMMAND_COUNT += 1)) of 1 - Checking out ${BRANCH} branch..."
+    o=run
     (git checkout ${BRANCH}) >$o.out 2>&1 && mv $o.out $o.ok && cat $o.ok >> ${LOG}
-    [ -f $o.ok ] && echo "OK." || echo "Checkout failed."; tail -80 $o.out
+    [ -f $o.ok ] && echo "OK." || (echo "Checkout failed."; tail -80 $o.out)
   fi
   [[ "$0" == "$BASH_SOURCE" ]] && rm -f ${LOG} && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
 fi
+test -z $newLine && echo || :
 
 echo "$((COMMAND_COUNT += 1)) of ${COMMANDS} - Change line endings from CRLF to LF"
 dos2unix -k builds/utilities/ci/github/* &>> $LOG

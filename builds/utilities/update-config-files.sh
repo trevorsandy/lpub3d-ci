@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 27, 2025
+# Last Update October 18, 2025
 # Copyright (C) 2016 - 2025 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -13,6 +13,8 @@
 #
 # Optional argument:
 # _EXPORT_CONFIG_ONLY_ Do not update config files. Only export variables
+#
+# env _PRO_FILE_PWD_=$PWD/mainApp _EXPORT_CONFIG_ONLY_=1 OBS=false ./builds/utilities/update-config-files.sh
 
 LP3D_ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 [ "${LP3D_ME}" != "update-config-files.sh" ] && SOURCED="true" || SOURCED="false"
@@ -30,9 +32,10 @@ LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
 LP3D_GIT_DEPTH=150000
 LP3D_CMD_COUNT=0
+LP3D_RELEASE_BUILD=0
 LP3D_APP=${LPUB3D:-lpub3d-ci}
 
-[ -n "$1" ] && LP3D_PWD=$1 || LP3D_PWD=${_PRO_FILE_PWD_}
+[[ -n "$1" && "$1" != "Update" ]] && LP3D_PWD=$1 || LP3D_PWD=${_PRO_FILE_PWD_}
 if [ "$LP3D_PWD" = "" ]
 then
     Info "ERROR: Did not receive required argument #1 or env variable _PRO_FILE_PWD_"
@@ -91,20 +94,24 @@ fi
 
 if [ "${lp3d_option}" = "queries" ]
 then
-    cd "$(realpath $LP3D_PWD/..)"
-    if [ "${CI}" = "true" ];
+    cd ${LP3D_PWD}/..
+    if [ ! -d "${PWD}/.git" ]
     then
-        # Update refs and tags and populate committer email, name
+        Info "ERROR - No .git folder found at ${PWD}/.git"
+        exit 1
+    fi
+    if [ "$1" = "Update" ]
+    then
+        # Update refs and tags
         Info "$((LP3D_CMD_COUNT += 1)). update git tags and capture version info using git queries"
-        if [ ! -d ".git" ]; then
-            Info "ERROR - No .git folder in $PWD"
-        fi
-        if [ -n "${TRAVIS}" ]; then
-            LP3D_BRANCH=${TRAVIS_BRANCH}
-            LP3D_COMMIT=${TRAVIS_COMMIT}
-        elif [ -n "${GITHUB}" ]; then
+        if [ -n "${GITHUB}" ]
+        then
             LP3D_BRANCH=${GITHUB_REF}
             LP3D_COMMIT=${GITHUB_SHA}
+        elif [ -n "${TRAVIS}" ]
+        then
+            LP3D_BRANCH=${TRAVIS_BRANCH}
+            LP3D_COMMIT=${TRAVIS_COMMIT}
         fi
         git fetch -qfup --depth=${LP3D_GIT_DEPTH} origin +${LP3D_BRANCH} +refs/tags/*:refs/tags/* >/dev/null 2>&1
         git checkout -qf ${LP3D_COMMIT} >/dev/null 2>&1
@@ -116,28 +123,32 @@ then
     lp3d_git_ver_tag_short=`git describe --tags --match v* --abbrev=0` >/dev/null 2>&1
     lp3d_git_ver_commit_count=`git rev-list --count HEAD` >/dev/null 2>&1
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD` >/dev/null 2>&1
-    cd "${LP3D_CALL_DIR}"
+    last_commit_sha=`git rev-parse HEAD` >/dev/null 2>&1
+    last_annotated_tag=`git describe --abbrev=0` >/dev/null 2>&1
+    last_annotated_tag_sha=`git rev-list -n 1 ${last_annotated_tag}` >/dev/null 2>&1
+    lp3d_git_ver_author=`git log -1 ${lp3d_git_ver_sha_hash_short} --pretty="%aN"` >/dev/null 2>&1
+    lp3d_git_ver_committer_email=`git log -1 ${lp3d_git_ver_sha_hash_short} --pretty="%cE"` >/dev/null 2>&1
     lp3d_ver_tmp=${lp3d_git_ver_tag_long#*-}                                          # remove everything before and including "-"
     lp3d_revision_=${lp3d_ver_tmp%-*}                                                 # remove everything after and including "-"
     lp3d_ver_tmp=${lp3d_git_ver_tag_short//./" "}                                     # replace . with " "
     lp3d_version_=${lp3d_ver_tmp/v/}                                                  # replace v with ""
     lp3d_ver_tmp=${lp3d_version_#*_}                                                  # remove everything before and including "_" if exist
-    if test -z "$lp3d_git_build_type"; then LP3D_BUILD_TYPE="Continuous"; else LP3D_BUILD_TYPE="Release"; fi
+    if test -z "${lp3d_git_build_type}"; then LP3D_BUILD_TYPE="Continuous"; else LP3D_BUILD_TYPE="Release"; fi
     if test -z "${LP3D_COMMIT}"; then LP3D_COMMIT=${lp3d_git_ver_sha_hash_short}; fi
-    if test "$lp3d_ver_tmp" != "$lp3d_version_"; then lp3d_suffix=${lp3d_ver_tmp}; fi # check if ver_tmp not same as version_ - suffix exist
-    if test -n "$lp3d_suffix"; then lp3d_version_=${lp3d_version_%_*}; fi             # remove everything after and including "_" - suffix exist
+    if test "${lp3d_ver_tmp}" != "${lp3d_version_}"; then lp3d_suffix=${lp3d_ver_tmp}; fi # check if ver_tmp not same as version_ - suffix exist
+    if test -n "${lp3d_suffix}"; then lp3d_version_=${lp3d_version_%_*}; fi             # remove everything after and including "_" - suffix exist
+    if test "${last_commit_sha}" = "${last_annotated_tag_sha}"; then LP3D_RELEASE_BUILD=1; fi # set release build when the last commit is an annotated tag
     LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 elif [ "${lp3d_option}" = "arguments" ]; then
-    #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7], \$8 [$8]"
-    Info "$((LP3D_CMD_COUNT += 1)). capture version info using input arguments"
+    #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7], \$8 [$8], \$9 ["$9"], \$10 ["${10}"], \$11 [${11}]"
+    Info "$((LP3D_CMD_COUNT += 1)). capture version info using $# input arguments"
     LP3D_BUILD_TYPE="Default"
-    if test -n "$8"; then lp3d_suffix=$8; fi
-    LP3D_COMMIT=$7
     LP3D_VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
-fi
-if test -n "${LP3D_COMMIT}"; then
-    lp3d_git_ver_author=`git log -1 ${LP3D_COMMIT} --pretty="%aN"` >/dev/null 2>&1
-    lp3d_git_ver_committer_email=`git log -1 ${LP3D_COMMIT} --pretty="%cE"` >/dev/null 2>&1
+    LP3D_COMMIT=$7
+    LP3D_RELEASE_BUILD=$8
+    lp3d_git_ver_author="$9"
+    lp3d_git_ver_committer_email="${10}"
+    if test -n "${11}"; then lp3d_suffix=${11}; fi
 fi
 if test -n "$lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=`echo $USER`; fi
 if test -n "$lp3d_git_ver_committer_email"; then LP3D_COMMITTER_EMAIL=${lp3d_git_ver_committer_email}; else LP3D_COMMITTER_EMAIL=undefined; fi
@@ -154,6 +165,8 @@ LP3D_APP_VERSION=${LP3D_VERSION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}_${LP3D_BUILD_DATE}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
+cd "${LP3D_CALL_DIR}"
+
 Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
 Info "   LP3D_SOURCE_DIR........${LP3D_SOURCE_DIR}"
 Info "   LP3D_APPLICATION_NAME..${LP3D_APP}"
@@ -162,6 +175,7 @@ Info "   CI.....................${CI}"
 [ -n "${GITHUB}" ] && Info "   GITHUB.................${GITHUB}" || :
 [ -n "${LP3D_BRANCH}" ] && Info "   LP3D_BRANCH............${LP3D_BRANCH}" || :
 [ -n "${LP3D_COMMIT}" ] && Info "   LP3D_COMMIT............${LP3D_COMMIT}" || :
+#  [ -n "${LP3D_GIT}" ] && Info "   LP3D_GIT...............${LP3D_GIT}" || :
 fi
 Info "   UPDATE_OBS_ALL_DEPS....${UPDATE_OBS_ALL_DEPS}"
 
@@ -330,17 +344,15 @@ then
     if [ "$LP3D_OS" = Darwin ]
     then
         sed -i "" -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}"
-
     else
         sed -i -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}" "${FILE}"
-        # perform release update when the last commit is an annotated tag else perform a continuous build update
-        last_commit_sha=$(cd $LP3D_PWD/.. && git rev-parse HEAD) >/dev/null 2>&1
-        last_annotated_tag_sha=$(cd $LP3D_PWD/.. && git rev-list -n 1 $(git describe --abbrev=0)) >/dev/null 2>&1
         Info "$((LP3D_CMD_COUNT += 1)). update appdata info    - add version and date  [${FILE}]" || :
         sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" "${FILE}"
-        if [ "${last_commit_sha}" = "${last_annotated_tag_sha}" ]; then this_is_a_release_build=1; fi
-        Info "   update appdata release - compare last sha hash [commit: ${last_commit_sha:0:8}, annotated tag: ${last_annotated_tag_sha:0:8}]"
-        if [ -n "$this_is_a_release_build" ]
+        if [ "${lp3d_option}" = "queries" ]
+        then
+            Info "   update appdata release - compare last sha hash [commit: ${last_commit_sha:0:8}, annotated tag: ${last_annotated_tag_sha:0:8}]"
+        fi
+        if [ "${LP3D_RELEASE_BUILD}" -eq 1 ]
         then
             sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION} Release Build./}" "${FILE}"
         else
@@ -521,7 +533,7 @@ fi
 
 # ..............................
 else # _EXPORT_CONFIG_ONLY_ set, skip config files update
-    Info "   Skip config files update (Config on export only)."
+    Info "   Skip config files update (Export config only)."
 fi
 # ..............................
 

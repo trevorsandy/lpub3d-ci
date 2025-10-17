@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 19, 2025
+# Last Update: October 18, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -168,7 +168,8 @@ if [ "${TRAVIS}" != "true" ]; then
     if [ -d "/in" ]; then
         echo -n "$((CMD_CNT+=1)). copy input source to ${UPSTREAM_DIR}/${LPUB3D}..."
         (mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/) >$l.out 2>&1 && rm $l.out
-        [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
+        [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."; \
+        GIT_UPDATE=Update
     else
         LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}-*")
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
@@ -207,22 +208,24 @@ else
 fi
 
 # For Docker build, check if there is a tag after the last commit
-if [ "$DOCKER" = "true" ]; then
+if [ -d "$PWD/${LPUB3D}/.git" ]; then
    # Setup git command
-   GIT_CMD="git --git-dir $PWD/${LPUB3D}/.git --work-tree $PWD/${LPUB3D}"
+   LP3D_GIT="git --git-dir $PWD/${LPUB3D}/.git --work-tree $PWD/${LPUB3D}"
+fi
+if [[ -n "${LP3D_GIT}" && "$DOCKER" = "true" ]]; then
    # Update source
-   [ "${CI}" = "true" ] && $GIT_CMD pull || :
+   [ "${CI}" = "true" ] && $LP3D_GIT pull >/dev/null 2>&1 || :
    #1. Get the latest version tag - check across all branches
-   BUILD_TAG=$($GIT_CMD describe --tags --match v* $($GIT_CMD rev-list --tags --max-count=1) 2> /dev/null)
+   BUILD_TAG=$($LP3D_GIT describe --tags --match v* $($LP3D_GIT rev-list --tags --max-count=1) 2> /dev/null)
    if [ -n "$BUILD_TAG" ]; then
        #2. Get the tag datetime
-       BUILD_TAG_TIME=$($GIT_CMD log -1 --format=%ai $BUILD_TAG 2> /dev/null)
+       BUILD_TAG_TIME=$($LP3D_GIT log -1 --format=%ai $BUILD_TAG 2> /dev/null)
        #3. Get the latest commit datetime from the build branch
-       GIT_COMMIT_TIME=$($GIT_CMD log -1 --format=%ai 2> /dev/null)
+       GIT_COMMIT_TIME=$($LP3D_GIT log -1 --format=%ai 2> /dev/null)
        #4. If tag is newer than commit, check out the tag
        if [ $(date -d "$GIT_COMMIT_TIME" +%s) -lt $(date -d "$BUILD_TAG_TIME" +%s) ]; then
            echo -n "$((CMD_CNT+=1)). checking out build tag $BUILD_TAG..."
-           ($GIT_CMD checkout -qf $BUILD_TAG) >$l.out 2>&1 && rm $l.out
+           ($LP3D_GIT checkout -qf $BUILD_TAG) >$l.out 2>&1 && rm $l.out
            [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
        fi
    fi
@@ -230,7 +233,7 @@ fi
 
 echo "$((CMD_CNT+=1)). source update_config_files.sh"
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
-source ${LPUB3D}/builds/utilities/update-config-files.sh
+source ${LPUB3D}/builds/utilities/update-config-files.sh $GIT_UPDATE
 
 WORK_DIR=${LPUB3D}-git
 if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 17, 2025
+# Last Update October 18, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -254,22 +254,24 @@ else
 fi
 
 # For Docker build, check if there is a tag after the last commit
-if [ "${DOCKER}" = "true" ]; then
-  # Setup git command
-  GIT_CMD="git --git-dir ${WD}/.git --work-tree ${WD}"
+if [ -d "${WD}/.git" ]; then
+   # Setup git command
+   LP3D_GIT="git --git-dir ${WD}/.git --work-tree ${WD}"
+fi
+if [[ -n "${LP3D_GIT}" && "$DOCKER" = "true" ]]; then
   # Pull latest
-  [ "${CI}" = "true" ] && ${GIT_CMD} pull || :
+  [ "${CI}" = "true" ] && ${LP3D_GIT} pull >/dev/null 2>&1 || :
   #1. Get the latest version tag - check across all branches
-  BUILD_TAG="$(${GIT_CMD} describe --tags --match v* "$(${GIT_CMD} rev-list --tags --max-count=1)" 2> /dev/null)"
+  BUILD_TAG="$(${LP3D_GIT} describe --tags --match v* "$(${LP3D_GIT} rev-list --tags --max-count=1)" 2> /dev/null)"
   if [ -n "${BUILD_TAG}" ]; then
     #2. Get the tag datetime
-    BUILD_TAG_TIME=$(${GIT_CMD} log -1 --format=%ai $BUILD_TAG 2> /dev/null)
+    BUILD_TAG_TIME=$(${LP3D_GIT} log -1 --format=%ai $BUILD_TAG 2> /dev/null)
     #3. Get the latest commit datetime from the build branch
-    GIT_COMMIT_TIME=$(${GIT_CMD} log -1 --format=%ai 2> /dev/null)
+    GIT_COMMIT_TIME=$(${LP3D_GIT} log -1 --format=%ai 2> /dev/null)
     #4. If tag is newer than commit, check out the tag
     if [[ "$(date -d "${GIT_COMMIT_TIME}" +%s)" -lt "$(date -d "${BUILD_TAG_TIME}" +%s)" ]]; then
       Info "2a. checking out build tag ${BUILD_TAG}..."
-      ${GIT_CMD} checkout -qf ${BUILD_TAG}
+      ${LP3D_GIT} checkout -qf ${BUILD_TAG}
     fi
   fi
 fi
@@ -682,7 +684,7 @@ else
   else
    Error "File ./bin/$a was not found"
   fi
-  
+
   # set path to AppDir
   cd ${AppDirBuildPath} || exit 1
 
@@ -864,7 +866,7 @@ if [[ ! "${BUILD_OPT}" = "verify" ]]; then
   ) >$t.out 2>&1 && rm $t.out
   [[ -f $t.out ]] && \
   echo && Error "Move build package to output failed." && \
-  tail -80 $t.out || echo "Ok." 
+  tail -80 $t.out || echo "Ok."
 fi
 
 exit 0
