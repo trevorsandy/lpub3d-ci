@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 16, 2025
+# Last Update: October 17, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -607,6 +607,7 @@ common_docker_opts=(
     -e DOCKER="true"
     -e TERM="${TERM}"
     -e LPUB3D="${LPUB3D}"
+    -e GITHUB_REF="${GITHUB_REF}"
     -e GITHUB_SHA="${GITHUB_SHA}"
     -e WRITE_LOG="${WRITE_LOG}"
     -e BUILD_OPT="${BUILD_OPT}"
