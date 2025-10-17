@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 12, 2025
+# Last Update: October 17, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -97,8 +97,9 @@ fi
 [ -n "${LP3D_PUBLISH_RENDERERS}" ] && \
 echo "   PUBLISH RENDERERS......[${LP3D_PUBLISH_RENDERERS}"] || :
 echo "   CPU CORES..............[${LP3D_CPU_CORES}]"
-echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not writing log")]" && echo
+echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not writing log")]"
 echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+echo
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -108,10 +109,10 @@ l=Log
 # when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
-  if [ -d ~/Qt/IDE/6.9.2/clang_64 ]; then
-    export PATH=~/Qt/IDE/6.9.2/clang_64:~/Qt/IDE/6.9.2/clang_64/bin:$PATH
+  if [ -d ~/Qt/IDE/6.9.3/clang_64 ]; then
+    export PATH=~/Qt/IDE/6.9.3/clang_64:~/Qt/IDE/6.9.3/clang_64/bin:$PATH
   else
-    echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/6.9.2/clang_64"
+    echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/6.9.3/clang_64"
     exit 1
   fi
   echo
@@ -152,23 +153,23 @@ then
     echo "$((CMD_CNT+=1))- remove old ${LPUB3D} from dmgbuild/"
     rm -rf ${LPUB3D}
   fi
-  echo -n "$((CMD_CNT+=1))- cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  echo -n "$((CMD_CNT+=1))- cloning ${LPUB3D}/ to $(realpath ./)..."
   (git clone ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ] || [ ! -d ${LPUB3D} ]
 then
-  echo "$((CMD_CNT+=1))- copying ${LPUB3D}/ to $(realpath dmgbuild/)"
+  echo "$((CMD_CNT+=1))- copying ${LPUB3D}/ to $(realpath ./)"
   if [ ! -d ../${LPUB3D} ]; then
     echo "$((CMD_CNT+=1))- NOTICE - Could not find folder $(realpath ../${LPUB3D}/)"
     if [ -d ${LPUB3D} ]; then
       echo "$((CMD_CNT+=1))- remove old ${LPUB3D} from dmgbuild/"
       rm -rf ${LPUB3D}
     fi
-    echo -n "$((CMD_CNT+=1))- cloning ${LPUB3D} ${BUILD_BRANCH} branch into $(realpath dmgbuild/)..."
+    echo -n "$((CMD_CNT+=1))- cloning ${LPUB3D} ${BUILD_BRANCH} branch into $(realpath ./)..."
     (git clone -b ${BUILD_BRANCH} ${LP3D_GITHUB_URL}/${LPUB3D}.git) >$l.out 2>&1 && rm $l.out
     [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   else
-    echo -n "2. copy ${LPUB3D} source to dmgbuild/..."
+    echo -n "$((CMD_CNT+=1))- copy ${LPUB3D} source to dmgbuild/..."
     (cp -rf ../${LPUB3D}/ ./${LPUB3D}/) >$l.out 2>&1 && rm $l.out
     [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
   fi
@@ -496,6 +497,7 @@ cat <<EOF >makedmg
 --add-file Readme README 512 128 \\
 --app-drop-link 448 344 \\
 --eula .COPYING \\
+--no-internet-enable \\
 "${DMGDIR}/${LP3D_DMG}" \\
 DMGSRC/
 EOF
