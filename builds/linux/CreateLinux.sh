@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 12, 2025
+# Last Update October 17, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -130,6 +130,8 @@ export WD=$PWD
 export CI=${CI:-true}
 export OBS=${OBS:-false}
 export GITHUB=${GITHUB:-true}
+export GITHUB_REF=${GITHUB_REF:-}
+export GITHUB_SHA=${GITHUB_SHA:-}
 export DOCKER=${DOCKER:-true}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
 export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
@@ -149,6 +151,8 @@ fi
 [ -n "${LP3D_ARCH}" ] && Info "BUILD ARCH.........${LP3D_ARCH}" || :
 [ -n "${CI}" ] && Info "CI.................${CI}" || :
 [ -n "${GITHUB}" ] && Info "GITHUB.............${GITHUB}" || :
+[ -n "${GITHUB_REF}" ] && Info "GITHUB_REF.........${GITHUB_REF}" || :
+[ -n "${GITHUB_SHA}" ] && Info "GITHUB_SHA.........${GITHUB_SHA}" || :
 [ -n "${LP3D_PUBLISH_RENDERERS}" ] && Info "PUBLISH RENDERERS..${LP3D_PUBLISH_RENDERERS}" || :
 [ -n "${LP3D_APPIMAGE}" ] && Info "APPIMAGE...........${LP3D_APPIMAGE}" || :
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
