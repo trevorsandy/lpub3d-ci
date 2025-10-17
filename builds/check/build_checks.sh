@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 12, 2025
+# Last Update October 19, 2025
 # Copyright (C) 2018 - 2025 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -104,7 +104,7 @@ function ElapsedCheckTime() {
 function move_runlog_to_check_path () {
     [ -n "$1" ] && SUCCESS_MSG=$1 || SUCCESS_MSG=0 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        RUN_LOG=$(find "${HOME}/Library/Application\ Support/LPub3D\ Software" -type f -name "*Log.txt")
+        RUN_LOG=$(find "${HOME}/Library/Application Support/LPub3D Software/LPub3D/logs" -type f -name "*Log.txt")
     elif [ -n "${MSYS2}" ]; then
         RUN_LOG=$(find "$(dirname "${LPUB3D_EXE}")" -type f -name "*Log.txt")
     else
