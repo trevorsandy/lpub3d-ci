@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 17, 2025
+# Last Update: October 19, 2025
 #
 # This script is called from .github/workflows/devops_ci_build.yml
 #
@@ -190,7 +190,7 @@ echo "Install wget..." && brew_install wget
 # Link gsha512sum to sha512sum
 if [ ! -f "/usr/local/bin/sha512sum" ]; then
   sudo ln -sf "/usr/local/bin/gsha512sum"  "/usr/local/bin/sha512sum" && \
-  echo "/usr/local/bin/gsha512sum linked to /usr/local/bin/sha512sum"
+  echo "Linked /usr/local/bin/gsha512sum to /usr/local/bin/sha512sum"
 fi
 
 # Create dmgbuild working directory
@@ -202,7 +202,7 @@ export LP3D_3RD_DIST_DIR=lpub3d_macos_3rdparty
 if [ ! -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" ]; then
   ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" && \
   if test -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; then
-    echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"
+    echo "Linked $LP3D_DIST_DIR_PATH to ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"
   fi
 else
   echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"
@@ -213,77 +213,83 @@ declare -r l=Log
 echo "Downloading archive libraries..."
 LP3D_LIBS_BASE=${LP3D_GITHUB_URL}/lpub3d_libs/releases/download/v1.0.1
 if [[ "${GITHUB}" = "true" && ! -f "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" ]]; then
-  echo -n "downloading lpub3dldrawunf.zip into third_party/..."
+  echo -n "Downloading lpub3dldrawunf.zip into third_party/..."
   (wget -q ${LP3D_LIBS_BASE}/lpub3dldrawunf.zip -O ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip) >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
 if [ ! -f "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" ]; then
-  echo -n "linking lpub3dldrawunf.zip from third_party/ to third_party/macos/..."
+  echo -n "Linking lpub3dldrawunf.zip from third_party/ to third_party/macos/..."
   (ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip") >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
-echo -n "copying lpub3dldrawunf.zip to mainApp/extras..."
+echo -n "Copying lpub3dldrawunf.zip to mainApp/extras..."
 (cp -f ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
 [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 if [ ! -f "${LP3D_3RD_PARTY_PATH}/complete.zip" ]; then
-  echo -n "downloading complete.zip into third_party/..."
+  echo -n "Downloading complete.zip into third_party/..."
   (wget -q ${LP3D_LIBS_BASE}/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip) >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
 if [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ]; then
-  echo -n "linking complete.zip from third_party/ to third_party/macos/..."
+  echo -n "Linking complete.zip from third_party/ to third_party/macos/..."
   (ln -sf "${LP3D_3RD_PARTY_PATH}/complete.zip" "${LP3D_DIST_DIR_PATH}/complete.zip") >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
-echo -n "copying complete.zip to mainApp/extras..."
+echo -n "Copying complete.zip to mainApp/extras..."
 (cp -f ${LP3D_3RD_PARTY_PATH}/complete.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
 [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 if [ ! -f "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" ]; then
-  echo -n "downloading tenteparts.zip into third_party/..."
+  echo -n "Downloading tenteparts.zip into third_party/..."
   (wget -q ${LP3D_LIBS_BASE}/tenteparts.zip -O ${LP3D_3RD_PARTY_PATH}/tenteparts.zip) >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
 if [ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ]; then
-  echo -n "linking tenteparts.zip from third_party/ to third_party/macos/..."
+  echo -n "Linking tenteparts.zip from third_party/ to third_party/macos/..."
   (ln -sf "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" "${LP3D_DIST_DIR_PATH}/tenteparts.zip") >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
-echo -n "copying tenteparts.zip to mainApp/extras..."
+echo -n "Copying tenteparts.zip to mainApp/extras..."
 (cp -f ${LP3D_3RD_PARTY_PATH}/tenteparts.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
 [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 if [ ! -f "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" ]; then
-  echo -n "downloading vexiqparts.zip into third_party/..."
+  echo -n "Downloading vexiqparts.zip into third_party/..."
   (wget -q ${LP3D_LIBS_BASE}/vexiqparts.zip -O ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip) >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
 if [ ! -f "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" ]; then
-  echo -n "linking vexiqparts.zip from third_party/ to third_party/macos/..."
+  echo -n "Linking vexiqparts.zip from third_party/ to third_party/macos/..."
   (ln -sf "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" "${LP3D_DIST_DIR_PATH}/vexiqparts.zip") >$l.out 2>&1 && rm $l.out
   [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 fi
-echo -n "copying vexiqparts.zip to mainApp/extras..."
+echo -n "Copying vexiqparts.zip to mainApp/extras..."
 (cp -f ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip mainApp/extras) >$l.out 2>&1 && rm $l.out
 [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
 # Setup ldraw parts library directory
 if [ -d "${LP3D_3RD_PARTY_PATH}" ]; then
-  LDRAWDIR_ROOT=“${LP3D_3RD_PARTY_PATH}“
-  LP3D_LDRAW_DIR="${LDRAWDIR_ROOT}/LDraw"
+  LDRAWDIR_ROOT="${LP3D_3RD_PARTY_PATH}"
+  LP3D_LDRAW_DIR="${LDRAWDIR_ROOT}/ldraw"
   if [ ! -d "$LP3D_LDRAW_DIR" ]; then
     if test -f "${LDRAWDIR_ROOT}/complete.zip"; then
       echo -n "Extracting LDraw library..."
-      (unzip -od ${LDRAWDIR_ROOT} -q complete.zip) >$l.out 2>&1 && rm $l.out
-      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok.";echo "Created LDraw library $LP3D_LDRAW_DIR"
+      (unzip -od "${LDRAWDIR_ROOT}" -q "${LDRAWDIR_ROOT}/complete.zip") >$l.out 2>&1 && rm $l.out
+      [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."; echo "Created LDraw library $LP3D_LDRAW_DIR"
     fi
   else
     echo "Using cached LDraw library $LP3D_LDRAW_DIR"
   fi
 fi
 
-# Setup LDraw parts test path link
+# Setup LDraw parts test path and archive link
 if [ -d "$LP3D_LDRAW_DIR" ]; then
   export LDRAWDIR_ROOT=${LDRAWDIR_ROOT}
   export LDRAWDIR=${LP3D_LDRAW_DIR}
+  if [ ! -f "${LP3D_LDRAW_DIR}/complete.zip" ]; then
+    ln -sf "${LDRAWDIR_ROOT}/complete.zip" "${LP3D_LDRAW_DIR}/complete.zip" && \
+    if test -f "${LDRAWDIR_ROOT}/complete.zip"; then
+      echo "Linked ${LP3D_LDRAW_DIR}/complete.zip to ${LDRAWDIR_ROOT}/complete.zip"
+    fi
+  fi
 fi
 
 # Trigger rebuild renderers if specified
