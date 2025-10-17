@@ -272,7 +272,7 @@ if [ -d "${LP3D_3RD_PARTY_PATH}" ]; then
   if [ ! -d "$LP3D_LDRAW_DIR" ]; then
     if test -f "${LDRAWDIR_ROOT}/complete.zip"; then
       echo -n "Extracting LDraw library..."
-      (unzip -od ${LDRAWDIR_ROOT} -q complete.zip) >$l.out 2>&1 && rm $l.out
+      (unzip -od "${LDRAWDIR_ROOT}" -q "${LDRAWDIR_ROOT}/complete.zip") >$l.out 2>&1 && rm $l.out
       [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok.";echo "Created LDraw library $LP3D_LDRAW_DIR"
     fi
   else
@@ -280,10 +280,16 @@ if [ -d "${LP3D_3RD_PARTY_PATH}" ]; then
   fi
 fi
 
-# Setup LDraw parts test path link
+# Setup LDraw parts test path and archive link
 if [ -d "$LP3D_LDRAW_DIR" ]; then
   export LDRAWDIR_ROOT=${LDRAWDIR_ROOT}
   export LDRAWDIR=${LP3D_LDRAW_DIR}
+  if [ ! -f "${LP3D_LDRAW_DIR}/complete.zip" ]; then
+    ln -sf "${LDRAWDIR_ROOT}/complete.zip" "${LP3D_LDRAW_DIR}/complete.zip" && \
+    if test -f "${LDRAWDIR_ROOT}/complete.zip"; then
+      echo "${LP3D_LDRAW_DIR}/complete.zip linked to ${LDRAWDIR_ROOT}/complete.zip"
+    fi
+  fi
 fi
 
 # Trigger rebuild renderers if specified
