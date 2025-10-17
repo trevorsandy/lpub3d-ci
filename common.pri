@@ -437,8 +437,7 @@ QMAKE_CFLAGS_WARN_ON = \
     -Wall -W \
     -Wno-deprecated-declarations \
     -Wno-unknown-pragmas \
-    -Wno-unused-result \
-    -Wno-alloc-size-larger-than
+    -Wno-unused-result
 QMAKE_CXXFLAGS_WARN_ON  = $${QMAKE_CFLAGS_WARN_ON}
 QMAKE_CXXFLAGS_WARN_ON += \
     -Wno-deprecated-copy \
@@ -446,6 +445,7 @@ QMAKE_CXXFLAGS_WARN_ON += \
 } # unix|msys
 if (unix|msys):!macx {
 QMAKE_CFLAGS_WARN_ON += \
+    -Wno-alloc-size-larger-than \
     -Wno-clobbered \
     -Wno-comment \
     -Wno-format \
@@ -501,7 +501,8 @@ QMAKE_CFLAGS_WARN_ON += \
     -Wno-undefined-bool-conversion
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 QMAKE_CXXFLAGS_WARN_ON += \
-    -Wno-deprecated-non-prototype
+    -Wno-deprecated-non-prototype \
+    -Wno-overloaded-virtual
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-implicit-function-declaration \
     -Wno-incompatible-pointer-types
