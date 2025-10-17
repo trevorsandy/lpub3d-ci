@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 17, 2025
+# Last Update: October 18, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -185,6 +185,11 @@ fi
 export WD=$PWD
 export OBS=false
 export LPUB3D=${LPUB3D}
+
+# Setup git command
+if [ -d "${WD}/${LPUB3D}/.git" ]; then
+   LP3D_GIT="git --git-dir ${WD}/${LPUB3D}/.git --work-tree ${WD}/${LPUB3D}"
+fi
 
 echo "$((CMD_CNT+=1))- source update_config_files.sh" && echo
 

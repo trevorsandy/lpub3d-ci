@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: September 27, 2025
+#  Last Update: October 18, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 #  Automatically generate git revision info
@@ -116,6 +116,7 @@ while getopts ":rcaof" opt; do
   esac
 done
 
+release=0
 if test x"$update_alldeps_files" = x"yes" || test x"$update_all_files" = x"yes"; then
   obs_alldeps=true
 elif test x"$update_alldeps_files" = x"no" && test x"$update_all_files" = x""; then
@@ -125,11 +126,17 @@ else
 fi
 obs_deps_dir=builds/linux/obs
 obs_alldeps_dir=builds/linux/obs/alldeps
+working_dir=$PWD/mainApp
 
-tag_long=`git describe --tags --match v* --long`
-tag_short=`git describe --tags --match v* --abbrev=0`
-commit_count=`git rev-list HEAD --count`
-sha_hash_short=`git rev-parse --short HEAD`
+tag_long=`git describe --tags --match v* --long` >/dev/null 2>&1
+tag_short=`git describe --tags --match v* --abbrev=0` >/dev/null 2>&1
+commit_count=`git rev-list HEAD --count` >/dev/null 2>&1
+sha_hash_short=`git rev-parse --short HEAD` >/dev/null 2>&1
+last_commit_sha=`git rev-parse HEAD` >/dev/null 2>&1
+last_annotated_tag=`git describe --abbrev=0` >/dev/null 2>&1
+last_annotated_tag_sha=`git rev-list -n 1 $last_annotated_tag` >/dev/null 2>&1
+lp3d_git_ver_author=`git log -1 $last_commit_sha --pretty="%aN"` >/dev/null 2>&1
+lp3d_git_ver_committer_email=`git log -1 $last_commit_sha --pretty="%cE"` >/dev/null 2>&1
 
 tmp1=${tag_long#*-}                                     # remove everything before and including "-"
 revision=${tmp1%-*}                                     # remove everything after and including "-"
@@ -148,15 +155,20 @@ echo "   Increment commit count..$increment_commitcount"
 
 if test x"$increment_revision" = x"yes"; then ((revision++)); fi
 if test x"$increment_commitcount" = x"yes"; then ((commit_count++)); fi
+if test x"$last_commit_sha" = x"$last_annotated_tag_sha"; then release=1; fi
+if test x"$release" = x"1"; then release_build=yes; else release_build=no; fi
+
+if test x"$lp3d_git_ver_author" = x""; then lp3d_git_ver_author=`echo $USER`; fi
+if test x"$lp3d_git_ver_committer_email" = x""; then lp3d_git_ver_committer_email=undefined; fi
 
 echo "   New revision............$revision"
 echo "   New commit count........$commit_count"
+echo "   Release build...........$release_build"
 
-#                      1.     2.     3.     4.        5.            6.              7.      8.
-# Arguments: $working_dir $major $minor $patch $revision $commit_count $sha_hash_short $suffix
-working_dir=$PWD/mainApp
+#                       1.      2.      3.      4.         5.             6.               7.        8.                    9.                            10.      11.
+# Arguments: \$working_dir \$major \$minor \$patch \$revision \$commit_count \$sha_hash_short \$release \$lp3d_git_ver_author \$lp3d_git_ver_committer_email \$suffix
 chmod +x builds/utilities/update-config-files.sh && \
-env OBS=$obs_alldeps ./builds/utilities/update-config-files.sh $working_dir $major $minor $patch $revision $commit_count $sha_hash_short $suffix
+env OBS=$obs_alldeps ./builds/utilities/update-config-files.sh $working_dir $major $minor $patch $revision $commit_count $sha_hash_short $release "$lp3d_git_ver_author" "$lp3d_git_ver_committer_email" $suffix
 
 git add builds/utilities/version.info
 git add mainApp/docs/lpub3d${major}${minor}.1
