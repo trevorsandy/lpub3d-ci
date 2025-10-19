@@ -68,7 +68,7 @@
 	<key>CFBundleExecutable</key>
 	<string>LPub3D_debug</string>
 	<key>CFBundleGetInfoString</key>
-	<string>LPub3D_debug 1.0.0.257 https://trevorsandy.github.io/lpub3d</string>
+	<string>LPub3D_debug 2.4.9.478 https://trevorsandy.github.io/lpub3d</string>
 	<key>CFBundleIconFile</key>
 	<string>lpub3d.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -80,7 +80,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0.257</string>
+	<string>2.4.9.478</string>
 	<key>CFBundleSignature</key>
 	<string>LPUB3DCAD</string>
 	<key>CFBundleSupportedPlatforms</key>
@@ -88,7 +88,7 @@
 		<string>MacOSX</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1.0.0.257.258-b9c1278</string>
+	<string>2.4.9.478.4759-2a02b3e6c</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2015 - 2025 Trevor SANDY</string>
 	<key>NSMainNibFile</key>
@@ -175,6 +175,6 @@
 		</dict>
 	</array>
 	<key>com.trevorsandy.lpub3d.GitSHA</key>
-	<string>g28ee8ab</string>
+	<string>2a02b3e6</string>
 </dict>
 </plist>
