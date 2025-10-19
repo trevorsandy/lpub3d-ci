@@ -2715,7 +2715,6 @@ void Preferences::rendererPreferences()
                 { QStringLiteral("/libpng/lib/libpng.dylib"), LIBPNG_MACOS_VERSION },
                 { QStringLiteral("/gl2ps/lib/libgl2ps.dylib"), LIBGL2PS_MACOS_VERSION },
                 { QStringLiteral("/jpeg/lib/libjpeg.dylib"), LIBJPEG_MACOS_VERSION },
-                { QStringLiteral("/tinyxml/lib/libtinyxml.dylib"), LIBXML_MACOS_VERSION },
                 { QStringLiteral("/minizip/lib/libminizip.dylib"), LIBMINIZIP_MACOS_VERSION }
             };
             int i = 0;
@@ -2739,7 +2738,7 @@ void Preferences::rendererPreferences()
                                                       "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
                                                       .arg(libraryString, VER_PRODUCTNAME_STR);
                 if (modeGUI) {
-                    for (const QString &messageNotShown : messagesNotShown)
+                    for (QString &messageNotShown : messagesNotShown)
                         if (messageNotShown.startsWith(msgID.toString())) {
                             showMessage = false;
                             break;
