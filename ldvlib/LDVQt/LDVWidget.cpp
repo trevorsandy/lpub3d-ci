@@ -427,16 +427,24 @@ bool LDVWidget::doCommand(QStringList &arguments)
 
 	setStudLogo();
 
-	bool retValue = true;
+	bool exportFile = false;
+
+	static const QRegularExpression rx("^.*-ExportFile=.*$", QRegularExpression::CaseInsensitiveOption);
+
+	if (arguments.indexOf(rx, 0) != -1)
+	{
+		exportFile = true;
+		if (!setupLDVApplication())
+			return false;
+	}
 
 	if (!LDSnapshotTaker::doCommandLine(false, true))
 	{
-		static const QRegularExpression rx("^.*-ExportFile=.*$", QRegularExpression::CaseInsensitiveOption);
-		if ((arguments.indexOf(rx, 0) != -1))
+		if (exportFile)
 		{
 			emit lpub->messageSig(LOG_ERROR,
 								  QString::fromWCharArray(TCLocalStrings::get(L"ExportCommandError")).arg(arguments.join(" ")));
-			retValue = false;
+			return false;
 		}
 		else
 		if (iniFlag == NativePartList)
@@ -454,7 +462,7 @@ bool LDVWidget::doCommand(QStringList &arguments)
 
 	commandLineSnapshotSave = (snapshotFilename ? true : false);
 
-	return retValue;
+	return true;
 }
 
 bool LDVWidget::getUseFBO()
