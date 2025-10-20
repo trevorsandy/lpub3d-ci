@@ -52,6 +52,7 @@
 #define HIGHLIGHT_MODEL_EDGES_NO_DEPTH_KEY "HighlightModelEdgesNoDepth" // NO UI
 #define IGNORE_ALL_OGL_EXTENSIONS "IgnoreAllOGLExtensions"
 #define IGNORE_ANISO_KEY "IgnoreAniso"
+#define IGNORE_EGL_KEY "IgnoreEGL"
 #define IGNORE_FRAMEBUFFER_OBJECT_KEY "IgnoreFramebufferObject"
 #define IGNORE_MULTI_DRAW_ARRAYS_KEY "IgnoreMultiDrawArrays"
 #define IGNORE_MULTISAMPLE_KEY "IgnoreMultisample"
@@ -214,6 +215,7 @@
 #define KEEP_RIGHT_SIDE_UP_KEY "KeepRightSideUp"
 
 // The following are undocumented, but perhaps need to be documented.
+#define COMPACT_TOOLBAR_KEY "CompactToolbar"
 #define INV_LAST_SAVE_PATH_KEY "InventoryLastSavePath"
 #define INV_COLUMN_ORDER_KEY "InventoryColumnOrder"
 #define SS_SIZE_KEY "SSSize"

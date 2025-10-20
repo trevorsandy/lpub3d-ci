@@ -2,7 +2,7 @@
 #define __TCDEFINES_H__
 
 // This is a shameless hack but I haven't found a better workardound.
-// QMake is mysteriously setting _MSC_VER to 1933 which generates all 
+// QMake is mysteriously setting _MSC_VER to 1933 which generates all
 // manner of errors when using _MSC_VER 1944 (Visual Studio 2022 17.13.
 // To counter this situation, set QMAKE_MSC_VER as a preprocessor macro
 // used to redefine _MSC_VER.
