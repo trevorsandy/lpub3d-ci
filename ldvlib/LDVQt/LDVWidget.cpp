@@ -254,6 +254,8 @@ bool LDVWidget::setupLDVApplication()
 		return false;
 	}
 
+	modelViewer->setAppVersion(LDV_VERSION);
+
 	ldPrefs = new LDPreferences(modelViewer);
 
 	setSession(true/*savedSession*/);

@@ -39,6 +39,7 @@ INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
 INCLUDEPATH += $${SYSTEM_PREFIX_}/include
 
+DEFINES += LDV_VERSION=\\\"$$VERSION\\\"
 DEFINES += _NO_BOOST
 DEFINES += QT_THREAD_SUPPORT
 !contains(DEFINES, _QT): \

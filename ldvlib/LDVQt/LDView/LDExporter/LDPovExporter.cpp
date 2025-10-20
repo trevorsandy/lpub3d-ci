@@ -395,7 +395,7 @@ void LDPovExporter::initSettings(void) const
 	//addSetting(LDExporterSetting(_UC("Top Level Test Group Item 2"), m_shads,
 	//	udKey("Shadows").c_str()));
 	// End of top-level boolean group test.
-	LDExporterSetting *pGroup= addSettingGroup(ls(_UC("PovGeneral")));
+	LDExporterSetting *pGroup = addSettingGroup(ls(_UC("PovGeneral")));
 	if (pGroup == NULL)
 	{
 		return;
@@ -1278,9 +1278,9 @@ bool LDPovExporter::writeHeader(void)
 		}
 	}
 	// LPub3D Mod End 
-	fprintf(m_pPovFile, "// %s %s%s%s %s\n", (const char *)ls("PovGeneratedBy"),
-		m_appName.c_str(), m_appVersion.size() > 0 ? " " : "",
-		m_appVersion.c_str(), m_appCopyright.c_str());
+	fprintf(m_pPovFile, "// %s %s%s%s\n", (const char *)ls("PovGeneratedBy"),
+		m_appName.c_str(), m_appVersion.size() > 0 ? " v" : "", m_appVersion.c_str());
+	fprintf(m_pPovFile, "// %s\n", m_appCopyright.c_str());
 	fprintf(m_pPovFile, "// %s %s\n", (const char *)ls("PovSee"),
 		m_appUrl.c_str());
 	fprintf(m_pPovFile, "// %s %s", (const char *)ls("PovDate"),
@@ -1403,6 +1403,7 @@ bool LDPovExporter::writeHeader(void)
 void LDPovExporter::writeLgQuality(void)
 {
 	writeDeclare("lg_quality", "3");
+	fprintf(m_pPovFile, "\n");
 }
 // LPub3D Mod End
 
@@ -1896,7 +1897,7 @@ void LDPovExporter::getCameraStrings(
 // LPub3D Mod - global settings
 void LDPovExporter::writeGlobalSettings(void)
 {
-	fprintf(m_pPovFile, "\n");
+	fprintf(m_pPovFile, "// Global Settings\n");
 
 	fprintf(m_pPovFile,
 		"#ifndef (LDXSkipGlobalSettings)\n"
@@ -1914,9 +1915,12 @@ void LDPovExporter::writeGlobalSettings(void)
 // LPub3D Mod - light source macro
 void LDPovExporter::writeLightSourceMacro(void)
 {
+	fprintf(m_pPovFile, "// Light Source Macro\n");
+
 	writeDeclare("LDXCameraTheta", "0.5235979");
 
-	fprintf(m_pPovFile,"\n");
+	fprintf(m_pPovFile, "\n");
+
 	// insert 
 	fprintf(m_pPovFile,
 		"#ifndef (SkipWriteLightMacro)\n"
@@ -2000,26 +2004,25 @@ bool LDPovExporter::writeLights(void)
 
 		if (num == 1)
 		{
-			fprintf(m_pPovFile, "\n");
 			fprintf(m_pPovFile,
-				"// Attributes\n"
-				"// Type %d : %s (all)\n"
-				"// Shadowless %d : %s (all)\n"
-				"// Latitude %s : %s (all)\n"
-				"// Longitude %s : %s (all)\n"
-				"// Target %s : %s (all)\n"
+				"// Attribute   Default : Description\n"
+				"// Type              %d : %s (all)\n"
+				"// Shadowless        %d : %s (all)\n"
+				"// Latitude         %s : %s (all)\n"
+				"// Longitude         %s : %s (all)\n"
+				"// Target      %s : %s (all)\n"
 				"// Color %s : %s (all)\n"
-				"// Intensity %s : %s (all)\n"
-				"// FadeDistance %s : %s (area)\n"
-				"// FadePower %s : %s (area)\n"
-				"// Radius %s : %s (spot)\n"
-				"// Falloff %s : %s (spot)\n"
-				"// Tightness %s : %s (spot)\n"
-				"// Circle %d : %s (area)\n"
-				"// Width %d : %s (area)\n"
-				"// Height %d : %s (area)\n"
-				"// Rows %d : %s (area)\n"
-				"// Columns %d : %s (area)\n\n",
+				"// Intensity         %s : %s (all)\n"
+				"// FadeDistance      %s : %s (area)\n"
+				"// FadePower         %s : %s (area)\n"
+				"// Radius            %s : %s (spot)\n"
+				"// Falloff           %s : %s (spot)\n"
+				"// Tightness         %s : %s (spot)\n"
+				"// Circle            %d : %s (area)\n"
+				"// Width           %d : %s (area)\n"
+				"// Height          %d : %s (area)\n"
+				"// Rows              %d : %s (area)\n"
+				"// Columns           %d : %s (area)\n\n",
 				light.type, (const char*)ls("PovLightType"),
 				light.shadowless, (const char*)ls("PovLightShadowless"),
 				ftostr(light.latitude).c_str(), (const char*)ls("PovLightLatitude"),
@@ -2027,8 +2030,8 @@ bool LDPovExporter::writeLights(void)
 				light.target.c_str(), (const char*)ls("PovLightTarget"),
 				light.color.c_str(), (const char*)ls("PovLightColor"),
 				ftostr(light.intensity).c_str(), (const char*)ls("PovLightIntensity"),
-				ftostr(light.fadeDistance).c_str(), (const char*)ls("PovFadeDistance"),
-				ftostr(light.fadePower).c_str(), (const char*)ls("PovFadePower"),
+				ftostr(light.fadeDistance).c_str(), (const char*)ls("PovLightFadeDistance"),
+				ftostr(light.fadePower).c_str(), (const char*)ls("PovLightFadePower"),
 				ftostr(light.radius).c_str(), (const char*)ls("PovLightSpotRadius"),
 				ftostr(light.falloff).c_str(), (const char*)ls("PovLightSpotFalloff"),
 				ftostr(light.tightness).c_str(), (const char*)ls("PovLightSpotTightness"),
@@ -3283,6 +3286,8 @@ void LDPovExporter::writeGeometry(IntShapeListMap &colorGeometryMap)
 
 void LDPovExporter::writeSeamMacro(void)
 {
+	fprintf(m_pPovFile, "// Seam Matrix");
+
 	fprintf(m_pPovFile,
 		"\n#macro LDXSeamMatrix(Width, Height, Depth, CenterX, CenterY, CenterZ)\n"
 		"#local aw = 0;\n"

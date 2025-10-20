@@ -5255,11 +5255,8 @@ int LDrawModelViewer::exportCurModel(
 				// LPub3D Mod - export settings
 				exporter->setAppUrl("https://trevorsandy.github.io/lpub3d/");
 				exporter->setAppName("LDView - LPub3D Edition");
+				exporter->setAppVersion(version != NULL ? version : getAppVersion().c_str());
 				// LPub3D Mod End
-				if (version != NULL)
-				{
-					exporter->setAppVersion(version);
-				}
 				if (copyright)
 				{
 					exporter->setAppCopyright(copyright);
