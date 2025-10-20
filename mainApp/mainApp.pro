@@ -341,8 +341,14 @@ if(!isEmpty(option)) {
     win32-msvc*:      DISTRO_PACKAGE = exe-win-10.0-$${STG_ARCH}
     win32-arm64-msvc: DISTRO_PACKAGE = exe-win-10.0-$${STG_ARCH}
     msys:             DISTRO_PACKAGE = msys-win-10.0-$${STG_ARCH}
-    macx:             DISTRO_PACKAGE = dmg-$${HOST_VERSION}-$${QT_ARCH}
-    linux:            DISTRO_PACKAGE = deb-db-$${HOST_VERSION}-$${QT_ARCH}
+    macx:             DISTRO_PACKAGE = dmg-macos-$${HOST_VERSION}-$${QT_ARCH}
+    linux {
+        contains(BUILD_TARGET, Ubuntu): BUILD_CODE = deb
+        contains(BUILD_TARGET, Fedora): BUILD_CODE = rpm
+        contains(BUILD_TARGET, Arch): BUILD_CODE = pkg
+        isEmpty(BUILD_CODE): BUILD_CODE = deb
+        DISTRO_PACKAGE = $${BUILD_CODE}-linux-$${HOST_VERSION}-$${QT_ARCH}
+    }
     message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
     DEFINES += VER_DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 }
