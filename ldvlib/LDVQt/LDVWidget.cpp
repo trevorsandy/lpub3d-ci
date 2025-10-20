@@ -166,7 +166,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		return;
 
 	const QString ldvMessages = QDir::toNativeSeparators(QString("%1%2")
-												  .arg(Preferences::dataLocation, VER_LDVMESSAGESINI_FILE));
+														 .arg(Preferences::dataLocation, VER_LDVMESSAGESINI_FILE));
 	if (!TCLocalStrings::loadStringTable(copyString(ldvMessages.toUtf8().constData())))
 		emit lpub->messageSig(LOG_ERROR,
 							  QString::fromWCharArray(TCLocalStrings::get(L"LoadLDVMessagesError")).arg(ldvMessages));
@@ -183,15 +183,24 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
 	setSession();
 
+	char *path = nullptr;
 	if (!Preferences::ldrawLibPath.isEmpty())
 	{
-		const char *path = copyString(Preferences::ldrawLibPath.toUtf8().constData());
-		TCUserDefaults::setStringForKey(path, LDRAWDIR_KEY, false);
+		path = copyString(Preferences::ldrawLibPath.toUtf8().data());
 	}
-	if (!Preferences::lpub3dLibFile.isEmpty())
+	if (QFileInfo::exists(path))
 	{
-		const char *path = copyString(Preferences::lpub3dLibFile.toUtf8().constData());
-		TCUserDefaults::setStringForKey(path, LDRAWZIP_KEY, false);
+		TCUserDefaults::setStringForKey(path, LDRAWDIR_KEY, false);
+		path = copyString(QString("%1%2complete.zip").arg(path,QDir::separator()).toUtf8().constData());
+		if (QFileInfo::exists(path))
+		{
+			TCUserDefaults::setStringForKey(path, LDRAWZIP_KEY, false);
+		}
+		else if (!Preferences::lpub3dLibFile.isEmpty())
+		{
+			path = copyString(Preferences::lpub3dLibFile.toUtf8().constData());
+			TCUserDefaults::setStringForKey(path, LDRAWZIP_KEY, false);
+		}
 	}
 
 	ldvWidget = this;
