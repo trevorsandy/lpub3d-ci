@@ -156,9 +156,8 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 	iniFiles[LDViewPOVIni]	 = { iniFlagNames[LDViewPOVIni],   Preferences::ldviewPOVIni };
 	iniFiles[LDViewIni]		 = { iniFlagNames[LDViewIni],	   Preferences::ldviewIni };
 
-	setupLDVFormat();
-
 #if (QT_VERSION < 0x50400)
+	setupLDVFormat();
 	setupLDVContext();
 #endif
 
@@ -487,12 +486,8 @@ bool LDVWidget::getUseFBO()
 
 void LDVWidget::setupLDVFormat(void)
 {
+#if (QT_VERSION < 0x50400)
 	// Specify the format and create platform-specific surface
-#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
-	int Samples = QSurfaceFormat::defaultFormat().samples();
-	ldvFormat.setSamples(Samples > 0 ? Samples : 1);
-	QSurfaceFormat::setDefaultFormat(ldvFormat);
-#else
 	int Samples = (QGLFormat::defaultFormat().sampleBuffers()) ? QGLFormat::defaultFormat().samples() : 1;
 	ldvFormat.setSamples(Samples);
 	ldvFormat.setAlpha(true);
@@ -503,6 +498,7 @@ void LDVWidget::setupLDVFormat(void)
 
 void LDVWidget::setupLDVContext()
 {
+#if (QT_VERSION < 0x50400)
 	bool needsInitialize = false;
 
 	ldvContext = context();
@@ -520,13 +516,9 @@ void LDVWidget::setupLDVContext()
 
 	if (needsInitialize)
 	{
-#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
-		initializeOpenGLFunctions();
-#else
 		initializeGLFunctions();
-#endif
-		//displayGLExtensions();
 	}
+#endif
 }
 
 bool LDVWidget::grabImage(int &imageWidth,
