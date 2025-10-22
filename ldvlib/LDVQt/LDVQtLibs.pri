@@ -268,42 +268,60 @@ contains(LOAD_LDV_LIBS,True) {
         message("~~~ $${LPUB3D} WILL BUILD GL2PS LIBRARY ~~~")
     } else:!exists($${GL2PS_SRC}) {
         USE_LOCAL_GL2PS_LIB = False
+        unix|msys:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX_}/include/gl2ps.h): \
         message("~~~ $${LPUB3D} USING SYSTEM GL2PS LIBRARY ~~~")
+        else: \
+        message("~~~ ERROR GL2PS LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL GL2PS LIBRARY FOUND $${GL2PS_SRC} ~~~")
 
     BUILD_TINYXML {
         message("~~~ $${LPUB3D} WILL BUILD TINYXML LIBRARY ~~~")
     } else:!exists($${TINYXML_SRC}) {
         USE_LOCAL_TINYXML_LIB = False
+        unix|msys:exists(/usr/include/tinyxml.h)|exists($${SYSTEM_PREFIX_}/include/tinyxml.h): \
         message("~~~ $${LPUB3D} USING SYSTEM TINYXML LIBRARY ~~~")
+        else: \
+        message("~~~ ERROR TINYXML LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL TINYXML LIBRARY FOUND $${TINYXML_SRC} ~~~")
 
     BUILD_3DS {
         message("~~~ $${LPUB3D} WILL BUILD 3DS LIBRARY ~~~")
     } else:!exists($${3DS_SRC}) {
         USE_LOCAL_3DS_LIB = False
+        unix|msys:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX_}/include/lib3ds.h): \
         message("~~~ $${LPUB3D} USING SYSTEM 3DS LIBRARY ~~~")
+        else: \
+        message("~~~ ERROR 3DS LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL 3DS LIBRARY FOUND $${3DS_SRC} ~~~")
 
     BUILD_PNG {
         message("~~~ $${LPUB3D} WILL BUILD PNG LIBRARY ~~~")
     } else:!exists($${PNG_SRC}) {
         USE_LOCAL_PNG_LIB = False
+        unix|msys:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX_}/include/png.h): \
         message("~~~ $${LPUB3D} USING SYSTEM PNG LIBRARY ~~~")
+        else: \
+        message("~~~ ERROR PNG LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL PNG LIBRARY FOUND $${PNG_SRC} ~~~")
 
     BUILD_JPEG {
         message("~~~ $${LPUB3D} WILL BUILD JPEG LIBRARY ~~~")
     } else:!exists($${JPEG_SRC}) {
         USE_LOCAL_JPEG_LIB = False
+        unix|msys:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX_}/include/jpeglib.h): \
         message("~~~ $${LPUB3D} USING SYSTEM JPEG LIBRARY ~~~")
+        else: \
+        message("~~~ ERROR JPEG LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL JPEG LIBRARY FOUND $${JPEG_SRC} ~~~")
 
     BUILD_ZLIB {
         message("~~~ $${LPUB3D} WILL BUILD Z LIBRARY ~~~")
     } else:!exists($${ZLIB_SRC}) {
         USE_LOCAL_ZLIB_LIB = False
+        unix|msys:exists(/usr/include/zlib.h)|exists($${SYSTEM_PREFIX_}/include/zlib.h): \
         message("~~~ $${LPUB3D} USING SYSTEM Z LIBRARY ~~~")
+        else: \
+        message("~~~ ERROR Z LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL Z LIBRARY FOUND $${ZLIB_SRC} ~~~")
 
     BUILD_LDV_LIBS: \
