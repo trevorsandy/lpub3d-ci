@@ -43,7 +43,7 @@ rem LDGLite
 rem POV-Ray
 ::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=povray" && SET "APP_VER=3.8"
 ::SET LP3D_BUILD_ARCH=x86
-::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\%APP_INSTANCE%-%APP_VER%\bin\%LP3D_BUILD_ARCH%
+::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\lpub3d_trace_cui-%APP_VER%\bin\%LP3D_BUILD_ARCH%
 ::IF EXIST %LP3D_APP_ARCH% (RMDIR /S /Q %LP3D_APP_ARCH%)
 ::SET APP_INSTANCE_PATH=%CD%
 ::SET BUILD_DIR=%CD%\%APP_INSTANCE%

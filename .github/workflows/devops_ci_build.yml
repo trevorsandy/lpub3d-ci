@@ -220,7 +220,7 @@ jobs:
           dir: ${{ env.LP3D_BUILD_BASE }}
           cache: true
           cache-key-prefix: install-qt-action
-      - name: Qt MSVC 2022 64bit ${{ matrix.platform }} # path: ..\Qt\6.9.2\msvc2022_[64/arm64]\bin
+      - name: Qt MSVC 2022 64bit ${{ matrix.platform }} # path: ..\Qt\6.10.0\msvc2022_[64/arm64]\bin
         uses: jurplel/install-qt-action@v4
         with:
           version: 6.10.0
@@ -263,20 +263,20 @@ jobs:
         if: "${{ matrix.platform == 'AMD' }}"
         uses: actions/upload-artifact@v4
         with:
-          name: updates
+          name: ${{ matrix.runner-os }}-updates
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\
           if-no-files-found: ignore
       - name: Upload Windows ${{ matrix.name }} Download Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.runner-os }}-${{ matrix.platform }}-download
+          name: ${{ matrix.runner-os }}-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
           if-no-files-found: ignore
       - name: Windows ${{ matrix.name }} Diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.runner-os }}-${{ matrix.platform }}-logs
+          name: ${{ matrix.runner-os }}-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
 
