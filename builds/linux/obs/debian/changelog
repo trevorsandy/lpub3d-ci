@@ -1,6 +1,6 @@
-lpub3d-ci (2.4.9.4759) stable; urgency=low
+lpub3d-ci (2.4.9.4769) stable; urgency=low
 
-  * LPub3D version 2.4.9.478.4759_20251020 for Debian Linux
+  * LPub3D version 2.4.9.488.4769_20251022 for Debian Linux
   * See RELEASE_NOTES.html for enhancements, changes and fixes
 
- -- Trevor SANDY <trevor.sandy@gmail.com>  Mon, 20 Oct 2025 04:11:25 +0200
+ -- Trevor SANDY <trevor.sandy@gmail.com>  Wed, 22 Oct 2025 17:29:49 +0200
