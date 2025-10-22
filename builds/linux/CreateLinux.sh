@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 18, 2025
+# Last Update October 22, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -456,7 +456,7 @@ if [[ -z "${LP3D_AI_BUILD_TOOLS}" ]]; then
   fi
   SaveAppImageSetupProgress
 else
-  cd "${WD}/" || exit 1
+  cd "${WD}" || exit 1
   [ ! -d bin ] && mkdir bin || :
   export PATH="${WD}/bin":"${PATH}"
   CommandArg=-version
@@ -614,14 +614,19 @@ fi
 # Build AppImage
 cd "${AppDirBuildPath}" || exit 1
 Info && Info "Building AppImage from AppDirBuildPath: ${AppDirBuildPath}..."
-renderers=$(find ./opt -type f);
-for r in $renderers; do executables="$executables -executable=$r" && Info "Set executable $executables"; done;
+renderers=$(find ${AppDirBuildPath}/usr/bin/lpub3d/3rdParty -type f);
+for r in $renderers; do executables="$executables -executable=$r"; done;
+Info "Renderer executables: $executables"
 unset QTDIR; unset QT_PLUGIN_PATH # no longer needed, superceded by AppRun
 export VERSION="$LP3D_VERSION"    # used to construct the file name
 ./linuxdeployqt ./usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
 if [[ -z "${LP3D_AI_BUILD_TOOLS}" ]]; then
   ./linuxdeployqt ./usr/share/applications/*.desktop -appimage -verbose=2
   AppImage=$(ls LPub3D*.AppImage)  # name with full path
+  if [ ! -f "$AppImage" ]; then
+    Error Build AppImage FAILED
+    exit 9
+  fi  
 else
   # lpub3d.desktop
   [ -f "./usr/share/applications/lpub3d.desktop" ] && \
@@ -800,7 +805,7 @@ if [[ -f "${AppImage}" ]]; then
     Error "AppImage build completed but the .sha512 file was not found."
   fi
 else
-  Error "${AppImage} build FAILED. File not found."
+  Error "AppImage file not found. ${AppImage} build FAILED."
   exit 8
 fi
 
@@ -811,9 +816,8 @@ cd "${WD}" || exit 1
 AppImageCheck=$(find ./ -name ${AppImagePatched} -type f) || \
 AppImageCheck=$(find ./ -name ${AppImageName} -type f)
 if [[ -f "${AppImageCheck}" ]]; then
-  export SOURCE_DIR=${WD}
-  export LP3D_BUILD_OS="appimage"
-  export LP3D_CHECK_STATUS="--version --app-paths"
+  SOURCE_DIR=${WD}
+  LP3D_CHECK_STATUS="--version --app-paths"
   mkdir -p appImage_Check && cp -f ${AppImageCheck} appImage_Check/${AppImageName} && \
   Info "$(ls ./appImage_Check/*.AppImage) copied to check folder."
   if [[ -z "$(which fusermount)" || -n "${LP3D_AI_EXTRACT_PAYLOAD}" ]]; then
@@ -821,35 +825,29 @@ if [[ -f "${AppImageCheck}" ]]; then
     ) >$p.out 2>&1 && rm -f $p.out
     if [[ ! -f $p.out ]]; then
       Info "Build check extracted AppImage payload..."
+      LP3D_BUILD_OS=
       LPUB3D_EXE="appImage_Check/squashfs-root/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
     else
-      Error "Extract ${AppImageName} FAILED"
+      Error "Build check cannot proceed. Extract ${AppImageName} FAILED"
       tail -80 $p.out
     fi
   else
     Info "Build check AppImage..."
+    LP3D_BUILD_OS="appimage"
     LPUB3D_EXE="appImage_Check/${AppImageName}"
+    LP3D_RENDERER_DIR=${AppDirBuildPath}/usr/bin/lpub3d/3rdParty
+    test -f ${LP3D_RENDERER_DIR}/ldview-4.6/bin/ldview && LDVIEW_EXE=ldview || :
+    test -f ${LP3D_RENDERER_DIR}/ldglite-1.3/bin/ldglite && LDGLITE_EXE=ldglite || :
+    test -f ${LP3D_RENDERER_DIR}/lpub3d_trace_cui-3.8/bin/lpub3d_trace_cui && POVRAY_EXE=lpub3d_trace_cui || :    
   fi
   if [[ -n "${LPUB3D_EXE}" ]]; then
-    export LPUB3D_EXE
-    if [ "${LP3D_ARCH}" == "arm64" ]; then
-      A1Arch=${LP3D_ARCH}
-      A2Arch=${LP3D_AI_ARCH}
-    elif [ "${LP3D_ARCH}" == "amd64" ]; then
-      A1Arch=${LP3D_AI_ARCH}
-      A2Arch=${LP3D_AI_ARCH}
-    fi
-    test -f ${LP3D_DIST_DIR_PATH}/ldview-4.6/bin/${A1Arch}/ldview && export LDVIEW_EXE=ldview || :
-    test -f ${LP3D_DIST_DIR_PATH}/ldglite-1.3/bin/${A1Arch}/ldglite && export LDGLITE_EXE=ldview || :
-    test -f ${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8/bin/${A2Arch}/lpub3d_trace_cui && export POVRAY_EXE=lpub3d_trace_cui || :
     set +x && source ${SOURCE_DIR}/builds/check/build_checks.sh && set -x
   fi
   if [[ "${AppImageCheck}" == *".patched"* ]]; then
     rm -fr ${AppImageCheck}
   fi
 else
-  Error "${AppImageCheck} not found, the build check cannot proceed."
-  exit 8
+  Error "Build check cannot proceed. ${AppImageCheck} not found."
 fi
 
 # Move AppImage build content to output
