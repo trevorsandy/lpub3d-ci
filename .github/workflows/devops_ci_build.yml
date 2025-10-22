@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 11, 2025
+# Last Update: October 22, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -153,22 +153,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner-os: [ windows-2025 ]
+        runner-os: [ windows-2025, windows-11-arm ]
         platform: [ AMD, ARM ]
+        exclude:
+          - runner-os: windows-2025
+            platform: ARM
+          - runner-os: windows-11-arm
+            platform: AMD
         include:
           - runner-os: windows-2025
+          - runner-os: windows-11-arm
           - platform: AMD
             name: 2025 AMD
             host: ''
             arch: _64
             build: -all_amd
             toolset-32bit: v142
-            # Windows ARM64 cross compiled on AMD64 to enable Qt6OpenGL and Qt6OpenGLWidgets
-            # See - [QtOpenGL missing for WoA packages](https://bugreports.qt.io/browse/QTBUG-136551)
           - platform: ARM
-            name: 2025 ARM64 Cross
-            host: ''
-            arch: _arm64_cross_compiled
+            name: 11 ARM
+            host: _arm64
+            arch: _arm64
             build: arm64
             toolset-32bit: v143
     steps:
@@ -219,7 +223,7 @@ jobs:
       - name: Qt MSVC 2022 64bit ${{ matrix.platform }} # path: ..\Qt\6.9.2\msvc2022_[64/arm64]\bin
         uses: jurplel/install-qt-action@v4
         with:
-          version: 6.9.2
+          version: 6.10.0
           host: windows${{ matrix.host }}
           target: desktop
           modules: qt5compat
@@ -237,10 +241,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           LP3D_BUILD_ARCH: ${{ matrix.build }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
+          LP3D_QT32VERSION: 5.15.2
           LP3D_MSC32_VER: 1942
           LP3D_VC32SDKVER: 10.0
           LP3D_VC32TOOLSET: ${{ matrix.toolset-32bit }}
           LP3D_VC32VARSALL_VER: -vcvars_ver=14.2
+          LP3D_QT64VERSION: 6.10.0
           LP3D_MSC64_VER: 1944
           LP3D_VC64SDKVER: 10.0
           LP3D_VC64TOOLSET: v143
