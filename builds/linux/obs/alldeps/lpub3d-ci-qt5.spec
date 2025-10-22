@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: September 16, 2025
+# Last Update: October 22, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -354,7 +354,10 @@ BuildRequires: pkgconfig(zlib)
 BuildRequires: fdupes
 %endif
 %if 0%{?suse_version}>1325
+# Restrict libboost_system-devel to openSUSE version less than 1600
+%if (0%{?suse_version}<=1599 && 0%{?is_opensuse})
 BuildRequires: libboost_system-devel
+%endif
 BuildRequires: libboost_thread-devel
 %else
 BuildRequires: boost-devel
