@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 12, 2025
+rem  Last Update: October 22, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -141,13 +141,17 @@ ECHO.
 IF %TEST_CI_BUILD%   == 1 ECHO - This configuration will allow you to test your NSIS scripts.
 IF /I "%GITHUB%"     == "True" ECHO   GITHUB BUILD.........................[Yes]
 IF /I "%APPVEYOR%"   == "True" ECHO   APPVEYOR BUILD.......................[Yes]
-IF %LP3D_AMD_UNIVERSAL_BUILD% == 1 ECHO   MULTI-ARCH BUILD.....................[Yes]
 IF %AUTO%            == 1 ECHO   AUTOMATIC BUILD......................[Yes]
 IF %RUN_NSIS%        == 1 ECHO   RUN NSIS BUILD UTILITY...............[Yes]
 IF %SIGN_APP%        == 1 ECHO   SIGN INSTALL PACKAGES................[Yes]
+IF %LP3D_AMD_UNIVERSAL_BUILD% == 1 (
+  ECHO   MULTI-ARCH BUILD.....................[Yes]
+) ELSE (
+  ECHO   MULTI-ARCH BUILD.....................[No]
+  ECHO   BUILD ARCHITECTURE...................[%LP3D_BUILD_ARCH%]
+)
 IF %RUN_NSIS%        == 0 ECHO   RUN NSIS BUILD UTILITY...............[No]
 IF %SIGN_APP%        == 0 ECHO   SIGN INSTALL PACKAGES................[No]
-IF %LP3D_AMD_UNIVERSAL_BUILD% == 0 ECHO   MULTI-ARCH BUILD.....................[No]
 IF %AUTO%            == 0 ECHO   AUTOMATIC BUILD......................[No]
 
 IF %RUN_NSIS% == 0 ECHO.
@@ -304,7 +308,7 @@ SET "amd_exe=.exe"                              & ::- 01 Windows
 SET "arm_exe=.exe"                              & ::- 02 Windows
 SET "amd_con_exe=-%LP3D_X64_ARCH%.tar.bz2"      & ::- 03 Windows
 SET "amd_msys_exe=-any.pkg.tar.zst"             & ::- 04 Windows
-SET "win_exe=.exe"                                  & ::- 05 Windows
+SET "win_exe=.exe"                              & ::- 05 Windows
 SET "arm_dmg=-%LP3D_ARM_ARCH%-macos.dmg"        & ::- 06 Apple macOS
 SET "amd_dmg=-%LP3D_X64_ARCH%-macos.dmg"        & ::- 07 Apple macOS
 SET "dmg=-macos.dmg"                            & ::- 08 Apple macOS
@@ -733,9 +737,9 @@ REM AppVersion.nsh pwd = builds\utilities\nsis-scripts
 SET LP3D_BUILD_DIR=..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%
 POPD
 
-SET LP3D_LDGLITE_STATUS=Installed
-SET LP3D_LDVIEW_STATUS=Installed
-SET LP3D_LPUB3D_TRACE_STATUS=Installed
+SET LP3D_LDGLITE_STATUS=Available
+SET LP3D_LDVIEW_STATUS=Available
+SET LP3D_LPUB3D_TRACE_STATUS=Available
 ECHO.
 ECHO - Generate AppVersion.nsh build parameters script...
 ECHO.

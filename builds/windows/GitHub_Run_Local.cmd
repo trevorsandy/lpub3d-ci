@@ -20,7 +20,7 @@ rem LPub3D
 ::SET LOG_DIR=%APP_INSTANCE_PATH%
 ::SET LP3D_NO_CHECK=1
 ::SET LP3D_BUILD_ARCH=-all_amd
-::CALL 01_github_run_local.cmd
+::CALL %BUILD_DIR%\builds\windows\GitHub_Run_Local.cmd
 REM ///////////////////////////////////////////////////////////////////
 rem LPub3D build options
 rem LP3D_BUILD_ARCH Valid flags: arm64, x86, x86_64 and -all_amd
@@ -38,17 +38,17 @@ rem LDGLite
 ::SET APP_INSTANCE_PATH=%CD%
 ::SET BUILD_DIR=%CD%\%APP_INSTANCE%
 ::SET LOG_DIR=%APP_INSTANCE_PATH%
-::CALL 01_github_run_local.cmd
+::CALL %CD%\lpub3d-ci\builds\windows\GitHub_Run_Local.cmd
 
 rem POV-Ray
 ::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=povray" && SET "APP_VER=3.8"
 ::SET LP3D_BUILD_ARCH=x86
-::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\%APP_INSTANCE%-%APP_VER%\bin\%LP3D_BUILD_ARCH%
+::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\lpub3d_trace_cui-%APP_VER%\bin\%LP3D_BUILD_ARCH%
 ::IF EXIST %LP3D_APP_ARCH% (RMDIR /S /Q %LP3D_APP_ARCH%)
 ::SET APP_INSTANCE_PATH=%CD%
 ::SET BUILD_DIR=%CD%\%APP_INSTANCE%
 ::SET LOG_DIR=%APP_INSTANCE_PATH%
-::CALL 01_github_run_local.cmd
+::CALL %CD%\lpub3d-ci\builds\windows\GitHub_Run_Local.cmd
 
 rem LDView
 ::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=ldview" && SET "APP_VER=4.6"
@@ -58,7 +58,7 @@ rem LDView
 ::SET APP_INSTANCE_PATH=%CD%
 ::SET BUILD_DIR=%CD%\%APP_INSTANCE%
 ::SET LOG_DIR=%APP_INSTANCE_PATH%
-::CALL 01_github_run_local.cmd
+::CALL %CD%\lpub3d-ci\builds\windows\GitHub_Run_Local.cmd
 
 REM CLS
 rem set repository name
