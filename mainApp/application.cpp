@@ -1449,9 +1449,18 @@ void Application::initializeSurfaceFormat(int argc, char* argv[], lcCommandLineO
 
     Options = lcApplication::ParseCommandLineOptions();
 
+    QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
+#ifdef LP3D_WIN_ARM64
+    /*Format.setRenderableType(QSurfaceFormat::OpenGLES);*/
+    Format.setRenderableType(QSurfaceFormat::OpenGL);
+    /*Format.setVersion(3, 0);*/
+    Format.setVersion(3, 3);
+    Format.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(Format);
+#endif
     if (Options.ParseOK && Options.AASamples > 1)
     {
-        QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
+        Format = QSurfaceFormat::defaultFormat();
         Format.setSamples(Options.AASamples);
         QSurfaceFormat::setDefaultFormat(Format);
     }

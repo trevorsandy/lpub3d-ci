@@ -12,7 +12,12 @@
 #include "lc_viewmanipulator.h"
 #include "lc_stringcache.h"
 #include "lc_partselectionwidget.h"
+#ifdef LP3D_WIN_ARM64
+/*#include <QOpenGLFunctions_3_0>*/
+#include <QOpenGLFunctions_3_3_Core>
+#else
 #include <QOpenGLFunctions_3_2_Core>
+#endif
 
 #ifdef LC_OPENGLES
 #define glEnableClientState(...)
@@ -142,84 +147,116 @@ bool lcContext::CreateOffscreenContext()
 {
 	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
 /*** LPub3D Mod - OffscreenContext debug statements ***/
-/***
+/*** - comment to enable the following DEBUG block
+	bool result = true;
 	if (!OffscreenContext)
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [FAIL] Construct OpenGLContext.\n")));
-		return false;
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 1 of 6 - [FAIL] Construct new OpenGLContext OffscreenContext.\n")));
+		result = false;
 	}
 	else
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [OK] Construct OpenGLContext.\n")));
+		QSurfaceFormat actual = OffscreenContext.get()->format();
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - Obtained OpenGL context:\n"
+												  "    Version: %1.%2\n"
+												  "    Profile: %3\n"
+												  "    IsOpenGLES: %4\n")
+											   .arg(actual.majorVersion()).arg(actual.minorVersion())
+											   .arg(actual.profile() == QSurfaceFormat::CoreProfile
+													? QLatin1String("Core")
+													: actual.profile() == QSurfaceFormat::CompatibilityProfile
+													  ? QLatin1String("Compatibility")
+													  : QLatin1String("NoProfile"))
+											   .arg(OffscreenContext.get()->isOpenGLES()
+													? QLatin1String("Yes")
+													: QLatin1String("No"))));
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 1 of 6 - [OK] Construct new OpenGLContext OffscreenContext.\n")));
 	}
 
 	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
 
-	if (!OffscreenContext->create() || !OffscreenContext->isValid())
+	if (!OffscreenContext->create())
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [FAIL] Create OpenGLContext.\n")));
-		return false;
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 2 of 6 - [FAIL] Set globalShareContext and create OffscreenContext.\n")));
+		result = false;
 	}
 	else
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [OK] Create OpenGLContext.\n")));
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 2 of 6 - [OK] Set globalShareContext and create OffscreenContext.\n")));
+	}
+
+	if (!OffscreenContext->isValid())
+	{
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 3 of 6 - [FAIL] OffscreenContext is valid.\n")));
+		result = false;
+	}
+	else
+	{
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 3 of 6 - [OK] OffscreenContext is valid.\n")));
 	}
 
 	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
 
 	if (!OffscreenSurface)
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [FAIL] Construct OffscreenSurface.\n")));
-		return false;
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 4 of 6 - [FAIL] Construct new OffscreenSurface.\n")));
+		result = false;
 	}
 	else
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [OK] Construct OffscreenSurface.\n")));
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 4 of 6 - [OK] Construct new OffscreenSurface.\n")));
 	}
 
 	OffscreenSurface->create();
 
 	if (!OffscreenSurface->isValid())
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [FAIL] Create OffscreenSurface.\n")));
-		return false;
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 5 of 6 - [FAIL] Create OffscreenSurface is valid.\n")));
+		result = false;
 	}
 	else
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [OK] Create OffscreenSurface.\n")));
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 5 of 6 - [OK] Create OffscreenSurface is valid.\n")));
 	}
 
 	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [FAIL] Make current OffscreenContext.\n")));
-		return false;
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 6 of 6 - [FAIL] Make current OffscreenContext - get OffscreenSurface.\n")));
+		result = false;
 	}
 	else
 	{
-		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context - [OK] Make current OffscreenContext.\n")));
+		fprintf(stdout, "%s\n", qUtf8Printable(tr("DEBUG Shared Context 6 of 6 - [OK] Make current OffscreenContext - get OffscreenSurface.\n")));
 	}
-***/
+	
+	if (!result)
+	{
+		return result;
+	}
+// ***/
+//*** - uncomment to disable the following block
+	if (!OffscreenContext)
+		return false;
+
+	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
+
+	if (!OffscreenContext->create() || !OffscreenContext->isValid())
+		return false;
+
+	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
+
+	if (!OffscreenSurface)
+		return false;
+
+	OffscreenSurface->create();
+
+	if (!OffscreenSurface->isValid())
+		return false;
+
+	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
+		return false;
+// ***/
 /*** LPub3D Mod end ***/
-	if (!OffscreenContext)
-		return false;
-
-	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
-
-	if (!OffscreenContext->create() || !OffscreenContext->isValid())
-		return false;
-
-	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
-
-	if (!OffscreenSurface)
-		return false;
-
-	OffscreenSurface->create();
-
-	if (!OffscreenSurface->isValid())
-		return false;
-
-	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
-		return false;
 
 	mOffscreenContext = std::move(OffscreenContext);
 	mOffscreenSurface = std::move(OffscreenSurface);
