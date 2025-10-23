@@ -19,7 +19,7 @@ on:
 
 jobs:
   build-linux:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Build ${{ matrix.NAME }}
     runs-on: ${{ matrix.OS }}
     strategy:
@@ -98,7 +98,7 @@ jobs:
           if-no-files-found: ignore
 
   build-macos:
-    # if: ${{ false }} # uncomment to disable
+    if: ${{ false }} # uncomment to disable
     name: Build macOS ${{ matrix.runner-version }}
     runs-on: macos-${{ matrix.runner-version }}
     strategy:
@@ -153,22 +153,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner-os: [ windows-2025, windows-11-arm ]
-        platform: [ AMD, ARM ]
-        exclude:
-          - runner-os: windows-2025
-            platform: ARM
-          - runner-os: windows-11-arm
-            platform: AMD
+        runner-os: [ windows-11-arm ]
+        platform: [ ARM ]
         include:
-          - runner-os: windows-2025
           - runner-os: windows-11-arm
-          - platform: AMD
-            name: 2025 AMD
-            host: ''
-            arch: _64
-            build: -all_amd
-            toolset-32bit: v142
           - platform: ARM
             name: 11 ARM
             host: _arm64
@@ -283,7 +271,7 @@ jobs:
   build-deploy:
     # add "${{ false }} && # remove to enable" after pipe to disable
     if: |
-      always() &&
+      always() && ${{ false }} &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
       (contains(github.event.head_commit.message, 'PRE_RELEASE_BUILD') ||
        contains(github.event.head_commit.message, 'RELEASE_BUILD') ||
