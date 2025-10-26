@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: August 05, 2025
+;Last Update: October 26, 2025
 ;Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -317,11 +317,17 @@ Section "Core Files (required)" SectionCoreFiles
   !include "LPub3DInstallFiles.nsh"
 
   ;Install MSVC Redistributable
-  ${If} ${RunningX64}
-     ExecWait '"vc_redist.x64.exe"  /quiet /norestart'
-  ${Else}
-     ExecWait '"vc_redist.x86.exe"  /quiet /norestart'
-  ${EndIf}
+  !ifdef ARM64_INSTALL
+    ${If} ${IsNativeARM64}
+      ExecWait '"vc_redist.arm64.exe"  /quiet /norestart'
+    ${EndIf}
+  !else
+    ${If} ${RunningX64}
+      ExecWait '"vc_redist.x64.exe"  /quiet /norestart'
+    ${Else}
+      ExecWait '"vc_redist.x86.exe"  /quiet /norestart'
+    ${EndIf}
+  !endif
 
   !ifdef LICENSE_FILE
     File "${WinBuildDir}\docs\${LICENSE_FILE}"
@@ -474,11 +480,11 @@ SectionEnd
 ; Callbacks
 Function .onInit
    !ifdef ARM64_INSTALL
-	${IfNot} ${IsNativeARM64}
-	  MessageBox MB_ICONSTOP "This distribution only supports ARM64!"
-	  Quit
-	${EndIf}
-	SetRegView 64
+     ${IfNot} ${IsNativeARM64}
+      MessageBox MB_ICONSTOP "This distribution only supports ARM64!"
+      Quit
+     ${EndIf}
+     SetRegView 64
    !endif
    ; Set the MULTIUSER_INSTALLMODE_64_BIT flag
    ${If} ${RunningX64}
