@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 12, 2025
+rem  Last Update: October 27, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -609,7 +609,7 @@ IF /I "%PLATFORM_ARCH%"=="-all_amd" (
 rem If build Win32, set to vs2017 for WinXP compat
 CALL :CONFIGURE_VCTOOLS %PLATFORM_ARCH%
 rem Configure build arguments and set environment variables
-CALL :CONFIGURE_BUILD_ENV
+CALL :CONFIGURE_BUILD_ENV %PLATFORM_ARCH%
 CD /D "%ABS_WD%"
 ECHO.
 ECHO -Building %PACKAGE% %PLATFORM_ARCH% platform, %CONFIGURATION% configuration...
@@ -678,9 +678,8 @@ ECHO -Build LPub3D x86 and x86_64 platforms...
 FOR %%P IN ( x86, x86_64 ) DO (
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET platform_build_start=%time%
-  SET PLATFORM_ARCH=%%P
-  CALL :CONFIGURE_VCTOOLS
-  CALL :CONFIGURE_BUILD_ENV
+  CALL :CONFIGURE_VCTOOLS %%P
+  CALL :CONFIGURE_BUILD_ENV %%P
   CD /D "%ABS_WD%"
   IF %BUILD_THIRD%==1 ECHO.
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
@@ -711,16 +710,10 @@ GOTO :END
 :BUILD_RENDERERS
 rem Check if build all platforms
 IF /I "%PLATFORM_ARCH%"=="-all_amd" (
-  SET ALL_RENDERERS=x86, x86_64
-  GOTO :BUILD_ALL_RENDERERS
+  GOTO :BUILD_ALL_RENDERERS %PLATFORM_ARCH%
 )
-IF /I "%PLATFORM_ARCH%"=="ARM64" (
-  SET ALL_RENDERERS=ARM64
-  GOTO :BUILD_ALL_RENDERERS
-)
-
 rem Configure buid arguments and set environment variables
-CALL :CONFIGURE_BUILD_ENV
+CALL :CONFIGURE_BUILD_ENV %PLATFORM_ARCH%
 CD /D "%ABS_WD%"
 rem Build renderer from source
 ECHO.
@@ -733,10 +726,13 @@ ECHO.
 GOTO :END
 
 :BUILD_ALL_RENDERERS
+rem Check if build all platforms
+IF /I "%PLATFORM_ARCH%"=="-all_amd" (
+  SET ALL_RENDERERS=x86, x86_64
+)
 FOR %%P IN ( %ALL_RENDERERS% ) DO (
-  SET PLATFORM_ARCH=%%P
   rem Configure build arguments and set environment variables
-  CALL :CONFIGURE_BUILD_ENV
+  CALL :CONFIGURE_BUILD_ENV %%P
   CD /D "%ABS_WD%"
   rem Build renderer from source
   ECHO.
@@ -750,6 +746,7 @@ FOR %%P IN ( %ALL_RENDERERS% ) DO (
 GOTO :END
 
 :CONFIGURE_VCTOOLS
+IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (GOTO :ARGUMENT_ERROR CONFIGURE_VCTOOLS)
 ECHO.
 ECHO -Set MSBuild platform toolset...
 IF %PLATFORM_ARCH%==x86_64 (
@@ -802,6 +799,7 @@ ECHO   MSVC_VCVARSALL_DIR.............[%LP3D_VCVARSALL_DIR%]
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
+IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (GOTO :ARGUMENT_ERROR CONFIGURE_BUILD_ENV)
 CD /D %ABS_WD%
 IF %PLATFORM_ARCH%==x86 (SET _AR=32) ELSE (SET _AR=64)
 IF "%LP3D_QMAKE_CLEAN%" EQU "" SET LP3D_QMAKE_CLEAN=1
@@ -1420,6 +1418,11 @@ IF 1%ms% lss 100 SET ms=0%ms%
 SET LP3D_ELAPSED_BUILD_TIME=%hours%:%mins%:%secs%.%ms%
 EXIT /b
 
+:ARGUMENT_ERROR
+ECHO.
+ECHO -Required subroutine %1 argument was not specified.
+GOTO :ERROR_END
+
 :PLATFORM_ERROR
 ECHO.
 ECHO -01. (PLATFORM_ERROR) Platform or usage flag is invalid. Use x86, x86_64, arm64 or -all_amd [%~nx0 %*].
@@ -1449,7 +1452,6 @@ ECHO.
 ECHO -04. (LIBRARY_ERROR) Qt MSVC library [%LP3D_QT32_MSVC%] or [%LP3D_QT64_MSVC%] required for command not found [%~nx0 %*].
 ECHO      See Usage.
 CALL :USAGE
-ECHO.
 GOTO :ERROR_END
 
 :USAGE
