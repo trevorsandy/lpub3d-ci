@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 22, 2025
+rem  Last Update: October 28, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -1576,7 +1576,7 @@ IF NOT EXIST "%DIST_DIR%\" (
   EXIT /b
 )
 
-SET "MSVC_REDIST_DIR=%DIST_DIR%\vcredist"
+SET "MSVC_REDIST_DIR=%DIST_DIR%"
 
 IF NOT EXIST "%MSVC_REDIST_DIR%\" (
   ECHO.
@@ -1633,7 +1633,7 @@ EXIT /b
 
 :SET_MSVC_REDIST
 SET _AR=%2
-SET "PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%\vcredist"
+SET "PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%"
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
   ECHO.
   ECHO - Create MSVC %1 %LP3D_DISTRO_ARCH% Redistributable package path %MSVC_REDIST_DIR%...

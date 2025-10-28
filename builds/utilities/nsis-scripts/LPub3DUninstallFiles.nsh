@@ -1,5 +1,5 @@
 ; LPub3D Uninstall Files Script Include
-; Last Update: August 05, 2025
+; Last Update: October 29, 2025
 ; Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Executable
@@ -10,21 +10,15 @@ Delete "$INSTDIR\${ProductName}.pdb"
 ; Qt Direct Dependencies Libs
 Delete "$INSTDIR\Qt6Concurrent.dll"
 Delete "$INSTDIR\Qt6Core.dll"
+Delete "$INSTDIR\Qt6Core5Compat.dll"
 Delete "$INSTDIR\Qt6Gui.dll"
 Delete "$INSTDIR\Qt6Network.dll"
 Delete "$INSTDIR\Qt6OpenGL.dll"
+Delete "$INSTDIR\Qt6OpenGLWidgets.dll"
 Delete "$INSTDIR\Qt6PrintSupport.dll"
 Delete "$INSTDIR\Qt6Svg.dll"
 Delete "$INSTDIR\Qt6Widgets.dll"
 Delete "$INSTDIR\Qt6Xml.dll"
-Delete "$INSTDIR\Qt6Core5Compat.dll"
-Delete "$INSTDIR\Qt6OpenGLWidgets.dll"
-
-; Qt Libraries
-!ifndef ARM64_INSTALL
-Delete "$INSTDIR\opengl32sw.dll"
-Delete "$INSTDIR\d3dcompiler_47.dll"
-!endif
 
 ; Qt Plugins Generic
 Delete "$INSTDIR\generic\qtuiotouchplugin.dll"
@@ -52,6 +46,19 @@ Delete "$INSTDIR\tls\qcertonlybackend.dll"
 Delete "$INSTDIR\tls\qopensslbackend.dll"
 Delete "$INSTDIR\tls\qschannelbackend.dll"
 
+!ifndef ARM64_INSTALL
+; OpenGL Library
+Delete "$INSTDIR\opengl32sw.dll"
+
+; DirectX Compiler Libraries
+Delete "$INSTDIR\d3dcompiler_47.dll"
+!endif
+Delete "$INSTDIR\dxcompiler.dll"
+Delete "$INSTDIR\dxil.dll"
+
+; Translation library
+Delete "$INSTDIR\icuuc.dll"
+
 ; 3rd party renderer executable -LDGLite
 ${If} ${FileExists} "$INSTDIR\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
 Delete "$INSTDIR\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
@@ -67,9 +74,9 @@ ${EndIf}
 UninstallX64Assets:
 ; MSVC C++ Runtime Redistributable
 !ifdef ARM64_INSTALL
-Delete "$INSTDIR\vcredist\vc_redist.arm64.exe"
+Delete "$INSTDIR\vc_redist.arm64.exe"
 !else
-Delete "$INSTDIR\vcredist\vc_redist.x64.exe"
+Delete "$INSTDIR\vc_redist.x64.exe"
 !endif
 
 ; OpenSSL
@@ -459,6 +466,9 @@ RMDir "$INSTDIR\imageformats"
 RMDir "$INSTDIR\networkinformation"
 RMDir "$INSTDIR\platforms"
 RMDir "$INSTDIR\tls"
+
+; Remove Qt Translation folder
+RMDir "$INSTDIR\translations\*.*"
 
 ; Remove LPub3D data folders
 RMDir "$INSTDIR\data"

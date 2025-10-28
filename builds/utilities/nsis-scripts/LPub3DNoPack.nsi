@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: October 26, 2025
+;Last Update: October 29, 2025
 ;Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -101,6 +101,7 @@ BrandingText "©2025 ${COMPANY_NAME}"
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
 ShowInstDetails hide ; Show install details (show|hide|nevershow)
+
 SetCompressor /SOLID lzma
 
 !include Utils.nsh ; this must come after encoding (Error: Can't change target charset after data already got compressed or header already changed!)
@@ -297,6 +298,7 @@ Section "Core Files (required)" SectionCoreFiles
   ; File "${UNINSTALL_FILENAME}"
   !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
 
+  ; Setup check if a file exist macro
   ; See http://nsis.sourceforge.io/Check_if_a_file_exists_at_compile_time for documentation
   !macro !defineifexist _VAR_NAME _FILE_NAME
     !tempfile _TEMPFILE

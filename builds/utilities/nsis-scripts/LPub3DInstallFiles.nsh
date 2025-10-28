@@ -1,5 +1,5 @@
 ; LPub3D Install Files Script Include
-; Last Update: August 05, 2025
+; Last Update: October 29, 2025
 ; Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Universal architecture (x86, x86_64)
@@ -30,9 +30,9 @@ ContinueX64Install:
 !ifdef X64_INSTALL
 ; MSVC Redistributable
 !ifdef ARM64_INSTALL
-File "${Win64BuildDir}\vcredist\vc_redist.arm64.exe"
+File "${Win64BuildDir}\vc_redist.arm64.exe"
 !else
-File "${Win64BuildDir}\vcredist\vc_redist.x64.exe"
+File "${Win64BuildDir}\vc_redist.x64.exe"
 !endif
 
 ; Deposit new 64bit files...
@@ -42,7 +42,7 @@ File "${Win64BuildDir}\${LPub3DBuildFile}"
 ; Program database (pdb)
 File "${Win64BuildDir}\${ProductName}.pdb"
 
-; OpenSSL
+; OpenSSL - legacy manually placed ssl library files
 !ifdef WIN64_SSL
 File "${Win64BuildDir}\${OpenSSL64LibCrypto}"
 File "${Win64BuildDir}\${OpenSSL64LibSSL}"
@@ -51,21 +51,16 @@ File "${Win64BuildDir}\${OpenSSL64LibSSL}"
 ; Qt Direct Dependencies Libs
 File "${Win64BuildDir}\Qt6Concurrent.dll"
 File "${Win64BuildDir}\Qt6Core.dll"
+File "${Win64BuildDir}\Qt6Core5Compat.dll"
 File "${Win64BuildDir}\Qt6Gui.dll"
 File "${Win64BuildDir}\Qt6Network.dll"
 File "${Win64BuildDir}\Qt6OpenGL.dll"
+File "${Win64BuildDir}\Qt6OpenGLWidgets.dll"
 File "${Win64BuildDir}\Qt6PrintSupport.dll"
 File "${Win64BuildDir}\Qt6Svg.dll"
 File "${Win64BuildDir}\Qt6Widgets.dll"
 File "${Win64BuildDir}\Qt6Xml.dll"
 File "${Win64BuildDir}\Qt6Core5Compat.dll"
-File "${Win64BuildDir}\Qt6OpenGLWidgets.dll"
-
-; Qt Libraries
-!ifndef ARM64_INSTALL
-File "${Win64BuildDir}\opengl32sw.dll"
-File "${Win64BuildDir}\d3dcompiler_47.dll"
-!endif
 
 ; Qt Plugins Generic
 CreateDirectory "$INSTDIR\generic"
@@ -107,6 +102,19 @@ File "${Win64BuildDir}\tls\qcertonlybackend.dll"
 File "${Win64BuildDir}\tls\qopensslbackend.dll"
 File "${Win64BuildDir}\tls\qschannelbackend.dll"
 !endif
+
+!ifndef ARM64_INSTALL
+; OpenGL Library
+File "${Win64BuildDir}\opengl32sw.dll"
+
+; DirectX Compiler Libraries
+File "${Win64BuildDir}\d3dcompiler_47.dll"
+!endif
+File "${Win64BuildDir}\dxcompiler.dll"
+File "${Win64BuildDir}\dxil.dll"
+
+; Translation library
+File "${Win64BuildDir}\icuuc.dll"
 
 ; 3rd party renderer executable -LDGLite
 ${!defineifexist} INS_FILE_EXISTS "${Win64BuildDir}\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
@@ -175,7 +183,7 @@ ${If} $OverwriteUserDataParamFiles == 0
  SetOverwrite on
 ${EndIf}
 
-Goto DocumentsAndExtras
+Goto TranslationsDocumentsAndExtras
 
 RunX86Architecture:
 ; Delete files with old names if exist
@@ -185,7 +193,7 @@ ContinueX32Install:
 
 !ifdef X86_INSTALL
 ; MSVC Redistributable
-File "${Win32BuildDir}\vcredist\vc_redist.x86.exe"
+File "${Win32BuildDir}\vc_redist.x86.exe"
 
 ; Deposit new 32bit files...
 
@@ -210,7 +218,7 @@ File "${Win32BuildDir}\Qt5Widgets.dll"
 File "${Win32BuildDir}\Qt5Xml.dll"
 
 ; Qt Libraries
-File "${Win32BuildDir}\D3Dcompiler_47.dll"
+File "${Win32BuildDir}\d3dcompiler_47.dll"
 File "${Win32BuildDir}\libEGL.dll"
 File "${Win32BuildDir}\libGLESV2.dll"
 File "${Win32BuildDir}\opengl32sw.dll"
@@ -314,7 +322,7 @@ ${If} $OverwriteUserDataParamFiles == 0
 ${EndIf}
 
 
-Goto DocumentsAndExtras
+Goto TranslationsDocumentsAndExtras
 
 SingleArchitectureBuild:
 ; Perform appropriate installation
@@ -324,10 +332,15 @@ SingleArchitectureBuild:
   Goto RunX86Architecture
 !endif
 
-DocumentsAndExtras:
+TranslationsDocumentsAndExtras:
 SetOutPath "$INSTDIR"
 File "${WinBuildDir}\docs\README.txt"
 File "${WinBuildDir}\docs\RELEASE_NOTES.html"
+
+; Qt Translation Files
+CreateDirectory "$INSTDIR\translations"
+SetOutPath "$INSTDIR\translations"
+File "${WinBuildDir}\translations\*.*"
 
 ; Data depository folder
 CreateDirectory "$INSTDIR\data"
