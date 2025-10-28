@@ -59,6 +59,8 @@ win32 {
     QMAKE_EXT_OBJ = .obj
     DEFINES      +=  QUAZIP_STATIC
     DEFINES      += _TC_STATIC
+    win32-arm64-msvc: \
+    DEFINES      += LP3D_WIN_ARM64
 
     win32-arm64-msvc|win32-msvc* {
         DEFINES += _WINSOCKAPI_

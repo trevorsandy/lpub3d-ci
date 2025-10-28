@@ -12,7 +12,12 @@
 #include "lc_viewmanipulator.h"
 #include "lc_stringcache.h"
 #include "lc_partselectionwidget.h"
+#ifdef LP3D_WIN_ARM64
+/*#include <QOpenGLFunctions_3_0>*/
+#include <QOpenGLFunctions_3_3_Core>
+#else
 #include <QOpenGLFunctions_3_2_Core>
+#endif
 
 #ifdef LC_OPENGLES
 #define glEnableClientState(...)

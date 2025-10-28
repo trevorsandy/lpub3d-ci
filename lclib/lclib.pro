@@ -54,6 +54,8 @@ win32 {
     PRECOMPILED_HEADER = common/lc_global.h
     PRECOMPILED_SOURCE = common/lc_global.cpp
     DEFINES += _WINSOCKAPI_
+    win32-arm64-msvc: \
+    DEFINES += LP3D_WIN_ARM64
 
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
     !win32-arm64-msvc:!win32-msvc*: \
