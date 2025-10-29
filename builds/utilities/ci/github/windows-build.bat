@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 22, 2025
+rem  Last Update: October 29, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -45,7 +45,7 @@ IF [%LP3D_NO_CHECK%] EQU [] SET LP3D_CHECK=-chk
 CD %GITHUB_WORKSPACE%
 
 IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
-  GOTO :CONTINUE
+  GOTO :WB_CONTINUE
 )
 
 rem Check if build is on stale commit
@@ -56,7 +56,7 @@ IF NOT EXIST "repo.txt" (
 IF NOT EXIST "repo.txt" (
   ECHO.
   ECHO "WARNING - Failed to get repository response."
-  GOTO :CONTINUE
+  GOTO :WB_CONTINUE
 )
 FOR /F "delims=" %%q IN ('TYPE repo.txt ^| jq -r .sha') DO SET "LP3D_REMOTE=%%q"
 FOR /F "delims=" %%c IN ('git rev-parse HEAD') DO SET "LP3D_LOCAL=%%c"
@@ -64,25 +64,25 @@ IF "%LP3D_REMOTE%" NEQ "%LP3D_LOCAL%" (
   ECHO.
   ECHO "WARNING - Build no longer current. Rmote: '%LP3D_REMOTE%', Local: '%LP3D_LOCAL%' - aborting build."
   IF EXIST "repo.txt" ( ECHO "Repo response:" && TYPE repo.txt )
-  GOTO :END
+  GOTO :WB_END
 )
 
 ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
   IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
     SET LP3D_PUBLISH_RENDERERS=True
-    CALL :SET_BUILD_ALL
+    CALL :WB_SET_BUILD_ALL
     ECHO.
     ECHO - New version tag %GITHUB_REF_NAME% confirmed.
     ECHO - Publish Renderers.
   )
 )
 
-:CONTINUE
+:WB_CONTINUE
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
   ECHO.
   ECHO - NOTICE - Quick build detected, %~nx0 will not continue.
-  GOTO :END
+  GOTO :WB_END
 )
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "UPDATE_LDRAW" >NUL && (
@@ -92,7 +92,7 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "UPDATE_LDRAW" >NUL && (
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "RELEASE_BUILD" >NUL && (
   ECHO.
   ECHO - Build and deploy current revision detected.
-  CALL :SET_BUILD_ALL
+  CALL :WB_SET_BUILD_ALL
 )
 
 IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
@@ -100,7 +100,7 @@ IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
   IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
     ECHO.
     ECHO - ERROR - Create %LP3D_DIST_DIR_PATH% failed
-    GOTO :ERROR_END
+    GOTO :WB_ERROR_END
   )
 )
 
@@ -117,7 +117,7 @@ IF NOT EXIST "%LP3D_UPDATES_PATH%" (
   IF NOT EXIST "%LP3D_UPDATES_PATH%" (
     ECHO.
     ECHO - ERROR - Create %LP3D_UPDATES_PATH% failed
-    GOTO :ERROR_END
+    GOTO :WB_ERROR_END
   )
 )
 
@@ -126,7 +126,7 @@ IF NOT EXIST "%LP3D_DOWNLOADS_PATH%" (
   IF NOT EXIST "%LP3D_DOWNLOADS_PATH%" (
     ECHO.
     ECHO - ERROR - Create %LP3D_DOWNLOADS_PATH% failed
-    GOTO :ERROR_END
+    GOTO :WB_ERROR_END
   )
 )
 
@@ -149,7 +149,7 @@ IF NOT EXIST "%LP3D_3RD_DIST_DIR%" (
   ) ELSE (
     ECHO.
     ECHO - ERROR - %LP3D_DIST_DIR_PATH% path not defined
-    GOTO :ERROR_END
+    GOTO :WB_ERROR_END
   )
 )
 POPD
@@ -158,7 +158,7 @@ SET LP3D_LDGLITE=%LP3D_DIST_DIR_PATH%\ldglite-1.3
 SET LP3D_LDVIEW=%LP3D_DIST_DIR_PATH%\ldview-4.6
 SET LP3D_POVRAY=%LP3D_DIST_DIR_PATH%\lpub3d_trace_cui-3.8
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "ALL_RENDERERS" >NUL && (
-  CALL :SET_BUILD_ALL_RENDERERS
+  CALL :WB_SET_BUILD_ALL_RENDERERS
 )
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_LDGLITE" >NUL && (
   ECHO - 'Build LDGLite' detected.
@@ -206,35 +206,35 @@ rem reset ErrorLevel to 0 from 1 for unsuccessful FIND
 (CALL )
 
 rem if we are cross compiling an ARM64 build
-IF /I "%LP3D_BUILD_ARCH%" NEQ "arm64" (GOTO :AUTO_BUILD)
-IF /I "%PROCESSOR_ARCHITECTURE%" NEQ "amd64" (GOTO :AUTO_BUILD)
+IF /I "%LP3D_BUILD_ARCH%" NEQ "arm64" (GOTO :WB_AUTO_BUILD)
+IF /I "%PROCESSOR_ARCHITECTURE%" NEQ "amd64" (GOTO :WB_AUTO_BUILD)
 SET LP3D_QMAKE_VER=0
 SET LP3D_QMAKE_RUN=1
 SET LP3D_QMAKE_CLEAN=1
 SET LP3D_ARM64_QMAKE=1
 SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% %LP3D_3RD_RENDERS%
-CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :ERROR_END
+CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :WB_ERROR_END
 
-:ARM64_CROSS_BUILD
-IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
+:WB_ARM64_CROSS_BUILD
+IF "%ERRORLEVEL%" NEQ "0" (GOTO :WB_ERROR_END)
 SET LP3D_QMAKE_RUN=0
 SET LP3D_QMAKE_CLEAN=0
 SET LP3D_ARM64_BUILD=1
 SET LP3D_BUILD_COMMAND=%LP3D_BUILD_ARCH% %LP3D_INSTALL% %LP3D_CHECK%
 
-:AUTO_BUILD
-CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :ERROR_END
-IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
+:WB_AUTO_BUILD
+CALL builds\windows\AutoBuild.bat %LP3D_BUILD_COMMAND% || GOTO :WB_ERROR_END
+IF "%ERRORLEVEL%" NEQ "0" (GOTO :WB_ERROR_END)
 
 IF "%LP3D_CREATE_EXE_PKG%" EQU "True" (
-  CALL builds\windows\CreateExePkg.bat || GOTO :ERROR_END
-  IF "%ERRORLEVEL%" NEQ "0" (GOTO :ERROR_END)
-  CALL :GENERATE_HASH_FILES
+  CALL builds\windows\CreateExePkg.bat || GOTO :WB_ERROR_END
+  IF "%ERRORLEVEL%" NEQ "0" (GOTO :WB_ERROR_END)
+  CALL :WB_GENERATE_HASH_FILES
 )
 
-GOTO :END
+GOTO :WB_END
 
-:GENERATE_HASH_FILES
+:WB_GENERATE_HASH_FILES
 SET BUILD_EXIST=0
 CD %GITHUB_WORKSPACE%
 IF EXIST "%LP3D_DOWNLOADS_PATH%\*.exe" ( SET BUILD_EXIST=1 )
@@ -279,7 +279,7 @@ DEL /Q %run_cmd% %gen_hash% %gen_hash%.log
 POPD
 EXIT /b
 
-:SET_BUILD_ALL
+:WB_SET_BUILD_ALL
 ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
   SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_ALL
 )
@@ -291,20 +291,20 @@ IF "%LP3D_BUILD_ARCH%" NEQ "-all_amd" (
 )
 EXIT /b
 
-:SET_BUILD_ALL_RENDERERS
+:WB_SET_BUILD_ALL_RENDERERS
 ECHO.
 ECHO - 'Build LDGLite, LDView and POV-Ray' detected.
 SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_LDGLITE BUILD_LDVIEW BUILD_POVRAY
 EXIT /b
 
-:ERROR_END
+:WB_ERROR_END
 ECHO.
 ECHO - %~nx0 FAILED with return code %ERRORLEVEL%.
 ECHO - %~nx0 will terminate!
 ENDLOCAL
 EXIT /b 3
 
-:END
+:WB_END
 ECHO.
 ECHO - %~nx0 finished.
 ENDLOCAL

@@ -8,14 +8,14 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 28, 2025
+rem  Last Update: October 29, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CALL :ELAPSED_BUILD_TIME Start
+CALL :AB_ELAPSED_BUILD_TIME Start
 
 %WINDIR%\system32\tzutil.exe /s "Central Europe Standard Time"
 
@@ -26,7 +26,7 @@ ECHO ------------------------------------------------------
 
 FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
 IF "%SCRIPT_RUN_DIR%" EQU "windows" (
-  CALL :WD_ABS_PATH ..\..\
+  CALL :AB_WD_ABS_PATH ..\..\
 ) ELSE (
   SET ABS_WD=%CD%
 )
@@ -89,13 +89,13 @@ IF "%LP3D_CONDA_BUILD%" NEQ "True" (
 IF NOT EXIST "%LP3D_VCVARSALL_DIR%" (
   ECHO.
   ECHO  -ERROR - Microsoft Visual Studio C++ environment [%LP3D_VCVARSALL_DIR%] not defined.
-  GOTO :ERROR_END
+  GOTO :AB_ERROR_END
 )
 
 IF NOT EXIST "%ABS_WD%\mainApp" (
   ECHO.
   ECHO -ERROR - mainApp folder not found. Working directory %ABS_WD% is not valid.
-  GOTO :ERROR_END
+  GOTO :AB_ERROR_END
 )
 
 rem https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
@@ -173,7 +173,7 @@ IF NOT [%1]==[] (
     IF /I NOT "%1"=="x86_64" (
       IF /I NOT "%1"=="arm64" (
         IF /I NOT "%1"=="-all_amd" (
-          IF /I NOT "%1"=="-help" GOTO :PLATFORM_ERROR
+          IF /I NOT "%1"=="-help" GOTO :AB_PLATFORM_ERROR
         )
       )
     )
@@ -183,43 +183,43 @@ IF NOT [%1]==[] (
 rem Parse platform input flags
 IF [%1]==[] (
   SET PLATFORM_ARCH=-all_amd
-  GOTO :SET_CONFIGURATION
+  GOTO :AB_SET_CONFIGURATION
 )
 
 IF /I "%1"=="x86" (
   SET PLATFORM_ARCH=x86
-  GOTO :SET_CONFIGURATION
+  GOTO :AB_SET_CONFIGURATION
 )
 
 IF /I "%1"=="x86_64" (
   SET PLATFORM_ARCH=x86_64
-  GOTO :SET_CONFIGURATION
+  GOTO :AB_SET_CONFIGURATION
 )
 
 IF /I "%1"=="arm64" (
   SET PLATFORM_ARCH=ARM64
-  GOTO :SET_CONFIGURATION
+  GOTO :AB_SET_CONFIGURATION
 )
 
 IF /I "%1"=="-all_amd" (
   SET PLATFORM_ARCH=-all_amd
-  GOTO :SET_CONFIGURATION
+  GOTO :AB_SET_CONFIGURATION
 )
 
 IF /I "%1"=="-help" (
-  GOTO :USAGE
+  GOTO :AB_USAGE
 )
 
 rem If we get here display invalid command message.
-GOTO :COMMAND_ERROR
+GOTO :AB_COMMAND_ERROR
 
-:SET_CONFIGURATION
+:AB_SET_CONFIGURATION
 rem Verify 2nd input flag options
 IF NOT [%2]==[] (
   IF /I NOT "%2"=="-ins" (
     IF /I NOT "%2"=="-chk" (
       IF /I NOT "%2"=="-3rd" (
-        IF /I NOT "%2"=="-ren" GOTO :CONFIGURATION_ERROR
+        IF /I NOT "%2"=="-ren" GOTO :AB_CONFIGURATION_ERROR
       )
     )
   )
@@ -234,7 +234,7 @@ IF NOT [%3]==[] (
           IF /I NOT "%3"=="-official" (
             IF /I NOT "%3"=="-unofficial" (
               IF /I NOT "%3"=="-tente" (
-                IF /I NOT "%3"=="-vexiq" GOTO :CONFIGURATION_ERROR
+                IF /I NOT "%3"=="-vexiq" GOTO :AB_CONFIGURATION_ERROR
               )
             )
           )
@@ -252,7 +252,7 @@ IF NOT [%4]==[] (
         IF /I NOT "%4"=="-official" (
           IF /I NOT "%4"=="-unofficial" (
             IF /I NOT "%4"=="-tente" (
-              IF /I NOT "%4"=="-vexiq" GOTO :CONFIGURATION_ERROR
+              IF /I NOT "%4"=="-vexiq" GOTO :AB_CONFIGURATION_ERROR
             )
           )
         )
@@ -277,7 +277,7 @@ IF "%BUILD_WORKER%" EQU "True" (
   IF "%LP3D_DIST_DIR_PATH%" == "" (
     ECHO.
     ECHO  -ERROR - Distribution directory path not defined.
-    GOTO :ERROR_END
+    GOTO :AB_ERROR_END
   )
   IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
     SET CI=True
@@ -313,7 +313,7 @@ IF "%APPVEYOR%" EQU "True" (
   IF "%LP3D_DIST_DIR_PATH%" == "" (
     ECHO.
     ECHO  -ERROR - Distribution directory path not defined.
-    GOTO :ERROR_END
+    GOTO :AB_ERROR_END
   )
   IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
     SET CI=True
@@ -340,7 +340,7 @@ IF "%APPVEYOR%" EQU "True" (
 
 IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
-    CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
+    CALL :AB_DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
     SET CONFIGURATION=release
     SET LDRAW_INSTALL_ROOT=%USERPROFILE%
     SET LDRAW_LIBS=%USERPROFILE%
@@ -357,17 +357,17 @@ IF "%BUILD_WORKER%" NEQ "True" (
 
 rem Confirm Qt platform libraries available
 IF /I "%PLATFORM_ARCH%"=="x86" (
-  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :AB_LIBRARY_ERROR
 )
 IF /I "%PLATFORM_ARCH%"=="x86_64" (
-  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :AB_LIBRARY_ERROR
 )
 IF /I "%PLATFORM_ARCH%"=="ARM64" (
-  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :AB_LIBRARY_ERROR
 )
 IF /I "%PLATFORM_ARCH%"=="-all_amd" (
-  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
-  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :AB_LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :AB_LIBRARY_ERROR
 )
 
 rem Set Windows built-in Tar
@@ -397,41 +397,41 @@ IF NOT EXIST "%LP3D_WIN_GIT%" (
 rem Initialize package install to - no install
 IF [%2]==[] (
   SET PKG_INSTALL=0
-  GOTO :BUILD
+  GOTO :AB_BUILD
 )
 
 rem Set package install
 IF /I "%2"=="-ins" (
   SET PKG_INSTALL=1
-  GOTO :BUILD
+  GOTO :AB_BUILD
 )
 
 rem Set build check flag
 IF /I "%2"=="-chk" (
   SET CHECK=1
-  GOTO :BUILD
+  GOTO :AB_BUILD
 )
 
 IF /I "%2"=="-3rd" (
   SET BUILD_THIRD=1
-  GOTO :BUILD
+  GOTO :AB_BUILD
 )
 
 IF /I "%2"=="-ren" (
   SET RENDERERS_ONLY=1
-  GOTO :BUILD
+  GOTO :AB_BUILD
 )
 
 rem If we get here display invalid command message.
-GOTO :COMMAND_ERROR
+GOTO :AB_COMMAND_ERROR
 
-:BUILD
+:AB_BUILD
 rem Display build settings
 ECHO.
 IF "%LP3D_ARM64_QMAKE%" EQU "1" (
   IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
     ECHO   AUTO_BUILD_MODE................[QMake Makefile]
-    GOTO :BUILD_CONFIGURATION
+    GOTO :AB_BUILD_CONFIGURATION
   )
 )
 IF "%BUILD_WORKER%" EQU "True" (
@@ -486,7 +486,7 @@ IF /I "%RENDERERS_ONLY%"=="1" (
 )
 
 rem set application version variables
-:BUILD_CONFIGURATION
+:AB_BUILD_CONFIGURATION
 SET UPDATE_CONFIG_ARGS=%ABS_WD%\mainApp
 IF "%LP3D_CONDA_BUILD%" EQU "True" (
   SET UPDATE_CONFIG_ARGS=%UPDATE_CONFIG_ARGS% ParseVersionInfoFile
@@ -499,7 +499,7 @@ IF "%LP3D_CONDA_BUILD%" EQU "True" (
 )
 ECHO.
 CALL builds\utilities\update-config-files.bat %UPDATE_CONFIG_ARGS%
-IF ERRORLEVEL 1 (GOTO :ERROR_END)
+IF ERRORLEVEL 1 (GOTO :AB_ERROR_END)
 
 rem Perform 3rd party package content install
 IF /I "%3"=="-ins" (
@@ -573,7 +573,7 @@ IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
     IF NOT EXIST "!EXE!" (
       ECHO.
       ECHO -ERROR - !EXE! was not found. Cannot create install package.
-      GOTO :ERROR_END
+      GOTO :AB_ERROR_END
     )
   ) ELSE (
     ECHO -Package %PACKAGE% x86_64 and x86 distributions...
@@ -581,35 +581,35 @@ IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
     IF NOT EXIST "!EXE!" (
       ECHO.
       ECHO -ERROR - !EXE! was not found. Cannot create install package.
-      GOTO :ERROR_END
+      GOTO :AB_ERROR_END
     )
     SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86\%PACKAGE%%d%.exe
     IF NOT EXIST "!EXE!" (
       ECHO.
       ECHO -ERROR - !EXE! was not found. Cannot create install package.
-      GOTO :ERROR_END
+      GOTO :AB_ERROR_END
     )
   )
   rem Perform build check if specified
-  IF %CHECK%==1 (CALL :BUILD_CHECK x86) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
+  IF %CHECK%==1 (CALL :AB_BUILD_CHECK x86) ELSE (CALL :AB_ADD_LDRAW_LIBS_TO_EXTRAS)
   ENDLOCAL
-  GOTO :END
+  GOTO :AB_END
 )
 
 rem Check if build renderers
 IF /I "%RENDERERS_ONLY%"=="1" (
-  GOTO :BUILD_RENDERERS
+  GOTO :AB_BUILD_RENDERERS
 )
 
 rem Check if build all platforms
 IF /I "%PLATFORM_ARCH%"=="-all_amd" (
-  GOTO :BUILD_ALL_AMD
+  GOTO :AB_BUILD_ALL_AMD
 )
 
 rem If build Win32, set to vs2017 for WinXP compat
-CALL :CONFIGURE_VCTOOLS %PLATFORM_ARCH%
+CALL :AB_CONFIGURE_VCTOOLS %PLATFORM_ARCH%
 rem Configure build arguments and set environment variables
-CALL :CONFIGURE_BUILD_ENV %PLATFORM_ARCH%
+CALL :AB_CONFIGURE_BUILD_ENV %PLATFORM_ARCH%
 CD /D "%ABS_WD%"
 ECHO.
 ECHO -Building %PACKAGE% %PLATFORM_ARCH% platform, %CONFIGURATION% configuration...
@@ -617,7 +617,7 @@ ECHO.
 rem Build 3rd party build from source
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 (CALL builds\utilities\CreateRenderers.bat %PLATFORM_ARCH%)
-IF NOT ERRORLEVEL 0 (GOTO :ERROR_END)
+IF NOT ERRORLEVEL 0 (GOTO :AB_ERROR_END)
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
@@ -630,7 +630,7 @@ IF "%LP3D_QMAKE_RUN%" EQU "1" (
   IF "%LP3D_ARM64_QMAKE%" EQU "1" (
     IF %LP3D_AMD64_ARM64_CROSS% EQU 1 SET LP3D_ARM64_QMAKE=0
   ) ELSE (
-    GOTO :END
+    GOTO :AB_END
   )
 )
 rem perform build
@@ -642,16 +642,16 @@ IF %PLATFORM_ARCH%==ARM64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.ex
 IF NOT EXIST "%EXE%" (
   ECHO.
   ECHO -ERROR - %EXE% was not successfully built.
-  GOTO :ERROR_END
+  GOTO :AB_ERROR_END
 )
 rem Package 3rd party install content - this must come before check so check can use staged content for test
-IF %PKG_INSTALL%==1 CALL :STAGE_PKG_INSTALL %PLATFORM_ARCH% %EXE%
-CALL :ELAPSED_BUILD_TIME %platform_build_start%
+IF %PKG_INSTALL%==1 CALL :AB_STAGE_PKG_INSTALL %PLATFORM_ARCH% %EXE%
+CALL :AB_ELAPSED_BUILD_TIME %platform_build_start%
 ECHO.
 ECHO -Elapsed %PACKAGE% %PLATFORM_ARCH% build time %LP3D_ELAPSED_BUILD_TIME%
 rem Perform build check if specified
 SET "PKG_TARGET_DIR=%BUILD_WORKSPACE%\builds\windows\%CONFIGURATION%\%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%\%PACKAGE%_%PLATFORM_ARCH%"
-IF %CHECK%==1 (CALL :BUILD_CHECK %PLATFORM_ARCH%) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
+IF %CHECK%==1 (CALL :AB_BUILD_CHECK %PLATFORM_ARCH%) ELSE (CALL :AB_ADD_LDRAW_LIBS_TO_EXTRAS)
 IF ERRORLEVEL 0 (
   IF "%LP3D_CONDA_BUILD%" EQU "True" (
     PUSHD "%LIBRARY_PREFIX%"
@@ -660,27 +660,27 @@ IF ERRORLEVEL 0 (
       POPD
       ECHO.
       ECHO -ERROR - Failed to copy %PKG_TARGET_DIR% to %LIBRARY_PREFIX%\bin.
-      GOTO :ERROR_END
+      GOTO :AB_ERROR_END
     )
     POPD
   )
 )
-GOTO :END
+GOTO :AB_END
 
-:BUILD_ALL_AMD
+:AB_BUILD_ALL_AMD
 rem Launch qmake/make across all platform builds
 ECHO.
 ECHO -Build LPub3D x86 and x86_64 platforms...
 FOR %%P IN ( x86, x86_64 ) DO (
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET platform_build_start=%time%
-  CALL :CONFIGURE_VCTOOLS %%P
-  CALL :CONFIGURE_BUILD_ENV %%P
+  CALL :AB_CONFIGURE_VCTOOLS %%P
+  CALL :AB_CONFIGURE_BUILD_ENV %%P
   CD /D "%ABS_WD%"
   IF %BUILD_THIRD%==1 ECHO.
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
   IF %BUILD_THIRD%==1 (CALL builds\utilities\CreateRenderers.bat %%P)
-  IF ERRORLEVEL 3 (GOTO :ERROR_END)
+  IF ERRORLEVEL 3 (GOTO :AB_ERROR_END)
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
   IF %BUILD_THIRD%==1 ECHO.
   ECHO -Building  %PACKAGE% %%P platform, %CONFIGURATION% configuration...
@@ -692,57 +692,57 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF NOT EXIST "!EXE!" (
     ECHO.
     ECHO -ERROR - !EXE! was not successfully built.
-    GOTO :ERROR_END
+    GOTO :AB_ERROR_END
   )
-  IF %PKG_INSTALL%==1 CALL :STAGE_PKG_INSTALL %%P !EXE!
-  CALL :ELAPSED_BUILD_TIME !platform_build_start!
+  IF %PKG_INSTALL%==1 CALL :AB_STAGE_PKG_INSTALL %%P !EXE!
+  CALL :AB_ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
   ENDLOCAL
-  IF %CHECK%==1 (CALL :BUILD_CHECK %%P) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS %%P)
+  IF %CHECK%==1 (CALL :AB_BUILD_CHECK %%P) ELSE (CALL :AB_ADD_LDRAW_LIBS_TO_EXTRAS %%P)
 )
-GOTO :END
+GOTO :AB_END
 
-:BUILD_RENDERERS
+:AB_BUILD_RENDERERS
 rem Check if build all platforms
 IF /I "%PLATFORM_ARCH%"=="-all_amd" (
-  GOTO :BUILD_ALL_RENDERERS %PLATFORM_ARCH%
+  GOTO :AB_BUILD_ALL_RENDERERS %PLATFORM_ARCH%
 )
 rem Configure buid arguments and set environment variables
-CALL :CONFIGURE_BUILD_ENV %PLATFORM_ARCH%
+CALL :AB_CONFIGURE_BUILD_ENV %PLATFORM_ARCH%
 CD /D "%ABS_WD%"
 rem Build renderer from source
 ECHO.
 ECHO -Building Renderers for %PLATFORM_ARCH% platform, %CONFIGURATION% configuration...
 ECHO -----------------------------------------------------
 CALL builds\utilities\CreateRenderers.bat %PLATFORM_ARCH%
-IF %ERRORLEVEL% NEQ 0 (GOTO :ERROR_END)
+IF %ERRORLEVEL% NEQ 0 (GOTO :AB_ERROR_END)
 ECHO -----------------------------------------------------
 ECHO.
-GOTO :END
+GOTO :AB_END
 
-:BUILD_ALL_RENDERERS
+:AB_BUILD_ALL_RENDERERS
 rem Check if build all platforms
 IF /I "%PLATFORM_ARCH%"=="-all_amd" (
   SET ALL_RENDERERS=x86, x86_64
 )
 FOR %%P IN ( %ALL_RENDERERS% ) DO (
   rem Configure build arguments and set environment variables
-  CALL :CONFIGURE_BUILD_ENV %%P
+  CALL :AB_CONFIGURE_BUILD_ENV %%P
   CD /D "%ABS_WD%"
   rem Build renderer from source
   ECHO.
   ECHO -Building Renderers for %%P platform, %CONFIGURATION% configuration...
   ECHO -----------------------------------------------------
   CALL builds\utilities\CreateRenderers.bat %%P
-  IF ERRORLEVEL 3 (GOTO :ERROR_END)
+  IF ERRORLEVEL 3 (GOTO :AB_ERROR_END)
   ECHO -----------------------------------------------------
   ECHO.
 )
-GOTO :END
+GOTO :AB_END
 
-:CONFIGURE_VCTOOLS
-IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (GOTO :ARGUMENT_ERROR CONFIGURE_VCTOOLS)
+:AB_CONFIGURE_VCTOOLS
+IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (GOTO :AB_ARGUMENT_ERROR CONFIGURE_VCTOOLS)
 ECHO.
 ECHO -Set MSBuild platform toolset...
 IF %PLATFORM_ARCH%==x86_64 (
@@ -794,8 +794,8 @@ ECHO   MSVC_VCVARSALL_VER.............[%LP3D_VCVARSALL_VER%]
 ECHO   MSVC_VCVARSALL_DIR.............[%LP3D_VCVARSALL_DIR%]
 EXIT /b
 
-:CONFIGURE_BUILD_ENV
-IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (GOTO :ARGUMENT_ERROR CONFIGURE_BUILD_ENV)
+:AB_CONFIGURE_BUILD_ENV
+IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (GOTO :AB_ARGUMENT_ERROR CONFIGURE_BUILD_ENV)
 CD /D %ABS_WD%
 IF %PLATFORM_ARCH%==x86 (SET _AR=32) ELSE (SET _AR=64)
 IF "%LP3D_QMAKE_CLEAN%" EQU "" SET LP3D_QMAKE_CLEAN=1
@@ -897,7 +897,7 @@ IF "%BUILD_WORKER%" NEQ "True" (
 IF "%LP3D_CONDA_BUILD%" EQU "True" (
   SET "LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=con"
   SET "PATH=%PATH%"
-  GOTO :COMPILER_SETTINGS
+  GOTO :AB_COMPILER_SETTINGS
 ) ELSE (
   SET "LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=exe"
 )
@@ -928,7 +928,7 @@ IF "%PLATFORM_ARCH%" EQU "x86" (
   ) ELSE (
     ECHO.
     ECHO -ERROR - vcvars32.bat not found.
-    GOTO :ERROR_END
+    GOTO :AB_ERROR_END
   )
   IF EXIST "%LP3D_QT32_MSVC%\qtenv2.bat" (
     SET "LP3D_QTENV_BAT=%LP3D_QT32_MSVC%\qtenv2.bat"
@@ -941,7 +941,7 @@ IF "%PLATFORM_ARCH%" EQU "x86" (
   ) ELSE (
     ECHO.
     ECHO -ERROR - %LP3D_VCVARS% not found.
-    GOTO :ERROR_END
+    GOTO :AB_ERROR_END
   )
   IF EXIST "%LP3D_QT64_MSVC%\qtenv2.bat" (
     SET "LP3D_QTENV_BAT=%LP3D_QT64_MSVC%\qtenv2.bat"
@@ -958,17 +958,17 @@ IF "%PLATFORM_ARCH%" == "ARM64" (
 )
 CALL "%LP3D_VCVARSALL_BAT%" %LP3D_VCVARSALL_VER%
 ECHO.
-IF "%LP3D_QTENV_BAT%" EQU "" (GOTO :ADD_QT_MSVC_PATH)
+IF "%LP3D_QTENV_BAT%" EQU "" (GOTO :AB_ADD_QT_MSVC_PATH)
 CALL "%LP3D_QTENV_BAT%"
 ECHO(   PATH_QTENV_PREPEND......[%PATH%])
-GOTO :COMPILER_SETTINGS
+GOTO :AB_COMPILER_SETTINGS
 
-:ADD_QT_MSVC_PATH
-IF "%LP3D_QT_MSVC_PATH%" EQU "" (GOTO :COMPILER_SETTINGS)
+:AB_ADD_QT_MSVC_PATH
+IF "%LP3D_QT_MSVC_PATH%" EQU "" (GOTO :AB_COMPILER_SETTINGS)
 SET "PATH=%LP3D_QT_MSVC_PATH%;%PATH%"
 ECHO(   PATH_QTMSVC_PREPEND.....[%PATH%])
 
-:COMPILER_SETTINGS
+:AB_COMPILER_SETTINGS
 IF "%LP3D_ARM64_QMAKE%" NEQ "1" (EXIT /b)
 rem Display MSVC Compiler settings
 ECHO.
@@ -978,9 +978,8 @@ ECHO.%LP3D_MSC_VER% > %TEMP%\settings.c
 cl.exe -Bv -EP %TEMP%\settings.c >NUL
 EXIT /b
 
-:BUILD_CHECK
+:AB_BUILD_CHECK
 ECHO.
-REM DEBUG============
 IF "%1" EQU "x86" (
   ECHO -%PACKAGE% %1 Build Check...
 ) ELSE (
@@ -1006,7 +1005,6 @@ IF "%1" EQU "x86" (
     )
   )
 )
-REM DEBUG============
 IF [%1] EQU [] (
   ECHO.
   ECHO -ERROR - No Platform defined, build check will exit.
@@ -1019,12 +1017,12 @@ IF NOT EXIST "%DIST_DIR%" (
 )
 
 SET PKG_PLATFORM=%1
-IF %CHECK% == 1 CALL :REQUEST_LDRAW_DIR
+IF %CHECK% == 1 CALL :AB_REQUEST_LDRAW_DIR
 rem run build checks
 CALL builds\check\build_checks.bat
 EXIT /b
 
-:STAGE_PKG_INSTALL
+:AB_STAGE_PKG_INSTALL
 rem Stage package 3rd party components
 ECHO.
 ECHO -Staging %1 nmake install distribution files...
@@ -1051,12 +1049,10 @@ rem Stage package dependent components
 ECHO.
 ECHO -Staging %1 windeployqt distribution files...
 ECHO.
-ECHO -DEBUG LP3D_DEPLOY_QT %LP3D_DEPLOY_QT%
-ECHO.
 %LP3D_DEPLOY_QT% "%PKG_TARGET_DIR%\%PACKAGE%%d%.exe"
 EXIT /b
 
-:ADD_LDRAW_LIBS_TO_EXTRAS
+:AB_ADD_LDRAW_LIBS_TO_EXTRAS
 IF NOT EXIST "%LDRAW_LIBS%\" (
   ECHO.
   ECHO -ERROR - LDraw store folder %LDRAW_LIBS% does not exist.
@@ -1125,10 +1121,10 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%LPub3DCONTENT%" (
 )
 EXIT /b
 
-:REQUEST_LDRAW_DIR
+:AB_REQUEST_LDRAW_DIR
 ECHO.
 ECHO -Request LDraw archive libraries download...
-CALL :DOWNLOAD_LDRAW_LIBS
+CALL :AB_DOWNLOAD_LDRAW_LIBS
 ECHO.
 ECHO -Check for LDraw LEGO disk library...
 IF NOT EXIST "%LDRAW_DIR%\parts" (
@@ -1171,7 +1167,7 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
 )
 EXIT /b
 
-:DOWNLOAD_LDRAW_LIBS
+:AB_DOWNLOAD_LDRAW_LIBS
 ECHO.
 ECHO - Download LDraw archive libraries...
 
@@ -1197,7 +1193,7 @@ IF EXIST %TEMP%\$\%vbs% (
  DEL %TEMP%\$\%vbs%
 )
 
-:WEB CONTENT SAVE-AS Download-- VBS
+:AB_WEB CONTENT SAVE-AS Download-- VBS
 >%t% Option Explicit
 >>%t% On Error Resume Next
 >>%t%.
@@ -1261,52 +1257,52 @@ IF "%APPVEYOR%" EQU "True" (
 )
 
 IF "%LP3D_UPDATE_LDRAW_LIBS%" EQU "-true" (
-  GOTO :UPDATE_ALL_LIBRARIES
+  GOTO :AB_UPDATE_ALL_LIBRARIES
 )
 
 IF "%LP3D_UPDATE_LDRAW_LIBS%" EQU "-ldraw" (
-  GOTO :UPDATE_LDRAW_LIBRARIES
+  GOTO :AB_UPDATE_LDRAW_LIBRARIES
 )
 
 IF NOT EXIST "%OutputPATH%\%OfficialCONTENT%" (
-  CALL :GET_OFFICIAL_LIBRARY
+  CALL :AB_GET_OFFICIAL_LIBRARY
 )  ELSE (
   IF "%LP3D_UPDATE_LDRAW_LIBS%" EQU "-official" (
     DEL /Q "%OutputPATH%\%OfficialCONTENT%"
-    CALL :GET_OFFICIAL_LIBRARY
+    CALL :AB_GET_OFFICIAL_LIBRARY
   ) ELSE (
     ECHO.
     ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
   )
 )
 IF NOT EXIST "%OutputPATH%\%TenteCONTENT%" (
-  CALL :GET_TENTE_LIBRARY
+  CALL :AB_GET_TENTE_LIBRARY
 ) ELSE (
   IF "%LP3D_UPDATE_LDRAW_LIBS%" EQU "-tente" (
     DEL /Q "%OutputPATH%\%TenteCONTENT%"
-    CALL :GET_TENTE_LIBRARY
+    CALL :AB_GET_TENTE_LIBRARY
   ) ELSE (
     ECHO.
     ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
   )
 )
 IF NOT EXIST "%OutputPATH%\%VexiqCONTENT%" (
-  CALL :GET_VEXIQ_LIBRARY
+  CALL :AB_GET_VEXIQ_LIBRARY
 ) ELSE (
   IF "%LP3D_UPDATE_LDRAW_LIBS%" EQU "-vexiq" (
     DEL /Q "%OutputPATH%\%VexiqCONTENT%"
-    CALL :GET_VEXIQ_LIBRARY
+    CALL :AB_GET_VEXIQ_LIBRARY
   ) ELSE (
     ECHO.
     ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
   )
 )
 IF NOT EXIST "%OutputPATH%\%LPub3DCONTENT%" (
-  CALL :GET_UNOFFICIAL_LIBRARY
+  CALL :AB_GET_UNOFFICIAL_LIBRARY
 ) ELSE (
   IF "%LP3D_UPDATE_LDRAW_LIBS%" EQU "-unofficial" (
     DEL /Q "%OutputPATH%\%LPub3DCONTENT%"
-    CALL :GET_UNOFFICIAL_LIBRARY
+    CALL :AB_GET_UNOFFICIAL_LIBRARY
   ) ELSE (
     ECHO.
     ECHO - LDraw archive library %LPub3DCONTENT% exist. Nothing to do.
@@ -1314,43 +1310,43 @@ IF NOT EXIST "%OutputPATH%\%LPub3DCONTENT%" (
 )
 EXIT /b
 
-:UPDATE_ALL_LIBRARIES
+:AB_UPDATE_ALL_LIBRARIES
 ECHO.
 ECHO - Update all libraries...
 
 IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
   DEL /Q "%OutputPATH%\%OfficialCONTENT%"
-  CALL :GET_OFFICIAL_LIBRARY
+  CALL :AB_GET_OFFICIAL_LIBRARY
 )
 IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   DEL /Q "%OutputPATH%\%LPub3DCONTENT%"
-  CALL :GET_UNOFFICIAL_LIBRARY
+  CALL :AB_GET_UNOFFICIAL_LIBRARY
 )
 IF EXIST "%OutputPATH%\%TenteCONTENT%" (
   DEL /Q "%OutputPATH%\%TenteCONTENT%"
-  CALL :GET_TENTE_LIBRARY
+  CALL :AB_GET_TENTE_LIBRARY
 )
 IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
   DEL /Q "%OutputPATH%\%VexiqCONTENT%
-  CALL :GET_VEXIQ_LIBRARY
+  CALL :AB_GET_VEXIQ_LIBRARY
 )
 EXIT /b
 
-:UPDATE_LDRAW_LIBRARIES
+:AB_UPDATE_LDRAW_LIBRARIES
 ECHO.
 ECHO - Update official and unofficial LDraw libraries...
 
 IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
   DEL /Q "%OutputPATH%\%OfficialCONTENT%"
-  CALL :GET_OFFICIAL_LIBRARY
+  CALL :AB_GET_OFFICIAL_LIBRARY
 )
 IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   DEL /Q "%OutputPATH%\%LPub3DCONTENT%"
-  CALL :GET_UNOFFICIAL_LIBRARY
+  CALL :AB_GET_UNOFFICIAL_LIBRARY
 )
 EXIT /b
 
-:GET_OFFICIAL_LIBRARY
+:AB_GET_OFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%OfficialCONTENT%
 
@@ -1364,7 +1360,7 @@ IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
 )
 EXIT /b
 
-:GET_TENTE_LIBRARY
+:AB_GET_TENTE_LIBRARY
 SET WebCONTENT="%OutputPATH%\%TenteCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%TenteCONTENT%
 
@@ -1378,7 +1374,7 @@ IF EXIST "%OutputPATH%\%TenteCONTENT%" (
 )
 EXIT /b
 
-:GET_VEXIQ_LIBRARY
+:AB_GET_VEXIQ_LIBRARY
 SET WebCONTENT="%OutputPATH%\%VexiqCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%VexiqCONTENT%
 
@@ -1392,7 +1388,7 @@ IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
 )
 EXIT /b
 
-:GET_UNOFFICIAL_LIBRARY
+:AB_GET_UNOFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%LPub3DCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%LPub3DCONTENT%
 
@@ -1409,17 +1405,17 @@ IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
 )
 EXIT /b
 
-:WD_ABS_PATH
+:AB_WD_ABS_PATH
 IF [%1] EQU [] (EXIT /B) ELSE SET ABS_WD=%~f1
 IF %ABS_WD:~-1%==\ SET ABS_WD=%ABS_WD:~0,-1%
 EXIT /b
 
-:DIST_DIR_ABS_PATH
+:AB_DIST_DIR_ABS_PATH
 IF [%1] EQU [] (EXIT /B) ELSE SET DIST_DIR=%~f1
 IF %DIST_DIR:~-1%==\ SET DIST_DIR=%DIST_DIR:~0,-1%
 EXIT /b
 
-:ELAPSED_BUILD_TIME
+:AB_ELAPSED_BUILD_TIME
 IF [%1] EQU [] (SET start=%build_start%) ELSE (
   IF "%1"=="Start" (
     SET build_start=%time%
@@ -1445,43 +1441,43 @@ IF 1%ms% lss 100 SET ms=0%ms%
 SET LP3D_ELAPSED_BUILD_TIME=%hours%:%mins%:%secs%.%ms%
 EXIT /b
 
-:ARGUMENT_ERROR
+:AB_ARGUMENT_ERROR
 ECHO.
 ECHO -Required subroutine %1 argument was not specified.
-GOTO :ERROR_END
+GOTO :AB_ERROR_END
 
-:PLATFORM_ERROR
+:AB_PLATFORM_ERROR
 ECHO.
 ECHO -01. (PLATFORM_ERROR) Platform or usage flag is invalid. Use x86, x86_64, arm64 or -all_amd [%~nx0 %*].
 ECHO      See Usage.
 ECHO.
-CALL :USAGE
-GOTO :ERROR_END
+CALL :AB_USAGE
+GOTO :AB_ERROR_END
 
-:CONFIGURATION_ERROR
+:AB_CONFIGURATION_ERROR
 ECHO.
 ECHO -02. (CONFIGURATION_ERROR) Configuration flag is invalid [%~nx0 %*].
 ECHO      See Usage.
 ECHO.
-CALL :USAGE
-GOTO :ERROR_END
+CALL :AB_USAGE
+GOTO :AB_ERROR_END
 
-:COMMAND_ERROR
+:AB_COMMAND_ERROR
 ECHO.
 ECHO -03. (COMMAND_ERROR) Invalid command string [%~nx0 %*].
 ECHO      See Usage.
 ECHO.
-CALL :USAGE
-GOTO :ERROR_END
+CALL :AB_USAGE
+GOTO :AB_ERROR_END
 
-:LIBRARY_ERROR
+:AB_LIBRARY_ERROR
 ECHO.
 ECHO -04. (LIBRARY_ERROR) Qt MSVC library [%LP3D_QT32_MSVC%] or [%LP3D_QT64_MSVC%] required for command not found [%~nx0 %*].
 ECHO      See Usage.
-CALL :USAGE
-GOTO :ERROR_END
+CALL :AB_USAGE
+GOTO :AB_ERROR_END
 
-:USAGE
+:AB_USAGE
 ECHO ----------------------------------------------------------------
 ECHO.
 ECHO %PACKAGE% Windows auto build script.
@@ -1551,20 +1547,20 @@ ECHO If no flag is supplied, 64bit platform, Release Configuration built by defa
 ECHO ----------------------------------------------------------------
 EXIT /b
 
-:END_STATUS
-CALL :ELAPSED_BUILD_TIME
+:AB_END_STATUS
+CALL :AB_ELAPSED_BUILD_TIME
 ECHO  Elapsed build time %LP3D_ELAPSED_BUILD_TIME%
 EXIT /b
 
-:ERROR_END
+:AB_ERROR_END
 ECHO.
 ECHO -%PACKAGE% %~nx0 FAILED with return code %ERRORLEVEL%.
 ECHO -%~nx0 will terminate!
-CALL :END_STATUS
+CALL :AB_END_STATUS
 EXIT /b 3
 
-:END
+:AB_END
 ECHO.
 ECHO -%PACKAGE% v%LP3D_VERSION% %~nx0 finished with return code %ERRORLEVEL%.
-CALL :END_STATUS
+CALL :AB_END_STATUS
 EXIT /b

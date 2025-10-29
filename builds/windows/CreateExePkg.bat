@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 28, 2025
+rem  Last Update: October 29, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@ SETLOCAL
 @break off
 @color 0a
 
-CALL :ELAPSED_BUILD_TIME Start
+CALL :CEP_ELAPSED_BUILD_TIME Start
 
 ECHO.
 ECHO ------------------------------------------------------
@@ -25,14 +25,14 @@ ECHO - Create Windows LPub3D distributions
 REM Set the current working directory to the source directory root - e.g. lpub3d\
 FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
 IF "%SCRIPT_RUN_DIR%" EQU "windows" (
-  CALL :WD_ABS_PATH ..\..\
+  CALL :CEP_WD_ABS_PATH ..\..\
 ) ELSE (
-  CALL :WD_ABS_PATH .
+  CALL :CEP_WD_ABS_PATH .
 )
 
 IF NOT EXIST "%ABS_WD%\mainApp" (
   ECHO -ERROR - mainApp folder not found. Working directory %ABS_WD% is not valid.
-  GOTO :ERROR_END
+  GOTO :CEP_ERROR_END
 )
 
 SET _PRO_FILE_PWD_=%CD%\mainApp
@@ -51,7 +51,7 @@ IF "%LP3D_MSC32_VER%" == "" SET LP3D_MSC32_VER=1929
 IF "%LP3D_MSC64_VER%" == "" SET LP3D_MSC64_VER=1944
 IF "%LP3D_MSCARM64_VER%" == "" SET LP3D_MSCARM64_VER=1944
 
-SET RUN_NSIS=1
+SET CREATE_NSIS=1
 SET SIGN_APP=0
 SET WIN32_SSL=1
 SET WIN64_SSL=0
@@ -119,7 +119,7 @@ IF /I "%APPVEYOR%" EQU "True" (
 
 IF %AUTO% NEQ 1 (
   ECHO.
-  SET /p RUN_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
+  SET /p CREATE_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%CREATE_NSIS%]:
   ECHO.
   SET /p CREATE_PORTABLE= - Create Portable Distributions? Type 1 to create, 0 to ignore or 'Enter' to accept default [%CREATE_PORTABLE%]:
   ECHO.
@@ -142,7 +142,7 @@ IF %TEST_CI_BUILD%   == 1 ECHO - This configuration will allow you to test your 
 IF /I "%GITHUB%"     == "True" ECHO   GITHUB BUILD.........................[Yes]
 IF /I "%APPVEYOR%"   == "True" ECHO   APPVEYOR BUILD.......................[Yes]
 IF %AUTO%            == 1 ECHO   AUTOMATIC BUILD......................[Yes]
-IF %RUN_NSIS%        == 1 ECHO   RUN NSIS BUILD UTILITY...............[Yes]
+IF %CREATE_NSIS%        == 1 ECHO   RUN NSIS BUILD UTILITY...............[Yes]
 IF %SIGN_APP%        == 1 ECHO   SIGN INSTALL PACKAGES................[Yes]
 IF %LP3D_AMD_UNIVERSAL_BUILD% == 1 (
   ECHO   MULTI-ARCH BUILD.....................[Yes]
@@ -150,14 +150,14 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% == 1 (
   ECHO   MULTI-ARCH BUILD.....................[No]
   ECHO   BUILD ARCHITECTURE...................[%LP3D_BUILD_ARCH%]
 )
-IF %RUN_NSIS%        == 0 ECHO   RUN NSIS BUILD UTILITY...............[No]
+IF %CREATE_NSIS%        == 0 ECHO   RUN NSIS BUILD UTILITY...............[No]
 IF %SIGN_APP%        == 0 ECHO   SIGN INSTALL PACKAGES................[No]
 IF %AUTO%            == 0 ECHO   AUTOMATIC BUILD......................[No]
 
-IF %RUN_NSIS% == 0 ECHO.
-IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Start build process...
+IF %CREATE_NSIS% == 0 ECHO.
+IF %CREATE_NSIS% == 0 ECHO - Start NSIS test build process...
+IF %CREATE_NSIS% == 1 ECHO.
+IF %CREATE_NSIS% == 1 ECHO - Start build process...
 
 IF %LP3D_VALID_TAR% == 1 (
   SET "ZIP_UTILITY=%LP3D_WIN_TAR%"
@@ -192,19 +192,19 @@ SET PKey="%UTILITIES_DIR%\cert\lpub3dPrivateKey.p12"
 ECHO.
 ECHO - Environment check...
 
-IF %RUN_NSIS% == 0 GOTO :MAIN
+IF %CREATE_NSIS% == 0 GOTO :CEP_MAIN
 
 IF EXIST "%NSIS_UTILITY%" (
   ECHO.
   ECHO - NSIS executable found at "%NSIS_UTILITY%"
-  GOTO :SIGN
+  GOTO :CEP_SIGN
 )
 ECHO.
 ECHO * NSIS exectutable not at path defined. Only NSIS test configuration will be produced.
-GOTO :MAIN
+GOTO :CEP_MAIN
 
-:SIGN
-IF %SIGN_APP% == 0 GOTO :CHK_ZIP
+:CEP_SIGN
+IF %SIGN_APP% == 0 GOTO :CEP_CHECK_ZIP
 IF /I "%GITHUB%" NEQ "True" (
   IF /I "%APPVEYOR%" NEQ "True" (
     SET PwD=unknown
@@ -224,14 +224,14 @@ IF /I "%GITHUB%" NEQ "True" (
   )
 )
 
-:CHK_ZIP
+:CEP_CHECK_ZIP
 IF EXIST "%ZIP_UTILITY_64%" (
   SET "ZIP_UTILITY=%ZIP_UTILITY_64%\7z.exe"
   SET "LP3D_WIN_TAR_MSG=%ZIP_UTILITY%"
   SET LP3D_VALID_7ZIP=1
   ECHO.
   ECHO - Zip exectutable found at "%ZIP_UTILITY_64%"
-  GOTO :MAIN
+  GOTO :CEP_MAIN
 ) ELSE (
   IF EXIST "%ZIP_UTILITY_32%" (
     SET "ZIP_UTILITY=%ZIP_UTILITY_32%\7z.exe"
@@ -239,7 +239,7 @@ IF EXIST "%ZIP_UTILITY_64%" (
     SET LP3D_VALID_7ZIP=1
     ECHO.
     ECHO - Zip exectutable found at "%ZIP_UTILITY_32%"
-    GOTO :MAIN
+    GOTO :CEP_MAIN
   )
 )
 
@@ -260,7 +260,7 @@ IF %AUTO% NEQ 1 (
 
   IF %OPTION% == 1 (
     ECHO * Option to exit seleced, the script will terminate.
-    GOTO :ERROR_END
+    GOTO :CEP_ERROR_END
   )
 )
 
@@ -268,10 +268,10 @@ IF NOT EXIST "%ZIP_UTILITY%" (
   SET CREATE_PORTABLE=0
   ECHO.
   ECHO * Could not find zip executable. Portable distributions will be ignored.
-  GOTO :MAIN
+  GOTO :CEP_MAIN
 )
 
-:MAIN
+:CEP_MAIN
 SET LP3D_PRODUCT=unknown
 SET LP3D_COMPANY=unknown
 SET LP3D_COMMENTS=unknown
@@ -337,12 +337,12 @@ CD /D "%UTILITIES_DIR%"
 SET "LP3D_ICON_DIR=%CD%\icons"
 
 CALL update-config-files.bat %_PRO_FILE_PWD_%
-IF ERRORLEVEL 1 (GOTO :ERROR_END)
+IF ERRORLEVEL 1 (GOTO :CEP_ERROR_END)
 
 IF /I "%APPVEYOR%" EQU "True" (
-  CALL :CREATE_LP3D_PS_VARS_FILE
+  CALL :CEP_CREATE_LP3D_PS_VARS_FILE
 )
-CALL :CREATE_LP3D_BASH_VARS_FILE
+CALL :CEP_CREATE_LP3D_BASH_VARS_FILE
 
 REM Token assignments
 REM tokens=*  : all tokens in %%i                               - e.g. %%i
@@ -439,7 +439,7 @@ IF NOT EXIST "%CONFIGURATION%\%LP3D_PRODUCT_DIR%" (
   ECHO.
   ECHO -ERROR - Did not find %LP3D_PRODUCT% product directory.
   ECHO -Expected %LP3D_PRODUCT_DIR% at "%CD%\%CONFIGURATION%\"
-  GOTO :ERROR_END
+  GOTO :CEP_ERROR_END
 )
 
 REM pwd = windows/release/LP3D_PRODUCT_DIR [holds _PKG_DIST_DIR, PKG_UPDATE_DIR, PKG_DOWNLOAD_DIR, PKG_LOGS_DIR]
@@ -558,7 +558,7 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
           IF "!LP3D_DISTRO_ARCH!" NEQ "ARM64" (
             ECHO.
             ECHO * !LP3D_DISTRO_ARCH! is not valid for single architecture build.
-            GOTO :ERROR_END
+            GOTO :CEP_ERROR_END
           )
         )
       )
@@ -577,10 +577,10 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     ECHO   LP3D_QT32_VERSION.................[%LP3D_QT32VERSION%]
     FOR /f "tokens=1 delims=." %%A IN ("%LP3D_QT32VERSION%") DO SET "LP3D_QT_MAJ_VER=%%A"
     ECHO   LP3D_QT_MAJOR_VERSION.............[!LP3D_QT_MAJ_VER!]
-    CALL :SETSSLVERSION %LP3D_QT32VCVERSION%
-    CALL :DOWNLOADOPENSSLLIBS
+    CALL :CEP_SET_SSL_VERSION %LP3D_QT32VCVERSION%
+    CALL :CEP_DOWNLOAD_OPENSSL_LIBS
 	IF NOT EXIST "!PKG_DISTRO_DIR!\vc_redist.x86.exe" (
-      CALL :DOWNLOADMSVCREDIST %LP3D_MSC32_VER% !LP3D_DISTRO_ARCH!
+      CALL :CEP_DOWNLOAD_MSVC_REDIST %LP3D_MSC32_VER% !LP3D_DISTRO_ARCH!
 	)
   ) ELSE (
     rem !LP3D_DISTRO_ARCH!==x86_64 or !LP3D_DISTRO_ARCH!==ARM64
@@ -590,26 +590,26 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
     FOR /f "tokens=1 delims=." %%A IN ("%LP3D_QT64VERSION%") DO SET "LP3D_QT_MAJ_VER=%%A"
     ECHO   LP3D_QT_MAJOR_VERSION.............[!LP3D_QT_MAJ_VER!]
     IF !LP3D_QT_MAJ_VER! EQU 6 (SET WIN64_SSL=0) ELSE (SET WIN64_SSL=1)
-    IF !WIN64_SSL! EQU 1 CALL :SETSSLVERSION %LP3D_QT64VCVERSION%
-    IF !WIN64_SSL! EQU 1 CALL :DOWNLOADOPENSSLLIBS
+    IF !WIN64_SSL! EQU 1 CALL :CEP_SET_SSL_VERSION %LP3D_QT64VCVERSION%
+    IF !WIN64_SSL! EQU 1 CALL :CEP_DOWNLOAD_OPENSSL_LIBS
     IF /I !LP3D_DISTRO_ARCH!==x86_64 (
 	  IF NOT EXIST "!PKG_DISTRO_DIR!\vc_redist.x64.exe" (
-	    CALL :DOWNLOADMSVCREDIST %LP3D_MSC64_VER% !LP3D_DISTRO_ARCH!
+	    CALL :CEP_DOWNLOAD_MSVC_REDIST %LP3D_MSC64_VER% !LP3D_DISTRO_ARCH!
 	  )
 	)
     IF /I !LP3D_DISTRO_ARCH!==ARM64 (
 	  IF NOT EXIST "!PKG_DISTRO_DIR!\vc_redist.arm64.exe" (
-	    CALL :DOWNLOADMSVCREDIST %LP3D_MSCARM64_VER% !LP3D_DISTRO_ARCH!
+	    CALL :CEP_DOWNLOAD_MSVC_REDIST %LP3D_MSCARM64_VER% !LP3D_DISTRO_ARCH!
 	  )
 	)
   )
   SET LP3D_DOWNLOAD_PRODUCT=%LP3D_PRODUCT%-!LP3D_DISTRO_ARCH!-%LP3D_APP_VERSION_LONG%
-  CALL :COPYFILES
-  CALL :DOWNLOADLDRAWLIBS
-  IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
-  IF %RUN_NSIS% == 1 CALL :NSISBUILD
-  IF %SIGN_APP% == 1 CALL :SIGNAPP
-  IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
+  CALL :CEP_COPY_FILES
+  CALL :CEP_DOWNLOAD_LDRAW_LIBS
+  IF %CREATE_NSIS% == 1 CALL :CEP_GENERATE_NSIS_PARAMS
+  IF %CREATE_NSIS% == 1 CALL :CEP_CREATE_NSIS_DISTRO
+  IF %SIGN_APP% == 1 CALL :CEP_SIGNAPP
+  IF %CREATE_PORTABLE% == 1 CALL :CEP_CREATE_PORTABLE_DISTRO
   ENDLOCAL DISABLEDELAYEDEXPANSION
 ) ELSE (
   REM AMD UNIVERSAL BUILD
@@ -630,10 +630,10 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
       ECHO   LP3D_QT32_VERSION.................[%LP3D_QT32VERSION%]
       FOR /f "tokens=1 delims=." %%B IN ("%LP3D_QT32VERSION%") DO SET "LP3D_QT_MAJ_VER=%%B"
       ECHO   LP3D_QT_MAJOR_VERSION.............[!LP3D_QT_MAJ_VER!]
-      CALL :SETSSLVERSION %LP3D_QT32VCVERSION%
-      CALL :DOWNLOADOPENSSLLIBS
+      CALL :CEP_SET_SSL_VERSION %LP3D_QT32VCVERSION%
+      CALL :CEP_DOWNLOAD_OPENSSL_LIBS
 	  IF NOT EXIST "!PKG_DISTRO_DIR!\vc_redist.x86.exe" (
-        CALL :DOWNLOADMSVCREDIST %LP3D_MSC32_VER% %%A
+        CALL :CEP_DOWNLOAD_MSVC_REDIST %LP3D_MSC32_VER% %%A
 	  )
     ) ELSE (
       rem %%A==x86_64
@@ -643,42 +643,42 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
       FOR /f "tokens=1 delims=." %%B IN ("%LP3D_QT64VERSION%") DO SET "LP3D_QT_MAJ_VER=%%B"
       ECHO   LP3D_QT_MAJOR_VERSION.............[!LP3D_QT_MAJ_VER!]
       IF !LP3D_QT_MAJ_VER! EQU 6 (SET WIN64_SSL=0) ELSE (SET WIN64_SSL=1)
-      IF !WIN64_SSL! EQU 1 CALL :SETSSLVERSION %LP3D_QT64VCVERSION%
-      IF !WIN64_SSL! EQU 1 CALL :DOWNLOADOPENSSLLIBS
+      IF !WIN64_SSL! EQU 1 CALL :CEP_SET_SSL_VERSION %LP3D_QT64VCVERSION%
+      IF !WIN64_SSL! EQU 1 CALL :CEP_DOWNLOAD_OPENSSL_LIBS
 	  IF NOT EXIST "!PKG_DISTRO_DIR!\vc_redist.x64.exe" (
-	    CALL :DOWNLOADMSVCREDIST %LP3D_MSC64_VER% %%A
+	    CALL :CEP_DOWNLOAD_MSVC_REDIST %LP3D_MSC64_VER% %%A
 	  )
     )
-    CALL :COPYFILES
+    CALL :CEP_COPY_FILES
     ENDLOCAL DISABLEDELAYEDEXPANSION
   )
-  CALL :DOWNLOADLDRAWLIBS
-  IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
-  IF %RUN_NSIS% == 1 CALL :NSISBUILD
-  IF %SIGN_APP% == 1 CALL :SIGNAPP
+  CALL :CEP_DOWNLOAD_LDRAW_LIBS
+  IF %CREATE_NSIS% == 1 CALL :CEP_GENERATE_NSIS_PARAMS
+  IF %CREATE_NSIS% == 1 CALL :CEP_CREATE_NSIS_DISTRO
+  IF %SIGN_APP% == 1 CALL :CEP_SIGNAPP
   FOR %%A IN ( x86_64, x86 ) DO (
     SET LP3D_DISTRO_ARCH=%%A
     SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
     SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%%A-%LP3D_APP_VERSION_LONG%
-    IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
+    IF %CREATE_PORTABLE% == 1 CALL :CEP_CREATE_PORTABLE_DISTRO
   )
 )
 
-CALL :GENERATE_JSON
+CALL :CEP_GENERATE_JSON
 
 IF "%GITHUB%" EQU "True" (
-  CALL :MOVE_ASSETS_TO_DISTRO_PATH
+  CALL :CEP_MOVE_ASSETS_TO_DISTRO_PATH
   REM reset ErrorLevel to 0 from 1 for unsuccessful FINDSTR in MOVE_ASSETS_TO_DISTRO_PATH
   (CALL )
 )
 
 IF %AUTO% NEQ 1 (
-  CALL :POSTPROCESS
+  CALL :CEP_POST_PROCESS
 )
 
-GOTO :END
+GOTO :CEP_END
 
-:SETSSLVERSION
+:CEP_SET_SSL_VERSION
 IF %1 GEQ 2019 (
   SET OPENSSL_VER=v1.1
 ) ELSE (
@@ -687,7 +687,7 @@ IF %1 GEQ 2019 (
 ECHO   OPEN_SSL_VERSION..................[%OPENSSL_VER%]
 EXIT /b
 
-:COPYFILES
+:CEP_COPY_FILES
 REM Product Full Version Format:
 REM Product _ Version . Revision . Build _ Date YYYYMMDD
 REM LPub3D  _ 2.0.20  . 106      . 752   _ 20170929
@@ -705,7 +705,7 @@ IF NOT EXIST "%PKG_DISTRO_DIR%" (
   ECHO * Did not find distribution package directory.
   ECHO * Expected "%PKG_DISTRO_DIR%" at "%CD%".
   ECHO * Build "%LP3D_PRODUCT%_%LP3D_APP_VERSION_LONG%" cannot continue.
-  GOTO :ERROR_END
+  GOTO :CEP_ERROR_END
 )
 
 ECHO.
@@ -731,7 +731,7 @@ IF EXIST %PKG_DISTRO_DIR%\docs\COPYING_BRIEF (
 )
 EXIT /b
 
-:GENERATENSISPARAMS
+:CEP_GENERATE_NSIS_PARAMS
 REM pwd = builds\windows\release\LP3D_PRODUCT_DIR
 PUSHD "%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
@@ -799,7 +799,7 @@ SETLOCAL DISABLEDELAYEDEXPANSION
 SET versionFile=..\..\..\utilities\nsis-scripts\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
-:GENERATE AppVersion.nsh NSIS build parameters file
+:CEP_GENERATE AppVersion.nsh NSIS build parameters file
 >%genVersion% !define IconDir "%LP3D_ICON_DIR%"
 >>%genVersion% ; ${IconDir}
 >>%genVersion%.
@@ -991,21 +991,21 @@ REM )
 EXIT /b
 
 REM pwd = windows/release/LP3D_PRODUCT_DIR
-:NSISBUILD
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Installer Build...
+:CEP_CREATE_NSIS_DISTRO
+IF %CREATE_NSIS% == 1 ECHO.
+IF %CREATE_NSIS% == 1 ECHO - Start NSIS Master Installer Build...
 
-IF %RUN_NSIS% == 0 ECHO.
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Installer Build
+IF %CREATE_NSIS% == 0 ECHO.
+IF %CREATE_NSIS% == 0 ECHO - Ignore NSIS Master Installer Build
 
-IF %RUN_NSIS% == 1 "%NSIS_UTILITY%" /DDownloadMaster ..\..\..\utilities\nsis-scripts\LPub3DNoPack.nsi | FINDSTR /i /r /c:"^Processing\>" /c:"^Output\>"
+IF %CREATE_NSIS% == 1 "%NSIS_UTILITY%" /DDownloadMaster ..\..\..\utilities\nsis-scripts\LPub3DNoPack.nsi | FINDSTR /i /r /c:"^Processing\>" /c:"^Output\>"
 
-IF %RUN_NSIS% == 1 MOVE /Y    %LP3D_DOWNLOAD_PRODUCT%.exe %PKG_DOWNLOAD_DIR%\ | FINDSTR /i /v /r /c:"moved\>"
+IF %CREATE_NSIS% == 1 MOVE /Y    %LP3D_DOWNLOAD_PRODUCT%.exe %PKG_DOWNLOAD_DIR%\ | FINDSTR /i /v /r /c:"moved\>"
 
-IF %RUN_NSIS% == 1 ECHO   Finished NSIS Master Installer Build
+IF %CREATE_NSIS% == 1 ECHO   Finished NSIS Master Installer Build
 EXIT /b
 
-:CREATEPORTABLEDISTRO
+:CEP_CREATE_PORTABLE_DISTRO
 IF %CREATE_PORTABLE% == 1 ECHO.
 IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_DISTRO_ARCH% portable install archive package file...
 
@@ -1025,7 +1025,7 @@ IF %CREATE_PORTABLE% == 1 (
 )
 EXIT /b
 
-:SIGNAPP
+:CEP_SIGNAPP
 IF /I "%GITHUB%" EQU "True" (
   ECHO.
   ECHO * Application sha512 hash signed at end of build.
@@ -1066,14 +1066,14 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1
 IF %SIGN_APP% == 1 ECHO   Finished Application Code Signing
 EXIT /b
 
-:GENERATE_JSON
+:CEP_GENERATE_JSON
 ECHO.
 ECHO - Generate update package alternate version json inserts...
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET /A updateCount=0
 FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
  SET /A updateCount+=1
- CALL :GENERATE_ALT_VERSION_INSERTS %%e !updateCount!
+ CALL :CEP_GENERATE_ALT_VERSION_INSERTS %%e !updateCount!
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 
@@ -1084,7 +1084,7 @@ SET updateName=lpub3dupdates
 SET updatesFile=%PKG_UPDATE_DIR%\%updateName%.json
 SET genLPub3DUpdates=%updatesFile% ECHO
 
-:GENERATE LPub3D lpub3dupdates.json template file
+:CEP_GENERATE_1 LPub3D lpub3dupdates.json template file
 >%genLPub3DUpdates% {
 >>%genLPub3DUpdates%   "_comment": "LPub3D application updates %updateName%.json generated on %LP3D_DATE_TIME%",
 >>%genLPub3DUpdates%   "updates": {
@@ -1092,7 +1092,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 SET /A updateCount=0
 FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
   SET /A updateCount+=1
-  CALL :GENERATE_UPDATES_JSON %updateName% %%b !updateCount!
+  CALL :CEP_GENERATE_UPDATES_JSON %updateName% %%b !updateCount!
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%   }
@@ -1135,7 +1135,7 @@ SET updateName=complete
 SET updatesFile=%PKG_UPDATE_DIR%\%updateName%.json
 SET genLPub3DUpdates=%updatesFile% ECHO
 
-:GENERATE LDRaw official library json file
+:CEP_GENERATE_2 LDRaw official library json file
 >%genLPub3DUpdates% {
 >>%genLPub3DUpdates%   "_comment": "LPub3D LDraw library %updateName%.json generated on %LP3D_DATE_TIME%",
 >>%genLPub3DUpdates%   "updates": {
@@ -1143,7 +1143,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 SET /A updateCount=0
 FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
   SET /A updateCount+=1
-  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !updateCount!
+  CALL :CEP_GENERATE_LIBRARY_JSON %updateName% %%b !updateCount!
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%   }
@@ -1154,7 +1154,7 @@ SET updateName=lpub3dldrawunf
 SET updatesFile=%PKG_UPDATE_DIR%\%updateName%.json
 SET genLPub3DUpdates=%updatesFile% ECHO
 
-:GENERATE LDRaw unofficial library json file
+:CEP_GENERATE_3 LDRaw unofficial library json file
 >%genLPub3DUpdates% {
 >>%genLPub3DUpdates%   "_comment": "LPub3D lpub3dupdates.json generated on %LP3D_DATE_TIME%",
 >>%genLPub3DUpdates%   "updates": {
@@ -1162,7 +1162,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 SET /A updateCount=0
 FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
   SET /A updateCount+=1
-  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !updateCount!
+  CALL :CEP_GENERATE_LIBRARY_JSON %updateName% %%b !updateCount!
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%   }
@@ -1174,11 +1174,11 @@ ECHO - Generate latest.txt version input file (for backward compatability)...
 
 SET latestFile=%PKG_UPDATE_DIR%\latest.txt
 SET genLatest=%latestFile% ECHO
-:GENERATE latest.txt file
+:CEP_GENERATE_4 latest.txt file
 >%genLatest% %LP3D_VERSION%
 EXIT /b
 
-:GENERATE_UPDATES_JSON
+:CEP_GENERATE_UPDATES_JSON
 IF %3 GTR 8 (
   SET DIST_ID=linux
 ) ELSE (
@@ -1200,7 +1200,7 @@ CALL SET "LP3D_AVAILABLE_VERSIONS=%%%LP3D_AVAILABLE_VERSIONS%%%"
 SET updatesFile=%PKG_UPDATE_DIR%\%1.json
 SET genLPub3D1Updates=%updatesFile% ECHO
 
-:GENERATE Generate LPub3D application updates json file
+:CEP_GENERATE_5 Generate LPub3D application updates json file
 IF %3 EQU  5 (>>%genLPub3DUpdates%     "_comment_exe": "legacy windows block",)         & ::windows-exe
 IF %3 EQU  8 (>>%genLPub3DUpdates%     "_comment_dmg": "legacy macos block",)           & ::macos-dmg
 IF %3 EQU 11 (>>%genLPub3DUpdates%     "_comment_deb": "legacy linux deb block",)       & ::linux-deb
@@ -1241,7 +1241,7 @@ IF %3 EQU %LP3D_UPDATE_SIZE% (
 )
 EXIT /b
 
-:GENERATE_LIBRARY_JSON
+:CEP_GENERATE_LIBRARY_JSON
 IF "%1" EQU "complete" (
   SET DIR=updates
   SET NAME=%1
@@ -1258,7 +1258,7 @@ IF %3 GTR 8 (
 SET updatesFile=%PKG_UPDATE_DIR%\%1.json
 SET genLPub3D1Updates=%updatesFile% ECHO
 
-:GENERATE Generate LDraw library json file
+:CEP_GENERATE_6 Generate LDraw library json file
 >>%genLPub3DUpdates%     "%DIST_ID%-%2": {
 >>%genLPub3DUpdates%       "ownload-name": "%1.zip",
 >>%genLPub3DUpdates%       "open-url": "https://library.ldraw.org/",
@@ -1270,7 +1270,7 @@ IF %3 EQU %LP3D_UPDATE_SIZE% (
 )
 EXIT /b
 
-:GENERATE_ALT_VERSION_INSERTS
+:CEP_GENERATE_ALT_VERSION_INSERTS
 SET "LP3D_EXT=%1"
 SET LP3D_MASTER=1
 IF "%LP3D_EXT%" EQU "exe" (SET "LP3D_EXT=win_exe") & ::Replace 'exe' to avoid 'exe=.exe' which expands to 'exeexe'
@@ -1293,7 +1293,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   SET "L=0"
   SET "I=%%V"
   SET "I=!I:.=!"
-  CALL :VERSIONLENGTH I L
+  CALL :CEP_VERSION_LENGTH I L
   SET "Z=0000"
   SET "P=!I!!Z!"
   SET "I=!P:~0,4!"
@@ -1388,7 +1388,7 @@ IF EXIST "%versionInsert%" (
 )
 EXIT /b
 
-:VERSIONLENGTH
+:CEP_VERSION_LENGTH
 REM %1 = input var, %2 = output var
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET "IN=!%~1!"
@@ -1396,11 +1396,11 @@ SET "LEN=0"
 FOR %%A IN (!IN!) DO (
   SET /A LEN+=1
 )
-:ENDLOOP
+:CEP_END_LOOP
 ( ENDLOCAL & SET "%~2=%LEN%" )
 EXIT /b
 
-:DOWNLOADOPENSSLLIBS
+:CEP_DOWNLOAD_OPENSSL_LIBS
 ECHO.
 ECHO - Download Windows %OPENSSL_LIB% libraries for platform [%LP3D_DISTRO_ARCH%]...
 
@@ -1412,7 +1412,7 @@ IF /I "%APPVEYOR%" EQU "True" (
 )
 IF /I "%GITHUB%" NEQ "True" (
   IF /I "%APPVEYOR%" NEQ "True" (
-    CALL :DIST_DIR_REL_TO_ABS ..\..\..\..\..\lpub3d_windows_3rdparty
+    CALL :CEP_DIST_DIR_REL_TO_ABS ..\..\..\..\..\lpub3d_windows_3rdparty
   )
 )
 
@@ -1434,7 +1434,7 @@ SET OpensslCONTENT=unknown
 SET OpensslVERIFIED=unknown
 SET OutputPATH=%OPENSSL_LIB_DIR%
 
-CALL :CREATEWEBCONTENTDOWNLOADVBS
+CALL :CEP_CREATE_WEB_CONTENT_DOWNLOAD_VBS
 
 REM For libEAY
 IF "%OPENSSL_VER%" EQU "v1.0" (
@@ -1458,13 +1458,13 @@ ECHO.
 ECHO - Library %OpensslVERIFIED% download path: [%OutputPATH%\%OpensslCONTENT%]
 
 IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-  CALL :GET_OPENSSL_LIB
+  CALL :CEP_GET_OPENSSL_LIB
 )  ELSE (
   ECHO.
   ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_DISTRO_ARCH% library %OpensslVERIFIED% exist. Nothing to do.
 )
 
-CALL :SET_OPENSSL_LIB
+CALL :CEP_SET_OPENSSL_LIB
 
 REM For libSSL
 IF "%OPENSSL_VER%" EQU "v1.0" (
@@ -1488,16 +1488,16 @@ ECHO.
 ECHO - Library %OpensslVERIFIED% download path: [%OutputPATH%\%OpensslCONTENT%]
 
 IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-  CALL :GET_OPENSSL_LIB
+  CALL :CEP_GET_OPENSSL_LIB
 )  ELSE (
   ECHO.
   ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_DISTRO_ARCH% library %OpensslVERIFIED% exist. Nothing to do.
 )
 
-CALL :SET_OPENSSL_LIB
+CALL :CEP_SET_OPENSSL_LIB
 EXIT /b
 
-:GET_OPENSSL_LIB
+:CEP_GET_OPENSSL_LIB
 SET WebCONTENT="%OutputPATH%\%OpensslCONTENT%"
 SET WebNAME=%LP3D_LIBS_BASE%/%OpensslCONTENT%
 
@@ -1524,7 +1524,7 @@ IF "%LP3D_DISTRO_ARCH%" EQU "x86_64" (
 )
 EXIT /b
 
-:SET_OPENSSL_LIB
+:CEP_SET_OPENSSL_LIB
 SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%
 
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
@@ -1550,7 +1550,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
 )
 EXIT /b
 
-:DOWNLOADMSVCREDIST
+:CEP_DOWNLOAD_MSVC_REDIST
 SET LP3D_DISTRO_ARCH=%2
 IF /I "%LP3D_DISTRO_ARCH%" EQU "x86" SET _AR=%LP3D_DISTRO_ARCH%
 IF /I "%LP3D_DISTRO_ARCH%" EQU "x86_64" SET _AR=x64
@@ -1566,7 +1566,7 @@ IF /I "%APPVEYOR%" EQU "True" (
 )
 IF /I "%GITHUB%" NEQ "True" (
   IF /I "%APPVEYOR%" NEQ "True" (
-    CALL :DIST_DIR_REL_TO_ABS ..\..\..\..\..\lpub3d_windows_3rdparty
+    CALL :CEP_DIST_DIR_REL_TO_ABS ..\..\..\..\..\lpub3d_windows_3rdparty
   )
 )
 
@@ -1596,17 +1596,17 @@ SET Redistributable=vc_redist.%_AR%.exe
 ECHO.
 ECHO - MSVC %1 %LP3D_DISTRO_ARCH% Redistributable download path: [%OutputPATH%]
 IF NOT EXIST "%OutputPATH%\%Redistributable%" (
-  CALL :CREATEWEBCONTENTDOWNLOADVBS
-  CALL :GET_MSVC_REDIST %1 %_AR%
+  CALL :CEP_CREATE_WEB_CONTENT_DOWNLOAD_VBS
+  CALL :CEP_GET_MSVC_REDIST %1 %_AR%
 ) ELSE (
   ECHO.
   ECHO - MSVC %1 %LP3D_DISTRO_ARCH% Redistributable %Redistributable% exist. Nothing to do.
 )
 
-CALL :SET_MSVC_REDIST %1 %_AR%
+CALL :CEP_SET_MSVC_REDIST %1 %_AR%
 EXIT /b
 
-:GET_MSVC_REDIST
+:CEP_GET_MSVC_REDIST
 SET _AR=%2
 SET "WebCONTENT=%OutputPATH%\%RedistCONTENT%"
 SET "WebNAME=%LP3D_LIBS_BASE%/%RedistCONTENT%"
@@ -1631,7 +1631,7 @@ IF EXIST "%OutputPATH%\%RedistCONTENT%" (
 )
 EXIT /b
 
-:SET_MSVC_REDIST
+:CEP_SET_MSVC_REDIST
 SET _AR=%2
 SET "PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_DISTRO_ARCH%"
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
@@ -1659,7 +1659,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\%RedistTARGET%" (
 )
 EXIT /b
 
-:DOWNLOADLDRAWLIBS
+:CEP_DOWNLOAD_LDRAW_LIBS
 ECHO.
 ECHO - Download LDraw archive libraries...
 
@@ -1687,25 +1687,25 @@ SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET TenteCONTENT=tenteparts.zip
 SET VexiqCONTENT=vexiqparts.zip
 
-(CALL :CREATEWEBCONTENTDOWNLOADVBS )
+(CALL :CEP_CREATE_WEB_CONTENT_DOWNLOAD_VBS )
 
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
-CALL :GET_OFFICIAL_LIBRARY
-CALL :GET_TENTE_LIBRARY
-CALL :GET_VEXIQ_LIBRARY
-CALL :GET_UNOFFICIAL_LIBRARY
+CALL :CEP_GET_OFFICIAL_LIBRARY
+CALL :CEP_GET_TENTE_LIBRARY
+CALL :CEP_GET_VEXIQ_LIBRARY
+CALL :CEP_GET_UNOFFICIAL_LIBRARY
 
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
-  CALL :SET_LDRAW_LIBRARIES x86_64
-  CALL :SET_LDRAW_LIBRARIES x86
+  CALL :CEP_SET_LDRAW_LIBRARIES x86_64
+  CALL :CEP_SET_LDRAW_LIBRARIES x86
 ) ELSE (
-  CALL :SET_LDRAW_LIBRARIES %LP3D_DISTRO_ARCH%
+  CALL :CEP_SET_LDRAW_LIBRARIES %LP3D_DISTRO_ARCH%
 )
 EXIT /b
 
-:GET_OFFICIAL_LIBRARY
+:CEP_GET_OFFICIAL_LIBRARY
 IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
   ECHO.
   ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
@@ -1725,7 +1725,7 @@ IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
 )
 EXIT /b
 
-:GET_TENTE_LIBRARY
+:CEP_GET_TENTE_LIBRARY
 IF EXIST "%OutputPATH%\%TenteCONTENT%" (
   ECHO.
   ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
@@ -1745,7 +1745,7 @@ IF EXIST "%OutputPATH%\%TenteCONTENT%" (
 )
 EXIT /b
 
-:GET_VEXIQ_LIBRARY
+:CEP_GET_VEXIQ_LIBRARY
 IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
   ECHO.
   ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
@@ -1765,7 +1765,7 @@ IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
 )
 EXIT /b
 
-:GET_UNOFFICIAL_LIBRARY
+:CEP_GET_UNOFFICIAL_LIBRARY
 IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   ECHO.
   ECHO - LDraw archive library %LPub3DCONTENT% exist. Nothing to do.
@@ -1788,7 +1788,7 @@ IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
 )
 EXIT /b
 
-:SET_LDRAW_LIBRARIES
+:CEP_SET_LDRAW_LIBRARIES
 SET "PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1"
 ECHO.
 ECHO - Copy LDraw archive libraries to %PKG_TARGET_DIR%\extras folder...
@@ -1838,7 +1838,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%LPub3DCONTENT%" (
 )
 EXIT /b
 
-:CREATEWEBCONTENTDOWNLOADVBS
+:CEP_CREATE_WEB_CONTENT_DOWNLOAD_VBS
 ECHO.
 ECHO - Prepare BATCH to VBS to Web Content Downloader...
 
@@ -1853,7 +1853,7 @@ IF EXIST %TEMP%\$\%vbs% (
  DEL %TEMP%\$\%vbs%
 )
 
-:WEB CONTENT SAVE-AS Download -- VBS
+:CEP_WEB CONTENT SAVE-AS Download -- VBS
 >%t% Option Explicit
 >>%t% On Error Resume Next
 >>%t%.
@@ -1904,12 +1904,12 @@ ECHO.
 ECHO - VBS file "%vbs%" at "%TEMP%\$\%vbs%" is done compiling
 EXIT /b
 
-:WD_ABS_PATH
+:CEP_WD_ABS_PATH
 IF [%1] EQU [] (EXIT /B) ELSE SET ABS_WD=%~f1
 IF %ABS_WD:~-1%==\ SET ABS_WD=%ABS_WD:~0,-1%
 EXIT /b
 
-:DIST_DIR_REL_TO_ABS
+:CEP_DIST_DIR_REL_TO_ABS
 IF [%1] EQU [] (EXIT /b) ELSE (SET REL_DIST_DIR=%1)
 SET REL_DIST_DIR=%REL_DIST_DIR:/=\%
 SET DIST_DIR=
@@ -1918,7 +1918,7 @@ SET DIST_DIR=%CD%
 POPD
 EXIT /b
 
-:CREATE_LP3D_PS_VARS_FILE
+:CEP_CREATE_LP3D_PS_VARS_FILE
 ECHO.
 ECHO - Create set_ps_vars.ps1 to add update-config-files environment variables to PowerShell...
 SET set_ps_vars=%CD%\ci\set_ps_vars.ps1
@@ -1979,7 +1979,7 @@ IF EXIST "%set_ps_vars%" (
 )
 EXIT /b 0
 
-:CREATE_LP3D_BASH_VARS_FILE
+:CEP_CREATE_LP3D_BASH_VARS_FILE
 ECHO.
 ECHO - Create set_bash_vars.sh to add update-config-files environment variables to Bash...
 SET LP3D_PACKAGE_PATH_BASH=%LP3D_PACKAGE_PATH:\=/%
@@ -2036,7 +2036,7 @@ IF EXIST "%set_bash_vars%" (
 )
 EXIT /b
 
-:MOVE_ASSETS_TO_DISTRO_PATH
+:CEP_MOVE_ASSETS_TO_DISTRO_PATH
 CD %GITHUB_WORKSPACE%
 ECHO.
 ECHO - Move assets and logs to output folder...
@@ -2064,10 +2064,10 @@ IF EXIST "%LP3D_DOWNLOAD_ASSETS%" (
 ) ELSE (
   ECHO.
   ECHO - ERROR - Download assets path %LP3D_DOWNLOAD_ASSETS% not found.
-  GOTO :ERROR_END
+  GOTO :CEP_ERROR_END
 )
 
-IF "%LP3D_BUILD_ARCH%" EQU "ARM64" (GOTO :MOVE_RUNLOG_ASSETS)
+IF "%LP3D_BUILD_ARCH%" EQU "ARM64" (GOTO :CEP_MOVE_RUNLOG_ASSETS)
 
 IF EXIST "%LP3D_UPDATE_ASSETS%" (
   ECHO.
@@ -2084,10 +2084,10 @@ IF EXIST "%LP3D_UPDATE_ASSETS%" (
 ) ELSE (
   ECHO.
   ECHO - ERROR - Update assets path %LP3D_UPDATE_ASSETS% not found.
-  GOTO :ERROR_END
+  GOTO :CEP_ERROR_END
 )
 
-:MOVE_RUNLOG_ASSETS
+:CEP_MOVE_RUNLOG_ASSETS
 IF EXIST "%LP3D_RUNLOG_ASSETS%" (
   ECHO.
   ECHO - Move runlog assets to LP3D_DOWNLOADS_PATH %LP3D_DOWNLOADS_PATH%...
@@ -2106,7 +2106,7 @@ IF EXIST "%LP3D_RUNLOG_ASSETS%" (
 )
 EXIT /b
 
-:POSTPROCESS
+:CEP_POST_PROCESS
 ECHO.
 ECHO - Post process...
 ECHO.
@@ -2115,7 +2115,7 @@ ECHO - If everything went well Press any key to EXIT!
 PAUSE >NUL
 EXIT /b
 
-:ELAPSED_BUILD_TIME
+:CEP_ELAPSED_BUILD_TIME
 IF [%1] EQU [] (SET start=%build_start%) ELSE (
   IF "%1"=="Start" (
     SET build_start=%time%
@@ -2142,15 +2142,15 @@ ECHO   Elapsed build time %hours%:%mins%:%secs%.%ms%
 ENDLOCAL
 EXIT /b
 
-:ERROR_END
+:CEP_ERROR_END
 ECHO.
 ECHO - %~nx0 FAILED
 ECHO - %~nx0 will terminate!
-CALL :ELAPSED_BUILD_TIME
+CALL :CEP_ELAPSED_BUILD_TIME
 EXIT /b 3
 
-:END
+:CEP_END
 ECHO.
 ECHO - %~nx0 finished
-CALL :ELAPSED_BUILD_TIME
+CALL :CEP_ELAPSED_BUILD_TIME
 EXIT /b

@@ -3,14 +3,14 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 15, 2025
+rem  Last Update: October 29, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CALL :ELAPSED_BUILD_TIME Start
+CALL :CR_ELAPSED_BUILD_TIME Start
 
 ECHO.
 ECHO -Start %~nx0 with commandline args: [%*]...
@@ -20,16 +20,16 @@ FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
 IF "%SCRIPT_RUN_DIR%"=="utilities" (
   rem get abs path to build 3rd party packages inside the LPub3D root dir
   IF "%APPVEYOR%"=="True" (
-    CALL :WD_ABS_PATH ..\..\
+    CALL :CR_WD_ABS_PATH ..\..\
   ) ELSE (
-    CALL :WD_ABS_PATH ..\..\..\
+    CALL :CR_WD_ABS_PATH ..\..\..\
   )
 ) ELSE (
   rem get abs path to build 3rd party packages outside the LPub3D root dir
   IF "%APPVEYOR%"=="True" (
     SET ABS_WD=%CD%
   ) ELSE (
-    CALL :WD_ABS_PATH ..\
+    CALL :CR_WD_ABS_PATH ..\
   )
 )
 
@@ -84,7 +84,7 @@ IF NOT [%1]==[] (
     IF /I NOT "%1"=="x86_64" (
       IF /I NOT "%1"=="arm64" (
         IF /I NOT "%1"=="-all_amd" (
-          IF /I NOT "%1"=="-help" GOTO :COMMAND_ERROR
+          IF /I NOT "%1"=="-help" GOTO :CR_COMMAND_ERROR
         )
       )
     )
@@ -103,7 +103,7 @@ IF /I "%1"=="arm64" (
 IF "%BUILD_WORKER%"=="True" (
   IF "%APPVEYOR%"=="True" (
     IF [%DIST_DIR%] == [] (
-      CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
+      CALL :CR_DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
       ECHO.
       SETLOCAL ENABLEDELAYEDEXPANSION
       ECHO  -WARNING: Distribution not found. Using [!DIST_DIR!].
@@ -145,41 +145,41 @@ IF NOT EXIST "%DIST_DIR%\" (
   MKDIR "%DIST_DIR%\"
 )
 
-CALL :CHECK_LDRAW_LIB
+CALL :CR_CHECK_LDRAW_LIB
 
 IF [%1]==[] (
-  GOTO :BUILD_ALL
+  GOTO :CR_BUILD_ALL
 )
 IF /I "%1"=="-all_amd" (
-  GOTO :BUILD_ALL
+  GOTO :CR_BUILD_ALL
 )
 IF /I "%1"=="x86" (
   SET BUILD_ARCH=%1
-  GOTO :BUILD
+  GOTO :CR_BUILD
 )
 IF /I "%1"=="x86_64" (
   SET BUILD_ARCH=%1
-  GOTO :BUILD
+  GOTO :CR_BUILD
 )
 IF /I "%1"=="arm64" (
   SET BUILD_ARCH=%1
-  GOTO :BUILD
+  GOTO :CR_BUILD
 )
 
 IF /I "%1"=="-help" (
-  GOTO :USAGE
+  GOTO :CR_USAGE
 )
 rem If we get here display invalid command message.
-GOTO :COMMAND_ERROR
+GOTO :CR_COMMAND_ERROR
 
-:BUILD_ALL
+:CR_BUILD_ALL
 FOR %%A IN ( x86, x86_64 ) DO (
   SET BUILD_ARCH=%%A
-  CALL :BUILD
+  CALL :CR_BUILD
 )
-GOTO :END
+GOTO :CR_END
 
-:BUILD
+:CR_BUILD
 IF "%BUILD_ARCH%"=="x86" (
   SET "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe"
   SET "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe"
@@ -192,14 +192,14 @@ IF "%BUILD_ARCH%"=="x86" (
 ECHO.
 ECHO   PATH...........................[%PATH%]
 
-CALL :SET_BUILD_ARGS
+CALL :CR_SET_BUILD_ARGS
 FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
-  CALL :%%I_BUILD %BUILD_ARCH%
-  IF %ERRORLEVEL% NEQ 0 (GOTO :FATAL_ERROR)
+  CALL :CR_%%I_BUILD %BUILD_ARCH%
+  IF %ERRORLEVEL% NEQ 0 (GOTO :CR_FATAL_ERROR)
 )
 
 IF "%CAN_PACKAGE%"=="True" (
-  IF "%BUILD_ARCH%"=="x86" (GOTO :END)
+  IF "%BUILD_ARCH%"=="x86" (GOTO :CR_END)
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET RENDERERS=3
   IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe" (
@@ -212,13 +212,13 @@ IF "%CAN_PACKAGE%"=="True" (
     ECHO -ERROR: Cannot package renderers. No renderers were found.
   ) ELSE (
     ECHO -Package renderers.
-    CALL :PACKAGE_RENDERERS
+    CALL :CR_PACKAGE_RENDERERS
   )
   ENDLOCAL DISABLEDELAYEDEXPANSION
 )
-GOTO :END
+GOTO :CR_END
 
-:SET_BUILD_ARGS
+:CR_SET_BUILD_ARGS
 IF "%BUILD_ARCH%"=="x86" (
   SET POVRAY_INSTALL_ARG=-allins
 ) ELSE (
@@ -233,7 +233,7 @@ SET LDVIEW_BUILD_ARGS=%BUILD_ARCH% -ins_libs -chk -minlog
 SET POVRAY_BUILD_ARGS=%BUILD_ARCH% %POVRAY_INSTALL_ARG% -chk -minlog
 EXIT /b
 
-:LDGLITE_BUILD
+:CR_LDGLITE_BUILD
 ECHO.
 ECHO -Build %VER_LDGLITE%...
 IF EXIST "%LP3D_LDGLITE%" (
@@ -244,17 +244,17 @@ SET BUILD_DIR=ldglite
 SET VALID_SDIR=app
 SET ARCHIVE_FILE_DIR=ldglite-master
 SET WebNAME=%LP3D_GITHUB_URL%/ldglite/archive/master.zip
-CALL :CONFIGURE_BUILD_ENV
+CALL :CR_CONFIGURE_BUILD_ENV
 CALL build.cmd %LDGLITE_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDGLITE%" (
   ECHO  ERROR - Renderer %VER_LDGLITE% was not successfully built.
   ECHO  LDGLite executable was not found at %LP3D_LDGLITE%.
   SET CAN_PACKAGE=False
-  GOTO :ERROR_END
+  GOTO :CR_ERROR_END
 )
 EXIT /b
 
-:LDVIEW_BUILD
+:CR_LDVIEW_BUILD
 ECHO.
 ECHO -Build %VER_LDVIEW%...
 IF "%1"=="x86" (
@@ -280,13 +280,13 @@ SET BUILD_DIR=ldview
 SET VALID_SDIR=OSMesa
 SET ARCHIVE_FILE_DIR=ldview-lpub3d-build
 SET WebNAME=%LP3D_GITHUB_URL%/ldview/archive/lpub3d-build.zip
-CALL :CONFIGURE_BUILD_ENV
+CALL :CR_CONFIGURE_BUILD_ENV
 CALL build.cmd %LDVIEW_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDVIEW%" (
   ECHO  ERROR - Renderer %VER_LDVIEW% was not successfully built.
   ECHO  LDView executable was not found at %LP3D_LDVIEW%.
   SET CAN_PACKAGE=False
-  GOTO :ERROR_END
+  GOTO :CR_ERROR_END
 )
 PUSHD "%LP3D_LDVIEW_BIN%"
 ECHO.
@@ -300,7 +300,7 @@ FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
 POPD
 EXIT /b
 
-:POVRAY_BUILD
+:CR_POVRAY_BUILD
 ECHO.
 ECHO -Build LPub3D-Trace-3.8 ^(POV-Ray^)...
 IF EXIST "%LP3D_POVRAY%" (
@@ -311,18 +311,18 @@ SET BUILD_DIR=povray
 SET VALID_SDIR=windows
 SET ARCHIVE_FILE_DIR=povray-lpub3d-raytracer-cui
 SET WebNAME=%LP3D_GITHUB_URL%/povray/archive/lpub3d/raytracer-cui.zip
-CALL :CONFIGURE_BUILD_ENV
+CALL :CR_CONFIGURE_BUILD_ENV
 CD /D %VALID_SDIR%\vs2015
 CALL autobuild.cmd %POVRAY_BUILD_ARGS%
 IF NOT EXIST "%LP3D_POVRAY%" (
   ECHO  ERROR - Renderer %VER_POVRAY% was not successfully built.
   ECHO  LPub3D-Trace 'POV-ray' executable was not found at %LP3D_POVRAY%.
   SET CAN_PACKAGE=False
-  GOTO :ERROR_END
+  GOTO :CR_ERROR_END
 )
 EXIT /b
 
-:CONFIGURE_BUILD_ENV
+:CR_CONFIGURE_BUILD_ENV
 CD /D %BUILD_OUTPUT_PATH%
 SET ARCHIVE_FILE=%ARCHIVE_FILE_DIR%.zip
 SET WebCONTENT="%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
@@ -343,11 +343,11 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
     ECHO.
     ECHO -Directory %BUILD_DIR% does not exist - Downloading %BUILD_DIR% source archive...
 
-    CALL :DOWNLOAD_ARCHIVE
+    CALL :CR_DOWNLOAD_ARCHIVE
   )
 
-  CALL :EXTRACT_ARCHIVE
-  CALL :SETUP_BUILD_DIR
+  CALL :CR_EXTRACT_ARCHIVE
+  CALL :CR_SETUP_BUILD_DIR
 
 ) ELSE (
   ECHO.
@@ -356,7 +356,7 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
 CD /D %BUILD_OUTPUT_PATH%\%BUILD_DIR%
 EXIT /b
 
-:CHECK_LDRAW_LIB
+:CR_CHECK_LDRAW_LIB
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
 SET LP3D_LIBS_BASE=%LP3D_GITHUB_URL%/lpub3d_libs/releases/download/v1.0.1
@@ -379,10 +379,10 @@ IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
     ECHO.
     ECHO -LDraw directory %LDRAW_DIR% does not exist - Downloading LDraw source archive...
 
-    CALL :DOWNLOAD_ARCHIVE
+    CALL :CR_DOWNLOAD_ARCHIVE
   )
 
-  CALL :EXTRACT_ARCHIVE
+  CALL :CR_EXTRACT_ARCHIVE
 
   IF EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
     ECHO.
@@ -410,7 +410,7 @@ SET BUILD_OUTPUT_PATH=%BUILD_OUTPUT_PATH_SAVE%
 EXIT /b
 
 rem args: $1 = <build dir>, $2 = <valid subdir>
-:EXTRACT_ARCHIVE
+:CR_EXTRACT_ARCHIVE
 IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%" (
   IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
@@ -422,17 +422,17 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%" (
       POPD
     ) ELSE (
       ECHO -ERROR: Tar exectutable not found at %LP3D_WIN_TAR%. Cannot extract %ARCHIVE_FILE%
-      GOTO :ERROR_END
+      GOTO :CR_ERROR_END
     )
   ) ELSE (
     ECHO.
     ECHO -ERROR: Could not find %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%.
-    GOTO :ERROR_END
+    GOTO :CR_ERROR_END
   )
 )
 EXIT /b
 
-:SETUP_BUILD_DIR
+:CR_SETUP_BUILD_DIR
 IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%\%VALID_SDIR%" (
   ECHO.
   ECHO -Renaming %ARCHIVE_FILE_DIR% to %BUILD_DIR% at %CD%...
@@ -445,11 +445,11 @@ IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%\%VALID_SDIR%" (
 ) ELSE (
   ECHO.
   ECHO -ERROR: Build folder %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR% is not valid.
-  GOTO :ERROR_END
+  GOTO :CR_ERROR_END
 )
 EXIT /b
 
-:PACKAGE_RENDERERS
+:CR_PACKAGE_RENDERERS
 IF "%LP3D_CONDA_BUILD%"=="True" ( EXIT /b )
 IF "%CAN_PACKAGE%" NEQ "True" (
   ECHO.
@@ -499,7 +499,7 @@ IF EXIST "%LP3D_RENDERERS%" (
 POPD
 EXIT /b
 
-:DOWNLOAD_ARCHIVE
+:CR_DOWNLOAD_ARCHIVE
 ECHO.
 ECHO - Download ARCHIVE %ARCHIVE_FILE%...
 ECHO.
@@ -518,7 +518,7 @@ IF EXIST %TEMP%\$\%vbs% (
   DEL %TEMP%\$\%vbs%
 )
 
-:WEB CONTENT SAVE-AS Download-- VBS
+:CR_WEB CONTENT SAVE-AS Download-- VBS
 >%t% Option Explicit
 >>%t% On Error Resume Next
 >>%t%.
@@ -566,7 +566,7 @@ IF EXIST %TEMP%\$\%vbs% (
 ECHO.
 ECHO - VBS file "%vbs%" is done compiling
 
-:DO_DOWNLOAD
+:CR_DO_DOWNLOAD
 REM ECHO.
 REM ECHO - File download path: %BUILD_OUTPUT_PATH%
 ECHO.
@@ -579,47 +579,47 @@ IF EXIST %WebCONTENT% (
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
-IF ERRORLEVEL 1 (GOTO :RETRY_DOWNLOAD "Error level 1")
-IF NOT EXIST %WebCONTENT% (GOTO :RETRY_DOWNLOAD "File %ARCHIVE_FILE% not found")
+IF ERRORLEVEL 1 (GOTO :CR_RETRY_DOWNLOAD "Error level 1")
+IF NOT EXIST %WebCONTENT% (GOTO :CR_RETRY_DOWNLOAD "File %ARCHIVE_FILE% not found")
 SET RETRIES=0
 EXIT /b
 
-:RETRY_DOWNLOAD
+:CR_RETRY_DOWNLOAD
 SET /a RETRIES+=1
-IF %RETRIES% EQU %MAX_RETRIES% (GOTO :DOWNLOAD_ERROR)
+IF %RETRIES% EQU %MAX_RETRIES% (GOTO :CR_DOWNLOAD_ERROR)
 IF %RETRIES% LSS %MAX_RETRIES% (
   ECHO.
   ECHO - WARNING - Download %ARCHIVE_FILE% failed with message %1.
   ECHO - Attempting %RETRIES% of %MAX_RETRIES% retries...
-  GOTO :DO_DOWNLOAD
+  GOTO :CR_DO_DOWNLOAD
 )
 
-:WD_ABS_PATH
+:CR_WD_ABS_PATH
 IF [%1] EQU [] (EXIT /B) ELSE SET ABS_WD=%~f1
 IF %ABS_WD:~-1%==\ SET ABS_WD=%ABS_WD:~0,-1%
 EXIT /b
 
-:DIST_DIR_ABS_PATH
+:CR_DIST_DIR_ABS_PATH
 IF [%1] EQU [] (EXIT /B) ELSE SET DIST_DIR=%~f1
 IF %DIST_DIR:~-1%==\ SET DIST_DIR=%DIST_DIR:~0,-1%
 EXIT /b
 
-:DOWNLOAD_ERROR
+:CR_DOWNLOAD_ERROR
 ECHO.
 ECHO - [%date% %time%] - (DOWNLOAD_ERROR) Download %ARCHIVE_FILE% failed after %MAX_DOWNLOAD_ATTEMPTS% attempts.
-GOTO :ERROR_END
+GOTO :CR_ERROR_END
 
-:FATAL_ERROR
+:CR_FATAL_ERROR
 ECHO  %LP3D_ME% execution failed.
-GOTO :ERROR_END
+GOTO :CR_ERROR_END
 
-:COMMAND_ERROR
+:CR_COMMAND_ERROR
 ECHO.
 ECHO -01. (COMMAND_ERROR) Invalid command string [%~nx0 %*].
 ECHO      See Usage.
 ECHO.
 
-:USAGE
+:CR_USAGE
 ECHO ----------------------------------------------------------------
 ECHO.
 ECHO Build, test and package LPub3D 3rdParty renderers.
@@ -663,7 +663,7 @@ ECHO If no flag is supplied, 64bit platform, Release Configuration built by defa
 ECHO ----------------------------------------------------------------
 EXIT /b
 
-:ELAPSED_BUILD_TIME
+:CR_ELAPSED_BUILD_TIME
 IF [%1] EQU [] (SET start=%build_start%) ELSE (
   IF "%1"=="Start" (
     SET build_start=%time%
@@ -692,15 +692,15 @@ ECHO.
 ENDLOCAL
 EXIT /b
 
-:ERROR_END
+:CR_ERROR_END
 ECHO.
 ECHO -%~nx0 [platform %*] FAILED.
 ECHO -%~nx0 will terminate!
-CALL :ELAPSED_BUILD_TIME
+CALL :CR_ELAPSED_BUILD_TIME
 EXIT /b 3
 
-:END
+:CR_END
 ECHO.
 ECHO -%~nx0 [platform %*] finished.
-CALL :ELAPSED_BUILD_TIME
+CALL :CR_ELAPSED_BUILD_TIME
 EXIT /b

@@ -21,13 +21,13 @@ rem - <version string>: Space delimited version attributes - Major Minor Patch R
 
 SET LP3D_ME=%~nx0
 
-CALL :FIXUP_PWD %1
+CALL :UCF_FIXUP_PWD %1
 
 IF [%LP3D_BUILDS_DIR%] == [] (
   ECHO Error: Did not receive required argument _PRO_FILE_PWD_
   ECHO %LP3D_ME% terminated!
   ECHO.
-  GOTO :FATAL_ERROR
+  GOTO :UCF_FATAL_ERROR
 )
 
 SET /a NUM_ARGS=0
@@ -48,15 +48,15 @@ ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
   IF [%2] EQU [ParseVersionInfoFile] (
     ECHO  capture version info using version.info file...
-    CALL :PARSE_VERSION_INFO_FILE
+    CALL :UCF_PARSE_VERSION_INFO_FILE
   ) ELSE (
     IF [%2] NEQ [QuietConfiguration] (
       ECHO  capture version info using git queries...
 	)
-    CALL :GET_GIT_VERSION
+    CALL :UCF_GET_GIT_VERSION
   )
   IF ERRORLEVEL 1 (
-    GOTO :FATAL_ERROR
+    GOTO :UCF_FATAL_ERROR
   )
 ) ELSE (
   IF %NUM_ARGS% GTR 6 (
@@ -76,7 +76,7 @@ SET LP3D_WEEK_DAY=unknown
 SET LP3D_MONTH_OF_YEAR=unknown
 SET LP3D_AVAILABLE_VERSIONS=unknown
 
-CALL :GET_DATE_AND_TIME
+CALL :UCF_GET_DATE_AND_TIME
 
 SET LP3D_TIME=%LP3D_HOUR%:%LP3D_MIN%:%LP3D_SEC%
 SET LP3D_BUILD_DATE=%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%
@@ -104,7 +104,7 @@ IF "%LP3D_CONDA_BUILD%" EQU "True" (
 CD /D "%LP3D_BUILDS_DIR%"
 
 IF [%2] NEQ [NoFileUpdates] (
-  IF [%2] NEQ [QuietConfiguration] CALL :UPDATE_CONFIG_FILES
+  IF [%2] NEQ [QuietConfiguration] CALL :UCF_UPDATE_CONFIG_FILES
 )
 
 IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
@@ -112,7 +112,7 @@ IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
 ) ELSE (
   ECHO   LP3D_BUILD_TYPE................[Release]
 )
-IF [%2] EQU [QuietConfiguration] GOTO :WRITE_VERSION_INFO
+IF [%2] EQU [QuietConfiguration] GOTO :UCF_WRITE_VERSION_INFO
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
@@ -141,7 +141,7 @@ REM ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
-:WRITE_VERSION_INFO
+:UCF_WRITE_VERSION_INFO
 IF [%2] NEQ [ParseVersionInfoFile] (
   IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
   ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
@@ -153,9 +153,9 @@ IF [%2] NEQ [ParseVersionInfoFile] (
     ECHO   FILE version.info..............[ERROR - file %LP3D_VER_INFO_FILE% not found]
   )
 )
-GOTO :END
+GOTO :UCF_END
 
-:UPDATE_CONFIG_FILES
+:UCF_UPDATE_CONFIG_FILES
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\RELEASE_NOTES.html"
 ECHO  update RELEASE_NOTES.html build version [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%
@@ -197,7 +197,7 @@ SET "Replacement=[gh-maintained-url]: https://github.com/trevorsandy/lpub3d-ci/p
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 EXIT /b
 
-:FIXUP_PWD
+:UCF_FIXUP_PWD
 SET TEMP=%CD%
 IF [%1] NEQ [] CD /D "%1\..\builds"
 SET LP3D_MAIN_APP=%1
@@ -207,7 +207,7 @@ FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
 CD %TEMP%
 EXIT /b
 
-:PARSE_VERSION_INFO_FILE
+:UCF_PARSE_VERSION_INFO_FILE
 SET /p LP3D_VERSION_INFO=<%LP3D_VER_INFO_FILE%
 FOR /f "tokens=1-6 delims= " %%I IN ("%LP3D_VERSION_INFO%") DO (
   SET LP3D_VER_MAJOR=%%I
@@ -219,7 +219,7 @@ FOR /f "tokens=1-6 delims= " %%I IN ("%LP3D_VERSION_INFO%") DO (
 )
 EXIT /b
 
-:GET_GIT_VERSION
+:UCF_GET_GIT_VERSION
 IF "%LP3D_CONDA_BUILD%" EQU "True" (
   ECHO  ERROR: Conda-build source does not include .git folder.
   EXIT /b
@@ -300,7 +300,7 @@ FOR /F "tokens=2" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_MINOR=%%i
 FOR /F "tokens=3" %%i IN ("%lp3d_version_%") DO SET LP3D_VER_PATCH=%%i
 EXIT /b
 
-:GET_DATE_AND_TIME
+:UCF_GET_DATE_AND_TIME
 SET LP3D_DAY=unknown
 SET LP3D_MONTH=unknown
 SET LP3D_YEAR=unknown
@@ -349,9 +349,9 @@ IF %LP3D_MONTH% == 11 SET LP3D_MONTH_OF_YEAR=Nov
 IF %LP3D_MONTH% == 12 SET LP3D_MONTH_OF_YEAR=Dec
 EXIT /b
 
-:FIND_REPLACE <findstr> <replstr> <file>
+:UCF_FIND_REPLACE <findstr> <replstr> <file>
 SET tmp="%temp%\tmp.txt"
-IF NOT EXIST %temp%\_.vbs CALL :MAKE_REPLACE
+IF NOT EXIST %temp%\_.vbs CALL :UCF_MAKE_REPLACE
 FOR /F "tokens=*" %%a IN ('DIR "%3" /s /b /a-d /on') do (
   FOR /F "usebackq" %%b IN (`Findstr /mic:"%~1" "%%a"`) do (
     ECHO(&ECHO     Replacing "%~1" with "%~2" in file %%~nxa
@@ -362,7 +362,7 @@ FOR /F "tokens=*" %%a IN ('DIR "%3" /s /b /a-d /on') do (
 DEL %temp%\_.vbs
 EXIT /b
 
-:MAKE_REPLACE
+:UCF_MAKE_REPLACE
 >%temp%\_.vbs echo with Wscript
 >>%temp%\_.vbs echo set args=.arguments
 >>%temp%\_.vbs echo .StdOut.Write _
@@ -370,7 +370,11 @@ EXIT /b
 >>%temp%\_.vbs echo end with
 EXIT /b
 
-:END
+:UCF_FATAL_ERROR
+ECHO  %LP3D_ME% execution failed.
+EXIT /b 1
+
+:UCF_END
 ECHO  %LP3D_ME% execution finished.
 ENDLOCAL & (
   SET LP3D_SOURCE_DIR=%LP3D_SOURCE_DIR%
@@ -413,7 +417,3 @@ ENDLOCAL & (
   )
 )
 EXIT /b 0
-
-:FATAL_ERROR
-ECHO  %LP3D_ME% execution failed.
-EXIT /b 1
