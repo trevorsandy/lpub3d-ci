@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 27, 2025
+rem  Last Update: October 28, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -264,7 +264,7 @@ IF NOT [%4]==[] (
 rem Setup library options and set ARM64 cross compilation
 IF /I "%PLATFORM_ARCH%" == "ARM64" (
   IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
-    IF "%LP3D_AMD64_ARM64_CROSS%" EQU "" SET LP3D_AMD64_ARM64_CROSS=1
+    IF %LP3D_AMD64_ARM64_CROSS% EQU 0 SET LP3D_AMD64_ARM64_CROSS=1
   ) ELSE (
     IF "%LP3D_ARM64_QMAKE%" EQU "" SET LP3D_ARM64_QMAKE=1
     IF "%LP3D_ARM64_BUILD%" EQU "" SET LP3D_ARM64_BUILD=1
@@ -317,7 +317,7 @@ IF "%APPVEYOR%" EQU "True" (
   )
   IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
     SET CI=True
-    SET APPVEYOR_BUILD_ID=Local CI Build
+    SET APPVEYOR_BUILD_ID=Local APPVEYOR CI Build
   ) ELSE (
     :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
     SET CONFIG_CI=appveyor_ci_win
@@ -628,11 +628,7 @@ IF "%LP3D_QMAKE_RUN%" EQU "" SET LP3D_QMAKE_RUN=1
 IF "%LP3D_QMAKE_RUN%" EQU "1" (
   qmake %LPUB3D_CONFIG_ARGS%
   IF "%LP3D_ARM64_QMAKE%" EQU "1" (
-    IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
-      SET LP3D_ARM64_QMAKE=0
-      ECHO.
-      GOTO :BUILD_CONFIGURATION
-    )
+    IF %LP3D_AMD64_ARM64_CROSS% EQU 1 SET LP3D_ARM64_QMAKE=0
   ) ELSE (
     GOTO :END
   )
@@ -649,7 +645,7 @@ IF NOT EXIST "%EXE%" (
   GOTO :ERROR_END
 )
 rem Package 3rd party install content - this must come before check so check can use staged content for test
-IF %PKG_INSTALL%==1 CALL :STAGE_PKG_INSTALL
+IF %PKG_INSTALL%==1 CALL :STAGE_PKG_INSTALL %PLATFORM_ARCH% %EXE%
 CALL :ELAPSED_BUILD_TIME %platform_build_start%
 ECHO.
 ECHO -Elapsed %PACKAGE% %PLATFORM_ARCH% build time %LP3D_ELAPSED_BUILD_TIME%
@@ -698,7 +694,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
     ECHO -ERROR - !EXE! was not successfully built.
     GOTO :ERROR_END
   )
-  IF %PKG_INSTALL%==1 (CALL :STAGE_PKG_INSTALL)
+  IF %PKG_INSTALL%==1 CALL :STAGE_PKG_INSTALL %%P !EXE!
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
@@ -860,9 +856,7 @@ IF %CHECK% EQU 1 (
       IF "%LP3D_CONDA_BUILD%" EQU "True" (
         ECHO   LP3D_BUILD_CHECK...............[Yes]
       ) ELSE (
-        ECHO   -Disable Build Check for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
-        ECHO.
-        ECHO   LP3D_BUILD_CHECK...............[No]
+        ECHO   LP3D_BUILD_CHECK...............[No - Build Check for %PLATFORM_ARCH% %BUILD_WORKER_ID% build disabled.]
       )
     ) ELSE (
       ECHO   LP3D_BUILD_CHECK...............[Yes]
@@ -871,7 +865,7 @@ IF %CHECK% EQU 1 (
     IF "%PLATFORM_ARCH%" EQU "ARM64" (
       IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
         IF "%LP3D_ARM64_QMAKE%" NEQ "1" (
-          ECHO   LP3D_BUILD_CHECK...............[No]
+          ECHO   LP3D_BUILD_CHECK...............[No - Build Check skipped on ARM64 cross compilation.]
         )
       ) ELSE (
         ECHO   LP3D_BUILD_CHECK...............[Yes]
@@ -881,7 +875,7 @@ IF %CHECK% EQU 1 (
     )
   )
 ) ELSE (
-  ECHO   LP3D_BUILD_CHECK...............[No]
+  ECHO   LP3D_BUILD_CHECK...............[No - Build Check disabled.]
 )
 
 SET "LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release"
@@ -1031,11 +1025,35 @@ CALL builds\check\build_checks.bat
 EXIT /b
 
 :STAGE_PKG_INSTALL
+rem Stage package 3rd party components
 ECHO.
-ECHO -Staging distribution files...
+ECHO -Staging %1 nmake install distribution files...
 ECHO.
-rem Perform build and stage package components
 nmake.exe %LPUB3D_MAKE_ARGS% install
+IF "%ERRORLEVEL%" NEQ "0" (EXIT /b)
+IF [%1] NEQ [] (SET PLATFORM_ARCH=%1) ELSE (EXIT /b)
+IF [%2] NEQ [] (SET EXE_PACKAGE=%2) ELSE (EXIT /b)
+SET PLATFORM_ARCH=%1
+SET EXE_PACKAGE=%2
+SET "PKG_TARGET_DIR=%BUILD_WORKSPACE%\builds\windows\%CONFIGURATION%\%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%\%PACKAGE%_%PLATFORM_ARCH%"
+IF "%LP3D_DEPLOY_QT%" EQU "" (
+  IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (  
+    SET LP3D_DEPLOY_QT=%LP3D_BUILD_BASE%\Qt\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin\windeployqt
+  ) ELSE (
+    IF /I "%PLATFORM_ARCH%"=="x86" (
+      SET LP3D_DEPLOY_QT=%LP3D_QT32_MSVC%\windeployqt
+    ) ELSE (
+      SET LP3D_DEPLOY_QT=%LP3D_QT64_MSVC%\windeployqt
+    )
+  )
+)
+rem Stage package dependent components
+ECHO.
+ECHO -Staging %1 windeployqt distribution files...
+ECHO.
+ECHO -DEBUG LP3D_DEPLOY_QT %LP3D_DEPLOY_QT%
+ECHO.
+%LP3D_DEPLOY_QT% "%PKG_TARGET_DIR%\%PACKAGE%%d%.exe"
 EXIT /b
 
 :ADD_LDRAW_LIBS_TO_EXTRAS

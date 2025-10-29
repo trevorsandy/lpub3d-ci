@@ -5,7 +5,7 @@ Title Setup a Local LPub3D GitHub actions build environment
 rem This script allows you to locally simulate the GitHub actions that build LPub3D for Windows.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 08, 2025
+rem  Last Update: October 28, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -128,6 +128,7 @@ SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QT32VERSION%\msvc%LP3D_QT32VCVERSION%\bin
 rem Set Create executable package flag based on LP3D_BUILD_ARCH
 IF "%LP3D_BUILD_ARCH%" EQU "" SET LP3D_BUILD_ARCH=-all_amd
 IF "%LP3D_BUILD_ARCH%" EQU "arm64" (
+  SET LP3D_DEPLOY_QT=%LP3D_QT64_MSVC%\windeployqt
   SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_arm64\bin
 )
 rem Renderer Vars
