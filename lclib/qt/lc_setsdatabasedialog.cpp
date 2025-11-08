@@ -170,7 +170,7 @@ void lcSetsDatabaseDialog::DownloadFinished(lcHttpReply* Reply)
 
 			if (Version == 1)
 			{
-				QJsonArray Keys = Root["Keys"].toArray();
+				const QJsonArray Keys = Root["Keys"].toArray();
 
 				for (const QJsonValue& Key : Keys)
 					mKeys.append(Key.toString());
@@ -196,8 +196,8 @@ void lcSetsDatabaseDialog::DownloadFinished(lcHttpReply* Reply)
 		{
 			QJsonDocument Document = QJsonDocument::fromJson(Reply->readAll());
 			QJsonObject Root = Document.object();
+			const QJsonArray Sets = Root["results"].toArray();
 
-			QJsonArray Sets = Root["results"].toArray();
 			for (const QJsonValue& Set : Sets)
 			{
 				QJsonObject SetObject = Set.toObject();

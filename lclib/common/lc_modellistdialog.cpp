@@ -144,7 +144,7 @@ void lcModelListDialog::on_DeleteModel_clicked()
 		return;
 	}
 
-	QList<QListWidgetItem*>	SelectedItems = ui->ModelList->selectedItems();
+	const QList<QListWidgetItem*> SelectedItems = ui->ModelList->selectedItems();
 
 	if (SelectedItems.isEmpty())
 	{
@@ -174,7 +174,7 @@ void lcModelListDialog::on_DeleteModel_clicked()
 
 void lcModelListDialog::on_RenameModel_clicked()
 {
-	QList<QListWidgetItem*>	SelectedItems = ui->ModelList->selectedItems();
+	const QList<QListWidgetItem*> SelectedItems = ui->ModelList->selectedItems();
 
 	if (SelectedItems.isEmpty())
 	{
@@ -198,7 +198,7 @@ void lcModelListDialog::on_RenameModel_clicked()
 
 void lcModelListDialog::on_ExportModel_clicked()
 {
-	QList<QListWidgetItem*>	SelectedItems = ui->ModelList->selectedItems();
+	const QList<QListWidgetItem*> SelectedItems = ui->ModelList->selectedItems();
 
 	if (SelectedItems.isEmpty())
 	{
@@ -257,7 +257,7 @@ void lcModelListDialog::on_ExportModel_clicked()
 
 void lcModelListDialog::on_DuplicateModel_clicked()
 {
-	QList<QListWidgetItem*>	SelectedItems = ui->ModelList->selectedItems();
+	const QList<QListWidgetItem*> SelectedItems = ui->ModelList->selectedItems();
 
 	if (SelectedItems.isEmpty())
 	{
