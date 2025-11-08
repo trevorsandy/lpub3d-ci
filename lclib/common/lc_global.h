@@ -3,6 +3,7 @@
 
 #ifdef __cplusplus
 
+#define QT_NO_DEPRECATED_WARNINGS
 #include <QtGlobal>
 #include <QtWidgets>
 #include <QtConcurrent>
@@ -92,6 +93,7 @@ class lcLight;
 enum class lcLightType;
 enum class lcLightAreaShape;
 class lcGroup;
+class lcModelAction;
 class PieceInfo;
 typedef std::map<const PieceInfo*, std::map<int, int>> lcPartsList;
 struct lcModelPartsEntry;
