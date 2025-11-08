@@ -1403,69 +1403,21 @@ void lcModel::Paste(bool PasteToCurrentStep)
 
 void lcModel::DuplicateSelectedPieces()
 {
-	std::vector<lcObject*> NewPieces;
-	lcPiece* Focus = nullptr;
-	std::map<lcGroup*, lcGroup*> GroupMap;
-
-	std::function<lcGroup*(lcGroup*)> GetNewGroup = [this, &GroupMap, &GetNewGroup](lcGroup* Group)
+	if (!AnyPiecesSelected())
 	{
-		const auto GroupIt = GroupMap.find(Group);
-		if (GroupIt != GroupMap.end())
-			return GroupIt->second;
-		else
-		{
-			lcGroup* Parent = Group->mGroup ? GetNewGroup(Group->mGroup) : nullptr;
-			QString GroupName = Group->mName;
-
-			while (!GroupName.isEmpty())
-			{
-				const QChar Last = GroupName[GroupName.size() - 1];
-				if (Last.isDigit())
-					GroupName.chop(1);
-				else
-					break;
-			}
-
-			if (GroupName.isEmpty())
-				GroupName = Group->mName;
-
-			lcGroup* NewGroup = AddGroup(GroupName, Parent);
-			GroupMap[Group] = NewGroup;
-			return NewGroup;
-		}
-	};
-
-	for (size_t PieceIdx = 0; PieceIdx < mPieces.size(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx].get();
-
-		if (!Piece->IsSelected())
-			continue;
-
-		lcPiece* NewPiece = new lcPiece(*Piece);
-		NewPiece->UpdatePosition(mCurrentStep);
-		NewPieces.emplace_back(NewPiece);
-
-		if (Piece->IsFocused())
-			Focus = NewPiece;
-
-		PieceIdx++;
-		InsertPiece(NewPiece, PieceIdx);
-
-		lcGroup* Group = Piece->GetGroup();
-		if (Group)
-			Piece->SetGroup(GetNewGroup(Group));
+		QMessageBox::information(gMainWindow, tr("Duplicate Pieces"), tr("No pieces selected."));
+		return;
 	}
 
-	if (NewPieces.empty())
-		return;
+	BeginActionSequence();
 
+	RecordSelectionAction(lcModelActionSelectionMode::Set);
+	RecordDuplicatePiecesAction();
+	RecordSelectionAction(lcModelActionSelectionMode::Save);
 /*** LPub3D Mod - Build Modification ***/
-	mModAction = NewPieces.size();
+	mModAction = 5; //NewPieces.size()
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateTimeline(false, false);
-	SetSelectionAndFocus(NewPieces, Focus, LC_PIECE_SECTION_POSITION, false);
-	SaveCheckpoint(tr("Duplicating Pieces"));
+	EndActionSequence(tr("Duplicate"));
 }
 
 void lcModel::PaintSelectedPieces()
@@ -1937,6 +1889,10 @@ void lcModel::RunSelectionAction(const lcModelActionSelection* ModelActionSelect
 			LoadSelection();
 		break;
 
+	case lcModelActionSelectionMode::Set:
+		LoadSelection();
+		break;
+
 	case lcModelActionSelectionMode::Save:
 		if (!Apply)
 			LoadSelection();
@@ -2097,6 +2053,90 @@ void lcModel::RunGroupPiecesAction(const lcModelActionGroupPieces* ModelActionGr
 	gMainWindow->UpdateSelectedObjects(true);
 }
 
+void lcModel::RecordDuplicatePiecesAction()
+{
+	std::unique_ptr<lcModelActionDuplicatePieces> ModelActionDuplicatePieces = std::make_unique<lcModelActionDuplicatePieces>();
+
+	RunDuplicatePiecesAction(ModelActionDuplicatePieces.get(), true);
+
+	mActionSequence.emplace_back(std::move(ModelActionDuplicatePieces));
+}
+
+void lcModel::RunDuplicatePiecesAction(const lcModelActionDuplicatePieces* ModelActionDuplicatePieces, bool Apply)
+{
+	if (!ModelActionDuplicatePieces)
+		return;
+
+	if (Apply)
+	{
+		std::vector<lcObject*> NewPieces;
+		lcPiece* Focus = nullptr;
+		std::map<lcGroup*, lcGroup*> GroupMap;
+
+		std::function<lcGroup*(lcGroup*)> GetNewGroup = [this, &GroupMap, &GetNewGroup](lcGroup* Group)
+		{
+			const auto GroupIt = GroupMap.find(Group);
+
+			if (GroupIt != GroupMap.end())
+				return GroupIt->second;
+			else
+			{
+				lcGroup* Parent = Group->mGroup ? GetNewGroup(Group->mGroup) : nullptr;
+				QString GroupName = Group->mName;
+
+				while (!GroupName.isEmpty())
+				{
+					const QChar Last = GroupName[GroupName.size() - 1];
+					if (Last.isDigit())
+						GroupName.chop(1);
+					else
+						break;
+				}
+
+				if (GroupName.isEmpty())
+					GroupName = Group->mName;
+
+				lcGroup* NewGroup = AddGroup(GroupName, Parent);
+				GroupMap[Group] = NewGroup;
+				return NewGroup;
+			}
+		};
+
+		for (size_t PieceIndex = 0; PieceIndex < mPieces.size(); PieceIndex++)
+		{
+			lcPiece* Piece = mPieces[PieceIndex].get();
+
+			if (!Piece->IsSelected())
+				continue;
+
+			lcPiece* NewPiece = new lcPiece(*Piece);
+			NewPiece->UpdatePosition(mCurrentStep);
+			NewPieces.emplace_back(NewPiece);
+
+			if (Piece->IsFocused())
+				Focus = NewPiece;
+
+			PieceIndex++;
+			InsertPiece(NewPiece, PieceIndex);
+
+			lcGroup* Group = Piece->GetGroup();
+			if (Group)
+				Piece->SetGroup(GetNewGroup(Group));
+		}
+
+		gMainWindow->UpdateTimeline(false, false);
+		SetSelectionAndFocus(NewPieces, Focus, LC_PIECE_SECTION_POSITION, false);
+	}
+	else
+	{
+		if (RemoveSelectedObjects())
+		{
+			gMainWindow->UpdateTimeline(false, false);
+			gMainWindow->UpdateSelectedObjects(true);
+		}
+	}
+}
+
 void lcModel::PerformActionSequence(const std::vector<std::unique_ptr<lcModelAction>>& ActionSequence, bool Apply)
 {
 	auto PerformAction=[this](const lcModelAction* ModelAction, bool Apply)
@@ -2107,6 +2147,8 @@ void lcModel::PerformActionSequence(const std::vector<std::unique_ptr<lcModelAct
 			RunAddPiecesAction(ModelActionAddPieces, Apply);
 		else if (const lcModelActionGroupPieces* ModelActionGroupPieces = dynamic_cast<const lcModelActionGroupPieces*>(ModelAction))
 			RunGroupPiecesAction(ModelActionGroupPieces, Apply);
+		else if (const lcModelActionDuplicatePieces* ModelActionDuplicatePieces = dynamic_cast<const lcModelActionDuplicatePieces*>(ModelAction))
+			RunDuplicatePiecesAction(ModelActionDuplicatePieces, Apply);
 	};
 
 	if (Apply)
@@ -2421,9 +2463,7 @@ void lcModel::GroupSelection()
 {
 	if (!AnyPiecesSelected())
 	{
-/*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("No pieces selected."));
-/*** LPub3D Mod end ***/
+		QMessageBox::information(gMainWindow, tr("Group Selection"), tr("No pieces selected."));
 		return;
 	}
 
@@ -2443,6 +2483,29 @@ void lcModel::GroupSelection()
 
 void lcModel::UngroupSelection()
 {
+	if (!AnyPiecesSelected())
+	{
+		QMessageBox::information(gMainWindow, tr("Ungroup Selection"), tr("No pieces selected."));
+		return;
+	}
+
+	bool FoundGroup = false;
+
+	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
+	{
+		if (Piece->IsSelected() && Piece->GetGroup())
+		{
+			FoundGroup = true;
+			break;
+		}
+	}
+
+	if (!FoundGroup)
+	{
+		QMessageBox::information(gMainWindow, tr("Ungroup Selection"), tr("No groups selected."));
+		return;
+	}
+
 	BeginActionSequence();
 
 	RecordSelectionAction(lcModelActionSelectionMode::Restore);
@@ -3005,18 +3068,6 @@ void lcModel::UpdateSelectedPiecesTrainTrackConnections()
 	}
 }
 
-void lcModel::DeleteAllCameras()
-{
-	if (mCameras.empty())
-		return;
-
-	mCameras.clear();
-
-	gMainWindow->UpdateSelectedObjects(true);
-	UpdateAllViews();
-	SaveCheckpoint(tr("Resetting Cameras"));
-}
-
 /*** LPub3D Mod - Camera Globe ***/
 void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance, bool Checkpoint)
 {
@@ -3072,6 +3123,8 @@ void lcModel::ResetSelectedPiecesPivotPoint()
 			Piece->ResetPivotPoint();
 
 	UpdateAllViews();
+
+	SaveCheckpoint(tr("Resetting Pivot Point"));
 }
 
 void lcModel::RemoveSelectedPiecesKeyFrames()
