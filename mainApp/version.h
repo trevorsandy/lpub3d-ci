@@ -93,7 +93,7 @@
 // ~~~~~~ LeoCAD (LCLib) Version ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LC_VERSION_TEXT                 "25.09"
-#define VER_LC_VERSION_SHA                  "fe5df95"
+#define VER_LC_VERSION_SHA                  "c0af326"
 
 // ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
