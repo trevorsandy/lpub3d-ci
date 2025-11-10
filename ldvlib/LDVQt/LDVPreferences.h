@@ -176,9 +176,13 @@ public slots:
 	void doExtraDirSelected(QListWidgetItem *,QListWidgetItem *) {doExtraDirSelected();}
 	void doLDrawDir(void);
 	void doLDrawZip(void);
-	void enableStudStyleCombo();
-	void automateEdgeColor();
-	void enableAutomateEdgeColorButton();
+	void doAlwaysBlackLines();
+	void doStudStyle();
+	void doAutomateEdgeColor();
+	void enableStudStyle();
+	void disableStudStyle();
+	void setupStudStyle();
+	void studStyleAndEdgeColor();
 	void enableHighContrastButton(int);
 
 protected:
@@ -249,6 +253,11 @@ protected:
 	int getCurrentHotKey(void);
 	void saveCurrentHotKey(void);
 
+	void getStudCylinderColor(void);
+	void getPartEdgeColor(void);
+	void getBlackEdgeColor(void);
+	void getDarkEdgeColor(void);
+
 	LDrawModelViewer *modelViewer;
 	LDPreferences    *ldPrefs;
 	LDVWidget        *ldvModelWidget;
@@ -258,8 +267,22 @@ protected:
 
 	bool usingLDView;
 	bool checkAbandon;
-	int hotKeyIndex;
 	bool listViewPopulated;
+	int hotKeyIndex;
+
+	TCFloat mPartColorLDIndex;
+	TCFloat mPartEdgeContrast;
+	TCFloat mPartEdgeSaturation;
+
+	quint32 mStudCylinderColor;
+	quint32 mPartEdgeColor;
+	quint32 mBlackEdgeColor;
+	quint32 mDarkEdgeColor;
+
+	bool mStudCylinderColorEnabled;
+	bool mPartEdgeColorEnabled;
+	bool mBlackEdgeColorEnabled;
+	bool mDarkEdgeColorEnabled;
 
 	// Other Settings
 	int windowWidth;

@@ -49,6 +49,7 @@
 #include "lc_edgecolordialog.h"
 #include "commonmenus.h"
 
+#define LDV_RGBA(r,g,b,a) ((quint32)(((quint8) (r) | ((quint16) (g) << 8)) | (((quint32) (quint8) (b)) << 16) | (((quint32) (quint8) (a)) << 24)))
 #define DEFAULT_PREF_SET TCLocalStrings::get("DefaultPrefSet")
 #define	MAX_EXTRA_DIR	10
 
@@ -124,6 +125,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	connect( wireframeRemoveHiddenLineButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( highQualityLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( alwaysBlackLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( alwaysBlackLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doAlwaysBlackLines() ) );
 	connect( edgeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
 	connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
@@ -219,11 +221,14 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	}
 
 	connect( automateEdgeColorBox, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-	connect( automateEdgeColorBox, SIGNAL(toggled(bool)), this, SLOT(enableAutomateEdgeColorButton()) );
-	connect( automateEdgeColorButton, SIGNAL(clicked()), this, SLOT(automateEdgeColor()) );
+	connect( automateEdgeColorBox, SIGNAL( toggled(bool) ), this, SLOT( doAutomateEdgeColor()) );
+	connect( automateEdgeColorButton, SIGNAL( clicked() ), this, SLOT( studStyleAndEdgeColor()) );
+
+	connect( useStudStyleBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( useStudStyleBox, SIGNAL( toggled(bool) ), this, SLOT( doStudStyle()) );
 	connect( studStyleCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
-	connect( studStyleCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(enableHighContrastButton(int)) );
-	connect( highContrastButton, SIGNAL(clicked()), this, SLOT(automateEdgeColor()) );
+	connect( studStyleCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableHighContrastButton(int)) );
+	connect( highContrastButton, SIGNAL( clicked() ), this, SLOT( studStyleAndEdgeColor()) );
 
 	loadSettings();
 #if defined(WIN32) && !defined(_OSMESA)
@@ -559,6 +564,9 @@ void LDVPreferences::doGeometryApply(void)
 			ldPrefs->setShowConditionalControlPoints(
 				conditionalShowControlPtsButton->isChecked());
 		}
+		ldPrefs->setAutomateEdgeColor(automateEdgeColorBox->isChecked());
+		ldPrefs->setPartEdgeContrast(mPartEdgeContrast);
+		ldPrefs->setPartEdgeSaturation(mPartEdgeSaturation);
 		ldPrefs->setUsePolygonOffset(highQualityLinesButton->isChecked());
 		ldPrefs->setBlackHighlights(alwaysBlackLinesButton->isChecked());
 		ldPrefs->setEdgeThickness(edgeThicknessSlider->value());
@@ -731,8 +739,18 @@ void LDVPreferences::doPrimitivesApply(void)
 	}
 	ldPrefs->setQualityStuds(!lowQualityStudsButton->isChecked());
 	ldPrefs->setHiResPrimitives(hiresPrimitivesButton->isChecked());
-	ldPrefs->setAutomateEdgeColor(automateEdgeColorBox->isChecked());
+	ldPrefs->setUseStudStyle(useStudStyleBox->isChecked());
 	ldPrefs->setStudStyle(studStyleCombo->currentIndex());
+	ldPrefs->setPartColorLDIndex(mPartColorLDIndex);
+	int r, g, b, a;
+	getRGBA(mStudCylinderColor, r, g, b, a);
+	ldPrefs->setStudCylinderColor(r, g, b, a);
+	getRGBA(mPartEdgeColor, r, g, b, a);
+	ldPrefs->setPartEdgeColor(r, g, b, a);
+	getRGBA(mBlackEdgeColor, r, g, b, a);
+	ldPrefs->setBlackEdgeColor(r, g, b, a);
+	getRGBA(mDarkEdgeColor, r, g, b, a);
+	ldPrefs->setDarkEdgeColor(r, g, b, a);
 	ldPrefs->applyPrimitivesSettings();
 	ldPrefs->commitPrimitivesSettings();
 }
@@ -1141,16 +1159,11 @@ void LDVPreferences::reflectGeometrySettings(void)
 	reflectWireframeSettings();
 	reflectBFCSettings();
 //	wireframeThicknessSlider->setValue(wireframeThickness);
-	edgeLinesButton->setChecked(ldPrefs->getShowHighlightLines());
-	if (ldPrefs->getShowHighlightLines())
-	{
-		enableEdgeLines();
-	}
-	else
-	{
-		disableEdgeLines();
-	}
 	setRangeValue(edgeThicknessSlider, ldPrefs->getEdgeThickness());
+	edgeLinesButton->setChecked(ldPrefs->getShowHighlightLines());
+	doEdgeLines(ldPrefs->getShowHighlightLines());
+	setButtonState(automateEdgeColorBox, ldPrefs->getAutomateEdgeColor());
+	doAutomateEdgeColor();
 }
 
 void LDVPreferences::reflectWireframeSettings(void)
@@ -1221,6 +1234,8 @@ void LDVPreferences::reflectEffectsSettings(void)
 	setButtonState(stippleTransparencyButton, ldPrefs->getUseStipple());
 	setButtonState(flatShadingButton, ldPrefs->getUseFlatShading());
 	setButtonState(smoothCurvesButton, ldPrefs->getPerformSmoothing());
+	mPartColorLDIndex = ldPrefs->getPartColorLDIndex();
+
 }
 
 void LDVPreferences::reflectPrimitivesSettings(void)
@@ -1244,9 +1259,11 @@ void LDVPreferences::reflectPrimitivesSettings(void)
 		transparentOffsetSlider->setValue(int(ldPrefs->getTextureOffsetFactor()*10));
 	}
 	automateEdgeColorBox->setChecked(ldPrefs->getAutomateEdgeColor());
-	enableStudStyleCombo();
-	enableAutomateEdgeColorButton();
-	enableHighContrastButton(studStyleCombo->currentIndex());
+	setupStudStyle();
+	getStudCylinderColor();
+	getPartEdgeColor();
+	getBlackEdgeColor();
+	getDarkEdgeColor();
 }
 
 void LDVPreferences::reflectUpdatesSettings(void)
@@ -1626,6 +1643,15 @@ void LDVPreferences::doTextureStuds(bool value)
 		disableTextureStuds();
 	}
 	updateTexmapsEnabled();
+	if (textureStudsButton->isChecked())
+	{
+		setButtonState(useStudStyleBox, false);
+		disableStudStyle();
+	}
+	else
+	{
+		enableStudStyle();
+	}
 }
 
 void LDVPreferences::doNewPreferenceSet()
@@ -2092,8 +2118,18 @@ void LDVPreferences::enableEdgeLines(void)
 	setButtonState(edgesOnlyButton, ldPrefs->getEdgesOnly());
 	setButtonState(highQualityLinesButton,
 		ldPrefs->getUsePolygonOffset());
+	alwaysBlackLinesButton->setEnabled(
+		!ldPrefs->getAutomateEdgeColor());
+	automateEdgeColorBox->setEnabled(
+		!ldPrefs->getBlackHighlights());
+	automateEdgeColorButton->setEnabled(
+		ldPrefs->getAutomateEdgeColor());
+	setButtonState(automateEdgeColorBox,
+		ldPrefs->getAutomateEdgeColor() &&
+		!ldPrefs->getBlackHighlights());
 	setButtonState(alwaysBlackLinesButton,
-		ldPrefs->getBlackHighlights());
+		ldPrefs->getBlackHighlights() &&
+		!ldPrefs->getAutomateEdgeColor());
 	if (ldPrefs->getDrawConditionalHighlights())
 	{
 		enableConditionalShow();
@@ -2284,6 +2320,8 @@ void LDVPreferences::disableEdgeLines(void)
 	alwaysBlackLinesButton->setEnabled(false);
 	edgeThicknessLabel->setEnabled(false);
 	edgeThicknessSlider->setEnabled(false);
+	automateEdgeColorBox->setEnabled(false);
+	automateEdgeColorButton->setEnabled(false);
 	setButtonState(conditionalLinesButton, false);
 	setButtonState(conditionalShowAllButton, false);
 	setButtonState(conditionalShowControlPtsButton, false);
@@ -2589,6 +2627,38 @@ bool LDVPreferences::getUseSeams(void)
 	return ldPrefs->getUseSeams();
 }
 
+void LDVPreferences::getStudCylinderColor(void)
+{
+	int r, g, b, a;
+	ldPrefs->getStudCylinderColor(r, g, b, a);
+	mStudCylinderColor = LDV_RGBA(r, g, b, a);
+	mStudCylinderColorEnabled = ldPrefs->getStudCylinderColorEnabled();
+}
+
+void LDVPreferences::getPartEdgeColor(void)
+{
+	int r, g, b, a;
+	ldPrefs->getPartEdgeColor(r, g, b, a);
+	mPartEdgeColor = LDV_RGBA(r, g, b, a);
+	mPartEdgeColorEnabled = ldPrefs->getPartEdgeColorEnabled();
+}
+
+void LDVPreferences::getBlackEdgeColor(void)
+{
+	int r, g, b, a;
+	ldPrefs->getBlackEdgeColor(r, g, b, a);
+	mBlackEdgeColor = LDV_RGBA(r, g, b, a);
+	mBlackEdgeColorEnabled = ldPrefs->getBlackEdgeColorEnabled();
+}
+
+void LDVPreferences::getDarkEdgeColor(void)
+{
+	int r, g, b, a;
+	ldPrefs->getDarkEdgeColor(r, g, b, a);
+	mDarkEdgeColor = LDV_RGBA(r, g, b, a);
+	mDarkEdgeColorEnabled = ldPrefs->getDarkEdgeColorEnabled();
+}
+
 void LDVPreferences::userDefaultChangedAlertCallback(TCAlert *alert)  // Not Used
 {
 	const char *key = alert->getMessage();
@@ -2732,46 +2802,104 @@ QString LDVPreferences::getSaveDir(LDPreferences::SaveOp saveOp,const std::strin
 	return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str());
 }
 
-void LDVPreferences::enableStudStyleCombo()
+void LDVPreferences::enableStudStyle()
+{
+	useStudStyleBox->setEnabled(true);
+	studStyleCombo->setEnabled(true);
+	highContrastButton->setEnabled(ldPrefs->getStudStyle() > 5);
+}
+
+void LDVPreferences::disableStudStyle()
+{
+	useStudStyleBox->setEnabled(false);
+	studStyleCombo->setEnabled(false);
+	highContrastButton->setEnabled(false);
+}
+
+void LDVPreferences::doStudStyle()
+{
+	if (useStudStyleBox->isChecked())
+	{
+		setButtonState(textureStudsButton, false);
+		textureStudsButton->setEnabled(false);
+		disableTextureStuds();
+	}
+	else
+	{
+		setButtonState(textureStudsButton, ldPrefs->getTextureStuds());
+		textureStudsButton->setEnabled(true);
+		enableTextureStuds();
+	}
+	if (!textureStudsButton->isChecked())
+	{
+		enableStudStyle();
+	}
+	else
+	{
+		highContrastButton->setEnabled(false);
+	}
+	mPartColorLDIndex = ldPrefs->getPartColorLDIndex();
+	getStudCylinderColor();
+	getPartEdgeColor();
+	getBlackEdgeColor();
+	getDarkEdgeColor();
+}
+
+void LDVPreferences::setupStudStyle()
 {
 	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"Plain")));
 	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"ThinLineLogo")));
 	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"OutlineLogo")));
-	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"SharpTopLogo")));
-	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"RoundedTopLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"SharpLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"RoundedLogo")));
 	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"FlattenedLogo")));
-	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"HighContrast")));
-	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"HighContrastWithLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"HighContrastPlain")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"HighContrastThinLine")));
 	studStyleCombo->setCurrentIndex(ldPrefs->getStudStyle());
+	setButtonState(useStudStyleBox, ldPrefs->getUseStudStyle());
+	doStudStyle();
 }
 
-void LDVPreferences::enableAutomateEdgeColorButton()
+void LDVPreferences::doAlwaysBlackLines()
 {
+	automateEdgeColorBox->setEnabled(!alwaysBlackLinesButton->isChecked());
+	if (alwaysBlackLinesButton->isChecked())
+		setButtonState(automateEdgeColorBox, false);
+}
+
+void LDVPreferences::doAutomateEdgeColor()
+{
+	alwaysBlackLinesButton->setEnabled(!automateEdgeColorBox->isChecked());
+	if (automateEdgeColorBox->isChecked())
+		setButtonState(alwaysBlackLinesButton, false);
 	automateEdgeColorButton->setEnabled(automateEdgeColorBox->isChecked());
+	mPartEdgeContrast = ldPrefs->getPartEdgeContrast();
+	mPartEdgeSaturation = ldPrefs->getPartEdgeSaturation();
 }
 
 void LDVPreferences::enableHighContrastButton(int index)
 {
-	highContrastButton->setEnabled(index > 5);
+	if (useStudStyleBox->isChecked())
+	{
+		highContrastButton->setEnabled(index > 5);
+	}
 }
 
-void LDVPreferences::automateEdgeColor()
+void LDVPreferences::studStyleAndEdgeColor()
 {
-	lcAutomateEdgeColorDialog Dialog(this, sender() == highContrastButton);
+	const bool highContrast = sender() == highContrastButton;
+	lcAutomateEdgeColorDialog Dialog(this, highContrast);
 	if (Dialog.exec() == QDialog::Accepted)
 	{
-		int r, g, b, a;
-		getRGBA(Dialog.mStudCylinderColor, r, g, b, a);
-		ldPrefs->setStudCylinderColor(r, g, b, a);
-		getRGBA(Dialog.mPartEdgeColor, r, g, b, a);
-		ldPrefs->setPartEdgeColor(r, g, b, a);
-		getRGBA(Dialog.mBlackEdgeColor, r, g, b, a);
-		ldPrefs->setBlackEdgeColor(r, g, b, a);
-		getRGBA(Dialog.mDarkEdgeColor, r, g, b, a);
-		ldPrefs->setDarkEdgeColor(r, g, b, a);
-
-		ldPrefs->setPartEdgeContrast(Dialog.mPartEdgeContrast);
-		ldPrefs->setPartColorValueLDIndex(Dialog.mPartColorValueLDIndex);
+		mStudCylinderColor = Dialog.mStudCylinderColor;
+		mPartEdgeColor = Dialog.mPartEdgeColor;
+		mBlackEdgeColor = Dialog.mPartEdgeColor;
+		mDarkEdgeColor = Dialog.mDarkEdgeColor;
+		if (highContrast)
+			mPartColorLDIndex = Dialog.mPartColorValueLDIndex;
+		else
+			mPartEdgeSaturation = Dialog.mPartColorValueLDIndex;
+		mPartEdgeContrast = Dialog.mPartEdgeContrast;
 	}
 }
 
