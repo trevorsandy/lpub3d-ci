@@ -1144,6 +1144,7 @@ int Pli::createPartImage(
             viewerOptions->AutoEdgeColor  = aecm->enable.value();
             viewerOptions->EdgeContrast   = aecm->contrast.value();
             viewerOptions->EdgeSaturation = aecm->saturation.value();
+            viewerOptions->UseStudStyle   = ssm->useStudStyle();
             viewerOptions->StudStyle      = ssm->value();
             viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
             viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
@@ -2679,6 +2680,7 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->AutoEdgeColor  = aecm->enable.value();
                     viewerOptions->EdgeContrast   = aecm->contrast.value();
                     viewerOptions->EdgeSaturation = aecm->saturation.value();
+                    viewerOptions->UseStudStyle   = ssm->useStudStyle();
                     viewerOptions->StudStyle      = ssm->value();
                     viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
                     viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();

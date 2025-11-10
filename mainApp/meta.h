@@ -202,6 +202,10 @@ enum Rc {
 
          SceneItemZValueDirectionRc,
 
+         AutomateEdgeColorRc,
+         HighContrastColorRc,
+         StudStyleRc,
+
          IncludeRc,
 
          IncludeFileErrorRc,
@@ -1988,15 +1992,22 @@ class StudStyleMeta : public LeafMeta
 {
 private:
   StudStyleEnc type[2];
+  bool enabled[2];
 public:
   QHash<QString, int> studStyleMap;
   int value()
   {
     return StudStyleEnc(type[pushed]);
   }
+  bool useStudStyle()
+  {
+    return enabled[pushed];
+  }
   void setValue(int value)
   {
-    type[pushed] = StudStyleEnc(value);
+    enabled[pushed] = (value < 0 || value > 7) ? false : true;
+    int v = enabled[pushed] ? value : 0;
+    type[pushed] = StudStyleEnc(v);
   }
   StudStyleMeta();
   Rc parse(QStringList &argv, int index, Where &here);

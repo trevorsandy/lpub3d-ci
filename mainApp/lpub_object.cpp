@@ -119,6 +119,11 @@ int LPub::GetStudStyle()
         return lcGetProfileInt(LC_PROFILE_STUD_STYLE);
 }
 
+bool LPub::GetUseStudStyle()
+{
+    return mUseStudStyle;
+}
+
 bool LPub::GetStudCylinderColorEnabled()
 {
     if (gApplication)
@@ -221,9 +226,11 @@ void LPub::SetStudStyle(const NativeOptions* Options, bool Reload, bool Changed)
     bool BlackEdgeColorEnabled    = lcGetProfileInt(  LC_PROFILE_BLACK_EDGE_COLOR_ENABLED);
     bool DarkEdgeColorEnabled     = lcGetProfileInt(  LC_PROFILE_DARK_EDGE_COLOR_ENABLED);
     lcPreferences& Preferences    = lcGetPreferences();
+    mUseStudStyle                 = false;
 
     if (!Update) {
         if (Options) {
+            mUseStudStyle            = Options->UseStudStyle;
             LightDarkIndex           = Options->LightDarkIndex;
             StudCylinderColorEnabled = Options->StudCylinderColorEnabled;
             StudCylinderColor        = Options->StudCylinderColor;
@@ -249,6 +256,7 @@ void LPub::SetStudStyle(const NativeOptions* Options, bool Reload, bool Changed)
 
     if (Update) {
         if (Options) {
+            mUseStudStyle = Options->UseStudStyle;
             StudStyle = Options->StudStyle;
             Preferences.mPartColorValueLDIndex    = Options->LightDarkIndex;
             Preferences.mStudCylinderColorEnabled = Options->StudCylinderColorEnabled;

@@ -698,7 +698,7 @@ int Render::executeLDViewProcess(QStringList &arguments, QStringList &environmen
 
 void Render::getStudStyleAndAutoEdgeSettings(
         StudStyleMeta *ssm, HighContrastColorMeta *hccm, AutoEdgeColorMeta *acm,
-        QString &ss, QString &ae,  QString &ac, QString &ai,
+        QString &ss, QString &ae,  QString &ac, QString &as, QString &ai,
         QString &hs, QString &hsd, QString &hp, QString &hpd,
         QString &hb, QString &hbd, QString &hd, QString &hdd)
 {
@@ -709,15 +709,15 @@ void Render::getStudStyleAndAutoEdgeSettings(
         if (acm->contrast.value() != EDGE_COLOR_CONTRAST_DEFAULT)
             ac = QString(ldv ? "-PartEdgeContrast=%1" : "-laC%1").arg(acm->contrast.value());
         if (acm->saturation.value() != LIGHT_DARK_INDEX_DEFAULT)
-            ai = QString(ldv ? "-PartColorValueLDIndex=%1" : "-laI%1").arg(acm->saturation.value());
+            as = QString(ldv ? "-PartEdgeSaturation=%1" : "-laI%1").arg(acm->saturation.value());
     }
-    if (ssm->value())
+    if (ldv ? ssm->useStudStyle() : ssm->value())
     {
-        ss = QString(ldv ? "-StudStyle=%1" : "-fss%1").arg(ssm->value());
-        if (ssm->value() < 5)
+        ss = QString(ldv ? "-UseStudStyle=1 -StudStyle=%1" : "-fss%1").arg(ssm->value());
+        if (ssm->value() < StyleHighContrastPlain)
             return;
         if (hccm->lightDarkIndex.value() != LIGHT_DARK_INDEX_DEFAULT)
-            ac = QString(ldv ? "-PartColorValueLDIndex=%1" : "-laI%1").arg(hccm->lightDarkIndex.value());
+            ai = QString(ldv ? "-PartColorLDIndex=%1" : "-lhI%1").arg(hccm->lightDarkIndex.value());
         if (hccm->studCylinderColor.value() != hccm->studCylinderColor.getRGBAFromString(HIGH_CONTRAST_STUD_CYLINDER_DEFAULT))
             hs = QString(ldv ? "-StudCylinderColor=%1" : "-lhS%1")
                     .arg(hccm->studCylinderColor.validStringValue(HIGH_CONTRAST_STUD_CYLINDER_DEFAULT));
@@ -938,8 +938,8 @@ int POVRay::renderCsi(
 
   getRendererSettings(CA, cg, parmsArgs);
 
-  QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
-  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
+  QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
+  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
 
@@ -949,7 +949,8 @@ int POVRay::renderCsi(
   arguments << ss;  // stud style
   arguments << ae;  // automate edge color
   arguments << ac;  // part edge contrast
-  arguments << ai;  // part color value light/dark index (saturation)
+  arguments << as;  // part edge saturation
+  arguments << ai;  // part color value light/dark index
   arguments << hs;  // stud cylinder color
   arguments << hsd; // stud cylinder color disabled
   arguments << hp;  // part edge color
@@ -1319,8 +1320,8 @@ int POVRay::renderPli(
 
   getRendererSettings(CA, cg, noCA, parmsArgs, cleanPngName);
 
-  QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
-  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
+  QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
+  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
 
@@ -1330,7 +1331,8 @@ int POVRay::renderPli(
   arguments << ss;             // stud style
   arguments << ae;             // automate edge color
   arguments << ac;             // part edge contrast
-  arguments << ai;             // part color value light/dark index (saturation)
+  arguments << as;             // part edge saturation
+  arguments << ai;             // part color value light/dark index
   arguments << hs;             // stud cylinder color
   arguments << hsd;            // stud cylinder color disabled
   arguments << hp;             // part edge color
@@ -1593,8 +1595,8 @@ int LDGLite::   renderCsi(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
 
-  QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
-  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
+  QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
+  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
 
   int lineThickness = int(resolution()/150+0.5f);
   if (lineThickness == 0) {
@@ -1628,7 +1630,8 @@ int LDGLite::   renderCsi(
   arguments << ss;                  // stud style
   arguments << ae;                  // automate edge color
   arguments << ac;                  // part edge contrast
-  arguments << ai;                  // part color value light/dark index (saturation)
+  arguments << as;                  // part edge saturation
+  arguments << ai;                  // part color value light/dark index
   arguments << hs;                  // stud cylinder color
   arguments << hsd;                 // stud cylinder color disabled
   arguments << hp;                  // part edge color
@@ -1796,8 +1799,8 @@ int LDGLite::renderPli(
   QString mf = QString("-mF%1")     .arg(cleanPngName);
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
-  QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
-  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
+  QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
+  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
 
   QStringList arguments;
   arguments << CA;                  // Camera FOV in degrees
@@ -1809,7 +1812,8 @@ int LDGLite::renderPli(
   arguments << ss;                  // stud style
   arguments << ae;                  // automate edge color
   arguments << ac;                  // part edge contrast
-  arguments << ai;                  // part color value light/dark index (saturation)
+  arguments << ai;                  // part color value light/dark index
+  arguments << as;                  // part edge saturation
   arguments << hs;                  // stud cylinder color
   arguments << hsd;                 // stud cylinder color disabled
   arguments << hp;                  // part edge color
@@ -2295,8 +2299,8 @@ int LDView::renderCsi(
 
     bool haveLdrNames   = !ldrNames.isEmpty();
 
-    QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
-    getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
+    QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
+    getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
     QString w  = QString("-SaveWidth=%1")  .arg(width);
     QString h  = QString("-SaveHeight=%1") .arg(height);
     QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -2310,10 +2314,11 @@ int LDView::renderCsi(
     }
 
     arguments << f;  // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
-    arguments << ss; // stud style
+    arguments << ss; // stud style (use stud style)
     arguments << ae; // automate edge color
     arguments << ac; // part edge contrast
-    arguments << ai; // part color value light/dark index (saturation)
+    arguments << as; // part edge saturation
+    arguments << ai; // part color value light/dark index
     arguments << hs;  // stud cylinder color
     arguments << hsd; // stud cylinder color disabled
     arguments << hp;  // part edge color
@@ -2736,8 +2741,8 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(cleanPngName);
   }
 
-  QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
-  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
+  QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbe,hd,hdd;
+  getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbe, hd, hdd);
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -2760,10 +2765,11 @@ int LDView::renderPli(
   }
 
   arguments << f;  // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
-  arguments << ss; // stud style
+  arguments << ss; // stud style (use stud style)
   arguments << ae; // automate edge color
   arguments << ac; // part edge contrast
-  arguments << ai; // part color value light/dark index (saturation)
+  arguments << as; // part edge saturation
+  arguments << ai; // part color value light/dark index
   arguments << hs; // stud cylinder color
   arguments << hsd;// stud cylinder color disabled
   arguments << hp; // part edge color
@@ -2964,6 +2970,7 @@ int Native::renderCsi(
     Options->AutoEdgeColor     = aecm->enable.value();
     Options->EdgeContrast      = aecm->contrast.value();
     Options->EdgeSaturation    = aecm->saturation.value();
+    Options->UseStudStyle      = ssm->useStudStyle();
     Options->StudStyle         = ssm->value();
     Options->LightDarkIndex    = hccm->lightDarkIndex.value();
     Options->StudCylinderColor = hccm->studCylinderColor.value();
@@ -3068,8 +3075,8 @@ int Native::renderCsi(
                                    .arg(noCA ? double(0.0f) : double(cameraAngleY))
                                    .arg(pp ? QString::number(cd * cdf,'f',0) : QString::number(cd) );
 
-              QString ss,ae,ac,ai,hs,hsd,hp,hpd,pb,pbd,hd,hdd;
-              getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hsd, hp, hpd, pb, pbd, hd, hdd);
+              QString ss,ae,ac,as,ai,hs,hsd,hp,hpd,pb,pbd,hd,hdd;
+              getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, as, ai, hs, hsd, hp, hpd, pb, pbd, hd, hdd);
               QString w  = QString("-SaveWidth=%1") .arg(double(Options->ImageWidth));
               QString h  = QString("-SaveHeight=%1") .arg(double(Options->ImageHeight));
               QString o  = QString("-HaveStdOut=1");
@@ -3081,7 +3088,8 @@ int Native::renderCsi(
               arguments << ss; // stud style
               arguments << ae; // automate edge color
               arguments << ac; // part edge contrast
-              arguments << ai; // part color value light/dark index (saturation)
+              arguments << as; // part edge saturation
+              arguments << ai; // part color value light/dark index
               arguments << hs; // stud cylinder color
               arguments << hsd;// stud cylinder color disabled
               arguments << hp; // part edge color
@@ -3229,6 +3237,7 @@ int Native::renderPli(
     Options->AutoEdgeColor  = aecm->enable.value();
     Options->EdgeContrast   = aecm->contrast.value();
     Options->EdgeSaturation = aecm->saturation.value();
+    Options->UseStudStyle   = ssm->useStudStyle();
     Options->StudStyle      = ssm->value();
     Options->LightDarkIndex = hccm->lightDarkIndex.value();
     Options->StudCylinderColor = hccm->studCylinderColor.value();
@@ -3620,12 +3629,12 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         {
             QLatin1String("0 Plain"),
             QLatin1String("1 Thin Line Logo"),
-            QLatin1String("2 Outline Logo"),
+            QLatin1String("2 Outline TopLogo"),
             QLatin1String("3 Sharp Top Logo"),
             QLatin1String("4 Rounded Top Logo"),
-            QLatin1String("5 Flattened Logo"),
-            QLatin1String("6 High Contrast"),
-            QLatin1String("7 High Contrast with Logo")
+            QLatin1String("5 Flattened Top Logo"),
+            QLatin1String("6 High Contrast Plain"),
+            QLatin1String("7 High Contrast Thin Line")
         };
         lcPreferences& Preferences = lcGetPreferences();
         QStringList arguments;

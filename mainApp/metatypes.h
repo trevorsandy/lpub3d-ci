@@ -92,14 +92,15 @@ enum OrientationEnc {
 };
 
 enum StudStyleEnc {
+    StyleNone = -1,
     StylePlain,
     StyleThinLineLogo,
     StyleOutlineLogo,
-    StyleSharpTopLogo,
-    StyleRoundedTopLogo,
+    StyleSharpLogo,
+    StyleRoundedLogo,
     StyleFlattenedLogo,
-    StyleHighContrast,
-    StyleHighContrastWithLogo,
+    StyleHighContrastPlain,
+    StyleHighContrastThinLine,
     StyleCount
 };
 

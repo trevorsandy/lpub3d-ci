@@ -75,7 +75,7 @@ public:
   static bool            compareImageAttributes(const QStringList &, const QString &, bool pare = true);
   static void            getStudStyleAndAutoEdgeSettings(StudStyleMeta *ssm,
                                       HighContrastColorMeta *hccm, AutoEdgeColorMeta *acm,
-                                      QString &ss, QString &ae,  QString &ac, QString &ai,
+                                      QString &ss, QString &ae,  QString &ac, QString &as, QString &ai,
                                       QString &hs, QString &hsd, QString &hp, QString &hpd,
                                       QString &hb, QString &hbd, QString &hd, QString &hdd);
 

@@ -72,6 +72,7 @@ public:
 
   /// Stud sytle and automated edge color setting calls
   int     GetStudStyle();
+  bool    GetUseStudStyle();
   float   GetPartEdgeContrast();
   float   GetPartColorLightDarkIndex();
   bool    GetAutomateEdgeColor();

@@ -53,14 +53,14 @@ QHash<QString, int> rendererMap;
 
 const QString studStyleNames[StudStyleEnc::StyleCount] =
 {
-    "Plain",             // 0
-    "Thin Lines Logo",   // 1
-    "Outline Logo",      // 2
-    "Sharp Top Logo",    // 3
-    "Rounded Top Logo",  // 4
-    "Flattened Logo",    // 5
-    "High Contrast",     // 6
-    "High Contrast Logo" // 7
+    "Plain",                  // 0
+    "Thin Line Logo",         // 1
+    "Outline Top Logo",       // 2
+    "Sharp Top Logo",         // 3
+    "Rounded Top Logo",       // 4
+    "Flattened Top Logo",     // 5
+    "High Contrast Plain",    // 6
+    "High Contrast Thin Line" // 7
 };
 
 const QString rendererNames[NUM_RENDERERS] =
@@ -6397,7 +6397,8 @@ bool Preferences::getPreferences()
         StudStyleChanged |= Options.Preferences.mStudCylinderColor          != Preferences.mStudCylinderColor;
 
         bool StudStyleColorChanged = false;
-        StudStyleColorChanged  = Options.Preferences.mPartEdgeColorEnabled  != Preferences.mPartEdgeColorEnabled;
+        StudStyleColorChanged  = Options.Preferences.mPartColorValueLDIndex != Preferences.mPartColorValueLDIndex;
+        StudStyleColorChanged |= Options.Preferences.mPartEdgeColorEnabled  != Preferences.mPartEdgeColorEnabled;
         StudStyleColorChanged |= Options.Preferences.mPartEdgeColor         != Preferences.mPartEdgeColor;
         StudStyleColorChanged |= Options.Preferences.mBlackEdgeColorEnabled != Preferences.mBlackEdgeColorEnabled;
         StudStyleColorChanged |= Options.Preferences.mBlackEdgeColor        != Preferences.mBlackEdgeColor;

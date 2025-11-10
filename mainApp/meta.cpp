@@ -34,6 +34,7 @@
  *
  ***************************************************************************/
 
+#include "metatypes.h"
 #include "version.h"
 #include <QtWidgets>
 #include <QStringList>
@@ -3477,38 +3478,54 @@ void SceneObjectMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " BRING_TO_FRONT SEND_TO_BACK";
 }
+
 /* ------------------ */
 
 StudStyleMeta::StudStyleMeta() : LeafMeta()
 {
-  studStyleMap["NONE"]                    = StylePlain;
+  studStyleMap["NONE"]                    = StyleNone;
   studStyleMap["PLAIN"]                   = StylePlain;
   studStyleMap["THIN_LINE_LOGO"]          = StyleThinLineLogo;
+  studStyleMap["OUTLINE_TOP_LOGO"]        = StyleOutlineLogo;
   studStyleMap["OUTLINE_LOGO"]            = StyleOutlineLogo;
-  studStyleMap["SHARP_TOP_LOGO"]          = StyleSharpTopLogo;
-  studStyleMap["ROUNDED_TOP_LOGO"]        = StyleRoundedTopLogo;
+  studStyleMap["SHARP_TOP_LOGO"]          = StyleSharpLogo;
+  studStyleMap["ROUNDED_TOP_LOGO"]        = StyleRoundedLogo;
+  studStyleMap["FLATTENED_TOP_LOGO"]      = StyleFlattenedLogo;
   studStyleMap["FLATTENED_LOGO"]          = StyleFlattenedLogo;
-  studStyleMap["HIGH_CONTRAST"]           = StyleHighContrast;
-  studStyleMap["HIGH_CONTRAST_WITH_LOGO"] = StyleHighContrastWithLogo;
+  studStyleMap["HIGH_CONTRAST_PLAIN"]     = StyleHighContrastPlain;
+  studStyleMap["HIGH_CONTRAST"]           = StyleHighContrastPlain;
+  studStyleMap["HIGH_CONTRAST_THIN_LINE"] = StyleHighContrastThinLine;
+  studStyleMap["HIGH_CONTRAST_WITH_LOGO"] = StyleHighContrastThinLine;
   type[0] = static_cast<StudStyleEnc>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
-  type[1] = static_cast<StudStyleEnc>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
+  type[1] = type[0];
+  enabled[0] = false;
+  enabled[1] = false;
 }
 
 Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
-  rx.setPattern("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
+  enabled[pushed] = false;
+  rx.setPattern("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_TOP_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST_PLAIN|HIGH_CONTRAST|HIGH_CONTRAST_THIN_LINE|HIGH_CONTRAST_WITH_LOGO)$");
   if (argv.size() - index == 1) {
     if (!argv[index].contains(rx)) {
       bool ok;
       int styleId = argv[index].toInt(&ok);
-      if (ok && styleId >= StylePlain && styleId <= StyleHighContrastWithLogo) {
-        type[pushed] = StudStyleEnc(styleId);
+      if (ok) {
+        if (styleId >= StylePlain && styleId <= StyleHighContrastThinLine) {
+          type[pushed] = StudStyleEnc(styleId);
+          enabled[pushed] = true;
+        } else {
+          type[pushed] = StudStyleEnc(0);
+        }
       } else {
         rc = FailureRc;
       }
+    } else if (argv[index] == "NONE") {
+      type[pushed] = StudStyleEnc(0);
     } else {
-      type[pushed]  = StudStyleEnc(studStyleMap[argv[index]]);;
+      type[pushed] = StudStyleEnc(studStyleMap[argv[index]]);
+      enabled[pushed] = true;
     }
     if (rc == OkRc) {
       _here[pushed] = here;
@@ -3517,7 +3534,7 @@ Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
     rc = FailureRc;
   }
   if (rc == FailureRc && reportErrors) {
-    QString const message = QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, but got \"%1\" in \"%2\"")
+    QString const message = QMessageBox::tr("Expected NONE, PLAIN, THIN_LINE_LOGO, OUTLINE_TOP_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_TOP_LOGO, HIGH_CONTRAST_PLAIN, HIGH_CONTRAST_THIN_LINE or 0 - 7, but got \"%1\" in \"%2\"")
                                             .arg(argv[index], argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
@@ -3533,25 +3550,25 @@ QString StudStyleMeta::format(bool local, bool global)
     foo = "THIN_LINE_LOGO";
     break;
   case StyleOutlineLogo:
-    foo = "OUTLINE_LOGO";
+    foo = "OUTLINE_TOP_LOGO";
     break;
-  case StyleSharpTopLogo:
+  case StyleSharpLogo:
     foo = "SHARP_TOP_LOGO";
     break;
-  case StyleRoundedTopLogo:
+  case StyleRoundedLogo:
     foo = "ROUNDED_TOP_LOGO";
     break;
   case StyleFlattenedLogo:
-    foo = "FLATTENED_LOGO";
+    foo = "FLATTENED_TOP_LOGO";
     break;
-  case StyleHighContrast:
-    foo = "HIGH_CONTRAST";
+  case StyleHighContrastPlain:
+    foo = "HIGH_CONTRAST_PLAIN";
     break;
-  case StyleHighContrastWithLogo:
-    foo = "HIGH_CONTRAST_WITH_LOGO";
+  case StyleHighContrastThinLine:
+    foo = "HIGH_CONTRAST_THIN_LINE";
     break;
-  default: /*StylePlain*/
-    foo = "PLAIN";
+  default:
+    foo = enabled[pushed] ? "PLAIN" : "NONE";
     break;
   }
   return LeafMeta::format(local,global,foo);
@@ -3559,17 +3576,17 @@ QString StudStyleMeta::format(bool local, bool global)
 
 void StudStyleMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " ( PLAIN | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )";
+  out << preamble + " ( NONE | PLAIN | THIN_LINE_LOGO | OUTLINE_TOP_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_TOP_LOGO | HIGH_CONTRAST_PLAIN | HIGH_CONTRAST_THIN_LINE | <stud style integer 0-7> )";
 }
 
 void StudStyleMeta::metaKeywords(QStringList &out, QString preamble)
 {
-  out << preamble + " PLAIN THIN_LINE_LOGO OUTLINE_LOGO SHARP_TOP_LOGO ROUNDED_TOP_LOGO FLATTENED_LOGO HIGH_CONTRAST HIGH_CONTRAST_WITH_LOGO";
+  out << preamble + " NONE PLAIN THIN_LINE_LOGO OUTLINE_TOP_LOGO SHARP_TOP_LOGO ROUNDED_TOP_LOGO FLATTENED_TOP_LOGO HIGH_CONTRAST_PLAIN HIGH_CONTRAST_THIN_LINE";
 }
 
 /* ------------------ */
 
-ColorMeta::ColorMeta() : LeafMeta()
+ColorMeta::ColorMeta() : RcMeta()
 {
   _value[0] = 0;
   _value[1] = 0;
@@ -3578,7 +3595,6 @@ ColorMeta::ColorMeta() : LeafMeta()
 
 Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
 {
-  Rc rc = OkRc;
   if (argv.size() - index == 1) {
     rx.setPattern("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
     QColor color;
@@ -4093,9 +4109,9 @@ AutoEdgeColorMeta::AutoEdgeColorMeta() : BranchMeta()
 void AutoEdgeColorMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  contrast     .init(this,"CONTRAST");
-  saturation   .init(this,"SATURATION");
-  enable       .init(this,"ENABLE");
+  contrast     .init(this,"CONTRAST", AutomateEdgeColorRc);
+  saturation   .init(this,"SATURATION", AutomateEdgeColorRc);
+  enable       .init(this,"ENABLE", AutomateEdgeColorRc);
 }
 
 /* ------------------ */
@@ -4118,15 +4134,15 @@ HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
 void HighContrastColorMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  lightDarkIndex    .init(this,"COLOR_LIGHT_DARK_INDEX");
-  studCylinderColor .init(this,"STUD_CYLINDER_COLOR");
-  studCylinderColorEnabled.init(this,"STUD_CYLINDER_COLOR_ENABLED");
-  partEdgeColor     .init(this,"EDGE_COLOR");
-  partEdgeColorEnabled.init(this,"EDGE_COLOR_ENABLED");
-  blackEdgeColor    .init(this,"BLACK_EDGE_COLOR");
-  blackEdgeColorEnabled.init(this,"BLACK_EDGE_COLOR_ENABLED");
-  darkEdgeColor     .init(this,"DARK_EDGE_COLOR");
-  darkEdgeColorEnabled.init(this,"DARK_EDGE_COLOR_ENABLED");
+  lightDarkIndex    .init(this,"COLOR_LIGHT_DARK_INDEX", HighContrastColorRc);
+  studCylinderColor .init(this,"STUD_CYLINDER_COLOR", HighContrastColorRc);
+  studCylinderColorEnabled.init(this,"STUD_CYLINDER_COLOR_ENABLED", HighContrastColorRc);
+  partEdgeColor     .init(this,"EDGE_COLOR", HighContrastColorRc);
+  partEdgeColorEnabled.init(this,"EDGE_COLOR_ENABLED", HighContrastColorRc);
+  blackEdgeColor    .init(this,"BLACK_EDGE_COLOR", HighContrastColorRc);
+  blackEdgeColorEnabled.init(this,"BLACK_EDGE_COLOR_ENABLED", HighContrastColorRc);
+  darkEdgeColor     .init(this,"DARK_EDGE_COLOR", HighContrastColorRc);
+  darkEdgeColorEnabled.init(this,"DARK_EDGE_COLOR_ENABLED", HighContrastColorRc);
 }
 
 /*------------------------*/
@@ -5111,6 +5127,7 @@ void RotStepMeta::metaKeywords(QStringList &out, QString preamble)
 }
 
 /* ------------------ */
+
 Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (index + 2 == argv.size()) {

@@ -617,6 +617,7 @@ int Step::createCsi(
       viewerOptions->AutoEdgeColor  = aecm->enable.value();
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();
+      viewerOptions->UseStudStyle   = ssm->useStudStyle();
       viewerOptions->StudStyle      = ssm->value();
       viewerOptions->ExportMode     = Gui::m_exportMode;
       viewerOptions->LineWidth      = lcGetPreferences().mLineWidth;

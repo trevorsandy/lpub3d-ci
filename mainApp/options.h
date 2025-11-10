@@ -110,6 +110,7 @@ public:
        TransBackground   (true),
        CustomViewpoint   (false),
        IsReset           (false),
+       UseStudStyle      (false),
        StudCylinderColorEnabled(true),
        PartEdgeColorEnabled    (true),
        BlackEdgeColorEnabled   (true),
@@ -164,6 +165,7 @@ public:
   bool TransBackground;
   bool CustomViewpoint;
   bool IsReset;
+  bool UseStudStyle;
   bool StudCylinderColorEnabled;
   bool PartEdgeColorEnabled;
   bool BlackEdgeColorEnabled;
