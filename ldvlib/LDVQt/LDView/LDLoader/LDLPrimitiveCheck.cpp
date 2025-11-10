@@ -11,8 +11,9 @@
 #include <TCFoundation/TCMacros.h>
 #include <TCFoundation/TCVector.h>
 #include <TCFoundation/TCLocalStrings.h>
-// LPub3D Mod - stud style
+// LPub3D Mod - Stud Style
 #include <TCFoundation/TCUserDefaults.h>
+#include <LDLib/LDUserDefaultsKeys.h>
 // LPub3D Mod End
 #include <ctype.h>
 
@@ -638,16 +639,11 @@ bool LDLPrimitiveCheck::performPrimitiveSubstitution(
 		}
 		else if (strcasecmp(m_modelName, "stud.dat") == 0)
 		{
-			// LPub3D Mod - stud style
-			if (TCUserDefaults::longForKey("StudStyle", 0, 0))
-			{
+			// LPub3D Mod - Stud Style
+			if (TCUserDefaults::boolForKey(STUD_STYLE_USE_KEY, false))
 				return false;
-			}
-			else
-			{
-				return substituteStud();
-			}
 			// LPub3D Mod End
+			return substituteStud();
 		}
 		else if (strcasecmp(m_modelName, "1-8sphe.dat") == 0)
 		{

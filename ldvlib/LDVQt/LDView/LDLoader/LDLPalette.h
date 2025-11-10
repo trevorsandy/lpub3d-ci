@@ -23,8 +23,8 @@ typedef struct
 	float luminance;
 	bool chrome;
 	bool rubber;
-	// LPub3D Mod - stud style
-	bool adjusted;
+	// LPub3D Mod - Stud Style
+	bool automated;
 	// LPub3D Mod End
 } LDLColorInfo;
 
@@ -99,22 +99,26 @@ protected:
 	TCTypedObjectArray<CustomColor> *m_customColors;
 	CIStringIntMap m_namesMap;
 
-	// LPub3D Mod - stud style
+	// LPub3D Mod - Stud Style
 	void initStudStyleSettings(void);
 	int getStudStyleOrAutoEdgeColor(int colorNumber);
 	int getEdgeColorNumberFromRGB(const LDLColor& color);
 
+	static bool sm_studStyleInitialized;
+	static bool sm_automateEdgeColor;
+	static bool sm_useStudStyle;
+	static int  sm_studStyle;
+	//static bool sm_studCylinderColorEnabled;
+	static bool sm_partEdgeColorEnabled;
+	static bool sm_blackEdgeColorEnabled;
+	static bool sm_darkEdgeColorEnabled;
 	static LDLColor sm_studCylinderColor;
 	static LDLColor sm_partEdgeColor;
 	static LDLColor sm_blackEdgeColor;
 	static LDLColor sm_darkEdgeColor;
+	static TCFloat sm_partColorLDIndex;
 	static TCFloat sm_partEdgeContrast;
-	static TCFloat sm_partColorValueLDIndex;
-	static bool sm_partEdgeColorEnabled;
-	static bool sm_blackEdgeColorEnabled;
-	static bool sm_darkEdgeColorEnabled;
-	static bool sm_automateEdgeColor;
-	static int  sm_studStyle;
+	static TCFloat sm_partEdgeSaturation;
 	// LPub3D Mod End
 
 	static LDLPalette *sm_defaultPalette;

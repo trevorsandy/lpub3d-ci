@@ -199,22 +199,24 @@ public:
 	bool getTexturesAfterTransparent(void) { return true; }
 	TCFloat getTextureOffsetFactor(void) { return m_textureOffsetFactor; }
 
-	// LPub3D Mod - stud style
-	void getStudCylinderColor(int& r, int& g, int& b, int& a);
-	void getPartEdgeColor(int& r, int& g, int& b, int& a);
-	void getBlackEdgeColor(int& r, int& g, int& b, int& a);
-	void getDarkEdgeColor(int& r, int& g, int& b, int& a);
+	// LPub3D Mod - Stud Style
+	bool getAutomateEdgeColor(void) { return m_automateEdgeColor; };
+	bool getUseStudStyle(void) { return m_useStudStyle; }
+	int getStudStyle(void) { return m_studStyle; }
 
 	bool getStudCylinderColorEnabled(void) { return m_studCylinderColorEnabled; }
 	bool getPartEdgeColorEnabled(void) { return m_partEdgeColorEnabled; }
 	bool getBlackEdgeColorEnabled(void) { return m_blackEdgeColorEnabled; }
 	bool getDarkEdgeColorEnabled(void) { return m_darkEdgeColorEnabled; }
-	bool getAutomateEdgeColor(void) { return m_automateEdgeColor; }
-	
-	TCFloat getPartEdgeContrast(void) { return m_partEdgeContrast; }
-	TCFloat getPartColorValueLDIndex(void) { return m_partColorValueLDIndex; }
 
-	int getStudStyle(void) { return m_studStyle; }
+	void getStudCylinderColor(int& r, int& g, int& b, int& a);
+	void getPartEdgeColor(int& r, int& g, int& b, int& a);
+	void getBlackEdgeColor(int& r, int& g, int& b, int& a);
+	void getDarkEdgeColor(int& r, int& g, int& b, int& a);
+
+	TCFloat getPartColorLDIndex(void) { return m_partColorLDIndex; };
+	TCFloat getPartEdgeContrast(void) { return m_partEdgeContrast; };
+	TCFloat getPartEdgeSaturation(void) { return m_partEdgeContrast; };
 	// LPub3D Mod End
 
 	// Update settings
@@ -356,19 +358,24 @@ public:
 	void setTextureOffsetFactor(TCFloat value, bool commit = false, bool apply = false);
 	void setUseStrips(bool value, bool commit = false, bool apply = false);
 
-	// LPub3D Mod - stud style
-	void setStudCylinderColor(int r, int g, int b, int a, bool commit = false);
-	void setPartEdgeColor(int r, int g, int b, int a, bool commit = false);
-	void setBlackEdgeColor(int r, int g, int b, int a, bool commit = false);
-	void setDarkEdgeColor(int r, int g, int b, int a, bool commit = false);
+	// LPub3D Mod - Stud Style
+	void setAutomateEdgeColor(bool value, bool commit = false, bool apply = false);
+	void setUseStudStyle(bool value, bool commit = false, bool apply = false);
+	void setStudStyle(int value, bool commit = false, bool apply = false);
+
 	void setStudCylinderColorEnabled(bool value, bool commit = false, bool apply = false);
 	void setPartEdgeColorEnabled(bool value, bool commit = false, bool apply = false);
 	void setBlackEdgeColorEnabled(bool value, bool commit = false, bool apply = false);
 	void setDarkEdgeColorEnabled(bool value, bool commit = false, bool apply = false);
-	void setAutomateEdgeColor(bool value, bool commit = false, bool apply = false);
+
+	void setPartColorLDIndex(TCFloat value, bool commit = false, bool apply = false);
+	void setStudCylinderColor(int r, int g, int b, int a, bool commit = false);
+	void setPartEdgeColor(int r, int g, int b, int a, bool commit = false);
+	void setBlackEdgeColor(int r, int g, int b, int a, bool commit = false);
+	void setDarkEdgeColor(int r, int g, int b, int a, bool commit = false);
+
 	void setPartEdgeContrast(TCFloat value, bool commit = false, bool apply = false);
-	void setPartColorValueLDIndex(TCFloat value, bool commit = false, bool apply = false);
-	void setStudStyle(int value, bool commit = false, bool apply = false);
+	void setPartEdgeSaturation(TCFloat value, bool commit = false, bool apply = false);
 	// LPub3D Mod End
 
 	// Update settings
@@ -414,7 +421,7 @@ protected:
 		const char *key, bool commit);
 	void setColorSetting(TCULong &setting, int r, int g, int b, const char *key,
 		bool commit);
-	// LPub3D Mod - stud style
+	// LPub3D Mod - Stud Style
 	void setRGBAColorSetting(TCULong& setting, int r, int g, int b, int a,
 		const char* key, bool commit);
 	// LPub3D Mod End
@@ -433,18 +440,15 @@ protected:
 		const char *defaultValue = NULL, bool isPath = false);
 	void getColorSetting(const char *key, int &r, int &g, int &b,
 		TCULong defaultColor = 0);
-	// LPub3D Mod - stud style
+	// LPub3D Mod - Stud Style
 	void getRGBAColorSetting(const char* key, int& r, int& g, int& b,
 		int& a, TCULong defaultColor);
 	long getRGBAFromStringSetting(const char* key, TCULong defaultValue = 0);
-	// LPub3D Mod End
-
-	virtual void getRGB(int color, int &r, int &g, int &b);
-	virtual int getColor(int r, int g, int b);
-	// LPub3D Mod - stud style
 	virtual void getRGBA(int color, int& r, int& g, int& b, int& a);
 	virtual TCULong getRGBAColor(int r, int g, int b, int a);
 	// LPub3D Mod End
+	virtual void getRGB(int color, int &r, int &g, int &b);
+	virtual int getColor(int r, int g, int b);
 	virtual void commitSaveDir(SaveOp op);
 
 	// These are called from the constructor, and cannot be properly made into
@@ -550,24 +554,23 @@ protected:
 	TCFloat m_textureOffsetFactor;
 	bool m_useStrips;
 
-	// LPub3D Mod - stud style
-	TCULong m_studCylinderColor;
-	TCULong m_partEdgeColor;
-	TCULong m_blackEdgeColor;
-	TCULong m_darkEdgeColor;
-	
+	// LPub3D Mod - Stud Style
+	bool m_automateEdgeColor;
+	bool m_useStudStyle;
+	int m_studStyle;
 	bool m_studCylinderColorEnabled;
 	bool m_partEdgeColorEnabled;
 	bool m_blackEdgeColorEnabled;
 	bool m_darkEdgeColorEnabled;
-	bool m_automateEdgeColor;
-
+	TCFloat m_partColorLDIndex;
+	TCULong m_studCylinderColor;
+	TCULong m_partEdgeColor;
+	TCULong m_blackEdgeColor;
+	TCULong m_darkEdgeColor;
 	TCFloat m_partEdgeContrast;
-	TCFloat m_partColorValueLDIndex;
-
-	int m_studStyle;
+	TCFloat m_partEdgeSaturation;
 	// LPub3D Mod End
-
+	
 	// Update settings
 	int m_proxyType;
 	std::string m_proxyServer;

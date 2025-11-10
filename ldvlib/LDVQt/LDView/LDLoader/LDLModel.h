@@ -211,9 +211,9 @@ protected:
 
 	static void initCheckDirs();
 
-	// LPub3D Mod - stud style
+	// LPub3D Mod - Stud Style
 	static int isStudStylePrimitive(const char* FileName, int studStyle);
-	static char *setCylinderColor(char *input);
+	static char* setStudCylinderColor(char* input);
 	static int getStudStyleFile(LDLModel* subModel, const char* dictName,
 		int studStyle, bool openStud);
 	// LPub3D Mod End

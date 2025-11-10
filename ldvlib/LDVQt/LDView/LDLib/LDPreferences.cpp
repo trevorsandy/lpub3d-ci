@@ -78,6 +78,10 @@ LDPreferences::LDPreferences(LDrawModelViewer* modelViewer)
 	, m_texmaps(false)
 	, m_textureOffsetFactor(0.0)
 	, m_useStrips(false)
+	// LPub3D Mod - Stud Style
+	, m_useStudStyle(false)
+	, m_studStyle(0)
+	// LPub3D Mod End
 	, m_proxyType(0)
 	, m_proxyPort(0)
 	, m_checkPartTracker(false)
@@ -196,15 +200,7 @@ void LDPreferences::getRGB(int color, int &r, int &g, int &b)
 	b = color & 0xFF;
 }
 
-void LDPreferences::getColorSetting(const char *key, int &r, int &g, int &b,
-	TCULong defaultColor)
-{
-	int value = (int)getLongSetting(key, defaultColor);
-
-	getRGB(value, r, g, b);
-}
-
-// LPub3D Mod - stud style
+// LPub3D Mod - Stud Style
 TCULong LDPreferences::getRGBAColor(int r, int g, int b, int a)
 {
 	return ((a >> 24) & 0xFF) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
@@ -219,7 +215,7 @@ void LDPreferences::getRGBA(int color, int& r, int& g, int& b, int& a)
 	b = color & 0xFF;
 }
 
-void LDPreferences::getRGBAColorSetting(const char* key, int& r, int& g, int& b, 
+void LDPreferences::getRGBAColorSetting(const char* key, int& r, int& g, int& b,
 	int& a, TCULong defaultColor)
 {
 	long value = (TCULong)getRGBAFromStringSetting(key, defaultColor);
@@ -227,6 +223,14 @@ void LDPreferences::getRGBAColorSetting(const char* key, int& r, int& g, int& b,
 	getRGBA(value, r, g, b, a);
 }
 // LPub3D Mod End
+
+void LDPreferences::getColorSetting(const char *key, int &r, int &g, int &b,
+	TCULong defaultColor)
+{
+	int value = (int)getLongSetting(key, defaultColor);
+
+	getRGB(value, r, g, b);
+}
 
 void LDPreferences::applySettings(void)
 {
@@ -386,6 +390,11 @@ void LDPreferences::applyGeometrySettings(void)
 		m_modelViewer->setUsePolygonOffset(m_usePolygonOffset);
 		m_modelViewer->setBlackHighlights(m_blackHighlights);
 		m_modelViewer->setHighlightLineWidth((GLfloat)m_edgeThickness);
+		// LPub3D Mod - Stud Style
+		m_modelViewer->setAutomateEdgeColor(m_automateEdgeColor);
+		m_modelViewer->setPartEdgeContrast(m_partEdgeContrast);
+		m_modelViewer->setPartEdgeSaturation(m_partEdgeSaturation);
+		// LPub3D Mod End
 	}
 }
 
@@ -431,23 +440,18 @@ void LDPreferences::applyPrimitivesSettings(void)
 		m_modelViewer->setTexturesAfterTransparent(true);
 		m_modelViewer->setTextureOffsetFactor(m_textureOffsetFactor);
 		m_modelViewer->setUseStrips(m_useStrips);
-
-		// LPub3D Mod - stud style	
-		m_modelViewer->setStudCylinderColor(m_studCylinderColor);
-		m_modelViewer->setPartEdgeColor(m_partEdgeColor);
-		m_modelViewer->setBlackEdgeColor(m_blackEdgeColor);
-		m_modelViewer->setDarkEdgeColor(m_darkEdgeColor);
-
+		// LPub3D Mod - Stud Style
+		m_modelViewer->setUseStudStyle(m_useStudStyle);
+		m_modelViewer->setStudStyle(m_studStyle);
 		m_modelViewer->setStudCylinderColorEnabled(m_studCylinderColorEnabled);
 		m_modelViewer->setPartEdgeColorEnabled(m_partEdgeColorEnabled);
 		m_modelViewer->setBlackEdgeColorEnabled(m_blackEdgeColorEnabled);
 		m_modelViewer->setDarkEdgeColorEnabled(m_darkEdgeColorEnabled);
-
-		m_modelViewer->setPartEdgeContrast(m_partEdgeContrast);
-		m_modelViewer->setPartColorValueLDIndex(m_partColorValueLDIndex);
-
-		m_modelViewer->setAutomateEdgeColor(m_automateEdgeColor);
-		m_modelViewer->setStudStyle(m_studStyle);
+		m_modelViewer->setStudCylinderColor(m_studCylinderColor);
+		m_modelViewer->setPartEdgeColor(m_partEdgeColor);
+		m_modelViewer->setBlackEdgeColor(m_blackEdgeColor);
+		m_modelViewer->setDarkEdgeColor(m_darkEdgeColor);
+		m_modelViewer->setPartColorLDIndex(m_partColorLDIndex);
 		// LPub3D Mod End
 	}
 }
@@ -600,6 +604,11 @@ void LDPreferences::loadDefaultGeometrySettings(bool initializing /*= true*/)
 	setUsePolygonOffset(true);
 	setBlackHighlights(false);
 	setEdgeThickness(1);
+	// LPub3D Mod - Stud Style
+	setAutomateEdgeColor(false);
+	setPartEdgeContrast(0.5f);
+	setPartEdgeSaturation(0.5f);
+	// LPub3D Mod End
 	m_initializing = false;
 }
 
@@ -647,23 +656,18 @@ void LDPreferences::loadDefaultPrimitivesSettings(bool initializing /*= true*/)
 	setTexmaps(true);
 	setTextureOffsetFactor(5.0);
 	setUseStrips(true);
-
-	// LPub3D Mod - stud style
-	setStudCylinderColor(27, 42, 52, 255);
-	setPartEdgeColor(0, 0, 0, 255);
-	setBlackEdgeColor(255, 255, 255, 255);
-	setDarkEdgeColor(27, 42, 52, 255);
-
+	// LPub3D Mod - Stud Style
+	setUseStudStyle(false);
+	setStudStyle(0/*Plain*/);
 	setStudCylinderColorEnabled(true);
 	setPartEdgeColorEnabled(true);
 	setBlackEdgeColorEnabled(true);
 	setDarkEdgeColorEnabled(true);
-	setAutomateEdgeColor(false);
-
-	setPartEdgeContrast(0.5f);
-	setPartColorValueLDIndex(0.5f);
-
-	setStudStyle(0/*Plain*/);
+	setStudCylinderColor(27, 42, 52, 255);
+	setPartEdgeColor(0, 0, 0, 255);
+	setBlackEdgeColor(255, 255, 255, 255);
+	setDarkEdgeColor(27, 42, 52, 255);
+	setPartColorLDIndex(0.5f);
 	// LPub3D Mod End
 	m_initializing = false;
 }
@@ -822,6 +826,11 @@ void LDPreferences::loadGeometrySettings(void)
 	m_usePolygonOffset = getBoolSetting(POLYGON_OFFSET_KEY, m_usePolygonOffset);
 	m_blackHighlights = getBoolSetting(BLACK_HIGHLIGHTS_KEY, m_blackHighlights);
 	m_edgeThickness = getIntSetting(EDGE_THICKNESS_KEY, m_edgeThickness);
+	// LPub3D Mod - Stud Style
+	m_automateEdgeColor = getBoolSetting(AUTOMATE_EDGE_COLOR_KEY, m_automateEdgeColor);
+	m_partEdgeContrast = getFloatSetting(PART_EDGE_CONTRAST_KEY, m_partEdgeContrast);
+	m_partEdgeSaturation = getFloatSetting(PART_EDGE_SATURATION_KEY, m_partEdgeSaturation);
+	// LPub3D Mod End
 }
 
 void LDPreferences::loadEffectsSettings(void)
@@ -870,23 +879,21 @@ void LDPreferences::loadPrimitivesSettings(void)
 	m_textureOffsetFactor = getFloatSetting(TEXTURE_OFFSET_FACTOR_KEY,
 		m_textureOffsetFactor);
 	m_useStrips = getBoolSetting(STRIPS_KEY, m_useStrips);
-
-	// LPub3D Mod - stud style
-	m_studCylinderColor = (TCULong)getRGBAFromStringSetting(STUD_CYLINDER_COLOR_KEY, m_studCylinderColor);
-	m_partEdgeColor = (TCULong)getRGBAFromStringSetting(PART_EDGE_COLOR_KEY, m_partEdgeColor);
-	m_blackEdgeColor = (TCULong)getRGBAFromStringSetting(BLACK_EDGE_COLOR_KEY, m_blackEdgeColor);
-	m_darkEdgeColor = (TCULong)getRGBAFromStringSetting(DARK_EDGE_COLOR_KEY, m_darkEdgeColor);
+	// LPub3D Mod - Stud Style
+	m_useStudStyle = getBoolSetting(STUD_STYLE_USE_KEY, m_useStudStyle);
+	m_studStyle = getIntSetting(STUD_STYLE_KEY, m_studStyle);
 
 	m_studCylinderColorEnabled = getBoolSetting(STUD_CYLINDER_COLOR_ENABLED_KEY, m_studCylinderColorEnabled);
 	m_partEdgeColorEnabled = getBoolSetting(PART_EDGE_COLOR_ENABLED_KEY, m_partEdgeColorEnabled);
 	m_blackEdgeColorEnabled = getBoolSetting(BLACK_EDGE_COLOR_ENABLED_KEY, m_blackEdgeColorEnabled);
 	m_darkEdgeColorEnabled = getBoolSetting(DARK_EDGE_COLOR_ENABLED_KEY, m_darkEdgeColorEnabled);
 
-	m_partEdgeContrast = getFloatSetting(PART_EDGE_CONTRAST_KEY, m_partEdgeContrast);
-	m_partColorValueLDIndex = getFloatSetting(PART_COLOR_VALUE_LD_INDEX_KEY, m_partColorValueLDIndex);
+	m_studCylinderColor = (TCULong)getRGBAFromStringSetting(STUD_CYLINDER_COLOR_KEY, m_studCylinderColor);
+	m_partEdgeColor = (TCULong)getRGBAFromStringSetting(PART_EDGE_COLOR_KEY, m_partEdgeColor);
+	m_blackEdgeColor = (TCULong)getRGBAFromStringSetting(BLACK_EDGE_COLOR_KEY, m_blackEdgeColor);
+	m_darkEdgeColor = (TCULong)getRGBAFromStringSetting(DARK_EDGE_COLOR_KEY, m_darkEdgeColor);
 
-	m_automateEdgeColor = getBoolSetting(AUTOMATE_EDGE_COLOR_KEY, m_automateEdgeColor);
-	m_studStyle = getIntSetting(STUD_STYLE_KEY, m_studStyle);
+	m_partColorLDIndex = getFloatSetting(PART_COLOR_LD_INDEX_KEY, m_partColorLDIndex);
 	// LPub3D Mod End
 }
 
@@ -1015,6 +1022,11 @@ void LDPreferences::commitGeometrySettings(bool flush /*= true*/)
 		setBlackHighlights(m_blackHighlights, true);
 	}
 	setEdgeThickness(m_edgeThickness, true);
+	// LPub3D Mod - Stud Style
+	setAutomateEdgeColor(m_automateEdgeColor, true);
+	setPartEdgeContrast(m_partEdgeContrast, true);
+	setPartEdgeSaturation(m_partEdgeSaturation, true);
+	// LPub3D Mod End
 	if (flush)
 	{
 		TCUserDefaults::flush();
@@ -1067,28 +1079,31 @@ void LDPreferences::commitPrimitivesSettings(bool flush /*= true*/)
 	setTexmaps(m_texmaps, true);
 	setTextureOffsetFactor(m_textureOffsetFactor, true);
 	setUseStrips(m_useStrips, true);
-
-	// LPub3D Mod - stud style
+	// LPub3D Mod - Stud Style
+	setUseStudStyle(m_useStudStyle, true);
+	if (m_useStudStyle)
+	{
+		setStudStyle(m_studStyle, true);
+	}
 	int r, g, b, a;
 	getRGBA(m_studCylinderColor, r, g, b, a);
 	setStudCylinderColor(r, g, b, a, true);
+
 	getRGBA(m_partEdgeColor, r, g, b, a);
 	setPartEdgeColor(r, g, b, a, true);
+
 	getRGBA(m_blackEdgeColor, r, g, b, a);
 	setBlackEdgeColor(r, g, b, a, true);
+
 	getRGBA(m_darkEdgeColor, r, g, b, a);
 	setDarkEdgeColor(r, g, b, a, true);
 
-	setStudCylinderColorEnabled(m_studCylinderColorEnabled ,true);
-	setPartEdgeColorEnabled(m_partEdgeColorEnabled ,true);
-	setBlackEdgeColorEnabled(m_blackEdgeColorEnabled ,true);
-	setDarkEdgeColorEnabled(m_darkEdgeColorEnabled ,true);
+	setStudCylinderColorEnabled(m_studCylinderColorEnabled, true);
+	setPartEdgeColorEnabled(m_partEdgeColorEnabled, true);
+	setBlackEdgeColorEnabled(m_blackEdgeColorEnabled, true);
+	setDarkEdgeColorEnabled(m_darkEdgeColorEnabled, true);
 
-	setPartEdgeContrast(m_partEdgeContrast, true);
-	setPartColorValueLDIndex(m_partColorValueLDIndex, true);
-
-	setAutomateEdgeColor(m_automateEdgeColor, true);
-	setStudStyle(m_studStyle, true);
+	setPartColorLDIndex(m_partColorLDIndex, true);
 	// LPub3D Mod End
 	if (flush)
 	{
@@ -1243,7 +1258,7 @@ void LDPreferences::setupModelSize(void)
 	}
 }
 
-// LPub3D Mod - stud style
+// LPub3D Mod - Stud Style
 void LDPreferences::setRGBAColorSetting(TCULong& setting, int r, int g, int b, int a,
 	const char* key, bool commit)
 {
@@ -1521,7 +1536,7 @@ float LDPreferences::getFloatSetting(const char *key, float defaultValue)
 	return TCUserDefaults::floatForKey(key, defaultValue, !m_globalSettings[key]);
 }
 
-// LPub3D Mod - stud style
+// LPub3D Mod - Stud Style
 long LDPreferences::getRGBAFromStringSetting(const char* key,
 	TCULong defaultValue)
 {
@@ -2160,25 +2175,32 @@ void LDPreferences::setCurveQuality(int value, bool commit)
 	setSetting(m_curveQuality, value, CURVE_QUALITY_KEY, commit);
 }
 
-// LPub3D Mod - stud style
-void LDPreferences::setStudCylinderColor(int r, int g, int b, int a, bool commit)
+// LPub3D Mod - Stud Style
+void LDPreferences::setAutomateEdgeColor(bool value, bool commit, bool apply)
 {
-	setRGBAColorSetting(m_studCylinderColor, r, g, b, a, STUD_CYLINDER_COLOR_KEY, commit);
+	setSetting(m_automateEdgeColor, value, AUTOMATE_EDGE_COLOR_KEY, commit);
+	if (apply && m_modelViewer != NULL)
+	{
+		m_modelViewer->setAutomateEdgeColor(m_automateEdgeColor);
+	}
 }
 
-void LDPreferences::setPartEdgeColor(int r, int g, int b, int a, bool commit)
+void LDPreferences::setUseStudStyle(bool value, bool commit, bool apply)
 {
-	setRGBAColorSetting(m_partEdgeColor, r, g, b, a, PART_EDGE_COLOR_KEY, commit);
+	setSetting(m_useStudStyle, value, STUD_STYLE_USE_KEY, commit);
+	if (apply && m_modelViewer != NULL)
+	{
+		m_modelViewer->setUseStudStyle(m_useStudStyle);
+	}
 }
 
-void LDPreferences::setBlackEdgeColor(int r, int g, int b, int a, bool commit)
+void LDPreferences::setStudStyle(int value, bool commit, bool apply)
 {
-	setRGBAColorSetting(m_blackEdgeColor, r, g, b, a, BLACK_EDGE_COLOR_KEY, commit);
-}
-
-void LDPreferences::setDarkEdgeColor(int r, int g, int b, int a, bool commit)
-{
-	setRGBAColorSetting(m_darkEdgeColor, r, g, b, a, DARK_EDGE_COLOR_KEY, commit);
+	setSetting(m_studStyle, value, STUD_STYLE_KEY, commit);
+	if (apply && m_modelViewer != NULL)
+	{
+		m_modelViewer->setStudStyle(m_studStyle);
+	}
 }
 
 void LDPreferences::setStudCylinderColorEnabled(bool value, bool commit, bool apply)
@@ -2217,6 +2239,35 @@ void LDPreferences::setDarkEdgeColorEnabled(bool value, bool commit, bool apply)
 	}
 }
 
+void LDPreferences::setStudCylinderColor(int r, int g, int b, int a, bool commit)
+{
+	setRGBAColorSetting(m_studCylinderColor, r, g, b, a, STUD_CYLINDER_COLOR_KEY, commit);
+}
+
+void LDPreferences::setPartEdgeColor(int r, int g, int b, int a, bool commit)
+{
+	setRGBAColorSetting(m_partEdgeColor, r, g, b, a, PART_EDGE_COLOR_KEY, commit);
+}
+
+void LDPreferences::setBlackEdgeColor(int r, int g, int b, int a, bool commit)
+{
+	setRGBAColorSetting(m_blackEdgeColor, r, g, b, a, BLACK_EDGE_COLOR_KEY, commit);
+}
+
+void LDPreferences::setDarkEdgeColor(int r, int g, int b, int a, bool commit)
+{
+	setRGBAColorSetting(m_darkEdgeColor, r, g, b, a, DARK_EDGE_COLOR_KEY, commit);
+}
+
+void LDPreferences::setPartColorLDIndex(TCFloat value, bool commit, bool apply)
+{
+	setSetting(m_partColorLDIndex, value, PART_COLOR_LD_INDEX_KEY, commit);
+	if (apply && m_modelViewer != NULL)
+	{
+		m_modelViewer->setPartColorLDIndex(m_partColorLDIndex);
+	}
+}
+
 void LDPreferences::setPartEdgeContrast(TCFloat value, bool commit, bool apply)
 {
 	setSetting(m_partEdgeContrast, value, PART_EDGE_CONTRAST_KEY, commit);
@@ -2226,30 +2277,12 @@ void LDPreferences::setPartEdgeContrast(TCFloat value, bool commit, bool apply)
 	}
 }
 
-void LDPreferences::setPartColorValueLDIndex(TCFloat value, bool commit, bool apply)
+void LDPreferences::setPartEdgeSaturation(TCFloat value, bool commit, bool apply)
 {
-	setSetting(m_partColorValueLDIndex, value, PART_COLOR_VALUE_LD_INDEX_KEY, commit);
+	setSetting(m_partEdgeSaturation, value, PART_EDGE_SATURATION_KEY, commit);
 	if (apply && m_modelViewer != NULL)
 	{
-		m_modelViewer->setPartColorValueLDIndex(m_partColorValueLDIndex);
-	}
-}
-
-void LDPreferences::setAutomateEdgeColor(bool value, bool commit, bool apply)
-{
-	setSetting(m_automateEdgeColor, value, AUTOMATE_EDGE_COLOR_KEY, commit);
-	if (apply && m_modelViewer != NULL)
-	{
-		m_modelViewer->setAutomateEdgeColor(m_automateEdgeColor);
-	}
-}
-
-void LDPreferences::setStudStyle(int value, bool commit, bool apply)
-{
-	setSetting(m_studStyle, value, STUD_STYLE_KEY, commit);
-	if (apply && m_modelViewer != NULL)
-	{
-		m_modelViewer->setStudStyle(m_studStyle);
+		m_modelViewer->setPartEdgeSaturation(m_partEdgeSaturation);
 	}
 }
 // LPub3D Mod End
@@ -2432,7 +2465,7 @@ void LDPreferences::getCustomColor(int index, int &r, int &g, int &b)
 	getRGB(m_customColors[index], r, g, b);
 }
 
-// LPub3D Mod - stud style 
+// LPub3D Mod - Stud Style 
 void LDPreferences::getStudCylinderColor(int& r, int& g, int& b, int& a)
 {
 	getRGBA(m_studCylinderColor, r, g, b, a);

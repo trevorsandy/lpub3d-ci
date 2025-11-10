@@ -155,19 +155,19 @@ LDrawModelViewer::LDrawModelViewer(TCFloat width, TCFloat height)
 	highlightR(160),
 	highlightG(224),
 	highlightB(255),
-	// LPub3D Mod - stud style
-	studCylinderColor(1780276), // 27,42,52,255
-	partEdgeColor(0),           // 0,0,0,255
-	blackEdgeColor(16777215),   // 255,255,255,255
-	darkEdgeColor(1780276),     // 27,42,52,255
+	// LPub3D Mod - Stud Style
+	studStyle(0),
 	studCylinderColorEnabled(true),
 	partEdgeColorEnabled(true),
 	blackEdgeColorEnabled(true),
 	darkEdgeColorEnabled(true),
-	automateEdgeColor(false),
+	studCylinderColor(1780276), // 27,42,52,255
+	partEdgeColor(0),           // 0,0,0,255
+	blackEdgeColor(16777215),   // 255,255,255,255
+	darkEdgeColor(1780276),     // 27,42,52,255
+	partColorLDIndex(0.5f),
 	partEdgeContrast(0.5f),
-	partColorValueLDIndex(0.5f),
-	studStyle(0),
+	partEdgeSaturation(0.5f),
 	// LPub3D Mod End
 	cameraData(NULL)
 {
@@ -248,6 +248,10 @@ LDrawModelViewer::LDrawModelViewer(TCFloat width, TCFloat height)
 	flags.keepRightSideUp = false;
 	flags.texmaps = true;
 	flags.useStrips = true;
+	// LPub3D Mod - Stud Style
+	flags.useStudStyle = false;
+	flags.automateEdgeColor = false;
+	// LPub3D Mod End
 	TCAlertManager::registerHandler(LDLFindFileAlert::alertClass(), this,
 		(TCAlertCallback)&LDrawModelViewer::findFileAlertCallback);
 	// Set 4:4:4 as the default sub-sample pattern for JPEG images.
@@ -2349,7 +2353,86 @@ void LDrawModelViewer::setCurveQuality(int value)
 	}
 }
 
-// LPub3D Mod - stud style
+// LPub3D Mod - Stud Style
+void LDrawModelViewer::setAutomateEdgeColor(bool value)
+{
+	if (value != flags.automateEdgeColor)
+	{
+		flags.automateEdgeColor = value;
+		flags.needsReparse = true;
+	}
+
+}
+
+void LDrawModelViewer::setUseStudStyle(bool value)
+{
+	if (value != flags.useStudStyle)
+	{
+		flags.useStudStyle = value;
+		flags.needsReload = true;
+	}
+}
+
+void LDrawModelViewer::setStudStyle(int value)
+{
+	if (value != studStyle)
+	{
+		studStyle = value;
+		if (flags.useStudStyle)
+		{
+			flags.needsReload = true;
+		}
+	}
+}
+
+void LDrawModelViewer::setStudCylinderColorEnabled(bool value)
+{
+	if (value != studCylinderColorEnabled)
+	{
+		studCylinderColorEnabled = value;
+		if (flags.useStudStyle)
+		{
+			flags.needsReload = true;
+		}
+	}
+}
+
+void LDrawModelViewer::setPartEdgeColorEnabled(bool value)
+{
+	if (value != partEdgeColorEnabled)
+	{
+		partEdgeColorEnabled = value;
+		if (flags.useStudStyle)
+		{
+			flags.needsReload = true;
+		}
+	}
+}
+
+void LDrawModelViewer::setBlackEdgeColorEnabled(bool value)
+{
+	if (value != blackEdgeColorEnabled)
+	{
+		blackEdgeColorEnabled = value;
+		if (flags.useStudStyle)
+		{
+			flags.needsReload = true;
+		}
+	}
+}
+
+void LDrawModelViewer::setDarkEdgeColorEnabled(bool value)
+{
+	if (value != darkEdgeColorEnabled)
+	{
+		darkEdgeColorEnabled = value;
+		if (flags.useStudStyle)
+		{
+			flags.needsReload = true;
+		}
+	}
+}
+
 void LDrawModelViewer::setStudCylinderColor(TCULong value)
 {
 	if (value != studCylinderColor)
@@ -2386,38 +2469,11 @@ void LDrawModelViewer::setDarkEdgeColor(TCULong value)
 	}
 }
 
-void LDrawModelViewer::setStudCylinderColorEnabled(bool value)
+void LDrawModelViewer::setPartColorLDIndex(TCFloat value)
 {
-	if (value != studCylinderColorEnabled)
+	if (value != partColorLDIndex)
 	{
-		studCylinderColorEnabled = value;
-		flags.needsReload = true;
-	}
-}
-
-void LDrawModelViewer::setPartEdgeColorEnabled(bool value)
-{
-	if (value != partEdgeColorEnabled)
-	{
-		partEdgeColorEnabled = value;
-		flags.needsReload = true;
-	}
-}
-
-void LDrawModelViewer::setBlackEdgeColorEnabled(bool value)
-{
-	if (value != blackEdgeColorEnabled)
-	{
-		blackEdgeColorEnabled = value;
-		flags.needsReload = true;
-	}
-}
-
-void LDrawModelViewer::setDarkEdgeColorEnabled(bool value)
-{
-	if (value != darkEdgeColorEnabled)
-	{
-		darkEdgeColorEnabled = value;
+		partColorLDIndex = value;
 		flags.needsReload = true;
 	}
 }
@@ -2427,34 +2483,22 @@ void LDrawModelViewer::setPartEdgeContrast(TCFloat value)
 	if (value != partEdgeContrast)
 	{
 		partEdgeContrast = value;
-		flags.needsReload = true;
+		if (flags.automateEdgeColor)
+		{
+			flags.needsReload = true;
+		}
 	}
 }
 
-void LDrawModelViewer::setPartColorValueLDIndex(TCFloat value)
+void LDrawModelViewer::setPartEdgeSaturation(TCFloat value)
 {
-	if (value != partColorValueLDIndex)
+	if (value != partEdgeSaturation)
 	{
-		partColorValueLDIndex = value;
-		flags.needsReload = true;
-	}
-}
-
-void LDrawModelViewer::setAutomateEdgeColor(bool value)
-{
-	if (value != automateEdgeColor)
-	{
-		automateEdgeColor = value;
-		flags.needsReload = true;
-	}
-}
-
-void LDrawModelViewer::setStudStyle(int value)
-{
-	if (value != studStyle)
-	{
-		studStyle = value;
-		flags.needsReload = true;
+		partEdgeSaturation = value;
+		if (flags.automateEdgeColor)
+		{
+			flags.needsReload = true;
+		}
 	}
 }
 // LPub3D Mod End
