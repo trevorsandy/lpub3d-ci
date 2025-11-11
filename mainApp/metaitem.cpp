@@ -76,14 +76,13 @@
 
 enum AppendType { AppendNoOption, AppendAtModel, AppendAtPage, AppendAtSubmodel };
 enum MonoColors { Blue, TransWhite, NumColors };
-const QString MetaItem::monoColor[NumColors]     = { "blue", "transwhite" };
-const QString MetaItem::monoColorCode[NumColors] = { "1", "11015"};
-
 const QString MetaItem::calloutDividerMetaCmd    = "0 !LPUB CALLOUT DIVIDER";
 const QString MetaItem::stepGroupBeginMetaCmd    = "0 !LPUB MULTI_STEP BEGIN";
 const QString MetaItem::stepGroupDividerMetaCmd  = "0 !LPUB MULTI_STEP DIVIDER";
 const QString MetaItem::stepGroupEndMetaCmd      = "0 !LPUB MULTI_STEP END";
 const QString MetaItem::stepMetaCmd              = "0 STEP";
+const QString MetaItem::monoColor[NumColors]     = { "blue", "transwhite" };
+const QString MetaItem::monoColorCode[NumColors] = { "1", "99915" };
 
 QRegularExpression MetaItem::rx;
 
@@ -5140,11 +5139,13 @@ int MetaItem::monoColorSubmodel(
   bool monoColorAdded = false;
 
   QTextStream out(&outFile);
-
+  const QString customColorHeader = QObject::tr("0 // %1 part custom color").arg(VER_PRODUCTNAME_STR);
+  const QString customColourEntry = QString("0 !COLOUR %1_White CODE %2 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32")
+                                            .arg(VER_PRODUCTNAME_STR, monoColorCode[TransWhite]);
   for ( ; walk < numLines; walk++) {
     if (whiteModel && !monoColorAdded && walk.lineNumber == here.lineNumber) {
-      out << QString("0 // %1 part custom color").arg(VER_PRODUCTNAME_STR) << lpub_endl;
-      out << QString("0 !COLOUR %1_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32").arg(VER_PRODUCTNAME_STR) << lpub_endl;
+      out << customColorHeader << lpub_endl;
+      out << customColourEntry << lpub_endl;
       out << "0" << lpub_endl;
       monoColorAdded = true;
     }

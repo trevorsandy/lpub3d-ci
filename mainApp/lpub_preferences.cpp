@@ -3103,14 +3103,14 @@ void Preferences::setLDGLiteIniParams()
     QFile confFileIn, confFileOut;
     rx.setPattern("^__NOTE:");
 
-    resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, VER_LDGLITE_INI_FILE));
+    resourceFile.setFile(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, VER_LDGLITE_INI_FILE)));
     if (!resourceFile.exists()) {
         logInfo() << qUtf8Printable(QObject::tr("Initializing %1...").arg(resourceFile.absoluteFilePath()));
         inFileName = QString("%1/%2").arg(dataLocation, resourceFile.fileName());
         if (!resourceFile.absoluteDir().exists())
             resourceFile.absoluteDir().mkpath(".");
         confFileIn.setFileName(QDir::toNativeSeparators(inFileName));;
-        confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName()));
+        confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName())));
         if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream input(&confFileIn);
             QTextStream output(&confFileOut);
@@ -3189,7 +3189,7 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
             resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2").arg(lpub3dLDVConfigDir, resourceFile.fileName()));
+    confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2").arg(lpub3dLDVConfigDir, resourceFile.fileName())));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
@@ -3266,13 +3266,13 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
 
-    resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE));
+    resourceFile.setFile(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE)));
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-             ldviewIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview ini file
+            ldviewIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview ini file
             logInfo() << qUtf8Printable(QObject::tr("LDView ini file    : %1").arg(QDir::toNativeSeparators(ldviewIni)));
-             return;
+            return;
         }
         logInfo() << QString("Updating %1...").arg(resourceFile.absoluteFilePath());
         inFileName = QString("%1.%2").arg(resourceFile.absoluteFilePath(),timeStamp.toString("ddMMyyhhmmss"));
@@ -3285,7 +3285,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
             resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName()));
+    confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName())));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
@@ -3350,7 +3350,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
 
-    resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE));
+    resourceFile.setFile(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE)));
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
@@ -3369,7 +3369,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
             resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName()));
+    confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName())));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
@@ -3442,7 +3442,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     QDateTime timeStamp = QDateTime::currentDateTime();
 
     // POV-Ray Conf
-    resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR ,VER_POVRAY_CONF_FILE));
+    resourceFile.setFile(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR ,VER_POVRAY_CONF_FILE)));
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
@@ -3462,7 +3462,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
             resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName()));
+    confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName())));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QString povsysdir  = QString("%1/3rdParty/%2").arg(lpub3dPath, VER_POVRAY_STR);
@@ -3501,7 +3501,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
             } else {
                 QString locationsComment = QString("You can use %HOME%, %INSTALLDIR% and the working directory "
                                                    "(e.g. %1) as the origin to define permitted paths:")
-                                                   .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));                
+                                                   .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
                 QString userHome =
 #if defined Q_OS_WIN
                     QLatin1String("%USERPROFILE%");
@@ -3659,7 +3659,7 @@ void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
 
-    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR "/config" ,VER_POVRAY_INI_FILE));
+    resourceFile.setFile(QDir::toNativeSeparators(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR "/config" ,VER_POVRAY_INI_FILE)));
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
@@ -3678,7 +3678,7 @@ void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
            resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName()));
+    confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName())));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);

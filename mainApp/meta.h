@@ -742,7 +742,7 @@ public:
   {
     return _z1[pushed];
   }
-  
+
   virtual float x2()
   {
     return _x2[pushed];
@@ -755,7 +755,7 @@ public:
   {
     return _z2[pushed];
   }
-  
+
   virtual float x3()
   {
     return _x3[pushed];
@@ -768,7 +768,7 @@ public:
   {
     return _z3[pushed];
   }
-  
+
   void setValues(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3)
   {
     _x1[pushed] = x1;
@@ -806,7 +806,7 @@ public:
   bool isPopulated()
   {
     return _populated;
-  }  
+  }
   virtual void init(BranchMeta *parent,
                     const QString name,
                     Rc _rc=OkRc);
@@ -3159,11 +3159,11 @@ class PageAttributeTextMeta : public BranchMeta
 {
 public:
   PlacementType  type;
-  FontMeta    	 textFont;
-  StringMeta  	 textColor;
-  MarginsMeta 	 margin;
+  FontMeta       textFont;
+  StringMeta     textColor;
+  MarginsMeta    margin;
   PlacementMeta  placement;
-  StringMeta   	 content;
+  StringMeta     content;
   BoolMeta       display;
   void setValue(QString _value)
   {

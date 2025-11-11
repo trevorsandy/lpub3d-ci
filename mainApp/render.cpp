@@ -620,22 +620,72 @@ bool Render::createSnapshotsList(
 
     QTextStream out(&SnapshotsListFile);
 
-    for (int i = 0; i < ldrNames.size(); i++) {
-        QString smLine = ldrNames[i];
-        if (QFileInfo::exists(smLine)) {
-            out << smLine << lpub_endl;
+    for (const QString &ldrName : ldrNames) {
+        if (QFileInfo::exists(ldrName)) {
+            out << ldrName << lpub_endl;
             if (Preferences::debugLogging)
-                emit gui->messageSig(LOG_DEBUG, QObject::tr("Wrote %1 to PLI Snapshots list").arg(smLine));
+                emit gui->messageSig(LOG_DEBUG, QObject::tr("Wrote %1 to PLI Snapshots list").arg(ldrName));
         } else {
-            emit gui->messageSig(LOG_ERROR, QObject::tr("Error %1 not written to Snapshots list - file does not exist").arg(smLine));
+            emit gui->messageSig(LOG_ERROR, QObject::tr("Error %1 not written to Snapshots list - file does not exist").arg(ldrName));
         }
     }
     SnapshotsListFile.close();
     return true;
 }
 
-int Render::executeLDViewProcess(QStringList &arguments, QStringList &environment, Options::Mt module) {
 
+bool createCommandFile(
+    const QStringList &LDViewEnvList,
+    const QStringList &SystemEnvList,
+    const QString &Command)
+{
+  const QString FileName =
+#ifdef Q_OS_WIN
+    "RenderCmd.bat";
+#else
+    "RenderCmd";
+#endif
+  QFile CmdFile(QDir::currentPath() + QDir::separator() + FileName);
+  if ( ! CmdFile.open(QFile::WriteOnly | QFile::Text)) {
+    emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to create command file %1!")
+                                                .arg(CmdFile.fileName()));
+    return false;
+  }
+  QString entry;
+  QTextStream out(&CmdFile);
+  const bool Win =
+#ifdef Q_OS_WIN
+    true;
+  out << "@ECHO OFF &SETLOCAL &CLS" << lpub_endl;
+#else
+    false;
+  out << "#!/bin/sh" << lpub_endl;
+#endif
+
+  out << lpub_endl;
+  if (LDViewEnvList.size())
+  {
+    out << ":: LDView Environment Variables" << lpub_endl;
+    for (const QString &Item : LDViewEnvList) {
+      entry = QObject::tr("%1%2").arg(Win ? "SET " : "", Item);
+      out << entry << lpub_endl;
+    }
+    out << lpub_endl;
+  }
+  out << ":: System Environment Variables" << lpub_endl;
+  for (const QString &Item : SystemEnvList) {
+    entry = QObject::tr("%1%2").arg(Win ? "SET " : "", Item);
+    out << entry << lpub_endl;
+  }
+  out << lpub_endl;
+  out << ":: LDView Command" << lpub_endl;
+  out << QObject::tr("%1 %2").arg(Preferences::ldviewExe, Command) << lpub_endl;
+  CmdFile.close();
+  return true;
+}
+
+int Render::executeLDViewProcess(QStringList &arguments, QStringList &environment, Options::Mt module)
+{
   QString const render = module == Options::CSI ? "CSI" : "PLI";
   QString const message = QObject::tr("LDView %1 %2 Arguments: %3 %4")
                                       .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)",
@@ -650,15 +700,21 @@ int Render::executeLDViewProcess(QStringList &arguments, QStringList &environmen
 
   QStringList ldviewEnvVars = environment;
   if (ldviewEnvVars.size())
-  emit gui->messageSig(LOG_INFO,QObject::tr("LDView CSI POV file generation environment variables: %1")
-                                            .arg(ldviewEnvVars.join(" ")));
+    emit gui->messageSig(LOG_INFO,QObject::tr("LDView environment variables: %1")
+                         .arg(ldviewEnvVars.join(" ")));
+
+  QStringList systemEnvVars;
+  systemEnvVars << QProcess::systemEnvironment();
+//#ifdef QT_DEBUG_MODE
+//  createCommandFile(ldviewEnvVars, systemEnvVars, arguments.join(" "));
+//#endif
+  ldviewEnvVars << systemEnvVars;
 
   QProcess ldview;
-  ldviewEnvVars << QProcess::systemEnvironment();
   ldview.setEnvironment(ldviewEnvVars);
-  ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
-  ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
+  ldview.setWorkingDirectory(QDir::currentPath() + QDir::separator() +  Paths::tmpDir);
+  ldview.setStandardErrorFile(QDir::currentPath() + QDir::separator() + "stderr-ldview");
+  ldview.setStandardOutputFile(QDir::currentPath() + QDir::separator() + "stdout-ldview");
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -674,7 +730,7 @@ int Render::executeLDViewProcess(QStringList &arguments, QStringList &environmen
     }
 
   bool usingInputFileList = false;
-  Q_FOREACH (QString argument, arguments) {
+  for (QString &argument : arguments) {
       if (argument.startsWith("-CommandLinesList=") ||
           argument.startsWith("-SaveSnapshotsList=")) {
           usingInputFileList = true;
@@ -986,8 +1042,8 @@ int POVRay::renderCsi(
 #endif
 
       bool retError = false;
-      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
-      if (! ldvWidget->doCommand(arguments))  {
+      ldvWidget = new LDVWidget(nullptr, NativePOVIni, true);
+      if (!ldvWidget->doCommand(arguments))  {
           emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
           retError = true;
       }
@@ -1153,7 +1209,7 @@ int POVRay::renderCsi(
 int POVRay::renderPli(
     const QStringList &ldrNames ,
     const QString     &pngName,
-    Meta    	      &meta,
+    Meta              &meta,
     int                pliType,
     int                keySub)
 {
@@ -1368,7 +1424,7 @@ int POVRay::renderPli(
 #endif
 
       bool retError = false;
-      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
+      ldvWidget = new LDVWidget(nullptr, NativePOVIni, true);
       if (! ldvWidget->doCommand(arguments)) {
           emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
           retError = true;
@@ -2942,7 +2998,7 @@ int Native::renderCsi(
     Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
     Options->CameraName        = cameraName;
     Options->FoV               = cameraFoV;
-	Options->HighlightNewParts = false; // Gui::suppressColourMeta();
+    Options->HighlightNewParts = false; // Gui::suppressColourMeta();
     Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
     Options->ImageType         = Options::CSI;
     Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
@@ -3202,7 +3258,7 @@ int Native::renderPli(
       break;
   case BOM:
       if (!nameKey.isEmpty()) {
-        Options = lpub->page.pli.viewerOptsList[nameKey]; 
+        Options = lpub->page.pli.viewerOptsList[nameKey];
         viewerStepKey = QString("%1;%2;0").arg(attributes.at(nType), attributes.at(nColorCode));
       }
       break;
@@ -3977,12 +4033,12 @@ bool Render::NativeExport(const NativeOptions *Options) {
 }
 
 void Render::showLdvExportSettings(int iniFlag) {
-    ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
+    ldvWidget = new LDVWidget(nullptr, IniFlag(iniFlag), true);
     ldvWidget->showLDVExportOptions();
 }
 
 void Render::showLdvLDrawPreferences(int iniFlag) {
-    ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
+    ldvWidget = new LDVWidget(nullptr, IniFlag(iniFlag), true);
     ldvWidget->showLDVPreferences();
 }
 
@@ -4023,11 +4079,9 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag) 
     emit gui->messageSig(LOG_TRACE, QObject::tr("Native %1 Export for command: %2")
                                                 .arg(mode, arguments.join(" ")));
 
-    ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
-
+    ldvWidget = new LDVWidget(nullptr, IniFlag(iniFlag), true);
     if (exportHTML)
         gui->connect(ldvWidget, SIGNAL(loadBLCodesSig()), gui, SLOT(loadBLCodes()));
-
     if (! ldvWidget->doCommand(arguments))  {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to generate %1 Export for command: %2")
                                                     .arg(mode, arguments.join(" ")));

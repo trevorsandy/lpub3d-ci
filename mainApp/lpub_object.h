@@ -205,8 +205,8 @@ public:
 
   /// Download management public members
   QProgressDialog *mProgressDialog = nullptr;
-  bool mPromptRedirect;
-  bool mHttpRequestAborted;
+  bool mPromptRedirect = false;
+  bool mHttpRequestAborted = false;
   QUrl mUrl;
 
   /// Release notes and version updater
@@ -292,18 +292,20 @@ protected:
   QPushButton           *mLatResetButton;
   QPushButton           *mLonResetButton;
   QPushButton           *mDDFResetButton;
-  float                  mLatitude;
-  float                  mLongitude;
-  float                  mDistanceFactor;
+  float                  mLatitude = 0.0f;
+  float                  mLongitude = 0.0f;
+  float                  mDistanceFactor = 0.0f;
 
   /// Visual editor transform
-  bool                   mRotateTransform;
-  bool                   mRelativeTransform;
-  bool                   mSeparateTransform;
+  bool                   mRotateTransform = false;
+  bool                   mRelativeTransform = false;
+  bool                   mSeparateTransform = false;
+  bool                   mUseStudStyle = false;
+
 
 private:
-  bool                   mFileLoaded;
-  bool                   mFileLoadFail;
+  bool                   mFileLoaded = false;
+  bool                   mFileLoadFail = false;
   static QString         commandlineFile;
 };
 

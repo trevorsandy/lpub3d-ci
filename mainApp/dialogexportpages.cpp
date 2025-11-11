@@ -392,13 +392,13 @@ void DialogExportPages::lineEditPageRangeFocusChanged(bool focus)
 
 void DialogExportPages::on_pushButtonExportSettings_clicked()
 {
-    ldvWidget = new LDVWidget(this,IniFlag(flag),true);
+    ldvWidget = new LDVWidget(this, IniFlag(flag), true);
     ldvWidget->showLDVExportOptions();
 }
 
 void DialogExportPages::on_pushButtonExportPreferences_clicked()
 {
-    ldvWidget = new LDVWidget(this,IniFlag(flag),true);
+    ldvWidget = new LDVWidget(this, IniFlag(flag), true);
     ldvWidget->showLDVPreferences();
 }
 

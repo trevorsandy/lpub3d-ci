@@ -1081,11 +1081,11 @@ const QString RectNames[NumSpots] =
     "BottomOutside",              //22
     "BottomRightOutside",         //23
     "BottomRightOutsideCorner",   //24
-};	//NumSpots
+};  //NumSpots
 
 const QString RelNames[NumRelatives] =
-{                              	 //  placement dialogue codes:
-   "PageType",                 	 // 0 page
+{                                //  placement dialogue codes:
+   "PageType",                   // 0 page
    "CsiType",                    // 1 Csi  (Assem)
    "StepGroupType",              // 2 Ms   (Multi-Step)
    "StepNumberType",             // 3 Sn
