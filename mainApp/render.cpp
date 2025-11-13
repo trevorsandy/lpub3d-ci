@@ -2389,6 +2389,43 @@ int LDView::renderCsi(
     arguments << o;  // -HaveStdOut
     arguments << v;  // -vv (Verbose)
 
+#ifdef Q_OS_WIN
+    NativeOptions *Options = lpub->currentStep->viewerOptions;
+    const QString viewerStepKey = lpub->currentStep->viewerStepKey;
+    if (Options) {
+        Options->ViewerStepKey  = viewerStepKey;
+        Options->AutoEdgeColor  = aecm->enable.value();
+        Options->EdgeContrast   = aecm->contrast.value();
+        Options->EdgeSaturation = aecm->saturation.value();
+        Options->UseStudStyle   = ssm->useStudStyle();
+        Options->StudStyle      = ssm->value();
+        Options->LightDarkIndex = hccm->lightDarkIndex.value();
+        Options->StudCylinderColor = hccm->studCylinderColor.value();
+        Options->StudCylinderColorEnabled = hccm->studCylinderColorEnabled.value();
+        Options->PartEdgeColor  = hccm->partEdgeColor.value();
+        Options->PartEdgeColorEnabled = hccm->partEdgeColorEnabled.value();
+        Options->BlackEdgeColor = hccm->blackEdgeColor.value();
+        Options->BlackEdgeColorEnabled = hccm->blackEdgeColorEnabled.value();
+        Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
+        Options->DarkEdgeColorEnabled = hccm->darkEdgeColorEnabled.value();
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG,QObject::tr("Retrieved CSI stud style options for step key'%2'.")
+                                                   .arg(viewerStepKey));
+#endif
+        if (Options->AutoEdgeColor) {
+            lpub->DoUpdateLDViewIniFile(AutomateEdgeColorRc);
+            lpub->SetAutomateEdgeColor(Options);
+        }
+        if (ssm->useStudStyle() && Options->StudStyle >= StyleHighContrastPlain) {
+            lpub->DoUpdateLDViewIniFile(StudStyleRc);
+            lpub->SetStudStyle(Options, false);
+        }
+    } else {
+        emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve CSI stud options for step key'%2'.")
+                                                   .arg(viewerStepKey));
+    }
+#endif
+
     QString ini;
     if(!Preferences::ldviewIni.isEmpty()) {
         ini = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
@@ -2644,7 +2681,7 @@ int LDView::renderPli(
 
   /* Create the PLI DAT file(s) */
 
-  QString f, cleanPngName;
+  QString f, cleanPngName, nameKey;
   bool hasSubstitutePart   = false;
   bool usingDefaultArgs    = true;
   bool usingSingleSetArgs  = false;
@@ -2672,6 +2709,10 @@ int LDView::renderPli(
 
           // get attribues from ldrName key
           attributes = getImageAttributes(ldrName);
+
+          // to support stud style options
+          if ((keySub || pliType == BOM) && attributes.size() >= nColorCode)
+              nameKey = QString("%1_%2").arg(attributes.at(nType), attributes.at(nColorCode));
 
           // determine if is substitute part
           hasSubstitutePart = keySub && attributes.endsWith("SUB");
@@ -2791,8 +2832,11 @@ int LDView::renderPli(
           getRendererSettings(CA,cg);
       }
 
-      if (keySub || pliType == BOM)
+      if (keySub || pliType == BOM) {
           cleanPngName.replace(";", "_");
+          if (attributes.size() >= nColorCode)
+              nameKey = QString("%1_%2").arg(attributes.at(nType), attributes.at(nColorCode));
+      }
 
       f  = QString("-SaveSnapShot=%1") .arg(cleanPngName);
   }
@@ -2839,6 +2883,62 @@ int LDView::renderPli(
   arguments << l;  // -LDrawDir
   arguments << o;  // -HaveStdOut
   arguments << v;  // -vv (Verbose)
+
+#ifdef Q_OS_WIN
+  // Update stud style settings ahead of render call
+  NativeOptions *Options = nullptr;
+  QString viewerStepKey;
+  switch(pliType) {
+  case SUBMODEL:
+      Options  = lpub->currentStep->subModel.viewerOptions;
+      viewerStepKey = lpub->currentStep->subModel.viewerSubmodelKey;
+      break;
+  case PART:
+      Options  = lpub->currentStep->pli.viewerOptions;
+      viewerStepKey = lpub->currentStep->pli.viewerPliPartKey;
+      break;
+  case BOM:
+      if (!nameKey.isEmpty()) {
+          Options = lpub->page.pli.viewerOptsList[nameKey];
+          viewerStepKey = QString("%1;%2;0").arg(attributes.at(nType), attributes.at(nColorCode));
+      }
+      break;
+  }
+  if (Options) {
+      Options->ViewerStepKey  = viewerStepKey;
+      Options->AutoEdgeColor  = aecm->enable.value();
+      Options->EdgeContrast   = aecm->contrast.value();
+      Options->EdgeSaturation = aecm->saturation.value();
+      Options->UseStudStyle   = ssm->useStudStyle();
+      Options->StudStyle      = ssm->value();
+      Options->LightDarkIndex = hccm->lightDarkIndex.value();
+      Options->StudCylinderColor = hccm->studCylinderColor.value();
+      Options->StudCylinderColorEnabled = hccm->studCylinderColorEnabled.value();
+      Options->PartEdgeColor  = hccm->partEdgeColor.value();
+      Options->PartEdgeColorEnabled = hccm->partEdgeColorEnabled.value();
+      Options->BlackEdgeColor = hccm->blackEdgeColor.value();
+      Options->BlackEdgeColorEnabled = hccm->blackEdgeColorEnabled.value();
+      Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
+      Options->DarkEdgeColorEnabled = hccm->darkEdgeColorEnabled.value();
+#ifdef QT_DEBUG_MODE
+      emit gui->messageSig(LOG_DEBUG,QObject::tr("Retrieved %1 stud style options for step key'%2'.")
+                                                 .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI",
+                                                      viewerStepKey));
+#endif
+      if (Options->AutoEdgeColor) {
+          lpub->DoUpdateLDViewIniFile(AutomateEdgeColorRc);
+          lpub->SetAutomateEdgeColor(Options);
+      }
+      if (ssm->useStudStyle() && Options->StudStyle >= StyleHighContrastPlain) {
+          lpub->DoUpdateLDViewIniFile(StudStyleRc);
+          lpub->SetStudStyle(Options, false);
+      }
+  } else {
+      emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve %1 stud options for step key'%2'.")
+                                                 .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI",
+                                                      viewerStepKey));
+  }
+#endif
 
   QString newArg;
   if(!Preferences::ldviewIni.isEmpty()) {

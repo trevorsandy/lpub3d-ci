@@ -89,6 +89,9 @@ public:
   void    SetAutomateEdgeColor(const NativeOptions*, bool = false);
   void    SetShadingMode(lcShadingMode);
 
+  /// Trigger updateLDViewIniFile
+  void    DoUpdateLDViewIniFile(Rc rc = OkRc);
+
   /// Load text preferences and command management dialogs
   void loadDialogs();
   void loadPreferencesDialog();
@@ -302,6 +305,7 @@ protected:
   bool                   mSeparateTransform = false;
   bool                   mUseStudStyle = false;
 
+  Rc                     mUpdateLDViewIni = OkRc;
 
 private:
   bool                   mFileLoaded = false;

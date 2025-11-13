@@ -750,7 +750,7 @@ int Step::createCsi(
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey
 
          // set the current step - enable access from other parts of the application - e.g. Renderer
-         if (nativeRenderer) {
+         if (nativeRenderer || Preferences::preferredRenderer == RENDERER_LDVIEW) {
              lpub->setCurrentStep(this);
          }
 

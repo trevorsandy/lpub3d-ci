@@ -22,7 +22,7 @@
 #include <QStringList>
 #include <QMessageBox>
 
-enum UpdateFlag { UpdateExisting, SkipExisting };
+enum UpdateFlag { UpdateExisting, SkipExisting, UpdateStudStyle, UpdateAutomateEdgeColor};
 #ifdef Q_OS_MACOS
 enum LibFlag { LibValid, LibMissing, LibInvalid, LibChkError };
 #endif

@@ -282,6 +282,9 @@ void LPub::SetStudStyle(const NativeOptions* Options, bool Reload, bool Changed)
         lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), Reload, Preferences.mStudCylinderColorEnabled);
 
         lcGetPiecesLibrary()->LoadColors();
+
+        if (mUpdateLDViewIni == StudStyleRc)
+            Preferences::updateLDViewIniFile(UpdateStudStyle);
     }
 }
 
@@ -316,7 +319,14 @@ void LPub::SetAutomateEdgeColor(const NativeOptions* Options, bool Changed)
         }
 
         lcGetPiecesLibrary()->LoadColors();
+
+        if (mUpdateLDViewIni == AutomateEdgeColorRc)
+            Preferences::updateLDViewIniFile(UpdateAutomateEdgeColor);
     }
+}
+
+void LPub::DoUpdateLDViewIniFile(Rc rc) {
+    mUpdateLDViewIni = rc;
 }
 
 /********************************************************************

@@ -3288,41 +3288,334 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
     confFileOut.setFileName(QDir::toNativeSeparators(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName())));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
+        int studStyle = 0;
+        bool updated = false;
+        bool inGeneral = false;
+        bool updatedUseStudStyle = false;
+        bool updatedStudStyle = false;
+        bool updatedAutomateEdgeColor = false;
+        bool updatedPartEdgeContrast = false;
+        bool updatedPartEdgeSaturation = false;
+        bool updatedPartColorLightDarkIndex = false;
+        bool updatedStudCylinderColor = false;
+        bool updatedStudCylinderColorEnabled = false;
+        bool updatedPartEdgeColor = false;
+        bool updatedPartEdgeColorEnabled = false;
+        bool updatedBlackEdgeColor = false;
+        bool updatedBlackEdgeColorEnabled = false;
+        bool updatedDarkEdgeColor = false;
+        bool updatedDarkEdgeColorEnabled = false;
+
+        if (!updated && updateFlag > SkipExisting) {
+            lpub->DoUpdateLDViewIniFile();
+            rx.setPattern("^\\[General\\]");
+            studStyle = static_cast<int>(lpub->GetStudStyle());
+        }
+
+        auto finishUpdates = [&](bool update = false) {
+            updated = true;
+            if (updateFlag == UpdateAutomateEdgeColor) {
+                bool automate = updatedAutomateEdgeColor;
+                automate &= updatedPartEdgeContrast;
+                automate &= updatedPartEdgeSaturation;
+                updated &= update ? update : automate;
+                if (!automate && update) {
+                    updatedAutomateEdgeColor = true;
+                    updatedPartEdgeContrast = true;
+                    updatedPartEdgeSaturation = true;
+                }
+            } else
+            if (updateFlag == UpdateStudStyle) {
+                bool studstyle = updatedUseStudStyle;
+                studstyle &= updatedStudStyle;
+                studstyle &= updatedPartColorLightDarkIndex;
+                studstyle &= updatedStudCylinderColor;
+                studstyle &= updatedStudCylinderColorEnabled;
+                studstyle &= updatedPartEdgeColor;
+                studstyle &= updatedPartEdgeColorEnabled;
+                studstyle &= updatedBlackEdgeColor;
+                studstyle &= updatedBlackEdgeColorEnabled;
+                studstyle &= updatedDarkEdgeColor;
+                studstyle &= updatedDarkEdgeColorEnabled;
+                updated &= update ? update : studstyle;
+                if (!studstyle && update) {
+                    updatedUseStudStyle = true;
+                    updatedStudStyle = true;
+                    updatedPartColorLightDarkIndex = true;
+                    updatedStudCylinderColor = true;
+                    updatedStudCylinderColorEnabled = true;
+                    updatedPartEdgeColor = true;
+                    updatedPartEdgeColorEnabled = true;
+                    updatedBlackEdgeColor = true;
+                    updatedBlackEdgeColorEnabled = true;
+                    updatedDarkEdgeColor = true;
+                    updatedDarkEdgeColorEnabled = true;
+                }
+            }
+        };
+
+        auto logLine = [](const QString& line) {
+            logInfo() << qUtf8Printable(QObject::tr("LDView.ini OUT: %1").arg(line));
+        };
+
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
         while (!input.atEnd())
         {
+            bool update = false;
             QString line = input.readLine();
-            // strip EdgeThickness because set in renderer parameters
-            rx.setPattern("^EdgeThickness=");
-            if (line.contains(rx)) {
-                continue;
-            }
-            //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
-            // set ldraw dir
-            rx.setPattern("^LDrawDir=");
-            if (line.contains(rx))
-            {
-                line.clear();
-                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
-            } else
-            // set ldraw archive library
-            if (! lpub3dLibFile.isEmpty()) {
-                rx.setPattern("^LDrawZip=");
-                if (line.contains(rx)) {
-                    line.clear();
-                    line = QString("LDrawZip=%1").arg(QDir::toNativeSeparators(lpub3dLibFile));
+            // Stud Style, Auto Edge Line and High Contrast Colour updates
+            if (!updated) {
+                if (updateFlag == UpdateStudStyle &&
+                    studStyle < StyleHighContrastPlain &&
+                    updatedUseStudStyle &&
+                    updatedStudStyle)
+                    finishUpdates(true);
+                else if (updateFlag == UpdateAutomateEdgeColor &&
+                    updatedAutomateEdgeColor &&
+                    updatedPartEdgeContrast &&
+                    updatedPartEdgeSaturation)
+                    finishUpdates(true);
+                if (!inGeneral) {
+                    inGeneral = line.contains(rx);
+                    update = true;
+                } else {
+                    if (updateFlag == UpdateAutomateEdgeColor) {
+                        if (!update && !updatedAutomateEdgeColor) {
+                            rx.setPattern("^AutomateEdgeColor=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("AutomateEdgeColor=%1").arg(lpub->GetAutomateEdgeColor() ? 1 : 0);
+                                updatedAutomateEdgeColor = update = true;
+                            }
+                        }
+                        if (!update && !updatedPartEdgeContrast) {
+                            rx.setPattern("^PartEdgeContrast=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("PartEdgeContrast=%1").arg(lpub->GetPartEdgeContrast());
+                                updatedPartEdgeContrast = update = true;
+                            }
+                        }
+                        if (!update && !updatedPartEdgeSaturation) {
+                            rx.setPattern("^PartEdgeSaturation=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("PartEdgeSaturation=%1").arg(lpub->GetPartColorLightDarkIndex());
+                                updatedPartEdgeSaturation = update = true;
+                            }
+                        }
+                    } else
+                    if (updateFlag == UpdateStudStyle) {
+                        if (!update && !updatedUseStudStyle) {
+                            rx.setPattern("^UseStudStyle=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("UseStudStyle=%1").arg(lpub->GetUseStudStyle() ? 1 : 0);
+                                updatedUseStudStyle = update = true;
+                            }
+                        }
+                        if (!update && !updatedStudStyle) {
+                            rx.setPattern("^StudStyle=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("StudStyle=%1").arg(lpub->GetStudStyle());
+                                updatedStudStyle = update = true;
+                            }
+                        }
+                        if (!update && !updatedPartColorLightDarkIndex) {
+                            rx.setPattern("^PartColorLDIndex=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("PartColorLDIndex=%1").arg(lpub->GetPartColorLightDarkIndex());
+                                updatedPartColorLightDarkIndex = update = true;
+                            }
+                        }
+                        if (!update && !updatedStudCylinderColor) {
+                            rx.setPattern("^StudCylinderColor=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("StudCylinderColor=%1").arg(lpub->GetStudCylinderColor());
+                                updatedStudCylinderColor = update = true;
+                            }
+                        }
+                        if (!update && !updatedStudCylinderColorEnabled) {
+                            rx.setPattern("^StudCylinderColorEnabled=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("StudCylinderColorEnabled=%1").arg(lpub->GetStudCylinderColorEnabled() ? 1 : 0);
+                                updatedStudCylinderColorEnabled = update = true;
+                            }
+                        }
+                        if (!update && !updatedPartEdgeColor) {
+                            rx.setPattern("^PartEdgeColor=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("PartEdgeColor=%1").arg(lpub->GetPartEdgeColor());
+                                updatedPartEdgeColor = update = true;
+                            }
+                        }
+                        if (!update && !updatedPartEdgeColorEnabled) {
+                            rx.setPattern("^PartEdgeColorEnabled=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("PartEdgeColorEnabled=%1").arg(lpub->GetPartEdgeColorEnabled() ? 1 : 0);
+                                updatedPartEdgeColorEnabled = update = true;
+                            }
+                        }
+                        if (!update && !updatedBlackEdgeColor) {
+                            rx.setPattern("^BlackEdgeColor=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("BlackEdgeColor=%1").arg(lpub->GetBlackEdgeColor());
+                                updatedBlackEdgeColor = update = true;
+                            }
+                        }
+                        if (!update && !updatedBlackEdgeColorEnabled) {
+                            rx.setPattern("^BlackEdgeColorEnabled=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("BlackEdgeColorEnabled=%1").arg(lpub->GetBlackEdgeColorEnabled() ? 1 : 0);
+                                updatedBlackEdgeColorEnabled = update = true;
+                            }
+                        }
+                        if (!update && !updatedDarkEdgeColor) {
+                            rx.setPattern("^DarkEdgeColor=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("DarkEdgeColor=%1").arg(lpub->GetDarkEdgeColor());
+                                updatedDarkEdgeColor = update = true;
+                            }
+                        }
+                        if (!update && !updatedDarkEdgeColorEnabled) {
+                            rx.setPattern("^DarkEdgeColorEnabled=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("DarkEdgeColorEnabled=%1").arg(lpub->GetDarkEdgeColorEnabled() ? 1 : 0);
+                                logLine(line);
+                            }
+                        }
+                    }
+                    finishUpdates();
+                    if (!updated) {
+                        rx.setPattern("^\\[.*\\]");
+                        if (line.contains(rx))
+                        {
+                            const QString nextLine = line;
+                            if (updateFlag == UpdateAutomateEdgeColor) {
+                                if (!updatedAutomateEdgeColor) {
+                                    line = QString("AutomateEdgeColor=%1").arg(lpub->GetAutomateEdgeColor() ? 1 : 0);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedPartEdgeContrast) {
+                                    line = QString("PartEdgeContrast=%1").arg(lpub->GetPartEdgeContrast());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedPartEdgeSaturation) {
+                                    line = QString("PartEdgeSaturation=%1").arg(lpub->GetPartColorLightDarkIndex());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                            } else
+                            if (updateFlag == UpdateStudStyle) {
+                                if (!updatedUseStudStyle) {
+                                    line = QString("UseStudStyle=%1").arg(lpub->GetUseStudStyle() ? 1 : 0);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedStudStyle) {
+                                    line = QString("StudStyle=%1").arg(lpub->GetStudStyle());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedPartColorLightDarkIndex) {
+                                    line = QString("PartColorLDIndex=%1").arg(lpub->GetPartColorLightDarkIndex());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedStudCylinderColor) {
+                                    line = QString("StudCylinderColor=%1").arg(lpub->GetStudCylinderColor());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedStudCylinderColorEnabled) {
+                                    line = QString("StudCylinderColorEnabled=%1").arg(lpub->GetStudCylinderColorEnabled() ? 1 : 0);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedPartEdgeColor) {
+                                    line = QString("PartEdgeColor=%1").arg(lpub->GetPartEdgeColor());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedPartEdgeColorEnabled) {
+                                    line = QString("PartEdgeColorEnabled=%1").arg(lpub->GetPartEdgeColorEnabled() ? 1 : 0);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedBlackEdgeColor) {
+                                    line = QString("BlackEdgeColor=%1").arg(lpub->GetBlackEdgeColor());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedBlackEdgeColorEnabled) {
+                                    line = QString("BlackEdgeColorEnabled=%1").arg(lpub->GetBlackEdgeColorEnabled() ? 1 : 0);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedDarkEdgeColor) {
+                                    line = QString("DarkEdgeColor=%1").arg(lpub->GetDarkEdgeColor());
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                                if (!updatedDarkEdgeColorEnabled) {
+                                    line = QString("DarkEdgeColorEnabled=%1").arg(lpub->GetDarkEdgeColorEnabled() ? 1 : 0);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                            }
+                            finishUpdates(true);
+                            output << lpub_endl;
+                            line = nextLine;
+                        }
+                    }
                 }
+                if (update)
+                    logLine(line);
+            } else {
+                // strip EdgeThickness because set in renderer parameters
+                rx.setPattern("^EdgeThickness=");
+                if (line.contains(rx)) {
+                    continue;
+                }
+                //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
+                // set ldraw dir
+                rx.setPattern("^LDrawDir=");
+                if (line.contains(rx))
+                {
+                    line.clear();
+                    line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawLibPath));
+                } else
+                    // set ldraw archive library
+                    if (! lpub3dLibFile.isEmpty()) {
+                        rx.setPattern("^LDrawZip=");
+                        if (line.contains(rx)) {
+                            line.clear();
+                            line = QString("LDrawZip=%1").arg(QDir::toNativeSeparators(lpub3dLibFile));
+                        }
+                    }
+// set AutoCrop=0
+//                rx.setPattern("^AutoCrop=");
+//                if (line.contains(rx)) {
+//                    line.clear();
+//                    line = QString("AutoCrop=1");
+//                }
+                logInfo() << qUtf8Printable(QObject::tr("LDView.ini OUT: %1").arg(line));
             }
-            // set AutoCrop=0
-//            rx.setPattern("^AutoCrop=");
-//            if (line.contains(rx)) {
-//                line.clear();
-//                line = QString("AutoCrop=1");
-//            }
-            logInfo() << qUtf8Printable(QObject::tr("LDView.ini OUT: %1").arg(line));
             output << line << lpub_endl;
-        }
+        } // while
         confFileIn.close();
         confFileOut.close();
     } else {
@@ -6592,6 +6885,7 @@ bool Preferences::getPreferences()
                                   .arg(studStyleNames[static_cast<int>(CurrentStudStyle)],
                                        studStyleNames[static_cast<int>(Options.StudStyle)],
                                        cylinderColor));
+            updateLDViewIniFile(UpdateStudStyle);
         }
         else if (AutomateEdgeColorChanged || StudStyleColorChanged)
         {
@@ -6603,6 +6897,7 @@ bool Preferences::getPreferences()
                                               : QMessageBox::tr("Automate edge color changed")
                                         : QMessageBox::tr("Stud style color changed");
             emit lpub->messageSig(LOG_INFO, message);
+            updateLDViewIniFile(UpdateStudStyle);
         }
 
         if (shadingModeChanged)
