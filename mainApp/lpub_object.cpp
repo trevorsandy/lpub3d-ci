@@ -37,6 +37,8 @@
 #include "project.h"
 #include "camera.h"
 
+#include <LDVQt/LDVWidget.h>
+
 #include <jsonfile.h>
 #include <commands/snippets/jsonsnippettranslatorfactory.h>
 #include <commands/snippets/snippetcollection.h>
@@ -91,6 +93,7 @@ void LPub::loadPreferencesDialog()
 {
   emit messageSig(LOG_INFO_STATUS,tr("Loading preferences dialogs..."));
   preferencesDialog = new PreferencesDialog(gui);
+  ldvPreferencesDialog = new LDVWidget(preferencesDialog, LDViewIni);
   visualEditorPreferencesDialog = new lcQPreferencesDialog(gui);
 }
 

@@ -24,6 +24,7 @@
 #include "meta.h"
 
 class Step;
+class LDVWidget;
 class PartWorker;
 class NativeOptions;
 class TextEditDialog;
@@ -237,6 +238,9 @@ public:
 
   /// LPub3D Preferences dialog
   PreferencesDialog *preferencesDialog = nullptr;
+
+  /// LDV Preferences dialog
+  LDVWidget *ldvPreferencesDialog = nullptr;
 
   /// Visual Editor Preferences dialog
   lcQPreferencesDialog *visualEditorPreferencesDialog = nullptr;

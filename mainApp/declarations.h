@@ -26,9 +26,6 @@
 class Gui;
 extern Gui *gui;
 
-class LDVWidget;
-extern LDVWidget *ldvWidget;
-
 struct ActionAttributes
 {
     const char* ID;

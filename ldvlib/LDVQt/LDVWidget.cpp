@@ -202,6 +202,8 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		}
 	}
 
+	setHidden(true);
+
 	ldvWidget = this;
 }
 
