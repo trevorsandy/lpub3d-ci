@@ -1507,35 +1507,30 @@ void PreferencesDialog::on_themeColorsButton_clicked()
 
 void PreferencesDialog::on_ldvPreferencesBtn_clicked()
 {
-    if (!ldvWidget)
-        ldvWidget = new LDVWidget(this, LDViewIni);
-    else
+    if (ldvWidget)
         ldvWidget->setIni(LDViewIni);
-
+    else
+        ldvWidget = new LDVWidget(this, LDViewIni);
     ldvWidget->showLDVPreferences();
 }
 
 void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
 {
     const IniFlag ldvIni = ui.povGenNativeRadio->isChecked() ? NativePOVIni : LDViewPOVIni;
-
-    if (!ldvWidget)
-        ldvWidget = new LDVWidget(this, ldvIni, true);
-    else
+    if (ldvWidget)
         ldvWidget->setIni(ldvIni);
-
+    else
+        ldvWidget = new LDVWidget(this, ldvIni, true);
     ldvWidget->showLDVExportOptions();
 }
 
 void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
 {
     const IniFlag ldvIni = ui.povGenNativeRadio->isChecked() ? NativePOVIni : LDViewPOVIni;
-
-    if (!ldvWidget)
-        ldvWidget = new LDVWidget(this, ldvIni, true);
-    else
+    if (ldvWidget)
         ldvWidget->setIni(ldvIni);
-
+    else
+        ldvWidget = new LDVWidget(this, ldvIni, true);
     ldvWidget->showLDVPreferences();
 }
 

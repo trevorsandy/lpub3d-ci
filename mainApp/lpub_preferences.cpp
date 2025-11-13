@@ -5769,7 +5769,11 @@ bool Preferences::getPreferences()
     bool suspendFileDisplay = false;
     bool updateLDViewConfigFiles = false;
 
-    PreferencesDialog *dialog = lpub->preferencesDialog;
+
+    PreferencesDialog *dialog = nullptr;
+    if (!lpub->preferencesDialog)
+        lpub->loadPreferencesDialog();
+    dialog = lpub->preferencesDialog;
 
     dialog->setOptions(&Options);
 

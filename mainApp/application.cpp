@@ -23,6 +23,7 @@
 #include "lpub.h"
 #include "lpub_object.h"
 #include "resolution.h"
+#include <LDVQt/LDVWidget.h>
 
 #include "updatecheck.h"
 #include "QsLogDest.h"
