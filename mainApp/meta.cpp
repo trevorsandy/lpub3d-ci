@@ -4679,6 +4679,7 @@ FadeStepsMeta::FadeStepsMeta() : BranchMeta()
   fdata.color = Preferences::validFadeStepsColour;
   fdata.useColor = Preferences::fadeStepsUseColour;
   color.setValue(fdata);
+  colorPrefix.setValue(Preferences::fadeStepsColourPrefix);
   opacity.setValue(Preferences::fadeStepsOpacity);
   lpubFade.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
 }
@@ -4696,6 +4697,7 @@ void FadeStepsMeta::setPreferences(bool reset)
     fdata.useColor = Preferences::fadeStepsUseColour;
     color.setValue(fdata);
     opacity.setValue(Preferences::fadeStepsOpacity);
+    colorPrefix.setValue(Preferences::fadeStepsColourPrefix);
     lpubFade.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
   } else {
     if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
@@ -4703,6 +4705,7 @@ void FadeStepsMeta::setPreferences(bool reset)
     Preferences::validFadeStepsColour = fdata.color;
     Preferences::fadeStepsUseColour   = fdata.useColor;
     Preferences::fadeStepsOpacity     = opacity.value();
+    Preferences::fadeStepsColourPrefix= colorPrefix.value();
     if (Preferences::enableFadeSteps && lpubFade.value())
       gui->setupFadeOrHighlight(true, Preferences::enableFadeSteps);
     if (enable.global) {
@@ -4720,9 +4723,10 @@ void FadeStepsMeta::setPreferences(bool reset)
                                   Preferences::enableFadeSteps
                                        ? QObject::tr("ON") : QObject::tr("OFF"),
                                   Preferences::enableFadeSteps
-                                       ? QObject::tr(" Opacity %1%2")
+                                       ? QObject::tr(" Opacity %1%2%3")
                                              .arg(Preferences::fadeStepsOpacity)
-                                             .arg(Preferences::enableFadeSteps && Preferences::fadeStepsUseColour && !Preferences::validFadeStepsColour.isEmpty()
+                                             .arg(QObject::tr(" Color Prefix %1").arg(Preferences::fadeStepsColourPrefix),
+                                                  Preferences::enableFadeSteps && Preferences::fadeStepsUseColour && !Preferences::validFadeStepsColour.isEmpty()
                                                       ? QObject::tr(" Use Fade Color %1").arg(Preferences::validFadeStepsColour) : "")
                                        : "");
   if (displayPreference)
@@ -4734,11 +4738,12 @@ void FadeStepsMeta::setPreferences(bool reset)
 void FadeStepsMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  enable.init(  this, "ENABLED");
-  setup.init(   this, "SETUP");
-  color.init(   this, "COLOR");
-  opacity.init( this, "OPACITY");
-  lpubFade.init(this, "LPUB_FADE");
+  enable.init(     this, "ENABLED");
+  setup.init(      this, "SETUP");
+  color.init(      this, "COLOR");
+  colorPrefix.init(this, "COLOR_PREFIX");
+  opacity.init(    this, "OPACITY");
+  lpubFade.init(   this, "LPUB_FADE");
 }
 
 /* ------------------ */
@@ -4749,6 +4754,7 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
   enable.setValue(Preferences::enableHighlightStep);
   setup.setValue(false);
   color.setValue(Preferences::highlightStepColour);
+  colorPrefix.setValue(Preferences::highlightStepColourPrefix);
   lineWidth.setValue(Preferences::highlightStepLineWidth);
   lpubHighlight.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
 }
@@ -4762,6 +4768,7 @@ void HighlightStepMeta::setPreferences(bool reset)
     setup.setValue(false);
     enable.setValue(Preferences::enableHighlightStep);
     color.setValue(Preferences::highlightStepColour);
+    colorPrefix.setValue(Preferences::highlightStepColourPrefix);
     lineWidth.setValue(Preferences::highlightStepLineWidth);
     lpubHighlight.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
   } else {
@@ -4769,6 +4776,7 @@ void HighlightStepMeta::setPreferences(bool reset)
       Preferences::enableHighlightStep  = enable.value();
     Preferences::highlightStepColour    = color.value();
     Preferences::highlightStepLineWidth = lineWidth.value();
+    Preferences::highlightStepColourPrefix = colorPrefix.value();
     if (Preferences::enableHighlightStep && lpubHighlight.value())
       gui->setupFadeOrHighlight(Preferences::enableFadeSteps, true);
     if (enable.global) {
@@ -4778,13 +4786,14 @@ void HighlightStepMeta::setPreferences(bool reset)
     }
   }
 
-  QString const message = QObject::tr("Highlight current step %1 %2%3.")
+  QString const message = QObject::tr("Highlight current step %1 %2%3%4.")
                               .arg(reset
                                        ? QObject::tr("reset to") : enable.global
                                              ? QObject::tr("save as") : Preferences::enableHighlightStep != enable.value()
                                                    ? QObject::tr("changed to") : QObject::tr("is"),
                                   Preferences::enableFadeSteps
                                       ? QObject::tr("ON") : QObject::tr("OFF"),
+                                  QObject::tr(" Color Prefix %1").arg(Preferences::highlightStepColourPrefix),
                                   Preferences::enableHighlightStep && !Preferences::highlightStepColour.isEmpty()
                                       ? QObject::tr(" Highlight Color %1").arg(Preferences::highlightStepColour) : "");
   if (displayPreference)
@@ -4799,6 +4808,7 @@ void HighlightStepMeta::init(BranchMeta *parent, QString name)
   enable.init(       this, "ENABLED");
   setup.init(        this, "SETUP");
   color.init(        this, "COLOR");
+  colorPrefix.init(  this, "COLOR_PREFIX");
   lineWidth.init(    this, "LINE_WIDTH");
   lpubHighlight.init(this, "LPUB_HIGHLIGHT");
 }
@@ -7426,8 +7436,8 @@ void Meta::doc(QStringList &out)
   keys.sort();
   Q_FOREACH (key, keys) {
     if (key == "!COLOUR") {
-      out << "0 !COLOUR \n0 // Fade previous steps custom colour command\n0 !COLOUR \"LPub3D_Fade_<LDraw_colour_name>\" CODE <100 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 0-255>\n"
-             "0 // Highlight current step custom colour command\n0 !COLOUR \"LPub3D_Highlight_<LDraw_colour_name>\" CODE <110 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 255>";
+      out << "0 !COLOUR \n0 // Fade previous steps custom colour command\n0 !COLOUR \"LPub3D_Fade_<LDraw_colour_name>\" CODE <107 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 0-255>\n"
+             "0 // Highlight current step custom colour command\n0 !COLOUR \"LPub3D_Highlight_<LDraw_colour_name>\" CODE <108 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 255>";
       continue;
     } else if (key == "!FADE") {
       out << "0 !FADE \n0 // Fade previous steps block opening command\n0 !FADE <fade percent integer> <LDraw colour code>\n0 // Block closing command\n0 !FADE";

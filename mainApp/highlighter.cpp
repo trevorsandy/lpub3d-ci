@@ -319,6 +319,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bCLEAR\\b"),
         QStringLiteral("\\bCOLOR\\b"),
         QStringLiteral("\\bCOLOR_LIGHT_DARK_INDEX\\b"),
+        QStringLiteral("\\bCOLOR_PREFIX\\b"),
         QStringLiteral("\\bCOLOR_RGB\\b"),
         QStringLiteral("\\bCOLS\\b"),
         QStringLiteral("\\bCONNECTOR\\b"),

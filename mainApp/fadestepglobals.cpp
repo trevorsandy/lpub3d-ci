@@ -45,9 +45,10 @@ public:
   QList<MetaGui *> children;
   bool  reloadFile;
   bool  keepWork;
+  bool  clearCustomParts;
 
   GlobalFadeStepPrivate(QString &_topLevelFile, Meta &_meta)
-  : reloadFile(false), keepWork(false)
+  : reloadFile(false), keepWork(false), clearCustomParts(false)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
@@ -136,13 +137,19 @@ void GlobalFadeStepDialog::getFadeStepGlobals(
 
 void GlobalFadeStepDialog::accept()
 {
-  MetaItem mi;
 
+  foreach (auto *child, data->children) {
+    if (child == fadeStepsChild) {
+      data->clearCustomParts = fadeStepsChild->getColorPrefixModified();
+      break;
+    }
+  }
+
+  MetaItem mi;
   mi.beginMacro("GlobalFadeStep");
 
   bool noFileDisplay = false;
-
-  for (MetaGui *child : data->children) {
+  foreach (auto *child, data->children) {
     child->apply(data->topLevelFile);
     noFileDisplay |= child->modified;
   }
@@ -156,6 +163,11 @@ void GlobalFadeStepDialog::accept()
 
   if (data->reloadFile)
       mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/, data->keepWork);
+
+  if (data->clearCustomParts) {
+    mi.clearTempCache();
+    mi.clearCustomPartCache(true);
+  }
 
   QDialog::accept();
 }

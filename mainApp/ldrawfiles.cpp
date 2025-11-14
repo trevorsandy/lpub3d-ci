@@ -1749,6 +1749,25 @@ void LDrawFile::processMetaCommand(const QStringList &tokens)
         }
     }
 
+    // Check if 3-digit Fade or Highlight colour prefix is specified
+    if (metaFadeColourPrefixNotFound || metaHighlightColourPrefixNotFound) {
+        if (tokens.at(3) == QLatin1String("COLOR_PREFIX")) {
+            bool ok;
+            const QString prefix = QString::number(tokens.last().toInt(&ok));
+            if (ok && prefix.size() == 3) {
+                if (tokens.at(2) == QLatin1String("FADE_STEPS")) {
+                    Preferences::fadeStepsColourPrefix = prefix;
+                    emit gui->messageSig(LOG_INFO, QObject::tr("Fade Steps Colour Prefix set to %1").arg(prefix));
+                    metaFadeColourPrefixNotFound = false;
+                } else if (tokens.at(2) == QLatin1String("HIGHLIGHT_STEP")) {
+                    Preferences::highlightStepColourPrefix = prefix;
+                    emit gui->messageSig(LOG_INFO, QObject::tr("Fade Steps Colour Prefix set to %1").arg(prefix));
+                    metaHighlightColourPrefixNotFound = false;
+                }
+            }
+        }
+    }
+
     // Check if insert final model is enabled
     if (metaFinalModelNotFound) {
         if (tokens.at(2) == QLatin1String("FINAL_MODEL_ENABLED")) {
@@ -1861,7 +1880,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         lsynthPartsNotFound        = true;
         metaLoadUnoffPartsNotFound = true;
         metaFadeStepsNotFound      = true;
-        metaHighlightStepNotFound  = true;
+        metaFadeColourPrefixNotFound = true;
+        metaHighlightColourPrefixNotFound = true;
         metaBuildModNotFund        = true;
         metaFinalModelNotFound     = true;
         metaStartPageNumNotFound   = true;
@@ -2589,6 +2609,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             metaBuildModNotFund        = true;
             metaFadeStepsNotFound      = true;
             metaHighlightStepNotFound  = true;
+            metaFadeColourPrefixNotFound = true;
+            metaHighlightColourPrefixNotFound = true;
             metaFinalModelNotFound     = true;
             metaStartPageNumNotFound   = true;
             metaStartStepNumNotFound   = true;
@@ -5749,7 +5771,7 @@ bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buil
     QString fileName = mcFileName.toLower();
     static QRegularExpression buildModBeginRx;
     buildModBeginRx.setPattern("^0 !?LPUB BUILD_MOD BEGIN ");
-    for(QString &line : lpub->ldrawFile.contents(fileName)) {
+    for(QString &line : contents(fileName)) {
         if (line[0] == '1')
             continue;
         if (line.contains(buildModBeginRx))

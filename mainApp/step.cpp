@@ -1123,7 +1123,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 if (!Gui::colourEntryExist(stepColourList,argv[1], FADE_PART, fadeStepsUseColour))
                   stepColourList << Gui::createColourEntry(colourCode, FADE_PART, ""/*highlightColour*/, fadeColour, fadeStepsUseColour, fadeStepsOpacity);
                 // set fade color code
-                argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, colourCode);
+                argv[1] = QString("%1%2").arg(Preferences::fadeStepsColourPrefix, colourCode);
               }
               // process type 1 line part naming
               if (type_1_line) {
@@ -1168,7 +1168,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 if (!Gui::colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
                   stepColourList << Gui::createColourEntry(colourCode, HIGHLIGHT_PART, highlightColour, ""/*fadeColour*/);
                 // set highlight color code
-                argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, colourCode);
+                argv[1] = QString("%1%2").arg(Preferences::highlightStepColourPrefix, colourCode);
               }
               // process type 1 line part naming
               if (type_1_line) {

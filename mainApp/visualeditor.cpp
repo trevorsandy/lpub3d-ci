@@ -3541,10 +3541,10 @@ void Gui::ReloadVisualEditor() {
                          QString NameMod, ColourPrefix;
                          if (FadeSteps) {
                              NameMod = FADE_SFX;
-                             ColourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+                             ColourPrefix = Preferences::fadeStepsColourPrefix;
                          } else if (HighlightStep) {
                              NameMod = HIGHLIGHT_SFX;
-                             ColourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+                             ColourPrefix = Preferences::highlightStepColourPrefix;
                          }
 
                          // Colour code

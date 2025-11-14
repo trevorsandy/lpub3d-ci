@@ -22,7 +22,13 @@
 #include <QStringList>
 #include <QMessageBox>
 
-enum UpdateFlag { UpdateExisting, SkipExisting, UpdateStudStyle, UpdateAutomateEdgeColor};
+enum UpdateFlag {
+    UpdateExisting,
+    SkipExisting,
+    UpdateStudStyle,
+    UpdateAutomateEdgeColor,
+    UpdateColorPrefix
+};
 #ifdef Q_OS_MACOS
 enum LibFlag { LibValid, LibMissing, LibInvalid, LibChkError };
 #endif
@@ -274,6 +280,8 @@ class Preferences
     static QString ld2rbCodesXRefFile;
     static QString systemEditor;
 
+    static QString highlightStepColourPrefix;
+    static QString fadeStepsColourPrefix;
     static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;
     static QString ldrawLibPathKey;

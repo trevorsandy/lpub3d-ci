@@ -290,6 +290,8 @@ public:
 	bool UseLPubFadeColour();
 
 	QString LPubFadeColour();
+	QString FadeColourPrefix();
+	QString HighlightColourPrefix();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - global options ***/

@@ -1033,10 +1033,10 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
      QString nameMod, colourPrefix;
      if (partType == FADE_PART) {
        nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
-       colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+       colourPrefix = Preferences::fadeStepsColourPrefix;
      } else if (partType == HIGHLIGHT_PART) {
        nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
-       colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+       colourPrefix = Preferences::highlightStepColourPrefix;
      }
 
     //DISABLE PROGRESS BAR - CAUSING MESSAGEBAR OVERLOAD
@@ -1921,28 +1921,30 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
                                          QDateTime::currentDateTime().toString(fmtDateTime));
         _ldrawStaticColourParts  << QString();
         _ldrawStaticColourParts  << tr("# This space-delimited list captures the LDraw static color parts (and their subfiles) to support");
-        _ldrawStaticColourParts  << tr("# step fade and step highlight. Parts on this list are identified in the LDraw library and copied to");
-        _ldrawStaticColourParts  << tr("# their respective custom directory. Copied files are modified as described in the following");
-        _ldrawStaticColourParts  << tr("# lines. If fade step is enabled, color codes are replaced with a custom code using the standard");
-        _ldrawStaticColourParts  << tr("# color code prefixed with [" LPUB3D_COLOUR_FADE_PREFIX "].");
+        _ldrawStaticColourParts  << tr("# fade previous steps and highlight current step. Parts on this list are identified in the LDraw");
+        _ldrawStaticColourParts  << tr("# library and copied to their respective custom directory. Copied files are modified as described");
+        _ldrawStaticColourParts  << tr("# in the following lines.");
         _ldrawStaticColourParts  << QString();
-        _ldrawStaticColourParts  << tr("# If using a single fade step color, color codes are replaced with main material color");
-        _ldrawStaticColourParts  << tr("# code 16 using the fade color set in Preferences. If part highlight is enabled, edge");
-        _ldrawStaticColourParts  << tr("# color values are replaced with the color value set in Preferences. If part highlight is");
-        _ldrawStaticColourParts  << tr("# enabled, color codes are replaced with a custom code using the standard color code ");
-        _ldrawStaticColourParts  << tr("# prefixed with [" LPUB3D_COLOUR_HIGHLIGHT_PREFIX "].");
+        _ldrawStaticColourParts  << tr("# When fade previous steps is enabled, color codes are replaced with a custom code using the");
+        _ldrawStaticColourParts  << tr("# LDConfig color code prefixed with the 3-digit user configurable prefix [%1].").arg(Preferences::fadeStepsColourPrefix);
+        _ldrawStaticColourParts  << tr("# If using a global fade steps color, subpart color codes are replaced with the main material color");
+        _ldrawStaticColourParts  << tr("# [16] and top-level colors are replaced with the fade color set in Preferences or meta command.");
         _ldrawStaticColourParts  << QString();
-        _ldrawStaticColourParts  << tr("# When fade step is enabled, custom generated files are appended with '" FADE_SFX "',");
-        _ldrawStaticColourParts  << tr("# for example, ...\\custom\\parts\\99499"  FADE_SFX ".dat");
+        _ldrawStaticColourParts  << tr("# When highlight current step is enabled, the edge color values are replaced with the highlight");
+        _ldrawStaticColourParts  << tr("# color value set in Preferences or meta command. Additionally, color codes are replaced with a");
+        _ldrawStaticColourParts  << tr("# custom code using the LDConfi color code prefixed with the 3-digit user configurable prefix [%1].").arg(Preferences::highlightStepColourPrefix);
         _ldrawStaticColourParts  << QString();
-        _ldrawStaticColourParts  << tr("# When highlight step is enabled, custom generated files are appended with '" HIGHLIGHT_SFX "',");
-        _ldrawStaticColourParts  << tr("# for example, ...\\custom\\parts\\99499" HIGHLIGHT_SFX ".dat");
+        _ldrawStaticColourParts  << tr("# For fade previous steps, generated static color part files are appended with '%1',").arg(FADE_SFX);
+        _ldrawStaticColourParts  << tr("# for example, ...\\custom\\parts\\99499%1.dat").arg(FADE_SFX);
+        _ldrawStaticColourParts  << QString();
+        _ldrawStaticColourParts  << tr("# For highlight current step, generated static color part files are appended with '%1',").arg(HIGHLIGHT_SFX);
+        _ldrawStaticColourParts  << tr("# for example, ...\\custom\\parts\\99499%1.dat").arg(HIGHLIGHT_SFX);
         _ldrawStaticColourParts  << QString();
         _ldrawStaticColourParts  << tr("# Part identifiers with spaces will not be properly recognized.");
         _ldrawStaticColourParts  << QString();
-        _ldrawStaticColourParts  << tr("# This file is automatically generated from:");
+        _ldrawStaticColourParts  << tr("# This file is automatically generated from the menu action at:");
         _ldrawStaticColourParts  << tr("#    Configuration=>Generate Static Color Parts List");
-        _ldrawStaticColourParts  << tr("# However, it can also be edited manually from:");
+        _ldrawStaticColourParts  << tr("# However, it can also be edited manually from the menu action at:");
         _ldrawStaticColourParts  << tr("#    Configuration=>Edit Parameter Files=>Edit LDraw Static Color Parts List");
         _ldrawStaticColourParts  << QString();
         _ldrawStaticColourParts  << tr("# LPub3D will attempt to load the regular expression below first, if the");

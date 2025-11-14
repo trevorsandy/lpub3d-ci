@@ -47,9 +47,10 @@ public:
   QList<MetaGui *> children;
   bool  reloadFile;
   bool  keepWork;
+  bool  clearCustomParts;
 
   GlobalHighlightStepPrivate(QString &_topLevelFile, Meta &_meta)
-  : reloadFile(false), keepWork(false)
+  : reloadFile(false), keepWork(false), clearCustomParts(false)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
@@ -138,13 +139,18 @@ void GlobalHighlightStepDialog::getHighlightStepGlobals(
 
 void GlobalHighlightStepDialog::accept()
 {
-  MetaItem mi;
+  foreach (auto *child, data->children) {
+    if (child == highlightStepChild) {
+      data->clearCustomParts = highlightStepChild->getColorPrefixModified();
+      break;
+    }
+  }
 
+  MetaItem mi;
   mi.beginMacro("GlobalHighlightStep");
 
   bool noFileDisplay = false;
-  const QList children = data->children;
-  for (MetaGui *child : children) {
+  foreach (MetaGui *child, data->children) {
     child->apply(data->topLevelFile);
     noFileDisplay |= child->modified;
   }
@@ -158,6 +164,11 @@ void GlobalHighlightStepDialog::accept()
 
   if (data->reloadFile)
     mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/, data->keepWork);
+
+  if (data->clearCustomParts) {
+    mi.clearTempCache();
+    mi.clearCustomPartCache(true);
+  }
 
   QDialog::accept();
 }
