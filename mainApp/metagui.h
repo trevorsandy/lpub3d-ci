@@ -92,7 +92,7 @@ public:
     QString const  &heading,
     BoolMeta       *meta,
     QGroupBox      *parent = nullptr);
-  CheckBoxGui(){}
+  CheckBoxGui() {}
   ~CheckBoxGui() {}
 
   QCheckBox *getCheckBox() {return check;}
@@ -104,7 +104,7 @@ private:
   QCheckBox *check;
 
 public slots:
-  void stateChanged(int state);
+  void clicked(bool checked);
 };
 
 /***********************************************************************
@@ -859,7 +859,7 @@ public:
     QString const  &heading,
     ContStepNumMeta *meta,
     QGroupBox       *parent = nullptr);
-  ContStepNumGui(){}
+  ContStepNumGui() {}
   ~ContStepNumGui() {}
 
   QCheckBox *getCheckBox() {return check;}
@@ -873,7 +873,7 @@ private:
   QCheckBox       *check;
 
 public slots:
-  void stateChanged(int state);
+  void clicked(bool checked);
 };
 
 /***********************************************************************
@@ -928,7 +928,7 @@ public:
     QString const  &heading,
     BuildModEnabledMeta *meta,
     QGroupBox       *parent = nullptr);
-  BuildModEnabledGui(){}
+  BuildModEnabledGui() {}
   ~BuildModEnabledGui() {}
 
   QCheckBox *getCheckBox() {return check;}
@@ -940,10 +940,9 @@ public:
 private:
   BuildModEnabledMeta *meta;
   QCheckBox           *check;
-  bool                 data;
 
 public slots:
-  void stateChanged(int state);
+  void clicked(bool checked);
 };
 
 /***********************************************************************
@@ -961,7 +960,7 @@ public:
     QString const  &heading,
     FinalModelEnabledMeta *meta,
     QGroupBox       *parent = nullptr);
-  FinalModelEnabledGui(){}
+  FinalModelEnabledGui() {}
   ~FinalModelEnabledGui() {}
 
   QCheckBox *getCheckBox() {return check;}
@@ -971,10 +970,9 @@ public:
 private:
   FinalModelEnabledMeta *meta;
   QCheckBox             *check;
-  bool                   data;
 
 public slots:
-  void stateChanged(int state);
+  void clicked(bool checked);
 };
 
 /***********************************************************************
@@ -992,7 +990,7 @@ public:
     QString const &heading,
     BoolMeta       *meta,
     QGroupBox      *parent = nullptr);
-  CoverPageViewEnabledGui(){}
+  CoverPageViewEnabledGui() {}
   ~CoverPageViewEnabledGui() {}
 
   QCheckBox *getCheckBox() {return check;}
@@ -1004,10 +1002,9 @@ public:
 private:
   BoolMeta  *meta;
   QCheckBox *check;
-  bool       data;
 
 public slots:
-  void stateChanged(int state);
+  void clicked(bool checked);
 };
 
 /***********************************************************************
@@ -1025,7 +1022,7 @@ public:
     QString const       &heading,
     LoadUnoffPartsMeta  *meta,
     QGroupBox           *parent = nullptr);
-  LoadUnoffPartsEnabledGui(){}
+  LoadUnoffPartsEnabledGui() {}
   ~LoadUnoffPartsEnabledGui() {}
 
   QCheckBox *getCheckBox() {return check;}
@@ -1037,10 +1034,9 @@ public:
 private:
   LoadUnoffPartsMeta  *meta;
   QCheckBox           *check;
-  bool                 data;
 
 public slots:
-  void stateChanged(int state);
+  void clicked(bool checked);
 };
 
 /***********************************************************************
@@ -1146,7 +1142,7 @@ public slots:
   void lineChange(QString const &);
   void thicknessChange(QString const &);
   void browseColor(bool);
-  void checkChange(int);
+  void checkChange(bool);
   void radiusChange(int);
   void marginXChange(QString const &);
   void marginYChange(QString const &);
@@ -1442,6 +1438,7 @@ private:
 
 public slots:
   void valueChanged(int state);
+  void checkChanged(bool checked);
   void buttonChanged(bool checked);
 };
 
@@ -1489,7 +1486,7 @@ private slots:
 public slots:
   void longitudeChange(QString const &);
   void latitudeChange(QString const &);
-  void homeViewpointChanged(int);
+  void homeViewpointChanged(bool enable);
   void cameraViewChange(int);
 };
 
@@ -2217,7 +2214,7 @@ class TargetRotateDialogGui : public QObject
 {
   Q_OBJECT
 public:
-  TargetRotateDialogGui(){}
+  TargetRotateDialogGui() {}
   void getTargetAndRotateValues(QStringList & keyList);
 
 private slots:
@@ -2291,7 +2288,7 @@ class BuildModDialogGui : public QObject
 {
   Q_OBJECT
 public:
-  BuildModDialogGui(){}
+  BuildModDialogGui() {}
   void getBuildMod(QStringList & buildModKeys, int action);
 
 public slots:

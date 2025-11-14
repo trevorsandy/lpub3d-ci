@@ -126,8 +126,8 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   box->setLayout(childlayout);
 
   CheckBoxGui *childPliPerStep = new CheckBoxGui(tr("Per Step"),&multiStepMeta->pli.perStep);
-  connect(childPliPerStep->getCheckBox(), SIGNAL(stateChanged(int)),
-          this,                           SLOT(  pliPerStepStateChanged(int)));
+  connect(childPliPerStep->getCheckBox(), SIGNAL(clicked(bool)),
+          this,                           SLOT(  pliPerStepStateChanged(bool)));
   data->children.append(childPliPerStep);
   childlayout->addWidget(childPliPerStep);
 
@@ -135,8 +135,8 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   showGrpStepNumCheckBoxGui->getCheckBox()->setEnabled(!multiStepMeta->pli.perStep.value());
   data->children.append(showGrpStepNumCheckBoxGui);
   childlayout->addWidget(showGrpStepNumCheckBoxGui);
-  connect(showGrpStepNumCheckBoxGui->getCheckBox(), SIGNAL(stateChanged(int)),
-          this,                                     SLOT(  showGrpStepNumStateChanged(int)));
+  connect(showGrpStepNumCheckBoxGui->getCheckBox(), SIGNAL(clicked(bool)),
+          this,                                     SLOT(  showGrpStepNumStateChanged(bool)));
 
   countGrpStepsCheckBoxGui = new CheckBoxGui(tr("Count Group Steps"),&multiStepMeta->countGroupSteps);
   countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(
@@ -314,15 +314,15 @@ void GlobalMultiStepDialog::getMultiStepGlobals(QString topLevelFile, Meta &meta
   dialog->exec();
 }
 
-void GlobalMultiStepDialog::pliPerStepStateChanged(int state)
+void GlobalMultiStepDialog::pliPerStepStateChanged(bool checked)
 {
-    showGrpStepNumCheckBoxGui->getCheckBox()->setEnabled(!state);
-    countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(!state &&
+  showGrpStepNumCheckBoxGui->getCheckBox()->setEnabled(!checked);
+  countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(!checked &&
     showGrpStepNumCheckBoxGui->getCheckBox()->isChecked());
 }
 
-void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state) {
-    if (state && !data->meta.LPub.multiStep.pli.perStep.value()
+void GlobalMultiStepDialog::showGrpStepNumStateChanged(bool checked) {
+  if (checked && !data->meta.LPub.multiStep.pli.perStep.value()
               && data->meta.LPub.contStepNumbers.value()) {
         QMessageBox box;
         box.setTextFormat (Qt::RichText);
@@ -336,7 +336,7 @@ void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state) {
         box.setInformativeText (message);
         box.exec();
     } else {
-        countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(state);
+    countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(checked);
     }
 }
 

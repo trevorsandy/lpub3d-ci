@@ -145,21 +145,14 @@ CheckBoxGui::CheckBoxGui(
   check = new QCheckBox(heading,parent);
   check->setChecked(meta->value());
   layout->addWidget(check);
-  connect(check,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateChanged(int)));
+  connect(check,SIGNAL(clicked(bool)),
+          this, SLOT(  clicked(bool)));
 }
 
-void CheckBoxGui::stateChanged(int state)
+void CheckBoxGui::clicked(bool checked)
 {
-  bool checked = meta->value();
-
-  if (state == Qt::Unchecked) {
-    checked = false;
-  } else if (state == Qt::Checked) {
-    checked = true;
-  }
+  modified = meta->value() != checked;
   meta->setValue(checked);
-  modified = true;
 }
 
 void CheckBoxGui::apply(QString &modelName)
@@ -2350,8 +2343,8 @@ FadeStepsGui::FadeStepsGui(
   fadeCheck->setChecked(_meta->enable.value());
   fadeCheck->setToolTip(tr("Turn on global fade previous steps or step parts."));
 
-  connect(fadeCheck,SIGNAL(stateChanged(int)),
-                this, SLOT(valueChanged(int)));
+  connect(fadeCheck,SIGNAL(clicked(bool)),
+                this, SLOT(valueChanged(bool)));
 
   grid->addWidget(fadeCheck,0,0,1,2);
 
@@ -2366,8 +2359,8 @@ FadeStepsGui::FadeStepsGui(
   lpubFadeCheck->setEnabled(!obligatory);
   lpubFadeCheck->setToolTip(toolTip);
 
-  connect(lpubFadeCheck,SIGNAL(stateChanged(int)),
-          this, SLOT(valueChanged(int)));
+  connect(lpubFadeCheck,SIGNAL(clicked(bool)),
+          this, SLOT(valueChanged(bool)));
 
   grid->addWidget(lpubFadeCheck,1,0,1,2);
 
@@ -2377,8 +2370,8 @@ FadeStepsGui::FadeStepsGui(
   setupCheck->setChecked(_meta->setup.value());
   setupCheck->setToolTip(tr("Setup LPub fade steps. Check to use LPub fade previous steps or step parts locally."));
 
-  connect(setupCheck,SIGNAL(stateChanged(int)),
-          this, SLOT(valueChanged(int)));
+  connect(setupCheck,SIGNAL(clicked(bool)),
+          this, SLOT(valueChanged(bool)));
 
   grid->addWidget(setupCheck,2,0,1,2);
 
@@ -2388,8 +2381,8 @@ FadeStepsGui::FadeStepsGui(
   useColorCheck->setToolTip(tr("Use specified fade color (versus part colour)"));
   useColorCheck->setChecked(meta->color.value().useColor);
 
-  connect(useColorCheck,SIGNAL(stateChanged(int)),
-          this, SLOT(valueChanged(int)));
+  connect(useColorCheck,SIGNAL(clicked(bool)),
+          this, SLOT(valueChanged(bool)));
 
   grid->addWidget(useColorCheck,3,0,1,2);
 
@@ -2491,11 +2484,7 @@ FadeStepsGui::FadeStepsGui(
   hColorPrefixSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
   hLayout->addSpacerItem(hColorPrefixSpacer);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
-  emit fadeCheck->checkStateChanged(fadeCheck->isChecked() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
-#else
-  emit fadeCheck->stateChanged(fadeCheck->isChecked());
-#endif
+  emit fadeCheck->clicked(fadeCheck->isChecked());
 
   setupModified = false;
   lpubFadeModified = false;
@@ -2534,9 +2523,8 @@ void FadeStepsGui::colorChange(const QString &colorName)
   }
 }
 
-void FadeStepsGui::valueChanged(int state)
+void FadeStepsGui::valueChanged(bool checked)
 {
-  bool const checked = state > Qt::Unchecked ? true : false;
   if (sender() == fadeCheck) {
     if (checked)
       setupCheck->setChecked(!checked);
@@ -2565,10 +2553,15 @@ void FadeStepsGui::valueChanged(int state)
     if (!modified)
       modified = useColorModified;
     meta->color.setValue(data);
-  } else if (sender() == fadeOpacitySlider) {
+  }
+}
+
+void FadeStepsGui::valueChanged(int value)
+{
+if (sender() == fadeOpacitySlider) {
     QColor fadeColor = colorExample->palette().window().color();
     if (fadeColor.isValid()) {
-      int trans = state;
+      int trans = value;
       int opacity = 100-trans;
       int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
       fadeColor.setAlpha(alpha);
@@ -2584,10 +2577,12 @@ void FadeStepsGui::valueChanged(int state)
       fadeOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
                                         .arg(trans).arg(opacity).arg(alpha));
     }
-    opacityModified = meta->opacity.value() != state;
+    opacityModified = meta->opacity.value() != value;
     if (!modified)
       modified = opacityModified;
-    meta->opacity.setValue(state);
+    meta->opacity.setValue(value);
+  }
+}
 
 void FadeStepsGui::colorPrefixChange(const QString &colorPrefix)
 {
@@ -2676,8 +2671,8 @@ HighlightStepGui::HighlightStepGui(
   lpubHighlightCheck->setEnabled(!obligatory);
   lpubHighlightCheck->setToolTip(toolTip);
 
-  connect(lpubHighlightCheck,SIGNAL(stateChanged(int)),
-          this, SLOT(valueChanged(int)));
+  connect(lpubHighlightCheck,SIGNAL(clicked(bool)),
+          this, SLOT(valueChanged(bool)));
 
   grid->addWidget(lpubHighlightCheck,1,0,1,3);
 
@@ -2687,8 +2682,8 @@ HighlightStepGui::HighlightStepGui(
   setupCheck->setChecked(_meta->setup.value());
   setupCheck->setToolTip(tr("Setup LPub highlight step. Check to use LPub highlight current step or step parts locally."));
 
-  connect(setupCheck,SIGNAL(stateChanged(int)),
-          this, SLOT(valueChanged(int)));
+  connect(setupCheck,SIGNAL(clicked(bool)),
+          this, SLOT(valueChanged(bool)));
 
   grid->addWidget(setupCheck,2,0,1,3);
 
@@ -2774,11 +2769,7 @@ HighlightStepGui::HighlightStepGui(
     setLayout(grid);
   }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
-  emit highlightCheck->checkStateChanged(highlightCheck->isChecked() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
-#else
-  emit highlightCheck->stateChanged(highlightCheck->isChecked());
-#endif
+  emit highlightCheck->clicked(highlightCheck->isChecked());
 
   setupModified = false;
   lpubHighlightModified = false;
@@ -2848,7 +2839,6 @@ void HighlightStepGui::valueChanged(bool checked)
     meta->lpubHighlight.setValue(checked);
   }
 }
-
 
 void HighlightStepGui::lineWidthChanged(int value)
 {
@@ -3222,21 +3212,14 @@ ContStepNumGui::ContStepNumGui(
   check = new QCheckBox(heading,parent);
   check->setChecked(meta->value());
   layout->addWidget(check);
-  connect(check,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateChanged(int)));
+  connect(check,SIGNAL(clicked(bool)),
+          this, SLOT(  clicked(bool)));
 }
 
-void ContStepNumGui::stateChanged(int state)
+void ContStepNumGui::clicked(bool checked)
 {
-  bool checked = meta->value();
-
-  if (state == Qt::Unchecked) {
-    checked = false;
-  } else if (state == Qt::Checked) {
-    checked = true;
-  }
+  modified = meta->value() != checked;
   meta->setValue(checked);
-  modified = true;
 }
 
 void ContStepNumGui::apply(QString &modelName)
@@ -3355,7 +3338,6 @@ BuildModEnabledGui::BuildModEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
-  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3368,17 +3350,16 @@ BuildModEnabledGui::BuildModEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(data);
+  check->setChecked(_meta->value());
   layout->addWidget(check);
-  connect(check,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateChanged(int)));
+  connect(check,SIGNAL(clicked(bool)),
+          this, SLOT(  clicked(bool)));
 }
 
-void BuildModEnabledGui::stateChanged(int state)
+void BuildModEnabledGui::clicked(bool checked)
 {
-  bool value = state == Qt::Checked;
-  meta->setValue(value);
-  modified = value != data;
+  modified = meta->value() != checked;
+  meta->setValue(checked);
 }
 
 void BuildModEnabledGui::apply(QString &modelName)
@@ -3406,7 +3387,6 @@ FinalModelEnabledGui::FinalModelEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
-  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3419,17 +3399,16 @@ FinalModelEnabledGui::FinalModelEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(data);
+  check->setChecked(_meta->value());
   layout->addWidget(check);
-  connect(check,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateChanged(int)));
+  connect(check,SIGNAL(clicked(bool)),
+          this, SLOT(  clicked(bool)));
 }
 
-void FinalModelEnabledGui::stateChanged(int state)
+void FinalModelEnabledGui::clicked(bool checked)
 {
-  bool value = state == Qt::Checked;
-  meta->setValue(value);
-  modified = value != data;
+  modified = meta->value() != checked;
+  meta->setValue(checked);
 }
 
 void FinalModelEnabledGui::apply(QString &modelName)
@@ -3456,7 +3435,6 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
-  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3469,17 +3447,16 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(data);
+  check->setChecked(_meta->value());
   layout->addWidget(check);
-  connect(check,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateChanged(int)));
+  connect(check,SIGNAL(clicked(bool)),
+          this, SLOT(  clicked(bool)));
 }
 
-void CoverPageViewEnabledGui::stateChanged(int state)
+void CoverPageViewEnabledGui::clicked(bool checked)
 {
-  bool value = state == Qt::Checked;
-  meta->setValue(value);
-  modified = value != data;
+  modified = meta->value() != checked;
+  meta->setValue(checked);
 }
 
 void CoverPageViewEnabledGui::apply(QString &modelName)
@@ -3505,7 +3482,6 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
   QGroupBox          *parent)
 {
   meta = _meta;
-  data = _meta->enabled.value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3519,17 +3495,16 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
 
   check = new QCheckBox(heading,parent);
   check->setEnabled(_meta->enableSetting.value());
-  check->setChecked(data);
+  check->setChecked(_meta->enabled.value());
   layout->addWidget(check);
-  connect(check,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateChanged(int)));
+  connect(check,SIGNAL(clicked(bool)),
+          this, SLOT( clicked(bool)));
 }
 
-void LoadUnoffPartsEnabledGui::stateChanged(int state)
+void LoadUnoffPartsEnabledGui::clicked(bool checked)
 {
-  bool value = state == Qt::Checked;
-  meta->enabled.setValue(value);
-  modified = value != data;
+  modified = meta->enabled.value() != checked;
+  meta->enabled.setValue(checked);
 }
 
 void LoadUnoffPartsEnabledGui::apply(QString &modelName)
@@ -3983,8 +3958,8 @@ BorderGui::BorderGui(
   hideArrowsChk = new QCheckBox(chkBoxHideArrowsText, parent);
   hideArrowsChk->setChecked(border.hideTip);
   hideArrowsChk->setToolTip(tr("Set checked when only icon image is desired."));
-  connect(hideArrowsChk,SIGNAL(stateChanged(int)),
-          this,         SLOT(  checkChange(int)));
+  connect(hideArrowsChk,SIGNAL(clicked(bool)),
+          this,         SLOT(  checkChange(bool)));
   grid->addWidget(hideArrowsChk,0,0,1,3);
 
   /* Type Combo */
@@ -4294,9 +4269,8 @@ void BorderGui::lineChange(const QString &line)
   modified = _border.line != border.line;
 }
 
-void BorderGui::checkChange(int value)
+void BorderGui::checkChange(bool)
 {
-  Q_UNUSED(value);
   BorderData _border = meta->value();
 
   _border.hideTip = hideArrowsChk->isChecked();
@@ -5105,7 +5079,7 @@ ResolutionGui::ResolutionGui(
 
   valueEdit = new QLineEdit(parent);
   QIntValidator *valueValidator = new QIntValidator(valueEdit);
-  valueValidator->setRange(0.0f, 100000.0f);
+  valueValidator->setRange(0, 100000);
   valueEdit->setValidator(valueValidator);
   valueEdit->setText(QString::number(int(value)));
   reset0Act = valueEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
@@ -5230,8 +5204,8 @@ PreferredRendererGui::PreferredRendererGui(
   ldvSingleCallBox->setChecked(meta->value().useLDVSingleCall);
   ldvSingleCallBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW);
 
-  connect(ldvSingleCallBox,SIGNAL(stateChanged(int)),
-          this,              SLOT(valueChanged(int)));
+  connect(ldvSingleCallBox,SIGNAL(clicked(bool)),
+          this,              SLOT(checkChanged(bool)));
 
   grid->addWidget(ldvSingleCallBox,0,1);
 
@@ -5240,8 +5214,8 @@ PreferredRendererGui::PreferredRendererGui(
   ldvSnapshotListBox->setChecked(meta->value().useLDVSnapShotList);
   ldvSnapshotListBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW && meta->value().useLDVSingleCall);
 
-  connect(ldvSnapshotListBox,SIGNAL(stateChanged(int)),
-          this,                SLOT(valueChanged(int)));
+  connect(ldvSnapshotListBox,SIGNAL(clicked(bool)),
+          this,                SLOT(checkChanged(bool)));
 
   grid->addWidget(ldvSnapshotListBox,1,1);
 
@@ -5274,24 +5248,29 @@ PreferredRendererGui::PreferredRendererGui(
 
 void PreferredRendererGui::valueChanged(int state)
 {
-  bool checked = state == Qt::Checked;
+  Q_UNUSED(state)
   RendererData data = meta->value();
   if (sender() == combo) {
     const QString pick = combo->currentText();
     ldvSingleCallBox->setEnabled(pick == rendererNames[RENDERER_LDVIEW]);
     povFileGeneratorGrpBox->setEnabled(pick == rendererNames[RENDERER_POVRAY]);
-    if (!modified)
-      modified = data.renderer != rendererMap[pick];
+    modified = data.renderer != rendererMap[pick];
     data.renderer = rendererMap[pick];
     emit rendererChanged(data.renderer);
-  } else if (sender() == ldvSnapshotListBox) {
-    if (!modified)
-      modified = data.useLDVSnapShotList != checked;
+  }
+  meta->setValue(data);
+  emit settingsChanged(modified);
+}
+
+void PreferredRendererGui::checkChanged(bool checked)
+{
+  RendererData data = meta->value();
+  if (sender() == ldvSnapshotListBox) {
+    modified = data.useLDVSnapShotList != checked;
     data.useLDVSnapShotList = checked;
   } else if (sender() == ldvSingleCallBox) {
     ldvSnapshotListBox->setEnabled(checked);
-    if (!modified)
-      modified = data.useLDVSingleCall != checked;
+    modified = data.useLDVSingleCall != checked;
     data.useLDVSingleCall = checked;
   }
   meta->setValue(data);
@@ -5410,8 +5389,8 @@ CameraAnglesGui::CameraAnglesGui(
   homeViewpointBox = new QCheckBox(tr("Use Latitude And Longitude Angles"),parent);
   homeViewpointBox->setChecked(data.cameraView == CameraView::Home && data.customViewpoint);
   homeViewpointBox->setToolTip(tr("Set Home viewpoint angles to use specified latitude and longitude."));
-  connect(homeViewpointBox,SIGNAL(        stateChanged(int)),
-          this,              SLOT(homeViewpointChanged(int)));
+  connect(homeViewpointBox,SIGNAL(             clicked(bool)),
+          this,              SLOT(homeViewpointChanged(bool)));
   grid->addWidget(homeViewpointBox,1,2,1,2);
 
   setEnabled(data.cameraView == CameraView::Default);
@@ -5524,9 +5503,8 @@ void CameraAnglesGui::cameraViewChange(int value)
   }
 }
 
-void CameraAnglesGui::homeViewpointChanged(int state)
+void CameraAnglesGui::homeViewpointChanged(bool enable)
 {
-  bool enable = state == Qt::Checked;
   latitudeLabel->setEnabled(enable);
   longitudeLabel->setEnabled(enable);
   latitudeEdit->setEnabled(enable);

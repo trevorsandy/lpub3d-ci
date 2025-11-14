@@ -318,8 +318,8 @@ public:
 
 public slots:
   void clearCache(bool);
-  void pliPerStepStateChanged(int state);
-  void showGrpStepNumStateChanged(int state);
+  void pliPerStepStateChanged(bool checked);
+  void showGrpStepNumStateChanged(bool checked);
   void accept() override;
   void cancel();
 };
