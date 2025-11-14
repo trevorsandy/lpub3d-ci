@@ -1944,7 +1944,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     int lineCount = stagedContents.size();
 
     if (topLevelModel || externalFile)
-        emit gui->progressPermInitSig();
+        emit gui->progressBarPermInitSig();
     else
         gui->progressBarPermReset();
     emit gui->progressBarPermSetRangeSig(1, lineCount);
@@ -2682,7 +2682,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         int lineCount = stagedContents.size();
 
         if (topLevelModel)
-            emit gui->progressPermInitSig();
+            emit gui->progressBarPermInitSig();
         else
             gui->progressBarPermReset();
         emit gui->progressBarPermSetRangeSig(1, lineCount);
@@ -3760,7 +3760,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
 
         if (content.size()) {
             if (progressPermInit) {
-                emit gui->progressPermInitSig();
+                emit gui->progressBarPermInitSig();
                 emit gui->progressBarPermSetRangeSig(1, size(top.modelName));
                 emit gui->progressLabelPermSetTextSig(title);
                 progressPermInit = false;
