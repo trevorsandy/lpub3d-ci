@@ -1732,7 +1732,7 @@ void LDrawFile::processMetaCommand(const QStringList &tokens)
     // Check if FadeSteps is enabled
     if (metaFadeStepsNotFound) {
         if (tokens.at(2) == QLatin1String("FADE_STEPS")) {
-            Preferences::enableFadeSteps = tokens.last() == QLatin1String("ENABLED") ? true : false ;
+            Preferences::enableFadeSteps = tokens.last() == QLatin1String("TRUE") ? true : false ;
             emit gui->messageSig(LOG_INFO, QObject::tr("Fade Steps are %1")
                                                        .arg(Preferences::enableFadeSteps ? enabled : disabled));
             metaFadeStepsNotFound = false;
@@ -1742,7 +1742,7 @@ void LDrawFile::processMetaCommand(const QStringList &tokens)
     // Check if HighlightStep is enabled
     if (metaHighlightStepNotFound) {
         if (tokens.at(2) == QLatin1String("HIGHLIGHT_STEP")) {
-            Preferences::enableHighlightStep = tokens.last() == QLatin1String("ENABLED") ? true : false ;
+            Preferences::enableHighlightStep = tokens.last() == QLatin1String("TRUE") ? true : false ;
             emit gui->messageSig(LOG_INFO, QObject::tr("Highlight Step is %1")
                                                        .arg(Preferences::enableHighlightStep ? enabled : disabled));
             metaHighlightStepNotFound = false;
