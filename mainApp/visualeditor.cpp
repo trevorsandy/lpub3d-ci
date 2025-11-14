@@ -3370,7 +3370,7 @@ void Gui::ReloadVisualEditor() {
 
          QString BuildModKey = buildModificationKey;
 
-         gui->progressPermInit();
+         gui->progressBarPermInit();
          gui->progressBarPermSetRange(0, 0);   // Busy indicator
          gui->progressLabelPermSetText(tr("%1 Build Modification...").arg(Action));
 

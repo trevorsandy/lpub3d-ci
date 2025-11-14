@@ -623,7 +623,7 @@ int Gui::addGraphicsPageItems(
                 QString const message = tr("Processing Bill Of Material...");
                 emit gui->messageSig(LOG_INFO, message);
                 if (Preferences::modeGUI && !Gui::exporting()) {
-                    emit gui->progressPermInitSig();
+                    emit gui->progressBarPermInitSig();
                     emit gui->progressLabelPermSetTextSig(message);
                     emit gui->progressBarPermSetRangeSig(0, 100);
                     emit gui->progressBarPermSetValueSig(0);

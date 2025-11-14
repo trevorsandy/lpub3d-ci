@@ -3489,8 +3489,8 @@ Gui::Gui()
                 this,             SLOT (  cancelExporting()));
 
         // Gui - right side progress bar
-        connect(this, SIGNAL(progressPermInitSig()),
-                this, SLOT(  progressPermInit()));
+        connect(this, SIGNAL(progressBarPermInitSig()),
+                this, SLOT(  progressBarPermInit()));
         connect(this, SIGNAL(progressLabelPermSetTextSig(const QString&)),
                 this, SLOT(  progressLabelPermSetText(const QString&)));
         connect(this, SIGNAL(progressBarPermSetRangeSig(int,int)),
@@ -3958,7 +3958,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
 }
 
 // right side progress bar
-void Gui::progressPermInit() {
+void Gui::progressBarPermInit() {
   if (Gui::okToInvokeProgressBar()) {
       gui->displayVisualEditorStatusWidgets(false);
       gui->progressLabelPerm->show();
@@ -4105,17 +4105,17 @@ void Gui::generateCustomColourPartsList(bool prompt)
         connect(this,                 SIGNAL(requestEndThreadNowSig()),
                 colourPartListWorker, SLOT(  requestEndThreadNow()));
 
-        connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
-                this,                 SLOT(  progressPermInit()));
-        connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString&)),
+        connect(colourPartListWorker, SIGNAL(progressBarPermInitSig()),
+                this,                 SLOT(  progressBarPermInit()));
+        connect(colourPartListWorker, SIGNAL(progressLabelPermSetTextSig(const QString&)),
                 this,                 SLOT(  progressLabelPermSetText(const QString&)));
-        connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),
+        connect(colourPartListWorker, SIGNAL(progressBarPermSetRangeSig(int,int)),
                 this,                 SLOT(  progressBarPermSetRange(int,int)));
-        connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),
+        connect(colourPartListWorker, SIGNAL(progressBarPermSetValueSig(int)),
                 this,                 SLOT(  progressBarPermSetValue(int)));
-        connect(colourPartListWorker, SIGNAL(progressResetSig()),
+        connect(colourPartListWorker, SIGNAL(progressBarPermResetSig()),
                 this,                 SLOT(  progressBarPermReset()));
-        connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),
+        connect(colourPartListWorker, SIGNAL(progressPermStatusRemoveSig()),
                 this,                 SLOT(  progressPermStatusRemove()));
 
         listThread->start();
@@ -4138,18 +4138,18 @@ void Gui::processFadeColourParts(bool overwrite, bool setup)
     connect(gui,                   SIGNAL(operateFadeParts(bool,bool)),
             partWorkerCustomColour, SLOT(processFadeColourParts(bool,bool)));
 
-    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
-            gui,                   SLOT( progressBarInit()));
-    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString&)),
-            gui,                   SLOT( progressBarSetText(const QString&)));
-    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
-            gui,                   SLOT( progressBarSetRange(int,int)));
-    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
-            gui,                   SLOT( progressBarSetValue(int)));
-    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
-            gui,                   SLOT( progressBarReset()));
-    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
-            gui,                   SLOT( progressStatusRemove()));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermInitSig()),
+            gui,                   SLOT( progressBarPermInit()));
+    connect(partWorkerCustomColour, SIGNAL(progressLabelPermSetTextSig(const QString&)),
+            gui,                   SLOT( progressLabelPermSetText(const QString&)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermSetRangeSig(int,int)),
+            gui,                   SLOT( progressBarPermSetRange(int,int)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermSetValueSig(int)),
+            gui,                   SLOT( progressBarPermSetValue(int)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermResetSig()),
+            gui,                   SLOT( progressBarPermReset()));
+    connect(partWorkerCustomColour, SIGNAL(progressPermStatusRemoveSig()),
+            gui,                   SLOT( progressPermStatusRemove()));
 
     //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwrite ? "True" : "False"));
     gui->partWorkerCustomColour->setDoFadeStep(setup);
@@ -4163,18 +4163,18 @@ void Gui::processHighlightColourParts(bool overwrite, bool setup)
     connect(gui,                   SIGNAL(operateHighlightParts(bool,bool)),
             partWorkerCustomColour, SLOT(  processHighlightColourParts(bool,bool)));
 
-    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
-            gui,                   SLOT(  progressBarInit()));
-    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString&)),
-            gui,                   SLOT(  progressBarSetText(const QString&)));
-    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
-            gui,                   SLOT(  progressBarSetRange(int,int)));
-    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
-            gui,                   SLOT(  progressBarSetValue(int)));
-    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
-            gui,                   SLOT(  progressBarReset()));
-    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
-            gui,                   SLOT(  progressStatusRemove()));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermInitSig()),
+            gui,                   SLOT(  progressBarPermInit()));
+    connect(partWorkerCustomColour, SIGNAL(progressLabelPermSetTextSig(const QString&)),
+            gui,                   SLOT(  progressLabelPermSetText(const QString&)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermSetRangeSig(int,int)),
+            gui,                   SLOT(  progressBarPermSetRange(int,int)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermSetValueSig(int)),
+            gui,                   SLOT(  progressBarPermSetValue(int)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarPermResetSig()),
+            gui,                   SLOT(  progressBarPermReset()));
+    connect(partWorkerCustomColour, SIGNAL(progressPermStatusRemoveSig()),
+            gui,                   SLOT(  progressPermStatusRemove()));
 
     //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
     gui->partWorkerCustomColour->setDoHighlightStep(setup);
@@ -4382,10 +4382,10 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fi
                   gui,                   SLOT(  cancelExporting()));
       connect(gui->m_progressDialog,     SIGNAL(cancelClicked()),
               job,                       SLOT(  requestEndThreadNow()));
-      connect(job,                       SIGNAL(progressMessageSig(const QString&)),
+      connect(job,                       SIGNAL(progressLabelPermSetTextSig(const QString&)),
               gui->m_progressDialog,     SLOT(  setLabelText(const QString&)));
       if (!OnDemand)
-          connect(job,                   SIGNAL(progressSetValueSig(int)),
+          connect(job,                   SIGNAL(progressBarPermSetValueSig(int)),
               gui->m_progressDialog,     SLOT(  setValue(int)));
 
       if (Update)
@@ -4564,13 +4564,13 @@ void Gui::refreshLDrawUnoffParts() {
                 job, SLOT(processPartsArchive()));
         connect(thread, SIGNAL(finished()),
                 thread, SLOT(deleteLater()));
-        connect(job, SIGNAL(progressSetValueSig(int)),
+        connect(job, SIGNAL(progressBarPermSetValueSig(int)),
                 gui->m_progressDialog, SLOT(setValue(int)));
         connect(gui->m_progressDialog, SIGNAL(cancelClicked()),
                 job, SLOT(requestEndThreadNow()));
-        connect(job, SIGNAL(progressMessageSig(QString)),
+        connect(job, SIGNAL(progressLabelPermSetTextSig(QString)),
                 gui->m_progressDialog, SLOT(setLabelText(QString)));
-        connect(job, SIGNAL(progressSetValueSig(int)),
+        connect(job, SIGNAL(progressBarPermSetValueSig(int)),
                 gui, SLOT(workerJobResult(int)));
         connect(gui, SIGNAL(requestEndThreadNowSig()),
                 job, SLOT(requestEndThreadNow()));

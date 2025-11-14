@@ -6446,7 +6446,7 @@ void Gui::writeToTmp()
       if (lpub->ldrawFile.changedSinceLastWrite(fileName)) {
 
           if (progressPermInit && !Gui::ContinuousPage()) {
-              emit gui->progressPermInitSig();
+              emit gui->progressBarPermInitSig();
               emit gui->progressBarPermSetRangeSig(1, subFileCount);
               progressPermInit = false;
           }

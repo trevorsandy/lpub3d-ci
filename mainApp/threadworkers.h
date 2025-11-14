@@ -149,21 +149,21 @@ public slots:
      void processPartsArchive();
 
 signals:
-     void progressBarInitSig();
+     void progressBarPermInitSig();
 
-     void progressMessageSig(
+     void progressLabelPermSetTextSig(
             const QString       &text);
 
-     void progressRangeSig(
+     void progressBarPermSetRangeSig(
              const int          &min,
              const int          &max);
 
-     void progressSetValueSig(
+     void progressBarPermSetValueSig(
              const int          &value);
 
-     void progressResetSig();
+     void progressBarPermResetSig();
 
-     void progressStatusRemoveSig();
+     void progressPermStatusRemoveSig();
 
      void customColourFinishedSig();
 
@@ -279,25 +279,25 @@ public slots:
      void                       requestEndThreadNow();
 
 signals:
-     void progressBarInitSig();
+     void progressBarPermInitSig();
 
-     void progressMessageSig(
+     void progressLabelPermSetTextSig(
             const QString       &text);
 
-     void progressRangeSig(
+     void progressBarPermSetRangeSig(
              const int          &min,
              const int          &max);
 
-     void progressSetValueSig(
+     void progressBarPermSetValueSig(
              const int          &value);
 
-     void progressResetSig();
+     void progressBarPermResetSig();
 
      void messageSig(
             LogType             logType,
             QString             message);
 
-     void progressStatusRemoveSig();
+     void progressPermStatusRemoveSig();
      void colourPartListFinishedSig();
      void colorPartsListResultSig(int);
 
