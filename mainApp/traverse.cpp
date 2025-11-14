@@ -6718,10 +6718,10 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   QString nameMod, colourPrefix;
   if (partType == FADE_PART) {
     nameMod = FADE_SFX;
-    colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+    colourPrefix = Preferences::fadeStepsColourPrefix;
   } else if (partType == HIGHLIGHT_PART) {
     nameMod = HIGHLIGHT_SFX;
-    colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+    colourPrefix = Preferences::highlightStepColourPrefix;
   }
 
   QStringList configuredContents, subfileColourList;
@@ -6845,7 +6845,8 @@ bool Gui::colourEntryExist(
     if (_fadeStepsUseColour && fadePartType && colourEntries.size() > 0)
         return true;
 
-    QString const colourPrefix = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+    QString const colourPrefix = fadePartType ? Preferences::fadeStepsColourPrefix
+                                              : Preferences::highlightStepColourPrefix;
     QString const colourCode   = QString("%1%2").arg(colourPrefix, code);
 
     QStringList colourComponents;
@@ -6885,7 +6886,8 @@ QString Gui::createColourEntry(
 
   int const _fadeAlphaValue        = LPUB3D_OPACITY_TO_ALPHA(_fadeStepsOpacity, LDrawColor::alpha(colourCode));
   int const _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
-  QString const _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
+  QString const _colourPrefix      = fadePartType ? Preferences::fadeStepsColourPrefix
+                                                  : Preferences::highlightStepColourPrefix;
   QString const _fadeColour        = _fadeStepsUseColour ? fadeStepsColour.isEmpty() ? LDrawColor::code(Preferences::validFadeStepsColour) : fadeStepsColour : "";
   QString const _colourCode        = _colourPrefix + (fadePartType ? _fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString const _mainColourValue   = LDrawColor::value(colourCode);

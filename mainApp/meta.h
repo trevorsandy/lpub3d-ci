@@ -2020,7 +2020,7 @@ public:
  * This is the class that parses an RGBA color string
  */
 
-class ColorMeta : public LeafMeta
+class ColorMeta : public RcMeta
 {
 private:
   int _format;
@@ -3039,6 +3039,7 @@ public:
   EnableMeta    enable;
   LPubFaHiMeta  lpubFade;
   BoolMeta      setup;
+  StringMeta    colorPrefix;
   FadeColorMeta color;
   IntMeta       opacity;
   void setPreferences(bool reset = false);
@@ -3057,6 +3058,7 @@ public:
   EnableMeta   enable;
   LPubFaHiMeta lpubHighlight;
   BoolMeta     setup;
+  StringMeta   colorPrefix;
   StringMeta   color;
   IntMeta      lineWidth;
   void setPreferences(bool reset = false);

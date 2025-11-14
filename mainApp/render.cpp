@@ -1697,6 +1697,10 @@ int LDGLite::   renderCsi(
   arguments << hd;                  // dark edge color
   arguments << hdd;                 // dark edge color disabled
 
+  QString cp = QString("-laP%1") .arg(meta.LPub.highlightStep.colorPrefix.value());
+  if (Preferences::enableHighlightStep)
+      arguments << cp;              // highlight color prefix
+
   QStringList list;
   // First, load parms from meta if any
   list = splitParms(meta.LPub.assem.ldgliteParms.value());
@@ -1878,6 +1882,10 @@ int LDGLite::renderPli(
   arguments << pbe;                 // black edge color disabled
   arguments << hd;                  // dark edge color
   arguments << hdd;                 // dark edge color disabled
+
+  QString cp = QString("-laP%1") .arg(meta.LPub.highlightStep.colorPrefix.value());
+  if (Preferences::enableHighlightStep)
+      arguments << cp;              // highlight color prefix
 
   QStringList list;
   // First, load additional parms from meta if any
@@ -2388,6 +2396,14 @@ int LDView::renderCsi(
     arguments << l;  // -LDrawDir
     arguments << o;  // -HaveStdOut
     arguments << v;  // -vv (Verbose)
+
+    QString cp = QString("-HighlightColorPrefix=%1") .arg(meta.LPub.highlightStep.colorPrefix.value());
+    if (Preferences::enableHighlightStep) {
+        arguments << cp; // highlight color prefix
+#ifdef Q_OS_WIN
+        Preferences::updateLDViewIniFile(UpdateColorPrefix);
+#endif
+    }
 
 #ifdef Q_OS_WIN
     NativeOptions *Options = lpub->currentStep->viewerOptions;
@@ -3263,6 +3279,14 @@ int Native::renderCsi(
               arguments << QString("-LDrawDir\"%1\"") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
 
               arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));
+
+              QString cp = QString("-HighlightColorPrefix=%1") .arg(meta.LPub.highlightStep.colorPrefix.value());
+              if (highlightParts || Preferences::enableHighlightStep) {
+                  arguments << cp; // highlight color prefix
+#ifdef Q_OS_WIN
+                  Preferences::updateLDViewIniFile(UpdateColorPrefix);
+#endif
+              }
 
               arguments << o;
               arguments << v;

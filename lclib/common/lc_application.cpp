@@ -380,6 +380,17 @@ QString lcApplication::LPubFadeColour()
 	// called by lcTimeLineWidget::Update
 	return LDrawColor::code(Preferences::validFadeStepsColour);
 }
+
+QString lcApplication::FadeColourPrefix()
+{
+	return Preferences::fadeStepsColourPrefix;
+}
+
+QString lcApplication::HighlightColourPrefix()
+{
+	return Preferences::highlightStepColourPrefix;
+}
+
 /*** LPub3D Mod end ***/
 
 lcApplication::~lcApplication()

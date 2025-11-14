@@ -1255,8 +1255,8 @@ int Pli::createPartImage(
         QString colourCode, imageKey;
         if (pT != NORMAL_PART) {
             colourCode = QString("%1").arg(pT == FADE_PART ?
-                                           QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, Preferences::fadeStepsUseColour ? fadeColour : ia.partColor[pT]) :
-                                           QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, ia.partColor[pT]));
+                                           QString("%1%2").arg(Preferences::fadeStepsColourPrefix, Preferences::fadeStepsUseColour ? fadeColour : ia.partColor[pT]) :
+                                           QString("%1%2").arg(Preferences::highlightStepColourPrefix, ia.partColor[pT]));
             if (isSubModel || isColorPart) {
                 imageKey = QString("%1%2_%3").arg(ia.baseName[pT], ptn[pT].typeName, colourCode);
             } else {
@@ -1510,13 +1510,13 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
     QStringList out;
 
     if (fadeSteps && (pT == FADE_PART)) {
-        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, ia.partColor[pT]);
+        updatedColour = QString("%1%2").arg(Preferences::fadeStepsColourPrefix, ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
         out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
     }
     if (highlightStep && (pT == HIGHLIGHT_PART)) {
-        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, ia.partColor[pT]);
+        updatedColour = QString("%1%2").arg(Preferences::highlightStepColourPrefix, ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
         out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !SILHOUETTE %1 %2")
@@ -2608,8 +2608,8 @@ int Pli::partSizeLDViewSCall() {
                 QString colourCode, imageKey;
                 if (pT != NORMAL_PART) {
                     colourCode = QString("%1").arg(pT == FADE_PART ?
-                                                   QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX, ia.partColor[pT]) :
-                                                   QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, ia.partColor[pT]));
+                                                   QString("%1%2").arg(Preferences::fadeStepsColourPrefix, ia.partColor[pT]) :
+                                                   QString("%1%2").arg(Preferences::highlightStepColourPrefix, ia.partColor[pT]));
                     if (isSubModel || isColorPart) {
                         imageKey = QString("%1%2_%3").arg(ia.baseName[pT], ptn[pT].typeName, colourCode);
                     } else {

@@ -324,6 +324,8 @@ QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
 QString Preferences::installPrefix              = VER_INSTALL_PREFIX_STR;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
+QString Preferences::highlightStepColourPrefix  = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+QString Preferences::fadeStepsColourPrefix      = LPUB3D_COLOUR_FADE_PREFIX;
 QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion              = qApp->applicationVersion();
 QString Preferences::availableVersions;
@@ -3305,6 +3307,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
         bool updatedBlackEdgeColorEnabled = false;
         bool updatedDarkEdgeColor = false;
         bool updatedDarkEdgeColorEnabled = false;
+        bool updatedHighlightStepColourPrefix = false;
 
         if (!updated && updateFlag > SkipExisting) {
             lpub->DoUpdateLDViewIniFile();
@@ -3314,6 +3317,11 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
 
         auto finishUpdates = [&](bool update = false) {
             updated = true;
+            if (updateFlag == UpdateColorPrefix) {
+                updated = update ? update : updatedHighlightStepColourPrefix;
+                if (!updatedHighlightStepColourPrefix && update)
+                    updatedHighlightStepColourPrefix = true;
+            } else
             if (updateFlag == UpdateAutomateEdgeColor) {
                 bool automate = updatedAutomateEdgeColor;
                 automate &= updatedPartEdgeContrast;
@@ -3364,7 +3372,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
         {
             bool update = false;
             QString line = input.readLine();
-            // Stud Style, Auto Edge Line and High Contrast Colour updates
+            // Stud Style, Auto Edge Line, High Contrast Colour and Color Prefix updates
             if (!updated) {
                 if (updateFlag == UpdateStudStyle &&
                     studStyle < StyleHighContrastPlain &&
@@ -3380,6 +3388,16 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
                     inGeneral = line.contains(rx);
                     update = true;
                 } else {
+                    if (updateFlag == UpdateColorPrefix) {
+                        if (!update && !updatedHighlightStepColourPrefix) {
+                            rx.setPattern("^HighlightColorPrefix=");
+                            if (line.contains(rx))
+                            {
+                                line = QString("HighlightColorPrefix=%1").arg(Preferences::highlightStepColourPrefix);
+                                update = updatedHighlightStepColourPrefix = true;
+                            }
+                        }
+                    } else
                     if (updateFlag == UpdateAutomateEdgeColor) {
                         if (!update && !updatedAutomateEdgeColor) {
                             rx.setPattern("^AutomateEdgeColor=");
@@ -3502,6 +3520,13 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
                         if (line.contains(rx))
                         {
                             const QString nextLine = line;
+                            if (updateFlag == UpdateColorPrefix) {
+                                if (!updatedHighlightStepColourPrefix) {
+                                    line = QString("HighlightColorPrefix=%1").arg(Preferences::highlightStepColourPrefix);
+                                    output << line << lpub_endl;
+                                    logLine(line);
+                                }
+                            } else
                             if (updateFlag == UpdateAutomateEdgeColor) {
                                 if (!updatedAutomateEdgeColor) {
                                     line = QString("AutomateEdgeColor=%1").arg(lpub->GetAutomateEdgeColor() ? 1 : 0);

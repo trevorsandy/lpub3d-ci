@@ -684,6 +684,9 @@ private:
   QSlider     *fadeOpacitySlider;
   QLabel      *colorExample;
   QComboBox   *colorCombo;
+  QLabel      *colorPrefixLabel;
+  QLineEdit   *colorPrefixEdit;
+  QAction     *resetColorPrefixEditAct;
 
   bool colorModified;
   bool fadeModified;
@@ -691,10 +694,17 @@ private:
   bool lpubFadeModified;
   bool useColorModified;
   bool opacityModified;
+  bool colorPrefixModified;
+
+private slots:
+  void enableEditReset(QString const &);
+  void lineEditReset();
 
 public slots:
+  void colorPrefixChange(QString const &);
   void colorChange(QString const &colorName);
-  void valueChanged(int state);
+  void valueChanged(bool checked);
+  void valueChanged(int value);
 };
 
 /***********************************************************************
@@ -728,6 +738,9 @@ private:
   QCheckBox   *lpubHighlightCheck;
   QLabel      *colorExample;
   QPushButton *colorButton;
+  QLabel      *colorPrefixLabel;
+  QLineEdit   *colorPrefixEdit;
+  QAction     *resetColorPrefixEditAct;
   QSpinBox    *lineWidthSpin;
   QPushButton *button;
 
@@ -738,16 +751,20 @@ private:
   bool setupModified;
   bool lpubHighlightModified;
   bool lineWidthModified;
+  bool colorPrefixModified;
   int  data;
 
 private slots:
   void enableReset(int);
   void spinReset(bool);
+  void enableEditReset(QString const &);
+  void lineEditReset();
 
 public slots:
-  void colorChange(bool clicked);
   void valueChanged(bool checked);
   void lineWidthChanged(int value);
+  void colorChange(bool clicked);
+  void colorPrefixChange(QString const &);
 };
 
 /***********************************************************************

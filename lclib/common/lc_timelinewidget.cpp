@@ -8,6 +8,7 @@
 #include "lc_previewwidget.h"
 /*** LPub3D Mod - set Timeline top item ***/
 #include "project.h"
+#include "lpub_object.h"
 /*** LPub3D Mod end ***/
 
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
@@ -234,8 +235,9 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 				bool UseFColor = gApplication->UseLPubFadeColour();
 				bool Use0Code = IsModel && (hPiece || (fPiece && !gApplication->UseLPubFadeColour()) || (!hPiece && !fPiece));
 
+				QString fadeColorPrefix = gApplication->FadeColourPrefix();
 				QString colorCode = fPiece && UseFColor ? gApplication->LPubFadeColour() : QString("%1").arg(Piece->GetColorCode());
-				QString colorPrefix = IsModel ? fPiece ? LPUB3D_COLOUR_FADE_PREFIX : hPiece ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : QString() : fPiece && UseFColor ? LPUB3D_COLOUR_FADE_PREFIX : QString();
+				QString colorPrefix = IsModel ? fPiece ? fadeColorPrefix : hPiece ? gApplication->HighlightColourPrefix() : QString() : fPiece && UseFColor ? fadeColorPrefix : QString();
 				QString ImageKey = QString("%1_%2").arg(p.completeBaseName().toLower(), QString("%1%2").arg(colorPrefix, Use0Code ? QString("0") : colorCode));
 
 				if (GetPieceIcon(Size, ImageKey)) {
