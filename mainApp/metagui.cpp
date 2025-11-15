@@ -2326,6 +2326,7 @@ FadeStepsGui::FadeStepsGui(
         QGroupBox  *parent)
 {
   meta = _meta;
+  metaValue = *meta;
 
   QGridLayout *grid = new QGridLayout(parent);
 
@@ -2461,7 +2462,7 @@ FadeStepsGui::FadeStepsGui(
   grid->addWidget(colorPrefixLabel,6,0);
 
   colorPrefixEdit = new QLineEdit(parent);
-  colorPrefixEdit->setToolTip(tr("Set a 3-digit value that will be prepended to the LDConfig color ID."));
+  colorPrefixEdit->setToolTip(tr("Set a 3-digit value that will be prepended to the LDConfig colour ID."));
   QIntValidator *colorPrefixValidator = new QIntValidator(colorPrefixEdit);
   colorPrefixValidator->setRange(000, 999);
   colorPrefixEdit->setValidator(colorPrefixValidator);
@@ -2497,11 +2498,10 @@ FadeStepsGui::FadeStepsGui(
 
 void FadeStepsGui::colorChange(const QString &colorName)
 {
-  QColor oldFadeColour = colorExample->palette().window().color();
   QColor fadeColor = LDrawColor::color(colorName);
   if (fadeColor.isValid()) {
     int trans = fadeOpacitySlider->value();
-    int opacity = 100-trans;
+    int opacity = 100 - trans;
     int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
     fadeColor.setAlpha(alpha);
     QString styleSheet =
@@ -2519,7 +2519,7 @@ void FadeStepsGui::colorChange(const QString &colorName)
     data.color = colorName;
     data.useColor = true;
     meta->color.setValue(data);
-    modified = colorModified = oldFadeColour != fadeColor;
+    modified = colorModified = metaValue.color.value().color != colorName;
   }
 }
 
@@ -2532,26 +2532,18 @@ void FadeStepsGui::valueChanged(bool checked)
     useColorCheck->setEnabled(checked);
     fadeOpacitySlider->setEnabled(checked);
     colorCombo->setEnabled(checked);
-    fadeModified = meta->enable.value() != checked;
-    if (!modified)
-      modified = fadeModified;
+    modified = fadeModified = metaValue.enable.value() != checked;
     meta->enable.setValue(checked);
   } else if (sender() == setupCheck) {
-    setupModified = meta->setup.value() != checked;
-    if (!modified)
-      modified = setupModified;
+    modified = setupModified = metaValue.setup.value() != checked;
     meta->setup.setValue(checked);
   } else if (sender() == lpubFadeCheck) {
-    lpubFadeModified = meta->lpubFade.value() != checked;
-    if (!modified)
-      modified = lpubFadeModified;
+    modified = lpubFadeModified = metaValue.lpubFade.value() != checked;
     meta->lpubFade.setValue(checked);
   } else if (sender() == useColorCheck) {
     FadeColorData data = meta->color.value();
-    useColorModified = data.useColor != checked && !checked;
+    modified = useColorModified = data.useColor != checked;
     data.useColor = checked;
-    if (!modified)
-      modified = useColorModified;
     meta->color.setValue(data);
   }
 }
@@ -2562,7 +2554,7 @@ if (sender() == fadeOpacitySlider) {
     QColor fadeColor = colorExample->palette().window().color();
     if (fadeColor.isValid()) {
       int trans = value;
-      int opacity = 100-trans;
+      int opacity = 100 - trans;
       int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
       fadeColor.setAlpha(alpha);
       QString styleSheet =
@@ -2577,23 +2569,21 @@ if (sender() == fadeOpacitySlider) {
       fadeOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
                                         .arg(trans).arg(opacity).arg(alpha));
     }
-    opacityModified = meta->opacity.value() != value;
-    if (!modified)
-      modified = opacityModified;
+    modified = opacityModified = metaValue.opacity.value() != value;
     meta->opacity.setValue(value);
   }
 }
 
 void FadeStepsGui::colorPrefixChange(const QString &colorPrefix)
 {
-  modified = colorPrefixModified = colorPrefix != meta->colorPrefix.value();
+  modified = colorPrefixModified = colorPrefix != metaValue.colorPrefix.value();
   meta->colorPrefix.setValue(colorPrefix);
 }
 
 void FadeStepsGui::enableEditReset(const QString &displayText)
 {
   if (sender() == colorPrefixEdit)
-    resetColorPrefixEditAct->setEnabled(displayText != meta->colorPrefix.value());
+    resetColorPrefixEditAct->setEnabled(displayText != metaValue.colorPrefix.value());
 }
 
 void FadeStepsGui::lineEditReset()
@@ -2601,7 +2591,7 @@ void FadeStepsGui::lineEditReset()
   if (sender() == resetColorPrefixEditAct) {
     resetColorPrefixEditAct->setEnabled(false);
     if (colorPrefixEdit)
-      colorPrefixEdit->setText(QString::number(meta->colorPrefix.value().toInt()));
+      colorPrefixEdit->setText(QString::number(metaValue.colorPrefix.value().toInt()));
   }
 }
 
@@ -2618,10 +2608,12 @@ void FadeStepsGui::apply(
       mi.setGlobalMeta(topLevelFile,&meta->lpubFade);
     if (colorModified || useColorModified)
       mi.setGlobalMeta(topLevelFile,&meta->color);
-    if (colorPrefixModified)
-      mi.setGlobalMeta(topLevelFile,&meta->colorPrefix);
     if (opacityModified)
       mi.setGlobalMeta(topLevelFile,&meta->opacity);
+    if (colorPrefixModified) {
+      Preferences::fadeStepsColourPrefix = meta->colorPrefix.value();
+      mi.setGlobalMeta(topLevelFile,&meta->colorPrefix);
+    }
   }
 }
 
@@ -2636,7 +2628,7 @@ HighlightStepGui::HighlightStepGui(
         QGroupBox  *parent)
 {
   meta = _meta;
-  data = _meta->lineWidth.value();
+  metaValue = *meta;
 
   QGridLayout *grid = new QGridLayout(parent);
 
@@ -2719,7 +2711,7 @@ HighlightStepGui::HighlightStepGui(
   grid->addWidget(colorPrefixLabel,4,0);
 
   colorPrefixEdit = new QLineEdit(parent);
-  colorPrefixEdit->setToolTip(tr("Set a 3-digit value that will be prepended to the LDConfig color ID."));
+  colorPrefixEdit->setToolTip(tr("Set a 3-digit value that will be prepended to the LDConfig colour ID."));
   QIntValidator *colorPrefixValidator = new QIntValidator(colorPrefixEdit);
   colorPrefixValidator->setRange(000, 999);
   colorPrefixEdit->setValidator(colorPrefixValidator);
@@ -2743,7 +2735,7 @@ HighlightStepGui::HighlightStepGui(
 
     lineWidthSpin = new QSpinBox(parent);
     lineWidthSpin->setRange(0,10);
-    lineWidthSpin->setValue(data);
+    lineWidthSpin->setValue(metaValue.lineWidth.value());
 
     connect(lineWidthSpin,SIGNAL(valueChanged(int)),
             this,         SLOT(  lineWidthChanged(int)));
@@ -2781,14 +2773,14 @@ HighlightStepGui::HighlightStepGui(
 
 void HighlightStepGui::enableReset(int value)
 {
-  button->setEnabled(value != data);
+  button->setEnabled(value != metaValue.lineWidth.value());
 }
 
 void HighlightStepGui::spinReset(bool)
 {
   button->setEnabled(false);
   if (lineWidthSpin) {
-    lineWidthSpin->setValue(data);
+    lineWidthSpin->setValue(metaValue.lineWidth.value());
     lineWidthSpin->setFocus();
   }
 }
@@ -2823,19 +2815,13 @@ void HighlightStepGui::valueChanged(bool checked)
     colorButton->setEnabled(checked);
     if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       lineWidthSpin->setEnabled(checked);
-    highlightModified = meta->enable.value() != checked;
-    if (!modified)
-      modified = highlightModified;
+    modified = highlightModified = metaValue.enable.value() != checked;
     meta->enable.setValue(checked);
   } else if (sender() == setupCheck) {
-    setupModified = meta->setup.value() != checked;
-    if (!modified)
-      modified = setupModified;
+    modified = setupModified = metaValue.setup.value() != checked;
     meta->setup.setValue(checked);
   } else if (sender() == lpubHighlightCheck) {
-    lpubHighlightModified = meta->lpubHighlight.value() != checked;
-    if (!modified)
-      modified = lpubHighlightModified;
+    modified = lpubHighlightModified = metaValue.lpubHighlight.value() != checked;
     meta->lpubHighlight.setValue(checked);
   }
 }
@@ -2843,19 +2829,19 @@ void HighlightStepGui::valueChanged(bool checked)
 void HighlightStepGui::lineWidthChanged(int value)
 {
   meta->lineWidth.setValue(value);
-  modified = lineWidthModified = value != data;
+  modified = lineWidthModified = value != metaValue.lineWidth.value();
 }
 
 void HighlightStepGui::colorPrefixChange(const QString &colorPrefix)
 {
-  modified = colorPrefixModified = colorPrefix != meta->colorPrefix.value();
+  modified = colorPrefixModified = colorPrefix != metaValue.colorPrefix.value();
   meta->colorPrefix.setValue(colorPrefix);
 }
 
 void HighlightStepGui::enableEditReset(const QString &displayText)
 {
   if (sender() == colorPrefixEdit)
-    resetColorPrefixEditAct->setEnabled(displayText != meta->colorPrefix.value());
+    resetColorPrefixEditAct->setEnabled(displayText != metaValue.colorPrefix.value());
 }
 
 void HighlightStepGui::lineEditReset()
@@ -2863,7 +2849,7 @@ void HighlightStepGui::lineEditReset()
   if (sender() == resetColorPrefixEditAct) {
     resetColorPrefixEditAct->setEnabled(false);
     if (colorPrefixEdit)
-      colorPrefixEdit->setText(QString::number(meta->colorPrefix.value().toInt()));
+      colorPrefixEdit->setText(QString::number(metaValue.colorPrefix.value().toInt()));
   }
 }
 
@@ -2880,10 +2866,12 @@ void HighlightStepGui::apply(
       mi.setGlobalMeta(topLevelFile,&meta->lpubHighlight);
     if (colorModified)
       mi.setGlobalMeta(topLevelFile,&meta->color);
-    if (colorPrefixModified)
-      mi.setGlobalMeta(topLevelFile,&meta->colorPrefix);
     if (lineWidthModified)
       mi.setGlobalMeta(topLevelFile,&meta->lineWidth);
+    if (colorPrefixModified) {
+      Preferences::highlightStepColourPrefix = meta->colorPrefix.value();
+      mi.setGlobalMeta(topLevelFile,&meta->colorPrefix);
+    }
   }
 }
 
