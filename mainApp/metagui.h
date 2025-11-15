@@ -75,7 +75,7 @@ protected:
 
 /***********************************************************************
  *
- * Bool
+ * CheckBox
  *
  **********************************************************************/
 
@@ -109,7 +109,7 @@ public slots:
 
 /***********************************************************************
  *
- * Bool
+ * RadioButton
  *
  **********************************************************************/
 
@@ -384,19 +384,23 @@ public:
     QGroupBox             *parent = nullptr);
   ~StudStyleGui() {}
 
-  QCheckBox *getCheckBox() {return checkbox;}
-  QComboBox *getComboBox() {return combo;}
+  QCheckBox *getCheckBox() {return autoEdgeCheckBox;}
+  QComboBox *getComboBox() {return studStyleCombo;}
 
   virtual void apply(QString &modelName);
 
 private:
   HighContrastColorMeta *highContrastMeta;
+  HighContrastColorMeta  highContrastValue;
   StudStyleMeta         *studStyleMeta;
+  StudStyleMeta          studStyleValue;
   AutoEdgeColorMeta     *autoEdgeMeta;
-  QCheckBox             *checkbox;
-  QComboBox             *combo;
-  QToolButton           *studStyleButton;
+  AutoEdgeColorMeta      autoEdgeValue;
+
+  QCheckBox             *autoEdgeCheckBox;
   QToolButton           *autoEdgeButton;
+  QComboBox             *studStyleCombo;
+  QToolButton           *studStyleButton;
 
   bool    contrastModified;
   bool    saturationModified;
@@ -417,8 +421,8 @@ private:
 
 
 public slots:
-  void comboChanged(int);
-  void checkBoxChanged(bool);
+  void studStyleComboChanged(int);
+  void autoEdgeCheckBoxChanged(bool);
   void processToolButtonClick();
   void enableStudStyleButton(int index);
   void enableAutoEdgeButton();
@@ -676,6 +680,7 @@ public:
 
 private:
   FadeStepsMeta  *meta;
+  FadeStepsMeta   metaValue;
 
   QCheckBox   *fadeCheck;
   QCheckBox   *setupCheck;
@@ -732,6 +737,7 @@ public:
 
 private:
   HighlightStepMeta  *meta;
+  HighlightStepMeta   metaValue;
 
   QCheckBox   *highlightCheck;
   QCheckBox   *setupCheck;
@@ -752,7 +758,6 @@ private:
   bool lpubHighlightModified;
   bool lineWidthModified;
   bool colorPrefixModified;
-  int  data;
 
 private slots:
   void enableReset(int);
@@ -871,6 +876,7 @@ public:
 private:
   ContStepNumMeta *meta;
   QCheckBox       *check;
+  bool             value;
 
 public slots:
   void clicked(bool checked);
@@ -940,6 +946,7 @@ public:
 private:
   BuildModEnabledMeta *meta;
   QCheckBox           *check;
+  bool                 value;
 
 public slots:
   void clicked(bool checked);
@@ -970,6 +977,7 @@ public:
 private:
   FinalModelEnabledMeta *meta;
   QCheckBox             *check;
+  bool                   value;
 
 public slots:
   void clicked(bool checked);
@@ -1002,6 +1010,7 @@ public:
 private:
   BoolMeta  *meta;
   QCheckBox *check;
+  bool       value;
 
 public slots:
   void clicked(bool checked);
@@ -1034,6 +1043,7 @@ public:
 private:
   LoadUnoffPartsMeta  *meta;
   QCheckBox           *check;
+  bool                 value;
 
 public slots:
   void clicked(bool checked);

@@ -1243,8 +1243,11 @@ StudStyleGui::StudStyleGui(
   QGroupBox             *parent)
 {
   autoEdgeMeta     = _autoEdgeMeta;
+  autoEdgeValue    = *autoEdgeMeta;
   studStyleMeta    = _studStyleMeta;
+  studStyleValue   = *studStyleMeta;
   highContrastMeta = _highContrastMeta;
+  highContrastValue= *highContrastMeta;
 
   QGridLayout* gridLayout = new QGridLayout(parent);
 
@@ -1256,47 +1259,47 @@ StudStyleGui::StudStyleGui(
       setWhatsThis(lpubWT(WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR, tr("Stud Style and Automate Edge Color")));
   }
 
-  checkbox = new QCheckBox(parent);
-  checkbox->setText(tr("Automate edge colors"));
-  checkbox->setChecked(autoEdgeMeta->enable.value());
+  autoEdgeCheckBox = new QCheckBox(parent);
+  autoEdgeCheckBox->setText(tr("Automate edge colors"));
+  autoEdgeCheckBox->setChecked(autoEdgeMeta->enable.value());
 
   autoEdgeButton = new QToolButton(parent);
-  autoEdgeButton->setEnabled(checkbox->isChecked());
+  autoEdgeButton->setEnabled(autoEdgeCheckBox->isChecked());
   autoEdgeButton->setText(tr("Settings..."));
 
   QLabel *label = new QLabel(tr("Stud style"), parent);
 
-  combo = new QComboBox(parent);
-  combo->addItem("0 Plain");
-  combo->addItem("1 Thin Line Logo");
-  combo->addItem("2 Outline Logo");
-  combo->addItem("3 Sharp Top Logo");
-  combo->addItem("4 Rounded Top Logo");
-  combo->addItem("5 Flattened Logo");
-  combo->addItem("6 High Contrast");
-  combo->addItem("7 High Contrast with Logo");
-  combo->setCurrentIndex(int(studStyleMeta->value()));
+  studStyleCombo = new QComboBox(parent);
+  studStyleCombo->addItem("0 Plain");
+  studStyleCombo->addItem("1 Thin Line Logo");
+  studStyleCombo->addItem("2 Outline Top Logo");
+  studStyleCombo->addItem("3 Sharp Top Logo");
+  studStyleCombo->addItem("4 Rounded Top Logo");
+  studStyleCombo->addItem("5 Flattened Top Logo");
+  studStyleCombo->addItem("6 High Contrast Plain");
+  studStyleCombo->addItem("7 High Contrast Thin Line");
+  studStyleCombo->setCurrentIndex(int(studStyleMeta->value()));
 
   studStyleButton = new QToolButton(parent);
-  studStyleButton->setEnabled(combo->currentIndex() > 5);
+  studStyleButton->setEnabled(studStyleCombo->currentIndex() > 5);
   studStyleButton->setText(tr("Settings..."));
 
   gridLayout->addWidget(label, 0, 0);
-  gridLayout->addWidget(combo, 0, 1);
+  gridLayout->addWidget(studStyleCombo, 0, 1);
   gridLayout->addWidget(studStyleButton, 0, 2);
 
-  gridLayout->addWidget(checkbox, 1, 0,1, 2);
+  gridLayout->addWidget(autoEdgeCheckBox, 1, 0,1, 2);
   gridLayout->addWidget(autoEdgeButton, 1, 2);
 
-  connect(checkbox,SIGNAL(toggled(bool)),
-          this, SLOT  (checkBoxChanged(bool)));
+  connect(autoEdgeCheckBox,SIGNAL(toggled(bool)),
+          this, SLOT  (autoEdgeCheckBoxChanged(bool)));
 
-  connect(combo,SIGNAL(currentIndexChanged(int)),
-          this, SLOT  (comboChanged(int)));
+  connect(studStyleCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT  (studStyleComboChanged(int)));
 
-  connect(checkbox,SIGNAL(toggled(bool)),
+  connect(autoEdgeCheckBox,SIGNAL(toggled(bool)),
           this, SLOT  (enableAutoEdgeButton()));
-  connect(combo,SIGNAL(currentIndexChanged(int)),
+  connect(studStyleCombo,SIGNAL(currentIndexChanged(int)),
           this, SLOT  (enableStudStyleButton(int)));
 
   connect(autoEdgeButton,SIGNAL(clicked()),
@@ -1327,43 +1330,42 @@ void StudStyleGui::enableStudStyleButton(int index)
 
 void StudStyleGui::enableAutoEdgeButton()
 {
-  autoEdgeButton->setEnabled(checkbox->isChecked());
+  autoEdgeButton->setEnabled(autoEdgeCheckBox->isChecked());
 }
 
-void StudStyleGui::checkBoxChanged(bool value)
+void StudStyleGui::autoEdgeCheckBoxChanged(bool value)
 {
-  if ((autoEdgeModified = value != autoEdgeMeta->enable.value())) {
-    if (value && combo->currentIndex() > 5) {
+  if (value != autoEdgeValue.enable.value()) {
+    if (value && studStyleCombo->currentIndex() > 5) {
       if (QMessageBox::question(nullptr,
         QString("Automate Edge Colors Conflict"),
         QString("High contrast stud style settings are ignored when automate edge colors is enabled.<br>"
                 "Do you want to continue ?"),
         QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
         autoEdgeMeta->enable.setValue(value);
-        modified = true;
+        modified = autoEdgeModified = true;
         emit settingsChanged(modified);
       } else {
-        checkbox->setChecked(!value);
-        autoEdgeMeta->enable.setValue(!value);
+        autoEdgeCheckBox->setChecked(autoEdgeValue.enable.value());
       }
     }
   }
 }
 
-void StudStyleGui::comboChanged(int value)
+void StudStyleGui::studStyleComboChanged(int value)
 {
-  if ((studStyleModified = value != studStyleMeta->value())) {
-    if (value > 5 && checkbox->isChecked() && QMessageBox::question(nullptr,
+  if (value != studStyleValue.value()) {
+    if (value > 5 && autoEdgeCheckBox->isChecked() && QMessageBox::question(nullptr,
       QString("High Contrast Conflict"),
       QString("High contrast stud style settings are ignored when automate edge colors is enabled.<br>"
               "Would you like to disable automate edge colors ?"),
       QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
       bool disable = false;
-      checkbox->setChecked(disable);
+      autoEdgeCheckBox->setChecked(disable);
       autoEdgeMeta->enable.setValue(disable);
     }
     studStyleMeta->setValue(value);
-    modified = true;
+    modified = studStyleModified = true;
     emit settingsChanged(modified);
   }
 }
@@ -1373,38 +1375,38 @@ void StudStyleGui::processToolButtonClick()
   lcAutomateEdgeColorDialog Dialog(this, sender() == studStyleButton);
   if (Dialog.exec() == QDialog::Accepted) {
     if (sender() == studStyleButton) {
-      if ((lightDarkIndexModified = Dialog.mPartColorValueLDIndex != highContrastMeta->lightDarkIndex.value())) {
+      if ((lightDarkIndexModified = Dialog.mPartColorValueLDIndex != highContrastValue.lightDarkIndex.value())) {
         highContrastMeta->lightDarkIndex.setValue(Dialog.mPartColorValueLDIndex);
       }
-      if ((studCylinderColorModified = Dialog.mStudCylinderColor != highContrastMeta->studCylinderColor.value())) {
+      if ((studCylinderColorModified = Dialog.mStudCylinderColor != highContrastValue.studCylinderColor.value())) {
         highContrastMeta->studCylinderColor.setValue(Dialog.mStudCylinderColor);
       }
-      if ((studCylinderColorEnabledModified = Dialog.mStudCylinderColorEnabled != highContrastMeta->studCylinderColorEnabled.value())) {
+      if ((studCylinderColorEnabledModified = Dialog.mStudCylinderColorEnabled != highContrastValue.studCylinderColorEnabled.value())) {
         highContrastMeta->studCylinderColorEnabled.setValue(Dialog.mStudCylinderColorEnabled);
       }
-      if ((partEdgeColorModified = Dialog.mPartEdgeColor != highContrastMeta->partEdgeColor.value())) {
+      if ((partEdgeColorModified = Dialog.mPartEdgeColor != highContrastValue.partEdgeColor.value())) {
         highContrastMeta->partEdgeColor.setValue(Dialog.mPartEdgeColor);
       }
-      if ((partEdgeColorEnabledModified = Dialog.mPartEdgeColorEnabled != highContrastMeta->partEdgeColorEnabled.value())) {
+      if ((partEdgeColorEnabledModified = Dialog.mPartEdgeColorEnabled != highContrastValue.partEdgeColorEnabled.value())) {
         highContrastMeta->partEdgeColorEnabled.setValue(Dialog.mPartEdgeColorEnabled);
       }
-      if ((blackEdgeColorModified = Dialog.mBlackEdgeColor != highContrastMeta->blackEdgeColor.value())) {
+      if ((blackEdgeColorModified = Dialog.mBlackEdgeColor != highContrastValue.blackEdgeColor.value())) {
         highContrastMeta->blackEdgeColor.setValue(Dialog.mBlackEdgeColor);
       }
-      if ((blackEdgeColorEnabledModified = Dialog.mBlackEdgeColorEnabled != highContrastMeta->blackEdgeColorEnabled.value())) {
+      if ((blackEdgeColorEnabledModified = Dialog.mBlackEdgeColorEnabled != highContrastValue.blackEdgeColorEnabled.value())) {
         highContrastMeta->blackEdgeColorEnabled.setValue(Dialog.mBlackEdgeColorEnabled);
       }
-      if ((darkEdgeColorModified = Dialog.mDarkEdgeColor != highContrastMeta->darkEdgeColor.value())) {
+      if ((darkEdgeColorModified = Dialog.mDarkEdgeColor != highContrastValue.darkEdgeColor.value())) {
         highContrastMeta->darkEdgeColor.setValue(Dialog.mDarkEdgeColor);
       }
-      if ((darkEdgeColorEnabledModified = Dialog.mDarkEdgeColorEnabled != highContrastMeta->darkEdgeColorEnabled.value())) {
+      if ((darkEdgeColorEnabledModified = Dialog.mDarkEdgeColorEnabled != highContrastValue.darkEdgeColorEnabled.value())) {
         highContrastMeta->darkEdgeColorEnabled.setValue(Dialog.mDarkEdgeColorEnabled);
       }
     } else {
-      if ((contrastModified = Dialog.mPartEdgeContrast != autoEdgeMeta->contrast.value())) {
+      if ((contrastModified = Dialog.mPartEdgeContrast != autoEdgeValue.contrast.value())) {
         autoEdgeMeta->contrast.setValue(Dialog.mPartEdgeContrast);
       }
-      if ((saturationModified = Dialog.mPartColorValueLDIndex != autoEdgeMeta->saturation.value())) {
+      if ((saturationModified = Dialog.mPartColorValueLDIndex != autoEdgeValue.saturation.value())) {
         autoEdgeMeta->saturation.setValue(Dialog.mPartColorValueLDIndex);
       }
     }
@@ -1419,7 +1421,8 @@ void StudStyleGui::processToolButtonClick()
                 blackEdgeColorEnabledModified    ||
                 darkEdgeColorModified            ||
                 darkEdgeColorEnabledModified);
-    emit settingsChanged(modified);
+    if (modified)
+      emit settingsChanged(modified);
   }
 }
 
@@ -3186,6 +3189,7 @@ ContStepNumGui::ContStepNumGui(
   QGroupBox       *parent)
 {
   meta = _meta;
+  value = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3198,7 +3202,7 @@ ContStepNumGui::ContStepNumGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(meta->value());
+  check->setChecked(value);
   layout->addWidget(check);
   connect(check,SIGNAL(clicked(bool)),
           this, SLOT(  clicked(bool)));
@@ -3206,7 +3210,7 @@ ContStepNumGui::ContStepNumGui(
 
 void ContStepNumGui::clicked(bool checked)
 {
-  modified = meta->value() != checked;
+  modified = value != checked;
   meta->setValue(checked);
 }
 
@@ -3326,6 +3330,7 @@ BuildModEnabledGui::BuildModEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
+  value = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3338,7 +3343,7 @@ BuildModEnabledGui::BuildModEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(_meta->value());
+  check->setChecked(value);
   layout->addWidget(check);
   connect(check,SIGNAL(clicked(bool)),
           this, SLOT(  clicked(bool)));
@@ -3346,7 +3351,7 @@ BuildModEnabledGui::BuildModEnabledGui(
 
 void BuildModEnabledGui::clicked(bool checked)
 {
-  modified = meta->value() != checked;
+  modified = value != checked;
   meta->setValue(checked);
 }
 
@@ -3375,6 +3380,7 @@ FinalModelEnabledGui::FinalModelEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
+  value = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3387,7 +3393,7 @@ FinalModelEnabledGui::FinalModelEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(_meta->value());
+  check->setChecked(value);
   layout->addWidget(check);
   connect(check,SIGNAL(clicked(bool)),
           this, SLOT(  clicked(bool)));
@@ -3395,7 +3401,7 @@ FinalModelEnabledGui::FinalModelEnabledGui(
 
 void FinalModelEnabledGui::clicked(bool checked)
 {
-  modified = meta->value() != checked;
+  modified = value != checked;
   meta->setValue(checked);
 }
 
@@ -3423,6 +3429,7 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
+  value = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3435,7 +3442,7 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(_meta->value());
+  check->setChecked(value);
   layout->addWidget(check);
   connect(check,SIGNAL(clicked(bool)),
           this, SLOT(  clicked(bool)));
@@ -3443,7 +3450,7 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
 
 void CoverPageViewEnabledGui::clicked(bool checked)
 {
-  modified = meta->value() != checked;
+  modified = value != checked;
   meta->setValue(checked);
 }
 
@@ -3470,6 +3477,7 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
   QGroupBox          *parent)
 {
   meta = _meta;
+  value = _meta->enabled.value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -3483,7 +3491,7 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
 
   check = new QCheckBox(heading,parent);
   check->setEnabled(_meta->enableSetting.value());
-  check->setChecked(_meta->enabled.value());
+  check->setChecked(value);
   layout->addWidget(check);
   connect(check,SIGNAL(clicked(bool)),
           this, SLOT( clicked(bool)));
@@ -3491,7 +3499,7 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
 
 void LoadUnoffPartsEnabledGui::clicked(bool checked)
 {
-  modified = meta->enabled.value() != checked;
+  modified = value != checked;
   meta->enabled.setValue(checked);
 }
 
