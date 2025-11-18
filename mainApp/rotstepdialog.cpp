@@ -50,6 +50,18 @@ RotStepDialog::RotStepDialog(
   layout->addWidget(box);
   rotStep = new RotStepGui(&meta,box);
 
+  //reset spacer
+  QHBoxLayout *hLayout = new QHBoxLayout(nullptr);
+  layout->addLayout(hLayout);
+  QSpacerItem *hResetSpacer;
+  hResetSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  hLayout->addSpacerItem(hResetSpacer);
+
+  // reset button
+  QPushButton *resetButton = new QPushButton(tr("Reset"), this);
+  connect(resetButton, &QPushButton::clicked, rotStep, [=] { rotStep->reset(); });
+  hLayout->addWidget(resetButton);
+
   QDialogButtonBox *buttonBox;
 
   buttonBox = new QDialogButtonBox(this);

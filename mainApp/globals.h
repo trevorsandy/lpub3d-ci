@@ -266,6 +266,7 @@ public:
 public slots:
   void accept() override;
   void cancel();
+  void reset();
   void clearCache(bool);
   void instanceCountClicked(bool);
 };

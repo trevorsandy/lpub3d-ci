@@ -54,6 +54,7 @@ public:
   ~MetaGui() {}
 
   virtual void apply(QString &topLevelFile) = 0;
+  //virtual void reset() = 0;
 
   static bool notEqual(const double v1, const double v2, int p = 4);
   static QString formatMask(
@@ -839,6 +840,7 @@ public:
   ~RotStepGui() {}
 
   virtual void apply(QString &modelName);
+  virtual void reset();
 
 private:
   RotStepMeta     *meta;

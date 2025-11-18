@@ -233,6 +233,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   box = new QGroupBox(tr("Default Step Rotation"));
   vlayout->addWidget(box);
   child = new RotStepGui(&subModelMeta->rotStep,box);
+  child->setObjectName(QString("RotStepGui"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
@@ -327,6 +328,18 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   tabwidget->addTab(widget,widget->objectName());
 
+  //reset spacer and button
+  QHBoxLayout *hLayout = new QHBoxLayout(nullptr);
+  layout->addLayout(hLayout);
+  QSpacerItem *hResetSpacer;
+  hResetSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  hLayout->addSpacerItem(hResetSpacer);
+
+  //reset button
+  QPushButton *resetButton = new QPushButton(tr("Reset"), this);
+  connect(resetButton, &QPushButton::clicked, this, &GlobalSubModelDialog::reset);
+  hLayout->addWidget(resetButton);
+
   QDialogButtonBox *buttonBox;
 
   buttonBox = new QDialogButtonBox(nullptr);
@@ -338,6 +351,18 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
+}
+
+void GlobalSubModelDialog::reset()
+{
+  foreach (auto *child, data->children) {
+    if (child->objectName() == QString("RotStepGui")) {
+      RotStepGui *gui = dynamic_cast<RotStepGui*>(child);
+      if (gui) {
+        gui->reset(); break;
+      }
+    }
+  }
 }
 
 void GlobalSubModelDialog::getSubModelGlobals(

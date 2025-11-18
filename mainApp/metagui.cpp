@@ -3172,6 +3172,23 @@ RotStepGui::RotStepGui(
   typeModified = false;
 }
 
+void RotStepGui::reset()
+{
+  rotStepSpinX->setValue((qreal)data.rots[0]);
+  button0->setEnabled(false);
+  rotStepSpinY->setValue((qreal)data.rots[1]);
+  button1->setEnabled(false);
+  rotStepSpinZ->setValue((qreal)data.rots[2]);
+  button2->setEnabled(false);
+  rotStepSpinX->setFocus();
+  typeCombo->setCurrentIndex(!data.type.isEmpty() ? typeCombo->findText(data.type) : 1);
+
+  spinXModified = false;
+  spinYModified = false;
+  spinZModified = false;
+  typeModified = false;
+}
+
 void RotStepGui::enableReset(double value)
 {
   if (sender() == rotStepSpinX)
