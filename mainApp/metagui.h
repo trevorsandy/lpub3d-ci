@@ -71,6 +71,12 @@ signals:
 
 protected:
   LeafMeta *_meta;
+
+  bool metaModified(bool mod)
+  {
+    if (mod) modified = true;
+    return mod;
+  }
 };
 
 /***********************************************************************
@@ -102,6 +108,7 @@ public:
 private:
   BoolMeta  *meta;
   QCheckBox *check;
+  bool       value;
 
 public slots:
   void clicked(bool checked);
@@ -133,6 +140,7 @@ private:
   BoolMeta     *meta;
   QRadioButton *trueRadio;
   QRadioButton *falseRadio;
+  bool          value;
 
 public slots:
   void trueClicked(bool clicked);
@@ -174,6 +182,8 @@ private:
   QLineEdit *value1Edit;
   QAction   *reset0Act;
   QAction   *reset1Act;
+
+  bool      unitsModified;
 
 private slots:
   void enableReset(QString const &);
@@ -217,6 +227,7 @@ private:
   float         data0;
   float         data1;
   bool          showPair;
+  bool          floatsModified;
   FloatPairMeta *meta;
   QLabel        *label0;
   QLabel        *label1;
@@ -332,12 +343,11 @@ public:
 
 private:
   NumberMeta  *meta;
+  NumberMeta   metaValue;
 
   bool        fontModified;
   bool        colorModified;
   bool        marginsModified;
-  float       marginData0;
-  float       marginData1;
 
   QGroupBox   *gbFormat;
   QLabel      *fontLabel;
@@ -460,6 +470,7 @@ public:
 
 private:
   PageAttributeTextMeta  *meta;
+  PageAttributeTextMeta   metaValue;
 
   int         selection;
   bool        fontModified;
@@ -468,8 +479,6 @@ private:
   bool        placementModified;
   bool        displayModified;
   bool        editModified;
-  float       marginData0;
-  float       marginData1;
 
   QLabel      *fontLabel;
   QLabel      *fontExample;
@@ -550,6 +559,7 @@ public:
 
 private:
   PageAttributeImageMeta *meta;
+  PageAttributeImageMeta  metaValue;
 
   int             selection;
   bool            marginsModified;
@@ -558,9 +568,6 @@ private:
   bool            imageModified;
   bool            scaleModified;
   bool            fillModified;
-  float           marginData0;
-  float           marginData1;
-  float           scaleData;
 
   QString         image;
 
@@ -797,11 +804,13 @@ public:
 
 private:
   JustifyStepMeta *meta;
+  JustifyStepData data;
   QComboBox       *typeCombo;
   QDoubleSpinBox  *spacingSpinBox;
   QPushButton     *button;
 
-  JustifyStepData data;
+  bool             spacingModified;
+  bool             typeModified;
 
 private slots:
   void enableReset(double);
@@ -843,6 +852,11 @@ private:
   QPushButton    *button0;
   QPushButton    *button1;
   QPushButton    *button2;
+
+  bool            spinXModified;
+  bool            spinYModified;
+  bool            spinZModified;
+  bool            typeModified;
 
 private slots:
   void enableReset(double);
@@ -913,10 +927,14 @@ public:
 
 private:
   CountInstanceMeta  *meta;
+  int                 value;
   QCheckBox          *countCheck;
   QRadioButton       *topRadio;
   QRadioButton       *modelRadio;
   QRadioButton       *stepRadio;
+
+  bool                optionModified;
+  bool                consolidateModified;
 
 public slots:
   void radioChanged(bool checked);
@@ -946,6 +964,7 @@ public:
   void setEnabled(bool enabled);
 
   virtual void apply(QString &modelName);
+  virtual void applySettings();
 
 private:
   BuildModEnabledMeta *meta;
@@ -977,6 +996,7 @@ public:
   QCheckBox *getCheckBox() {return check;}
 
   virtual void apply(QString &modelName);
+  virtual void applySettings();
 
 private:
   FinalModelEnabledMeta *meta;
@@ -1073,13 +1093,14 @@ public:
   ~BackgroundGui() {}
 
   BackgroundMeta *meta;
+  BackgroundData data;
 
   virtual void apply(QString &modelName);
 
 private:
-  QString picture;
-  QString color;
-  QString gradient;
+  //QString picture;
+  //QString color;
+  //QString gradient;
 
   QLabel       *colorExample;
   QPushButton  *colorButton;
@@ -1089,6 +1110,15 @@ private:
   QRadioButton *stretchRadio;
   QRadioButton *tileRadio;
   QGroupBox    *fill;
+
+  bool          rotateIcon;
+
+  bool          typeModified;
+  bool          colorModified;
+  bool          gradientModified;
+  bool          imageModified;
+  bool          stretchModified;
+  bool          tileModified;
 
   void enable();
 
@@ -1125,7 +1155,7 @@ public:
 
 private:
   BorderMeta  *meta;
-  BorderData   border;
+  BorderData   data;
 
   QLineEdit   *thicknessEdit;
   QLineEdit   *marginXEdit;
@@ -1142,6 +1172,14 @@ private:
   QComboBox   *typeCombo;
   QComboBox   *lineCombo;
   QCheckBox   *hideArrowsChk;
+
+  bool         typeModified;
+  bool         hideTipModified;
+  bool         radiusModified;
+  bool         thicknessModified;
+  bool         lineModified;
+  bool         colorModified;
+  bool         marginsModified;
 
   void enable(bool rotateArrow = false);
 
@@ -1214,18 +1252,9 @@ public:
 
   QCheckBox *getHideTipCheck() { return hideTipBox; }
 
-  PointerAttribData data;
-
-  bool        tipModified;
-  bool        lineModified;
-  bool        borderModified;
-
 private:
-  bool        isBorder;
-  bool        isLine;
-  bool        isTip;
-
   PointerAttribMeta *meta;
+  PointerAttribData data;
 
   QLineEdit   *widthEdit;
   QLineEdit   *heightEdit;
@@ -1237,6 +1266,14 @@ private:
   QPushButton *colorButton;
   QComboBox   *lineCombo;
   QCheckBox   *hideTipBox;
+
+  bool        isBorder;
+  bool        isLine;
+  bool        isTip;
+
+  bool        tipModified;
+  bool        lineModified;
+  bool        borderModified;
 
 private slots:
   void enableEditReset(QString const &);
@@ -1280,6 +1317,9 @@ private:
   QLineEdit *valueEdit;
   QDoubleValidator *valueValidator;
 
+  bool typeModified;
+  bool constrainModified;
+
   void enable();
 
 public slots:
@@ -1316,15 +1356,18 @@ private:
   StringMeta  *parmsMeta;
   StringMeta  *parmsPovMeta;
   StringMeta  *envVarsMeta;
+
+  QString      defaultParams;
+  QString      defaultPovParams;
+  QString      defaultEnvVars;
+
   QLineEdit   *parameterEdit;
   QLineEdit   *parameterPovEdit;
   QLineEdit   *enviromentEdit;
   QAction     *resetParameterEditAct;
   QAction     *resetParameterPovEditAct;
   QAction     *resetEnviromentEditAct;
-  QString      defaultParams;
-  QString      defaultPovParams;
-  QString      defaultEnvVars;
+
   bool         parametersModified;
   bool         parametersPovModified;
   bool         enviromentModified;
@@ -1368,6 +1411,12 @@ private:
   QAction   *resetXEditAct;
   QAction   *resetYEditAct;
 
+  bool       typeModified;
+  bool       marginsModified;
+  bool       lengthModified;
+  bool       thicknessModified;
+  bool       colorModified;
+
 private slots:
   void enableReset(QString const &);
   void lineEditReset();
@@ -1403,10 +1452,13 @@ public:
 
 private:
   ResolutionMeta *meta;
-  ResolutionType  dataT;
-  float           dataV;
+  ResolutionType  units;
+  float           value;
   QLineEdit      *valueEdit;
   QAction        *reset0Act;
+
+  bool           unitsModified;
+  bool           valueModified;
 
 signals:
   void unitsChanged(int);
@@ -1442,6 +1494,7 @@ public:
 
 private:
   PreferredRendererMeta *meta;
+  RendererData           data;
 
   QComboBox    *combo;
   QCheckBox    *ldvSingleCallBox;
@@ -1449,6 +1502,11 @@ private:
   QGroupBox    *povFileGeneratorGrpBox;
   QRadioButton *nativeButton;
   QRadioButton *ldvButton;
+
+  bool          rendererModified;
+  bool          snapshotModified;
+  bool          singleCallModified;
+  bool          nativeGenModified;
 
 public slots:
   void valueChanged(int state);
@@ -1490,8 +1548,13 @@ private:
   QComboBox        *cameraViewCombo;
   QCheckBox        *homeViewpointBox;
 
-  QAction *setLongitudeResetAct;
-  QAction *setLatitudeResetAct;
+  QAction          *setLongitudeResetAct;
+  QAction          *setLatitudeResetAct;
+
+  bool              latitudeModified;
+  bool              longitudeModified;
+  bool              cameraViewModified;
+  bool              customViewpointModified;
 
 private slots:
   void enableReset(QString const &);
@@ -1666,9 +1729,11 @@ public:
   ~ShowSubModelGui() {}
 
   virtual void apply(QString &topLevelFile);
+  virtual void applySettings();
 
 private:
   SubModelMeta *meta;
+  SubModelMeta  metaValue;
 
   QCheckBox    *showSubmodelsBox;
   QCheckBox    *showSubmodelsDefaultBox;
@@ -1688,16 +1753,16 @@ private:
 
   QPushButton  *placementButton;
 
+  bool          showSubmodelsDefaultSettings;
+  bool          showTopModelDefaultSettings;
+  bool          showSubmodelInCalloutDefaultSettings;
+  bool          showInstanceCountDefaultSettings;
+
   bool          showSubmodelsModified;
   bool          showTopModelModified;
   bool          showSubmodelInCalloutModified;
   bool          showInstanceCountModified;
   bool          placementModified;
-
-  bool          showSubmodelsDefaultSettings;
-  bool          showTopModelDefaultSettings;
-  bool          showSubmodelInCalloutDefaultSettings;
-  bool          showInstanceCountDefaultSettings;
 
 signals:
   void instanceCountClicked(bool);
@@ -1767,6 +1832,7 @@ public:
 
 private:
   PliSortOrderMeta *meta;
+  PliSortOrderMeta  metaValue;
 
   QLabel           *headingLabel;
 
@@ -1789,16 +1855,17 @@ private:
   QString          sortDirection;
 
   bool             bom;
+
+  bool             primaryDuplicateOption;
+  bool             secondaryDuplicateOption;
+  bool             tertiaryDuplicateOption;
+
   bool             primaryModified;
   bool             secondaryModified;
   bool             tertiaryModified;
   bool             primaryDirectionModified;
   bool             secondaryDirectionModified;
   bool             tertiaryDirectionModified;
-
-  bool             primaryDuplicateOption;
-  bool             secondaryDuplicateOption;
-  bool             tertiaryDuplicateOption;
 
 public slots:
   void orderChange(int);
@@ -1816,13 +1883,6 @@ class PliPartElementGui : public MetaGui
 {
   Q_OBJECT
 public:
-  bool        displayModified;
-  bool        bricklinkElementsModified;
-  bool        legoElementsModified;
-  bool        userElementsModified;
-  bool        userElementsLDrawKeyModified;
-
-
   PliPartElementGui(
       QString const       &heading,
       PliPartElementMeta  *meta,
@@ -1840,6 +1900,13 @@ private:
   QGroupBox         *gbPliPartElement;
 
   PliPartElementMeta *meta;
+  PliPartElementMeta metaValue;
+
+  bool        displayModified;
+  bool        bricklinkElementsModified;
+  bool        legoElementsModified;
+  bool        userElementsModified;
+  bool        userElementsLDrawKeyModified;
 
 signals:
   void toggled(bool);
@@ -1866,21 +1933,6 @@ class PliAnnotationGui : public MetaGui
 {
   Q_OBJECT
 public:
-  bool displayModified;
-  bool enableStyleModified;
-  bool titleModified;
-  bool freeformModified;
-  bool titleAndFreeformModified;
-  bool fixedAnnotationsModified;
-  bool axleStyleModified;
-  bool beamStyleModified;
-  bool cableStyleModified;
-  bool connectorStyleModified;
-  bool elementStyleModified;
-  bool extendedStyleModified;
-  bool hoseStyleModified;
-  bool panelStyleModified;
-
   PliAnnotationGui(
       QString const       &heading,
       PliAnnotationMeta   *meta,
@@ -1891,6 +1943,11 @@ public:
   virtual void apply(QString &topLevelFile);
 
 private:
+  PliAnnotationMeta *meta;
+  PliAnnotationMeta  metaValue;
+
+  QGroupBox         *gbPLIAnnotationType;
+
   QLabel            *headingLabel;
   QCheckBox         *titleAnnotationCheck;
   QCheckBox         *freeformAnnotationCheck;
@@ -1905,8 +1962,20 @@ private:
   QCheckBox         *hoseStyleCheck;
   QCheckBox         *panelStyleCheck;
 
-  QGroupBox         *gbPLIAnnotationType;
-  PliAnnotationMeta *meta;
+  bool               displayModified;
+  bool               enableStyleModified;
+  bool               titleModified;
+  bool               freeformModified;
+  bool               titleAndFreeformModified;
+  bool               fixedAnnotationsModified;
+  bool               axleStyleModified;
+  bool               beamStyleModified;
+  bool               cableStyleModified;
+  bool               connectorStyleModified;
+  bool               elementStyleModified;
+  bool               extendedStyleModified;
+  bool               hoseStyleModified;
+  bool               panelStyleModified;
 
 signals:
   void toggled(bool);
@@ -1944,16 +2013,6 @@ class CsiAnnotationGui : public MetaGui
 {
   Q_OBJECT
 public:
-  bool displayModified;
-  bool axleDisplayModified;
-  bool beamDisplayModified;
-  bool cableDisplayModified;
-  bool connectorDisplayModified;
-  bool extendedDisplayModified;
-  bool hoseDisplayModified;
-  bool panelDisplayModified;
-  bool placementModified;
-
   CsiAnnotationGui(
       QString const     &heading,
       CsiAnnotationMeta *meta,
@@ -1964,6 +2023,9 @@ public:
   virtual void apply(QString &topLevelFile);
 
 private:
+  CsiAnnotationMeta *meta;
+  CsiAnnotationMeta  metaValue;
+
   QLabel            *headingLabel;
   QGroupBox         *gbPlacement;
   QGroupBox         *gbCSIAnnotationType;
@@ -1976,7 +2038,15 @@ private:
   QCheckBox         *panelDisplayCheck;
   QPushButton       *placementButton;
 
-  CsiAnnotationMeta *meta;
+  bool displayModified;
+  bool axleDisplayModified;
+  bool beamDisplayModified;
+  bool cableDisplayModified;
+  bool connectorDisplayModified;
+  bool extendedDisplayModified;
+  bool hoseDisplayModified;
+  bool panelDisplayModified;
+  bool placementModified;
 
 public slots:
   void axleDisplay(bool);
@@ -2000,7 +2070,6 @@ class PageOrientationGui : public MetaGui
 {
   Q_OBJECT
 public:
-
   PageOrientationGui(
     QString const           &heading,
     PageOrientationMeta    *_meta,
@@ -2011,6 +2080,8 @@ public:
 
 private:
   PageOrientationMeta    *meta;
+  PageOrientationMeta     metaValue;
+
   QLabel                 *label;
   QRadioButton           *portraitRadio;
   QRadioButton           *landscapeRadio;
@@ -2042,18 +2113,22 @@ public:
   virtual void apply(QString &topLevelFile);
 
 private:
+  UnitsMeta              *meta;
   float                   dataW;
   float                   dataH;
+
+  QGroupBox              *size;
+
   QLineEdit              *valueW;
   QLineEdit              *valueH;
   QAction                *resetWAct;
   QAction                *resetHAct;
 
-  UnitsMeta              *meta;
   QLabel                 *label;
   QLabel                 *labelW;
   QLabel                 *labelH;
-  QGroupBox              *size;
+
+  bool                    dataModified;
 
 private slots:
   void enableReset(QString const &);
@@ -2130,16 +2205,13 @@ public:
 
   virtual void apply(QString &topLevelFile);
 
-  bool                    sizeModified;
-  bool                    sizeIDModified;
-  bool                    orientationModified;
 private:
+  PageSizeMeta           *metaS;
+  PageOrientationMeta    *metaO;
 
   PageSizeData            dataS;
   OrientationEnc          dataO;
 
-  PageSizeMeta           *metaS;
-  PageOrientationMeta    *metaO;
   QLabel                 *label;
   QRadioButton           *portraitRadio;
   QRadioButton           *landscapeRadio;
@@ -2150,14 +2222,18 @@ private:
   QLineEdit              *valueH;
   QAction                *resetWAct;
   QAction                *resetHAct;
-  QComboBox              *typeCombo;
+  QComboBox              *sizeIDCombo;
+
+  bool                    sizeModified;
+  bool                    sizeIDModified;
+  bool                    orientationModified;
 
 private slots:
   void enableReset(QString const &);
   void lineEditReset();
 
 public slots:
-  void typeChange(QString const &);
+  void sizeIDChange(QString const &);
   void valueWChange(QString const &);
   void valueHChange(QString const &);
   void orientationChange(bool);
@@ -2192,8 +2268,7 @@ public:
 
 private:
   StringListMeta  *meta;
-
-  bool        subModelColorModified;
+  StringListMeta   metaValue;
 
   QLabel      *subModelColor0Label;
   QLabel      *subModelColor0Example;
@@ -2211,12 +2286,23 @@ private:
   QLabel      *subModelColor3Example;
   QPushButton *subModelColor3Button;
 
+  bool         subModelLevel0ColorModified;
+  bool         subModelLevel1ColorModified;
+  bool         subModelLevel2ColorModified;
+  bool         subModelLevel3ColorModified;
+
 public slots:
   void browseSubModelColor0(bool);
   void browseSubModelColor1(bool);
   void browseSubModelColor2(bool);
   void browseSubModelColor3(bool);
 };
+
+/***********************************************************************
+ *
+ * Classes below are not derived from MetaGui and do not write Meta commands
+ *
+ **********************************************************************/
 
 /***********************************************************************
  *
