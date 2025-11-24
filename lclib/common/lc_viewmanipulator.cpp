@@ -981,7 +981,7 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 
 		char buf[32];
 /*** LPub3D Mod - Angle In Degrees Text ***/
-		sprintf(buf, "[%s %.2f]", Axis, fabsf(Angle));
+		snprintf(buf, sizeof(buf), "[%s %.2f]", Axis, fabsf(Angle));
 /*** LPub3D Mod end ***/
 		int cx, cy;
 		gTexFont.GetStringDimensions(&cx, &cy, buf);
