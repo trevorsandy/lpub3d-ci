@@ -1787,8 +1787,58 @@ void lcLight::RemoveKeyFrames()
 	mPOVRayFadeDistance.RemoveAllKeys();
 	mPOVRayFadePower.RemoveAllKeys();
 /*** LPub3D Mod - LPUB meta properties ***/
-	mBlenderCutoffDistance.RemoveAllKeys();;
+	mBlenderCutoffDistance.RemoveAllKeys();
 	mBlenderDiffuse.RemoveAllKeys();
 	mBlenderSpecular.RemoveAllKeys();
+/*** LPub3D Mod end ***/
+}
+
+void lcLight::SaveKeyFrames(QDataStream& Stream) const
+{
+	mPosition.SaveToDataStream(Stream);
+	mRotation.SaveToDataStream(Stream);
+	mColor.SaveToDataStream(Stream);
+	mSpotConeAngle.SaveToDataStream(Stream);
+	mSpotPenumbraAngle.SaveToDataStream(Stream);
+	mPOVRaySpotTightness.SaveToDataStream(Stream);
+	mPOVRayAreaGridX.SaveToDataStream(Stream);
+	mPOVRayAreaGridY.SaveToDataStream(Stream);
+	mBlenderRadius.SaveToDataStream(Stream);
+	mBlenderAngle.SaveToDataStream(Stream);
+	mAreaSizeX.SaveToDataStream(Stream);
+	mAreaSizeY.SaveToDataStream(Stream);
+	mBlenderPower.SaveToDataStream(Stream);
+	mPOVRayPower.SaveToDataStream(Stream);
+	mPOVRayFadeDistance.SaveToDataStream(Stream);
+	mPOVRayFadePower.SaveToDataStream(Stream);
+/*** LPub3D Mod - LPUB meta properties ***/
+	mBlenderCutoffDistance.SaveToDataStream(Stream);
+	mBlenderDiffuse.SaveToDataStream(Stream);
+	mBlenderSpecular.SaveToDataStream(Stream);
+/*** LPub3D Mod end ***/
+}
+
+bool lcLight::LoadKeyFrames(QDataStream& Stream)
+{
+	return mPosition.LoadFromDataStream(Stream) &&
+		mRotation.LoadFromDataStream(Stream) &&
+		mColor.LoadFromDataStream(Stream) &&
+		mSpotConeAngle.LoadFromDataStream(Stream) &&
+		mSpotPenumbraAngle.LoadFromDataStream(Stream) &&
+		mPOVRaySpotTightness.LoadFromDataStream(Stream) &&
+		mPOVRayAreaGridX.LoadFromDataStream(Stream) &&
+		mPOVRayAreaGridY.LoadFromDataStream(Stream) &&
+		mBlenderRadius.LoadFromDataStream(Stream) &&
+		mBlenderAngle.LoadFromDataStream(Stream) &&
+		mAreaSizeX.LoadFromDataStream(Stream) &&
+		mAreaSizeY.LoadFromDataStream(Stream) &&
+		mBlenderPower.LoadFromDataStream(Stream) &&
+		mPOVRayPower.LoadFromDataStream(Stream) &&
+		mPOVRayFadeDistance.LoadFromDataStream(Stream) &&
+		mPOVRayFadePower.LoadFromDataStream(Stream) &&
+/*** LPub3D Mod - LPUB meta properties ***/
+		mBlenderCutoffDistance.LoadFromDataStream(Stream) &&
+		mBlenderDiffuse.LoadFromDataStream(Stream)&&
+		mBlenderSpecular.LoadFromDataStream(Stream);
 /*** LPub3D Mod end ***/
 }
