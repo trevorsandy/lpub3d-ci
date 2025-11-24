@@ -2632,7 +2632,7 @@ void EditWindow::setPagedContent(const QStringList & content)
 {
 #ifdef QT_DEBUG_MODE
     emit lpub->messageSig(LOG_DEBUG,QString("Set paged content line count: %1, content size %2")
-                               .arg(lineCount)
+                               .arg(QString::number(lineCount))
                                .arg(content.size()));
 #endif
     _pageContent = content;
@@ -2645,7 +2645,7 @@ void EditWindow::setPlainText(const QString &content)
 #ifdef QT_DEBUG_MODE
     rx.setPattern("\\r\\n?|\\n");
     emit lpub->messageSig(LOG_DEBUG,QString("Set plain text line count: %1, content size %2")
-                               .arg(lineCount)
+                               .arg(QString::number(lineCount))
                                .arg(content.count(rx) + 1));
 #endif
     _textEdit->setPlainText(content);
@@ -2780,10 +2780,10 @@ void EditWindow::loadFinished()
     waitingSpinnerStop();
 
     const QString message = tr("%1 File %2: %3, %4 lines - %5")
-            .arg(isIncludeFile ? "Include" : "Model")
-            .arg(reloaded ? "Updated" : "Loaded")
-            .arg(QFileInfo(fileName).fileName())
-            .arg(lineCount)
+            .arg(isIncludeFile ? "Include" : "Model",
+                 reloaded ? "Updated" : "Loaded",
+                 QFileInfo(fileName).fileName())
+            .arg(QString::number(lineCount))
             .arg(LPub::elapsedTime(displayTimer.elapsed()));
 
     if (modelFileEdit()) {  // Detached Editor
