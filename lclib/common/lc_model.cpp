@@ -2988,7 +2988,7 @@ void lcModel::ShowEditGroupsDialog()
 
 QString lcModel::GetGroupName(const QString& Prefix)
 {
-	const int Length = Prefix.length();
+	const qsizetype Length = Prefix.length();
 	int Max = 0;
 
 	for (const std::unique_ptr<lcGroup>& Group : mGroups)

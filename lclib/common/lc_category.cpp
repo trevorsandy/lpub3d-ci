@@ -155,7 +155,7 @@ bool lcLoadCategories(const QByteArray& Buffer, std::vector<lcLibraryCategory>& 
 
 	for (QString Line = Stream.readLine(); !Line.isNull(); Line = Stream.readLine())
 	{
-		int Equals = Line.indexOf('=');
+		qsizetype Equals = Line.indexOf('=');
 
 		if (Equals == -1)
 			continue;
@@ -211,7 +211,7 @@ bool lcMatchCategory(const char* PieceName, const char* Expression)
 		}
 		else if (*p == '(')
 		{
-//          const char* Start = p;
+//			const char* Start = p;
 			int c = 0;
 
 			// Skip what's inside the parenthesis.
