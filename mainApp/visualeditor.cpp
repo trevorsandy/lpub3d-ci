@@ -3931,7 +3931,7 @@ void Gui::ReloadVisualEditor() {
                                               lcVector4(-Matrix[4], -Matrix[6],  Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
                          Piece->SetFileLine(LPubFileLines.size());
-                         Piece->SetPieceInfo(Info, PartId, false);
+                         Piece->SetPieceInfo(Info, PartId, false, true);
                          Piece->Initialize(Transform, quint32(CurrentStep));
                          Piece->SetColorCode(quint32(ColorCode));
                          Piece->SetControlPoints(ControlPoints);

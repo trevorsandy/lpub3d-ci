@@ -2436,7 +2436,7 @@ void lcView::StartPanGesture()
 	lcModel* ActiveModel = GetActiveModel();
 
 	StartPan(mWidth / 2, mHeight / 2);
-	ActiveModel->BeginMouseTool();
+	ActiveModel->BeginMouseTool(lcTool::Pan, this);
 }
 
 void lcView::UpdatePanGesture(int dx, int dy)
@@ -2496,7 +2496,7 @@ void lcView::EndPanGesture(bool Accept)
 {
 	lcModel* ActiveModel = GetActiveModel();
 
-	ActiveModel->EndMouseTool(lcTool::Pan, Accept);
+	ActiveModel->EndMouseTool(lcTool::Pan, this, Accept);
 }
 
 void lcView::StartTracking(lcTrackButton TrackButton)
@@ -2544,7 +2544,7 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 
 		case lcTool::Move:
 		case lcTool::Rotate:
-			ActiveModel->BeginMouseTool();
+			ActiveModel->BeginMouseTool(Tool, this);
 			break;
 
 		case lcTool::Eraser:
@@ -2554,13 +2554,13 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 
 		case lcTool::Pan:
 			StartPan(mMouseX, mMouseY);
-			ActiveModel->BeginMouseTool();
+			ActiveModel->BeginMouseTool(Tool, this);
 			break;
 
 		case lcTool::Zoom:
 		case lcTool::RotateView:
 		case lcTool::Roll:
-			ActiveModel->BeginMouseTool();
+			ActiveModel->BeginMouseTool(Tool, this);
 			break;
 
 		case lcTool::ZoomRegion:
@@ -2594,7 +2594,7 @@ void lcView::StopTracking(bool Accept)
 	case lcTool::DirectionalLight:
 	case lcTool::AreaLight:
 	case lcTool::Camera:
-		ActiveModel->EndMouseTool(Tool, Accept);
+		ActiveModel->EndMouseTool(Tool, this, Accept);
 		break;
 
 	case lcTool::Select:
@@ -2615,7 +2615,7 @@ void lcView::StopTracking(bool Accept)
 
 	case lcTool::Move:
 	case lcTool::Rotate:
-		ActiveModel->EndMouseTool(Tool, Accept);
+		ActiveModel->EndMouseTool(Tool, this, Accept);
 		break;
 
 	case lcTool::Eraser:
@@ -2627,7 +2627,7 @@ void lcView::StopTracking(bool Accept)
 	case lcTool::Pan:
 	case lcTool::RotateView:
 	case lcTool::Roll:
-		ActiveModel->EndMouseTool(Tool, Accept);
+		ActiveModel->EndMouseTool(Tool, this, Accept);
 		break;
 
 	case lcTool::ZoomRegion:

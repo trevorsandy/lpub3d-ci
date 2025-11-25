@@ -60,6 +60,8 @@ public:
 	static QStringList GetLightFormatStrings();
 /*** LPub3D Mod end ***/
 
+	void CopyProperties(const lcLight& Other);
+
 	bool IsPointLight() const
 	{
 		return mLightType == lcLightType::Point;

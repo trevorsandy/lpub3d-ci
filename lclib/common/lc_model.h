@@ -6,6 +6,7 @@
 enum class lcObjectPropertyId;
 class lcModelAction;
 class lcModelActionSelection;
+class lcModelActionMouseTool;
 class lcModelActionAddPieces;
 class lcModelActionAddLight;
 class lcModelActionGroupPieces;
@@ -190,6 +191,8 @@ public:
 	{
 		return mCameras;
 	}
+
+	lcCamera* GetCamera(const QString& Name) const;
 
 	const std::vector<std::unique_ptr<lcLight>>& GetLights() const
 	{
@@ -413,8 +416,8 @@ public:
 	}
 /*** LPub3D Mod end ***/
 
-	void BeginMouseTool();
-	void EndMouseTool(lcTool Tool, bool Accept);
+	void BeginMouseTool(lcTool Tool, lcView* View);
+	void EndMouseTool(lcTool Tool, lcView* View, bool Accept);
 	void InsertPieceToolClicked(const std::vector<lcInsertPieceInfo>& PieceInfoTransforms);
 	void InsertLightToolClicked(const lcVector3& Position, lcLightType LightType);
 	void BeginCameraTool(const lcVector3& Position, const lcVector3& Target);
@@ -477,6 +480,9 @@ protected:
 
 	void RecordSelectionAction(lcModelActionSelectionMode ModelActionSelectionMode);
 	void RunSelectionAction(const lcModelActionSelection* ModelActionSelection, bool Apply);
+	void BeginMouseToolAction(lcTool Tool, lcView* View);
+	void EndMouseToolAction(lcTool Tool, lcView* View, const QString& Description);
+	void RunMouseToolAction(const lcModelActionMouseTool* ModelActionMouseTool, bool Apply);
 	void RecordAddPiecesAction(const std::vector<lcInsertPieceInfo>& PieceInfoTransforms, lcModelActionAddPieceSelectionMode SelectionMode);
 	void RunAddPiecesAction(const lcModelActionAddPieces* ModelActionAddPieces, bool Apply);
 	void RecordAddLightAction(const lcVector3& Position, lcLightType LightType);
@@ -493,7 +499,7 @@ protected:
 	void PerformActionSequence(const std::vector<std::unique_ptr<lcModelAction>>& ActionSequence, bool Apply);
 	void BeginActionSequence();
 	void EndActionSequence(const QString& Description);
-	void CancelActionSequence();
+	void RevertActionSequence();
 
 	void SaveCheckpoint(const QString& Description);
 	void LoadCheckPoint(lcModelHistoryEntry* CheckPoint, bool Apply);
