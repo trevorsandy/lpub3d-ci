@@ -125,8 +125,8 @@ public:
 	void Save(QTextStream& Stream, const char* ObjectName, const char* VariableName, bool SaveEmpty, bool LPubMeta = true, bool POVRayLight = false) const;
 	bool Load(QTextStream& Stream, const QString& Token, const char* VariableName, bool LPubMeta = true, bool POVRayLight = false);
 /*** LPub3D Mod end ***/
-	void SaveToDataStream(QDataStream& Stream) const;
-	bool LoadFromDataStream(QDataStream& Stream);
+	bool SaveUndoData(QDataStream& Stream) const;
+	bool LoadUndoData(QDataStream& Stream);
 
 protected:
 	T mValue;
