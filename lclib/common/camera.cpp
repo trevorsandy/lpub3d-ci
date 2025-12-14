@@ -36,13 +36,13 @@ lcCamera::lcCamera(bool Simple)
 	}
 }
 
-lcCamera::lcCamera(float ex, float ey, float ez, float tx, float ty, float tz)
+lcCamera::lcCamera(const lcVector3& Position, const lcVector3& TargetPosition)
 /*** LPub3D Mod - LPUB meta command ***/
 	: lcObject(lcObjectType::Camera)
 /*** LPub3D Mod end ***/
 {
 	// Fix the up vector
-	lcVector3 UpVector(0, 0, 1), FrontVector(ex - tx, ey - ty, ez - tz), SideVector;
+	lcVector3 UpVector(0, 0, 1), FrontVector(Position - TargetPosition), SideVector;
 	FrontVector.Normalize();
 	if (FrontVector == UpVector)
 		SideVector = lcVector3(1, 0, 0);
@@ -53,8 +53,8 @@ lcCamera::lcCamera(float ex, float ey, float ez, float tx, float ty, float tz)
 
 	Initialize();
 
-	mPosition.SetValue(lcVector3(ex, ey, ez));
-	mTargetPosition.SetValue(lcVector3(tx, ty, tz));
+	mPosition.SetValue(Position);
+	mTargetPosition.SetValue(TargetPosition);
 	mUpVector.SetValue(UpVector);
 
 	lcCamera::UpdatePosition(1);

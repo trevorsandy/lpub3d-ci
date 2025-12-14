@@ -9,8 +9,6 @@
 #include "lc_profile.h"
 #include "lc_library.h"
 #include "lc_scene.h"
-#include "lc_texture.h"
-#include "lc_synth.h"
 #include "lc_traintrack.h"
 #include "lc_file.h"
 #include "pieceinf.h"
@@ -25,7 +23,6 @@
 #include "lc_qutils.h"
 #include "lc_lxf.h"
 #include "lc_previewwidget.h"
-#include "lc_findreplacewidget.h"
 #include <locale.h>
 /*** LPub3D Mod - includes ***/
 #include "lpub.h"
@@ -1925,12 +1922,7 @@ void lcModel::BeginMouseToolAction(lcTool Tool, lcView* View)
 	case lcTool::SpotLight:
 	case lcTool::DirectionalLight:
 	case lcTool::AreaLight:
-		break;
-
-//	case lcTool::Camera:
-//		SaveCheckpoint(tr("New Camera"));
-//		break;
-
+	case lcTool::Camera:
 	case lcTool::Select:
 		break;
 
@@ -2149,6 +2141,38 @@ void lcModel::RunAddPiecesAction(const lcModelActionAddPieces* ModelActionAddPie
 			PieceIt = mPieces.erase(--PieceIt);
 
 		gMainWindow->UpdateTimeline(false, false);
+		gMainWindow->UpdateSelectedObjects(true);
+		gMainWindow->UpdateInUseCategory();
+	}
+}
+
+void lcModel::RecordAddCameraAction(const lcVector3& Position, const lcVector3& TargetPosition)
+{
+	std::unique_ptr<lcModelActionAddCamera> ModelActionAddCamera = std::make_unique<lcModelActionAddCamera>(Position, TargetPosition);
+	
+	RunAddCameraAction(ModelActionAddCamera.get(), true);
+	
+	mActionSequence.emplace_back(std::move(ModelActionAddCamera));
+}
+
+void lcModel::RunAddCameraAction(const lcModelActionAddCamera* ModelActionAddCamera, bool Apply)
+{
+	if (!ModelActionAddCamera)
+		return;
+	
+	if (Apply)
+	{
+		lcCamera* Camera = new lcCamera(ModelActionAddCamera->GetPosition(), ModelActionAddCamera->GetTargetPosition());
+		Camera->CreateName(mCameras);
+		mCameras.emplace_back(Camera);
+		
+		ClearSelectionAndSetFocus(Camera, LC_CAMERA_SECTION_POSITION, false);
+	}
+	else
+	{
+		if (!mCameras.empty())
+			mCameras.pop_back();
+		
 		gMainWindow->UpdateSelectedObjects(true);
 		gMainWindow->UpdateInUseCategory();
 	}
@@ -2488,6 +2512,8 @@ void lcModel::PerformActionSequence(const std::vector<std::unique_ptr<lcModelAct
 			RunMouseToolAction(ModelActionMouseTool, Apply);
 		else if (const lcModelActionAddPieces* ModelActionAddPieces = dynamic_cast<const lcModelActionAddPieces*>(ModelAction))
 			RunAddPiecesAction(ModelActionAddPieces, Apply);
+		else if (const lcModelActionAddCamera* ModelActionAddCamera = dynamic_cast<const lcModelActionAddCamera*>(ModelAction))
+			RunAddCameraAction(ModelActionAddCamera, Apply);
 		else if (const lcModelActionAddLight* ModelActionAddLight = dynamic_cast<const lcModelActionAddLight*>(ModelAction))
 			RunAddLightAction(ModelActionAddLight, Apply);
 		else if (const lcModelActionGroupPieces* ModelActionGroupPieces = dynamic_cast<const lcModelActionGroupPieces*>(ModelAction))
@@ -5704,16 +5730,7 @@ void lcModel::BeginMouseTool(lcTool Tool, lcView* View)
 		case lcTool::SpotLight:
 		case lcTool::DirectionalLight:
 		case lcTool::AreaLight:
-			break;
-
-//		case lcTool::Camera:
-//		{
-//			lcVector3 Position = GetCameraLightInsertPosition();
-//			lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
-//			ActiveModel->BeginCameraTool(Position, Target);
-//		}
-//		break;
-
+		case lcTool::Camera:
 		case lcTool::Select:
 			break;
 
@@ -5767,12 +5784,7 @@ void lcModel::EndMouseTool(lcTool Tool, lcView* View, bool Accept)
 	case lcTool::SpotLight:
 	case lcTool::DirectionalLight:
 	case lcTool::AreaLight:
-		break;
-
-//	case lcTool::Camera:
-//		SaveCheckpoint(tr("New Camera"));
-//		break;
-
+	case lcTool::Camera:
 	case lcTool::Select:
 		break;
 
@@ -5833,6 +5845,20 @@ void lcModel::InsertPieceToolClicked(const std::vector<lcInsertPieceInfo>& Piece
 	EndActionSequence(tr("Add Piece"));
 }
 
+void lcModel::InsertCameraToolClicked(const lcVector3& Position)
+{
+	lcVector3 TargetPosition;
+	
+	GetPieceFocusOrSelectionCenter(TargetPosition);
+	
+	BeginActionSequence();
+	
+	RecordSelectionAction(lcModelActionSelectionMode::Save);
+	RecordAddCameraAction(Position, TargetPosition);
+	
+	EndActionSequence(tr("Add Camera"));	
+}
+
 void lcModel::InsertLightToolClicked(const lcVector3& Position, lcLightType LightType)
 {
 	QString ActionName;
@@ -5865,35 +5891,6 @@ void lcModel::InsertLightToolClicked(const lcVector3& Position, lcLightType Ligh
 	RecordAddLightAction(Position, LightType);
 
 	EndActionSequence(ActionName);
-}
-
-void lcModel::BeginCameraTool(const lcVector3& Position, const lcVector3& Target)
-{
-	lcCamera* Camera = new lcCamera(Position[0], Position[1], Position[2], Target[0], Target[1], Target[2]);
-	Camera->CreateName(mCameras);
-	mCameras.emplace_back(Camera);
-
-	mMouseToolDistance = Position;
-	mMouseToolFirstMove = false;
-
-	ClearSelectionAndSetFocus(Camera, LC_CAMERA_SECTION_TARGET, false);
-}
-
-void lcModel::UpdateCameraTool(const lcVector3& Position)
-{
-	if (mCameras.empty())
-		return;
-
-	std::unique_ptr<lcCamera>& Camera = mCameras.back();
-
-	Camera->MoveSelected(1, false, Position - mMouseToolDistance);
-	Camera->UpdatePosition(1);
-
-	mMouseToolDistance = Position;
-	mMouseToolFirstMove = false;
-
-	gMainWindow->UpdateSelectedObjects(false);
-	UpdateAllViews();
 }
 
 void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag)

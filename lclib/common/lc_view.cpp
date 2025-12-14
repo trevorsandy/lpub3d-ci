@@ -2515,16 +2515,7 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 		case lcTool::SpotLight:
 		case lcTool::DirectionalLight:
 		case lcTool::AreaLight:
-			break;
-
 		case lcTool::Camera:
-		{
-			lcVector3 Position = GetCameraLightInsertPosition();
-			lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
-			ActiveModel->BeginCameraTool(Position, Target);
-		}
-		break;
-
 		case lcTool::Select:
 /*** LPub3D Mod - Update Default Camera ***/
 		{
@@ -2588,13 +2579,10 @@ void lcView::StopTracking(bool Accept)
 	{
 	case lcTool::Insert:
 	case lcTool::PointLight:
-		break;
-
 	case lcTool::SpotLight:
 	case lcTool::DirectionalLight:
 	case lcTool::AreaLight:
 	case lcTool::Camera:
-		ActiveModel->EndMouseTool(Tool, this, Accept);
 		break;
 
 	case lcTool::Select:
@@ -2746,7 +2734,15 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 		break;
 
 	case lcTrackTool::Camera:
-		StartTracking(TrackButton);
+		{
+			ActiveModel->InsertCameraToolClicked(GetCameraLightInsertPosition());
+
+			if ((mMouseModifiers & Qt::ControlModifier) == 0)
+				gMainWindow->SetTool(lcTool::Select);
+
+			mToolClicked = true;
+			UpdateTrackTool();
+		}
 		break;
 
 	case lcTrackTool::Select:
@@ -3081,10 +3077,7 @@ void lcView::OnMouseMove()
 	case lcTrackTool::SpotLight:
 	case lcTrackTool::DirectionalLight:
 	case lcTrackTool::AreaLight:
-		break;
-
 	case lcTrackTool::Camera:
-		ActiveModel->UpdateCameraTool(GetCameraLightInsertPosition());
 		break;
 
 	case lcTrackTool::Select:
