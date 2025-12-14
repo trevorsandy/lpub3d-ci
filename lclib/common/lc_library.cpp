@@ -12,6 +12,7 @@
 #include "lc_glextensions.h"
 #include "lc_synth.h"
 #include "lc_traintrack.h"
+#include "lc_traintrack.h"
 #include "project.h"
 #include "lc_profile.h"
 #include "lc_meshloader.h"
@@ -1355,7 +1356,7 @@ bool lcPiecesLibrary::LoadPieceData(PieceInfo* Info)
 /*** LPub3D Mod - parts load order ***/
 		if (mPreferOfficialParts ? true : mHasUnofficialDirectory)
 		{
-			sprintf(FileName, "%s/%s", (mPreferOfficialParts ? "parts" : "unofficial/parts"), Info->mFileName);
+			snprintf(FileName, sizeof(FileName), "%s/%s", (mPreferOfficialParts ? "parts" : "unofficial/parts"), Info->mFileName);
 /*** LPub3D Mod ***/
 			PieceFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(FileName)));
 			if (PieceFile.Open(QIODevice::ReadOnly))
@@ -1365,7 +1366,7 @@ bool lcPiecesLibrary::LoadPieceData(PieceInfo* Info)
 		if (!Loaded)
 		{
 /*** LPub3D Mod - parts load order ***/
-			sprintf(FileName, "%s/%s", (mPreferOfficialParts ? "unofficial/parts" : "parts"), Info->mFileName);
+			snprintf(FileName, sizeof(FileName), "%s/%s", (mPreferOfficialParts ? "unofficial/parts" : "parts"), Info->mFileName);
 /*** LPub3D Mod ***/
 			PieceFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(FileName)));
 			if (PieceFile.Open(QIODevice::ReadOnly))
@@ -1436,7 +1437,7 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 /*** LPub3D Mod - parts load order ***/
 			if (mPreferOfficialParts ? true : mHasUnofficialDirectory)
 			{
-				sprintf(FileName, "%s/%s", (mPreferOfficialParts ? "parts" : "unofficial/parts"), Info->mFileName);
+				snprintf(FileName, sizeof(FileName), "%s/%s", (mPreferOfficialParts ? "parts" : "unofficial/parts"), Info->mFileName);
 /*** LPub3D Mod ***/
 				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(FileName)));
 				Found = IncludeFile.Open(QIODevice::ReadOnly);
@@ -1445,7 +1446,7 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 			if (!Found)
 			{
 /*** LPub3D Mod - parts load order ***/
-				sprintf(FileName, "%s/%s", (mPreferOfficialParts ? "unofficial/parts" : "parts"), Info->mFileName);
+				snprintf(FileName, sizeof(FileName), "%s/%s", (mPreferOfficialParts ? "unofficial/parts" : "parts"), Info->mFileName);
 /*** LPub3D Mod ***/
 				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(FileName)));
 				Found = IncludeFile.Open(QIODevice::ReadOnly);
@@ -1472,7 +1473,7 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 			auto LoadIncludeFile = [&IncludeFile, PieceName, this](const char* Folder, lcZipFileType ZipFileType)
 			{
 				char IncludeFileName[LC_MAXPATH];
-				sprintf(IncludeFileName, Folder, PieceName);
+				snprintf(IncludeFileName, sizeof(IncludeFileName), Folder, PieceName);
 				return mZipFiles[static_cast<int>(ZipFileType)]->ExtractFile(IncludeFileName, IncludeFile);
 			};
 
@@ -1644,13 +1645,13 @@ bool lcPiecesLibrary::LoadTexture(lcTexture* Texture)
 /*** LPub3D Mod - parts load order ***/
 		lcZipFileType ZipFileType = mPreferOfficialParts ? lcZipFileType::Official : lcZipFileType::Unofficial;
 
-		sprintf(FileName, (mPreferOfficialParts ? "ldraw/parts/textures/%s.png" : "parts/textures/%s.png"), Texture->mName);
+		snprintf(FileName, sizeof(FileName), (mPreferOfficialParts ? "ldraw/parts/textures/%s.png" : "parts/textures/%s.png"), Texture->mName);
 
 		if (!mZipFiles[static_cast<int>(ZipFileType)] || !mZipFiles[static_cast<int>(ZipFileType)]->ExtractFile(FileName, TextureFile))
 		{
 			ZipFileType = mPreferOfficialParts ? lcZipFileType::Unofficial : lcZipFileType::Official;
 
-			sprintf(FileName, (mPreferOfficialParts ? "parts/textures/%s.png" : "ldraw/parts/textures/%s.png"), Texture->mName);
+			snprintf(FileName, sizeof(FileName), (mPreferOfficialParts ? "parts/textures/%s.png" : "ldraw/parts/textures/%s.png"), Texture->mName);
 
 			if (!mZipFiles[static_cast<int>(ZipFileType)]->ExtractFile(FileName, TextureFile))
 				return false;
