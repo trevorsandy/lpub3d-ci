@@ -18,6 +18,7 @@
 #include "lc_qimagedialog.h"
 #include "lc_modellistdialog.h"
 #include "lc_bricklink.h"
+#include "lc_string.h"
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
 using namespace std;
@@ -2788,7 +2789,7 @@ std::pair<bool, QString> Project::ExportPOVRay(const QString& FileName)
 		if (!ModelPart.Mesh)
 		{
 			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
-			strcpy(Entry.first, "lc_");
+			lcstrcpy(Entry.first, "lc_");
 			strncat(Entry.first, Name, sizeof(Entry.first) - 1);
 			Entry.first[sizeof(Entry.first) - 1] = 0;
 		}

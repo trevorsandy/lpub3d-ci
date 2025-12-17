@@ -2,6 +2,7 @@
 #include "lc_file.h"
 #include "lc_library.h"
 #include "lc_mainwindow.h"
+#include "lc_string.h"
 #include "pieceinf.h"
 /*** LPub3D Mod - use LPub3D exportable BrickLink codes table ***/
 #include "annotations.h"
@@ -98,7 +99,7 @@ bool lcExportBrickLink(const QString& SaveFileName, const lcPartsList& PartsList
 		for (const auto& ColorIt : PartIt.second)
 		{
 			char FileName[LC_PIECE_NAME_LEN];
-			strcpy(FileName, Info->mFileName);
+			lcstrcpy(FileName, Info->mFileName);
 			char* Ext = strchr(FileName, '.');
 			if (Ext)
 				*Ext = 0;

@@ -1,13 +1,10 @@
 #include "lc_global.h"
+#include "lc_string.h"
 
-#ifdef Q_OS_WIN
-
-/*** LPub3D Mod - Use LDVLib instance of strcasestr ***/
-#ifndef _TC_STATIC
-char* strcasestr(const char* s, const char* find)
+char* lcstrcasestr(const char* s, const char* find)
 {
 	char c, sc;
-
+	
 	if ((c = *find++) != 0)
 	{
 		c = tolower((unsigned char)c);
@@ -24,17 +21,31 @@ char* strcasestr(const char* s, const char* find)
 	}
 	return ((char *)s);
 }
-#endif // _TC_STATIC
-/*** LPub3D Mod end ***/
 
-#else
-
-char* strupr(char* string)
+char* lcstrupr(char* string)
 {
 	for (char* c = string; *c; c++)
 		*c = toupper(*c);
-
+	
 	return string;
 }
 
-#endif
+size_t lcstrcpy(char* dest, const char* source, size_t count)
+{
+	if (count == 0)
+		return 0;
+	
+	for (size_t i = 0; i < count; i++)
+	{
+		dest[i] = source[i];
+		
+		if (source[i] == '\0')
+		{
+			return i;
+		}
+	}
+	
+	dest[--count] = '\0';
+	
+	return count;
+}

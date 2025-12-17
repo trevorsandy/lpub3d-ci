@@ -23,6 +23,7 @@
 #include "lc_qutils.h"
 #include "lc_lxf.h"
 #include "lc_previewwidget.h"
+#include "lc_string.h"
 #include <locale.h>
 /*** LPub3D Mod - includes ***/
 #include "lpub.h"
@@ -5582,7 +5583,7 @@ void lcModel::FindReplacePiece(bool SearchForward, bool FindAll, bool Replace)
 		if (Params.FindInfo && Params.FindInfo != Piece->mPieceInfo)
 			return false;
 
-		if (!Params.FindString.isEmpty() && !strcasestr(Piece->mPieceInfo->m_strDescription, Params.FindString.toLatin1()))
+		if (!Params.FindString.isEmpty() && !lcstrcasestr(Piece->mPieceInfo->m_strDescription, Params.FindString.toLatin1()))
 			return false;
 
 		return (lcGetColorCode(Params.FindColorIndex) == LC_COLOR_NOCOLOR) || (Piece->GetColorIndex() == Params.FindColorIndex);

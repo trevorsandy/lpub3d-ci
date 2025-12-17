@@ -4,6 +4,7 @@
 #include "lc_library.h"
 #include "image.h"
 #include "lc_glextensions.h"
+#include "lc_string.h"
 
 lcTexture* gGridTexture;
 
@@ -19,7 +20,7 @@ lcTexture* lcLoadTexture(const QString& FileName, int Flags)
 	else
 	{
 /*** LPub3D Mod - Change baseName to completeBaseName ***/
-		strcpy(Texture->mName, QFileInfo(FileName).completeBaseName().toLatin1());
+		lcstrcpy(Texture->mName, QFileInfo(FileName).completeBaseName().toLatin1());
 /*** LPub3D Mod end ***/
 		Texture->SetTemporary(true);
 	}

@@ -56,6 +56,7 @@ HEADERS += \
     common/lc_propertieswidget.h \
     common/lc_scene.h \
     common/lc_shortcuts.h \
+    common/lc_string.h \
     common/lc_stringcache.h \
     common/lc_synth.h \
     common/lc_texture.h \
@@ -133,6 +134,7 @@ SOURCES += \
     common/lc_propertieswidget.cpp \
     common/lc_scene.cpp \
     common/lc_shortcuts.cpp \
+    common/lc_string.cpp \
     common/lc_stringcache.cpp \
     common/lc_synth.cpp \
     common/lc_texture.cpp \
@@ -153,8 +155,7 @@ SOURCES += \
     qt/lc_qupdatedialog.cpp \
     qt/lc_qutils.cpp \
     qt/lc_renderdialog.cpp \
-    qt/lc_setsdatabasedialog.cpp \
-    qt/system.cpp
+    qt/lc_setsdatabasedialog.cpp
 
 FORMS += \
     common/lc_aboutdialog.ui \
