@@ -10,7 +10,9 @@
 #include "pieceinf.h"
 #include "lc_edgecolordialog.h"
 #include "lc_blenderpreferences.h"
-
+#include "lc_mainwindow.h"
+#include "lc_viewwidget.h"
+#include "lc_view.h"
 /*** LPub3D Mod - Native Renderer settings ***/
 #include "camera.h"
 /*** LPub3D Mod end ***/
@@ -194,6 +196,10 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 		ui->ConditionalLinesCheckBox->setChecked(false);
 		ui->ConditionalLinesCheckBox->setEnabled(false);
 	}
+	
+	lcViewWidget* Widget = gMainWindow->GetActiveView()->GetWidget();
+	QOpenGLContext* Context = Widget->context();
+	QOpenGLFunctions* Functions = Context->functions();
 
 /*** LPub3D Mod - line width max granularity ***/
 	// Max default is 1.0f
@@ -202,13 +208,13 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 #ifndef LC_OPENGLES
 	if (QSurfaceFormat::defaultFormat().samples() > 1)
 	{
-		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
-		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
+		Functions->glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
+		Functions->glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
 	}
 	else
 #endif
 	{
-		glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
+		Functions->glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
 /*** LPub3D Mod - line width max granularity ***/
 		mLineWidthGranularity = Max;
 /*** LPub3D Mod - ***/

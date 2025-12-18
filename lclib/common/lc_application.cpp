@@ -11,6 +11,7 @@
 #include "lc_view.h"
 #include "camera.h"
 #include "lc_previewwidget.h"
+#include "lc_colors.h"
 /*** LPub3D Mod - moved to application.cpp ***/
 /***
 #ifdef Q_OS_WIN

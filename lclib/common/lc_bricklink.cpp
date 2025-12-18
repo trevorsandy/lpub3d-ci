@@ -4,6 +4,7 @@
 #include "lc_mainwindow.h"
 #include "lc_string.h"
 #include "pieceinf.h"
+#include "lc_colors.h"
 /*** LPub3D Mod - use LPub3D exportable BrickLink codes table ***/
 #include "annotations.h"
 /*** LPub3D Mod end ***/

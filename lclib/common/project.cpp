@@ -19,6 +19,7 @@
 #include "lc_modellistdialog.h"
 #include "lc_bricklink.h"
 #include "lc_string.h"
+#include "lc_colors.h"
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
 using namespace std;
