@@ -66,7 +66,7 @@ typedef quint32 lcStep;
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "25.09"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_SHA "c0af326"
+#define LC_VERSION_SHA "6984b53"
 /*** LPub3D Mod end ***/
 
 
