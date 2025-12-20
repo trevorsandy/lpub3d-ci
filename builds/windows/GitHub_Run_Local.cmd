@@ -14,7 +14,7 @@ rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 rem To Run:
 rem LPub3D
-::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=lpub3d-ci"
+::CD C:\Users\Trevor\Projects\Working\DevOps && SET "APP_INSTANCE=lpub3d-ci"
 ::SET APP_INSTANCE_PATH=%CD%
 ::SET BUILD_DIR=%CD%\%APP_INSTANCE%
 ::SET LOG_DIR=%APP_INSTANCE_PATH%
@@ -31,7 +31,7 @@ rem LP3D_BUILD_ARCH Valid flags: arm64, x86, x86_64 and -all_amd
 REM ///////////////////////////////////////////////////////////////////
 
 rem LDGLite
-::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=ldglite" && SET "APP_VER=1.3"
+::CD C:\Users\Trevor\Projects\Working\DevOps && SET "APP_INSTANCE=ldglite" && SET "APP_VER=1.3"
 ::SET LP3D_BUILD_ARCH=arm64
 ::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\%APP_INSTANCE%-%APP_VER%\bin\%LP3D_BUILD_ARCH%
 ::IF EXIST %LP3D_APP_ARCH% (RMDIR /S /Q %LP3D_APP_ARCH%)
@@ -41,7 +41,7 @@ rem LDGLite
 ::CALL %CD%\lpub3d-ci\builds\windows\GitHub_Run_Local.cmd
 
 rem POV-Ray
-::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=povray" && SET "APP_VER=3.8"
+::CD C:\Users\Trevor\Projects\Working\DevOps && SET "APP_INSTANCE=povray" && SET "APP_VER=3.8"
 ::SET LP3D_BUILD_ARCH=x86
 ::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\lpub3d_trace_cui-%APP_VER%\bin\%LP3D_BUILD_ARCH%
 ::IF EXIST %LP3D_APP_ARCH% (RMDIR /S /Q %LP3D_APP_ARCH%)
@@ -51,7 +51,7 @@ rem POV-Ray
 ::CALL %CD%\lpub3d-ci\builds\windows\GitHub_Run_Local.cmd
 
 rem LDView
-::CD C:\Users\Trevor\Projects\Working\CI_Build_Local && SET "APP_INSTANCE=ldview" && SET "APP_VER=4.6"
+::CD C:\Users\Trevor\Projects\Working\DevOps && SET "APP_INSTANCE=ldview" && SET "APP_VER=4.6"
 ::SET LP3D_BUILD_ARCH=arm64
 ::SET LP3D_APP_ARCH=lpub3d_windows_3rdparty\%APP_INSTANCE%-%APP_VER%\bin\%LP3D_BUILD_ARCH%
 ::IF EXIST %LP3D_APP_ARCH% (RMDIR /S /Q %LP3D_APP_ARCH%)
