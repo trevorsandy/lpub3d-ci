@@ -1912,14 +1912,14 @@ void lcModel::RunSelectionAction(const lcModelActionSelection* ModelActionSelect
 	}
 }
 
-void lcModel::BeginObjectEditAction(lcModelActionObjectEditMode ModelActionObjectEditMode, const lcView* View)
+void lcModel::BeginObjectEditAction(lcModelActionObjectEditMode ModelActionObjectEditMode, const lcCamera* Camera)
 {
 	std::unique_ptr<lcModelActionObjectEdit> ModelActionObjectEdit = std::make_unique<lcModelActionObjectEdit>(ModelActionObjectEditMode);
 
 	switch (ModelActionObjectEditMode)
 	{
 	case lcModelActionObjectEditMode::Camera:
-		ModelActionObjectEdit->SaveCameraStartState(View->GetCamera());
+		ModelActionObjectEdit->SaveCameraStartState(Camera);
 		break;
 	
 	case lcModelActionObjectEditMode::Selection:
@@ -1930,7 +1930,7 @@ void lcModel::BeginObjectEditAction(lcModelActionObjectEditMode ModelActionObjec
 	mActionSequence.emplace_back(std::move(ModelActionObjectEdit));
 }
 
-void lcModel::EndObjectEditAction(lcModelActionObjectEditMode ModelActionObjectEditMode, const lcView* View)
+void lcModel::EndObjectEditAction(lcModelActionObjectEditMode ModelActionObjectEditMode, const lcCamera* Camera)
 {
 	if (mActionSequence.empty())
 		return;
@@ -1943,7 +1943,7 @@ void lcModel::EndObjectEditAction(lcModelActionObjectEditMode ModelActionObjectE
 	switch (ModelActionObjectEditMode)
 	{
 	case lcModelActionObjectEditMode::Camera:
-		ModelActionObjectEdit->SaveCameraEndState(View->GetCamera());
+		ModelActionObjectEdit->SaveCameraEndState(Camera);
 		break;
 		
 	case lcModelActionObjectEditMode::Selection:
@@ -5656,7 +5656,7 @@ void lcModel::BeginMouseTool(lcTool Tool, lcView* View)
 		case lcTool::Rotate:
 			BeginActionSequence();
 			RecordSelectionAction(lcModelActionSelectionMode::Set);
-			BeginObjectEditAction(lcModelActionObjectEditMode::Selection, View);
+			BeginObjectEditAction(lcModelActionObjectEditMode::Selection, nullptr);
 			break;
 
 		case lcTool::Eraser:
@@ -5671,7 +5671,7 @@ void lcModel::BeginMouseTool(lcTool Tool, lcView* View)
 			if (!View->GetCamera()->IsSimple())
 			{
 				BeginActionSequence();
-				BeginObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+				BeginObjectEditAction(lcModelActionObjectEditMode::Camera, View->GetCamera());
 			}
 			break;
 
@@ -5693,7 +5693,9 @@ void lcModel::EndMouseTool(lcTool Tool, lcView* View, bool Accept)
 		RevertActionSequence();
 		return;
 	}
-
+	
+	const lcCamera* Camera = View->GetCamera();
+	
 	switch (Tool)
 	{
 	case lcTool::Insert:
@@ -5706,12 +5708,12 @@ void lcModel::EndMouseTool(lcTool Tool, lcView* View, bool Accept)
 		break;
 
 	case lcTool::Move:
-		EndObjectEditAction(lcModelActionObjectEditMode::Selection, View);
+		EndObjectEditAction(lcModelActionObjectEditMode::Selection, nullptr);
 		EndActionSequence(tr("Move"));
 		break;
 
 	case lcTool::Rotate:
-		EndObjectEditAction(lcModelActionObjectEditMode::Selection, View);
+		EndObjectEditAction(lcModelActionObjectEditMode::Selection, nullptr);
 		EndActionSequence(tr("Rotate"));
 		break;
 
@@ -5721,33 +5723,33 @@ void lcModel::EndMouseTool(lcTool Tool, lcView* View, bool Accept)
 		break;
 
 	case lcTool::Zoom:
-		if (!View->GetCamera()->IsSimple())
+		if (!Camera->IsSimple())
 		{
-			EndObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+			EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
 			EndActionSequence(tr("Zoom"));
 		}
 		break;
 
 	case lcTool::Pan:
-		if (!View->GetCamera()->IsSimple())
+		if (!Camera->IsSimple())
 		{
-			EndObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+			EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
 			EndActionSequence(tr("Pan"));
 		}
 		break;
 
 	case lcTool::RotateView:
-		if (!View->GetCamera()->IsSimple())
+		if (!Camera->IsSimple())
 		{
-			EndObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+			EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
 			EndActionSequence(tr("Orbit"));
 		}
 		break;
 
 	case lcTool::Roll:
-		if (!View->GetCamera()->IsSimple())
+		if (!Camera->IsSimple())
 		{
-			EndObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+			EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
 			EndActionSequence(tr("Roll"));
 		}
 		break;
@@ -6073,14 +6075,14 @@ void lcModel::ZoomRegionToolClicked(lcView* View, float AspectRatio, const lcVec
 	if (!Camera->IsSimple())
 	{
 		BeginActionSequence();
-		BeginObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+		BeginObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
 	}
 	
 	Camera->ZoomRegion(AspectRatio, Position, TargetPosition, Corners, mCurrentStep, gMainWindow->GetAddKeys());
 	
 	if (!Camera->IsSimple())
 	{
-		EndObjectEditAction(lcModelActionObjectEditMode::Camera, View);
+		EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
 		EndActionSequence(tr("Zoom"));
 	}
 
@@ -6104,14 +6106,23 @@ void lcModel::LookAt(lcCamera* Camera)
 		else
 			Center = lcVector3(0.0f, 0.0f, 0.0f);
 	}
-
+	
+	if (!Camera->IsSimple())
+	{
+		BeginActionSequence();
+		BeginObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
+	}
+	
 	Camera->Center(Center, mCurrentStep, gMainWindow->GetAddKeys());
 
 	gMainWindow->UpdateSelectedObjects(false);
 	UpdateAllViews();
 
 	if (!Camera->IsSimple())
-		SaveCheckpoint(tr("Look At"));
+	{
+		EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
+		EndActionSequence(tr("Look At"));
+	}
 }
 
 void lcModel::MoveCamera(lcCamera* Camera, const lcVector3& Direction)
@@ -6142,7 +6153,13 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect, const lcMatrix44& Worl
 	}
 
 	const lcVector3 Center = (Min + Max) / 2.0f;
-
+	
+	if (!Camera->IsSimple())
+	{
+		BeginActionSequence();
+		BeginObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
+	}
+		
 	Camera->ZoomExtents(Aspect, Center, Points, mCurrentStep, gMainWindow ? gMainWindow->GetAddKeys() : false);
 
 	if (!mIsPreview && gMainWindow)
@@ -6152,7 +6169,10 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect, const lcMatrix44& Worl
 	UpdateAllViews();
 
 	if (!Camera->IsSimple())
-		SaveCheckpoint(tr("Zoom"));
+	{
+		EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
+		EndActionSequence(tr("Zoom Extents"));
+	}
 }
 
 /*** LPub3D Mod - Apply Viewpoint zoom extent ***/
