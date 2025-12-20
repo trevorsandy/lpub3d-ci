@@ -76,6 +76,8 @@ ldvlib/LDVQt/include/*
 # Qt Creator generated files
 *.user*
 *.autosave*
+build
+Build
 
 # Sourceforge.net source
 builds/source/*
