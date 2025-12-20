@@ -415,10 +415,10 @@ lcBlenderPreferences::lcBlenderPreferences(int Width, int Height, double Scale, 
 	QPalette ReadOnlyPalette = QApplication::palette();
 	const lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mColorTheme == lcColorTheme::Dark)
-		ReadOnlyPalette.setColor(QPalette::Base,QColor(LC_THEME_DARK_PALETTE_MIDLIGHT));
+		ReadOnlyPalette.setColor(QPalette::Base, LC_THEME_DARK_PALETTE_MIDLIGHT);
 	else
-		ReadOnlyPalette.setColor(QPalette::Base,QColor(LC_THEME_DEFAULT_PALETTE_LIGHT));
-	ReadOnlyPalette.setColor(QPalette::Text,QColor(LC_DISABLED_TEXT));
+		ReadOnlyPalette.setColor(QPalette::Base, LC_THEME_DEFAULT_PALETTE_LIGHT);
+	ReadOnlyPalette.setColor(QPalette::Text, LC_DISABLED_TEXT);
 
 	QGroupBox* BlenderExeBox = new QGroupBox(tr("Blender Executable"),mContent);
 	mForm->addRow(BlenderExeBox);
@@ -3629,7 +3629,7 @@ int lcBlenderPreferences::ShowMessage(QWidget* Parent, const QString& Header,  c
 			if (FixedWidth == MinimumWidth)
 			{
 				int Index = (MinimumWidth / FontWidth) - 1;
-				if (!Body.mid(Index,1).isEmpty())
+				if (!Body.mid(Index, 1).isEmpty())
 					FixedWidth = Body.indexOf(" ", Index);
 			}
 			else if (FixedWidth < MinimumWidth)
