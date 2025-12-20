@@ -1482,8 +1482,10 @@ void lcPropertiesWidget::SetPiece(const std::vector<lcObject*>& Selection, lcObj
 	lcMatrix33 RelativeRotation;
 	lcModel* Model = gMainWindow->GetActiveModel();
 
-	if (Model)
+	if (!Model)
+		return;
 /*** LPub3D Mod - LPUB meta properties ***/
+	else
 	{
 		Model->GetMoveRotateTransform(SwitchPosition, RelativeRotation);
 		if (Piece)

@@ -846,7 +846,7 @@ bool lcView::BeginRenderToImage(int Width, int Height)
 {
 	lcContext* Context = lcContext::GetGlobalOffscreenContext();
 	GLint MaxTexture;
-	
+
 	Context->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &MaxTexture);
 	MaxTexture = qMin(MaxTexture, 2048);
 
@@ -1571,68 +1571,75 @@ void lcView::DrawGrid()
 		if (Preferences.mDrawGridLines)
 			VertexBufferSize += 2 * (MaxX - MinX + MaxY - MinY + 2) * 3 * sizeof(float);
 
-		float* Verts = (float*)malloc(VertexBufferSize);
-		if (!Verts)
-			return;
-		float* CurVert = Verts;
+		float* Verts = nullptr;
 
-		if (Preferences.mDrawGridStuds)
+		if (VertexBufferSize)
 		{
-			float Left = MinX * 20.0f * Spacing;
-			float Right = MaxX * 20.0f * Spacing;
-			float Top = MinY * 20.0f * Spacing;
-			float Bottom = MaxY * 20.0f * Spacing;
-			float Z = 0;
-			float U = (MaxX - MinX) * Spacing;
-			float V = (MaxY - MinY) * Spacing;
+			Verts = static_cast<float*>(malloc(VertexBufferSize));
 
-			*CurVert++ = Left;
-			*CurVert++ = Top;
-			*CurVert++ = Z;
-			*CurVert++ = 0.0f;
-			*CurVert++ = V;
+			if (!Verts)
+				return;
 
-			*CurVert++ = Right;
-			*CurVert++ = Top;
-			*CurVert++ = Z;
-			*CurVert++ = U;
-			*CurVert++ = V;
+			float* CurVert = Verts;
 
-			*CurVert++ = Left;
-			*CurVert++ = Bottom;
-			*CurVert++ = Z;
-			*CurVert++ = 0.0f;
-			*CurVert++ = 0.0f;
-
-			*CurVert++ = Right;
-			*CurVert++ = Bottom;
-			*CurVert++ = Z;
-			*CurVert++ = U;
-			*CurVert++ = 0.0f;
-		}
-
-		if (Preferences.mDrawGridLines)
-		{
-			float LineSpacing = Spacing * 20.0f;
-
-			for (int Step = MinX; Step < MaxX + 1; Step++)
+			if (Preferences.mDrawGridStuds)
 			{
-				*CurVert++ = Step * LineSpacing;
-				*CurVert++ = MinY * LineSpacing;
+				float Left = MinX * 20.0f * Spacing;
+				float Right = MaxX * 20.0f * Spacing;
+				float Top = MinY * 20.0f * Spacing;
+				float Bottom = MaxY * 20.0f * Spacing;
+				float Z = 0;
+				float U = (MaxX - MinX) * Spacing;
+				float V = (MaxY - MinY) * Spacing;
+
+				*CurVert++ = Left;
+				*CurVert++ = Top;
+				*CurVert++ = Z;
 				*CurVert++ = 0.0f;
-				*CurVert++ = Step * LineSpacing;
-				*CurVert++ = MaxY * LineSpacing;
+				*CurVert++ = V;
+
+				*CurVert++ = Right;
+				*CurVert++ = Top;
+				*CurVert++ = Z;
+				*CurVert++ = U;
+				*CurVert++ = V;
+
+				*CurVert++ = Left;
+				*CurVert++ = Bottom;
+				*CurVert++ = Z;
+				*CurVert++ = 0.0f;
+				*CurVert++ = 0.0f;
+
+				*CurVert++ = Right;
+				*CurVert++ = Bottom;
+				*CurVert++ = Z;
+				*CurVert++ = U;
 				*CurVert++ = 0.0f;
 			}
 
-			for (int Step = MinY; Step < MaxY + 1; Step++)
+			if (Preferences.mDrawGridLines)
 			{
-				*CurVert++ = MinX * LineSpacing;
-				*CurVert++ = Step * LineSpacing;
-				*CurVert++ = 0.0f;
-				*CurVert++ = MaxX * LineSpacing;
-				*CurVert++ = Step * LineSpacing;
-				*CurVert++ = 0.0f;
+				float LineSpacing = Spacing * 20.0f;
+
+				for (int Step = MinX; Step < MaxX + 1; Step++)
+				{
+					*CurVert++ = Step * LineSpacing;
+					*CurVert++ = MinY * LineSpacing;
+					*CurVert++ = 0.0f;
+					*CurVert++ = Step * LineSpacing;
+					*CurVert++ = MaxY * LineSpacing;
+					*CurVert++ = 0.0f;
+				}
+
+				for (int Step = MinY; Step < MaxY + 1; Step++)
+				{
+					*CurVert++ = MinX * LineSpacing;
+					*CurVert++ = Step * LineSpacing;
+					*CurVert++ = 0.0f;
+					*CurVert++ = MaxX * LineSpacing;
+					*CurVert++ = Step * LineSpacing;
+					*CurVert++ = 0.0f;
+				}
 			}
 		}
 
@@ -1720,24 +1727,24 @@ lcTrackTool lcView::GetOverrideTrackTool(Qt::MouseButton Button) const
 
 	constexpr lcTrackTool TrackToolFromTool[] =
 	{
-		lcTrackTool::Insert,          // lcTool::Insert
-		lcTrackTool::PointLight,      // lcTool::PointLight
-		lcTrackTool::SpotLight,       // lcTool::SpotLight
+		lcTrackTool::Insert,		  // lcTool::Insert
+		lcTrackTool::PointLight,	  // lcTool::PointLight
+		lcTrackTool::SpotLight,		  // lcTool::SpotLight
 		lcTrackTool::DirectionalLight,// lcTool::DirectionalLight
-		lcTrackTool::AreaLight,       // lcTool::AreaLight
-		lcTrackTool::Camera,          // lcTool::Camera
-		lcTrackTool::Select,          // lcTool::Select
-		lcTrackTool::MoveXYZ,         // lcTool::Move
-		lcTrackTool::RotateXYZ,       // lcTool::Rotate
-		lcTrackTool::Eraser,          // lcTool::Eraser
-		lcTrackTool::Paint,           // lcTool::Paint
-		lcTrackTool::ColorPicker,     // lcTool::ColorPicker
-		lcTrackTool::Zoom,            // lcTool::Zoom
-		lcTrackTool::Pan,             // lcTool::Pan
-		lcTrackTool::OrbitXY,         // lcTool::RotateView
-		lcTrackTool::Roll,            // lcTool::Roll
-		lcTrackTool::ZoomRegion,      // lcTool::ZoomRegion
-		lcTrackTool::RotateStep       // lcTool::RotateStep	/*** LPub3D Mod - track tool ***/
+		lcTrackTool::AreaLight,		  // lcTool::AreaLight
+		lcTrackTool::Camera,		  // lcTool::Camera
+		lcTrackTool::Select,		  // lcTool::Select
+		lcTrackTool::MoveXYZ,		  // lcTool::Move
+		lcTrackTool::RotateXYZ,		  // lcTool::Rotate
+		lcTrackTool::Eraser,		  // lcTool::Eraser
+		lcTrackTool::Paint,			  // lcTool::Paint
+		lcTrackTool::ColorPicker,	  // lcTool::ColorPicker
+		lcTrackTool::Zoom,			  // lcTool::Zoom
+		lcTrackTool::Pan,			  // lcTool::Pan
+		lcTrackTool::OrbitXY,		  // lcTool::RotateView
+		lcTrackTool::Roll,			  // lcTool::Roll
+		lcTrackTool::ZoomRegion,	  // lcTool::ZoomRegion
+		lcTrackTool::RotateStep		  // lcTool::RotateStep /*** LPub3D Mod - track tool ***/
 	};
 
 	LC_ARRAY_SIZE_CHECK(TrackToolFromTool, lcTool::Count);

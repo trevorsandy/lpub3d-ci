@@ -1283,7 +1283,6 @@ std::pair<lcTrackTool, quint32> lcViewManipulator::UpdateSelectMove(lcTrackButto
 		{
 			NewTrackTool = TrainTrackTool;
 			NewTrackSection = TrainTrackSection;
-			ClosestIntersectionDistance = TrainDistance;
 		}
 	}
 
