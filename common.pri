@@ -181,6 +181,10 @@ BUILD_LDV_LIBS {
         USE_LDV_LIBRARIES_MSG = NOTICE 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'
     }
 
+    # Build 3rd-party libs when not using system or pre-compiled libs
+    !USE_LDV_SYSTEM_LIBS:!USE_LDV_PRE-COM_LIBS: \
+    CONFIG += USE_LDV_3RD_PARTY_LIBS
+
     # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
     USE_LDV_3RD_PARTY_LIBS {
         CONFIG += BUILD_3DS
@@ -191,7 +195,8 @@ BUILD_LDV_LIBS {
         CONFIG += BUILD_PNG
         !USE_SYSTEM_GL2PS: \
         CONFIG += BUILD_GL2PS
-        !USE_SYSTEM_MINIZIP: \
+        # Do not build minizip for MSVC
+        !USE_SYSTEM_MINIZIP:!win32-arm64-msvc:!win32-msvc*: \
         CONFIG += BUILD_MINIZIP
         !USE_SYSTEM_ZLIB: \
         CONFIG += BUILD_ZLIB

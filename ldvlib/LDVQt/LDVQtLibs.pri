@@ -155,16 +155,17 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml_STL
+        MINIZIP_LIB      = -lminizip
         BUILD_3DS: \
-        3DS_LIB          = -llib3ds
+        3DS_LIB          = -l3ds
         else: \
         3DS_LIB          = -llib3ds-$${VSVER}
         BUILD_PNG: \
-        PNG_LIB          = -llibpng16
+        PNG_LIB          = -lpng16
         else: \
         PNG_LIB          = -llibpng16-$${VSVER}
         BUILD_JPEG: \
-        JPEG_LIB         = -llibjpeg
+        JPEG_LIB         = -ljpeg
         else: \
         JPEG_LIB         = -llibjpeg-$${VSVER}
         BUILD_ZLIB: \
@@ -183,19 +184,19 @@ contains(LOAD_LDV_LIBS,True) {
             GL2PS_SRC        = $${LDV3RDLIBDIR}/gl2ps/$${DESTDIR}/gl2ps.lib
             TINYXML_SRC      = $${LDV3RDLIBDIR}/tinyxml/$${DESTDIR}/tinyxml_STL.lib
             BUILD_3DS: \
-            3DS_SRC          = $${LDV3RDLIBDIR}/lib3ds/$${DESTDIR}/lib3ds.lib
+            3DS_SRC          = $${LDV3RDLIBDIR}/lib3ds/$${DESTDIR}/3ds.lib
             else: \
             3DS_SRC          = $${LDV3RDLIBS}/lib3ds-$${VSVER}.lib
             BUILD_PNG: \
-            PNG_SRC          = $${LDV3RDLIBDIR}/libpng/$${DESTDIR}/libpng16.lib
+            PNG_SRC          = $${LDV3RDLIBDIR}/libpng/$${DESTDIR}/png16.lib
             else: \
             PNG_SRC          = $${LDV3RDLIBS}/libpng16-$${VSVER}.lib
             BUILD_JPEG: \
-            JPEG_SRC         = $${LDV3RDLIBDIR}/libjpeg/$${DESTDIR}/libjpeg.lib
+            JPEG_SRC         = $${LDV3RDLIBDIR}/libjpeg/$${DESTDIR}/jpeg.lib
             else: \
             JPEG_SRC         = $${LDV3RDLIBS}/libjpeg-$${VSVER}.lib
             BUILD_ZLIB: \
-            ZLIB_SRC         = $${LDV3RDLIBDIR}/zlib/$${DESTDIR}/libz.lib
+            ZLIB_SRC         = $${LDV3RDLIBDIR}/zlib/$${DESTDIR}/zlib.lib
             else: \
             ZLIB_SRC         = $${LDV3RDLIBS}/zlib-$${VSVER}.lib
         } else {
@@ -212,6 +213,7 @@ contains(LOAD_LDV_LIBS,True) {
             JPEG_SRC         = $${LDV3RDLIBDIR}/libjpeg-$${VSVER}.lib
             ZLIB_SRC         = $${LDV3RDLIBDIR}/zlib-$${VSVER}.lib
         }
+        MINIZIP_SRC          = NotApplicableForMSVC
     } else {
         # library name
         LDLIB_LIB        = -lLDLib$${POSTFIX}
@@ -222,6 +224,7 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml
+        MINIZIP_LIB      = -lminizip
         3DS_LIB          = -l3ds
         msys:!BUILD_PNG: \
         PNG_LIB          = -lpng
@@ -240,6 +243,7 @@ contains(LOAD_LDV_LIBS,True) {
             
             GL2PS_SRC        = $${LDV3RDLIBDIR}/gl2ps/$${DESTDIR}/libgl2ps.a
             TINYXML_SRC      = $${LDV3RDLIBDIR}/tinyxml/$${DESTDIR}/libtinyxml.a
+            MINIZIP_SRC      = $${LDV3RDLIBDIR}/minizip/$${DESTDIR}/libminizip.a
             3DS_SRC          = $${LDV3RDLIBDIR}/lib3ds/$${DESTDIR}/lib3ds.a
             PNG_SRC          = $${LDV3RDLIBDIR}/libpng/$${DESTDIR}/libpng16.a
             JPEG_SRC         = $${LDV3RDLIBDIR}/libjpeg/$${DESTDIR}/libjpeg.a
@@ -253,6 +257,7 @@ contains(LOAD_LDV_LIBS,True) {
 
             GL2PS_SRC        = $${LDVLIBDIR}/libgl2ps.a
             TINYXML_SRC      = $${LDVLIBDIR}/libtinyxml.a
+            MINIZIP_SRC      = $${LDVLIBDIR}/libminizip.a
             3DS_SRC          = $${LDV3RDLIBDIR}/lib3ds.a
             msys: \
             PNG_SRC          = $${LDV3RDLIBDIR}/libpng.a
@@ -283,6 +288,16 @@ contains(LOAD_LDV_LIBS,True) {
         else: \
         message("~~~ ERROR TINYXML LIBRARY NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} LOCAL TINYXML LIBRARY FOUND $${TINYXML_SRC} ~~~")
+
+    BUILD_MINIZIP {
+        message("~~~ $${LPUB3D} WILL BUILD MINIZIP LIBRARY ~~~")
+    } else:!exists($${MINIZIP_SRC}) {
+        USE_LOCAL_MINIZIP_LIB = False
+        unix|msys:exists(/usr/include/minizip/unzip.h)|exists(/usr/local/include/minizip/unzip.h): \
+        message("~~~ $${LPUB3D} USING SYSTEM MINIZIP LIBRARY ~~~")
+        else:!win32-arm64-msvc:!win32-msvc*: \
+        message("~~~ ERROR MINIZIP LIBRARY NOT FOUND ~~~")
+    } else:message("~~~ $${LPUB3D} LOCAL MINIZIP LIBRARY FOUND $${MINIZIP_SRC} ~~~")
 
     BUILD_3DS {
         message("~~~ $${LPUB3D} WILL BUILD 3DS LIBRARY ~~~")
@@ -357,6 +372,16 @@ contains(LOAD_LDV_LIBS,True) {
         LIBS               += $$TINYXML_SRC
     } else {
         LIBS               += $$TINYXML_LIB
+    }
+
+    if (contains(USE_LOCAL_MINIZIP_LIB,False)) {
+        macx:LIBS          += $${SYSTEM_PREFIX_}/lib/libminizip.dylib
+        else:!win32-arm64-msvc:!win32-msvc*: \
+        LIBS               += -lminizip
+    } else:BUILD_MINIZIP {
+        LIBS               += $$MINIZIP_SRC
+    } else {
+        LIBS               += $$MINIZIP_LIB
     }
 
     if (contains(USE_LOCAL_PNG_LIB,False)) {

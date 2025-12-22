@@ -107,6 +107,8 @@ USE_LDV_3RD_PARTY_LIBS {
                   $${MINIZIP_INC} \
                   $${GL2PS_INC} \
                   $${ZLIB_INC}
+    win32-arm64-msvc|win32-msvc*: \
+    LIBS_INC   += $${LIBINC_}
 }
 
 unix|msys {
