@@ -181,6 +181,10 @@ BUILD_LDV_LIBS {
         USE_LDV_LIBRARIES_MSG = NOTICE 'USE_LDV_3RD_PARTY_LIBS' and 'USE_LDV_SYSTEM_LIBS' Specified. Using 'USE_LDV_3RD_PARTY_LIBS'
     }
 
+    # Build 3rd-party libs when not using system or pre-compiled libs
+    !USE_LDV_SYSTEM_LIBS:!USE_LDV_PRE-COM_LIBS: \
+    CONFIG += USE_LDV_3RD_PARTY_LIBS
+
     # Always build tinyxml, libgl2ps for MSVC and lib3ds except for MSVC
     USE_LDV_3RD_PARTY_LIBS {
         CONFIG += BUILD_3DS
