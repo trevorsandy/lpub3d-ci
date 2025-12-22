@@ -5,7 +5,8 @@
 
 # LDV Libraries QMake Configuration settings
 # CONFIG+=BUILD_LDV_LIBS          # build LDView libs from source
-# CONFIG+=USE_LDV_SYSTEM_LIBS     # override using pre-compiled 3rdParty libraries
+# CONFIG+=USE_LDV_SYSTEM_LIBS     # override using pre-compiled and build-from-source 3rdParty libraries
+# CONFIG+=USE_LDV_PRE-COM_LIBS    # override using build-from-source and system 3rdParty libraries
 # CONFIG+=USE_LDV_3RD_PARTY_LIBS  # override using pre-compiled and system 3rdParty libraries
 # CONFIG+=USE_3RD_PARTY_DIST_HDRS # use third party distribution LDView library headers
 # CONFIG+=USE_SYSTEM_PNG          # override USE_LDV_3RD_PARTY_LIBS for libpng
@@ -166,9 +167,10 @@ message("~~~ $$upper($${LPUB3D}) $$upper($$BUILD_ARCH) $${TYPE} $${BUILD} ON $$u
 !isEmpty(LDVIEW_DEV_REPO_MSG): message("~~~ $$upper($${LPUB3D}) $${LDVIEW_DEV_REPO_MSG} ~~~")
 
 BUILD_LDV_LIBS {
-    USE_LDV_SYSTEM_LIBS:          WHICH_LIBS = SYSTEM
-    else: USE_LDV_3RD_PARTY_LIBS: WHICH_LIBS = BUILT-FROM-SOURCE
-    else:                         WHICH_LIBS = PRE-COMPILED
+    USE_LDV_SYSTEM_LIBS:       WHICH_LIBS = SYSTEM
+    else:USE_LDV_PRE-COM_LIBS: WHICH_LIBS = PRE-COMPILED
+    else:                      WHICH_LIBS = BUILT-FROM-SOURCE
+
     equals(NO_LDVIEW_DIST_LIBS, True): \
     message("~~~ BUILD LDV LIBRARIES - NO LDVIEW LIBS AT $$dirname(LIB_LDVIEW_PATH) ~~~ ")
     message("~~~ BUILD LDV LIBRARIES $$upper($${BUILD_ARCH}) STATIC $${BUILD} ~~~")
