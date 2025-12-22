@@ -4253,6 +4253,10 @@ void lcModel::SetObjectsKeyFrame(const std::vector<lcObject*>& Objects, lcObject
 
 void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 {
+	BeginActionSequence();
+	RecordSelectionAction(lcModelActionSelectionMode::Set);
+	BeginObjectEditAction(lcModelActionObjectEditMode::Selection, nullptr);
+	
 	bool Modified = false;
 
 	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
@@ -4269,10 +4273,16 @@ void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 
 	if (Modified)
 	{
-		SaveCheckpoint(tr("Painting"));
+		EndObjectEditAction(lcModelActionObjectEditMode::Selection, nullptr);
+		EndActionSequence(tr("Paint"));
+		
 		gMainWindow->UpdateSelectedObjects(false);
 		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, true);
+	}
+	else
+	{
+		RevertActionSequence();
 	}
 }
 
@@ -4352,11 +4362,22 @@ void lcModel::SetCameraOrthographic(lcCamera* Camera, bool Ortho)
 {
 	if (Camera->IsOrtho() == Ortho)
 		return;
-
+	
+	if (!Camera->IsSimple())
+	{
+		BeginActionSequence();
+		BeginObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
+	}
+	
 	Camera->SetOrtho(Ortho);
 	Camera->UpdatePosition(mCurrentStep);
-
-	SaveCheckpoint(tr("Editing Camera"));
+	
+	if (!Camera->IsSimple())
+	{
+		EndObjectEditAction(lcModelActionObjectEditMode::Camera, Camera);
+		EndActionSequence(tr("Change Projection"));
+	}
+	
 	UpdateAllViews();
 /*** LPub3D Mod - Camera Globe ***/
 	if (gMainWindow)
