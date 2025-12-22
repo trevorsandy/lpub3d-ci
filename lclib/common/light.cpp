@@ -1821,7 +1821,7 @@ void lcLight::RemoveKeyFrames()
 /*** LPub3D Mod end ***/
 }
 
-void lcLight::SaveUndoData(QDataStream& Stream) const
+bool lcLight::SaveUndoData(QDataStream& Stream) const
 {
 	Stream << mName;
 	Stream << mLightType;
@@ -1829,26 +1829,15 @@ void lcLight::SaveUndoData(QDataStream& Stream) const
 	Stream << mAreaShape;
 	Stream << mState;
 
-	mPosition.SaveUndoData(Stream);
-	mRotation.SaveUndoData(Stream);
-	mColor.SaveUndoData(Stream);
-	mSpotConeAngle.SaveUndoData(Stream);
-	mSpotPenumbraAngle.SaveUndoData(Stream);
-	mPOVRaySpotTightness.SaveUndoData(Stream);
-	mPOVRayAreaGridX.SaveUndoData(Stream);
-	mPOVRayAreaGridY.SaveUndoData(Stream);
-	mBlenderRadius.SaveUndoData(Stream);
-	mBlenderAngle.SaveUndoData(Stream);
-	mAreaSizeX.SaveUndoData(Stream);
-	mAreaSizeY.SaveUndoData(Stream);
-	mBlenderPower.SaveUndoData(Stream);
-	mPOVRayPower.SaveUndoData(Stream);
-	mPOVRayFadeDistance.SaveUndoData(Stream);
-	mPOVRayFadePower.SaveUndoData(Stream);
-/*** LPub3D Mod - LPUB meta properties ***/
-	mBlenderCutoffDistance.SaveUndoData(Stream);
-	mBlenderDiffuse.SaveUndoData(Stream);
-	mBlenderSpecular.SaveUndoData(Stream);
+	return mPosition.SaveUndoData(Stream) && mRotation.SaveUndoData(Stream) && mColor.SaveUndoData(Stream) &&
+		   mSpotConeAngle.SaveUndoData(Stream) && mSpotPenumbraAngle.SaveUndoData(Stream) && mPOVRaySpotTightness.SaveUndoData(Stream) &&
+		   mPOVRayAreaGridX.SaveUndoData(Stream) && mPOVRayAreaGridY.SaveUndoData(Stream) && mBlenderRadius.SaveUndoData(Stream) &&
+		   mBlenderAngle.SaveUndoData(Stream) && mAreaSizeX.SaveUndoData(Stream) && mAreaSizeY.SaveUndoData(Stream) &&
+		   mBlenderPower.SaveUndoData(Stream) && mPOVRayPower.SaveUndoData(Stream) && mPOVRayFadeDistance.SaveUndoData(Stream) &&
+		   mPOVRayFadePower.SaveUndoData(Stream) && /*** LPub3D Mod - LPUB meta properties ***/
+		   mBlenderCutoffDistance.SaveUndoData(Stream) &&
+		   mBlenderDiffuse.SaveUndoData(Stream) &&
+		   mBlenderSpecular.SaveUndoData(Stream);
 /*** LPub3D Mod end ***/
 }
 
