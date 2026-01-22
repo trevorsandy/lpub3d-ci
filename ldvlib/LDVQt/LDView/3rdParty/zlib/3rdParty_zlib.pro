@@ -8,8 +8,10 @@ else: \
 TARGET = z
 
 include(../../3rdParty.pri)
-
+win32-arm64-msvc|win32-msvc*: \
 LIB_NAME=$${TARGET}.$${EXT_S}
+else: \
+LIB_NAME=lib$${TARGET}.$${EXT_S}
 
 message("~~~ $${LIB_NAME} LIBRARY $${BUILD} ~~~")
 

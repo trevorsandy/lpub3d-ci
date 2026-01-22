@@ -8,8 +8,9 @@ else: \
 TARGET = tinyxml
 
 include(../../3rdParty.pri)
+LIB_NAME=$${TARGET}.$${EXT_S}
 
-message("~~~ lib$${TARGET}.$${EXT_S} LIBRARY - $${BUILD} ~~~")
+message("~~~ lib$${LIB_NAME} LIBRARY - $${BUILD} ~~~")
 
 DEFINES += TIXML_USE_STL
 
