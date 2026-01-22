@@ -290,8 +290,8 @@ void Downloader::finished()
         if (redirect) {
             url = newUrl;
             m_reply->deleteLater();
-            m_file->open(QIODevice::WriteOnly);
-            m_file->resize(0);
+            if (m_file->open(QIODevice::WriteOnly))
+                m_file->resize(0);
             startRequest(url);
             return;
         }

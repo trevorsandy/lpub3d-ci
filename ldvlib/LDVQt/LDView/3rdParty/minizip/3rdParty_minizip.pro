@@ -4,8 +4,9 @@
 
 TARGET = minizip
 include(../../3rdParty.pri)
+LIB_NAME=$${TARGET}.$${EXT_S}
 
-message("~~~ lib$${TARGET}.$${EXT_S} LIBRARY - $${BUILD} ~~~")
+message("~~~ lib$${LIB_NAME} LIBRARY - $${BUILD} ~~~")
 
 # MacOSX is a flavour of unix.
 macx: DEFINES     += unix

@@ -6,7 +6,7 @@ TARGET = 3ds
 include(../../3rdParty.pri)
 LIB_NAME=$${TARGET}.$${EXT_S}
 
-message("~~~ $${LIB_NAME} LIBRARY - $${BUILD} ~~~")
+message("~~~ lib$${LIB_NAME} LIBRARY - $${BUILD} ~~~")
 
 # Input
 HEADERS += lib3ds.h \

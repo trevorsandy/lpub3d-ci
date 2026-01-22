@@ -91,9 +91,9 @@ DEFINES                 += _GNU_SOURCE
 win32-arm64-msvc|win32-msvc* {
     QMAKE_CXXFLAGS_RELEASE += \
     /FI winsock2.h /FI winsock.h \
-    /wd4675
     QMAKE_LFLAGS += \
     -Wl,--allow-multiple-definition
+    QMAKE_CFLAGS_WARN_ON += -wd"4100" -wd"4244" -wd"4267" -wd"4675"
 }
 
 OBJECTS_DIR       = $${DESTDIR}/.obj
