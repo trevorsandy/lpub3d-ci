@@ -5,7 +5,7 @@
         <project_license>GPL-3.0</project_license>
             <content_rating type="oars-1.1" />
         <name>LPub3D</name>
-        <summary>LPub3D - An LDraw Building Instruction Editor</summary>
+        <summary>LPub3D - An LDraw™ editor for LEGO® style building instructions</summary>
         <description>
             <p>
               LPub3D is an Open Source WYSIWYG editing application for creating
@@ -16,10 +16,10 @@
               file formats. LPub3D is available for free under the GNU Public License v3
               and runs on Windows, Linux and macOS Operating Systems.
               Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-              LeoCAD© 2025 Leonardo Zide and additional third party components.
+              LeoCAD© 2026 Leonardo Zide and additional third party components.
               LEGO® is a trademark of the LEGO Group of companies which does not
               sponsor, authorize or endorse this application.
-              © 2015-2025 Trevor SANDY.
+              © 2015-2026 Trevor SANDY.
             </p>
         </description>
         <categories>
@@ -43,8 +43,10 @@
         </keywords>
         <icon type="remote" width="64" height="64">https://trevorsandy.github.io/lpub3d/assets/icon/64x64/apps/lpub3d.png</icon>
         <url type="bugtracker">https://github.com/trevorsandy/lpub3d/issues/new</url>
-        <url type="help">https://trevorsandy.github.io/lpub3d/</url>
+        <url type="vcs-browser">https://github.com/trevorsandy/lpub3d/</url>
         <url type="homepage">https://trevorsandy.github.io/lpub3d/</url>
+        <url type="help">https://trevorsandy.github.io/lpub3d/</url>
+        <url type="contact">https://github.com/trevorsandy</url>
         <screenshots>
             <screenshot type="default">
                 <caption>Display step page</caption>
