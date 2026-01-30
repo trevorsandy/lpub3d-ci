@@ -84,6 +84,7 @@ if (contains(_PLATFORM_ID, ubuntu)|contains(_PLATFORM_ID, debian)) {
    else: _TARGET_CPU = $$QT_ARCH
 } else {
    msys: _PLATFORM_CODE = win
+   contains(option, flp): _PLATFORM_CODE = kde
    isEmpty(_PLATFORM_CODE): _PLATFORM_CODE = $$(PLATFORM_CODE)
    _TARGET_CPU = $${BUILD_ARCH}
    contains(BUILD_ARCH, UNKNOWN ARCH): _TARGET_CPU =
@@ -98,8 +99,8 @@ isEmpty(_TARGET_CPU):    message("~~~ $${LPUB3D} ERROR: - PLATFORM_CPU NOT DETEC
 api: PACKAGE_CODE: $${BUILD_ARCH}-linux-api
 else: PACKAGE_CODE: linux-$${BUILD_CODE}
 DISTRO_PACKAGE = $${BUILD_CODE}-$${_PLATFORM_CODE}-$${HOST_VERSION}-$${_TARGET_CPU}
-message("~~~ $${LPUB3D} DISTRO_PACKAGE_CODE: ${PACKAGE_CODE} ~~~")
-message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
+message("~~~ $${LPUB3D} DISTRO_PACKAGE_CODE: $${PACKAGE_CODE} ~~~")
+message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $${DISTRO_PACKAGE} ~~~")
 DEFINES += VER_DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 
 MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR
