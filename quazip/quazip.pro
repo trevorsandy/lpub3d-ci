@@ -43,6 +43,7 @@ win32 {
 
     win32-arm64-msvc|win32-msvc* {
         INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+        QMAKE_CFLAGS_WARN_ON += -wd"4100" -wd"4131" -wd"4244"
     } else {
         LIBS += -lz
     }
