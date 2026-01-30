@@ -8,8 +8,8 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 29, 2025
-rem  Copyright (c) 2019 - 2025 by Trevor SANDY
+rem  Last Update: January 30, 2026
+rem  Copyright (c) 2019 - 2026 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -33,7 +33,7 @@ IF "%SCRIPT_RUN_DIR%" EQU "windows" (
 
 IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2022
 IF "%LP3D_QT32VERSION%" == "" SET LP3D_QT32VERSION=5.15.2
-IF "%LP3D_QT64VERSION%" == "" SET LP3D_QT64VERSION=6.9.2
+IF "%LP3D_QT64VERSION%" == "" SET LP3D_QT64VERSION=6.10.2
 IF "%LP3D_QT32VCVERSION%" == "" SET LP3D_QT32VCVERSION=2019
 IF "%LP3D_QT64VCVERSION%" == "" SET LP3D_QT64VCVERSION=2022
 

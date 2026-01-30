@@ -5,8 +5,8 @@ Title Setup a Local LPub3D GitHub actions build environment
 rem This script allows you to locally simulate the GitHub actions that build LPub3D for Windows.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 28, 2025
-rem  Copyright (C) 2017 - 2025 by Trevor SANDY
+rem  Last Update: January 30, 2026
+rem  Copyright (C) 2017 - 2026 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -120,7 +120,7 @@ SET LP3D_VCARM64TOOLSET=v143
 SET LP3D_VCARM64VARSALL_VER=-vcvars_ver=14.4
 rem Set your Qt Version and installed QtMSVC platforms paths
 SET LP3D_QT64VCVERSION=2022
-SET LP3D_QT64VERSION=6.10.1
+SET LP3D_QT64VERSION=6.10.2
 SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QT64VERSION%\msvc%LP3D_QT64VCVERSION%_64\bin
 SET LP3D_QT32VERSION=5.15.2
 SET LP3D_QT32VCVERSION=2019
