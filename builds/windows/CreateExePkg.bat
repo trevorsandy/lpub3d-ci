@@ -2,8 +2,8 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 29, 2025
-rem  Copyright (C) 2015 - 2025 by Trevor SANDY
+rem  Last Update: January 30, 2026
+rem  Copyright (C) 2015 - 2026 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -45,7 +45,7 @@ IF "%LP3D_QT32VCVERSION%" == "" SET LP3D_QT32VCVERSION=2019
 IF "%LP3D_QT64VCVERSION%" == "" SET LP3D_QT64VCVERSION=2022
 rem determine if using openssl or Qt plugin - GEQ 6 EQU Qt plugin
 IF "%LP3D_QT32VERSION%" == "" SET LP3D_QT32VERSION=5.5
-IF "%LP3D_QT64VERSION%" == "" SET LP3D_QT64VERSION=6.0
+IF "%LP3D_QT64VERSION%" == "" SET LP3D_QT64VERSION=6.10
 rem determine MSVC redistributable version - 1900 EQU 2015, 1910-16 EQU 2017, 1920-29 EQU 2019, 1930-44 EQU 2022
 IF "%LP3D_MSC32_VER%" == "" SET LP3D_MSC32_VER=1929
 IF "%LP3D_MSC64_VER%" == "" SET LP3D_MSC64_VER=1944
