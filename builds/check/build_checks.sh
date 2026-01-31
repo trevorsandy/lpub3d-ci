@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 19, 2025
-# Copyright (C) 2018 - 2025 by Trevor SANDY
+# Last Update January 31, 2026
+# Copyright (C) 2018 - 2026 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
 #       BUILD_OPT      = compile   (macOS only)
@@ -53,7 +53,7 @@ function show_settings()
             if test -f "$POVRAY_EXE"; then POVRAY_SETTING="Available - $POVRAY_EXE"; else POVRAY_SETTING="Invalid - $POVRAY_EXE"; unset POVRAY_EXE; fi
         else
             POVRAY_SETTING=Invalid
-        fi        
+        fi
     fi
     echo
     echo "--Buld Check Settings:"
@@ -102,7 +102,7 @@ function ElapsedCheckTime() {
 
 # Move the run log to check path for archiving
 function move_runlog_to_check_path () {
-    [ -n "$1" ] && SUCCESS_MSG=$1 || SUCCESS_MSG=0 
+    [ -n "$1" ] && SUCCESS_MSG=$1 || SUCCESS_MSG=0
     if [[ "$OSTYPE" == "darwin"* ]]; then
         RUN_LOG=$(find "${HOME}/Library/Application Support/LPub3D Software/LPub3D/logs" -type f -name "*Log.txt")
     elif [ -n "${MSYS2}" ]; then
@@ -220,7 +220,8 @@ show_settings
 # Initialize variables
 LP3D_CONSOLE="$([ -n "${MSYS2}" ] && echo --no-console-redirect || echo --no-stdout-log)"
 LP3D_CHECK_STATUS="${LP3D_CHECK_STATUS:-${LP3D_CONSOLE} --version}"
-LP3D_CHECK_PATH="$(realpath "${SOURCE_DIR}")/builds/check"
+LP3D_CHECK_FOLDER="$([ -n "${LP3D_BUNDLED_APP}" ] && echo check || echo builds/check)"
+LP3D_CHECK_PATH="$(realpath "${SOURCE_DIR}")/${LP3D_CHECK_FOLDER})"
 LP3D_CHECK_FILE="${LP3D_CHECK_PATH}/build_checks.mpd"
 LP3D_CHECK_BAT="${LP3D_CHECK_PATH}/build_checks.bat"
 LP3D_CHECK_SH="${LP3D_CHECK_PATH}/build_checks.sh"
@@ -397,12 +398,12 @@ for LP3D_BUILD_CHECK in "${LP3D_BUILD_CHECK_LIST[@]}"; do
         if [ -f "${LP3D_CHECK_PATH}/${LP3D_LOG_FILE}" ]; then
             rm -f "${LP3D_CHECK_PATH}/${LP3D_LOG_FILE}"
         fi
-        
+
         # Cleanup check output
         find "${LP3D_CHECK_PATH}" -depth -iname "LPub3D" -type d -prune -exec rm -rf {} \; >/dev/null 2>&1
         find "${LP3D_CHECK_PATH}" \( -name "std*" -o -name "*.pdf" \) -type f -exec rm -rf {} \; >/dev/null 2>&1
     else
-        echo "ERROR - ${LP3D_LOG_FILE} was not generated."       
+        echo "ERROR - ${LP3D_LOG_FILE} was not generated."
         # move the run log to user folder for output capture
         [ -z "$LP3D_BUNDLED_APP" ] && move_runlog_to_check_path 1 || :
     fi
