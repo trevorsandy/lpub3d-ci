@@ -7,10 +7,8 @@ enum class lcObjectPropertyId;
 class lcModelAction;
 class lcModelActionSelection;
 class lcModelActionObjectEdit;
-class lcModelActionAddPieces;
 class lcModelActionGroupPieces;
 enum class lcModelActionSelectionMode;
-enum class lcModelActionAddPieceSelectionMode;
 enum class lcModelActionObjectEditMode;
 enum class lcModelActionGroupPiecesMode;
 
@@ -295,6 +293,7 @@ public:
 	void InlineSelectedModels();
 
 	lcGroup* AddGroup(const QString& Prefix, lcGroup* Parent);
+	void AddGroup(std::unique_ptr<lcGroup> Group, size_t GroupIndex);
 	lcGroup* GetGroup(const QString& Name, bool CreateIfMissing);
 	void RemoveGroup(lcGroup* Group);
 	void GroupSelection();
@@ -403,7 +402,7 @@ public:
 
 	void AddCamera(lcCamera* camera);
 	bool RemoveCameraIndex(size_t CameraIdx);
-	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved from protected) ***/
+	size_t AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved from protected) ***/
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Build Modification ***/
@@ -481,10 +480,8 @@ protected:
 	void RecordSelectionAction(lcModelActionSelectionMode ModelActionSelectionMode);
 	void RunSelectionAction(const lcModelActionSelection* ModelActionSelection, bool Apply);
 	void BeginObjectEditAction(lcModelActionObjectEditMode ModelActionObjectEditMode, const lcCamera* Camera);
-	void EndObjectEditAction(std::vector<size_t>&& ObjectIndices);
+	void EndObjectEditAction(std::vector<size_t>&& ObjectIndices = std::vector<size_t>(), std::vector<size_t>&& GroupIndices = std::vector<size_t>());
 	void RunObjectEditAction(const lcModelActionObjectEdit* ModelActionObjectEdit, bool Apply);
-	void RecordAddPiecesAction(const std::vector<lcInsertPieceInfo>& PieceInfoTransforms, lcModelActionAddPieceSelectionMode SelectionMode);
-	void RunAddPiecesAction(const lcModelActionAddPieces* ModelActionAddPieces, bool Apply);
 	void RecordGroupPiecesAction(lcModelActionGroupPiecesMode Mode, const QString& GroupName);
 	void RunGroupPiecesAction(const lcModelActionGroupPieces* ModelActionGroupPieces, bool Apply);
 
@@ -510,7 +507,7 @@ protected:
 
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
-//	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
+//	size_t AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
 
 	lcPOVRayOptions mPOVRayOptions;
 	lcModelProperties mProperties;

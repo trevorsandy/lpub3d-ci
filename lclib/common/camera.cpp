@@ -1062,9 +1062,10 @@ void lcCamera::RemoveKeyFrames()
 	mUpVector.RemoveAllKeys();
 }
 
-bool lcCamera::SaveUndoData(QDataStream& Stream) const
+bool lcCamera::SaveUndoData(QDataStream& Stream, const lcModel* Model) const
 {
 	static_assert(sizeof(lcCamera) == 240);
+	Q_UNUSED(Model);
 	
 	Stream << m_fovy;
 	Stream << m_zNear;
@@ -1075,8 +1076,10 @@ bool lcCamera::SaveUndoData(QDataStream& Stream) const
 	return mPosition.SaveUndoData(Stream) && mTargetPosition.SaveUndoData(Stream) && mUpVector.SaveUndoData(Stream);
 }
 
-bool lcCamera::LoadUndoData(QDataStream& Stream)
+bool lcCamera::LoadUndoData(QDataStream& Stream, const lcModel* Model)
 {
+	Q_UNUSED(Model);
+	
 	Stream >> m_fovy;
 	Stream >> m_zNear;
 	Stream >> m_zFar;
