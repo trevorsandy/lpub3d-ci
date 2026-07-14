@@ -1923,11 +1923,9 @@ void lcModel::SubModelAddBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::v
 
 void lcModel::RecordSelectionAction(lcModelActionSelectionMode ModelActionSelectionMode)
 {
-	std::unique_ptr<lcModelActionSelection> ModelActionSelection = std::make_unique<lcModelActionSelection>(ModelActionSelectionMode);
+	std::unique_ptr<lcModelActionSelection> ModelActionSelection = std::make_unique<lcModelActionSelection>(ModelActionSelectionMode, mCurrentStep);
 
 	ModelActionSelection->SetSelection(mPieces, mCameras, mLights);
-
-	RunSelectionAction(ModelActionSelection.get(), true);
 
 	mActionSequence.emplace_back(std::move(ModelActionSelection));
 }
@@ -1946,7 +1944,25 @@ void lcModel::RunSelectionAction(const lcModelActionSelection* ModelActionSelect
 
 	switch (ModelActionSelection->GetMode())
 	{
-	case lcModelActionSelectionMode::Clear:
+	case lcModelActionSelectionMode::ClearSelection:
+		if (Apply)
+			DeselectAllObjects();
+		else
+			LoadSelection();
+		break;
+		
+	case lcModelActionSelectionMode::SelectAllPieces:
+		if (Apply)
+		{
+			for (const std::unique_ptr<lcPiece>& Piece : mPieces)
+				if (Piece->IsVisible(ModelActionSelection->GetStep()))
+					Piece->SetSelected(true);
+		}
+		else
+			LoadSelection();
+		break;
+		
+	case lcModelActionSelectionMode::InvertPieceSelection:
 		if (Apply)
 			ClearSelection(true);
 		else
@@ -2012,8 +2028,6 @@ void lcModel::RunObjectEditAction(const lcModelActionObjectEdit* ModelActionObje
 void lcModel::RecordGroupPiecesAction(lcModelActionGroupPiecesMode Mode, const QString& GroupName)
 {
 	std::unique_ptr<lcModelActionGroupPieces> ModelActionGroupPieces = std::make_unique<lcModelActionGroupPieces>(Mode, GroupName);
-
-	RunGroupPiecesAction(ModelActionGroupPieces.get(), true);
 
 	mActionSequence.emplace_back(std::move(ModelActionGroupPieces));
 }
@@ -2090,12 +2104,18 @@ void lcModel::RunGroupPiecesAction(const lcModelActionGroupPieces* ModelActionGr
 	gMainWindow->UpdateSelectedObjects(true);
 }
 
-void lcModel::PerformActionSequence(const std::vector<std::unique_ptr<lcModelAction>>& ActionSequence, bool Apply)
+void lcModel::RunActionSequence(const std::vector<std::unique_ptr<lcModelAction>>& ActionSequence, bool Apply)
 {
-	auto PerformAction=[this](const lcModelAction* ModelAction, bool Apply)
+	bool SelectionChanged = false;
+	
+	auto RunAction=[this, &SelectionChanged](const lcModelAction* ModelAction, bool Apply)
 	{
 		if (const lcModelActionSelection* ModelActionSelection = dynamic_cast<const lcModelActionSelection*>(ModelAction))
+		{
 			RunSelectionAction(ModelActionSelection, Apply);
+			
+			SelectionChanged = true;
+		}
 		else if (const lcModelActionObjectEdit* ModelActionObjectEdit = dynamic_cast<const lcModelActionObjectEdit*>(ModelAction))
 			RunObjectEditAction(ModelActionObjectEdit, Apply);
 		else if (const lcModelActionGroupPieces* ModelActionGroupPieces = dynamic_cast<const lcModelActionGroupPieces*>(ModelAction))
@@ -2105,13 +2125,16 @@ void lcModel::PerformActionSequence(const std::vector<std::unique_ptr<lcModelAct
 	if (Apply)
 	{
 		for (auto ModelAction = ActionSequence.begin(); ModelAction != ActionSequence.end(); ++ModelAction)
-			PerformAction(ModelAction->get(), true);
+			RunAction(ModelAction->get(), true);
 	}
 	else
 	{
 		for (auto ModelAction = ActionSequence.rbegin(); ModelAction != ActionSequence.rend(); ++ModelAction)
-			PerformAction(ModelAction->get(), false);
+			RunAction(ModelAction->get(), false);
 	}
+	
+	if (SelectionChanged)
+		gMainWindow->UpdateSelectedObjects(true);
 
 	UpdateAllViews();
 }
@@ -2123,6 +2146,11 @@ void lcModel::BeginActionSequence()
 
 void lcModel::EndActionSequence(const QString& Description)
 {
+	if (mActionSequence.empty())
+		return;
+	
+	RunActionSequence(mActionSequence, true);
+
 	std::unique_ptr<lcModelHistoryEntry> ModelHistoryEntry = std::make_unique<lcModelHistoryEntry>(lcModelHistoryEntry());
 
 	ModelHistoryEntry->Description = Description;
@@ -2154,7 +2182,7 @@ void lcModel::DiscardActionSequence()
 
 void lcModel::RevertActionSequence()
 {
-	PerformActionSequence(mActionSequence, false);
+	RunActionSequence(mActionSequence, false);
 
 	mActionSequence.clear();
 }
@@ -2195,7 +2223,7 @@ void lcModel::LoadCheckPoint(lcModelHistoryEntry* CheckPoint, bool Apply)
 {
 	if (!CheckPoint->ModelActions.empty())
 	{
-		PerformActionSequence(CheckPoint->ModelActions, Apply);
+		RunActionSequence(CheckPoint->ModelActions, Apply);
 
 		return;
 	}
@@ -2578,7 +2606,8 @@ void lcModel::ShowEditGroupsDialog()
 
 	if (Modified)
 	{
-		ClearSelection(true);
+		DeselectAllObjects();
+		gMainWindow->UpdateSelectedObjects(true);
 		SaveCheckpoint(tr("Editing Groups"));
 	}
 }
@@ -4886,35 +4915,68 @@ std::vector<lcObject*> lcModel::GetSelectionModePieces(const lcPiece* SelectedPi
 	return Pieces;
 }
 
-void lcModel::ClearSelection(bool UpdateInterface)
+void lcModel::ClearSelection()
 {
-/*** LPub3D Mod - Selected Parts ***/
-	bool WasSelected = false;
-/*** LPub3D Mod end ***/
+	if (!AnyObjectsSelected())
+		return;
 
-/*** LPub3D Mod - Selected Parts ***/
+	BeginActionSequence();
+	RecordSelectionAction(lcModelActionSelectionMode::ClearSelection);
+	EndActionSequence(tr("Selection"));
+}
+
+void lcModel::SelectAllPieces()
+{
+	bool UnselectedPieces = false;
+	
 	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
 	{
-		if (!WasSelected && Piece->IsSelected())
-			WasSelected = true;
-		Piece->SetSelected(false);
+		if (Piece->IsVisible(mCurrentStep) && !Piece->IsSelected())
+		{
+			UnselectedPieces = true;
+			break;
+		}
 	}
-/*** LPub3D Mod end ***/
+	
+	if (!UnselectedPieces)
+		return;
+	
+	BeginActionSequence();
+	RecordSelectionAction(lcModelActionSelectionMode::SelectAllPieces);
+	EndActionSequence(tr("Selection"));
+}
 
+void lcModel::InvertPieceSelection()
+{
+	bool VisiblePieces = false;
+	
+	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
+	{
+		if (Piece->IsVisible(mCurrentStep))
+		{
+			VisiblePieces = true;
+			break;
+		}
+	}
+	
+	if (!VisiblePieces)
+		return;
+
+	BeginActionSequence();
+	RecordSelectionAction(lcModelActionSelectionMode::InvertPieceSelection);
+	EndActionSequence(tr("Selection"));
+}
+
+void lcModel::DeselectAllObjects()
+{
+	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
+		Piece->SetSelected(false);
+	
 	for (const std::unique_ptr<lcCamera>& Camera : mCameras)
 		Camera->SetSelected(false);
-
+	
 	for (const std::unique_ptr<lcLight>& Light : mLights)
 		Light->SetSelected(false);
-
-/*** LPub3D Mod - Selected Parts ***/
-	if (UpdateInterface || WasSelected)
-	{
-		gMainWindow->UpdateSelectedObjects(true, WasSelected ? VIEWER_CLR : VIEWER_LINE);
-		if (UpdateInterface)
-			UpdateAllViews();
-/*** LPub3D Mod end ***/
-	}
 }
 
 void lcModel::SelectGroup(lcGroup* TopGroup, bool Select)
@@ -4983,7 +5045,8 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 
 void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool EnableSelectionMode)
 {
-	ClearSelection(false);
+	DeselectAllObjects();
+
 /*** LPub3D Mod - Selected Parts ***/
 	bool IsPiece = false;
 /*** LPub3D Mod end ***/
@@ -5022,7 +5085,7 @@ void lcModel::ClearSelectionAndSetFocus(const lcObjectSection& ObjectSection, bo
 
 void lcModel::SetSelectionAndFocus(const std::vector<lcObject*>& Selection, lcObject* Focus, quint32 Section, bool EnableSelectionMode)
 {
-	ClearSelection(false);
+	DeselectAllObjects();
 
 	if (Focus)
 	{
@@ -5165,31 +5228,6 @@ void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
 /*** LPub3D Mod - Selected Parts ***/
 	// We return VIEWER_MOD to ensure remaining pieces are updated, otherwise we return VIEWER_LINE
 	gMainWindow->UpdateSelectedObjects(true, PieceRemoved ? VIEWER_MOD : VIEWER_LINE);
-/*** LPub3D Mod end ***/
-	UpdateAllViews();
-}
-
-void lcModel::SelectAllPieces()
-{
-	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
-		if (Piece->IsVisible(mCurrentStep))
-			Piece->SetSelected(true);
-
-	if (!mIsPreview)
-/*** LPub3D Mod - Build Modification - preview widget ***/
-		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
-/*** LPub3D Mod end ***/
-	UpdateAllViews();
-}
-
-void lcModel::InvertSelection()
-{
-	for (const std::unique_ptr<lcPiece>& Piece : mPieces)
-		if (Piece->IsVisible(mCurrentStep))
-			Piece->SetSelected(!Piece->IsSelected());
-
-/*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
 /*** LPub3D Mod end ***/
 	UpdateAllViews();
 }

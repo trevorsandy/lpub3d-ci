@@ -364,16 +364,16 @@ public:
 	void GetSelectionInformation(int* Flags, std::vector<lcObject*>& Selection, lcObject** Focus) const;
 	std::vector<lcObject*> GetSelectionModePieces(const lcPiece* SelectedPiece) const;
 
+	void ClearSelection();
+	void SelectAllPieces();
+	void InvertPieceSelection();
 	void FocusOrDeselectObject(const lcObjectSection& ObjectSection);
-	void ClearSelection(bool UpdateInterface);
 	void ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool EnableSelectionMode);
 	void ClearSelectionAndSetFocus(const lcObjectSection& ObjectSection, bool EnableSelectionMode);
 	void SetSelectionAndFocus(const std::vector<lcObject*>& Selection, lcObject* Focus, quint32 Section, bool EnableSelectionMode);
 	void AddToSelection(const std::vector<lcObject*>& Objects, bool EnableSelectionMode, bool UpdateInterface);
 	void RemoveFromSelection(const std::vector<lcObject*>& Objects);
 	void RemoveFromSelection(const lcObjectSection& ObjectSection);
-	void SelectAllPieces();
-	void InvertSelection();
 
 	void HideSelectedPieces();
 	void HideUnselectedPieces();
@@ -485,7 +485,7 @@ protected:
 	void RecordGroupPiecesAction(lcModelActionGroupPiecesMode Mode, const QString& GroupName);
 	void RunGroupPiecesAction(const lcModelActionGroupPieces* ModelActionGroupPieces, bool Apply);
 
-	void PerformActionSequence(const std::vector<std::unique_ptr<lcModelAction>>& ActionSequence, bool Apply);
+	void RunActionSequence(const std::vector<std::unique_ptr<lcModelAction>>& ActionSequence, bool Apply);
 	void BeginActionSequence();
 	void EndActionSequence(const QString& Description);
 	void DiscardActionSequence();
@@ -505,6 +505,7 @@ protected:
 	bool mLPubHighlight;
 /*** LPub3D Mod end ***/
 
+	void DeselectAllObjects();
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
 //	size_t AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
