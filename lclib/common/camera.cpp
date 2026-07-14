@@ -1064,6 +1064,8 @@ void lcCamera::RemoveKeyFrames()
 
 bool lcCamera::SaveUndoData(QDataStream& Stream) const
 {
+	static_assert(sizeof(lcCamera) == 240);
+	
 	Stream << m_fovy;
 	Stream << m_zNear;
 	Stream << m_zFar;
