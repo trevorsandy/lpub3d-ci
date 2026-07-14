@@ -2443,7 +2443,7 @@ void lcModel::GroupSelection()
 		return;
 	}
 
-	lcGroupDialog Dialog(gMainWindow, GetGroupName(tr("Group #")));
+	lcGroupDialog Dialog(gMainWindow, GetGroupName(tr("Group #")), mGroups);
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
